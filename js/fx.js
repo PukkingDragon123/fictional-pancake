@@ -1,0 +1,140 @@
+// ---- Visual effects: particles, floaters, camera, cinematics ---------------
+const FX = (() => {
+  const particles = [];
+  const floaters = [];
+  const confetti = [];
+  const cam = { x: 320, y: 180, zoom: 1, tx: 320, ty: 180, tzoom: 1, shake: 0, shakeX: 0, shakeY: 0, punch: 0 };
+  const cine = {
+    letterbox: 0, tLetterbox: 0,   // 0..1
+    flash: 0, flashColor: '#fff',
+    slowmo: 1, tSlowmo: 1,
+    vignette: 0, tVignette: 0,
+    freeze: 0,
+    titles: [],   // {text, sub, t, dur, color, size, style}
+    desat: 0, tDesat: 0,
+    hitstop: 0,
+  };
+
+  function spawn(o) { particles.push(Object.assign({ x: 0, y: 0, vx: 0, vy: 0, life: 1, maxLife: 1, size: 2, color: '#fff', gravity: 0, drag: 0, type: 'rect', rot: 0, vr: 0, layer: 0 }, o, { maxLife: o.life || 1 })); }
+  function burst(x, y, n, opts = {}) {
+    for (let i = 0; i < n; i++) {
+      const a = U.rand(0, TAU), sp = U.rand(opts.speedMin || 30, opts.speed || 120);
+      spawn({ x, y, vx: Math.cos(a) * sp + (opts.vx || 0), vy: Math.sin(a) * sp + (opts.vy || 0), life: U.rand(0.3, opts.life || 0.8), size: U.rand(1, opts.size || 3), color: Array.isArray(opts.color) ? U.pick(opts.color) : (opts.color || '#fff'), gravity: opts.gravity ?? 200, drag: opts.drag || 1, type: opts.type || 'rect', layer: opts.layer || 0 });
+    }
+  }
+  function dust(x, y, n = 8, color = '#c9b899') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y, vx: U.rand(-60, 60), vy: U.rand(-40, -5), life: U.rand(0.4, 0.9), size: U.rand(2, 5), color, gravity: -20, drag: 2, type: 'circle' }); }
+  function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
+  function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
+  function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
+  function confettiBurst(x, y, n = 60) { for (let i = 0; i < n; i++) confetti.push({ x, y, vx: U.rand(-160, 160), vy: U.rand(-320, -80), life: U.rand(1.5, 3), rot: U.rand(0, TAU), vr: U.rand(-8, 8), w: U.rand(3, 6), h: U.rand(2, 4), color: U.pick(['#ff5c8a', '#ffd23f', '#3fe0ff', '#7dff3f', '#c77dff', '#ff9a3f']) }); }
+
+  function shake(a) { cam.shake = Math.min(20, cam.shake + a); }
+  function punch(a = 0.08) { cam.punch = Math.min(0.3, cam.punch + a); }
+  function flash(color = '#ffffff', a = 0.8) { cine.flash = Math.max(cine.flash, a); cine.flashColor = color; }
+  function title(text, o = {}) { cine.titles.push({ text, sub: o.sub || '', t: 0, dur: o.dur || 2, color: o.color || '#fff', size: o.size || 26, style: o.style || 'slam', y: o.y ?? 0.42, delay: o.delay || 0, shakeAmt: o.shake || 0 }); }
+  function setSlowmo(v, instant) { cine.tSlowmo = v; if (instant) cine.slowmo = v; }
+  function letterbox(on) { cine.tLetterbox = on ? 1 : 0; }
+  function vignette(v) { cine.tVignette = v; }
+  function freeze(t) { cine.freeze = Math.max(cine.freeze, t); }
+  function hitstop(t) { cine.hitstop = Math.max(cine.hitstop, t); }
+
+  // dt = real seconds
+  function update(dt) {
+    // camera smoothing
+    cam.x = U.lerp(cam.x, cam.tx, 1 - Math.pow(0.001, dt));
+    cam.y = U.lerp(cam.y, cam.ty, 1 - Math.pow(0.001, dt));
+    cam.zoom = U.lerp(cam.zoom, cam.tzoom * (1 + cam.punch), 1 - Math.pow(0.002, dt));
+    cam.punch *= Math.pow(0.01, dt);
+    cam.shake *= Math.pow(0.02, dt);
+    if (cam.shake < 0.05) cam.shake = 0;
+    cam.shakeX = U.rand(-1, 1) * cam.shake; cam.shakeY = U.rand(-1, 1) * cam.shake;
+    // cinema
+    cine.letterbox = U.lerp(cine.letterbox, cine.tLetterbox, 1 - Math.pow(0.02, dt));
+    cine.flash = Math.max(0, cine.flash - dt * 2.5);
+    cine.slowmo = U.lerp(cine.slowmo, cine.tSlowmo, 1 - Math.pow(0.01, dt));
+    cine.vignette = U.lerp(cine.vignette, cine.tVignette, 1 - Math.pow(0.02, dt));
+    cine.desat = U.lerp(cine.desat, cine.tDesat, 1 - Math.pow(0.02, dt));
+    cine.freeze = Math.max(0, cine.freeze - dt);
+    cine.hitstop = Math.max(0, cine.hitstop - dt);
+    for (let i = cine.titles.length - 1; i >= 0; i--) { const t = cine.titles[i]; if (t.delay > 0) { t.delay -= dt; continue; } t.t += dt; if (t.t > t.dur) cine.titles.splice(i, 1); }
+  }
+  // dt = game (possibly slowed) seconds
+  function updateWorld(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life -= dt; if (p.life <= 0) { particles.splice(i, 1); continue; }
+      p.vy += p.gravity * dt; const d = Math.max(0, 1 - p.drag * dt); p.vx *= d; p.vy *= d;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+    }
+    for (let i = floaters.length - 1; i >= 0; i--) { const f = floaters[i]; f.life -= dt; if (f.life <= 0) { floaters.splice(i, 1); continue; } f.y += f.vy * dt; f.x += f.vx * dt; f.vy *= Math.max(0, 1 - 2 * dt); }
+    for (let i = confetti.length - 1; i >= 0; i--) { const c = confetti[i]; c.life -= dt; if (c.life <= 0) { confetti.splice(i, 1); continue; } c.vy += 300 * dt; c.vx *= Math.max(0, 1 - 1.5 * dt); c.vy *= Math.max(0, 1 - 1.5 * dt); c.x += c.vx * dt; c.y += c.vy * dt; c.rot += c.vr * dt; }
+  }
+
+  function drawParticles(g, layer = 0, worldOnly = false) {
+    for (const p of particles) {
+      if (p.layer !== layer) continue;
+      const a = U.clamp(p.life / p.maxLife, 0, 1);
+      g.globalAlpha = a;
+      g.fillStyle = p.color;
+      const s = p.size;
+      if (p.type === 'circle') { g.beginPath(); g.arc(p.x, p.y, s, 0, TAU); g.fill(); }
+      else if (p.type === 'heart') { g.fillRect(p.x - s, p.y - s / 2, s, s); g.fillRect(p.x, p.y - s / 2, s, s); g.fillRect(p.x - s / 2, p.y + s / 2, s, s / 2); g.fillRect(p.x - s, p.y, s * 2, s / 2); }
+      else if (p.type === 'star') { g.fillRect(p.x - s, p.y - 1, s * 2, 2); g.fillRect(p.x - 1, p.y - s, 2, s * 2); }
+      else if (p.type === 'leaf') { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.fillRect(-s, -s / 3, s * 2, s / 1.5); g.restore(); }
+      else g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), Math.round(s), Math.round(s));
+    }
+    g.globalAlpha = 1;
+  }
+  function drawFloaters(g, world) {
+    for (const f of floaters) {
+      if (f.world !== world) continue;
+      const a = U.clamp(f.life / f.maxLife * 2, 0, 1);
+      g.globalAlpha = a;
+      g.font = `bold ${f.size}px "Press Start 2P", monospace`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      if (f.outline) { g.lineWidth = 3; g.strokeStyle = '#1b1210'; g.strokeText(f.text, Math.round(f.x), Math.round(f.y)); }
+      g.fillStyle = f.color; g.fillText(f.text, Math.round(f.x), Math.round(f.y));
+    }
+    g.globalAlpha = 1;
+  }
+  function drawConfetti(g) {
+    for (const c of confetti) {
+      g.save(); g.translate(c.x, c.y); g.rotate(c.rot); g.fillStyle = c.color; g.globalAlpha = U.clamp(c.life, 0, 1); g.fillRect(-c.w / 2, -c.h / 2, c.w, c.h); g.restore();
+    }
+    g.globalAlpha = 1;
+  }
+  // Screen-space cinematic overlay
+  function drawCinema(g, W, H) {
+    if (cine.vignette > 0.01) {
+      const grd = g.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.85);
+      grd.addColorStop(0, 'rgba(0,0,0,0)'); grd.addColorStop(1, `rgba(0,0,0,${0.85 * cine.vignette})`);
+      g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    }
+    if (cine.desat > 0.01) { g.fillStyle = `rgba(90,90,110,${0.35 * cine.desat})`; g.fillRect(0, 0, W, H); }
+    if (cine.letterbox > 0.01) {
+      const h = Math.round(H * 0.11 * cine.letterbox);
+      g.fillStyle = '#000'; g.fillRect(0, 0, W, h); g.fillRect(0, H - h, W, h);
+    }
+    for (const t of cine.titles) {
+      if (t.delay > 0) continue;
+      const p = t.t / t.dur;
+      let scale = 1, alpha = 1, dx = 0;
+      if (t.style === 'slam') { const q = Math.min(1, t.t / 0.18); scale = U.lerp(2.6, 1, U.easeOut(q)); alpha = q; if (p > 0.8) alpha = 1 - (p - 0.8) / 0.2; }
+      else if (t.style === 'slide') { const q = Math.min(1, t.t / 0.3); dx = U.lerp(-W, 0, U.easeOut(q)); if (p > 0.8) dx = U.lerp(0, W, U.easeIn((p - 0.8) / 0.2)); }
+      else if (t.style === 'fade') { alpha = Math.min(1, t.t / 0.4) * (p > 0.75 ? 1 - (p - 0.75) / 0.25 : 1); }
+      const y = H * t.y;
+      g.save(); g.globalAlpha = U.clamp(alpha, 0, 1);
+      g.translate(W / 2 + dx + U.rand(-1, 1) * t.shakeAmt, y + U.rand(-1, 1) * t.shakeAmt); g.scale(scale, scale);
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = `bold ${t.size}px "Press Start 2P", monospace`;
+      g.lineWidth = 6; g.strokeStyle = '#1b1210'; g.strokeText(t.text, 0, 0);
+      g.fillStyle = t.color; g.fillText(t.text, 0, 0);
+      if (t.sub) { g.font = `bold ${Math.round(t.size * 0.42)}px "Press Start 2P", monospace`; g.lineWidth = 4; g.strokeText(t.sub, 0, t.size * 0.9); g.fillStyle = '#fff'; g.fillText(t.sub, 0, t.size * 0.9); }
+      g.restore();
+    }
+    if (cine.flash > 0.01) { g.fillStyle = cine.flashColor; g.globalAlpha = Math.min(1, cine.flash); g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+  }
+  function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; }
+
+  return { cam, cine, spawn, burst, dust, hearts, sparkle, float, confettiBurst, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
+})();

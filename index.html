@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wombat Cube Tycoon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><rect width=%2216%22 height=%2216%22 fill=%22%238a5a2b%22/><rect width=%2216%22 height=%223%22 fill=%22%23b07a45%22/></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <header id="hud">
+    <div class="hud-left">
+      <div class="stat money" title="Money"><span class="ico">💰</span><span id="hud-money">$0</span><span id="hud-income" class="sub"></span></div>
+      <div class="stat" title="Cubes in storage"><span class="ico">🟫</span><span id="hud-cubes">0</span></div>
+      <div class="stat sp" title="Skill points"><span class="ico">⭐</span><span id="hud-sp">0</span></div>
+      <div class="stat" title="Best tower"><span class="ico">🏆</span><span id="hud-record">0</span></div>
+    </div>
+    <div class="hud-center">
+      <button class="tab active" data-mode="pen">🐾 PEN</button>
+      <button class="tab" data-mode="tower">🏗️ TOWER</button>
+    </div>
+    <div class="hud-right">
+      <button id="btn-shop" class="hbtn">🛒 SHOP</button>
+      <button id="btn-skills" class="hbtn">🌳 SKILLS <span id="sp-badge" class="badge" hidden>0</span></button>
+      <button id="btn-help" class="hbtn">?</button>
+      <button id="btn-mute" class="hbtn">🔊</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <canvas id="game" width="640" height="360"></canvas>
+    <div id="tooltip" hidden></div>
+    <div id="tower-overlay" hidden>
+      <div id="run-start" class="center-card">
+        <h2>STACK RUN</h2>
+        <p id="run-start-info">Bring cubes. Stack them. Don't let it fall.</p>
+        <button id="btn-start-run" class="big">START RUN</button>
+        <p class="hint">Move: crane swings automatically. Click / Space to drop. 1-9 to pick cube. Cash out any time.</p>
+      </div>
+      <div id="run-hud" hidden>
+        <div class="run-stat"><span class="lbl">HEIGHT</span><span id="run-height">0</span></div>
+        <div class="run-stat"><span class="lbl">CROWD</span><span id="run-crowd">0</span></div>
+        <div class="run-stat"><span class="lbl">STACK POWER</span><span id="run-power">x1.00</span></div>
+        <div class="run-stat"><span class="lbl">EARNED</span><span id="run-earned">$0</span></div>
+        <div class="run-stat lives"><span class="lbl">LIVES</span><span id="run-lives">❤❤❤</span></div>
+        <div id="run-perks" class="run-perks"></div>
+        <button id="btn-cashout" class="cash">💵 CASH OUT</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="bar">
+    <div id="pen-bar" class="barrow">
+      <div class="hotlabel">FEED <span class="hint">(select food, then click a wombat • no food = pet)</span></div>
+      <div id="food-hotbar" class="hotbar"></div>
+      <div id="trough-ctl" hidden><span class="hotlabel">AUTO TROUGH</span><select id="trough-food"></select></div>
+    </div>
+    <div id="tower-bar" class="barrow" hidden>
+      <div class="hotlabel">CUBES <span class="hint">(1-9 select • Space/click drop)</span></div>
+      <div id="cube-hotbar" class="hotbar"></div>
+    </div>
+  </footer>
+
+  <!-- Panels -->
+  <div id="panel-shop" class="panel" hidden>
+    <div class="panel-head"><h2>🛒 WOMBAT SUPPLY CO.</h2><button class="close" data-close="panel-shop">✕</button></div>
+    <div class="tabs" id="shop-tabs">
+      <button data-tab="food" class="active">Food</button><button data-tab="wombats">Wombats</button><button data-tab="facilities">Facilities</button><button data-tab="toys">Toys</button><button data-tab="decor">Decor</button>
+    </div>
+    <div id="shop-body" class="panel-body"></div>
+  </div>
+  <div id="panel-skills" class="panel" hidden>
+    <div class="panel-head"><h2>🌳 SKILL TREE <span id="skills-sp" class="pill"></span></h2><button class="close" data-close="panel-skills">✕</button></div>
+    <div id="skills-body" class="panel-body skills"></div>
+  </div>
+  <div id="panel-help" class="panel" hidden>
+    <div class="panel-head"><h2>? HOW TO TYCOON</h2><button class="close" data-close="panel-help">✕</button></div>
+    <div class="panel-body help">
+      <ol>
+        <li><b>Feed</b> wombats (select food, click wombat). They digest, then poop a <b>cube</b>. Different foods make different cubes.</li>
+        <li><b>Pet</b> them (click with no food selected) to speed digestion and raise happiness. Happy wombats poop <b>premium</b> cubes.</li>
+        <li>Buy <b>toys</b> and <b>decorations</b> to keep the pen happy and attract bigger crowds.</li>
+        <li>Go to the <b>TOWER</b>. Start a run and drop cubes onto the platform. The higher the tower, the bigger the crowd and the money.</li>
+        <li>Every 5 settled cubes you pick a <b>perk</b>. Every 10, your <b>Stack Power</b> grows. Cubes that fall off cost a life. Lose all lives = collapse.</li>
+        <li><b>Cash out</b> to bank a bonus. Runs earn <b>skill points</b> for the permanent skill tree.</li>
+      </ol>
+      <p class="hint">Cube guide: Iron = heavy base • Sticky = glue • Feather = light top • Slab = new floor • Ice/Gold = high risk, high pay • Bouncy = chaos money.</p>
+      <div class="row"><button id="btn-music" class="hbtn">🎵 Music</button><button id="btn-reset" class="hbtn danger">Reset Save</button></div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" hidden>
+    <div id="modal-card" class="modal-card"></div>
+  </div>
+  <div id="toasts"></div>
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/data.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/pen.js"></script>
+<script src="js/tower.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
