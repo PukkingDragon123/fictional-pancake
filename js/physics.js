@@ -256,8 +256,10 @@ const Physics = (() => {
       this.splitImpulse = true;
       this.maxFall = 0; // clamp downward speed (0 = off)
       this.restDamping = 0.93;
-      this.settleDamp = 0.8;   // damping applied each step to once-settled bodies moving slowly
-      this.settleSpeed = 60;    // below this speed a settled body is damped
+      this.settleDamp = 0.86;   // per-step damping for a supported body that is barely moving
+      this.settleSpeed = 14;    // speed below which that damping applies
+      this.restSpeed = 8;       // speed below which a supported body counts as at rest
+      this.restSpin = 0.15;
       this.velBias = false; // legacy: bias inside velocity solve
     }
     add(b) { this.bodies.push(b); return b; }
@@ -318,12 +320,18 @@ const Physics = (() => {
       for (const b of bodies) {
         if (b.invMass === 0) continue;
         b.x += (b.vx + b.pvx) * dt; b.y += (b.vy + b.pvy) * dt; b.angle += (b.w + b.pw) * dt;
-        if (Math.abs(b.vx) < 3 && Math.abs(b.vy) < 3 && Math.abs(b.w) < 0.08 && b.contacts > 0) b.restTime += dt; else b.restTime = 0;
+        const sp = Math.hypot(b.vx, b.vy);
+        // A supported body that is barely moving is treated as at rest. Solver
+        // jitter in a tall stack sits around a few px/s, well under anything the
+        // eye can see, so the threshold has to clear it or nothing ever settles.
+        if (b.contacts > 0 && sp < this.restSpeed && Math.abs(b.w) < this.restSpin) b.restTime += dt; else b.restTime = 0;
         if (b.restTime > 0.4) b.settledOnce = true;
-        // rest damping: bleeds off solver jitter in tall stacks
         if (this.restDamping < 1 && b.restTime > 0.3) { b.vx *= this.restDamping; b.vy *= this.restDamping; b.w *= this.restDamping; }
-        // settled damping: once a body has come to rest, slow ripples die quickly; hard hits still move it
-        if (b.settledOnce && this.settleDamp < 1 && b.contacts > 0) { const sp = Math.hypot(b.vx, b.vy) + Math.abs(b.w) * 10; if (sp < this.settleSpeed) { b.vx *= this.settleDamp; b.vy *= this.settleDamp; b.w *= this.settleDamp; } }
+        // Bleed off that jitter so stacks go quiet. The gate is low enough that a
+        // cube which has actually begun to topple keeps its momentum.
+        if (this.settleDamp < 1 && b.contacts > 0 && sp < this.settleSpeed && Math.abs(b.w) < 0.25) {
+          b.vx *= this.settleDamp; b.vy *= this.settleDamp; b.w *= this.settleDamp;
+        }
       }
     }
   }

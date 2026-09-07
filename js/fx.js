@@ -3,6 +3,7 @@ const FX = (() => {
   const particles = [];
   const floaters = [];
   const confetti = [];
+  const rings = [];
   const cam = { x: 320, y: 180, zoom: 1, tx: 320, ty: 180, tzoom: 1, shake: 0, shakeX: 0, shakeY: 0, punch: 0 };
   const cine = {
     letterbox: 0, tLetterbox: 0,   // 0..1
@@ -28,6 +29,7 @@ const FX = (() => {
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
   function confettiBurst(x, y, n = 60) { for (let i = 0; i < n; i++) confetti.push({ x, y, vx: U.rand(-160, 160), vy: U.rand(-320, -80), life: U.rand(1.5, 3), rot: U.rand(0, TAU), vr: U.rand(-8, 8), w: U.rand(3, 6), h: U.rand(2, 4), color: U.pick(['#ff5c8a', '#ffd23f', '#3fe0ff', '#7dff3f', '#c77dff', '#ff9a3f']) }); }
 
+  function ring(x, y, r, color) { rings.push({ x, y, r0: r * 0.3, r1: r, life: 0.35, maxLife: 0.35, color: color || 'rgba(255,248,230,0.7)' }); }
   function shake(a) { cam.shake = Math.min(20, cam.shake + a); }
   function punch(a = 0.08) { cam.punch = Math.min(0.3, cam.punch + a); }
   function flash(color = '#ffffff', a = 0.8) { cine.flash = Math.max(cine.flash, a); cine.flashColor = color; }
@@ -67,10 +69,12 @@ const FX = (() => {
       p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
     }
     for (let i = floaters.length - 1; i >= 0; i--) { const f = floaters[i]; f.life -= dt; if (f.life <= 0) { floaters.splice(i, 1); continue; } f.y += f.vy * dt; f.x += f.vx * dt; f.vy *= Math.max(0, 1 - 2 * dt); }
+    for (let i = rings.length - 1; i >= 0; i--) { const r = rings[i]; r.life -= dt; if (r.life <= 0) rings.splice(i, 1); }
     for (let i = confetti.length - 1; i >= 0; i--) { const c = confetti[i]; c.life -= dt; if (c.life <= 0) { confetti.splice(i, 1); continue; } c.vy += 300 * dt; c.vx *= Math.max(0, 1 - 1.5 * dt); c.vy *= Math.max(0, 1 - 1.5 * dt); c.x += c.vx * dt; c.y += c.vy * dt; c.rot += c.vr * dt; }
   }
 
   function drawParticles(g, layer = 0, worldOnly = false) {
+    if (layer === 0) drawRings(g);
     for (const p of particles) {
       if (p.layer !== layer) continue;
       const a = U.clamp(p.life / p.maxLife, 0, 1);
@@ -82,6 +86,15 @@ const FX = (() => {
       else if (p.type === 'star') { g.fillRect(p.x - s, p.y - 1, s * 2, 2); g.fillRect(p.x - 1, p.y - s, 2, s * 2); }
       else if (p.type === 'leaf') { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.fillRect(-s, -s / 3, s * 2, s / 1.5); g.restore(); }
       else g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), Math.round(s), Math.round(s));
+    }
+    g.globalAlpha = 1;
+  }
+  function drawRings(g) {
+    for (const r of rings) {
+      const t = 1 - r.life / r.maxLife;
+      g.globalAlpha = (1 - t) * 0.8;
+      g.strokeStyle = r.color; g.lineWidth = Math.max(1, 3 * (1 - t));
+      g.beginPath(); g.ellipse(r.x, r.y, U.lerp(r.r0, r.r1, t), U.lerp(r.r0, r.r1, t) * 0.4, 0, 0, TAU); g.stroke();
     }
     g.globalAlpha = 1;
   }
@@ -134,7 +147,7 @@ const FX = (() => {
     }
     if (cine.flash > 0.01) { g.fillStyle = cine.flashColor; g.globalAlpha = Math.min(1, cine.flash); g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
   }
-  function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; }
+  function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; rings.length = 0; }
 
-  return { cam, cine, spawn, burst, dust, hearts, sparkle, float, confettiBurst, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
+  return { cam, cine, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
 })();

@@ -1,23 +1,27 @@
-// ---- Tower stacking run ---------------------------------------------------
+// ---- The Big Top: physics stacking runs ----------------------------------
 const Tower = (() => {
   let G = null;
   const W = 640, H = 360;
-  const PX = 320, PLAT_Y = 290, GROUND_Y = 332, PLAT_H = 14;
+  const PX = 320, PLAT_Y = 288, GROUND = 332, PLAT_H = 16;
+  const APEX = { x: PX, y: -520 };
   const world = new Physics.World();
   let platform = null;
-  const R = { active: false, phase: 'idle', wind: { active: false, warn: 0, dir: 1, str: 0 }, perks: [], height: 0, peak: 0, power: 1, sizeMult: 1, earned: 0, lives: 0, maxLives: 0, settled: 0, incomeRate: 0 }; // run state
+  const R = {
+    active: false, phase: 'idle', perks: [], wind: { active: false, warn: 0, dir: 1, str: 0, t: 0, next: 8 },
+    quake: { t: 0, next: 30, active: false }, height: 0, peak: 0, power: 1, sizeMult: 1,
+    earned: 0, lives: 0, maxLives: 0, settled: 0, incomeRate: 0, craneX: PX, lastCraneX: PX, craneT: 0,
+  };
   const crowd = [];
   let physAcc = 0;
-  let mouseX = 320, spaceHeld = false;
-  const lights = [{ x: 80, a: 0 }, { x: 560, a: Math.PI }];
-  const cityscape = []; for (let i = 0; i < 26; i++) cityscape.push({ x: i * 26 - 10, w: U.randi(14, 24), h: U.randi(20, 80) });
+  const ropes = [];
+  for (let i = 0; i < 4; i++) ropes.push({ y: -60 - i * 90 });
 
-  function platWidth() { return (G.skills.widebase ? 135 : 100); }
-  function crowdCap() { return 40 + 40 * (G.fac.stand || 0); }
+  function platWidth() { return G.skills.base ? 138 : 102; }
+  function crowdCap() { return 30 + 8 * (G.fac.bleachers || 0) * 1.5; }
 
   function resetWorld() {
     world.clear();
-    platform = world.add(new Physics.Body({ x: PX, y: PLAT_Y + PLAT_H / 2, width: platWidth(), height: PLAT_H, isStatic: true, friction: 0.9, userData: { platform: true } }));
+    platform = world.add(new Physics.Body({ x: PX, y: PLAT_Y + PLAT_H / 2, width: platWidth(), height: PLAT_H, isStatic: true, friction: 0.92, userData: { platform: true } }));
     platform.baseX = PX;
     world.gravity = 760;
     world.iterations = 40;
@@ -30,104 +34,92 @@ const Tower = (() => {
     resetWorld();
     Object.assign(R, {
       active: true, phase: 'intro', t: 0, introT: 0,
-      falling: null, canDrop: false, dropCooldown: 0,
+      falling: null, canDrop: false, dropCd: 0,
       settled: 0, height: 0, peak: 0, lives: 3, maxLives: 3, lost: 0,
-      earned: 0, placementTotal: 0, perks: [], perkPending: false, nextPerkAt: 5, nextPowerAt: 10,
-      power: 1, frictionBoost: 1, sizeMult: 1, goldRushLeft: 0, encoreUsed: false,
-      crowdCount: 0, crowdTarget: 0, excite: 0, incomeAcc: 0,
-      wind: { active: false, warn: 0, t: 0, dir: 1, str: 0, next: U.rand(6, 10) },
-      quake: { t: 0, next: U.rand(25, 40), active: false },
-      lowT: 0, dangerCd: 0, slowT: 0, collapseT: 0, cashT: 0, rotate: false,
-      craneT: U.rand(0, 6), craneX: PX, lastCraneX: PX, number: (G.runs || 0) + 1, cubesUsed: 0,
+      earned: 0, placed: 0, perks: [], perkPending: false, nextPerk: 5, nextPower: 10,
+      power: 1, gripBoost: 1, sizeMult: 1, goldLeft: 0, encoreUsed: false,
+      crowdN: 0, crowdTarget: 0, excite: 0, incomeAcc: 0, incomeRate: 0,
+      wind: { active: false, warn: 0, t: 0, dir: 1, str: 0, next: U.rand(7, 11) },
+      quake: { t: 0, next: U.rand(28, 44), active: false },
+      lowT: 0, dangerCd: 0, slowT: 0, collapseT: 0, cashT: 0, rot: false,
+      craneT: U.rand(0, 6), craneX: PX, lastCraneX: PX, number: (G.runs || 0) + 1, used: 0, bonus: 0,
     });
     crowd.length = 0;
-    FX.clear();
-    FX.letterbox(true);
-    FX.title('STACK RUN #' + R.number, { style: 'slide', dur: 2.2, size: 24, color: '#ffd23f', sub: U.pick(TIPS) });
-    Audio.play('drum'); Audio.play('whoosh');
-    Audio.setMode('tower');
-    FX.cam.tzoom = 1.25; FX.cam.tx = PX; FX.cam.ty = PLAT_Y - 30;
-    if (G.skills.headstart) { const p = U.pick(PERKS); setTimeout(() => { if (R.active) { applyPerk(p, true); } }, 1800); }
-    autoSelectCube();
+    FX.clear(); FX.letterbox(true);
+    FX.title('SHOW ' + R.number, { style: 'slide', dur: 2, size: 22, color: PAL.goldL, sub: U.pick(TIPS) });
+    Audio.play('drum'); Audio.play('whoosh'); Audio.setMode('tower');
+    FX.cam.tzoom = 1.2; FX.cam.tx = PX; FX.cam.ty = PLAT_Y - 30;
+    autoSelect();
     UI.onRunStart();
   }
 
-  // ---- forces: wind, magnet, feather -------------------------------------
   function applyForces(b, dt) {
     const ud = b.userData; if (!ud || ud.platform) return;
-    if (R.wind.active) {
-      const a = (R.wind.str * R.wind.dir) / Math.max(0.6, b.density);
-      b.vx += a * dt;
-    }
+    if (R.wind.active) b.vx += (R.wind.str * R.wind.dir) / Math.max(0.6, b.density) * dt;
     if (R.perks.includes('magnet') && b === R.falling) { b.vx += (PX - b.x) * 4 * dt; b.vx *= Math.max(0, 1 - 1.5 * dt); }
   }
   function onImpact(a, b, impulse, c) {
-    const strength = impulse / 800;
-    if (strength > 0.25) {
+    const s = impulse / 800;
+    if (s > 0.22) {
       const x = c ? c.x : (a.x + b.x) / 2, y = c ? c.y : (a.y + b.y) / 2;
-      FX.dust(x, y, Math.min(12, Math.round(strength * 5)), '#d8c8b0');
-      FX.shake(Math.min(6, strength * 1.5));
-      Audio.play('thud', Math.min(2, strength));
-      if (a.restitution > 0.4 || b.restitution > 0.4) Audio.play('bounce');
+      FX.dust(x, y, Math.min(12, Math.round(s * 5)), PAL.sand);
+      FX.shake(Math.min(6, s * 1.4));
+      Audio.play('thud', Math.min(2, s));
+      for (const bd of [a, b]) if (bd.userData && !bd.userData.platform) bd.userData.sq = Math.min(0.3, s * 0.22);
+      if (s > 0.7) FX.ring(x, y, Math.min(26, s * 16));
     }
-    // falling cube touched something -> release control
-    if (R.falling && (a === R.falling || b === R.falling)) { landed(R.falling); }
+    if (R.falling && (a === R.falling || b === R.falling)) landed(R.falling);
   }
   function landed(b) {
-    b.gravityScale = 1;
-    b.w *= 0.35; // soften corner-landing spin (cartoony, forgiving)
-    R.falling = null; R.canDrop = true; R.dropCooldown = 0.15;
-    FX.burst(b.x, b.y, 6, { color: ['#fff', CUBES[b.userData.type].color], speed: 60, gravity: 200, life: 0.4 });
+    b.gravityScale = 1; b.w *= 0.35;
+    R.falling = null; R.canDrop = true; R.dropCd = 0.14;
+    FX.burst(b.x, b.y, 6, { color: [PAL.cream, CUBES[b.userData.type].color], speed: 60, gravity: 190, life: 0.35, size: 2 });
   }
 
-  // ---- cube inventory ----------------------------------------------------
-  function available(type) { return (G.cubes[type] || 0) + (G.premium[type] || 0); }
-  function autoSelectCube() {
-    if (G.selectedCube && available(G.selectedCube) > 0) return;
-    G.selectedCube = CUBE_ORDER.find((k) => available(k) > 0) || null;
+  function available(t) { return (G.cubes[t] || 0) + (G.premium[t] || 0); }
+  function total() { return CUBE_ORDER.reduce((s, k) => s + available(k), 0); }
+  function autoSelect() {
+    if (G.selCube && available(G.selCube) > 0) return;
+    G.selCube = CUBE_ORDER.find((k) => available(k) > 0) || null;
     UI.refreshCubeBar();
   }
-  function totalCubes() { return CUBE_ORDER.reduce((s, k) => s + available(k), 0); }
 
   function makeCube(type, premium, x, y) {
     const def = CUBES[type];
     const sz = CUBE_SIZE * R.sizeMult;
     let w = def.w * sz, h = def.h * sz;
-    if (R.rotate) { const t = w; w = h; h = t; }
-    let friction = def.friction * (G.skills.gyro ? 1.15 : 1) * R.frictionBoost;
+    if (R.rot) { const t = w; w = h; h = t; }
+    let friction = def.friction * (G.skills.gyro ? 1.15 : 1) * R.gripBoost;
     if (premium) friction *= 1.1;
-    if (type === 'heavy' && R.perks.includes('heavymetal')) friction *= 1.3;
-    if (type === 'ice' && R.perks.includes('deepfreeze')) friction = 0.6;
-    let adhesion = def.adhesion * (G.toys.mud ? 1.25 : 1) + (R.perks.includes('glue') ? 500 : 0);
-    const b = new Physics.Body({ x, y, width: w, height: h, density: def.density, friction, restitution: R.perks.includes('rubber') ? 0 : def.restitution, adhesion, angularDamping: G.skills.gyro ? 1.2 : 0.15, linearDamping: 0.02, angle: 0, userData: { type, premium, placed: true, settled: false } });
-    return b;
+    let adhesion = def.adhesion * (G.farm.mud ? 1.3 : 1) + (R.perks.includes('glue') ? 520 : 0);
+    return new Physics.Body({
+      x, y, width: w, height: h, density: def.density, friction, restitution: def.restitution, adhesion,
+      angularDamping: G.skills.gyro ? 1.2 : 0.15, linearDamping: 0.02,
+      userData: { type, premium, placed: true, settled: false, sq: 0 },
+    });
   }
-
   function drop() {
-    if (!R.active || R.phase !== 'play' || R.perkPending) return;
-    if (!R.canDrop || R.falling) { return; }
-    const type = G.selectedCube;
-    if (!type || available(type) <= 0) { autoSelectCube(); if (!G.selectedCube) { UI.toast('Out of cubes! Cash out or collapse.', 'bad'); } return; }
+    if (!R.active || R.phase !== 'play' || R.perkPending || G.paused) return;
+    if (!R.canDrop || R.falling) return;
+    const type = G.selCube;
+    if (!type || available(type) <= 0) { autoSelect(); return; }
     let premium = false;
     if ((G.premium[type] || 0) > 0) { G.premium[type]--; premium = true; } else G.cubes[type]--;
-    R.cubesUsed++;
-    const y = craneY() + 18;
-    const b = makeCube(type, premium, R.craneX, y);
-    const craneV = (R.craneX - R.lastCraneX) * 60;
-    b.vx = craneV * 0.12; b.vy = 30;
-    if (!G.skills.crane) b.angle = U.rand(-0.05, 0.05);
+    R.used++;
+    const b = makeCube(type, premium, R.craneX, craneY() + 20);
+    b.vx = (R.craneX - R.lastCraneX) * 60 * 0.12; b.vy = 30;
+    if (!G.skills.claw) b.angle = U.rand(-0.05, 0.05);
     if (R.perks.includes('feather')) b.gravityScale = 0.6;
     world.add(b);
     R.falling = b; R.canDrop = false;
     Audio.play('whoosh');
-    for (let i = 0; i < 5; i++) FX.spawn({ x: b.x + U.rand(-b.width / 2, b.width / 2), y: b.y - b.height / 2, vx: 0, vy: -120, life: 0.3, size: 1.5, color: 'rgba(255,255,255,0.6)' });
-    autoSelectCube();
-    UI.refreshCubeBar(); UI.refreshHUD();
+    for (let i = 0; i < 5; i++) FX.spawn({ x: b.x + U.rand(-b.width / 2, b.width / 2), y: b.y - b.height / 2, vx: 0, vy: -120, life: 0.28, size: 1.5, color: 'rgba(255,248,230,0.6)' });
+    autoSelect(); UI.refreshCubeBar(); UI.refreshHUD();
   }
-  function craneY() { return towerTopY() - 120; }
-  function towerTopY() {
+  function craneY() { return towerTop() - 118; }
+  function towerTop() {
     let top = PLAT_Y;
-    for (const b of world.bodies) { if (b.userData && b.userData.placed && b.restTime > 0.05 && b.y < PLAT_Y) top = Math.min(top, b.top()); }
+    for (const b of world.bodies) if (b.userData && b.userData.placed && b.restTime > 0.05 && b.y < PLAT_Y) top = Math.min(top, b.top());
     return top;
   }
   function computeHeight() {
@@ -136,31 +128,25 @@ const Tower = (() => {
     return Math.max(0, (PLAT_Y - top) / CUBE_SIZE);
   }
 
-  // ---- economy ----------------------------------------------------------
   function incomeMult() {
-    let m = 1 + 0.12 * (G.fac.stand || 0);
-    if (G.skills.merch) m *= 1.3;
-    if (R.perks.includes('hypetrain')) m *= 1.7;
+    let m = 1 + 0.12 * (G.fac.bleachers || 0);
+    if (G.skills.cart) m *= 1.3;
+    if (R.perks.includes('hype')) m *= 1.7;
     return m * R.power;
   }
-  function placementPay(b) {
+  function pay(b) {
     const ud = b.userData, def = CUBES[ud.type];
     let v = def.value;
-    if (R.goldRushLeft > 0 && ud.type !== 'gold') { v = Math.max(v, CUBES.gold.value); R.goldRushLeft--; FX.float(b.x, b.y - 20, 'GOLD RUSH', { color: '#ffd23f', size: 7, world: true }); }
-    if (ud.type === 'gold' && R.perks.includes('goldrush')) v *= 2;
-    if (ud.type === 'heavy' && R.perks.includes('heavymetal')) v *= 3;
-    if (ud.type === 'bouncy' && G.toys.tramp) v *= 1.5;
-    if (ud.premium) v *= G.skills.goldengut ? 3 : 2;
-    v *= 1 + 0.15 * (G.fac.lab || 0);
-    if ((G.fac.conveyor || 0) >= 3) v *= 1.1;
+    if (R.goldLeft > 0 && ud.type !== 'gold') { v = Math.max(v, CUBES.gold.value); R.goldLeft--; }
+    if (ud.premium) v *= 2;
+    if ((G.fac.barrow || 0) >= 3) v *= 1.1;
     v *= 1 + 0.15 * R.height;
-    if (R.perks.includes('taxbreak')) v *= 1.6;
-    v *= R.power;
-    return Math.round(v);
+    if (R.perks.includes('tax')) v *= 1.6;
+    return Math.round(v * R.power);
   }
-  function earn(amount, x, y, big) {
-    G.money += amount; R.earned += amount; G.stats.earned += amount;
-    if (x !== undefined) FX.float(x, y, '+$' + U.fmt(amount), { color: '#ffd23f', size: big ? 9 : 7, world: true, life: 1.2 });
+  function earn(a, x, y, big) {
+    G.money += a; R.earned += a; G.stats.earned += a;
+    if (x !== undefined) FX.float(x, y, '+' + U.fmt(a), { color: PAL.goldL, size: big ? 9 : 7, world: true, life: 1.1 });
     UI.refreshHUD();
   }
 
@@ -168,148 +154,160 @@ const Tower = (() => {
     b.userData.settled = true;
     R.settled++;
     R.height = computeHeight();
-    const pay = placementPay(b);
-    earn(pay, b.x, b.y - b.height / 2 - 6, true);
-    R.placementTotal += pay;
-    R.power = 1 + R.settled * (R.perks.includes('momentum') ? 0.16 : 0.08);
-    R.excite = Math.min(2, R.excite + 0.8);
+    const p = pay(b);
+    earn(p, b.x, b.y - b.height / 2 - 6, true);
+    R.placed += p;
+    R.power = 1 + R.settled * 0.09;
+    R.excite = Math.min(2, R.excite + 0.9);
     Audio.play('place'); Audio.play('coin');
-    // center bonus
-    if (Math.abs(b.x - PX) < 5 && R.height > 1) { FX.float(b.x, b.y - b.height / 2 - 18, 'PERFECT!', { color: '#3fe0ff', size: 8, world: true }); FX.sparkle(b.x, b.y, 8, '#3fe0ff'); earn(Math.round(pay * 0.5)); }
-    if (R.height > R.peak) { R.peak = R.height; }
+    b.userData.sq = 0.18;
+    if (Math.abs(b.x - PX) < 5 && R.height > 1) {
+      FX.float(b.x, b.y - b.height / 2 - 20, 'PERFECT', { color: PAL.tealL, size: 8, world: true });
+      FX.sparkle(b.x, b.y, 9, PAL.tealL); earn(Math.round(p * 0.5));
+    }
+    if (R.height > R.peak) R.peak = R.height;
     if (Math.floor(R.peak) > G.record) {
       const was = G.record; G.record = Math.floor(R.peak);
-      if (was >= 3) { FX.title('NEW RECORD!', { size: 22, color: '#ffd23f', dur: 1.6, sub: G.record + ' CUBES' }); FX.confettiBurst(W / 2, H * 0.3, 80); Audio.play('record'); FX.flash('#fff6c2', 0.4); }
+      if (was >= 3) { FX.title('RECORD ' + G.record, { size: 20, color: PAL.goldL, dur: 1.5 }); FX.confettiBurst(W / 2, H * 0.3, 70); Audio.play('record'); FX.flash(PAL.cream, 0.32); }
     }
-    if (R.settled >= R.nextPowerAt) {
-      R.nextPowerAt += 10; R.frictionBoost *= 1.08;
+    if (R.settled >= R.nextPower) {
+      R.nextPower += 10; R.gripBoost *= 1.08;
       for (const bb of world.bodies) if (bb.userData && bb.userData.placed) bb.friction *= 1.08;
-      FX.title('STACK POWER UP!', { size: 18, color: '#7dff3f', dur: 1.5, sub: 'x' + R.power.toFixed(2) + ' • friction +8%' }); Audio.play('levelup'); FX.punch(0.1); FX.flash('#7dff3f', 0.3);
+      FX.title('x' + R.power.toFixed(2), { size: 18, color: PAL.grass3, dur: 1.2, sub: 'grip up' });
+      Audio.play('levelup'); FX.punch(0.1);
     }
-    if (R.perks.includes('bedrock')) applyBedrock();
-    if (R.settled >= R.nextPerkAt) { R.nextPerkAt += 5; R.perkPending = true; setTimeout(offerPerks, 400); }
+    if (R.perks.includes('bedrock')) bedrock();
+    if (R.settled >= R.nextPerk) { R.nextPerk += 5; R.perkPending = true; setTimeout(offerPerks, 380); }
     UI.refreshRunHUD();
   }
-  function applyBedrock() {
+  function bedrock() {
+    const done = world.bodies.filter((b) => b.userData && b.userData.bedrock).length;
     const settled = world.bodies.filter((b) => b.userData && b.userData.settled && !b.userData.bedrock && !b.isStatic).sort((a, b) => b.y - a.y);
-    const already = world.bodies.filter((b) => b.userData && b.userData.bedrock).length;
-    for (let i = 0; i < Math.min(3 - already, settled.length); i++) {
-      const b = settled[i]; if (b.y > PLAT_Y - CUBE_SIZE * 3.2 && b.restTime > 0.3) { b.isStatic = true; b.setMass(0); b.vx = b.vy = b.w = 0; b.userData.bedrock = true; FX.sparkle(b.x, b.y, 8, '#c77dff'); }
+    for (let i = 0; i < Math.min(3 - done, settled.length); i++) {
+      const b = settled[i];
+      if (b.y > PLAT_Y - CUBE_SIZE * 3.2 && b.restTime > 0.3) {
+        b.isStatic = true; b.setMass(0); b.vx = b.vy = b.w = 0; b.userData.bedrock = true;
+        FX.sparkle(b.x, b.y, 8, PAL.stone2);
+      }
     }
   }
 
-  // ---- perks -------------------------------------------------------------
   function offerPerks() {
     if (!R.active) return;
-    const n = G.skills.scout ? 4 : 3;
+    const n = G.skills.eye ? 4 : 3;
     const pool = PERKS.filter((p) => !R.perks.includes(p.key));
     const picks = [];
     while (picks.length < n && pool.length) {
-      const weights = pool.map((p) => (p.rarity === 2 ? 0.55 : 1));
-      let r = Math.random() * weights.reduce((a, b) => a + b, 0), idx = 0;
-      for (; idx < pool.length; idx++) { r -= weights[idx]; if (r <= 0) break; }
+      const wts = pool.map((p) => (p.rare ? 0.55 : 1));
+      let r = Math.random() * wts.reduce((a, b) => a + b, 0), idx = 0;
+      for (; idx < pool.length; idx++) { r -= wts[idx]; if (r <= 0) break; }
       picks.push(pool.splice(Math.min(idx, pool.length - 1), 1)[0]);
     }
     G.paused = true;
-    FX.punch(0.12); FX.vignette(0.7); Audio.play('perk');
+    FX.punch(0.12); FX.vignette(0.68); Audio.play('perk');
     UI.showPerks(picks, (p) => { applyPerk(p); G.paused = false; R.perkPending = false; FX.vignette(0); });
   }
-  function applyPerk(p, free) {
-    if (R.perks.includes(p.key)) { p = PERKS.find((q) => !R.perks.includes(q.key)) || p; }
+  function applyPerk(p) {
     R.perks.push(p.key);
     switch (p.key) {
-      case 'glue': for (const b of world.bodies) if (b.userData && b.userData.placed) b.adhesion += 500; break;
+      case 'glue': for (const b of world.bodies) if (b.userData && b.userData.placed) b.adhesion += 520; break;
       case 'net': R.lives += 2; R.maxLives += 2; break;
-      case 'goldrush': R.goldRushLeft = 3; break;
-      case 'bigboned': R.sizeMult *= 1.15; break;
-      case 'surge': R.crowdTarget += 40; for (let i = 0; i < 40; i++) addSpectator(true); break;
-      case 'rubber': for (const b of world.bodies) if (b.userData && b.userData.placed) b.restitution = 0; break;
-      case 'deepfreeze': for (const b of world.bodies) if (b.userData && b.userData.type === 'ice') b.friction = 0.6; break;
-      case 'heavymetal': for (const b of world.bodies) if (b.userData && b.userData.type === 'heavy') b.friction *= 1.3; break;
-      case 'bedrock': applyBedrock(); break;
-      case 'momentum': R.power = 1 + R.settled * 0.16; break;
+      case 'goldrush': R.goldLeft = 3; break;
+      case 'big': R.sizeMult *= 1.15; break;
+      case 'bedrock': bedrock(); break;
+      case 'calm': R.wind.active = false; R.wind.warn = 0; R.wind.next = 1e9; R.quake.next = 1e9; break;
     }
-    FX.title(p.icon + ' ' + p.name.toUpperCase(), { size: 16, color: '#c77dff', dur: 1.6, sub: free ? 'HEAD START PERK' : '' });
-    FX.confettiBurst(W / 2, H * 0.4, 30);
+    FX.title(p.name.toUpperCase(), { size: 16, color: '#c9a0ff', dur: 1.4 });
+    FX.confettiBurst(W / 2, H * 0.4, 26);
     UI.refreshRunHUD();
   }
 
-  // ---- crowd ------------------------------------------------------------
+  // ---- crowd --------------------------------------------------------------
+  function seat(i) {
+    const side = i % 2 ? 1 : -1, k = Math.floor(i / 2);
+    const col = k % 8, row = Math.floor(k / 8) % 5, extra = Math.floor(k / 40);
+    const jx = ((i * 37) % 11) - 5, jy = ((i * 53) % 5) - 2;
+    return {
+      x: PX + side * (128 + col * 30 + row * 7 + jx + extra * 4),
+      y: GROUND - 6 - col * 10 - row * 3.5 + jy,
+    };
+  }
   function addSpectator(instant) {
-    const i = crowd.length; const side = i % 2 ? 1 : -1; const row = Math.floor(i / 2 / 14), col = Math.floor(i / 2) % 14;
-    const x = PX + side * (platWidth() / 2 + 20 + col * 10 + U.rand(-3, 3)), y = GROUND_Y + 2 + row * 5;
-    crowd.push({ x: instant ? x : x + side * 200, tx: x, y, c: U.randi(0, Sprites.people.length - 1), ph: U.rand(0, TAU), hat: U.chance(0.3), flee: 0, bubble: 0 });
+    const i = crowd.length, s = seat(i);
+    crowd.push({ x: instant ? s.x : s.x + (s.x > PX ? 180 : -180), tx: s.x, y: s.y, v: i % Sprites.PEOPLE, ph: U.rand(0, TAU), pose: 'idle' });
   }
   function updateCrowd(dt) {
     if (R.phase === 'play' || R.phase === 'intro') {
-      const hype = G.skills.hype ? 1.35 : 1;
-      R.crowdTarget = Math.min(crowdCap(), Math.floor(2 + Math.pow(R.height, 1.7) * 1.3 * Pen.appeal() * hype) + (R.perks.includes('surge') ? 40 : 0));
-      const growth = (4 + R.height * 1.5) * hype * dt;
-      R.crowdCount = Math.min(R.crowdTarget, R.crowdCount + growth);
-      while (crowd.length < Math.floor(R.crowdCount)) addSpectator(false);
-      while (crowd.length > Math.floor(R.crowdCount) + 3) crowd.pop();
-      // income
-      const inc = crowd.length * 0.3 * incomeMult();
-      R.incomeAcc += inc * dt;
+      const voice = G.skills.voice ? 1.4 : 1;
+      R.crowdTarget = Math.min(crowdCap(), Math.floor(4 + Math.pow(R.height, 1.65) * 1.5 * Pen.appeal() * voice));
+      R.crowdN = Math.min(R.crowdTarget, R.crowdN + (5 + R.height * 1.6) * voice * dt);
+      while (crowd.length < Math.floor(R.crowdN)) addSpectator(false);
+      while (crowd.length > Math.floor(R.crowdN) + 3) crowd.pop();
+      R.incomeRate = crowd.length * 0.32 * incomeMult();
+      R.incomeAcc += R.incomeRate * dt;
       if (R.incomeAcc >= 1) { const a = Math.floor(R.incomeAcc); R.incomeAcc -= a; G.money += a; R.earned += a; G.stats.earned += a; }
-      R.incomeRate = inc;
     }
     R.excite = Math.max(0, R.excite - dt);
     for (const p of crowd) {
-      if (R.phase === 'collapse') { p.flee += dt; p.x += (p.x > PX ? 1 : -1) * 90 * dt; }
-      else p.x = U.lerp(p.x, p.tx, 1 - Math.pow(0.02, dt));
-      if (p.bubble > 0) p.bubble -= dt;
-      else if (R.excite > 0.5 && U.chance(0.01)) p.bubble = 1;
+      if (R.phase === 'collapse') { p.x += (p.x > PX ? 1 : -1) * 80 * dt; p.pose = 'cheer'; }
+      else {
+        p.x = U.lerp(p.x, p.tx, 1 - Math.pow(0.02, dt));
+        p.pose = R.phase === 'cash' ? 'jump' : R.excite > 0.6 ? 'cheer' : R.excite > 0.15 ? 'clap' : 'idle';
+      }
     }
   }
 
-  // ---- hazards ----------------------------------------------------------
   function updateHazards(dt) {
     const wd = R.wind;
     if (R.height >= 6 || wd.active || wd.warn > 0) {
-      if (wd.active) { wd.t -= dt; if (wd.t <= 0) { wd.active = false; wd.next = U.rand(6, 11); } else if (U.chance(0.4)) FX.spawn({ x: wd.dir > 0 ? FX.cam.x - W / FX.cam.zoom : FX.cam.x + W / FX.cam.zoom, y: U.rand(towerTopY() - 60, PLAT_Y), vx: wd.dir * wd.str * 1.5, vy: U.rand(-20, 20), life: 1.5, size: 3, color: U.pick(['#7dc24b', '#c8b070', '#e0a040']), type: 'leaf', rot: 0, vr: 6 }); }
-      else if (wd.warn > 0) { wd.warn -= dt; if (wd.warn <= 0) { wd.active = true; wd.t = 1.4; Audio.play('wind'); } }
-      else { wd.next -= dt; if (wd.next <= 0 && R.phase === 'play') { wd.warn = 1.3; wd.dir = U.chance(0.5) ? 1 : -1; wd.str = (16 + (R.height - 5) * 5) * (R.perks.includes('windbreak') ? 0.3 : 1); Audio.play('alarm'); } }
+      if (wd.active) {
+        wd.t -= dt;
+        if (wd.t <= 0) { wd.active = false; wd.next = U.rand(7, 12); }
+        else if (U.chance(0.35)) FX.spawn({ x: wd.dir > 0 ? FX.cam.x - W / FX.cam.zoom : FX.cam.x + W / FX.cam.zoom, y: U.rand(towerTop() - 60, PLAT_Y), vx: wd.dir * wd.str * 1.6, vy: U.rand(-16, 16), life: 1.4, size: 3, color: U.pick([PAL.sand, PAL.parch0, PAL.goldL]), type: 'leaf', vr: 6 });
+      } else if (wd.warn > 0) { wd.warn -= dt; if (wd.warn <= 0) { wd.active = true; wd.t = 1.4; Audio.play('wind'); } }
+      else { wd.next -= dt; if (wd.next <= 0 && R.phase === 'play') { wd.warn = 1.3; wd.dir = U.chance(0.5) ? 1 : -1; wd.str = 16 + (R.height - 5) * 5; Audio.play('alarm'); } }
     }
     const q = R.quake;
-    if (R.height >= 12 && !R.perks.includes('calm') && R.phase === 'play') {
-      if (q.active) { q.t -= dt; const off = Math.sin(q.t * 40) * 3 * Math.min(1, q.t); const nx = platform.baseX + off; platform.vx = (nx - platform.x) / dt; platform.x = nx; FX.shake(1.5); if (q.t <= 0) { q.active = false; platform.x = platform.baseX; platform.vx = 0; q.next = U.rand(25, 40); } }
-      else { q.next -= dt; if (q.next <= 0) { q.active = true; q.t = 1.6; FX.title('EARTHQUAKE!', { size: 16, color: '#ff4b4b', dur: 1.2, shake: 3 }); Audio.play('drum'); } }
+    if (R.height >= 12 && R.phase === 'play') {
+      if (q.active) {
+        q.t -= dt;
+        const off = Math.sin(q.t * 40) * 3 * Math.min(1, q.t);
+        platform.vx = ((platform.baseX + off) - platform.x) / dt; platform.x = platform.baseX + off;
+        FX.shake(1.5);
+        if (q.t <= 0) { q.active = false; platform.x = platform.baseX; platform.vx = 0; q.next = U.rand(28, 44); }
+      } else { q.next -= dt; if (q.next <= 0) { q.active = true; q.t = 1.6; FX.title('DRUM ROLL', { size: 15, color: PAL.redL, dur: 1.1, shake: 3 }); Audio.play('drum'); } }
     }
   }
 
-  // ---- main update ------------------------------------------------------
   function update(dt, realDt) {
     if (!R.active) { FX.cam.tzoom = 1; FX.cam.tx = PX; FX.cam.ty = 180; return; }
     R.t += dt;
-    if (R.phase === 'intro') { R.introT += realDt; if (R.introT > 2.2) { R.phase = 'play'; R.canDrop = true; FX.letterbox(false); UI.onRunPlay(); } }
-    // crane
+    if (R.phase === 'intro') { R.introT += realDt; if (R.introT > 2) { R.phase = 'play'; R.canDrop = true; FX.letterbox(false); UI.onRunPlay(); } }
     if (R.phase === 'play' && !G.paused) {
-      let sp = 1.5 * (G.skills.crane ? 0.75 : 1) * (R.perks.includes('slowhands') ? 0.6 : 1);
+      const sp = 1.45 * (G.skills.claw ? 0.75 : 1) * (R.perks.includes('slow') ? 0.6 : 1);
       R.craneT += dt * sp;
-      const amp = Math.min(150, 80 + R.height * 4);
+      const amp = Math.min(150, 78 + R.height * 4);
       R.lastCraneX = R.craneX; R.craneX = PX + Math.sin(R.craneT) * amp;
-      if (R.dropCooldown > 0) R.dropCooldown -= dt;
-      if (R.falling && R.t - (R.fallStart || 0) > 3) { /* stuck in air? nothing */ }
+      if (R.dropCd > 0) R.dropCd -= dt;
     }
-    // physics
     if (!G.paused && (R.phase === 'play' || R.phase === 'collapse' || R.phase === 'cash')) {
       physAcc += dt;
       const step = 1 / 180; let n = 0;
       while (physAcc >= step && n < 14) { world.step(step); physAcc -= step; n++; }
-      if (n >= 10) physAcc = 0;
+      if (n >= 14) physAcc = 0;
     }
-    // bookkeeping
+    for (const b of world.bodies) if (b.userData && b.userData.sq) b.userData.sq = Math.max(0, b.userData.sq - realDt * 1.6);
+
     if (R.phase === 'play') {
       let moving = 0;
       for (let i = world.bodies.length - 1; i >= 0; i--) {
-        const b = world.bodies[i]; const ud = b.userData; if (!ud || ud.platform) continue;
-        if (b.y > GROUND_Y + 80) { // fell off
+        const b = world.bodies[i], ud = b.userData;
+        if (!ud || ud.platform) continue;
+        if (b.y > GROUND + 80) {
           world.remove(b);
           if (b === R.falling) landed(b);
           R.lost++; R.lives--; G.stats.lost++;
-          FX.shake(4); Audio.play('thud', 1.5); FX.flash('#ff4b4b', 0.25);
-          FX.float(b.x, GROUND_Y - 10, 'LOST!', { color: '#ff4b4b', size: 9, world: true });
+          FX.shake(4); Audio.play('thud', 1.5); FX.flash(PAL.red, 0.22);
           UI.refreshRunHUD();
           if (R.lives <= 0) { if (R.perks.includes('encore') && !R.encoreUsed) encore(); else collapse('CUBES LOST'); }
           continue;
@@ -317,197 +315,339 @@ const Tower = (() => {
         if (!ud.settled && b !== R.falling && b.restTime > 0.45) onSettled(b);
         if (ud.settled && b.speed > 35) moving++;
       }
-      // falling cube timeout safety: if it never touched anything for 4s, allow drop
-      if (R.falling && R.falling.contacts === 0 && R.falling.y > GROUND_Y) { /* handled by fall-off */ }
       R.height = computeHeight();
-      // collapse by height loss
-      if (R.peak >= 4 && R.height < R.peak * 0.5 && moving >= 2) { R.lowT += dt; if (R.lowT > 1.2) collapse('TOWER TOPPLED'); } else R.lowT = Math.max(0, R.lowT - dt);
-      // danger slow-mo
+      if (R.peak >= 4 && R.height < R.peak * 0.5 && moving >= 2) { R.lowT += dt; if (R.lowT > 1.2) collapse('IT FELL'); } else R.lowT = Math.max(0, R.lowT - dt);
       if (R.dangerCd > 0) R.dangerCd -= realDt;
       if (moving >= 1 && R.height >= 3 && R.dangerCd <= 0) {
-        R.dangerCd = G.skills.bullet ? 3 : 5; R.slowT = G.skills.bullet ? 1.4 : 0.7;
-        FX.setSlowmo(G.skills.bullet ? 0.25 : 0.45); FX.vignette(0.6); FX.punch(0.06); Audio.play('slowmo');
-        FX.title('!!', { size: 22, color: '#ff4b4b', dur: 0.7, style: 'fade', y: 0.2 });
+        R.dangerCd = 4; R.slowT = 0.9;
+        FX.setSlowmo(0.35); FX.vignette(0.55); FX.punch(0.05); Audio.play('slowmo');
       }
       if (R.slowT > 0) { R.slowT -= realDt; if (R.slowT <= 0) { FX.setSlowmo(1); FX.vignette(0); } }
       updateHazards(dt);
     }
-    if (R.phase === 'collapse') { R.collapseT += realDt; if (R.collapseT > 3.2) finishRun(false); }
-    if (R.phase === 'cash') { R.cashT += realDt; if (R.cashT > 2.2) finishRun(true); }
+    if (R.phase === 'collapse') { R.collapseT += realDt; if (R.collapseT > 3) finish(false); }
+    if (R.phase === 'cash') { R.cashT += realDt; if (R.cashT > 2.1) finish(true); }
     updateCrowd(dt);
-    // camera
-    const top = Math.min(towerTopY(), R.falling ? R.falling.y - 40 : 1e9);
-    const cy = craneY() - 30;
-    const span = GROUND_Y + 25 - cy;
+
+    const cy = craneY() - 26;
+    const span = GROUND + 22 - (cy - 40);   // headroom so the crane never leaves the frame
     const zoom = U.clamp(H / Math.max(360, span), 0.22, 1);
-    FX.cam.tzoom = R.phase === 'intro' ? 1.15 : R.phase === 'collapse' ? zoom * 0.9 : zoom;
+    FX.cam.tzoom = R.phase === 'intro' ? 1.12 : R.phase === 'collapse' ? zoom * 0.92 : zoom;
     FX.cam.tx = PX;
-    FX.cam.ty = GROUND_Y + 25 - (H / 2) / FX.cam.tzoom;
+    FX.cam.ty = GROUND + 22 - (H / 2) / FX.cam.tzoom;
   }
 
   function encore() {
     R.encoreUsed = true; R.lives = 1;
-    for (let i = world.bodies.length - 1; i >= 0; i--) { const b = world.bodies[i]; if (b.userData && b.userData.placed && !b.isStatic && (b.speed > 30 || !b.userData.settled)) { FX.burst(b.x, b.y, 10, { color: ['#c77dff', '#fff'], speed: 120 }); world.remove(b); } }
+    for (let i = world.bodies.length - 1; i >= 0; i--) {
+      const b = world.bodies[i];
+      if (b.userData && b.userData.placed && !b.isStatic && (b.speed > 30 || !b.userData.settled)) {
+        FX.burst(b.x, b.y, 10, { color: ['#c9a0ff', PAL.cream], speed: 110 });
+        world.remove(b);
+      }
+    }
     R.falling = null; R.canDrop = true;
-    FX.title('ENCORE!', { size: 26, color: '#c77dff', dur: 1.8, sub: 'ONE MORE CHANCE' }); FX.flash('#c77dff', 0.6); Audio.play('perk'); FX.hitstop(0.25);
+    FX.title('ENCORE', { size: 24, color: '#c9a0ff', dur: 1.6 });
+    FX.flash('#c9a0ff', 0.5); Audio.play('perk'); FX.hitstop(0.22);
     UI.refreshRunHUD();
   }
-
   function collapse(reason) {
     if (R.phase !== 'play') return;
     R.phase = 'collapse'; R.collapseT = 0;
-    FX.freeze(0.4); FX.hitstop(0.4);
-    FX.setSlowmo(0.3, false); FX.vignette(0.9); FX.letterbox(true); FX.cine.tDesat = 1;
-    FX.flash('#ff4b4b', 0.7); FX.shake(14); FX.punch(0.15);
-    FX.title('COLLAPSE', { size: 34, color: '#ff4b4b', dur: 3, shake: 3, delay: 0.35, sub: reason });
+    FX.freeze(0.35); FX.hitstop(0.35);
+    FX.setSlowmo(0.3); FX.vignette(0.88); FX.letterbox(true); FX.cine.tDesat = 1;
+    FX.flash(PAL.red, 0.6); FX.shake(13); FX.punch(0.14);
+    FX.title('COLLAPSE', { size: 30, color: PAL.redL, dur: 2.8, shake: 3, delay: 0.3, sub: reason });
     Audio.play('collapse');
-    setTimeout(() => Audio.play('cheer', 0.4), 300);
+    setTimeout(() => Audio.play('cheer', 0.4), 280);
     G.stats.collapses++;
     UI.hideRunHUD();
   }
   function cashOut() {
     if (!R.active || R.phase !== 'play' || R.perkPending) return;
     R.phase = 'cash'; R.cashT = 0;
-    let bonus = Math.round(R.placementTotal * (R.peak / 8) * (G.skills.legend ? 2 : 1) + crowd.length * 2);
+    const bonus = Math.round(R.placed * (R.peak / 8) * (G.skills.legend ? 2 : 1) + crowd.length * 2);
     R.bonus = bonus; G.money += bonus; R.earned += bonus; G.stats.earned += bonus;
-    FX.letterbox(true); FX.title('CASH OUT!', { size: 28, color: '#7dff3f', dur: 2.2, sub: '+' + U.money(bonus) + ' BONUS' });
-    FX.confettiBurst(W / 2, H * 0.35, 120); Audio.play('cash'); Audio.play('cheer', 1); FX.flash('#fff', 0.5);
-    for (let i = 0; i < 20; i++) FX.spawn({ x: U.rand(0, W), y: -10, vx: U.rand(-20, 20), vy: U.rand(80, 200), life: 2, size: 4, color: '#ffd23f', gravity: 100, layer: 1 });
+    FX.letterbox(true);
+    FX.title('CASH OUT', { size: 26, color: PAL.grass3, dur: 2, sub: '+' + U.money(bonus) });
+    FX.confettiBurst(W / 2, H * 0.35, 110);
+    Audio.play('cash'); Audio.play('cheer', 1); FX.flash(PAL.cream, 0.42);
     UI.hideRunHUD();
   }
-  function finishRun(cashed) {
-    const sp = Math.floor(R.peak / 3) + (Math.floor(R.peak) >= G.record && R.peak >= 4 ? 2 : 0) + (G.skills.legend ? 2 : 0);
-    G.sp += sp; G.runs = (G.runs || 0) + 1;
-    G.stats.bestEarned = Math.max(G.stats.bestEarned || 0, R.earned);
-    const summary = { cashed, peak: R.peak, settled: R.settled, earned: R.earned, bonus: R.bonus || 0, sp, crowd: crowd.length, perks: R.perks.slice(), lost: R.lost, cubesUsed: R.cubesUsed };
+  function finish(cashed) {
+    const s = { cashed, peak: R.peak, settled: R.settled, earned: R.earned, bonus: R.bonus || 0, crowd: crowd.length, perks: R.perks.slice(), lost: R.lost, used: R.used };
+    G.runs = (G.runs || 0) + 1;
     R.active = false; R.phase = 'idle';
     FX.setSlowmo(1, true); FX.vignette(0); FX.letterbox(false); FX.cine.tDesat = 0;
     world.clear(); crowd.length = 0;
     Audio.setMode('pen');
-    UI.showSummary(summary);
-    UI.onRunEnd();
+    UI.showSummary(s); UI.onRunEnd();
     Main.save();
   }
 
-  // ---- input ------------------------------------------------------------
   function click() { if (R.active && R.phase === 'play') drop(); }
   function key(k) {
     if (k === ' ') { click(); return true; }
-    if (k === 'r' || k === 'R') { R.rotate = !R.rotate; Audio.play('click'); return true; }
-    const n = parseInt(k); if (n >= 1 && n <= 9) { const t = CUBE_ORDER.filter((c) => available(c) > 0)[n - 1]; if (t) { G.selectedCube = t; UI.refreshCubeBar(); Audio.play('click'); } return true; }
+    if (k === 'r' || k === 'R') { R.rot = !R.rot; Audio.play('click'); return true; }
+    const n = parseInt(k);
+    if (n >= 1 && n <= 9) {
+      const t = CUBE_ORDER.filter((c) => available(c) > 0)[n - 1];
+      if (t) { G.selCube = t; UI.refreshCubeBar(); Audio.play('click'); }
+      return true;
+    }
     return false;
   }
 
-  // ---- rendering --------------------------------------------------------
+  // ---- scene --------------------------------------------------------------
   function render(g) {
     const cam = FX.cam;
-    // background (screen space)
-    const grd = g.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, '#120c24'); grd.addColorStop(0.6, '#3a1d5c'); grd.addColorStop(1, '#7a2d5a');
-    g.fillStyle = grd; g.fillRect(0, 0, W, H);
-    // stars
-    g.fillStyle = '#fff'; for (let i = 0; i < 50; i++) { const sx = (i * 97.3) % W, sy = (i * 53.7) % (H * 0.6); g.globalAlpha = 0.4 + 0.5 * Math.sin(G.time * 2 + i); g.fillRect(sx, sy, 1.5, 1.5); } g.globalAlpha = 1;
-    // spotlights
-    if (R.active) { for (const l of lights) { l.a += 0.01 * (l.x < 320 ? 1 : -1); const ang = Math.sin(G.time * 0.7 + l.a) * 0.5; g.save(); g.translate(l.x, H); g.rotate(ang); g.fillStyle = 'rgba(255,240,180,0.08)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(-40, -H * 1.4); g.lineTo(40, -H * 1.4); g.closePath(); g.fill(); g.restore(); } }
-    // city parallax
-    g.fillStyle = '#1b1030'; for (const c of cityscape) { const px = ((c.x - (cam.x - PX) * 0.1) % (W + 40) + W + 40) % (W + 40) - 20; g.fillRect(px, H * 0.62 - c.h * 0.6 + (cam.y - 180) * 0.05, c.w, c.h); }
-    g.fillStyle = '#ffd97a'; for (const c of cityscape) { const px = ((c.x - (cam.x - PX) * 0.1) % (W + 40) + W + 40) % (W + 40) - 20; for (let k = 0; k < 3; k++) if ((c.x * 7 + k * 13) % 5 < 2) g.fillRect(px + 4 + k * 6, H * 0.62 - c.h * 0.6 + (cam.y - 180) * 0.05 + 6 + (k * 11) % 20, 2, 2); }
-
-    // world space
+    g.fillStyle = '#2a1420'; g.fillRect(0, 0, W, H);
     g.save();
-    g.translate(W / 2 + cam.shakeX, H / 2 + cam.shakeY); g.scale(cam.zoom, cam.zoom); g.translate(-cam.x, -cam.y);
-    // ground
-    g.fillStyle = '#3a3448'; g.fillRect(cam.x - W / cam.zoom, GROUND_Y, W * 2 / cam.zoom, 400);
-    g.fillStyle = '#2c2838'; for (let x = -2000; x < 2000; x += 40) g.fillRect(x, GROUND_Y + 8, 20, 3);
-    g.fillStyle = '#4a4460'; g.fillRect(cam.x - W / cam.zoom, GROUND_Y, W * 2 / cam.zoom, 3);
-    // pedestal
+    g.translate(W / 2 + cam.shakeX, H / 2 + cam.shakeY);
+    g.scale(cam.zoom, cam.zoom);
+    g.translate(-cam.x, -cam.y);
+    const vw = W / cam.zoom, vh = H / cam.zoom;
+    const vx0 = cam.x - vw / 2, vy0 = cam.y - vh / 2;
+
+    // tent canvas: stripes fanning down from the apex
+    g.fillStyle = '#3a1420'; g.fillRect(vx0, vy0, vw, vh);
+    const spread = 1.9;
+    for (let i = -26; i <= 26; i++) {
+      const a0 = (i / 26) * spread, a1 = ((i + 1) / 26) * spread;
+      g.fillStyle = i % 2 === 0 ? '#8e3028' : '#c9b193';
+      g.beginPath();
+      g.moveTo(APEX.x, APEX.y);
+      g.lineTo(APEX.x + Math.sin(a0) * 2400, APEX.y + Math.cos(a0) * 2400);
+      g.lineTo(APEX.x + Math.sin(a1) * 2400, APEX.y + Math.cos(a1) * 2400);
+      g.closePath(); g.fill();
+    }
+    // canvas falls into shadow away from the ring lights
+    const shade = g.createLinearGradient(0, APEX.y, 0, GROUND + 40);
+    shade.addColorStop(0, 'rgba(20,8,14,0.62)');
+    shade.addColorStop(0.55, 'rgba(20,8,14,0.42)');
+    shade.addColorStop(1, 'rgba(20,8,14,0.05)');
+    g.fillStyle = shade; g.fillRect(vx0, vy0, vw, vh);
+    // seam rings around the tent
+    g.strokeStyle = 'rgba(120,40,40,0.35)'; g.lineWidth = 3;
+    for (const r of ropes) { g.beginPath(); g.arc(APEX.x, APEX.y, APEX.y * -1 + r.y + 560, 0.55, Math.PI - 0.55); g.stroke(); }
+    // apex crown and mast
+    g.fillStyle = PAL.wood1; g.fillRect(APEX.x - 4, APEX.y, 8, 120);
+    g.fillStyle = PAL.gold; g.fillRect(APEX.x - 14, APEX.y - 16, 28, 10);
+    g.fillStyle = PAL.goldD; g.fillRect(APEX.x - 14, APEX.y - 8, 28, 4);
+    g.fillStyle = PAL.red; g.fillRect(APEX.x + 12, APEX.y - 34, 22, 12);
+    g.fillStyle = PAL.cream; g.fillRect(APEX.x + 12, APEX.y - 30, 22, 4);
+
+    // side poles with bunting and rigs
+    for (const side of [-1, 1]) {
+      const px = PX + side * 268;
+      g.fillStyle = PAL.wood1; g.fillRect(px - 5, -260, 10, GROUND + 260);
+      g.fillStyle = PAL.wood3; g.fillRect(px - 5, -260, 3, GROUND + 260);
+      g.fillStyle = PAL.gold; for (let y = -240; y < GROUND; y += 60) g.fillRect(px - 7, y, 14, 5);
+      // guy ropes to the apex
+      g.strokeStyle = 'rgba(240,230,200,0.35)'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(px, -250); g.lineTo(APEX.x, APEX.y + 60); g.stroke();
+      // three lamps per pole, each following the top of the tower
+      const rig = Props.get('spotRig');
+      const tt = towerTop();
+      for (const ly of [-30, -130, -230]) {
+        g.drawImage(rig, px - 9, ly - 10, rig.width, rig.height);
+        const ang = Math.atan2(tt - ly, PX - px);
+        g.save(); g.translate(px, ly); g.rotate(ang);
+        const beam = g.createLinearGradient(0, 0, 300, 0);
+        beam.addColorStop(0, 'rgba(255,243,196,0.26)'); beam.addColorStop(1, 'rgba(255,243,196,0)');
+        g.fillStyle = beam;
+        g.beginPath(); g.moveTo(0, -5); g.lineTo(300, -44); g.lineTo(300, 44); g.lineTo(0, 5); g.closePath(); g.fill();
+        g.restore();
+      }
+    }
+    // bunting garlands
+    for (let row = 0; row < 3; row++) {
+      const y = -16 - row * 84;
+      g.strokeStyle = PAL.wood1; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(PX - 268, y); g.quadraticCurveTo(PX, y + 34, PX + 268, y); g.stroke();
+      for (let i = 0; i <= 18; i++) {
+        const t = i / 18;
+        const fx = U.lerp(PX - 268, PX + 268, t);
+        const fy = (1 - t) * (1 - t) * y + 2 * (1 - t) * t * (y + 34) + t * t * y;
+        g.fillStyle = i % 3 === 0 ? PAL.gold : i % 3 === 1 ? PAL.cream : PAL.red;
+        for (let k = 0; k < 7; k++) g.fillRect(fx - 3 + k * 0.45, fy + k, 6 - k * 0.85, 1);
+      }
+    }
+
+    // sawdust ring and curb
+    g.fillStyle = '#6b4a2f'; g.fillRect(vx0, GROUND, vw, vh);
+    g.fillStyle = PAL.sand; Art.ell(g, PX, GROUND + 12, 250, 30);
+    g.fillStyle = '#e8cfa6'; Art.ell(g, PX, GROUND + 8, 236, 24);
+    g.fillStyle = '#cbb08a';
+    for (let i = 0; i < 40; i++) g.fillRect(PX - 220 + ((i * 71) % 440), GROUND + 2 + ((i * 37) % 18), 3, 2);
+    for (let i = -9; i <= 9; i++) {
+      const cx2 = PX + i * 26;
+      g.fillStyle = i % 2 === 0 ? PAL.red : PAL.cream;
+      g.fillRect(cx2 - 13, GROUND - 6, 26, 9);
+      g.fillStyle = i % 2 === 0 ? PAL.redD : PAL.parch0;
+      g.fillRect(cx2 - 13, GROUND + 1, 26, 3);
+    }
+
+    // bleachers behind the crowd
+    const bl = Props.get('bleacher');
+    for (const side of [-1, 1]) for (let col = 0; col < 8; col++) {
+      const x = PX + side * (112 + col * 30) - (side < 0 ? 40 : 0);
+      g.drawImage(bl, x - 20, GROUND - 6 - col * 10 - 10, bl.width, bl.height + col * 10 + 12);
+    }
+
+    // pedestal under the platform
     const pw = platWidth();
-    g.fillStyle = '#6a6480'; g.fillRect(PX - pw / 2 + 10, PLAT_Y + PLAT_H, pw - 20, GROUND_Y - PLAT_Y - PLAT_H);
-    g.fillStyle = '#524c66'; g.fillRect(PX - pw / 2 + 10, PLAT_Y + PLAT_H, 6, GROUND_Y - PLAT_Y - PLAT_H); g.fillRect(PX + pw / 2 - 16, PLAT_Y + PLAT_H, 6, GROUND_Y - PLAT_Y - PLAT_H);
-    // height guide lines
+    const ped = Props.get('pedestal', Math.round(pw));
+    g.drawImage(ped, PX - pw / 2, PLAT_Y + PLAT_H, pw, GROUND - PLAT_Y - PLAT_H);
+
+    // height rungs
     if (R.active) {
       g.font = '7px "Press Start 2P", monospace'; g.textAlign = 'right'; g.textBaseline = 'middle';
-      for (let h = 5; h <= Math.max(10, R.peak + 10); h += 5) { const y = PLAT_Y - h * CUBE_SIZE; g.strokeStyle = h <= R.height ? 'rgba(125,255,63,0.35)' : 'rgba(255,255,255,0.15)'; g.setLineDash([4, 6]); g.lineWidth = 1; g.beginPath(); g.moveTo(PX - 140, y); g.lineTo(PX + 140, y); g.stroke(); g.setLineDash([]); g.fillStyle = h <= G.record && G.record > 0 && h === G.record ? '#ffd23f' : 'rgba(255,255,255,0.5)'; g.fillText((h === G.record ? '★ ' : '') + h, PX - 146, y); }
+      for (let h = 5; h <= Math.max(10, R.peak + 10); h += 5) {
+        const y = PLAT_Y - h * CUBE_SIZE;
+        g.strokeStyle = h <= R.height ? 'rgba(140,200,95,0.4)' : 'rgba(255,248,230,0.16)';
+        g.setLineDash([4, 7]); g.lineWidth = 1;
+        g.beginPath(); g.moveTo(PX - 150, y); g.lineTo(PX + 150, y); g.stroke(); g.setLineDash([]);
+        g.fillStyle = h === G.record && G.record > 0 ? PAL.goldL : 'rgba(255,248,230,0.5)';
+        g.fillText(String(h), PX - 156, y);
+      }
     }
     // platform
-    if (platform) { g.save(); g.translate(platform.x, platform.y); g.fillStyle = '#8a84a0'; g.fillRect(-pw / 2, -PLAT_H / 2, pw, PLAT_H); g.fillStyle = '#b8b2cc'; g.fillRect(-pw / 2, -PLAT_H / 2, pw, 3); g.fillStyle = '#5a5470'; g.fillRect(-pw / 2, PLAT_H / 2 - 3, pw, 3); g.fillStyle = '#ffd23f'; for (let x = -pw / 2; x < pw / 2; x += 12) g.fillRect(x, -PLAT_H / 2 + 4, 6, 2); g.restore(); }
+    if (platform) {
+      g.save(); g.translate(platform.x, platform.y);
+      g.fillStyle = PAL.wood2; g.fillRect(-pw / 2, -PLAT_H / 2, pw, PLAT_H);
+      g.fillStyle = PAL.wood4; g.fillRect(-pw / 2, -PLAT_H / 2, pw, 3);
+      g.fillStyle = PAL.wood0; g.fillRect(-pw / 2, PLAT_H / 2 - 3, pw, 3);
+      g.fillStyle = PAL.gold; for (let x = -pw / 2 + 3; x < pw / 2 - 3; x += 14) g.fillRect(x, -PLAT_H / 2 + 5, 7, 3);
+      g.restore();
+    }
     // drop guide
-    if (R.active && R.phase === 'play' && G.skills.guide && !R.falling) {
-      const def = CUBES[G.selectedCube || 'normal']; const hw = def.w * CUBE_SIZE * R.sizeMult / 2;
-      let hitY = PLAT_Y; for (const b of world.bodies) { if (!b.userData || b.userData.platform) continue; const bb = b.aabb(); if (bb.maxX > R.craneX - hw && bb.minX < R.craneX + hw) hitY = Math.min(hitY, bb.minY); }
-      g.strokeStyle = 'rgba(63,224,255,0.5)'; g.setLineDash([3, 5]); g.lineWidth = 1; g.beginPath(); g.moveTo(R.craneX - hw, craneY() + 20); g.lineTo(R.craneX - hw, hitY); g.moveTo(R.craneX + hw, craneY() + 20); g.lineTo(R.craneX + hw, hitY); g.stroke(); g.setLineDash([]);
-      g.fillStyle = 'rgba(63,224,255,0.35)'; g.fillRect(R.craneX - hw, hitY - 2, hw * 2, 2);
+    if (R.active && R.phase === 'play' && G.skills.guide && !R.falling && G.selCube) {
+      const def = CUBES[G.selCube];
+      let hw = def.w * CUBE_SIZE * R.sizeMult / 2;
+      if (R.rot) hw = def.h * CUBE_SIZE * R.sizeMult / 2;
+      let hy = PLAT_Y;
+      for (const b of world.bodies) {
+        if (!b.userData || b.userData.platform) continue;
+        const bb = b.aabb();
+        if (bb.maxX > R.craneX - hw && bb.minX < R.craneX + hw) hy = Math.min(hy, bb.minY);
+      }
+      g.strokeStyle = 'rgba(111,211,200,0.55)'; g.setLineDash([3, 5]); g.lineWidth = 1;
+      g.beginPath();
+      g.moveTo(R.craneX - hw, craneY() + 22); g.lineTo(R.craneX - hw, hy);
+      g.moveTo(R.craneX + hw, craneY() + 22); g.lineTo(R.craneX + hw, hy);
+      g.stroke(); g.setLineDash([]);
+      g.fillStyle = 'rgba(111,211,200,0.4)'; g.fillRect(R.craneX - hw, hy - 2, hw * 2, 2);
     }
     // cubes
     for (const b of world.bodies) {
       const ud = b.userData; if (!ud || ud.platform) continue;
       const def = CUBES[ud.type];
-      g.save(); g.translate(b.x, b.y); g.rotate(b.angle);
-      Sprites.drawCube(g, def, b.width, b.height, { face: ud.premium, outline: ud.bedrock ? '#c77dff' : b === R.falling ? '#fff' : (ud.premium ? '#ffd23f' : null) });
-      if (b.adhesion > 0 && ud.type !== 'sticky') { g.fillStyle = 'rgba(197,138,42,0.35)'; g.fillRect(-b.width / 2, -b.height / 2, b.width, b.height); }
+      const sq = ud.sq || 0;
+      g.save(); g.translate(b.x, b.y); g.rotate(b.angle); g.scale(1 + sq, 1 - sq);
+      Sprites.drawCube(g, def, b.width, b.height, {
+        face: ud.premium,
+        outline: ud.bedrock ? PAL.stone2 : b === R.falling ? PAL.cream : (ud.premium ? PAL.goldL : null),
+      });
       g.restore();
-      if (b === R.falling && b.vy > 60) { g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1; for (let i = -1; i <= 1; i++) { g.beginPath(); g.moveTo(b.x + i * b.width * 0.4, b.y - b.height / 2 - 4); g.lineTo(b.x + i * b.width * 0.4, b.y - b.height / 2 - 4 - Math.min(40, b.vy * 0.08)); g.stroke(); } }
+      if (b === R.falling && b.vy > 60) {
+        g.strokeStyle = 'rgba(255,248,230,0.3)'; g.lineWidth = 1;
+        for (let i = -1; i <= 1; i++) {
+          g.beginPath();
+          g.moveTo(b.x + i * b.width * 0.36, b.y - b.height / 2 - 4);
+          g.lineTo(b.x + i * b.width * 0.36, b.y - b.height / 2 - 4 - Math.min(38, b.vy * 0.08));
+          g.stroke();
+        }
+      }
     }
-    // crane
     if (R.active && (R.phase === 'play' || R.phase === 'intro')) drawCrane(g);
-    // crowd
+    // ringmaster and crowd
+    const rm = Sprites.ringmaster(Math.floor(G.time * 2));
+    g.drawImage(rm, PX - 214, GROUND - 34, rm.width, rm.height);
     for (const p of crowd) {
-      const img = (p.hat ? Sprites.peopleHat : Sprites.people)[p.c];
-      const hop = (R.excite > 0 || R.phase === 'cash') ? Math.abs(Math.sin(G.time * 10 + p.ph)) * 4 : Math.sin(G.time * 2 + p.ph) * 0.5;
-      g.drawImage(img, Math.round(p.x - 3), Math.round(p.y - 11 - hop));
-      if (p.bubble > 0) { g.fillStyle = '#fff'; g.fillRect(p.x - 6, p.y - 22, 12, 7); g.fillStyle = '#1b1210'; g.font = '5px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(U.pick(['WOW', '!!!', 'OMG', 'GO!']), p.x, p.y - 18); }
+      const f = Math.floor(G.time * (p.pose === 'idle' ? 1.5 : 7) + p.ph) % 2;
+      const img = Sprites.person(p.v, p.pose, f);
+      const hop = p.pose === 'cheer' || p.pose === 'jump' ? Math.abs(Math.sin(G.time * 9 + p.ph)) * 3 : 0;
+      g.drawImage(img, Math.round(p.x - 8), Math.round(p.y - 22 - hop));
     }
-    // wind arrows
+    // wind streaks
     if (R.wind.warn > 0 || R.wind.active) {
-      const dir = R.wind.dir; g.fillStyle = R.wind.active ? 'rgba(63,224,255,0.8)' : `rgba(255,210,63,${0.4 + 0.4 * Math.sin(G.time * 20)})`;
-      for (let i = 0; i < 5; i++) { const ax = PX - dir * 200 + dir * ((G.time * 200 + i * 60) % 300), ay = towerTopY() - 30 + i * 18 - 20; g.fillRect(ax, ay, dir * 14, 2); g.fillRect(ax + dir * 12, ay - 2, dir * 3, 6); }
+      const dir = R.wind.dir;
+      g.fillStyle = R.wind.active ? 'rgba(255,248,230,0.75)' : `rgba(242,193,78,${0.4 + 0.4 * Math.sin(G.time * 20)})`;
+      for (let i = 0; i < 5; i++) {
+        const ax = PX - dir * 200 + dir * ((G.time * 210 + i * 62) % 320);
+        const ay = towerTop() - 34 + i * 17;
+        g.fillRect(ax, ay, dir * 15, 2);
+        g.fillRect(ax + dir * 13, ay - 2, dir * 3, 6);
+      }
     }
     FX.drawParticles(g, 0);
     FX.drawFloaters(g, true);
     g.restore();
 
-    // screen-space overlays
     FX.drawParticles(g, 1);
     FX.drawConfetti(g);
     FX.drawFloaters(g, false);
-    if (R.active) {
-      // height ruler on right
-      const rx = W - 26, ry0 = 40, ry1 = H - 40;
-      g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(rx - 8, ry0 - 8, 30, ry1 - ry0 + 16);
-      const maxH = Math.max(12, Math.ceil((R.peak + 4) / 4) * 4);
-      g.fillStyle = '#5a5470'; g.fillRect(rx, ry0, 4, ry1 - ry0);
-      const hy = ry1 - (R.height / maxH) * (ry1 - ry0), py = ry1 - (R.peak / maxH) * (ry1 - ry0), rec = ry1 - (Math.min(maxH, G.record) / maxH) * (ry1 - ry0);
-      g.fillStyle = '#7dff3f'; g.fillRect(rx, hy, 4, ry1 - hy);
-      g.fillStyle = '#fff'; g.fillRect(rx - 3, py, 10, 1);
-      if (G.record > 0) { g.fillStyle = '#ffd23f'; g.fillRect(rx - 4, rec, 12, 2); g.font = '6px "Press Start 2P", monospace'; g.textAlign = 'right'; g.textBaseline = 'middle'; g.fillText('BEST', rx - 6, rec); }
-      g.font = '8px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'top'; g.fillStyle = '#fff'; g.fillText(R.height.toFixed(1), rx + 2, ry1 + 6);
-      // wind warning banner
-      if (R.wind.warn > 0) { g.font = '10px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = Math.sin(G.time * 20) > 0 ? '#ffd23f' : '#ff4b4b'; g.fillText((R.wind.dir > 0 ? '>>> ' : '<<< ') + 'WIND INCOMING' + (R.wind.dir > 0 ? ' >>>' : ' <<<'), W / 2, 30); }
-      if (R.phase === 'play' && R.rotate) { g.font = '7px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillStyle = '#3fe0ff'; g.fillText('ROTATED (R)', W / 2, H - 14); }
-      if (R.phase === 'play' && !G.selectedCube && !R.falling) { g.font = '9px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillStyle = '#ff4b4b'; g.fillText('NO CUBES LEFT - CASH OUT!', W / 2, 52); }
-    }
+    if (R.active) overlay(g);
   }
   function drawCrane(g) {
-    const cy = craneY(); const cam = FX.cam;
-    g.fillStyle = '#2c2838'; g.fillRect(cam.x - W / cam.zoom, cy - 26, W * 2 / cam.zoom, 6);
-    g.fillStyle = '#ffd23f'; for (let x = -3000; x < 3000; x += 24) g.fillRect(x, cy - 25, 12, 4);
-    g.fillStyle = '#e04b4b'; g.fillRect(R.craneX - 12, cy - 22, 24, 12); g.fillStyle = '#8a2f24'; g.fillRect(R.craneX - 12, cy - 13, 24, 3);
-    g.fillStyle = '#1b1210'; g.fillRect(R.craneX - 1, cy - 10, 2, 16);
-    // claw
-    g.fillStyle = '#b8b2cc'; g.fillRect(R.craneX - 10, cy + 4, 20, 3); g.fillRect(R.craneX - 10, cy + 4, 3, 8); g.fillRect(R.craneX + 7, cy + 4, 3, 8);
-    // held cube
-    if (!R.falling && R.canDrop && G.selectedCube && R.phase === 'play') {
-      const def = CUBES[G.selectedCube]; let w = def.w * CUBE_SIZE * R.sizeMult, h = def.h * CUBE_SIZE * R.sizeMult; if (R.rotate) { const t = w; w = h; h = t; }
+    const cy = craneY(), cam = FX.cam;
+    const vw = W / cam.zoom;
+    g.fillStyle = PAL.wood0; g.fillRect(cam.x - vw, cy - 30, vw * 2, 4);
+    g.fillStyle = PAL.wood0; g.fillRect(cam.x - vw, cy - 20, vw * 2, 4);
+    g.fillStyle = PAL.wood1;
+    for (let x = -3000; x < 3000; x += 22) { g.fillRect(x, cy - 27, 3, 8); g.fillRect(x + 11, cy - 27, 3, 8); }
+    g.fillStyle = PAL.wood3; g.fillRect(cam.x - vw, cy - 30, vw * 2, 1); g.fillRect(cam.x - vw, cy - 20, vw * 2, 1);
+    g.fillStyle = PAL.red; g.fillRect(R.craneX - 13, cy - 23, 26, 13);
+    g.fillStyle = PAL.redD; g.fillRect(R.craneX - 13, cy - 13, 26, 3);
+    g.fillStyle = PAL.goldL; g.fillRect(R.craneX - 13, cy - 23, 26, 2);
+    g.fillStyle = PAL.ink; g.fillRect(R.craneX - 1, cy - 10, 2, 17);
+    g.fillStyle = PAL.stone2; g.fillRect(R.craneX - 11, cy + 5, 22, 4);
+    g.fillStyle = PAL.stone1; g.fillRect(R.craneX - 11, cy + 5, 4, 9); g.fillRect(R.craneX + 7, cy + 5, 4, 9);
+    if (!R.falling && R.canDrop && G.selCube && R.phase === 'play') {
+      const def = CUBES[G.selCube];
+      let w = def.w * CUBE_SIZE * R.sizeMult, h = def.h * CUBE_SIZE * R.sizeMult;
+      if (R.rot) { const t = w; w = h; h = t; }
       const sway = (R.craneX - R.lastCraneX) * 0.02;
-      g.save(); g.translate(R.craneX, cy + 18 + h / 2 - 12); g.rotate(-sway);
-      Sprites.drawCube(g, def, w, h, { face: (G.premium[G.selectedCube] || 0) > 0, outline: 'rgba(255,255,255,0.6)' });
+      g.save(); g.translate(R.craneX, cy + 20 + h / 2 - 12); g.rotate(-sway);
+      Sprites.drawCube(g, def, w, h, { face: (G.premium[G.selCube] || 0) > 0, outline: 'rgba(255,248,230,0.6)' });
       g.restore();
     }
+  }
+  function overlay(g) {
+    // height gauge on the right, drawn as a carved wooden rail
+    const rx = W - 26, y0 = 52, y1 = H - 40;
+    g.fillStyle = PAL.ink; g.fillRect(rx - 7, y0 - 8, 16, y1 - y0 + 16);
+    g.fillStyle = PAL.wood2; g.fillRect(rx - 6, y0 - 7, 14, y1 - y0 + 14);
+    g.fillStyle = PAL.wood3; g.fillRect(rx - 6, y0 - 7, 14, 1);
+    g.fillStyle = PAL.wood0; g.fillRect(rx - 3, y0, 7, y1 - y0);
+    const maxT = Math.max(12, Math.ceil((R.peak + 4) / 4) * 4);
+    g.fillStyle = PAL.wood3;
+    for (let t = 0; t <= maxT; t += 4) g.fillRect(rx - 6, Math.round(y1 - (t / maxT) * (y1 - y0)), 4, 1);
+    const maxH = maxT;
+    const hy = y1 - (R.height / maxH) * (y1 - y0);
+    const py = y1 - (R.peak / maxH) * (y1 - y0);
+    g.fillStyle = PAL.grass2; g.fillRect(rx - 3, hy, 7, y1 - hy);
+    g.fillStyle = PAL.grass3; g.fillRect(rx - 3, hy, 7, 2);
+    g.fillStyle = PAL.cream; g.fillRect(rx - 6, py, 13, 1);
+    if (G.record > 0) {
+      const ry = y1 - (Math.min(maxH, G.record) / maxH) * (y1 - y0);
+      g.fillStyle = PAL.goldL; g.fillRect(rx - 7, ry, 15, 2);
+    }
+    g.font = '8px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'top';
+    g.fillStyle = PAL.cream; g.fillText(R.height.toFixed(1), rx + 1, y1 + 12);
+    if (R.wind.warn > 0) {
+      g.font = '10px "Press Start 2P", monospace'; g.textBaseline = 'middle';
+      g.fillStyle = Math.sin(G.time * 20) > 0 ? PAL.goldL : PAL.redL;
+      g.fillText('WIND', W / 2, 28);
+    }
+    if (R.phase === 'play' && R.rot) { g.font = '7px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillStyle = PAL.tealL; g.fillText('TURNED', W / 2, H - 16); }
+    if (R.phase === 'play' && !G.selCube && !R.falling) { g.font = '9px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillStyle = PAL.redL; g.fillText('NO CUBES LEFT', W / 2, 50); }
   }
 
   return {
     init(g) { G = g; resetWorld(); },
-    R, world, update, render, click, key, drop, cashOut, newRun, totalCubes, available, autoSelectCube,
-    setMouse(x) { mouseX = x; },
+    R, world, update, render, click, key, drop, cashOut, newRun, total, available, autoSelect,
     get active() { return R.active; },
     get crowdSize() { return crowd.length; },
   };
