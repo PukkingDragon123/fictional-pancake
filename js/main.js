@@ -126,6 +126,7 @@ const Main = (() => {
     requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
   }
 
-  window.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
+  else init();
   return { save, reset, setMode, get G() { return G; } };
 })();

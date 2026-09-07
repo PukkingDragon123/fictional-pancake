@@ -1,0 +1,2445 @@
+<title>Wombat Cube Tycoon</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+
+<style>
+:root {
+  --bg: #1a1424; --panel: #2a2138; --panel2: #352a48; --ink: #f2ead8; --dim: #b9a9c9;
+  --accent: #ffd23f; --accent2: #ff5c8a; --good: #7dff3f; --bad: #ff4b4b; --blue: #3fe0ff;
+  --border: #14101c;
+  font-family: "Press Start 2P", "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+button { font-family: inherit; cursor: pointer; }
+#app { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+
+/* HUD */
+#hud { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; background: var(--panel); border-bottom: 4px solid var(--border); font-size: 11px; flex-wrap: wrap; z-index: 5; }
+.hud-left, .hud-right, .hud-center { display: flex; gap: 8px; align-items: center; }
+.stat { background: #1a1424; padding: 6px 8px; border: 2px solid var(--border); border-radius: 4px; display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+.stat .sub { color: var(--good); font-size: 9px; }
+.stat.money { color: var(--accent); }
+.stat.sp { color: var(--blue); }
+.tab, .hbtn { background: var(--panel2); color: var(--ink); border: 2px solid var(--border); border-bottom-width: 4px; padding: 7px 10px; font-size: 10px; border-radius: 4px; position: relative; }
+.tab:hover, .hbtn:hover { background: #45385e; }
+.tab.active { background: var(--accent); color: #1a1424; }
+.hbtn.danger { background: #5a2323; }
+.badge { position: absolute; top: -8px; right: -8px; background: var(--accent2); color: #fff; border-radius: 10px; font-size: 8px; padding: 3px 5px; border: 2px solid var(--border); }
+
+/* Stage */
+#stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: #0d0a12; overflow: hidden; }
+#game { image-rendering: pixelated; image-rendering: crisp-edges; display: block; cursor: crosshair; }
+#tooltip { position: absolute; pointer-events: none; background: rgba(20,14,28,0.95); border: 2px solid var(--accent); color: var(--ink); padding: 6px 8px; font-size: 9px; line-height: 1.5; max-width: 240px; z-index: 20; border-radius: 3px; }
+#tower-overlay { position: absolute; inset: 0; pointer-events: none; }
+.center-card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(26,20,36,0.92); border: 4px solid var(--accent); padding: 20px 28px; text-align: center; pointer-events: auto; border-radius: 6px; max-width: 480px; }
+.center-card h2 { margin: 0 0 8px; color: var(--accent); font-size: 22px; letter-spacing: 2px; text-shadow: 3px 3px 0 #000; }
+.center-card p { font-size: 10px; line-height: 1.6; color: var(--dim); }
+button.big { background: var(--accent2); color: #fff; border: 3px solid var(--border); border-bottom-width: 6px; padding: 14px 26px; font-size: 16px; border-radius: 6px; margin: 8px 0; text-shadow: 2px 2px 0 #000; }
+button.big:hover { transform: translateY(-2px); filter: brightness(1.1); }
+button.big:disabled { opacity: 0.5; cursor: not-allowed; }
+.hint { font-size: 8px; color: var(--dim); line-height: 1.6; }
+#run-hud { position: absolute; left: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+.run-stat { background: rgba(26,20,36,0.85); border: 2px solid var(--border); padding: 5px 8px; font-size: 11px; display: flex; gap: 10px; align-items: baseline; min-width: 150px; justify-content: space-between; }
+.run-stat .lbl { font-size: 7px; color: var(--dim); }
+.run-stat.lives span:last-child { color: var(--accent2); letter-spacing: 2px; }
+.run-perks { display: flex; flex-wrap: wrap; gap: 4px; max-width: 200px; }
+.run-perks span { background: rgba(26,20,36,0.85); border: 2px solid var(--border); padding: 3px 5px; font-size: 12px; }
+#btn-cashout { pointer-events: auto; background: var(--good); color: #1a1424; border: 3px solid var(--border); border-bottom-width: 5px; padding: 10px 12px; font-size: 11px; border-radius: 4px; margin-top: 4px; }
+#btn-cashout:hover { filter: brightness(1.1); }
+
+/* Bottom bar */
+#bar { background: var(--panel); border-top: 4px solid var(--border); padding: 6px 10px; z-index: 5; }
+.barrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.hotlabel { font-size: 9px; color: var(--dim); white-space: nowrap; }
+.hotbar { display: flex; gap: 6px; flex-wrap: wrap; }
+.slot { position: relative; width: 52px; height: 52px; background: #1a1424; border: 2px solid var(--border); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: transform 0.08s; }
+.slot:hover { transform: translateY(-2px); border-color: var(--dim); }
+.slot.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+.slot.empty { opacity: 0.4; }
+.slot .count { position: absolute; right: 2px; bottom: 1px; font-size: 8px; color: var(--ink); background: rgba(0,0,0,0.6); padding: 1px 3px; border-radius: 2px; }
+.slot .key { position: absolute; left: 2px; top: 1px; font-size: 7px; color: var(--dim); }
+.slot .cube-ico { width: 22px; height: 22px; border-radius: 2px; box-shadow: inset 3px 3px 0 rgba(255,255,255,0.35), inset -3px -3px 0 rgba(0,0,0,0.4); }
+.slot .cube-ico.wide { width: 32px; height: 12px; }
+.slot .cube-ico.small { width: 14px; height: 14px; }
+.slot .cube-ico.large { width: 28px; height: 28px; }
+#trough-ctl { display: flex; gap: 6px; align-items: center; }
+select { font-family: inherit; font-size: 9px; background: #1a1424; color: var(--ink); border: 2px solid var(--border); padding: 5px; }
+
+/* Panels */
+.panel { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(860px, 94vw); max-height: 86vh; background: var(--panel); border: 4px solid var(--border); box-shadow: 0 0 0 4px var(--accent), 0 20px 60px rgba(0,0,0,0.7); z-index: 30; display: flex; flex-direction: column; border-radius: 6px; animation: pop 0.18s ease-out; }
+@keyframes pop { from { transform: translate(-50%, -50%) scale(0.85); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+.panel-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 4px solid var(--border); background: var(--panel2); }
+.panel-head h2 { margin: 0; font-size: 14px; color: var(--accent); display: flex; gap: 10px; align-items: center; }
+.pill { background: var(--blue); color: #1a1424; font-size: 9px; padding: 3px 6px; border-radius: 10px; }
+.close { background: var(--bad); color: #fff; border: 2px solid var(--border); font-size: 12px; padding: 4px 8px; border-radius: 4px; }
+.tabs { display: flex; gap: 4px; padding: 8px 14px 0; border-bottom: 2px solid var(--border); }
+.tabs button { background: #1a1424; color: var(--dim); border: 2px solid var(--border); border-bottom: none; padding: 8px 12px; font-size: 9px; border-radius: 4px 4px 0 0; }
+.tabs button.active { background: var(--accent); color: #1a1424; }
+.panel-body { overflow-y: auto; padding: 12px 14px; font-size: 10px; }
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.card { background: #1a1424; border: 2px solid var(--border); padding: 10px; border-radius: 4px; display: flex; flex-direction: column; gap: 6px; position: relative; }
+.card.locked { opacity: 0.85; }
+.card.owned { border-color: var(--good); }
+.card h3 { margin: 0; font-size: 10px; display: flex; gap: 8px; align-items: center; color: var(--ink); }
+.card h3 .ico { font-size: 18px; }
+.card p { margin: 0; font-size: 8px; line-height: 1.6; color: var(--dim); }
+.card .row { display: flex; gap: 6px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: auto; }
+.card .row .have { font-size: 8px; color: var(--blue); }
+.buy { background: var(--accent); color: #1a1424; border: 2px solid var(--border); border-bottom-width: 4px; padding: 6px 10px; font-size: 9px; border-radius: 4px; }
+.buy.alt { background: var(--blue); }
+.buy:disabled { background: #555; color: #999; cursor: not-allowed; }
+.buy:not(:disabled):hover { filter: brightness(1.1); transform: translateY(-1px); }
+.lvl { font-size: 8px; color: var(--accent); }
+.cube-swatch { width: 14px; height: 14px; display: inline-block; border-radius: 2px; box-shadow: inset 2px 2px 0 rgba(255,255,255,0.35), inset -2px -2px 0 rgba(0,0,0,0.4); vertical-align: middle; }
+
+/* Skill tree */
+.skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.branch { display: flex; flex-direction: column; gap: 0; align-items: center; }
+.branch h3 { font-size: 11px; margin: 0 0 8px; color: var(--accent); }
+.branch.husbandry h3 { color: var(--good); } .branch.engineering h3 { color: var(--blue); } .branch.showbiz h3 { color: var(--accent2); }
+.node { width: 100%; background: #1a1424; border: 2px solid var(--border); padding: 8px; border-radius: 4px; display: flex; gap: 8px; align-items: center; cursor: pointer; transition: transform 0.08s; }
+.node:hover { transform: scale(1.02); }
+.node .ico { font-size: 20px; width: 28px; text-align: center; }
+.node .nm { font-size: 9px; }
+.node .ds { font-size: 7px; color: var(--dim); line-height: 1.5; margin-top: 3px; }
+.node .cost { margin-left: auto; font-size: 9px; color: var(--blue); white-space: nowrap; }
+.node.owned { border-color: var(--good); background: #1f2e1a; }
+.node.owned .cost { color: var(--good); }
+.node.avail { border-color: var(--accent); box-shadow: 0 0 8px rgba(255,210,63,0.4); }
+.node.locked { opacity: 0.45; cursor: not-allowed; }
+.link { width: 4px; height: 12px; background: var(--border); }
+.link.on { background: var(--good); }
+
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; display: flex; align-items: center; justify-content: center; }
+.modal-card { background: var(--panel); border: 4px solid var(--border); box-shadow: 0 0 0 4px var(--accent2); padding: 20px; max-width: 760px; width: 92vw; text-align: center; border-radius: 6px; animation: popc 0.18s ease-out; }
+@keyframes popc { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-card h2 { margin: 0 0 6px; color: var(--accent); font-size: 18px; text-shadow: 3px 3px 0 #000; }
+.modal-card p { font-size: 9px; color: var(--dim); line-height: 1.6; }
+.perks { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 12px 0; }
+.perk { background: #1a1424; border: 3px solid var(--border); padding: 14px 10px; cursor: pointer; border-radius: 6px; transition: transform 0.1s, border-color 0.1s; }
+.perk:hover { transform: translateY(-4px) scale(1.03); border-color: var(--accent); }
+.perk.rare { border-color: #c77dff; box-shadow: 0 0 12px rgba(199,125,255,0.4); }
+.perk .ico { font-size: 34px; display: block; margin-bottom: 8px; }
+.perk .nm { font-size: 10px; color: var(--ink); display: block; margin-bottom: 6px; }
+.perk .ds { font-size: 7px; color: var(--dim); line-height: 1.5; }
+.summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 20px; margin: 12px auto; max-width: 440px; font-size: 10px; text-align: left; }
+.summary .k { color: var(--dim); } .summary .v { text-align: right; color: var(--accent); }
+.summary .v.good { color: var(--good); } .summary .v.blue { color: var(--blue); }
+
+/* Toasts */
+#toasts { position: fixed; right: 12px; bottom: 90px; display: flex; flex-direction: column; gap: 6px; z-index: 50; pointer-events: none; }
+.toast { background: rgba(26,20,36,0.95); border: 2px solid var(--accent); padding: 8px 12px; font-size: 9px; border-radius: 4px; animation: toastin 0.25s ease-out; max-width: 300px; line-height: 1.5; }
+.toast.bad { border-color: var(--bad); }
+.toast.good { border-color: var(--good); }
+@keyframes toastin { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.help ol { font-size: 9px; line-height: 1.8; padding-left: 18px; }
+@media (max-width: 760px) {
+  .hud-left .stat { padding: 4px 6px; font-size: 9px; }
+  .center-card { padding: 12px; }
+}
+</style>
+
+<div id="app">
+  <header id="hud">
+    <div class="hud-left">
+      <div class="stat money" title="Money"><span class="ico">💰</span><span id="hud-money">$0</span><span id="hud-income" class="sub"></span></div>
+      <div class="stat" title="Cubes in storage"><span class="ico">🟫</span><span id="hud-cubes">0</span></div>
+      <div class="stat sp" title="Skill points"><span class="ico">⭐</span><span id="hud-sp">0</span></div>
+      <div class="stat" title="Best tower"><span class="ico">🏆</span><span id="hud-record">0</span></div>
+    </div>
+    <div class="hud-center">
+      <button class="tab active" data-mode="pen">🐾 PEN</button>
+      <button class="tab" data-mode="tower">🏗️ TOWER</button>
+    </div>
+    <div class="hud-right">
+      <button id="btn-shop" class="hbtn">🛒 SHOP</button>
+      <button id="btn-skills" class="hbtn">🌳 SKILLS <span id="sp-badge" class="badge" hidden>0</span></button>
+      <button id="btn-help" class="hbtn">?</button>
+      <button id="btn-mute" class="hbtn">🔊</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <canvas id="game" width="640" height="360"></canvas>
+    <div id="tooltip" hidden></div>
+    <div id="tower-overlay" hidden>
+      <div id="run-start" class="center-card">
+        <h2>STACK RUN</h2>
+        <p id="run-start-info">Bring cubes. Stack them. Don't let it fall.</p>
+        <button id="btn-start-run" class="big">START RUN</button>
+        <p class="hint">Move: crane swings automatically. Click / Space to drop. 1-9 to pick cube. Cash out any time.</p>
+      </div>
+      <div id="run-hud" hidden>
+        <div class="run-stat"><span class="lbl">HEIGHT</span><span id="run-height">0</span></div>
+        <div class="run-stat"><span class="lbl">CROWD</span><span id="run-crowd">0</span></div>
+        <div class="run-stat"><span class="lbl">STACK POWER</span><span id="run-power">x1.00</span></div>
+        <div class="run-stat"><span class="lbl">EARNED</span><span id="run-earned">$0</span></div>
+        <div class="run-stat lives"><span class="lbl">LIVES</span><span id="run-lives">❤❤❤</span></div>
+        <div id="run-perks" class="run-perks"></div>
+        <button id="btn-cashout" class="cash">💵 CASH OUT</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="bar">
+    <div id="pen-bar" class="barrow">
+      <div class="hotlabel">FEED <span class="hint">(select food, then click a wombat • no food = pet)</span></div>
+      <div id="food-hotbar" class="hotbar"></div>
+      <div id="trough-ctl" hidden><span class="hotlabel">AUTO TROUGH</span><select id="trough-food"></select></div>
+    </div>
+    <div id="tower-bar" class="barrow" hidden>
+      <div class="hotlabel">CUBES <span class="hint">(1-9 select • Space/click drop)</span></div>
+      <div id="cube-hotbar" class="hotbar"></div>
+    </div>
+  </footer>
+
+  <!-- Panels -->
+  <div id="panel-shop" class="panel" hidden>
+    <div class="panel-head"><h2>🛒 WOMBAT SUPPLY CO.</h2><button class="close" data-close="panel-shop">✕</button></div>
+    <div class="tabs" id="shop-tabs">
+      <button data-tab="food" class="active">Food</button><button data-tab="wombats">Wombats</button><button data-tab="facilities">Facilities</button><button data-tab="toys">Toys</button><button data-tab="decor">Decor</button>
+    </div>
+    <div id="shop-body" class="panel-body"></div>
+  </div>
+  <div id="panel-skills" class="panel" hidden>
+    <div class="panel-head"><h2>🌳 SKILL TREE <span id="skills-sp" class="pill"></span></h2><button class="close" data-close="panel-skills">✕</button></div>
+    <div id="skills-body" class="panel-body skills"></div>
+  </div>
+  <div id="panel-help" class="panel" hidden>
+    <div class="panel-head"><h2>? HOW TO TYCOON</h2><button class="close" data-close="panel-help">✕</button></div>
+    <div class="panel-body help">
+      <ol>
+        <li><b>Feed</b> wombats (select food, click wombat). They digest, then poop a <b>cube</b>. Different foods make different cubes.</li>
+        <li><b>Pet</b> them (click with no food selected) to speed digestion and raise happiness. Happy wombats poop <b>premium</b> cubes.</li>
+        <li>Buy <b>toys</b> and <b>decorations</b> to keep the pen happy and attract bigger crowds.</li>
+        <li>Go to the <b>TOWER</b>. Start a run and drop cubes onto the platform. The higher the tower, the bigger the crowd and the money.</li>
+        <li>Every 5 settled cubes you pick a <b>perk</b>. Every 10, your <b>Stack Power</b> grows. Cubes that fall off cost a life. Lose all lives = collapse.</li>
+        <li><b>Cash out</b> to bank a bonus. Runs earn <b>skill points</b> for the permanent skill tree.</li>
+      </ol>
+      <p class="hint">Cube guide: Iron = heavy base • Sticky = glue • Feather = light top • Slab = new floor • Ice/Gold = high risk, high pay • Bouncy = chaos money.</p>
+      <div class="row"><button id="btn-music" class="hbtn">🎵 Music</button><button id="btn-reset" class="hbtn danger">Reset Save</button></div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" hidden>
+    <div id="modal-card" class="modal-card"></div>
+  </div>
+  <div id="toasts"></div>
+</div>
+
+<script>
+// ===== js/util.js =====
+// ---- Utility helpers ------------------------------------------------------
+const TAU = Math.PI * 2;
+const U = {
+  clamp: (v, a, b) => (v < a ? a : v > b ? b : v),
+  lerp: (a, b, t) => a + (b - a) * t,
+  rand: (a = 0, b = 1) => a + Math.random() * (b - a),
+  randi: (a, b) => Math.floor(a + Math.random() * (b - a + 1)),
+  pick: (arr) => arr[Math.floor(Math.random() * arr.length)],
+  chance: (p) => Math.random() < p,
+  sign: (v) => (v < 0 ? -1 : 1),
+  dist: (ax, ay, bx, by) => Math.hypot(bx - ax, by - ay),
+  easeOut: (t) => 1 - Math.pow(1 - t, 3),
+  easeIn: (t) => t * t * t,
+  easeInOut: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  bounce: (t) => {
+    const n1 = 7.5625, d1 = 2.75;
+    if (t < 1 / d1) return n1 * t * t;
+    if (t < 2 / d1) return n1 * (t -= 1.5 / d1) * t + 0.75;
+    if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
+    return n1 * (t -= 2.625 / d1) * t + 0.984375;
+  },
+  // Money formatting: $1.2K, $3.4M
+  fmt(n) {
+    n = Math.floor(n);
+    const abs = Math.abs(n);
+    if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+    if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (abs >= 1e4) return (n / 1e3).toFixed(1) + 'K';
+    return String(n);
+  },
+  money(n) { return '$' + U.fmt(n); },
+  time(s) {
+    s = Math.max(0, Math.ceil(s));
+    if (s < 60) return s + 's';
+    return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+  },
+  shade(hex, amt) {
+    // hex '#rrggbb', amt in -1..1
+    const n = parseInt(hex.slice(1), 16);
+    let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const f = (c) => U.clamp(Math.round(amt > 0 ? c + (255 - c) * amt : c * (1 + amt)), 0, 255);
+    r = f(r); g = f(g); b = f(b);
+    return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+  },
+  rgba(hex, a) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  },
+  uid: (() => { let i = 1; return () => i++; })(),
+};
+</script>
+
+<script>
+// ===== js/audio.js =====
+// ---- Procedural WebAudio sound + tiny chiptune sequencer ------------------
+const Audio = (() => {
+  let ctx = null, master = null, musicGain = null, sfxGain = null;
+  let muted = false, musicOn = true;
+  let musicMode = 'pen';
+  let seqTimer = null, nextNoteTime = 0, step = 0;
+
+  function ensure() {
+    if (ctx) return true;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain(); master.gain.value = muted ? 0 : 0.6; master.connect(ctx.destination);
+      sfxGain = ctx.createGain(); sfxGain.gain.value = 0.7; sfxGain.connect(master);
+      musicGain = ctx.createGain(); musicGain.gain.value = musicOn ? 0.22 : 0; musicGain.connect(master);
+      startMusic();
+      return true;
+    } catch (e) { return false; }
+  }
+  function resume() { if (ctx && ctx.state === 'suspended') ctx.resume(); }
+
+  function tone({ freq = 440, type = 'square', dur = 0.1, vol = 0.3, attack = 0.005, decay, slide = 0, delay = 0, dest }) {
+    if (!ctx) return;
+    const t0 = ctx.currentTime + delay;
+    const o = ctx.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(freq, t0);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq + slide), t0 + dur);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + (decay || dur));
+    o.connect(g); g.connect(dest || sfxGain);
+    o.start(t0); o.stop(t0 + (decay || dur) + 0.05);
+  }
+  function noise({ dur = 0.2, vol = 0.3, lp = 1200, hp = 0, delay = 0, decayCurve = 2 }) {
+    if (!ctx) return;
+    const t0 = ctx.currentTime + delay;
+    const len = Math.floor(ctx.sampleRate * dur);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decayCurve);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp;
+    const g = ctx.createGain(); g.gain.value = vol;
+    src.connect(f);
+    if (hp > 0) { const h = ctx.createBiquadFilter(); h.type = 'highpass'; h.frequency.value = hp; f.connect(h); h.connect(g); }
+    else f.connect(g);
+    g.connect(sfxGain);
+    src.start(t0);
+  }
+
+  const SFX = {
+    click: () => tone({ freq: 900, type: 'square', dur: 0.05, vol: 0.12 }),
+    hover: () => tone({ freq: 1400, type: 'sine', dur: 0.03, vol: 0.05 }),
+    pet: () => { tone({ freq: 660, type: 'triangle', dur: 0.12, vol: 0.2, slide: 300 }); tone({ freq: 990, type: 'triangle', dur: 0.15, vol: 0.12, delay: 0.06, slide: 200 }); },
+    eat: () => { for (let i = 0; i < 3; i++) noise({ dur: 0.08, vol: 0.25, lp: 900, delay: i * 0.11 }); },
+    strain: () => tone({ freq: 180, type: 'sawtooth', dur: 0.5, vol: 0.12, slide: 80 }),
+    plop: () => { tone({ freq: 240, type: 'sine', dur: 0.18, vol: 0.5, slide: -160 }); noise({ dur: 0.12, vol: 0.2, lp: 600 }); },
+    pop: () => tone({ freq: 500, type: 'square', dur: 0.08, vol: 0.2, slide: 400 }),
+    coin: () => { tone({ freq: 1320, type: 'square', dur: 0.07, vol: 0.15 }); tone({ freq: 1760, type: 'square', dur: 0.18, vol: 0.15, delay: 0.07 }); },
+    cash: () => { [0, 4, 7, 12].forEach((n, i) => tone({ freq: 660 * Math.pow(2, n / 12), type: 'square', dur: 0.12, vol: 0.15, delay: i * 0.07 })); },
+    thud: (p = 1) => { noise({ dur: 0.12 * p, vol: Math.min(0.6, 0.25 * p), lp: 400 + 300 * p }); tone({ freq: 90, type: 'sine', dur: 0.15, vol: Math.min(0.5, 0.3 * p), slide: -40 }); },
+    place: () => tone({ freq: 520, type: 'triangle', dur: 0.1, vol: 0.2, slide: 260 }),
+    whoosh: () => noise({ dur: 0.35, vol: 0.2, lp: 2500, hp: 400, decayCurve: 1 }),
+    wind: () => noise({ dur: 1.4, vol: 0.18, lp: 900, hp: 200, decayCurve: 1 }),
+    cheer: (n = 1) => { for (let i = 0; i < 4; i++) noise({ dur: 0.5, vol: 0.12 * n, lp: 3000, hp: 800, delay: i * 0.06, decayCurve: 1 }); },
+    perk: () => { [0, 3, 7, 10, 14].forEach((n, i) => tone({ freq: 440 * Math.pow(2, n / 12), type: 'triangle', dur: 0.25, vol: 0.2, delay: i * 0.08 })); },
+    record: () => { [0, 4, 7, 12, 16, 19, 24].forEach((n, i) => tone({ freq: 523 * Math.pow(2, n / 12), type: 'square', dur: 0.2, vol: 0.14, delay: i * 0.06 })); },
+    collapse: () => { tone({ freq: 220, type: 'sawtooth', dur: 1.2, vol: 0.3, slide: -180 }); noise({ dur: 1.2, vol: 0.5, lp: 500, decayCurve: 1.5 }); noise({ dur: 0.6, vol: 0.3, lp: 300, delay: 0.3 }); },
+    alarm: () => { tone({ freq: 880, type: 'square', dur: 0.12, vol: 0.12 }); tone({ freq: 660, type: 'square', dur: 0.12, vol: 0.12, delay: 0.14 }); },
+    buy: () => { tone({ freq: 784, type: 'square', dur: 0.08, vol: 0.15 }); tone({ freq: 1175, type: 'square', dur: 0.15, vol: 0.15, delay: 0.08 }); },
+    error: () => tone({ freq: 160, type: 'square', dur: 0.2, vol: 0.2, slide: -60 }),
+    slowmo: () => tone({ freq: 400, type: 'sine', dur: 0.6, vol: 0.2, slide: -300 }),
+    drum: () => { noise({ dur: 0.3, vol: 0.5, lp: 300 }); tone({ freq: 60, type: 'sine', dur: 0.4, vol: 0.5, slide: -30 }); },
+    levelup: () => { [0, 7, 12, 19].forEach((n, i) => tone({ freq: 392 * Math.pow(2, n / 12), type: 'square', dur: 0.3, vol: 0.15, delay: i * 0.1 })); },
+    bounce: () => tone({ freq: 300, type: 'sine', dur: 0.12, vol: 0.25, slide: 500 }),
+    squeak: () => tone({ freq: 1200, type: 'triangle', dur: 0.1, vol: 0.12, slide: 600 }),
+  };
+
+  // ---- Music: simple pattern sequencer -----------------------------------
+  const PEN_BASS = [0, 0, 7, 7, 5, 5, 3, 3];          // semitone offsets of root (C)
+  const PEN_ARP = [[0, 4, 7], [0, 4, 7], [7, 11, 14], [7, 11, 14], [5, 9, 12], [5, 9, 12], [3, 7, 10], [3, 7, 10]];
+  const TOWER_BASS = [0, 0, 0, 0, 5, 5, 3, 3];
+  const TOWER_ARP = [[0, 3, 7], [0, 3, 7], [0, 3, 7], [0, 3, 7], [5, 8, 12], [5, 8, 12], [3, 7, 10], [3, 7, 10]];
+
+  function schedule() {
+    if (!ctx) return;
+    const bpm = musicMode === 'tower' ? 128 : 92;
+    const spb = 60 / bpm / 4; // 16th
+    while (nextNoteTime < ctx.currentTime + 0.15) {
+      const bar = Math.floor(step / 16) % 8;
+      const s16 = step % 16;
+      const root = 130.81 * (musicMode === 'tower' ? 1 : 1); // C3
+      const bass = musicMode === 'tower' ? TOWER_BASS : PEN_BASS;
+      const arp = musicMode === 'tower' ? TOWER_ARP : PEN_ARP;
+      const t = nextNoteTime - ctx.currentTime;
+      if (s16 % 4 === 0) tone({ freq: root * Math.pow(2, bass[bar] / 12) / 2, type: 'triangle', dur: spb * 3, vol: 0.35, delay: t, dest: musicGain });
+      if (musicMode === 'tower' || s16 % 2 === 0) {
+        const chord = arp[bar];
+        const n = chord[(s16 >> 1) % 3] + (s16 % 8 >= 4 ? 12 : 0);
+        tone({ freq: root * 2 * Math.pow(2, n / 12), type: musicMode === 'tower' ? 'square' : 'sine', dur: spb * 0.9, vol: musicMode === 'tower' ? 0.13 : 0.25, delay: t, dest: musicGain });
+      }
+      if (musicMode === 'tower' && (s16 === 0 || s16 === 8)) {
+        // kick
+        const t0 = ctx.currentTime + t;
+        const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(120, t0); o.frequency.exponentialRampToValueAtTime(40, t0 + 0.15);
+        const g = ctx.createGain(); g.gain.setValueAtTime(0.5, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.2);
+        o.connect(g); g.connect(musicGain); o.start(t0); o.stop(t0 + 0.25);
+      }
+      nextNoteTime += spb;
+      step++;
+    }
+  }
+  function startMusic() {
+    if (seqTimer) return;
+    nextNoteTime = ctx.currentTime + 0.1;
+    seqTimer = setInterval(schedule, 50);
+  }
+
+  return {
+    init() { return ensure(); },
+    resume,
+    play(name, arg) { if (!ctx || muted) return; try { SFX[name] && SFX[name](arg); } catch (e) { } },
+    setMode(m) { if (musicMode !== m) { musicMode = m; step = 0; } },
+    toggleMute() { muted = !muted; if (master) master.gain.value = muted ? 0 : 0.6; return muted; },
+    toggleMusic() { musicOn = !musicOn; if (musicGain) musicGain.gain.value = musicOn ? 0.22 : 0; return musicOn; },
+    get muted() { return muted; },
+    get musicOn() { return musicOn; },
+    setState(m, mu) { muted = !!m; musicOn = mu !== false; if (master) master.gain.value = muted ? 0 : 0.6; if (musicGain) musicGain.gain.value = musicOn ? 0.22 : 0; },
+  };
+})();
+</script>
+
+<script>
+// ===== js/sprites.js =====
+// ---- Pixel-art sprite factory ---------------------------------------------
+const Sprites = (() => {
+  const cache = {};
+  function make(rows, palette, scale = 1) {
+    const h = rows.length, w = rows[0].length;
+    const c = document.createElement('canvas'); c.width = w * scale; c.height = h * scale;
+    const g = c.getContext('2d');
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const ch = rows[y][x];
+      if (ch === '.' || !palette[ch]) continue;
+      g.fillStyle = palette[ch];
+      g.fillRect(x * scale, y * scale, scale, scale);
+    }
+    return c;
+  }
+  function flip(img) {
+    const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+    const g = c.getContext('2d'); g.translate(img.width, 0); g.scale(-1, 1); g.drawImage(img, 0, 0);
+    return c;
+  }
+  function tint(img, color) {
+    const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+    const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+    g.globalCompositeOperation = 'source-atop'; g.fillStyle = color; g.fillRect(0, 0, c.width, c.height);
+    return c;
+  }
+
+  // Wombat, facing right. 22x14
+  const WOMBAT_PAL = { b: '#8b6a45', l: '#a98b62', d: '#5c4530', k: '#1b1210', w: '#f4efe6', n: '#3a2a20', p: '#c98a7a', e: '#6b5136' };
+  const WOMBAT = [
+    '......................',
+    '....bbbbbbbbb.....ee..',
+    '..bbbbbbbbbbbbb..epee.',
+    '.bbbbbbbbbbbbbbbbbbbb.',
+    '.bbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbwkbbb',
+    'bbbbbbbbbbbbbbbbbbbbbn',
+    'bbbbbbbbbbbbbbbbbbbbnn',
+    'bbbbbbbbbbbbbbbbbbbbbn',
+    '.bbbbbbbbbbbbbbbbbbbb.',
+    '.bblllllllllllllbbbb..',
+    '..dd...dd....dd...dd..',
+    '..dd...dd....dd...dd..',
+    '......................',
+  ];
+  const WOMBAT_WALK = [
+    '......................',
+    '....bbbbbbbbb.....ee..',
+    '..bbbbbbbbbbbbb..epee.',
+    '.bbbbbbbbbbbbbbbbbbbb.',
+    '.bbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbwkbbb',
+    'bbbbbbbbbbbbbbbbbbbbbn',
+    'bbbbbbbbbbbbbbbbbbbbnn',
+    'bbbbbbbbbbbbbbbbbbbbbn',
+    '.bbbbbbbbbbbbbbbbbbbb.',
+    '.bblllllllllllllbbbb..',
+    '.dd...dd.......dd..dd.',
+    'dd.....dd.....dd....dd',
+    '......................',
+  ];
+  const WOMBAT_SLEEP = [
+    '......................',
+    '......................',
+    '....bbbbbbbbb.....ee..',
+    '..bbbbbbbbbbbbb..epee.',
+    '.bbbbbbbbbbbbbbbbbbbb.',
+    '.bbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbkkbbb',
+    'bbbbbbbbbbbbbbbbbbbbbn',
+    'bbbbbbbbbbbbbbbbbbbbnn',
+    'bbbbbbbbbbbbbbbbbbbbbn',
+    '.bbbbbbbbbbbbbbbbbbbb.',
+    '.bblllllllllllllbbbb..',
+    '.dddd..dddd..dddd.ddd.',
+    '......................',
+  ];
+  const WOMBAT_HAPPY = [
+    '......................',
+    '....bbbbbbbbb.....ee..',
+    '..bbbbbbbbbbbbb..epee.',
+    '.bbbbbbbbbbbbbbbbbbbb.',
+    '.bbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbkwbbb',
+    'bbbbbbbbbbbbbbbbbpbbbn',
+    'bbbbbbbbbbbbbbbbbbbbnn',
+    'bbbbbbbbbbbbbbbbbbkbbn',
+    '.bbbbbbbbbbbbbbbbbbbb.',
+    '.bblllllllllllllbbbb..',
+    '..dd...dd....dd...dd..',
+    '..dd...dd....dd...dd..',
+    '......................',
+  ];
+  // Crowd person 6x11 (colored by tint for shirt)
+  const PERSON_PAL = { s: '#e8b98a', h: '#3b2a1f', t: '#ffffff', l: '#2b3a5a' };
+  const PERSON = [
+    '.hhhh.',
+    '.ssss.',
+    '.ssss.',
+    '..ss..',
+    'tttttt',
+    'tttttt',
+    'tttttt',
+    '.tttt.',
+    '.llll.',
+    '.l..l.',
+    '.l..l.',
+  ];
+  const SHIRTS = ['#e04b4b', '#4b8be0', '#4be07a', '#e0c04b', '#c04be0', '#e0884b', '#4bd6e0', '#f0f0f0', '#7a5cff'];
+
+  const S = {};
+  S.init = function () {
+    const sc = 2;
+    S.wombat = make(WOMBAT, WOMBAT_PAL, sc); S.wombatL = flip(S.wombat);
+    S.wombatWalk = make(WOMBAT_WALK, WOMBAT_PAL, sc); S.wombatWalkL = flip(S.wombatWalk);
+    S.wombatSleep = make(WOMBAT_SLEEP, WOMBAT_PAL, sc); S.wombatSleepL = flip(S.wombatSleep);
+    S.wombatHappy = make(WOMBAT_HAPPY, WOMBAT_PAL, sc); S.wombatHappyL = flip(S.wombatHappy);
+    S.people = SHIRTS.map((col) => {
+      const rows = PERSON; const pal = Object.assign({}, PERSON_PAL, { t: col });
+      return make(rows, pal, 1);
+    });
+    S.peopleHat = SHIRTS.map((col) => make(PERSON, Object.assign({}, PERSON_PAL, { t: col, h: U.pick(['#222', '#a33', '#37a', '#c93', '#3b2a1f']) }), 1));
+  };
+  S.make = make; S.flip = flip; S.tint = tint;
+
+  // ---- Procedural cube drawing (pixel bevel style) ----
+  // draws centered at (0,0) in current transform, size w x h
+  S.drawCube = function (g, def, w, h, opts = {}) {
+    const col = opts.color || def.color;
+    const px = Math.max(1, Math.round(w / 12)); // bevel thickness
+    g.fillStyle = col; g.fillRect(-w / 2, -h / 2, w, h);
+    g.fillStyle = U.shade(col, 0.28); g.fillRect(-w / 2, -h / 2, w, px); g.fillRect(-w / 2, -h / 2, px, h);
+    g.fillStyle = U.shade(col, -0.35); g.fillRect(-w / 2, h / 2 - px, w, px); g.fillRect(w / 2 - px, -h / 2, px, h);
+    // texture speckles
+    g.fillStyle = U.shade(col, -0.15);
+    const n = def.key === 'ice' ? 0 : 3;
+    for (let i = 0; i < n; i++) {
+      const sx = -w / 2 + px * 2 + ((i * 7 + 3) % Math.max(1, (w - px * 4))) , sy = -h / 2 + px * 2 + ((i * 11 + 5) % Math.max(1, (h - px * 4)));
+      g.fillRect(Math.floor(sx), Math.floor(sy), px, px);
+    }
+    // type-specific decorations
+    switch (def.key) {
+      case 'sticky':
+        g.fillStyle = U.shade(col, 0.45);
+        g.fillRect(-w / 2 + px, h / 2 - px * 3, px * 2, px * 3); g.fillRect(w / 2 - px * 4, h / 2 - px * 2, px * 2, px * 2);
+        g.fillRect(-px, h / 2 - px * 4, px, px * 4);
+        break;
+      case 'ice':
+        g.fillStyle = 'rgba(255,255,255,0.55)'; g.fillRect(-w / 2 + px * 2, -h / 2 + px * 2, px * 2, px * 5); g.fillRect(-w / 2 + px * 2, -h / 2 + px * 2, px * 5, px * 2);
+        break;
+      case 'gold':
+        g.fillStyle = '#fff6c2'; g.fillRect(-w / 2 + px * 2, -h / 2 + px * 2, px * 2, px * 2); g.fillRect(w / 2 - px * 5, h / 2 - px * 5, px, px);
+        g.fillStyle = U.shade(col, -0.2); g.fillRect(-px * 2, -px * 2, px * 4, px * 4); g.fillStyle = '#fff6c2'; g.fillRect(-px, -px * 2, px * 2, px);
+        break;
+      case 'heavy':
+        g.fillStyle = U.shade(col, 0.35);
+        for (let i = 0; i < 4; i++) g.fillRect((i % 2 ? 1 : -1) * (w / 2 - px * 3) - px / 2, (i < 2 ? -1 : 1) * (h / 2 - px * 3) - px / 2, px, px);
+        break;
+      case 'bouncy':
+        g.fillStyle = U.shade(col, 0.4); g.fillRect(-w / 2 + px * 2, -px / 2, w - px * 4, px);
+        break;
+      case 'light':
+        g.fillStyle = U.shade(col, 0.5); g.fillRect(-px, -h / 2 + px * 2, px, h - px * 4); g.fillRect(-px * 3, -px, px * 5, px);
+        break;
+      case 'slab':
+        g.fillStyle = U.shade(col, -0.25); for (let i = 1; i < 4; i++) g.fillRect(-w / 2 + (w / 4) * i - px / 2, -h / 2 + px, px, h - px * 2);
+        break;
+    }
+    // face (premium cubes get a face)
+    if (opts.face) {
+      const ex = Math.max(1, Math.round(w / 8));
+      g.fillStyle = '#1b1210'; g.fillRect(-w / 4 - ex / 2, -h / 6, ex, ex); g.fillRect(w / 4 - ex / 2, -h / 6, ex, ex);
+      g.fillRect(-w / 6, h / 6, w / 3, ex / 1.5);
+    }
+    if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = 2; g.strokeRect(-w / 2, -h / 2, w, h); }
+  };
+
+  return S;
+})();
+</script>
+
+<script>
+// ===== js/physics.js =====
+// ---- Tiny 2D rigid-body engine (oriented boxes) ---------------------------
+// Sequential-impulse solver with accumulated impulses and warm starting,
+// in the spirit of Box2D-Lite. Extended with restitution and "adhesion"
+// (negative normal impulse allowance) so sticky cubes can cling.
+const Physics = (() => {
+  const EDGE = { NONE: 0, E1: 1, E2: 2, E3: 3, E4: 4 };
+  const FACE_A_X = 0, FACE_A_Y = 1, FACE_B_X = 2, FACE_B_Y = 3;
+
+  class Body {
+    constructor(o = {}) {
+      this.id = U.uid();
+      this.x = o.x || 0; this.y = o.y || 0; this.angle = o.angle || 0;
+      this.vx = o.vx || 0; this.vy = o.vy || 0; this.w = o.w || 0; // w = angular velocity
+      this.width = o.width || 20; this.height = o.height || 20;
+      this.friction = o.friction ?? 0.6;
+      this.restitution = o.restitution ?? 0;
+      this.adhesion = o.adhesion || 0;      // force (mass units * px/s^2)
+      this.angularDamping = o.angularDamping || 0;
+      this.linearDamping = o.linearDamping || 0;
+      this.gravityScale = o.gravityScale ?? 1;
+      this.isStatic = !!o.isStatic;
+      this.userData = o.userData || null;
+      this.setMass(o.density ?? 1);
+      this.pvx = 0; this.pvy = 0; this.pw = 0; // pseudo velocities (position correction only)
+      this.contacts = 0; // number of touching bodies (updated each step)
+      this.restTime = 0;
+    }
+    setMass(density) {
+      if (this.isStatic) { this.mass = Infinity; this.invMass = 0; this.I = Infinity; this.invI = 0; this.density = 0; return; }
+      this.density = density;
+      this.mass = this.width * this.height * density / 1000;
+      this.invMass = 1 / this.mass;
+      this.I = this.mass * (this.width * this.width + this.height * this.height) / 12;
+      this.invI = 1 / this.I;
+    }
+    get speed() { return Math.hypot(this.vx, this.vy); }
+    // Axis-aligned bounds (for broadphase)
+    aabb() {
+      const c = Math.abs(Math.cos(this.angle)), s = Math.abs(Math.sin(this.angle));
+      const hx = (this.width * c + this.height * s) / 2, hy = (this.width * s + this.height * c) / 2;
+      return { minX: this.x - hx, maxX: this.x + hx, minY: this.y - hy, maxY: this.y + hy };
+    }
+    top() { return this.aabb().minY; }
+    corners() {
+      const c = Math.cos(this.angle), s = Math.sin(this.angle), hx = this.width / 2, hy = this.height / 2;
+      return [[-hx, -hy], [hx, -hy], [hx, hy], [-hx, hy]].map(([px, py]) => [this.x + px * c - py * s, this.y + px * s + py * c]);
+    }
+    containsPoint(px, py) {
+      const c = Math.cos(this.angle), s = Math.sin(this.angle), dx = px - this.x, dy = py - this.y;
+      const lx = c * dx + s * dy, ly = -s * dx + c * dy;
+      return Math.abs(lx) <= this.width / 2 && Math.abs(ly) <= this.height / 2;
+    }
+  }
+
+  // ---- Collision ----------------------------------------------------------
+  // fp packs feature edges: inEdge1 | inEdge2<<8 | outEdge1<<16 | outEdge2<<24
+  function clipSegmentToLine(vOut, vIn, nx, ny, offset, clipEdge) {
+    let numOut = 0;
+    const d0 = nx * vIn[0].x + ny * vIn[0].y - offset;
+    const d1 = nx * vIn[1].x + ny * vIn[1].y - offset;
+    if (d0 <= 0) vOut[numOut++] = vIn[0];
+    if (d1 <= 0) vOut[numOut++] = vIn[1];
+    if (d0 * d1 < 0) {
+      const t = d0 / (d0 - d1);
+      const v = { x: vIn[0].x + t * (vIn[1].x - vIn[0].x), y: vIn[0].y + t * (vIn[1].y - vIn[0].y), fp: 0 };
+      if (d0 > 0) v.fp = (clipEdge | (vIn[0].fp & 0xffff0000)) >>> 0;       // inEdge1 = clipEdge, inEdge2 = none
+      else v.fp = ((vIn[1].fp & 0xffff) | (clipEdge << 16)) >>> 0;           // outEdge1 = clipEdge, outEdge2 = none
+      vOut[numOut++] = v;
+    }
+    return numOut;
+  }
+
+  function computeIncidentEdge(c, hx, hy, px, py, cos, sin, nx, ny) {
+    // n = -(RotT * normal)
+    const lnx = -(cos * nx + sin * ny), lny = -(-sin * nx + cos * ny);
+    let v0, v1, fp0, fp1;
+    if (Math.abs(lnx) > Math.abs(lny)) {
+      if (lnx > 0) { v0 = [hx, -hy]; fp0 = (EDGE.E3 << 8) | (EDGE.E4 << 24); v1 = [hx, hy]; fp1 = (EDGE.E4 << 8) | (EDGE.E1 << 24); }
+      else { v0 = [-hx, hy]; fp0 = (EDGE.E1 << 8) | (EDGE.E2 << 24); v1 = [-hx, -hy]; fp1 = (EDGE.E2 << 8) | (EDGE.E3 << 24); }
+    } else {
+      if (lny > 0) { v0 = [hx, hy]; fp0 = (EDGE.E4 << 8) | (EDGE.E1 << 24); v1 = [-hx, hy]; fp1 = (EDGE.E1 << 8) | (EDGE.E2 << 24); }
+      else { v0 = [-hx, -hy]; fp0 = (EDGE.E2 << 8) | (EDGE.E3 << 24); v1 = [hx, -hy]; fp1 = (EDGE.E3 << 8) | (EDGE.E4 << 24); }
+    }
+    c[0] = { x: px + cos * v0[0] - sin * v0[1], y: py + sin * v0[0] + cos * v0[1], fp: fp0 >>> 0 };
+    c[1] = { x: px + cos * v1[0] - sin * v1[1], y: py + sin * v1[0] + cos * v1[1], fp: fp1 >>> 0 };
+  }
+
+  const MARGIN = 2.0; // speculative contact margin (px)
+  // Returns array of contacts {x,y,nx,ny,sep,key}
+  function collide(A, B) {
+    const hAx = A.width / 2, hAy = A.height / 2, hBx = B.width / 2, hBy = B.height / 2;
+    const ca = Math.cos(A.angle), sa = Math.sin(A.angle), cb = Math.cos(B.angle), sb = Math.sin(B.angle);
+    const dpx = B.x - A.x, dpy = B.y - A.y;
+    // dA = RotAT*dp, dB = RotBT*dp
+    const dAx = ca * dpx + sa * dpy, dAy = -sa * dpx + ca * dpy;
+    const dBx = cb * dpx + sb * dpy, dBy = -sb * dpx + cb * dpy;
+    // C = RotAT * RotB
+    const c11 = ca * cb + sa * sb, c12 = -ca * sb + sa * cb; // row1
+    const c21 = -sa * cb + ca * sb, c22 = sa * sb + ca * cb; // row2
+    const a11 = Math.abs(c11), a12 = Math.abs(c12), a21 = Math.abs(c21), a22 = Math.abs(c22);
+    // faceA = |dA| - hA - absC*hB
+    const fAx = Math.abs(dAx) - hAx - (a11 * hBx + a12 * hBy);
+    const fAy = Math.abs(dAy) - hAy - (a21 * hBx + a22 * hBy);
+    if (fAx > MARGIN || fAy > MARGIN) return null;
+    // faceB = |dB| - absCT*hA - hB
+    const fBx = Math.abs(dBx) - (a11 * hAx + a21 * hAy) - hBx;
+    const fBy = Math.abs(dBy) - (a12 * hAx + a22 * hAy) - hBy;
+    if (fBx > MARGIN || fBy > MARGIN) return null;
+
+    let axis = FACE_A_X, sep = fAx, nx = dAx > 0 ? ca : -ca, ny = dAx > 0 ? sa : -sa;
+    const relTol = 0.95, absTol = 0.01;
+    if (fAy > relTol * sep + absTol * hAy) { axis = FACE_A_Y; sep = fAy; nx = dAy > 0 ? -sa : sa; ny = dAy > 0 ? ca : -ca; }
+    if (fBx > relTol * sep + absTol * hBx) { axis = FACE_B_X; sep = fBx; nx = dBx > 0 ? cb : -cb; ny = dBx > 0 ? sb : -sb; }
+    if (fBy > relTol * sep + absTol * hBy) { axis = FACE_B_Y; sep = fBy; nx = dBy > 0 ? -sb : sb; ny = dBy > 0 ? cb : -cb; }
+
+    let fnx, fny, front, snx, sny, side, negSide, posSide, negEdge, posEdge;
+    const inc = [null, null];
+    switch (axis) {
+      case FACE_A_X:
+        fnx = nx; fny = ny; front = A.x * fnx + A.y * fny + hAx;
+        snx = -sa; sny = ca; side = A.x * snx + A.y * sny; negSide = -side + hAy; posSide = side + hAy;
+        negEdge = EDGE.E3; posEdge = EDGE.E1; computeIncidentEdge(inc, hBx, hBy, B.x, B.y, cb, sb, fnx, fny); break;
+      case FACE_A_Y:
+        fnx = nx; fny = ny; front = A.x * fnx + A.y * fny + hAy;
+        snx = ca; sny = sa; side = A.x * snx + A.y * sny; negSide = -side + hAx; posSide = side + hAx;
+        negEdge = EDGE.E2; posEdge = EDGE.E4; computeIncidentEdge(inc, hBx, hBy, B.x, B.y, cb, sb, fnx, fny); break;
+      case FACE_B_X:
+        fnx = -nx; fny = -ny; front = B.x * fnx + B.y * fny + hBx;
+        snx = -sb; sny = cb; side = B.x * snx + B.y * sny; negSide = -side + hBy; posSide = side + hBy;
+        negEdge = EDGE.E3; posEdge = EDGE.E1; computeIncidentEdge(inc, hAx, hAy, A.x, A.y, ca, sa, fnx, fny); break;
+      default:
+        fnx = -nx; fny = -ny; front = B.x * fnx + B.y * fny + hBy;
+        snx = cb; sny = sb; side = B.x * snx + B.y * sny; negSide = -side + hBx; posSide = side + hBx;
+        negEdge = EDGE.E2; posEdge = EDGE.E4; computeIncidentEdge(inc, hAx, hAy, A.x, A.y, ca, sa, fnx, fny); break;
+    }
+    const cp1 = [null, null], cp2 = [null, null];
+    if (clipSegmentToLine(cp1, inc, -snx, -sny, negSide, negEdge) < 2) return null;
+    if (clipSegmentToLine(cp2, cp1, snx, sny, posSide, posEdge) < 2) return null;
+    const out = [];
+    for (let i = 0; i < 2; i++) {
+      const v = cp2[i];
+      const s = fnx * v.x + fny * v.y - front;
+      if (s <= MARGIN) {
+        let key = v.fp >>> 0;
+        if (axis === FACE_B_X || axis === FACE_B_Y) key = ((key & 0xffff) << 16) | ((key >>> 16) & 0xffff); // flip
+        out.push({ x: v.x - s * fnx, y: v.y - s * fny, nx, ny, sep: s, key: key >>> 0, Pn: 0, Pt: 0 });
+      }
+    }
+    return out.length ? out : null;
+  }
+
+  class Arbiter {
+    constructor(a, b) {
+      this.a = a; this.b = b;
+      this.contacts = [];
+      this.friction = Math.sqrt(a.friction * b.friction);
+      this.restitution = Math.max(a.restitution, b.restitution);
+      this.adhesion = Math.max(a.adhesion, b.adhesion);
+      this.fresh = true;
+    }
+    update(newContacts, world) {
+      const merged = [];
+      let newImpulse = 0;
+      for (const nc of newContacts) {
+        const old = this.contacts.find((c) => c.key === nc.key);
+        if (old) { nc.Pn = old.Pn; nc.Pt = old.Pt; }
+        else nc.isNew = true;
+        merged.push(nc);
+      }
+      this.contacts = merged;
+      this.friction = Math.sqrt(this.a.friction * this.b.friction);
+      this.adhesion = Math.max(this.a.adhesion, this.b.adhesion);
+      this.restitution = Math.max(this.a.restitution, this.b.restitution);
+    }
+    preStep(invDt, world) {
+      const A = this.a, B = this.b;
+      const allowedPen = 0.08, biasFactor = 0.3;
+      for (const c of this.contacts) {
+        c.rAx = c.x - A.x; c.rAy = c.y - A.y; c.rBx = c.x - B.x; c.rBy = c.y - B.y;
+        const rnA = c.rAx * c.nx + c.rAy * c.ny, rnB = c.rBx * c.nx + c.rBy * c.ny;
+        let kN = A.invMass + B.invMass;
+        kN += A.invI * ((c.rAx * c.rAx + c.rAy * c.rAy) - rnA * rnA) + B.invI * ((c.rBx * c.rBx + c.rBy * c.rBy) - rnB * rnB);
+        c.massNormal = 1 / kN;
+        const tx = c.ny, ty = -c.nx; // tangent = cross(n, 1)
+        const rtA = c.rAx * tx + c.rAy * ty, rtB = c.rBx * tx + c.rBy * ty;
+        let kT = A.invMass + B.invMass;
+        kT += A.invI * ((c.rAx * c.rAx + c.rAy * c.rAy) - rtA * rtA) + B.invI * ((c.rBx * c.rBx + c.rBy * c.rBy) - rtB * rtB);
+        c.massTangent = 1 / kT;
+        c.bias = c.sep < 0 ? Math.min(60, -biasFactor * invDt * Math.min(0, c.sep + allowedPen)) : 0; // position-only (split impulse)
+        c.vtarget = c.sep > 0 ? -c.sep * invDt : 0; // speculative: may approach only fast enough to close the gap this step
+        c.Pnb = 0;
+        c.rbias = 0;
+        // restitution: relative normal velocity before solving
+        if (this.restitution > 0) {
+          const dvx = B.vx - B.w * c.rBy - A.vx + A.w * c.rAy;
+          const dvy = B.vy + B.w * c.rBx - A.vy - A.w * c.rAx;
+          const vn = dvx * c.nx + dvy * c.ny;
+          if (vn < -40) c.rbias = -this.restitution * vn;
+        }
+        c.adhMax = this.adhesion / invDt; // impulse allowance per step
+        // warm start
+        const Px = c.Pn * c.nx + c.Pt * tx, Py = c.Pn * c.ny + c.Pt * ty;
+        A.vx -= A.invMass * Px; A.vy -= A.invMass * Py; A.w -= A.invI * (c.rAx * Py - c.rAy * Px);
+        B.vx += B.invMass * Px; B.vy += B.invMass * Py; B.w += B.invI * (c.rBx * Py - c.rBy * Px);
+      }
+    }
+    applyImpulse() {
+      const A = this.a, B = this.b;
+      for (const c of this.contacts) {
+        let dvx = B.vx - B.w * c.rBy - A.vx + A.w * c.rAy;
+        let dvy = B.vy + B.w * c.rBx - A.vy - A.w * c.rAx;
+        const vn = dvx * c.nx + dvy * c.ny;
+        let dPn = c.massNormal * (-vn + c.rbias + c.vtarget + (this.velBias ? c.bias : 0));
+        const Pn0 = c.Pn;
+        c.Pn = Math.max(Pn0 + dPn, -c.adhMax);
+        dPn = c.Pn - Pn0;
+        let Px = dPn * c.nx, Py = dPn * c.ny;
+        A.vx -= A.invMass * Px; A.vy -= A.invMass * Py; A.w -= A.invI * (c.rAx * Py - c.rAy * Px);
+        B.vx += B.invMass * Px; B.vy += B.invMass * Py; B.w += B.invI * (c.rBx * Py - c.rBy * Px);
+        // position correction via pseudo velocities (does not add energy)
+        if (this.split && c.bias > 0) {
+          const pdvx = B.pvx - B.pw * c.rBy - A.pvx + A.pw * c.rAy;
+          const pdvy = B.pvy + B.pw * c.rBx - A.pvy - A.pw * c.rAx;
+          const pvn = pdvx * c.nx + pdvy * c.ny;
+          let dPnb = c.massNormal * (-pvn + c.bias);
+          const Pnb0 = c.Pnb; c.Pnb = Math.max(Pnb0 + dPnb, 0); dPnb = c.Pnb - Pnb0;
+          const Pbx = dPnb * c.nx, Pby = dPnb * c.ny;
+          A.pvx -= A.invMass * Pbx; A.pvy -= A.invMass * Pby; A.pw -= A.invI * (c.rAx * Pby - c.rAy * Pbx);
+          B.pvx += B.invMass * Pbx; B.pvy += B.invMass * Pby; B.pw += B.invI * (c.rBx * Pby - c.rBy * Pbx);
+        }
+        // friction
+        dvx = B.vx - B.w * c.rBy - A.vx + A.w * c.rAy;
+        dvy = B.vy + B.w * c.rBx - A.vy - A.w * c.rAx;
+        const tx = c.ny, ty = -c.nx;
+        const vt = dvx * tx + dvy * ty;
+        let dPt = c.massTangent * (-vt);
+        const maxPt = this.friction * Math.max(c.Pn, 0) + c.adhMax * 0.6;
+        const Pt0 = c.Pt;
+        c.Pt = U.clamp(Pt0 + dPt, -maxPt, maxPt);
+        dPt = c.Pt - Pt0;
+        Px = dPt * tx; Py = dPt * ty;
+        A.vx -= A.invMass * Px; A.vy -= A.invMass * Py; A.w -= A.invI * (c.rAx * Py - c.rAy * Px);
+        B.vx += B.invMass * Px; B.vy += B.invMass * Py; B.w += B.invI * (c.rBx * Py - c.rBy * Px);
+      }
+    }
+  }
+
+  class World {
+    constructor() {
+      this.bodies = [];
+      this.arbiters = new Map();
+      this.gravity = 900;
+      this.iterations = 10;
+      this.onImpact = null; // (a, b, impulse)
+      this.forceFn = null;  // (body, dt) extra forces
+      this.splitImpulse = true;
+      this.maxFall = 0; // clamp downward speed (0 = off)
+      this.restDamping = 0.93;
+      this.settleDamp = 0.8;   // damping applied each step to once-settled bodies moving slowly
+      this.settleSpeed = 60;    // below this speed a settled body is damped
+      this.velBias = false; // legacy: bias inside velocity solve
+    }
+    add(b) { this.bodies.push(b); return b; }
+    remove(b) {
+      const i = this.bodies.indexOf(b); if (i >= 0) this.bodies.splice(i, 1);
+      for (const [k, arb] of this.arbiters) if (arb.a === b || arb.b === b) this.arbiters.delete(k);
+    }
+    clear() { this.bodies.length = 0; this.arbiters.clear(); }
+    step(dt) {
+      const invDt = dt > 0 ? 1 / dt : 0;
+      const bodies = this.bodies;
+      for (const b of bodies) b.contacts = 0;
+      // broadphase + narrowphase
+      const boxes = bodies.map((b) => b.aabb());
+      for (let i = 0; i < bodies.length; i++) {
+        const bi = bodies[i], ai = boxes[i];
+        for (let j = i + 1; j < bodies.length; j++) {
+          const bj = bodies[j];
+          if (bi.invMass === 0 && bj.invMass === 0) continue;
+          const aj = boxes[j];
+          const key = bi.id < bj.id ? bi.id * 1000003 + bj.id : bj.id * 1000003 + bi.id;
+          if (ai.maxX < aj.minX || aj.maxX < ai.minX || ai.maxY < aj.minY || aj.maxY < ai.minY) { if (this.arbiters.has(key)) this.arbiters.delete(key); continue; }
+          const contacts = collide(bi, bj);
+          let arb = this.arbiters.get(key);
+          if (contacts) {
+            if (contacts.some((c) => c.sep <= 0.5)) { bi.contacts++; bj.contacts++; }
+            if (!arb) { arb = new Arbiter(bi, bj); this.arbiters.set(key, arb); arb.justCreated = true; }
+            else arb.justCreated = false;
+            arb.update(contacts, this);
+          } else if (arb) this.arbiters.delete(key);
+        }
+      }
+      // integrate forces
+      for (const b of bodies) {
+        b.pvx = 0; b.pvy = 0; b.pw = 0;
+        if (b.invMass === 0) continue;
+        b.vy += this.gravity * b.gravityScale * dt;
+        if (this.forceFn) this.forceFn(b, dt);
+        if (this.maxFall > 0 && b.vy > this.maxFall) b.vy = this.maxFall;
+        if (b.linearDamping) { const f = Math.max(0, 1 - b.linearDamping * dt); b.vx *= f; b.vy *= f; }
+        if (b.angularDamping) b.w *= Math.max(0, 1 - b.angularDamping * dt);
+      }
+      // prestep
+      for (const arb of this.arbiters.values()) arb.preStep(invDt, this);
+      // solve
+      for (const arb of this.arbiters.values()) { arb.split = this.splitImpulse; arb.velBias = this.velBias; }
+      for (let it = 0; it < this.iterations; it++) for (const arb of this.arbiters.values()) arb.applyImpulse();
+      // impact events
+      if (this.onImpact) {
+        for (const arb of this.arbiters.values()) {
+          if (arb.justCreated) {
+            let P = 0; for (const c of arb.contacts) P += Math.abs(c.Pn);
+            this.onImpact(arb.a, arb.b, P * invDt, arb.contacts[0]);
+          }
+        }
+      }
+      // integrate velocities
+      for (const b of bodies) {
+        if (b.invMass === 0) continue;
+        b.x += (b.vx + b.pvx) * dt; b.y += (b.vy + b.pvy) * dt; b.angle += (b.w + b.pw) * dt;
+        if (Math.abs(b.vx) < 3 && Math.abs(b.vy) < 3 && Math.abs(b.w) < 0.08 && b.contacts > 0) b.restTime += dt; else b.restTime = 0;
+        if (b.restTime > 0.4) b.settledOnce = true;
+        // rest damping: bleeds off solver jitter in tall stacks
+        if (this.restDamping < 1 && b.restTime > 0.3) { b.vx *= this.restDamping; b.vy *= this.restDamping; b.w *= this.restDamping; }
+        // settled damping: once a body has come to rest, slow ripples die quickly; hard hits still move it
+        if (b.settledOnce && this.settleDamp < 1 && b.contacts > 0) { const sp = Math.hypot(b.vx, b.vy) + Math.abs(b.w) * 10; if (sp < this.settleSpeed) { b.vx *= this.settleDamp; b.vy *= this.settleDamp; b.w *= this.settleDamp; } }
+      }
+    }
+  }
+
+  return { Body, World, collide };
+})();
+</script>
+
+<script>
+// ===== js/data.js =====
+// ---- Game data definitions ------------------------------------------------
+const CUBE_SIZE = 24; // base cube size in world px
+
+const CUBES = {
+  normal: { key: 'normal', name: 'Poop Cube', w: 1, h: 1, density: 1, friction: 0.6, restitution: 0.02, adhesion: 0, value: 5, color: '#8a5a2b', desc: 'A perfectly ordinary cube of wombat poop. Reliable.' },
+  big:    { key: 'big', name: 'Big Cube', w: 1.45, h: 1.45, density: 1, friction: 0.65, restitution: 0.02, adhesion: 0, value: 12, color: '#6e4520', desc: 'Huge surface area. Great foundation, heavy to place high.' },
+  sticky: { key: 'sticky', name: 'Sticky Cube', w: 1, h: 1, density: 1, friction: 1.3, restitution: 0, adhesion: 1600, value: 10, color: '#c58a2a', desc: 'Clings to whatever it touches. Glue for your tower.' },
+  light:  { key: 'light', name: 'Feather Cube', w: 1, h: 1, density: 0.4, friction: 0.7, restitution: 0.05, adhesion: 0, value: 7, color: '#d9c19a', desc: 'Very light. Barely stresses what it lands on. Wind loves it.' },
+  heavy:  { key: 'heavy', name: 'Iron Cube', w: 1, h: 1, density: 2.6, friction: 0.85, restitution: 0, adhesion: 0, value: 9, color: '#4a4a52', desc: 'Dense and grippy. Anchors a base, crushes a weak top.' },
+  tiny:   { key: 'tiny', name: 'Pebble Cube', w: 0.6, h: 0.6, density: 1, friction: 0.7, restitution: 0.05, adhesion: 0, value: 3, color: '#9a6a3b', desc: 'Small filler. Good for wedging gaps.' },
+  bouncy: { key: 'bouncy', name: 'Bouncy Cube', w: 1, h: 1, density: 0.8, friction: 0.5, restitution: 0.7, adhesion: 0, value: 16, color: '#c04ea0', desc: 'Bounces. Terrifying. The crowd goes wild.' },
+  slab:   { key: 'slab', name: 'Slab', w: 2.4, h: 0.6, density: 1, friction: 0.7, restitution: 0.02, adhesion: 0, value: 14, color: '#5a7a3a', desc: 'Wide and flat. Bridges wobbly tops into a new floor.' },
+  ice:    { key: 'ice', name: 'Ice Cube', w: 1, h: 1, density: 0.9, friction: 0.05, restitution: 0.1, adhesion: 0, value: 28, color: '#a8e0f5', desc: 'Slippery as sin. Big money if it stays put.' },
+  gold:   { key: 'gold', name: 'Gold Cube', w: 1, h: 1, density: 1.9, friction: 0.55, restitution: 0.02, adhesion: 0, value: 45, color: '#e8b923', desc: 'Pure profit. Heavy-ish. Place when the tower is safe.' },
+};
+const CUBE_ORDER = ['normal', 'tiny', 'big', 'sticky', 'light', 'heavy', 'slab', 'bouncy', 'ice', 'gold'];
+
+const FOODS = [
+  { key: 'grass', name: 'Grass', icon: '🌿', cost: 1, unlock: 0, digest: 22, cube: 'normal', hap: 2, desc: 'Cheap. Boring. Produces a standard cube.' },
+  { key: 'carrot', name: 'Carrot', icon: '🥕', cost: 4, unlock: 0, digest: 11, cube: 'normal', hap: 6, desc: 'Fast digestion. Same cube, twice as quick.' },
+  { key: 'pebblenuts', name: 'Pebble Nuts', icon: '🥜', cost: 7, unlock: 60, digest: 14, cube: 'tiny', count: 2, hap: 4, desc: 'Produces TWO tiny pebble cubes.' },
+  { key: 'sweetpotato', name: 'Sweet Potato', icon: '🍠', cost: 12, unlock: 90, digest: 28, cube: 'big', hap: 8, desc: 'A hearty meal -> one BIG cube.' },
+  { key: 'honeyoats', name: 'Honey Oats', icon: '🍯', cost: 15, unlock: 160, digest: 26, cube: 'sticky', hap: 10, desc: 'Sticky in, sticky out. Produces a Sticky Cube.' },
+  { key: 'fern', name: 'Feather Fern', icon: '🌱', cost: 10, unlock: 140, digest: 18, cube: 'light', hap: 5, desc: 'Airy leaves -> a Feather Cube.' },
+  { key: 'ironroot', name: 'Iron Root', icon: '🪨', cost: 18, unlock: 300, digest: 34, cube: 'heavy', hap: 3, desc: 'Mineral-rich root -> an Iron Cube.' },
+  { key: 'mushroom', name: 'Shelf Mushroom', icon: '🍄', cost: 20, unlock: 450, digest: 30, cube: 'slab', hap: 7, desc: 'Flat fungus -> a wide Slab.' },
+  { key: 'berries', name: 'Bounce Berries', icon: '🫐', cost: 16, unlock: 400, digest: 20, cube: 'bouncy', hap: 12, desc: 'Sugar rush -> a Bouncy Cube. Yikes.' },
+  { key: 'frostmelon', name: 'Frost Melon', icon: '🍈', cost: 28, unlock: 800, digest: 30, cube: 'ice', hap: 9, desc: 'Chilled to the core -> an Ice Cube.' },
+  { key: 'goldcorn', name: 'Golden Corn', icon: '🌽', cost: 45, unlock: 1400, digest: 40, cube: 'gold', hap: 14, desc: 'Rich diet -> a Gold Cube. Ka-ching.' },
+];
+const FOOD_BY_KEY = Object.fromEntries(FOODS.map((f) => [f.key, f]));
+
+const TOYS = [
+  { key: 'ball', name: 'Rubber Ball', icon: '⚽', cost: 80, regen: 0.45, desc: '+0.45 happiness/s pen-wide. Wombats chase it.', pos: [0.72, 0.55] },
+  { key: 'tunnel', name: 'Burrow Tunnel', icon: '🕳️', cost: 220, regen: 0.6, digest: 0.06, desc: '+0.6 happiness/s, +6% digestion speed.', pos: [0.25, 0.3] },
+  { key: 'log', name: 'Scratch Log', icon: '🪵', cost: 420, regen: 0.8, desc: '+0.8 happiness/s. Very scratchable.', pos: [0.5, 0.72] },
+  { key: 'mud', name: 'Mud Bath', icon: '🛁', cost: 800, regen: 1.0, sticky: 0.25, desc: '+1.0 happiness/s. Sticky cubes +25% adhesion.', pos: [0.85, 0.28] },
+  { key: 'tramp', name: 'Trampoline', icon: '🤸', cost: 1600, regen: 1.3, bouncy: 0.5, desc: '+1.3 happiness/s. Bouncy cubes worth +50%.', pos: [0.12, 0.7] },
+];
+const DECOS = [
+  { key: 'flowers', name: 'Flower Beds', icon: '🌸', cost: 60, appeal: 1, cap: 6, desc: '+6 max happiness, +10% crowd appeal.' },
+  { key: 'paint', name: 'Fence Paint', icon: '🎨', cost: 180, appeal: 1, cap: 6, desc: 'A fresh red coat. +6 max happiness, +10% appeal.' },
+  { key: 'lights', name: 'Fairy Lights', icon: '✨', cost: 350, appeal: 2, cap: 6, desc: 'Glows at night. +6 max happiness, +20% appeal.' },
+  { key: 'fountain', name: 'Fountain', icon: '⛲', cost: 900, appeal: 2, cap: 8, desc: 'Splashy. +8 max happiness, +20% appeal.' },
+  { key: 'statue', name: 'Golden Wombat Statue', icon: '🏆', cost: 2400, appeal: 3, cap: 10, desc: 'Majestic. +10 max happiness, +30% appeal.' },
+];
+const FACILITIES = [
+  { key: 'pen', name: 'Pen Expansion', icon: '🏗️', base: 120, mult: 2.3, max: 6, desc: (l) => `Wombat capacity: ${2 + l}. Next: ${3 + l}.` },
+  { key: 'trough', name: 'Auto Trough', icon: '🥣', base: 260, mult: 2.1, max: 5, desc: (l) => l === 0 ? 'Automatically feeds hungry wombats the food you select.' : `Feeds a hungry wombat every ${(16 / l).toFixed(1)}s.` },
+  { key: 'conveyor', name: 'Cube Conveyor', icon: '🛤️', base: 150, mult: 2.5, max: 3, desc: (l) => l === 0 ? 'Auto-collects cubes after a few seconds.' : l < 3 ? `Collects cubes in ${(4 / l).toFixed(1)}s. Next: faster.` : 'Instant collection, +10% cube value.' },
+  { key: 'vet', name: 'Wombat Vet', icon: '💉', base: 200, mult: 2.2, max: 5, desc: (l) => `Happiness decays ${l * 15}% slower.` },
+  { key: 'stand', name: 'Grandstand', icon: '🏟️', base: 300, mult: 1.95, max: 8, desc: (l) => `Crowd cap ${40 + l * 40}, crowd income +${l * 12}%.` },
+  { key: 'lab', name: 'Compost Lab', icon: '🧪', base: 450, mult: 2.15, max: 8, desc: (l) => `Cube value +${l * 15}%.` },
+];
+const WOMBAT_COST = (n) => Math.round(150 * Math.pow(2.6, n - 1)); // n = index of new wombat (1 = second)
+
+const SKILLS = [
+  // branch, tier, key, name, cost, desc
+  { branch: 'husbandry', tier: 1, key: 'gentle', name: 'Gentle Hands', cost: 1, icon: '🤲', desc: 'Petting gives +60% happiness and shaves an extra 1.5s off digestion.' },
+  { branch: 'husbandry', tier: 2, key: 'stomach', name: 'Iron Stomach', cost: 2, icon: '🫃', desc: 'All wombats digest 25% faster.' },
+  { branch: 'husbandry', tier: 3, key: 'double', name: 'Double Dump', cost: 3, icon: '💩', desc: '18% chance a wombat poops two cubes.' },
+  { branch: 'husbandry', tier: 4, key: 'zen', name: 'Zen Wombats', cost: 4, icon: '🧘', desc: 'Happiness decays 40% slower and wombats never get grumpy from over-petting.' },
+  { branch: 'husbandry', tier: 5, key: 'goldengut', name: 'Golden Gut', cost: 6, icon: '👑', desc: 'Premium cubes are worth x3 and happen 2x as often.' },
+  { branch: 'engineering', tier: 1, key: 'crane', name: 'Steady Crane', cost: 1, icon: '🏗️', desc: 'Crane moves 25% slower and cubes drop without angle jitter.' },
+  { branch: 'engineering', tier: 2, key: 'guide', name: 'Landing Guide', cost: 2, icon: '🎯', desc: 'Shows a drop guide line under the crane.' },
+  { branch: 'engineering', tier: 3, key: 'widebase', name: 'Wide Base', cost: 3, icon: '🧱', desc: 'Platform is 35% wider.' },
+  { branch: 'engineering', tier: 4, key: 'gyro', name: 'Gyro Stabilizers', cost: 4, icon: '🌀', desc: 'All cubes get angular damping and +15% friction.' },
+  { branch: 'engineering', tier: 5, key: 'bullet', name: 'Bullet Time', cost: 6, icon: '⏱️', desc: 'Time slows automatically whenever the tower wobbles dangerously.' },
+  { branch: 'showbiz', tier: 1, key: 'hype', name: 'Hype Man', cost: 1, icon: '📣', desc: 'Crowd gathers 35% faster and larger.' },
+  { branch: 'showbiz', tier: 2, key: 'merch', name: 'Merch Stand', cost: 2, icon: '👕', desc: 'Crowd income +30%.' },
+  { branch: 'showbiz', tier: 3, key: 'scout', name: 'Talent Scout', cost: 3, icon: '🔭', desc: 'Choose from 4 perks instead of 3.' },
+  { branch: 'showbiz', tier: 4, key: 'headstart', name: 'Head Start', cost: 4, icon: '🚀', desc: 'Every run starts with a free random perk.' },
+  { branch: 'showbiz', tier: 5, key: 'legend', name: 'Living Legend', cost: 6, icon: '🌟', desc: 'Cash-out bonus x2 and +2 skill points per run.' },
+];
+const BRANCH_NAMES = { husbandry: 'Husbandry', engineering: 'Engineering', showbiz: 'Showbiz' };
+
+const PERKS = [
+  { key: 'glue', name: 'Gorilla Glue', icon: '🧴', desc: 'Every cube gains adhesion. Everything clings a little.', rarity: 1 },
+  { key: 'feather', name: 'Feather Fall', icon: '🪶', desc: 'Dropped cubes fall 40% slower until they touch something.', rarity: 1 },
+  { key: 'hypetrain', name: 'Hype Train', icon: '🚂', desc: 'Crowd income x1.7.', rarity: 1 },
+  { key: 'bedrock', name: 'Bedrock', icon: '🪨', desc: 'The lowest 3 settled cubes fuse to the platform.', rarity: 2 },
+  { key: 'windbreak', name: 'Windbreaker', icon: '🧥', desc: 'Wind gusts are 70% weaker.', rarity: 1 },
+  { key: 'net', name: 'Safety Net', icon: '🥅', desc: '+2 cubes may fall off before the run ends.', rarity: 1 },
+  { key: 'goldrush', name: 'Gold Rush', icon: '💰', desc: 'Gold cubes worth x2. Your next 3 cubes pay like gold.', rarity: 2 },
+  { key: 'bigboned', name: 'Big Boned', icon: '🦴', desc: 'All future cubes are 15% larger.', rarity: 1 },
+  { key: 'slowhands', name: 'Slow Hands', icon: '🐢', desc: 'Crane moves 40% slower.', rarity: 1 },
+  { key: 'encore', name: 'Encore', icon: '🎭', desc: 'The first collapse is forgiven: falling cubes vanish, the standing ones stay.', rarity: 2 },
+  { key: 'magnet', name: 'Magnet', icon: '🧲', desc: 'Falling cubes drift toward the tower center.', rarity: 1 },
+  { key: 'taxbreak', name: 'Tax Break', icon: '🧾', desc: 'Placement pay x1.6.', rarity: 1 },
+  { key: 'surge', name: 'Crowd Surge', icon: '🌊', desc: '+40 spectators instantly.', rarity: 1 },
+  { key: 'rubber', name: 'Rubber Floor', icon: '🟪', desc: 'Cubes lose all bounce. Bouncy cubes become safe money.', rarity: 1 },
+  { key: 'deepfreeze', name: 'Deep Freeze', icon: '🧊', desc: 'Ice cubes get normal friction but keep their value.', rarity: 1 },
+  { key: 'momentum', name: 'Momentum', icon: '📈', desc: 'Stack Power bonus per cube doubled (8% -> 16%).', rarity: 2 },
+  { key: 'heavymetal', name: 'Heavy Metal', icon: '🎸', desc: 'Iron cubes pay x3 and get +30% friction.', rarity: 1 },
+  { key: 'calm', name: 'Calm Skies', icon: '🌤️', desc: 'No earthquakes this run.', rarity: 1 },
+];
+
+const WOMBAT_NAMES = ['Wilbur', 'Doris', 'Chonk', 'Beans', 'Mabel', 'Gus', 'Pudding', 'Winnie', 'Bruce', 'Nugget', 'Sheila', 'Tubs', 'Barnaby', 'Pip', 'Otis', 'Lumpy'];
+
+const TIPS = [
+  'Iron cubes on the bottom, Feather cubes on top. Physics is real.',
+  'Sticky cubes are glue. One every few layers saves towers.',
+  'A Slab can turn a wobbly top into a fresh flat floor.',
+  'Ice and Gold pay huge. Place them only when the tower is calm.',
+  'Happy wombats digest faster and poop premium cubes.',
+  'Wind starts around 6 cubes high. Perks can tame it.',
+  'Cash out before the tower cashes you out.',
+  'Every 5 settled cubes: pick a perk. Every 10: Stack Power up.',
+  'Over-petting makes wombats grumpy. Unless they are Zen.',
+  'Press 1-9 to swap cubes quickly. Space drops.',
+];
+</script>
+
+<script>
+// ===== js/fx.js =====
+// ---- Visual effects: particles, floaters, camera, cinematics ---------------
+const FX = (() => {
+  const particles = [];
+  const floaters = [];
+  const confetti = [];
+  const cam = { x: 320, y: 180, zoom: 1, tx: 320, ty: 180, tzoom: 1, shake: 0, shakeX: 0, shakeY: 0, punch: 0 };
+  const cine = {
+    letterbox: 0, tLetterbox: 0,   // 0..1
+    flash: 0, flashColor: '#fff',
+    slowmo: 1, tSlowmo: 1,
+    vignette: 0, tVignette: 0,
+    freeze: 0,
+    titles: [],   // {text, sub, t, dur, color, size, style}
+    desat: 0, tDesat: 0,
+    hitstop: 0,
+  };
+
+  function spawn(o) { particles.push(Object.assign({ x: 0, y: 0, vx: 0, vy: 0, life: 1, maxLife: 1, size: 2, color: '#fff', gravity: 0, drag: 0, type: 'rect', rot: 0, vr: 0, layer: 0 }, o, { maxLife: o.life || 1 })); }
+  function burst(x, y, n, opts = {}) {
+    for (let i = 0; i < n; i++) {
+      const a = U.rand(0, TAU), sp = U.rand(opts.speedMin || 30, opts.speed || 120);
+      spawn({ x, y, vx: Math.cos(a) * sp + (opts.vx || 0), vy: Math.sin(a) * sp + (opts.vy || 0), life: U.rand(0.3, opts.life || 0.8), size: U.rand(1, opts.size || 3), color: Array.isArray(opts.color) ? U.pick(opts.color) : (opts.color || '#fff'), gravity: opts.gravity ?? 200, drag: opts.drag || 1, type: opts.type || 'rect', layer: opts.layer || 0 });
+    }
+  }
+  function dust(x, y, n = 8, color = '#c9b899') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y, vx: U.rand(-60, 60), vy: U.rand(-40, -5), life: U.rand(0.4, 0.9), size: U.rand(2, 5), color, gravity: -20, drag: 2, type: 'circle' }); }
+  function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
+  function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
+  function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
+  function confettiBurst(x, y, n = 60) { for (let i = 0; i < n; i++) confetti.push({ x, y, vx: U.rand(-160, 160), vy: U.rand(-320, -80), life: U.rand(1.5, 3), rot: U.rand(0, TAU), vr: U.rand(-8, 8), w: U.rand(3, 6), h: U.rand(2, 4), color: U.pick(['#ff5c8a', '#ffd23f', '#3fe0ff', '#7dff3f', '#c77dff', '#ff9a3f']) }); }
+
+  function shake(a) { cam.shake = Math.min(20, cam.shake + a); }
+  function punch(a = 0.08) { cam.punch = Math.min(0.3, cam.punch + a); }
+  function flash(color = '#ffffff', a = 0.8) { cine.flash = Math.max(cine.flash, a); cine.flashColor = color; }
+  function title(text, o = {}) { cine.titles.push({ text, sub: o.sub || '', t: 0, dur: o.dur || 2, color: o.color || '#fff', size: o.size || 26, style: o.style || 'slam', y: o.y ?? 0.42, delay: o.delay || 0, shakeAmt: o.shake || 0 }); }
+  function setSlowmo(v, instant) { cine.tSlowmo = v; if (instant) cine.slowmo = v; }
+  function letterbox(on) { cine.tLetterbox = on ? 1 : 0; }
+  function vignette(v) { cine.tVignette = v; }
+  function freeze(t) { cine.freeze = Math.max(cine.freeze, t); }
+  function hitstop(t) { cine.hitstop = Math.max(cine.hitstop, t); }
+
+  // dt = real seconds
+  function update(dt) {
+    // camera smoothing
+    cam.x = U.lerp(cam.x, cam.tx, 1 - Math.pow(0.001, dt));
+    cam.y = U.lerp(cam.y, cam.ty, 1 - Math.pow(0.001, dt));
+    cam.zoom = U.lerp(cam.zoom, cam.tzoom * (1 + cam.punch), 1 - Math.pow(0.002, dt));
+    cam.punch *= Math.pow(0.01, dt);
+    cam.shake *= Math.pow(0.02, dt);
+    if (cam.shake < 0.05) cam.shake = 0;
+    cam.shakeX = U.rand(-1, 1) * cam.shake; cam.shakeY = U.rand(-1, 1) * cam.shake;
+    // cinema
+    cine.letterbox = U.lerp(cine.letterbox, cine.tLetterbox, 1 - Math.pow(0.02, dt));
+    cine.flash = Math.max(0, cine.flash - dt * 2.5);
+    cine.slowmo = U.lerp(cine.slowmo, cine.tSlowmo, 1 - Math.pow(0.01, dt));
+    cine.vignette = U.lerp(cine.vignette, cine.tVignette, 1 - Math.pow(0.02, dt));
+    cine.desat = U.lerp(cine.desat, cine.tDesat, 1 - Math.pow(0.02, dt));
+    cine.freeze = Math.max(0, cine.freeze - dt);
+    cine.hitstop = Math.max(0, cine.hitstop - dt);
+    for (let i = cine.titles.length - 1; i >= 0; i--) { const t = cine.titles[i]; if (t.delay > 0) { t.delay -= dt; continue; } t.t += dt; if (t.t > t.dur) cine.titles.splice(i, 1); }
+  }
+  // dt = game (possibly slowed) seconds
+  function updateWorld(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life -= dt; if (p.life <= 0) { particles.splice(i, 1); continue; }
+      p.vy += p.gravity * dt; const d = Math.max(0, 1 - p.drag * dt); p.vx *= d; p.vy *= d;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+    }
+    for (let i = floaters.length - 1; i >= 0; i--) { const f = floaters[i]; f.life -= dt; if (f.life <= 0) { floaters.splice(i, 1); continue; } f.y += f.vy * dt; f.x += f.vx * dt; f.vy *= Math.max(0, 1 - 2 * dt); }
+    for (let i = confetti.length - 1; i >= 0; i--) { const c = confetti[i]; c.life -= dt; if (c.life <= 0) { confetti.splice(i, 1); continue; } c.vy += 300 * dt; c.vx *= Math.max(0, 1 - 1.5 * dt); c.vy *= Math.max(0, 1 - 1.5 * dt); c.x += c.vx * dt; c.y += c.vy * dt; c.rot += c.vr * dt; }
+  }
+
+  function drawParticles(g, layer = 0, worldOnly = false) {
+    for (const p of particles) {
+      if (p.layer !== layer) continue;
+      const a = U.clamp(p.life / p.maxLife, 0, 1);
+      g.globalAlpha = a;
+      g.fillStyle = p.color;
+      const s = p.size;
+      if (p.type === 'circle') { g.beginPath(); g.arc(p.x, p.y, s, 0, TAU); g.fill(); }
+      else if (p.type === 'heart') { g.fillRect(p.x - s, p.y - s / 2, s, s); g.fillRect(p.x, p.y - s / 2, s, s); g.fillRect(p.x - s / 2, p.y + s / 2, s, s / 2); g.fillRect(p.x - s, p.y, s * 2, s / 2); }
+      else if (p.type === 'star') { g.fillRect(p.x - s, p.y - 1, s * 2, 2); g.fillRect(p.x - 1, p.y - s, 2, s * 2); }
+      else if (p.type === 'leaf') { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.fillRect(-s, -s / 3, s * 2, s / 1.5); g.restore(); }
+      else g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), Math.round(s), Math.round(s));
+    }
+    g.globalAlpha = 1;
+  }
+  function drawFloaters(g, world) {
+    for (const f of floaters) {
+      if (f.world !== world) continue;
+      const a = U.clamp(f.life / f.maxLife * 2, 0, 1);
+      g.globalAlpha = a;
+      g.font = `bold ${f.size}px "Press Start 2P", monospace`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      if (f.outline) { g.lineWidth = 3; g.strokeStyle = '#1b1210'; g.strokeText(f.text, Math.round(f.x), Math.round(f.y)); }
+      g.fillStyle = f.color; g.fillText(f.text, Math.round(f.x), Math.round(f.y));
+    }
+    g.globalAlpha = 1;
+  }
+  function drawConfetti(g) {
+    for (const c of confetti) {
+      g.save(); g.translate(c.x, c.y); g.rotate(c.rot); g.fillStyle = c.color; g.globalAlpha = U.clamp(c.life, 0, 1); g.fillRect(-c.w / 2, -c.h / 2, c.w, c.h); g.restore();
+    }
+    g.globalAlpha = 1;
+  }
+  // Screen-space cinematic overlay
+  function drawCinema(g, W, H) {
+    if (cine.vignette > 0.01) {
+      const grd = g.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.85);
+      grd.addColorStop(0, 'rgba(0,0,0,0)'); grd.addColorStop(1, `rgba(0,0,0,${0.85 * cine.vignette})`);
+      g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    }
+    if (cine.desat > 0.01) { g.fillStyle = `rgba(90,90,110,${0.35 * cine.desat})`; g.fillRect(0, 0, W, H); }
+    if (cine.letterbox > 0.01) {
+      const h = Math.round(H * 0.11 * cine.letterbox);
+      g.fillStyle = '#000'; g.fillRect(0, 0, W, h); g.fillRect(0, H - h, W, h);
+    }
+    for (const t of cine.titles) {
+      if (t.delay > 0) continue;
+      const p = t.t / t.dur;
+      let scale = 1, alpha = 1, dx = 0;
+      if (t.style === 'slam') { const q = Math.min(1, t.t / 0.18); scale = U.lerp(2.6, 1, U.easeOut(q)); alpha = q; if (p > 0.8) alpha = 1 - (p - 0.8) / 0.2; }
+      else if (t.style === 'slide') { const q = Math.min(1, t.t / 0.3); dx = U.lerp(-W, 0, U.easeOut(q)); if (p > 0.8) dx = U.lerp(0, W, U.easeIn((p - 0.8) / 0.2)); }
+      else if (t.style === 'fade') { alpha = Math.min(1, t.t / 0.4) * (p > 0.75 ? 1 - (p - 0.75) / 0.25 : 1); }
+      const y = H * t.y;
+      g.save(); g.globalAlpha = U.clamp(alpha, 0, 1);
+      g.translate(W / 2 + dx + U.rand(-1, 1) * t.shakeAmt, y + U.rand(-1, 1) * t.shakeAmt); g.scale(scale, scale);
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = `bold ${t.size}px "Press Start 2P", monospace`;
+      g.lineWidth = 6; g.strokeStyle = '#1b1210'; g.strokeText(t.text, 0, 0);
+      g.fillStyle = t.color; g.fillText(t.text, 0, 0);
+      if (t.sub) { g.font = `bold ${Math.round(t.size * 0.42)}px "Press Start 2P", monospace`; g.lineWidth = 4; g.strokeText(t.sub, 0, t.size * 0.9); g.fillStyle = '#fff'; g.fillText(t.sub, 0, t.size * 0.9); }
+      g.restore();
+    }
+    if (cine.flash > 0.01) { g.fillStyle = cine.flashColor; g.globalAlpha = Math.min(1, cine.flash); g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+  }
+  function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; }
+
+  return { cam, cine, spawn, burst, dust, hearts, sparkle, float, confettiBurst, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
+})();
+</script>
+
+<script>
+// ===== js/pen.js =====
+// ---- Wombat pen: simulation + rendering -----------------------------------
+const Pen = (() => {
+  let G = null;
+  const W = 640, H = 360;
+  const GROUND_TOP = 160, GROUND_BOT = 330, WALK_MINX = 50, WALK_MAXX = 600, WALK_MINY = 190, WALK_MAXY = 318;
+  const groundCubes = []; // cubes lying around waiting for collection
+  let troughTimer = 0;
+  let hoverWombat = null;
+  const grassTufts = [];
+  for (let i = 0; i < 70; i++) grassTufts.push([U.rand(20, 620), U.rand(GROUND_TOP + 8, GROUND_BOT - 4), U.randi(0, 2)]);
+  const clouds = []; for (let i = 0; i < 6; i++) clouds.push({ x: U.rand(0, W), y: U.rand(15, 90), w: U.rand(40, 90), s: U.rand(4, 10) });
+
+  function hapCap() { let c = 60; for (const d of DECOS) if (G.decos[d.key]) c += d.cap; return Math.min(100, c); }
+  function appeal() { let a = 1; for (const d of DECOS) if (G.decos[d.key]) a += d.appeal * 0.1; return a; }
+  function toyRegen() { let r = 0; for (const t of TOYS) if (G.toys[t.key]) r += t.regen; return r; }
+  function digestMult(w) {
+    let m = 0.55 + (w.hap / 100) * 0.95;
+    if (G.skills.stomach) m *= 1.25;
+    if (G.toys.tunnel) m *= 1.06;
+    return m;
+  }
+  function wombatCap() { return 2 + (G.fac.pen || 0); }
+
+  function newWombat() {
+    const used = new Set(G.wombats.map((w) => w.name));
+    const name = WOMBAT_NAMES.find((n) => !used.has(n)) || 'Wombat ' + (G.wombats.length + 1);
+    return { id: U.uid(), name, x: U.rand(150, 500), y: U.rand(WALK_MINY + 20, WALK_MAXY - 20), tx: 0, ty: 0, dir: 1, state: 'idle', stateT: U.rand(0.5, 2), stomach: 'empty', digestT: 0, digestTotal: 1, food: null, hap: 55, pets: [], grumpyT: 0, anim: U.rand(0, 10), sq: 0, bob: 0, strain: 0, sleepy: 0, playToy: null, tint: U.randi(0, 2) };
+  }
+  function addWombat() { const w = newWombat(); G.wombats.push(w); return w; }
+
+  // ---- Simulation --------------------------------------------------------
+  function update(dt) {
+    const cap = hapCap();
+    const decay = 0.55 * (1 - 0.15 * (G.fac.vet || 0)) * (G.skills.zen ? 0.6 : 1);
+    const regen = toyRegen();
+    for (const w of G.wombats) {
+      w.anim += dt;
+      w.hap = U.clamp(w.hap - decay * dt + regen * dt * (w.hap < cap ? 1 : 0), 0, cap);
+      if (w.grumpyT > 0) w.grumpyT -= dt;
+      if (w.playToy && w.state === 'play') w.hap = Math.min(cap, w.hap + 2.5 * dt);
+      // digestion
+      if (w.stomach === 'digesting') {
+        w.digestT -= dt * digestMult(w);
+        if (w.digestT <= 0) { w.stomach = 'ready'; w.strain = 2.2; w.state = 'strain'; w.stateT = 2.2; }
+      } else if (w.stomach === 'ready') {
+        w.strain -= dt;
+        if (w.strain <= 0) poop(w);
+      }
+      // behaviour state machine
+      w.stateT -= dt;
+      if (w.state === 'walk') {
+        const dx = w.tx - w.x, dy = w.ty - w.y, d = Math.hypot(dx, dy);
+        const sp = 28;
+        if (d < 3) { w.state = w.playToy ? 'play' : 'idle'; w.stateT = w.playToy ? U.rand(3, 5) : U.rand(1, 4); }
+        else { w.x += (dx / d) * sp * dt; w.y += (dy / d) * sp * dt; w.dir = dx > 0 ? 1 : -1; }
+      } else if (w.stateT <= 0 && w.state !== 'strain') {
+        if (w.state === 'play') { w.playToy = null; }
+        const r = Math.random();
+        const toys = TOYS.filter((t) => G.toys[t.key]);
+        if (r < 0.25 && toys.length) {
+          const t = U.pick(toys); w.playToy = t.key;
+          w.tx = U.clamp(WALK_MINX + t.pos[0] * (WALK_MAXX - WALK_MINX) + U.rand(-30, 30), WALK_MINX, WALK_MAXX);
+          w.ty = U.clamp(WALK_MINY + t.pos[1] * (WALK_MAXY - WALK_MINY) + U.rand(-6, 10), WALK_MINY, WALK_MAXY);
+          w.state = 'walk';
+        } else if (r < 0.65) { w.tx = U.rand(WALK_MINX, WALK_MAXX); w.ty = U.rand(WALK_MINY, WALK_MAXY); w.state = 'walk'; }
+        else if (r < 0.8 && w.hap < 30) { w.state = 'sleep'; w.stateT = U.rand(4, 8); }
+        else { w.state = 'idle'; w.stateT = U.rand(1, 3); w.dir = U.chance(0.3) ? -w.dir : w.dir; }
+      }
+      if (w.state === 'strain' && w.stateT <= 0 && w.stomach !== 'ready') { w.state = 'idle'; w.stateT = 1; }
+      w.sq = U.lerp(w.sq, 0, 1 - Math.pow(0.001, dt));
+    }
+    // ground cubes
+    const convL = G.fac.conveyor || 0;
+    for (let i = groundCubes.length - 1; i >= 0; i--) {
+      const c = groundCubes[i];
+      c.t += dt;
+      if (c.z > 0 || c.vz > 0) { c.vz -= 600 * dt; c.z += c.vz * dt; c.x += c.vx * dt; if (c.z <= 0) { c.z = 0; if (Math.abs(c.vz) > 60) { c.vz = -c.vz * 0.4; FX.dust(c.x, c.y, 4); } else { c.vz = 0; c.vx = 0; } } }
+      if (convL > 0 && c.t > (convL >= 3 ? 0.4 : 4 / convL)) collect(c, i, true);
+    }
+    // trough
+    const tl = G.fac.trough || 0;
+    if (tl > 0 && G.troughFood && G.unlockedFoods[G.troughFood]) {
+      troughTimer += dt;
+      if (troughTimer >= 16 / tl) {
+        troughTimer = 0;
+        const hungry = G.wombats.find((w) => w.stomach === 'empty' && w.state !== 'strain');
+        if (hungry && (G.food[G.troughFood] || 0) > 0) feed(hungry, G.troughFood, true);
+      }
+    }
+  }
+
+  function feed(w, foodKey, auto) {
+    const f = FOOD_BY_KEY[foodKey];
+    if (!f || (G.food[foodKey] || 0) <= 0) { if (!auto) UI.toast('No ' + f.name + ' left! Buy more in the shop.', 'bad'); return false; }
+    if (w.stomach !== 'empty') { if (!auto) { UI.toast(w.name + ' is still digesting!', 'bad'); Audio.play('error'); } return false; }
+    G.food[foodKey]--;
+    w.stomach = 'digesting'; w.food = foodKey; w.digestTotal = f.digest; w.digestT = f.digest;
+    w.hap = Math.min(hapCap(), w.hap + f.hap);
+    w.state = 'eat'; w.stateT = 1.4; w.sq = 0.25;
+    G.stats.fed++;
+    Audio.play('eat');
+    FX.burst(w.x + w.dir * 18, w.y - 10, 6, { color: ['#7dc24b', '#e0a040', '#c8b070'], speed: 60, gravity: 300, life: 0.6, size: 3 });
+    FX.float(w.x, w.y - 34, f.icon + ' yum', { color: '#fff', size: 7 });
+    UI.refreshHotbar();
+    return true;
+  }
+
+  function pet(w) {
+    const now = G.time;
+    if (w.grumpyT > 0) { FX.float(w.x, w.y - 34, 'grr...', { color: '#ff6b6b', size: 7 }); Audio.play('error'); w.sq = 0.15; return; }
+    w.pets = w.pets.filter((t) => now - t < 4);
+    w.pets.push(now);
+    if (w.pets.length > 7 && !G.skills.zen) { w.grumpyT = 6; w.hap = Math.max(0, w.hap - 20); FX.float(w.x, w.y - 40, 'TOO MUCH!', { color: '#ff4b4b', size: 8 }); Audio.play('squeak'); FX.shake(3); w.pets = []; return; }
+    const gentle = G.skills.gentle;
+    w.hap = Math.min(hapCap(), w.hap + 7 * (gentle ? 1.6 : 1));
+    if (w.stomach === 'digesting') w.digestT = Math.max(0.01, w.digestT - (2 + (gentle ? 1.5 : 0)));
+    w.sq = 0.3; w.state = w.state === 'sleep' ? 'idle' : w.state; w.stateT = Math.max(w.stateT, 0.6);
+    if (w.state === 'walk') { w.state = 'idle'; w.stateT = 0.8; }
+    G.stats.pets++;
+    Audio.play('pet');
+    FX.hearts(w.x, w.y - 30, 3);
+    if (w.stomach === 'digesting') FX.float(w.x, w.y - 40, '-2s', { color: '#7dff3f', size: 7 });
+  }
+
+  function poop(w) {
+    const f = FOOD_BY_KEY[w.food] || FOODS[0];
+    const def = CUBES[f.cube];
+    let n = f.count || 1;
+    if (G.skills.double && U.chance(0.18)) { n++; FX.float(w.x, w.y - 48, 'DOUBLE DUMP!', { color: '#ffd23f', size: 8, life: 1.6 }); }
+    const premChance = (w.hap / 100) * 0.25 * (G.skills.goldengut ? 2 : 1);
+    for (let i = 0; i < n; i++) {
+      const premium = U.chance(premChance);
+      groundCubes.push({ x: w.x - w.dir * 16, y: w.y + U.rand(-2, 2), z: 8, vz: U.rand(120, 200), vx: -w.dir * U.rand(30, 70) + U.rand(-15, 15), type: def.key, premium, t: -i * 0.15, id: U.uid() });
+      if (premium) FX.sparkle(w.x - w.dir * 16, w.y - 10, 8);
+    }
+    w.stomach = 'empty'; w.food = null; w.state = 'idle'; w.stateT = 1.2; w.sq = -0.35;
+    G.stats.pooped += n;
+    Audio.play('plop'); FX.shake(2.5); FX.punch(0.03);
+    FX.dust(w.x - w.dir * 14, w.y + 2, 10, '#a08060');
+    FX.float(w.x - w.dir * 10, w.y - 30, 'PLOP!', { color: '#ffd23f', size: 10, life: 1 });
+  }
+
+  function collect(c, i, auto) {
+    if (i === undefined) i = groundCubes.indexOf(c);
+    if (i >= 0) groundCubes.splice(i, 1);
+    if (c.premium) G.premium[c.type] = (G.premium[c.type] || 0) + 1;
+    else G.cubes[c.type] = (G.cubes[c.type] || 0) + 1;
+    G.stats.collected++;
+    if (!auto) Audio.play('pop'); else Audio.play('click');
+    FX.float(c.x, c.y - c.z - 10, (c.premium ? '★ ' : '+') + CUBES[c.type].name, { color: c.premium ? '#ffd23f' : '#fff', size: 7 });
+    FX.burst(c.x, c.y - c.z, 6, { color: [CUBES[c.type].color, '#fff'], speed: 80, gravity: 100, life: 0.4 });
+    UI.refreshHUD(); UI.refreshHotbar();
+  }
+
+  // Offline progress: advance digestion & collect in coarse steps
+  function offline(seconds) {
+    const steps = Math.min(4000, Math.floor(seconds / 2));
+    let made = 0;
+    for (let s = 0; s < steps; s++) {
+      for (const w of G.wombats) {
+        if (w.stomach === 'digesting') { w.digestT -= 2 * digestMult(w); if (w.digestT <= 0) { w.stomach = 'ready'; } }
+        if (w.stomach === 'ready') { const f = FOOD_BY_KEY[w.food] || FOODS[0]; G.cubes[CUBES[f.cube].key] = (G.cubes[CUBES[f.cube].key] || 0) + (f.count || 1); made += f.count || 1; w.stomach = 'empty'; w.food = null; }
+        w.hap = Math.max(0, w.hap - 0.2);
+      }
+      const tl = G.fac.trough || 0;
+      if (tl > 0 && G.troughFood && s % Math.max(1, Math.round(8 / tl)) === 0) {
+        const hungry = G.wombats.find((w) => w.stomach === 'empty');
+        if (hungry && (G.food[G.troughFood] || 0) > 0) { const f = FOOD_BY_KEY[G.troughFood]; G.food[G.troughFood]--; hungry.stomach = 'digesting'; hungry.food = f.key; hungry.digestT = f.digest; hungry.digestTotal = f.digest; }
+      }
+    }
+    return made;
+  }
+
+  // ---- Input -------------------------------------------------------------
+  function wombatAt(x, y) {
+    let best = null, bd = 1e9;
+    for (const w of G.wombats) {
+      if (x >= w.x - 24 && x <= w.x + 24 && y >= w.y - 30 && y <= w.y + 4) { const d = Math.abs(w.y - y); if (d < bd) { bd = d; best = w; } }
+    }
+    return best;
+  }
+  function click(x, y) {
+    // cubes first
+    for (let i = groundCubes.length - 1; i >= 0; i--) {
+      const c = groundCubes[i]; const s = CUBES[c.type].w * 10 + 6;
+      if (Math.abs(x - c.x) < s && Math.abs(y - (c.y - c.z - 6)) < s) { collect(c, i, false); return; }
+    }
+    const w = wombatAt(x, y);
+    if (w) { if (G.selectedFood) feed(w, G.selectedFood, false); else pet(w); return; }
+    // click empty ground: tiny dust
+    if (y > GROUND_TOP && y < GROUND_BOT) FX.dust(x, y, 3);
+  }
+  function hover(x, y) {
+    hoverWombat = wombatAt(x, y);
+    if (hoverWombat) {
+      const w = hoverWombat;
+      const st = w.stomach === 'empty' ? 'Hungry - feed me!' : w.stomach === 'digesting' ? `Digesting ${FOOD_BY_KEY[w.food].name} (${U.time(w.digestT / digestMult(w))})` : 'About to poop...';
+      return `<b>${w.name}</b><br>${st}<br>Happiness: ${Math.round(w.hap)}/${hapCap()}${w.grumpyT > 0 ? '<br><span style="color:#ff6b6b">GRUMPY</span>' : ''}<br><span style="color:#b9a9c9">Digest speed x${digestMult(w).toFixed(2)}</span>`;
+    }
+    for (const c of groundCubes) { if (Math.abs(x - c.x) < 14 && Math.abs(y - (c.y - c.z - 6)) < 14) return `${c.premium ? '★ Premium ' : ''}${CUBES[c.type].name}<br><span style="color:#b9a9c9">click to collect</span>`; }
+    return null;
+  }
+
+  // ---- Rendering ---------------------------------------------------------
+  function skyColors(t) {
+    // t 0..1 day fraction. 0 = dawn
+    const keys = [
+      [0.0, ['#ffb27a', '#ffd9a0']], [0.15, ['#5fb8ff', '#bfe8ff']], [0.5, ['#4aa3f0', '#b0e0ff']], [0.7, ['#ff9a5c', '#ffd3a0']], [0.8, ['#3a2a6a', '#7a4a8a']], [0.9, ['#0f1030', '#2a2a55']], [1.0, ['#ffb27a', '#ffd9a0']],
+    ];
+    let a = keys[0], b = keys[1];
+    for (let i = 0; i < keys.length - 1; i++) if (t >= keys[i][0] && t <= keys[i + 1][0]) { a = keys[i]; b = keys[i + 1]; break; }
+    const f = (t - a[0]) / (b[0] - a[0] || 1);
+    const mix = (c1, c2) => { const n1 = parseInt(c1.slice(1), 16), n2 = parseInt(c2.slice(1), 16); const r = Math.round(U.lerp((n1 >> 16) & 255, (n2 >> 16) & 255, f)), g = Math.round(U.lerp((n1 >> 8) & 255, (n2 >> 8) & 255, f)), bb = Math.round(U.lerp(n1 & 255, n2 & 255, f)); return `rgb(${r},${g},${bb})`; };
+    return [mix(a[1][0], b[1][0]), mix(a[1][1], b[1][1])];
+  }
+  function dayT() { return (G.time / 300) % 1; }
+  function nightAmt() { const t = dayT(); return t > 0.78 ? Math.min(1, (t - 0.78) / 0.1) * (t > 0.95 ? (1 - t) / 0.05 : 1) : 0; }
+
+  function render(g) {
+    const t = dayT();
+    const [c1, c2] = skyColors(t);
+    const grd = g.createLinearGradient(0, 0, 0, GROUND_TOP); grd.addColorStop(0, c1); grd.addColorStop(1, c2);
+    g.fillStyle = grd; g.fillRect(0, 0, W, GROUND_TOP);
+    // sun / moon
+    const sa = (t - 0.05) * Math.PI / 0.75;
+    if (t > 0.05 && t < 0.8) { const sx = 60 + (W - 120) * ((t - 0.05) / 0.75), sy = 130 - Math.sin(sa) * 110; g.fillStyle = '#fff3b0'; g.fillRect(sx - 10, sy - 10, 20, 20); g.fillStyle = '#ffe070'; g.fillRect(sx - 8, sy - 8, 16, 16); }
+    else { const mt = t > 0.8 ? (t - 0.8) / 0.25 : (t + 0.2) / 0.25; const mx = 60 + (W - 120) * mt, my = 100 - Math.sin(mt * Math.PI) * 80; g.fillStyle = '#e8ecff'; g.beginPath(); g.arc(mx, my, 9, 0, TAU); g.fill(); g.fillStyle = c1; g.beginPath(); g.arc(mx + 5, my - 3, 8, 0, TAU); g.fill(); }
+    const night = nightAmt();
+    if (night > 0) { g.fillStyle = '#fff'; for (let i = 0; i < 40; i++) { const sx = (i * 137.5) % W, sy = (i * 71.3) % (GROUND_TOP - 40); g.globalAlpha = night * (0.5 + 0.5 * Math.sin(G.time * 3 + i)); g.fillRect(sx, sy, 2, 2); } g.globalAlpha = 1; }
+    // clouds
+    g.fillStyle = 'rgba(255,255,255,0.85)';
+    for (const c of clouds) { c.x += c.s * 0.016; if (c.x > W + 60) c.x = -c.w; g.fillRect(c.x, c.y, c.w, 10); g.fillRect(c.x + 10, c.y - 6, c.w - 20, 8); g.fillRect(c.x + 18, c.y - 10, c.w * 0.4, 6); }
+    // hills
+    g.fillStyle = '#5b8f3a'; for (let i = 0; i < 6; i++) { const hx = i * 130 - 40, hy = GROUND_TOP - 22 + (i % 2) * 8; g.beginPath(); g.ellipse(hx, GROUND_TOP, 110, 34 + (i % 3) * 8, 0, Math.PI, 0); g.fill(); }
+    g.fillStyle = '#4c7a30'; for (let i = 0; i < 8; i++) { const hx = i * 95 + 20; g.beginPath(); g.ellipse(hx, GROUND_TOP + 2, 70, 22, 0, Math.PI, 0); g.fill(); }
+    // trees
+    for (let i = 0; i < 7; i++) { const tx = 30 + i * 95 + (i % 2) * 20, ty = GROUND_TOP - 6; g.fillStyle = '#5c4530'; g.fillRect(tx - 2, ty - 18, 4, 18); g.fillStyle = '#3f7a2f'; g.fillRect(tx - 9, ty - 30, 18, 14); g.fillRect(tx - 6, ty - 36, 12, 8); }
+    // ground
+    g.fillStyle = '#7ab648'; g.fillRect(0, GROUND_TOP, W, GROUND_BOT - GROUND_TOP);
+    g.fillStyle = '#6ea640'; for (const [gx, gy, k] of grassTufts) { g.fillRect(gx, gy, 2, 3); g.fillRect(gx + 3, gy - 2 + k, 2, 5 - k); }
+    // dirt path
+    g.fillStyle = '#c9a76b'; g.fillRect(260, GROUND_TOP, 120, GROUND_BOT - GROUND_TOP); g.fillStyle = '#b8955a'; for (let i = 0; i < 10; i++) g.fillRect(270 + (i * 37) % 100, GROUND_TOP + 10 + i * 16, 8, 4);
+    // below ground
+    g.fillStyle = '#5c4530'; g.fillRect(0, GROUND_BOT, W, H - GROUND_BOT);
+    g.fillStyle = '#4a3726'; for (let i = 0; i < 20; i++) g.fillRect(i * 33 + 5, GROUND_BOT + 8 + (i % 3) * 7, 10, 4);
+    // back fence
+    drawFence(g, 140, true);
+    // decorations
+    drawDecos(g);
+    // toys + sorting
+    const drawables = [];
+    for (const tdef of TOYS) if (G.toys[tdef.key]) drawables.push({ y: WALK_MINY + tdef.pos[1] * (WALK_MAXY - WALK_MINY) + 4, fn: () => drawToy(g, tdef) });
+    for (const w of G.wombats) drawables.push({ y: w.y, fn: () => drawWombat(g, w) });
+    for (const c of groundCubes) drawables.push({ y: c.y, fn: () => drawGroundCube(g, c) });
+    drawables.sort((a, b) => a.y - b.y);
+    for (const d of drawables) d.fn();
+    FX.drawParticles(g, 0);
+    // front fence
+    drawFence(g, GROUND_BOT - 4, false);
+    // night tint
+    if (night > 0) { g.fillStyle = `rgba(10,10,50,${0.45 * night})`; g.fillRect(0, 0, W, H); if (G.decos.lights) { g.fillStyle = `rgba(255,220,120,${0.15 * night})`; g.fillRect(0, 120, W, 230); } }
+    FX.drawFloaters(g, false);
+    // wombat status bubbles (screen space, always on top)
+    for (const w of G.wombats) drawStatus(g, w);
+    // wombat count / hint
+    g.font = '7px "Press Start 2P", monospace'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(4, 4, 150, 12);
+    g.fillStyle = '#fff'; g.fillText(`WOMBATS ${G.wombats.length}/${wombatCap()}  DAY ${Math.floor(G.time / 300) + 1}`, 8, 7);
+  }
+  function drawFence(g, y, back) {
+    const painted = G.decos.paint;
+    const col = painted ? '#c94a3a' : '#c9a06a', dark = painted ? '#8a2f24' : '#8a6a3a';
+    g.fillStyle = col; g.fillRect(0, y + 4, W, 4); g.fillRect(0, y + 12, W, 4);
+    for (let x = 8; x < W; x += 40) { g.fillStyle = col; g.fillRect(x, y - 4, 6, 24); g.fillStyle = dark; g.fillRect(x + 4, y - 4, 2, 24); g.fillStyle = col; g.fillRect(x - 1, y - 6, 8, 3); }
+    if (G.decos.lights && !back) { for (let x = 20; x < W; x += 24) { const on = Math.sin(G.time * 4 + x) > 0; g.fillStyle = on ? U.pick(['#ffd23f', '#ff5c8a', '#3fe0ff']) : '#886'; g.fillRect(x, y - 2 + Math.sin(x) * 2, 3, 3); } }
+  }
+  function drawDecos(g) {
+    if (G.decos.flowers) { for (let i = 0; i < 14; i++) { const fx = 20 + i * 45, fy = 168 + (i % 2) * 6; g.fillStyle = '#3f7a2f'; g.fillRect(fx, fy, 2, 5); g.fillStyle = ['#ff5c8a', '#ffd23f', '#c77dff', '#fff'][i % 4]; g.fillRect(fx - 2, fy - 3, 6, 4); } }
+    if (G.decos.fountain) { const fx = 320, fy = 200; g.fillStyle = '#9aa0b0'; g.fillRect(fx - 26, fy - 6, 52, 12); g.fillStyle = '#5fb8ff'; g.fillRect(fx - 22, fy - 4, 44, 7); g.fillStyle = '#9aa0b0'; g.fillRect(fx - 3, fy - 26, 6, 22); g.fillStyle = '#bfe8ff'; for (let i = 0; i < 5; i++) { const a = (G.time * 3 + i) % 1; g.fillRect(fx - 10 + i * 5 + Math.sin(a * 6) * 2, fy - 26 - Math.sin(a * Math.PI) * 14, 2, 3); } }
+    if (G.decos.statue) { const sx = 560, sy = 196; g.fillStyle = '#7a7a8a'; g.fillRect(sx - 18, sy - 6, 36, 10); g.fillStyle = '#5a5a6a'; g.fillRect(sx - 14, sy - 12, 28, 6); g.save(); g.translate(sx, sy - 12); g.drawImage(Sprites.tint(Sprites.wombatL, '#ffd23f'), -22, -28); g.restore(); g.fillStyle = '#fff6c2'; if (Math.sin(G.time * 5) > 0.7) g.fillRect(sx - 6, sy - 34, 3, 3); }
+  }
+  function drawToy(g, t) {
+    const x = WALK_MINX + t.pos[0] * (WALK_MAXX - WALK_MINX), y = WALK_MINY + t.pos[1] * (WALK_MAXY - WALK_MINY) + 4;
+    switch (t.key) {
+      case 'ball': { const by = y - 6 - Math.abs(Math.sin(G.time * 4)) * 6; g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(x - 6, y - 2, 12, 3); g.fillStyle = '#e04b4b'; g.fillRect(x - 6, by - 6, 12, 12); g.fillStyle = '#fff'; g.fillRect(x - 6, by - 2, 12, 4); break; }
+      case 'tunnel': g.fillStyle = '#5c4530'; g.fillRect(x - 24, y - 16, 48, 18); g.fillStyle = '#2a1a10'; g.fillRect(x - 18, y - 12, 14, 12); g.fillRect(x + 4, y - 12, 14, 12); g.fillStyle = '#7a5a40'; g.fillRect(x - 24, y - 16, 48, 3); break;
+      case 'log': g.fillStyle = '#7a5230'; g.fillRect(x - 26, y - 12, 52, 14); g.fillStyle = '#5c4530'; g.fillRect(x - 26, y - 4, 52, 6); g.fillStyle = '#a07a50'; g.fillRect(x - 26, y - 12, 6, 14); g.fillRect(x - 10, y - 9, 3, 2); g.fillRect(x + 6, y - 7, 3, 2); break;
+      case 'mud': g.fillStyle = '#4a3020'; g.fillRect(x - 30, y - 12, 60, 14); g.fillStyle = '#6a4a30'; g.fillRect(x - 26, y - 10, 52, 8); g.fillStyle = '#8a6a48'; if (Math.sin(G.time * 2) > 0) g.fillRect(x - 8 + Math.sin(G.time) * 10, y - 8, 4, 3); break;
+      case 'tramp': g.fillStyle = '#2b3a5a'; g.fillRect(x - 22, y - 14, 44, 5); g.fillStyle = '#3fe0ff'; g.fillRect(x - 20, y - 12, 40, 3 + Math.sin(G.time * 6) * 1.5); g.fillStyle = '#1a1424'; g.fillRect(x - 20, y - 9, 3, 10); g.fillRect(x + 17, y - 9, 3, 10); break;
+    }
+  }
+  function drawWombat(g, w) {
+    const facing = w.dir >= 0;
+    let img;
+    const walking = w.state === 'walk';
+    if (w.state === 'sleep') img = facing ? Sprites.wombatSleep : Sprites.wombatSleepL;
+    else if (w.hap > 75 || w.state === 'eat' || w.state === 'play') img = facing ? Sprites.wombatHappy : Sprites.wombatHappyL;
+    else if (walking && Math.floor(w.anim * 6) % 2) img = facing ? Sprites.wombatWalk : Sprites.wombatWalkL;
+    else img = facing ? Sprites.wombat : Sprites.wombatL;
+    let sx = 1, sy = 1, dy = 0, rot = 0;
+    const bob = walking ? Math.abs(Math.sin(w.anim * 12)) * 2 : Math.sin(w.anim * 2) * 0.5;
+    sy = 1 + w.sq; sx = 1 - w.sq * 0.6;
+    if (w.state === 'eat') { const e = Math.sin(w.anim * 14); sy *= 1 + e * 0.06; rot = (facing ? 1 : -1) * 0.12; }
+    if (w.state === 'strain') { rot = Math.sin(w.anim * 40) * 0.05; sx *= 1.08; sy *= 0.92; dy = 2; }
+    if (w.state === 'play') { dy = -Math.abs(Math.sin(w.anim * 8)) * 6; }
+    // shadow
+    g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(w.x - 18, w.y - 2, 36, 4);
+    g.save(); g.translate(Math.round(w.x), Math.round(w.y + dy - bob));
+    g.rotate(rot); g.scale(sx, sy);
+    g.drawImage(img, -22, -28);
+    if (w.state === 'sleep' && G.decos.paint === undefined) { }
+    g.restore();
+    // grumpy steam / sweat
+    if (w.grumpyT > 0 && Math.floor(w.anim * 6) % 2) { g.fillStyle = '#ff6b6b'; g.fillRect(w.x - 4, w.y - 38, 3, 3); g.fillRect(w.x + 3, w.y - 40, 3, 3); }
+    if (w.state === 'strain') { g.fillStyle = '#9ad6ff'; const p = (w.anim * 3) % 1; g.fillRect(w.x + (facing ? 14 : -16), w.y - 30 + p * 10, 2, 4); }
+    if (w.state === 'sleep') { g.font = '8px "Press Start 2P", monospace'; g.fillStyle = '#fff'; g.textAlign = 'left'; g.textBaseline = 'middle'; const p = (w.anim * 0.7) % 1; g.globalAlpha = 1 - p; g.fillText('z', w.x + 14 + p * 8, w.y - 30 - p * 12); g.globalAlpha = 1; }
+  }
+  function drawStatus(g, w) {
+    const x = Math.round(w.x), y = Math.round(w.y - 40);
+    // name
+    g.font = '6px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'bottom';
+    g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(x - 24, y - 16, 48, 9);
+    g.fillStyle = hoverWombat === w ? '#ffd23f' : '#fff'; g.fillText(w.name, x, y - 8);
+    // happiness bar
+    g.fillStyle = '#1b1210'; g.fillRect(x - 16, y - 6, 32, 4);
+    g.fillStyle = w.hap > 60 ? '#7dff3f' : w.hap > 30 ? '#ffd23f' : '#ff4b4b'; g.fillRect(x - 15, y - 5, Math.round(30 * w.hap / 100), 2);
+    // stomach
+    if (w.stomach === 'digesting') {
+      const p = 1 - w.digestT / w.digestTotal;
+      g.fillStyle = '#1b1210'; g.fillRect(x - 16, y, 32, 4);
+      g.fillStyle = CUBES[FOOD_BY_KEY[w.food].cube].color; g.fillRect(x - 15, y + 1, Math.round(30 * p), 2);
+    } else if (w.stomach === 'empty' && Math.sin(G.time * 4) > 0) {
+      g.fillStyle = '#fff'; g.fillRect(x - 5, y, 10, 5); g.fillStyle = '#ff4b4b'; g.fillRect(x - 3, y + 1, 2, 3); g.fillRect(x + 1, y + 1, 2, 3);
+    } else if (w.stomach === 'ready') { g.font = '8px "Press Start 2P", monospace'; g.fillStyle = '#ffd23f'; g.fillText('!!', x, y + 8); }
+  }
+  function drawGroundCube(g, c) {
+    const def = CUBES[c.type], s = CUBE_SIZE * 0.7;
+    const w = def.w * s, h = def.h * s;
+    const pulse = c.t > 0 ? 1 + Math.sin(c.t * 5) * 0.04 : 1;
+    g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(c.x - w / 2, c.y - 2, w, 3);
+    g.save(); g.translate(Math.round(c.x), Math.round(c.y - c.z - h / 2)); g.scale(pulse, 1 / pulse);
+    Sprites.drawCube(g, def, w, h, { face: c.premium, outline: c.premium ? '#ffd23f' : null });
+    g.restore();
+    if (c.premium) { g.fillStyle = '#fff6c2'; if (Math.sin(c.t * 8) > 0.5) g.fillRect(c.x + w / 2 - 2, c.y - c.z - h - 2, 3, 3); }
+  }
+
+  return {
+    init(g) { G = g; },
+    update, render, click, hover, feed, pet, addWombat, newWombat, offline, wombatCap, hapCap, appeal, groundCubes,
+    get W() { return W; }, get H() { return H; },
+  };
+})();
+</script>
+
+<script>
+// ===== js/tower.js =====
+// ---- Tower stacking run ---------------------------------------------------
+const Tower = (() => {
+  let G = null;
+  const W = 640, H = 360;
+  const PX = 320, PLAT_Y = 290, GROUND_Y = 332, PLAT_H = 14;
+  const world = new Physics.World();
+  let platform = null;
+  const R = { active: false, phase: 'idle', wind: { active: false, warn: 0, dir: 1, str: 0 }, perks: [], height: 0, peak: 0, power: 1, sizeMult: 1, earned: 0, lives: 0, maxLives: 0, settled: 0, incomeRate: 0 }; // run state
+  const crowd = [];
+  let physAcc = 0;
+  let mouseX = 320, spaceHeld = false;
+  const lights = [{ x: 80, a: 0 }, { x: 560, a: Math.PI }];
+  const cityscape = []; for (let i = 0; i < 26; i++) cityscape.push({ x: i * 26 - 10, w: U.randi(14, 24), h: U.randi(20, 80) });
+
+  function platWidth() { return (G.skills.widebase ? 135 : 100); }
+  function crowdCap() { return 40 + 40 * (G.fac.stand || 0); }
+
+  function resetWorld() {
+    world.clear();
+    platform = world.add(new Physics.Body({ x: PX, y: PLAT_Y + PLAT_H / 2, width: platWidth(), height: PLAT_H, isStatic: true, friction: 0.9, userData: { platform: true } }));
+    platform.baseX = PX;
+    world.gravity = 760;
+    world.iterations = 40;
+    world.maxFall = 200;
+    world.onImpact = onImpact;
+    world.forceFn = applyForces;
+  }
+
+  function newRun() {
+    resetWorld();
+    Object.assign(R, {
+      active: true, phase: 'intro', t: 0, introT: 0,
+      falling: null, canDrop: false, dropCooldown: 0,
+      settled: 0, height: 0, peak: 0, lives: 3, maxLives: 3, lost: 0,
+      earned: 0, placementTotal: 0, perks: [], perkPending: false, nextPerkAt: 5, nextPowerAt: 10,
+      power: 1, frictionBoost: 1, sizeMult: 1, goldRushLeft: 0, encoreUsed: false,
+      crowdCount: 0, crowdTarget: 0, excite: 0, incomeAcc: 0,
+      wind: { active: false, warn: 0, t: 0, dir: 1, str: 0, next: U.rand(6, 10) },
+      quake: { t: 0, next: U.rand(25, 40), active: false },
+      lowT: 0, dangerCd: 0, slowT: 0, collapseT: 0, cashT: 0, rotate: false,
+      craneT: U.rand(0, 6), craneX: PX, lastCraneX: PX, number: (G.runs || 0) + 1, cubesUsed: 0,
+    });
+    crowd.length = 0;
+    FX.clear();
+    FX.letterbox(true);
+    FX.title('STACK RUN #' + R.number, { style: 'slide', dur: 2.2, size: 24, color: '#ffd23f', sub: U.pick(TIPS) });
+    Audio.play('drum'); Audio.play('whoosh');
+    Audio.setMode('tower');
+    FX.cam.tzoom = 1.25; FX.cam.tx = PX; FX.cam.ty = PLAT_Y - 30;
+    if (G.skills.headstart) { const p = U.pick(PERKS); setTimeout(() => { if (R.active) { applyPerk(p, true); } }, 1800); }
+    autoSelectCube();
+    UI.onRunStart();
+  }
+
+  // ---- forces: wind, magnet, feather -------------------------------------
+  function applyForces(b, dt) {
+    const ud = b.userData; if (!ud || ud.platform) return;
+    if (R.wind.active) {
+      const a = (R.wind.str * R.wind.dir) / Math.max(0.6, b.density);
+      b.vx += a * dt;
+    }
+    if (R.perks.includes('magnet') && b === R.falling) { b.vx += (PX - b.x) * 4 * dt; b.vx *= Math.max(0, 1 - 1.5 * dt); }
+  }
+  function onImpact(a, b, impulse, c) {
+    const strength = impulse / 800;
+    if (strength > 0.25) {
+      const x = c ? c.x : (a.x + b.x) / 2, y = c ? c.y : (a.y + b.y) / 2;
+      FX.dust(x, y, Math.min(12, Math.round(strength * 5)), '#d8c8b0');
+      FX.shake(Math.min(6, strength * 1.5));
+      Audio.play('thud', Math.min(2, strength));
+      if (a.restitution > 0.4 || b.restitution > 0.4) Audio.play('bounce');
+    }
+    // falling cube touched something -> release control
+    if (R.falling && (a === R.falling || b === R.falling)) { landed(R.falling); }
+  }
+  function landed(b) {
+    b.gravityScale = 1;
+    b.w *= 0.35; // soften corner-landing spin (cartoony, forgiving)
+    R.falling = null; R.canDrop = true; R.dropCooldown = 0.15;
+    FX.burst(b.x, b.y, 6, { color: ['#fff', CUBES[b.userData.type].color], speed: 60, gravity: 200, life: 0.4 });
+  }
+
+  // ---- cube inventory ----------------------------------------------------
+  function available(type) { return (G.cubes[type] || 0) + (G.premium[type] || 0); }
+  function autoSelectCube() {
+    if (G.selectedCube && available(G.selectedCube) > 0) return;
+    G.selectedCube = CUBE_ORDER.find((k) => available(k) > 0) || null;
+    UI.refreshCubeBar();
+  }
+  function totalCubes() { return CUBE_ORDER.reduce((s, k) => s + available(k), 0); }
+
+  function makeCube(type, premium, x, y) {
+    const def = CUBES[type];
+    const sz = CUBE_SIZE * R.sizeMult;
+    let w = def.w * sz, h = def.h * sz;
+    if (R.rotate) { const t = w; w = h; h = t; }
+    let friction = def.friction * (G.skills.gyro ? 1.15 : 1) * R.frictionBoost;
+    if (premium) friction *= 1.1;
+    if (type === 'heavy' && R.perks.includes('heavymetal')) friction *= 1.3;
+    if (type === 'ice' && R.perks.includes('deepfreeze')) friction = 0.6;
+    let adhesion = def.adhesion * (G.toys.mud ? 1.25 : 1) + (R.perks.includes('glue') ? 500 : 0);
+    const b = new Physics.Body({ x, y, width: w, height: h, density: def.density, friction, restitution: R.perks.includes('rubber') ? 0 : def.restitution, adhesion, angularDamping: G.skills.gyro ? 1.2 : 0.15, linearDamping: 0.02, angle: 0, userData: { type, premium, placed: true, settled: false } });
+    return b;
+  }
+
+  function drop() {
+    if (!R.active || R.phase !== 'play' || R.perkPending) return;
+    if (!R.canDrop || R.falling) { return; }
+    const type = G.selectedCube;
+    if (!type || available(type) <= 0) { autoSelectCube(); if (!G.selectedCube) { UI.toast('Out of cubes! Cash out or collapse.', 'bad'); } return; }
+    let premium = false;
+    if ((G.premium[type] || 0) > 0) { G.premium[type]--; premium = true; } else G.cubes[type]--;
+    R.cubesUsed++;
+    const y = craneY() + 18;
+    const b = makeCube(type, premium, R.craneX, y);
+    const craneV = (R.craneX - R.lastCraneX) * 60;
+    b.vx = craneV * 0.12; b.vy = 30;
+    if (!G.skills.crane) b.angle = U.rand(-0.05, 0.05);
+    if (R.perks.includes('feather')) b.gravityScale = 0.6;
+    world.add(b);
+    R.falling = b; R.canDrop = false;
+    Audio.play('whoosh');
+    for (let i = 0; i < 5; i++) FX.spawn({ x: b.x + U.rand(-b.width / 2, b.width / 2), y: b.y - b.height / 2, vx: 0, vy: -120, life: 0.3, size: 1.5, color: 'rgba(255,255,255,0.6)' });
+    autoSelectCube();
+    UI.refreshCubeBar(); UI.refreshHUD();
+  }
+  function craneY() { return towerTopY() - 120; }
+  function towerTopY() {
+    let top = PLAT_Y;
+    for (const b of world.bodies) { if (b.userData && b.userData.placed && b.restTime > 0.05 && b.y < PLAT_Y) top = Math.min(top, b.top()); }
+    return top;
+  }
+  function computeHeight() {
+    let top = PLAT_Y;
+    for (const b of world.bodies) if (b.userData && b.userData.settled && b.restTime > 0.05 && b.y < PLAT_Y + 40) top = Math.min(top, b.top());
+    return Math.max(0, (PLAT_Y - top) / CUBE_SIZE);
+  }
+
+  // ---- economy ----------------------------------------------------------
+  function incomeMult() {
+    let m = 1 + 0.12 * (G.fac.stand || 0);
+    if (G.skills.merch) m *= 1.3;
+    if (R.perks.includes('hypetrain')) m *= 1.7;
+    return m * R.power;
+  }
+  function placementPay(b) {
+    const ud = b.userData, def = CUBES[ud.type];
+    let v = def.value;
+    if (R.goldRushLeft > 0 && ud.type !== 'gold') { v = Math.max(v, CUBES.gold.value); R.goldRushLeft--; FX.float(b.x, b.y - 20, 'GOLD RUSH', { color: '#ffd23f', size: 7, world: true }); }
+    if (ud.type === 'gold' && R.perks.includes('goldrush')) v *= 2;
+    if (ud.type === 'heavy' && R.perks.includes('heavymetal')) v *= 3;
+    if (ud.type === 'bouncy' && G.toys.tramp) v *= 1.5;
+    if (ud.premium) v *= G.skills.goldengut ? 3 : 2;
+    v *= 1 + 0.15 * (G.fac.lab || 0);
+    if ((G.fac.conveyor || 0) >= 3) v *= 1.1;
+    v *= 1 + 0.15 * R.height;
+    if (R.perks.includes('taxbreak')) v *= 1.6;
+    v *= R.power;
+    return Math.round(v);
+  }
+  function earn(amount, x, y, big) {
+    G.money += amount; R.earned += amount; G.stats.earned += amount;
+    if (x !== undefined) FX.float(x, y, '+$' + U.fmt(amount), { color: '#ffd23f', size: big ? 9 : 7, world: true, life: 1.2 });
+    UI.refreshHUD();
+  }
+
+  function onSettled(b) {
+    b.userData.settled = true;
+    R.settled++;
+    R.height = computeHeight();
+    const pay = placementPay(b);
+    earn(pay, b.x, b.y - b.height / 2 - 6, true);
+    R.placementTotal += pay;
+    R.power = 1 + R.settled * (R.perks.includes('momentum') ? 0.16 : 0.08);
+    R.excite = Math.min(2, R.excite + 0.8);
+    Audio.play('place'); Audio.play('coin');
+    // center bonus
+    if (Math.abs(b.x - PX) < 5 && R.height > 1) { FX.float(b.x, b.y - b.height / 2 - 18, 'PERFECT!', { color: '#3fe0ff', size: 8, world: true }); FX.sparkle(b.x, b.y, 8, '#3fe0ff'); earn(Math.round(pay * 0.5)); }
+    if (R.height > R.peak) { R.peak = R.height; }
+    if (Math.floor(R.peak) > G.record) {
+      const was = G.record; G.record = Math.floor(R.peak);
+      if (was >= 3) { FX.title('NEW RECORD!', { size: 22, color: '#ffd23f', dur: 1.6, sub: G.record + ' CUBES' }); FX.confettiBurst(W / 2, H * 0.3, 80); Audio.play('record'); FX.flash('#fff6c2', 0.4); }
+    }
+    if (R.settled >= R.nextPowerAt) {
+      R.nextPowerAt += 10; R.frictionBoost *= 1.08;
+      for (const bb of world.bodies) if (bb.userData && bb.userData.placed) bb.friction *= 1.08;
+      FX.title('STACK POWER UP!', { size: 18, color: '#7dff3f', dur: 1.5, sub: 'x' + R.power.toFixed(2) + ' • friction +8%' }); Audio.play('levelup'); FX.punch(0.1); FX.flash('#7dff3f', 0.3);
+    }
+    if (R.perks.includes('bedrock')) applyBedrock();
+    if (R.settled >= R.nextPerkAt) { R.nextPerkAt += 5; R.perkPending = true; setTimeout(offerPerks, 400); }
+    UI.refreshRunHUD();
+  }
+  function applyBedrock() {
+    const settled = world.bodies.filter((b) => b.userData && b.userData.settled && !b.userData.bedrock && !b.isStatic).sort((a, b) => b.y - a.y);
+    const already = world.bodies.filter((b) => b.userData && b.userData.bedrock).length;
+    for (let i = 0; i < Math.min(3 - already, settled.length); i++) {
+      const b = settled[i]; if (b.y > PLAT_Y - CUBE_SIZE * 3.2 && b.restTime > 0.3) { b.isStatic = true; b.setMass(0); b.vx = b.vy = b.w = 0; b.userData.bedrock = true; FX.sparkle(b.x, b.y, 8, '#c77dff'); }
+    }
+  }
+
+  // ---- perks -------------------------------------------------------------
+  function offerPerks() {
+    if (!R.active) return;
+    const n = G.skills.scout ? 4 : 3;
+    const pool = PERKS.filter((p) => !R.perks.includes(p.key));
+    const picks = [];
+    while (picks.length < n && pool.length) {
+      const weights = pool.map((p) => (p.rarity === 2 ? 0.55 : 1));
+      let r = Math.random() * weights.reduce((a, b) => a + b, 0), idx = 0;
+      for (; idx < pool.length; idx++) { r -= weights[idx]; if (r <= 0) break; }
+      picks.push(pool.splice(Math.min(idx, pool.length - 1), 1)[0]);
+    }
+    G.paused = true;
+    FX.punch(0.12); FX.vignette(0.7); Audio.play('perk');
+    UI.showPerks(picks, (p) => { applyPerk(p); G.paused = false; R.perkPending = false; FX.vignette(0); });
+  }
+  function applyPerk(p, free) {
+    if (R.perks.includes(p.key)) { p = PERKS.find((q) => !R.perks.includes(q.key)) || p; }
+    R.perks.push(p.key);
+    switch (p.key) {
+      case 'glue': for (const b of world.bodies) if (b.userData && b.userData.placed) b.adhesion += 500; break;
+      case 'net': R.lives += 2; R.maxLives += 2; break;
+      case 'goldrush': R.goldRushLeft = 3; break;
+      case 'bigboned': R.sizeMult *= 1.15; break;
+      case 'surge': R.crowdTarget += 40; for (let i = 0; i < 40; i++) addSpectator(true); break;
+      case 'rubber': for (const b of world.bodies) if (b.userData && b.userData.placed) b.restitution = 0; break;
+      case 'deepfreeze': for (const b of world.bodies) if (b.userData && b.userData.type === 'ice') b.friction = 0.6; break;
+      case 'heavymetal': for (const b of world.bodies) if (b.userData && b.userData.type === 'heavy') b.friction *= 1.3; break;
+      case 'bedrock': applyBedrock(); break;
+      case 'momentum': R.power = 1 + R.settled * 0.16; break;
+    }
+    FX.title(p.icon + ' ' + p.name.toUpperCase(), { size: 16, color: '#c77dff', dur: 1.6, sub: free ? 'HEAD START PERK' : '' });
+    FX.confettiBurst(W / 2, H * 0.4, 30);
+    UI.refreshRunHUD();
+  }
+
+  // ---- crowd ------------------------------------------------------------
+  function addSpectator(instant) {
+    const i = crowd.length; const side = i % 2 ? 1 : -1; const row = Math.floor(i / 2 / 14), col = Math.floor(i / 2) % 14;
+    const x = PX + side * (platWidth() / 2 + 20 + col * 10 + U.rand(-3, 3)), y = GROUND_Y + 2 + row * 5;
+    crowd.push({ x: instant ? x : x + side * 200, tx: x, y, c: U.randi(0, Sprites.people.length - 1), ph: U.rand(0, TAU), hat: U.chance(0.3), flee: 0, bubble: 0 });
+  }
+  function updateCrowd(dt) {
+    if (R.phase === 'play' || R.phase === 'intro') {
+      const hype = G.skills.hype ? 1.35 : 1;
+      R.crowdTarget = Math.min(crowdCap(), Math.floor(2 + Math.pow(R.height, 1.7) * 1.3 * Pen.appeal() * hype) + (R.perks.includes('surge') ? 40 : 0));
+      const growth = (4 + R.height * 1.5) * hype * dt;
+      R.crowdCount = Math.min(R.crowdTarget, R.crowdCount + growth);
+      while (crowd.length < Math.floor(R.crowdCount)) addSpectator(false);
+      while (crowd.length > Math.floor(R.crowdCount) + 3) crowd.pop();
+      // income
+      const inc = crowd.length * 0.3 * incomeMult();
+      R.incomeAcc += inc * dt;
+      if (R.incomeAcc >= 1) { const a = Math.floor(R.incomeAcc); R.incomeAcc -= a; G.money += a; R.earned += a; G.stats.earned += a; }
+      R.incomeRate = inc;
+    }
+    R.excite = Math.max(0, R.excite - dt);
+    for (const p of crowd) {
+      if (R.phase === 'collapse') { p.flee += dt; p.x += (p.x > PX ? 1 : -1) * 90 * dt; }
+      else p.x = U.lerp(p.x, p.tx, 1 - Math.pow(0.02, dt));
+      if (p.bubble > 0) p.bubble -= dt;
+      else if (R.excite > 0.5 && U.chance(0.01)) p.bubble = 1;
+    }
+  }
+
+  // ---- hazards ----------------------------------------------------------
+  function updateHazards(dt) {
+    const wd = R.wind;
+    if (R.height >= 6 || wd.active || wd.warn > 0) {
+      if (wd.active) { wd.t -= dt; if (wd.t <= 0) { wd.active = false; wd.next = U.rand(6, 11); } else if (U.chance(0.4)) FX.spawn({ x: wd.dir > 0 ? FX.cam.x - W / FX.cam.zoom : FX.cam.x + W / FX.cam.zoom, y: U.rand(towerTopY() - 60, PLAT_Y), vx: wd.dir * wd.str * 1.5, vy: U.rand(-20, 20), life: 1.5, size: 3, color: U.pick(['#7dc24b', '#c8b070', '#e0a040']), type: 'leaf', rot: 0, vr: 6 }); }
+      else if (wd.warn > 0) { wd.warn -= dt; if (wd.warn <= 0) { wd.active = true; wd.t = 1.4; Audio.play('wind'); } }
+      else { wd.next -= dt; if (wd.next <= 0 && R.phase === 'play') { wd.warn = 1.3; wd.dir = U.chance(0.5) ? 1 : -1; wd.str = (16 + (R.height - 5) * 5) * (R.perks.includes('windbreak') ? 0.3 : 1); Audio.play('alarm'); } }
+    }
+    const q = R.quake;
+    if (R.height >= 12 && !R.perks.includes('calm') && R.phase === 'play') {
+      if (q.active) { q.t -= dt; const off = Math.sin(q.t * 40) * 3 * Math.min(1, q.t); const nx = platform.baseX + off; platform.vx = (nx - platform.x) / dt; platform.x = nx; FX.shake(1.5); if (q.t <= 0) { q.active = false; platform.x = platform.baseX; platform.vx = 0; q.next = U.rand(25, 40); } }
+      else { q.next -= dt; if (q.next <= 0) { q.active = true; q.t = 1.6; FX.title('EARTHQUAKE!', { size: 16, color: '#ff4b4b', dur: 1.2, shake: 3 }); Audio.play('drum'); } }
+    }
+  }
+
+  // ---- main update ------------------------------------------------------
+  function update(dt, realDt) {
+    if (!R.active) { FX.cam.tzoom = 1; FX.cam.tx = PX; FX.cam.ty = 180; return; }
+    R.t += dt;
+    if (R.phase === 'intro') { R.introT += realDt; if (R.introT > 2.2) { R.phase = 'play'; R.canDrop = true; FX.letterbox(false); UI.onRunPlay(); } }
+    // crane
+    if (R.phase === 'play' && !G.paused) {
+      let sp = 1.5 * (G.skills.crane ? 0.75 : 1) * (R.perks.includes('slowhands') ? 0.6 : 1);
+      R.craneT += dt * sp;
+      const amp = Math.min(150, 80 + R.height * 4);
+      R.lastCraneX = R.craneX; R.craneX = PX + Math.sin(R.craneT) * amp;
+      if (R.dropCooldown > 0) R.dropCooldown -= dt;
+      if (R.falling && R.t - (R.fallStart || 0) > 3) { /* stuck in air? nothing */ }
+    }
+    // physics
+    if (!G.paused && (R.phase === 'play' || R.phase === 'collapse' || R.phase === 'cash')) {
+      physAcc += dt;
+      const step = 1 / 180; let n = 0;
+      while (physAcc >= step && n < 14) { world.step(step); physAcc -= step; n++; }
+      if (n >= 10) physAcc = 0;
+    }
+    // bookkeeping
+    if (R.phase === 'play') {
+      let moving = 0;
+      for (let i = world.bodies.length - 1; i >= 0; i--) {
+        const b = world.bodies[i]; const ud = b.userData; if (!ud || ud.platform) continue;
+        if (b.y > GROUND_Y + 80) { // fell off
+          world.remove(b);
+          if (b === R.falling) landed(b);
+          R.lost++; R.lives--; G.stats.lost++;
+          FX.shake(4); Audio.play('thud', 1.5); FX.flash('#ff4b4b', 0.25);
+          FX.float(b.x, GROUND_Y - 10, 'LOST!', { color: '#ff4b4b', size: 9, world: true });
+          UI.refreshRunHUD();
+          if (R.lives <= 0) { if (R.perks.includes('encore') && !R.encoreUsed) encore(); else collapse('CUBES LOST'); }
+          continue;
+        }
+        if (!ud.settled && b !== R.falling && b.restTime > 0.45) onSettled(b);
+        if (ud.settled && b.speed > 35) moving++;
+      }
+      // falling cube timeout safety: if it never touched anything for 4s, allow drop
+      if (R.falling && R.falling.contacts === 0 && R.falling.y > GROUND_Y) { /* handled by fall-off */ }
+      R.height = computeHeight();
+      // collapse by height loss
+      if (R.peak >= 4 && R.height < R.peak * 0.5 && moving >= 2) { R.lowT += dt; if (R.lowT > 1.2) collapse('TOWER TOPPLED'); } else R.lowT = Math.max(0, R.lowT - dt);
+      // danger slow-mo
+      if (R.dangerCd > 0) R.dangerCd -= realDt;
+      if (moving >= 1 && R.height >= 3 && R.dangerCd <= 0) {
+        R.dangerCd = G.skills.bullet ? 3 : 5; R.slowT = G.skills.bullet ? 1.4 : 0.7;
+        FX.setSlowmo(G.skills.bullet ? 0.25 : 0.45); FX.vignette(0.6); FX.punch(0.06); Audio.play('slowmo');
+        FX.title('!!', { size: 22, color: '#ff4b4b', dur: 0.7, style: 'fade', y: 0.2 });
+      }
+      if (R.slowT > 0) { R.slowT -= realDt; if (R.slowT <= 0) { FX.setSlowmo(1); FX.vignette(0); } }
+      updateHazards(dt);
+    }
+    if (R.phase === 'collapse') { R.collapseT += realDt; if (R.collapseT > 3.2) finishRun(false); }
+    if (R.phase === 'cash') { R.cashT += realDt; if (R.cashT > 2.2) finishRun(true); }
+    updateCrowd(dt);
+    // camera
+    const top = Math.min(towerTopY(), R.falling ? R.falling.y - 40 : 1e9);
+    const cy = craneY() - 30;
+    const span = GROUND_Y + 25 - cy;
+    const zoom = U.clamp(H / Math.max(360, span), 0.22, 1);
+    FX.cam.tzoom = R.phase === 'intro' ? 1.15 : R.phase === 'collapse' ? zoom * 0.9 : zoom;
+    FX.cam.tx = PX;
+    FX.cam.ty = GROUND_Y + 25 - (H / 2) / FX.cam.tzoom;
+  }
+
+  function encore() {
+    R.encoreUsed = true; R.lives = 1;
+    for (let i = world.bodies.length - 1; i >= 0; i--) { const b = world.bodies[i]; if (b.userData && b.userData.placed && !b.isStatic && (b.speed > 30 || !b.userData.settled)) { FX.burst(b.x, b.y, 10, { color: ['#c77dff', '#fff'], speed: 120 }); world.remove(b); } }
+    R.falling = null; R.canDrop = true;
+    FX.title('ENCORE!', { size: 26, color: '#c77dff', dur: 1.8, sub: 'ONE MORE CHANCE' }); FX.flash('#c77dff', 0.6); Audio.play('perk'); FX.hitstop(0.25);
+    UI.refreshRunHUD();
+  }
+
+  function collapse(reason) {
+    if (R.phase !== 'play') return;
+    R.phase = 'collapse'; R.collapseT = 0;
+    FX.freeze(0.4); FX.hitstop(0.4);
+    FX.setSlowmo(0.3, false); FX.vignette(0.9); FX.letterbox(true); FX.cine.tDesat = 1;
+    FX.flash('#ff4b4b', 0.7); FX.shake(14); FX.punch(0.15);
+    FX.title('COLLAPSE', { size: 34, color: '#ff4b4b', dur: 3, shake: 3, delay: 0.35, sub: reason });
+    Audio.play('collapse');
+    setTimeout(() => Audio.play('cheer', 0.4), 300);
+    G.stats.collapses++;
+    UI.hideRunHUD();
+  }
+  function cashOut() {
+    if (!R.active || R.phase !== 'play' || R.perkPending) return;
+    R.phase = 'cash'; R.cashT = 0;
+    let bonus = Math.round(R.placementTotal * (R.peak / 8) * (G.skills.legend ? 2 : 1) + crowd.length * 2);
+    R.bonus = bonus; G.money += bonus; R.earned += bonus; G.stats.earned += bonus;
+    FX.letterbox(true); FX.title('CASH OUT!', { size: 28, color: '#7dff3f', dur: 2.2, sub: '+' + U.money(bonus) + ' BONUS' });
+    FX.confettiBurst(W / 2, H * 0.35, 120); Audio.play('cash'); Audio.play('cheer', 1); FX.flash('#fff', 0.5);
+    for (let i = 0; i < 20; i++) FX.spawn({ x: U.rand(0, W), y: -10, vx: U.rand(-20, 20), vy: U.rand(80, 200), life: 2, size: 4, color: '#ffd23f', gravity: 100, layer: 1 });
+    UI.hideRunHUD();
+  }
+  function finishRun(cashed) {
+    const sp = Math.floor(R.peak / 3) + (Math.floor(R.peak) >= G.record && R.peak >= 4 ? 2 : 0) + (G.skills.legend ? 2 : 0);
+    G.sp += sp; G.runs = (G.runs || 0) + 1;
+    G.stats.bestEarned = Math.max(G.stats.bestEarned || 0, R.earned);
+    const summary = { cashed, peak: R.peak, settled: R.settled, earned: R.earned, bonus: R.bonus || 0, sp, crowd: crowd.length, perks: R.perks.slice(), lost: R.lost, cubesUsed: R.cubesUsed };
+    R.active = false; R.phase = 'idle';
+    FX.setSlowmo(1, true); FX.vignette(0); FX.letterbox(false); FX.cine.tDesat = 0;
+    world.clear(); crowd.length = 0;
+    Audio.setMode('pen');
+    UI.showSummary(summary);
+    UI.onRunEnd();
+    Main.save();
+  }
+
+  // ---- input ------------------------------------------------------------
+  function click() { if (R.active && R.phase === 'play') drop(); }
+  function key(k) {
+    if (k === ' ') { click(); return true; }
+    if (k === 'r' || k === 'R') { R.rotate = !R.rotate; Audio.play('click'); return true; }
+    const n = parseInt(k); if (n >= 1 && n <= 9) { const t = CUBE_ORDER.filter((c) => available(c) > 0)[n - 1]; if (t) { G.selectedCube = t; UI.refreshCubeBar(); Audio.play('click'); } return true; }
+    return false;
+  }
+
+  // ---- rendering --------------------------------------------------------
+  function render(g) {
+    const cam = FX.cam;
+    // background (screen space)
+    const grd = g.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, '#120c24'); grd.addColorStop(0.6, '#3a1d5c'); grd.addColorStop(1, '#7a2d5a');
+    g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    // stars
+    g.fillStyle = '#fff'; for (let i = 0; i < 50; i++) { const sx = (i * 97.3) % W, sy = (i * 53.7) % (H * 0.6); g.globalAlpha = 0.4 + 0.5 * Math.sin(G.time * 2 + i); g.fillRect(sx, sy, 1.5, 1.5); } g.globalAlpha = 1;
+    // spotlights
+    if (R.active) { for (const l of lights) { l.a += 0.01 * (l.x < 320 ? 1 : -1); const ang = Math.sin(G.time * 0.7 + l.a) * 0.5; g.save(); g.translate(l.x, H); g.rotate(ang); g.fillStyle = 'rgba(255,240,180,0.08)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(-40, -H * 1.4); g.lineTo(40, -H * 1.4); g.closePath(); g.fill(); g.restore(); } }
+    // city parallax
+    g.fillStyle = '#1b1030'; for (const c of cityscape) { const px = ((c.x - (cam.x - PX) * 0.1) % (W + 40) + W + 40) % (W + 40) - 20; g.fillRect(px, H * 0.62 - c.h * 0.6 + (cam.y - 180) * 0.05, c.w, c.h); }
+    g.fillStyle = '#ffd97a'; for (const c of cityscape) { const px = ((c.x - (cam.x - PX) * 0.1) % (W + 40) + W + 40) % (W + 40) - 20; for (let k = 0; k < 3; k++) if ((c.x * 7 + k * 13) % 5 < 2) g.fillRect(px + 4 + k * 6, H * 0.62 - c.h * 0.6 + (cam.y - 180) * 0.05 + 6 + (k * 11) % 20, 2, 2); }
+
+    // world space
+    g.save();
+    g.translate(W / 2 + cam.shakeX, H / 2 + cam.shakeY); g.scale(cam.zoom, cam.zoom); g.translate(-cam.x, -cam.y);
+    // ground
+    g.fillStyle = '#3a3448'; g.fillRect(cam.x - W / cam.zoom, GROUND_Y, W * 2 / cam.zoom, 400);
+    g.fillStyle = '#2c2838'; for (let x = -2000; x < 2000; x += 40) g.fillRect(x, GROUND_Y + 8, 20, 3);
+    g.fillStyle = '#4a4460'; g.fillRect(cam.x - W / cam.zoom, GROUND_Y, W * 2 / cam.zoom, 3);
+    // pedestal
+    const pw = platWidth();
+    g.fillStyle = '#6a6480'; g.fillRect(PX - pw / 2 + 10, PLAT_Y + PLAT_H, pw - 20, GROUND_Y - PLAT_Y - PLAT_H);
+    g.fillStyle = '#524c66'; g.fillRect(PX - pw / 2 + 10, PLAT_Y + PLAT_H, 6, GROUND_Y - PLAT_Y - PLAT_H); g.fillRect(PX + pw / 2 - 16, PLAT_Y + PLAT_H, 6, GROUND_Y - PLAT_Y - PLAT_H);
+    // height guide lines
+    if (R.active) {
+      g.font = '7px "Press Start 2P", monospace'; g.textAlign = 'right'; g.textBaseline = 'middle';
+      for (let h = 5; h <= Math.max(10, R.peak + 10); h += 5) { const y = PLAT_Y - h * CUBE_SIZE; g.strokeStyle = h <= R.height ? 'rgba(125,255,63,0.35)' : 'rgba(255,255,255,0.15)'; g.setLineDash([4, 6]); g.lineWidth = 1; g.beginPath(); g.moveTo(PX - 140, y); g.lineTo(PX + 140, y); g.stroke(); g.setLineDash([]); g.fillStyle = h <= G.record && G.record > 0 && h === G.record ? '#ffd23f' : 'rgba(255,255,255,0.5)'; g.fillText((h === G.record ? '★ ' : '') + h, PX - 146, y); }
+    }
+    // platform
+    if (platform) { g.save(); g.translate(platform.x, platform.y); g.fillStyle = '#8a84a0'; g.fillRect(-pw / 2, -PLAT_H / 2, pw, PLAT_H); g.fillStyle = '#b8b2cc'; g.fillRect(-pw / 2, -PLAT_H / 2, pw, 3); g.fillStyle = '#5a5470'; g.fillRect(-pw / 2, PLAT_H / 2 - 3, pw, 3); g.fillStyle = '#ffd23f'; for (let x = -pw / 2; x < pw / 2; x += 12) g.fillRect(x, -PLAT_H / 2 + 4, 6, 2); g.restore(); }
+    // drop guide
+    if (R.active && R.phase === 'play' && G.skills.guide && !R.falling) {
+      const def = CUBES[G.selectedCube || 'normal']; const hw = def.w * CUBE_SIZE * R.sizeMult / 2;
+      let hitY = PLAT_Y; for (const b of world.bodies) { if (!b.userData || b.userData.platform) continue; const bb = b.aabb(); if (bb.maxX > R.craneX - hw && bb.minX < R.craneX + hw) hitY = Math.min(hitY, bb.minY); }
+      g.strokeStyle = 'rgba(63,224,255,0.5)'; g.setLineDash([3, 5]); g.lineWidth = 1; g.beginPath(); g.moveTo(R.craneX - hw, craneY() + 20); g.lineTo(R.craneX - hw, hitY); g.moveTo(R.craneX + hw, craneY() + 20); g.lineTo(R.craneX + hw, hitY); g.stroke(); g.setLineDash([]);
+      g.fillStyle = 'rgba(63,224,255,0.35)'; g.fillRect(R.craneX - hw, hitY - 2, hw * 2, 2);
+    }
+    // cubes
+    for (const b of world.bodies) {
+      const ud = b.userData; if (!ud || ud.platform) continue;
+      const def = CUBES[ud.type];
+      g.save(); g.translate(b.x, b.y); g.rotate(b.angle);
+      Sprites.drawCube(g, def, b.width, b.height, { face: ud.premium, outline: ud.bedrock ? '#c77dff' : b === R.falling ? '#fff' : (ud.premium ? '#ffd23f' : null) });
+      if (b.adhesion > 0 && ud.type !== 'sticky') { g.fillStyle = 'rgba(197,138,42,0.35)'; g.fillRect(-b.width / 2, -b.height / 2, b.width, b.height); }
+      g.restore();
+      if (b === R.falling && b.vy > 60) { g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1; for (let i = -1; i <= 1; i++) { g.beginPath(); g.moveTo(b.x + i * b.width * 0.4, b.y - b.height / 2 - 4); g.lineTo(b.x + i * b.width * 0.4, b.y - b.height / 2 - 4 - Math.min(40, b.vy * 0.08)); g.stroke(); } }
+    }
+    // crane
+    if (R.active && (R.phase === 'play' || R.phase === 'intro')) drawCrane(g);
+    // crowd
+    for (const p of crowd) {
+      const img = (p.hat ? Sprites.peopleHat : Sprites.people)[p.c];
+      const hop = (R.excite > 0 || R.phase === 'cash') ? Math.abs(Math.sin(G.time * 10 + p.ph)) * 4 : Math.sin(G.time * 2 + p.ph) * 0.5;
+      g.drawImage(img, Math.round(p.x - 3), Math.round(p.y - 11 - hop));
+      if (p.bubble > 0) { g.fillStyle = '#fff'; g.fillRect(p.x - 6, p.y - 22, 12, 7); g.fillStyle = '#1b1210'; g.font = '5px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(U.pick(['WOW', '!!!', 'OMG', 'GO!']), p.x, p.y - 18); }
+    }
+    // wind arrows
+    if (R.wind.warn > 0 || R.wind.active) {
+      const dir = R.wind.dir; g.fillStyle = R.wind.active ? 'rgba(63,224,255,0.8)' : `rgba(255,210,63,${0.4 + 0.4 * Math.sin(G.time * 20)})`;
+      for (let i = 0; i < 5; i++) { const ax = PX - dir * 200 + dir * ((G.time * 200 + i * 60) % 300), ay = towerTopY() - 30 + i * 18 - 20; g.fillRect(ax, ay, dir * 14, 2); g.fillRect(ax + dir * 12, ay - 2, dir * 3, 6); }
+    }
+    FX.drawParticles(g, 0);
+    FX.drawFloaters(g, true);
+    g.restore();
+
+    // screen-space overlays
+    FX.drawParticles(g, 1);
+    FX.drawConfetti(g);
+    FX.drawFloaters(g, false);
+    if (R.active) {
+      // height ruler on right
+      const rx = W - 26, ry0 = 40, ry1 = H - 40;
+      g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(rx - 8, ry0 - 8, 30, ry1 - ry0 + 16);
+      const maxH = Math.max(12, Math.ceil((R.peak + 4) / 4) * 4);
+      g.fillStyle = '#5a5470'; g.fillRect(rx, ry0, 4, ry1 - ry0);
+      const hy = ry1 - (R.height / maxH) * (ry1 - ry0), py = ry1 - (R.peak / maxH) * (ry1 - ry0), rec = ry1 - (Math.min(maxH, G.record) / maxH) * (ry1 - ry0);
+      g.fillStyle = '#7dff3f'; g.fillRect(rx, hy, 4, ry1 - hy);
+      g.fillStyle = '#fff'; g.fillRect(rx - 3, py, 10, 1);
+      if (G.record > 0) { g.fillStyle = '#ffd23f'; g.fillRect(rx - 4, rec, 12, 2); g.font = '6px "Press Start 2P", monospace'; g.textAlign = 'right'; g.textBaseline = 'middle'; g.fillText('BEST', rx - 6, rec); }
+      g.font = '8px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'top'; g.fillStyle = '#fff'; g.fillText(R.height.toFixed(1), rx + 2, ry1 + 6);
+      // wind warning banner
+      if (R.wind.warn > 0) { g.font = '10px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = Math.sin(G.time * 20) > 0 ? '#ffd23f' : '#ff4b4b'; g.fillText((R.wind.dir > 0 ? '>>> ' : '<<< ') + 'WIND INCOMING' + (R.wind.dir > 0 ? ' >>>' : ' <<<'), W / 2, 30); }
+      if (R.phase === 'play' && R.rotate) { g.font = '7px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillStyle = '#3fe0ff'; g.fillText('ROTATED (R)', W / 2, H - 14); }
+      if (R.phase === 'play' && !G.selectedCube && !R.falling) { g.font = '9px "Press Start 2P", monospace'; g.textAlign = 'center'; g.fillStyle = '#ff4b4b'; g.fillText('NO CUBES LEFT - CASH OUT!', W / 2, 52); }
+    }
+  }
+  function drawCrane(g) {
+    const cy = craneY(); const cam = FX.cam;
+    g.fillStyle = '#2c2838'; g.fillRect(cam.x - W / cam.zoom, cy - 26, W * 2 / cam.zoom, 6);
+    g.fillStyle = '#ffd23f'; for (let x = -3000; x < 3000; x += 24) g.fillRect(x, cy - 25, 12, 4);
+    g.fillStyle = '#e04b4b'; g.fillRect(R.craneX - 12, cy - 22, 24, 12); g.fillStyle = '#8a2f24'; g.fillRect(R.craneX - 12, cy - 13, 24, 3);
+    g.fillStyle = '#1b1210'; g.fillRect(R.craneX - 1, cy - 10, 2, 16);
+    // claw
+    g.fillStyle = '#b8b2cc'; g.fillRect(R.craneX - 10, cy + 4, 20, 3); g.fillRect(R.craneX - 10, cy + 4, 3, 8); g.fillRect(R.craneX + 7, cy + 4, 3, 8);
+    // held cube
+    if (!R.falling && R.canDrop && G.selectedCube && R.phase === 'play') {
+      const def = CUBES[G.selectedCube]; let w = def.w * CUBE_SIZE * R.sizeMult, h = def.h * CUBE_SIZE * R.sizeMult; if (R.rotate) { const t = w; w = h; h = t; }
+      const sway = (R.craneX - R.lastCraneX) * 0.02;
+      g.save(); g.translate(R.craneX, cy + 18 + h / 2 - 12); g.rotate(-sway);
+      Sprites.drawCube(g, def, w, h, { face: (G.premium[G.selectedCube] || 0) > 0, outline: 'rgba(255,255,255,0.6)' });
+      g.restore();
+    }
+  }
+
+  return {
+    init(g) { G = g; resetWorld(); },
+    R, world, update, render, click, key, drop, cashOut, newRun, totalCubes, available, autoSelectCube,
+    setMouse(x) { mouseX = x; },
+    get active() { return R.active; },
+    get crowdSize() { return crowd.length; },
+  };
+})();
+</script>
+
+<script>
+// ===== js/ui.js =====
+// ---- DOM UI: HUD, hotbars, shop, skill tree, modals -----------------------
+const UI = (() => {
+  let G = null;
+  const $ = (id) => document.getElementById(id);
+  let shopTab = 'food';
+
+  function toast(msg, kind = '') {
+    const t = document.createElement('div'); t.className = 'toast ' + kind; t.innerHTML = msg;
+    $('toasts').appendChild(t); setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.4s'; }, 2600); setTimeout(() => t.remove(), 3100);
+  }
+  function swatch(def, cls = 'cube-swatch') { return `<span class="${cls}" style="background:${def.color}"></span>`; }
+  function cubeIcon(def) { const cls = def.key === 'slab' ? 'wide' : def.key === 'tiny' ? 'small' : def.key === 'big' ? 'large' : ''; return `<span class="cube-ico ${cls}" style="background:${def.color}"></span>`; }
+
+  // ---- HUD -----------------------------------------------------------------
+  function refreshHUD() {
+    $('hud-money').textContent = U.money(G.money);
+    $('hud-cubes').textContent = Tower.totalCubes();
+    $('hud-sp').textContent = G.sp;
+    $('hud-record').textContent = G.record;
+    const inc = Tower.active && Tower.R.incomeRate ? `+${U.money(Tower.R.incomeRate)}/s` : '';
+    $('hud-income').textContent = inc;
+    const avail = SKILLS.some((s) => !G.skills[s.key] && canBuySkill(s));
+    $('sp-badge').hidden = !avail; $('sp-badge').textContent = G.sp;
+  }
+  function refreshHotbar() {
+    const bar = $('food-hotbar'); bar.innerHTML = '';
+    for (const f of FOODS) {
+      if (!G.unlockedFoods[f.key]) continue;
+      const n = G.food[f.key] || 0;
+      const el = document.createElement('div');
+      el.className = 'slot' + (G.selectedFood === f.key ? ' active' : '') + (n === 0 ? ' empty' : '');
+      el.innerHTML = `<span>${f.icon}</span><span class="count">${n}</span>`;
+      el.title = f.name;
+      el.onclick = () => { if (n === 0) { toast(`No ${f.name}. Buy more in the shop ($${f.cost} each).`, 'bad'); Audio.play('error'); openShop('food'); return; } G.selectedFood = G.selectedFood === f.key ? null : f.key; Audio.play('click'); refreshHotbar(); };
+      el.onmouseenter = (e) => showTip(e, `<b>${f.icon} ${f.name}</b><br>${f.desc}<br><span style="color:#b9a9c9">Digest ${f.digest}s • +${f.hap} happy • makes ${CUBES[f.cube].name}${f.count ? ' x' + f.count : ''}</span>`);
+      el.onmouseleave = hideTip;
+      bar.appendChild(el);
+    }
+    const hand = document.createElement('div'); hand.className = 'slot' + (!G.selectedFood ? ' active' : ''); hand.innerHTML = '<span>🤚</span>'; hand.title = 'Pet mode'; hand.onclick = () => { G.selectedFood = null; Audio.play('click'); refreshHotbar(); };
+    hand.onmouseenter = (e) => showTip(e, '<b>🤚 Pet mode</b><br>Click a wombat to pet it. +happiness, faster digestion.<br><span style="color:#ff6b6b">Don\'t overdo it.</span>'); hand.onmouseleave = hideTip;
+    bar.prepend(hand);
+    // trough
+    const tc = $('trough-ctl'); tc.hidden = !(G.fac.trough > 0);
+    if (!tc.hidden) {
+      const sel = $('trough-food'); const cur = sel.value;
+      sel.innerHTML = '<option value="">(off)</option>' + FOODS.filter((f) => G.unlockedFoods[f.key]).map((f) => `<option value="${f.key}" ${G.troughFood === f.key ? 'selected' : ''}>${f.icon} ${f.name} (${G.food[f.key] || 0})</option>`).join('');
+      sel.onchange = () => { G.troughFood = sel.value || null; Audio.play('click'); };
+    }
+  }
+  function refreshCubeBar() {
+    const bar = $('cube-hotbar'); bar.innerHTML = '';
+    let idx = 0;
+    for (const k of CUBE_ORDER) {
+      const def = CUBES[k]; const n = G.cubes[k] || 0, p = G.premium[k] || 0;
+      if (n + p === 0) continue;
+      idx++;
+      const el = document.createElement('div');
+      el.className = 'slot' + (G.selectedCube === k ? ' active' : '');
+      el.innerHTML = `${cubeIcon(def)}<span class="key">${idx <= 9 ? idx : ''}</span><span class="count">${n + p}${p ? ' <span style="color:#ffd23f">★' + p + '</span>' : ''}</span>`;
+      el.onclick = () => { G.selectedCube = k; Audio.play('click'); refreshCubeBar(); };
+      el.onmouseenter = (e) => showTip(e, `<b>${swatch(def)} ${def.name}</b><br>${def.desc}<br><span style="color:#b9a9c9">Size ${def.w}x${def.h} • Density ${def.density} • Friction ${def.friction}${def.adhesion ? ' • Sticky' : ''}${def.restitution > 0.3 ? ' • Bouncy' : ''}<br>Base value $${def.value}${p ? ' • ★ premium x2' : ''}</span>`);
+      el.onmouseleave = hideTip;
+      bar.appendChild(el);
+    }
+    if (idx === 0) bar.innerHTML = '<span class="hint">No cubes. Feed your wombats!</span>';
+  }
+  function refreshRunHUD() {
+    const R = Tower.R; if (!R.active) return;
+    $('run-height').textContent = R.height.toFixed(1) + ' / ' + Math.floor(R.peak);
+    $('run-crowd').textContent = Tower.crowdSize + ' 👥';
+    $('run-power').textContent = 'x' + R.power.toFixed(2);
+    $('run-earned').textContent = U.money(R.earned);
+    $('run-lives').textContent = '❤'.repeat(Math.max(0, R.lives)) + '♡'.repeat(Math.max(0, R.maxLives - R.lives));
+    $('run-perks').innerHTML = R.perks.map((k) => { const p = PERKS.find((q) => q.key === k); return `<span title="${p.name}: ${p.desc}">${p.icon}</span>`; }).join('');
+  }
+  function onRunStart() { $('run-start').hidden = true; $('run-hud').hidden = true; refreshRunHUD(); }
+  function onRunPlay() { $('run-hud').hidden = false; refreshRunHUD(); }
+  function hideRunHUD() { $('run-hud').hidden = true; }
+  function onRunEnd() { refreshStartCard(); refreshHUD(); refreshCubeBar(); }
+  function refreshStartCard() {
+    const n = Tower.totalCubes();
+    $('run-start').hidden = Tower.active || G.mode !== 'tower';
+    $('btn-start-run').disabled = n === 0;
+    $('run-start-info').innerHTML = n === 0 ? 'You have <b style="color:#ff4b4b">no cubes</b>. Go feed some wombats first.' : `You have <b style="color:#ffd23f">${n}</b> cubes ready. Best tower: <b>${G.record}</b>. Runs: ${G.runs || 0}.`;
+  }
+
+  // ---- tooltip -------------------------------------------------------------
+  function showTip(e, html) { const t = $('tooltip'); t.innerHTML = html; t.hidden = false; positionTip(e.clientX, e.clientY); }
+  function positionTip(cx, cy) { const t = $('tooltip'); const st = $('stage').getBoundingClientRect(); let x = cx - st.left + 14, y = cy - st.top - t.offsetHeight - 10; if (x + t.offsetWidth > st.width) x = st.width - t.offsetWidth - 6; if (y < 0) y = cy - st.top + 18; t.style.left = x + 'px'; t.style.top = y + 'px'; }
+  function hideTip() { $('tooltip').hidden = true; }
+
+  // ---- panels --------------------------------------------------------------
+  function openPanel(id) { closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click'); }
+  function closePanels() { for (const id of ['panel-shop', 'panel-skills', 'panel-help']) $(id).hidden = true; if (!$('modal').hidden) return; G.paused = false; }
+  function openShop(tab) { if (tab) shopTab = tab; openPanel('panel-shop'); renderShop(); }
+  function openSkills() { openPanel('panel-skills'); renderSkills(); }
+
+  function buy(cost) { if (G.money < cost) { toast('Not enough money!', 'bad'); Audio.play('error'); return false; } G.money -= cost; Audio.play('buy'); refreshHUD(); return true; }
+  function renderShop() {
+    for (const b of $('shop-tabs').children) b.classList.toggle('active', b.dataset.tab === shopTab);
+    const body = $('shop-body'); let html = '<div class="shop-grid">';
+    if (shopTab === 'food') {
+      for (const f of FOODS) {
+        const un = G.unlockedFoods[f.key]; const def = CUBES[f.cube];
+        html += `<div class="card ${un ? 'owned' : 'locked'}"><h3><span class="ico">${f.icon}</span>${f.name}</h3><p>${f.desc}</p><p>${swatch(def)} ${def.name}${f.count ? ' x' + f.count : ''} • digest ${f.digest}s • +${f.hap} happy</p>
+          <div class="row">${un ? `<span class="have">Have: ${G.food[f.key] || 0}</span><span><button class="buy" data-act="food" data-key="${f.key}" data-n="1">+1 $${f.cost}</button> <button class="buy" data-act="food" data-key="${f.key}" data-n="10">+10 $${f.cost * 10}</button></span>` : `<button class="buy alt" data-act="unlock" data-key="${f.key}">🔓 Research $${f.unlock}</button>`}</div></div>`;
+      }
+    } else if (shopTab === 'wombats') {
+      const n = G.wombats.length, cap = Pen.wombatCap(), cost = WOMBAT_COST(n);
+      html += `<div class="card"><h3><span class="ico">🐾</span>Adopt a Wombat</h3><p>Another poop machine. Each wombat digests independently. Pen capacity: ${n}/${cap}.</p><div class="row"><span class="have">${n >= cap ? 'Pen full - expand in Facilities' : ''}</span><button class="buy" data-act="wombat" ${n >= cap ? 'disabled' : ''}>Adopt $${U.fmt(cost)}</button></div></div>`;
+      for (const w of G.wombats) html += `<div class="card owned"><h3><span class="ico">🐾</span>${w.name}</h3><p>Happiness ${Math.round(w.hap)}/${Pen.hapCap()} • ${w.stomach === 'empty' ? 'hungry' : w.stomach}</p></div>`;
+    } else if (shopTab === 'facilities') {
+      for (const f of FACILITIES) {
+        const l = G.fac[f.key] || 0, cost = Math.round(f.base * Math.pow(f.mult, l)), maxed = l >= f.max;
+        html += `<div class="card ${l > 0 ? 'owned' : ''}"><h3><span class="ico">${f.icon}</span>${f.name} <span class="lvl">Lv ${l}/${f.max}</span></h3><p>${f.desc(l)}</p><div class="row"><span></span><button class="buy" data-act="fac" data-key="${f.key}" ${maxed ? 'disabled' : ''}>${maxed ? 'MAXED' : (l === 0 ? 'Build' : 'Upgrade') + ' $' + U.fmt(cost)}</button></div></div>`;
+      }
+    } else if (shopTab === 'toys') {
+      for (const t of TOYS) { const own = G.toys[t.key]; html += `<div class="card ${own ? 'owned' : ''}"><h3><span class="ico">${t.icon}</span>${t.name}</h3><p>${t.desc}</p><div class="row"><span></span><button class="buy" data-act="toy" data-key="${t.key}" ${own ? 'disabled' : ''}>${own ? 'OWNED' : 'Buy $' + U.fmt(t.cost)}</button></div></div>`; }
+    } else if (shopTab === 'decor') {
+      for (const d of DECOS) { const own = G.decos[d.key]; html += `<div class="card ${own ? 'owned' : ''}"><h3><span class="ico">${d.icon}</span>${d.name}</h3><p>${d.desc}</p><div class="row"><span></span><button class="buy" data-act="deco" data-key="${d.key}" ${own ? 'disabled' : ''}>${own ? 'OWNED' : 'Buy $' + U.fmt(d.cost)}</button></div></div>`; }
+      html += `<div class="card"><h3><span class="ico">📊</span>Pen Stats</h3><p>Max happiness: ${Pen.hapCap()}<br>Crowd appeal: x${Pen.appeal().toFixed(1)}</p></div>`;
+    }
+    body.innerHTML = html + '</div>';
+    body.querySelectorAll('button.buy').forEach((b) => b.onclick = () => shopAction(b.dataset));
+  }
+  function shopAction(d) {
+    switch (d.act) {
+      case 'food': { const f = FOOD_BY_KEY[d.key], n = +d.n; if (buy(f.cost * n)) { G.food[f.key] = (G.food[f.key] || 0) + n; } break; }
+      case 'unlock': { const f = FOOD_BY_KEY[d.key]; if (buy(f.unlock)) { G.unlockedFoods[f.key] = true; G.food[f.key] = (G.food[f.key] || 0) + 3; toast(`${f.icon} ${f.name} researched! 3 free samples added.`, 'good'); } break; }
+      case 'wombat': { const n = G.wombats.length; if (n >= Pen.wombatCap()) return; if (buy(WOMBAT_COST(n))) { const w = Pen.addWombat(); toast(`🐾 ${w.name} joins the pen!`, 'good'); FX.confettiBurst(320, 150, 30); } break; }
+      case 'fac': { const f = FACILITIES.find((x) => x.key === d.key); const l = G.fac[f.key] || 0; if (l >= f.max) return; if (buy(Math.round(f.base * Math.pow(f.mult, l)))) { G.fac[f.key] = l + 1; toast(`${f.icon} ${f.name} → Lv ${l + 1}`, 'good'); if (f.key === 'trough' && !G.troughFood) G.troughFood = 'grass'; } break; }
+      case 'toy': { const t = TOYS.find((x) => x.key === d.key); if (G.toys[t.key]) return; if (buy(t.cost)) { G.toys[t.key] = true; toast(`${t.icon} ${t.name} placed in the pen!`, 'good'); } break; }
+      case 'deco': { const x = DECOS.find((y) => y.key === d.key); if (G.decos[x.key]) return; if (buy(x.cost)) { G.decos[x.key] = true; toast(`${x.icon} ${x.name} installed!`, 'good'); } break; }
+    }
+    renderShop(); refreshHotbar(); refreshHUD(); Main.save();
+  }
+
+  function canBuySkill(s) {
+    if (G.skills[s.key]) return false;
+    if (G.sp < s.cost) return false;
+    if (s.tier > 1) { const prev = SKILLS.find((q) => q.branch === s.branch && q.tier === s.tier - 1); if (!G.skills[prev.key]) return false; }
+    return true;
+  }
+  function renderSkills() {
+    $('skills-sp').textContent = G.sp + ' SP';
+    let html = '';
+    for (const br of ['husbandry', 'engineering', 'showbiz']) {
+      html += `<div class="branch ${br}"><h3>${BRANCH_NAMES[br]}</h3>`;
+      const nodes = SKILLS.filter((s) => s.branch === br).sort((a, b) => a.tier - b.tier);
+      nodes.forEach((s, i) => {
+        const owned = !!G.skills[s.key]; const prevOwned = i === 0 || G.skills[nodes[i - 1].key];
+        const cls = owned ? 'owned' : (prevOwned ? (G.sp >= s.cost ? 'avail' : '') : 'locked');
+        if (i > 0) html += `<div class="link ${owned || prevOwned ? 'on' : ''}"></div>`;
+        html += `<div class="node ${cls}" data-key="${s.key}"><span class="ico">${s.icon}</span><div><div class="nm">${s.name}</div><div class="ds">${s.desc}</div></div><span class="cost">${owned ? '✓' : s.cost + ' SP'}</span></div>`;
+      });
+      html += '</div>';
+    }
+    $('skills-body').innerHTML = html;
+    $('skills-body').querySelectorAll('.node').forEach((n) => n.onclick = () => {
+      const s = SKILLS.find((q) => q.key === n.dataset.key);
+      if (G.skills[s.key]) return;
+      if (!canBuySkill(s)) { Audio.play('error'); toast(G.sp < s.cost ? 'Not enough skill points. Stack taller towers!' : 'Unlock the previous skill first.', 'bad'); return; }
+      G.sp -= s.cost; G.skills[s.key] = true; Audio.play('levelup'); toast(`${s.icon} ${s.name} learned!`, 'good'); FX.confettiBurst(320, 120, 30);
+      renderSkills(); refreshHUD(); Main.save();
+    });
+  }
+
+  // ---- modals --------------------------------------------------------------
+  function showPerks(picks, onPick) {
+    const m = $('modal'), c = $('modal-card');
+    c.innerHTML = `<h2>✨ CHOOSE A PERK</h2><p>${Tower.R.settled} cubes settled. The tower grows stronger.</p><div class="perks">${picks.map((p, i) => `<div class="perk ${p.rarity === 2 ? 'rare' : ''}" data-i="${i}"><span class="ico">${p.icon}</span><span class="nm">${p.name}</span><span class="ds">${p.desc}</span></div>`).join('')}</div>`;
+    m.hidden = false;
+    c.querySelectorAll('.perk').forEach((el) => el.onclick = () => { m.hidden = true; Audio.play('buy'); onPick(picks[+el.dataset.i]); });
+  }
+  function showSummary(s) {
+    const m = $('modal'), c = $('modal-card');
+    const perks = s.perks.map((k) => PERKS.find((p) => p.key === k).icon).join(' ') || '—';
+    c.innerHTML = `<h2 style="color:${s.cashed ? '#7dff3f' : '#ff4b4b'}">${s.cashed ? '💵 CASHED OUT' : '💥 TOWER COLLAPSED'}</h2>
+      <p>${s.cashed ? 'A clean exit. The crowd goes home happy.' : 'Gravity: 1. You: 0. The crowd still had fun.'}</p>
+      <div class="summary">
+        <span class="k">Peak height</span><span class="v">${s.peak.toFixed(1)} cubes</span>
+        <span class="k">Cubes settled / used</span><span class="v">${s.settled} / ${s.cubesUsed}</span>
+        <span class="k">Cubes lost</span><span class="v">${s.lost}</span>
+        <span class="k">Peak crowd</span><span class="v">${s.crowd}</span>
+        <span class="k">Perks</span><span class="v">${perks}</span>
+        <span class="k">Cash-out bonus</span><span class="v good">${s.cashed ? '+' + U.money(s.bonus) : '—'}</span>
+        <span class="k">Total earned</span><span class="v good">+${U.money(s.earned)}</span>
+        <span class="k">Skill points</span><span class="v blue">+${s.sp} ⭐</span>
+      </div>
+      <button class="big" id="btn-summary-ok">CONTINUE</button>`;
+    m.hidden = false; G.paused = true;
+    $('btn-summary-ok').onclick = () => { m.hidden = true; G.paused = false; Audio.play('click'); refreshStartCard(); refreshHUD(); };
+  }
+
+  function init(g) {
+    G = g;
+    document.querySelectorAll('.tab').forEach((b) => b.onclick = () => Main.setMode(b.dataset.mode));
+    $('btn-shop').onclick = () => openShop();
+    $('btn-skills').onclick = () => openSkills();
+    $('btn-help').onclick = () => openPanel('panel-help');
+    $('btn-mute').onclick = () => { const m = Audio.toggleMute(); $('btn-mute').textContent = m ? '🔇' : '🔊'; G.muted = m; Main.save(); };
+    $('btn-music').onclick = () => { const on = Audio.toggleMusic(); $('btn-music').textContent = on ? '🎵 Music: ON' : '🎵 Music: OFF'; G.musicOff = !on; Main.save(); };
+    let resetArmed = 0;
+    $('btn-reset').onclick = () => {
+      const b = $('btn-reset');
+      if (Date.now() < resetArmed) { Main.reset(); return; }
+      resetArmed = Date.now() + 4000;
+      b.textContent = 'Click again to erase';
+      Audio.play('alarm');
+      setTimeout(() => { if (Date.now() >= resetArmed) { b.textContent = 'Reset Save'; resetArmed = 0; } }, 4100);
+    };
+    document.querySelectorAll('.close').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
+    for (const b of $('shop-tabs').children) b.onclick = () => { shopTab = b.dataset.tab; Audio.play('click'); renderShop(); };
+    $('btn-start-run').onclick = () => { if (Tower.totalCubes() === 0) return; Tower.newRun(); };
+    $('btn-cashout').onclick = () => Tower.cashOut();
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePanels(); } });
+    $('btn-mute').textContent = G.muted ? '🔇' : '🔊';
+    $('btn-music').textContent = G.musicOff ? '🎵 Music: OFF' : '🎵 Music: ON';
+  }
+  function setMode(mode) {
+    document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.mode === mode));
+    $('pen-bar').hidden = mode !== 'pen'; $('tower-bar').hidden = mode !== 'tower';
+    $('tower-overlay').hidden = mode !== 'tower';
+    refreshStartCard(); refreshCubeBar(); refreshHotbar();
+  }
+  function anyPanelOpen() { return !$('panel-shop').hidden || !$('panel-skills').hidden || !$('panel-help').hidden || !$('modal').hidden; }
+
+  return { init, toast, refreshHUD, refreshHotbar, refreshCubeBar, refreshRunHUD, refreshStartCard, onRunStart, onRunPlay, onRunEnd, hideRunHUD, showPerks, showSummary, showTip, hideTip, positionTip, setMode, openShop, openSkills, closePanels, anyPanelOpen, canBuySkill };
+})();
+</script>
+
+<script>
+// ===== js/main.js =====
+// ---- Main: state, save/load, loop, input -----------------------------------
+const Main = (() => {
+  const SAVE_KEY = 'wombat-cube-tycoon-v1';
+  const W = 640, H = 360;
+  let canvas, g, last = 0;
+  let G = null;
+
+  function freshState() {
+    return {
+      v: 1, money: 40, sp: 0, record: 0, runs: 0, time: 0, mode: 'pen',
+      food: { grass: 6, carrot: 2 }, unlockedFoods: { grass: true, carrot: true },
+      cubes: {}, premium: {}, toys: {}, decos: {}, fac: {}, skills: {},
+      wombats: [], selectedFood: 'grass', selectedCube: null, troughFood: null,
+      stats: { fed: 0, pets: 0, pooped: 0, collected: 0, earned: 0, lost: 0, collapses: 0, bestEarned: 0 },
+      paused: false, muted: false, musicOff: false, lastSave: Date.now(), seenIntro: false,
+    };
+  }
+  function save() {
+    if (!G) return;
+    try { G.lastSave = Date.now(); const copy = Object.assign({}, G, { paused: false }); localStorage.setItem(SAVE_KEY, JSON.stringify(copy)); } catch (e) { }
+  }
+  function load() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY); if (!raw) return null;
+      const d = JSON.parse(raw); const s = freshState();
+      for (const k of Object.keys(s)) if (d[k] !== undefined) s[k] = d[k];
+      s.stats = Object.assign(freshState().stats, d.stats || {});
+      for (const w of s.wombats) { w.pets = []; w.state = 'idle'; w.stateT = 1; w.sq = 0; w.anim = U.rand(0, 10); if (w.stomach === 'ready') { w.stomach = 'digesting'; w.digestT = 0.5; } }
+      return s;
+    } catch (e) { return null; }
+  }
+  function reset() { localStorage.removeItem(SAVE_KEY); location.reload(); }
+
+  function setMode(mode) {
+    if (mode === 'pen' && Tower.active) { UI.toast('Finish the run first: cash out or let it fall.', 'bad'); Audio.play('error'); return; }
+    G.mode = mode; UI.setMode(mode);
+    Audio.setMode(mode === 'tower' && Tower.active ? 'tower' : 'pen');
+    FX.clear();
+    if (mode === 'tower') { FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.flash('#000', 0.6); }
+    else { FX.flash('#000', 0.6); }
+    Audio.play('whoosh');
+  }
+
+  // ---- input --------------------------------------------------------------
+  function canvasPos(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; }
+  function bindInput() {
+    canvas.addEventListener('mousedown', (e) => {
+      Audio.init(); Audio.resume();
+      if (UI.anyPanelOpen() || G.paused) return;
+      const p = canvasPos(e);
+      if (G.mode === 'pen') Pen.click(p.x, p.y); else Tower.click(p.x, p.y);
+    });
+    canvas.addEventListener('mousemove', (e) => {
+      const p = canvasPos(e);
+      if (G.mode === 'pen') { const tip = Pen.hover(p.x, p.y); if (tip) UI.showTip(e, tip); else UI.hideTip(); }
+      else { Tower.setMouse(p.x); UI.hideTip(); }
+    });
+    canvas.addEventListener('mouseleave', UI.hideTip);
+    canvas.addEventListener('touchstart', (e) => { Audio.init(); if (UI.anyPanelOpen() || G.paused) return; const t = e.changedTouches[0]; const p = canvasPos(t); if (G.mode === 'pen') Pen.click(p.x, p.y); else Tower.click(p.x, p.y); e.preventDefault(); }, { passive: false });
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+      Audio.init();
+      if (UI.anyPanelOpen()) return;
+      if (e.key === 'Tab') { e.preventDefault(); setMode(G.mode === 'pen' ? 'tower' : 'pen'); return; }
+      if (G.mode === 'tower') { if (Tower.key(e.key)) e.preventDefault(); if (e.key === 'c' || e.key === 'C') Tower.cashOut(); }
+      else {
+        const n = parseInt(e.key); if (n >= 1 && n <= 9) { const foods = FOODS.filter((f) => G.unlockedFoods[f.key]); const f = foods[n - 1]; if (f) { G.selectedFood = G.selectedFood === f.key ? null : f.key; UI.refreshHotbar(); Audio.play('click'); } }
+        if (e.key === '0' || e.key === 'p' || e.key === 'P') { G.selectedFood = null; UI.refreshHotbar(); }
+      }
+      if (e.key === 's' || e.key === 'S') UI.openShop();
+      if (e.key === 'k' || e.key === 'K') UI.openSkills();
+    });
+    window.addEventListener('blur', save);
+    window.addEventListener('beforeunload', save);
+    setInterval(save, 10000);
+  }
+
+  // ---- loop ---------------------------------------------------------------
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    let real = Math.min(0.1, (ts - last) / 1000 || 0); last = ts;
+    if (real <= 0) return;
+    FX.update(real);
+    const c = FX.cine;
+    let gdt = real * c.slowmo;
+    if (c.freeze > 0 || c.hitstop > 0) gdt = 0;
+    if (G.paused) gdt = 0;
+    G.time += real;
+    if (!G.paused) { Pen.update(real); }
+    Tower.update(gdt, real);
+    FX.updateWorld(G.mode === 'pen' ? (G.paused ? 0 : real) : gdt); // pen is never slowed; tower particles follow slow-mo/freeze
+    // render
+    g.imageSmoothingEnabled = false;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (G.mode === 'pen') { g.save(); g.translate(FX.cam.shakeX, FX.cam.shakeY); Pen.render(g); g.restore(); }
+    else Tower.render(g);
+    FX.drawCinema(g, W, H);
+    // HUD refresh (cheap, throttled)
+    if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) { UI.refreshHUD(); if (Tower.active) UI.refreshRunHUD(); }
+  }
+
+  function resize() {
+    const st = document.getElementById('stage'); const sw = st.clientWidth, sh = st.clientHeight;
+    const scale = Math.min(sw / W, sh / H);
+    canvas.style.width = Math.floor(W * scale) + 'px'; canvas.style.height = Math.floor(H * scale) + 'px';
+  }
+  function init() {
+    canvas = document.getElementById('game'); g = canvas.getContext('2d');
+    window.addEventListener('resize', resize); resize(); setTimeout(resize, 50);
+    Sprites.init();
+    G = load() || freshState();
+    window.G = G;
+    Pen.init(G); Tower.init(G); UI.init(G);
+    if (G.wombats.length === 0) { const w = Pen.addWombat(); }
+    // offline progress
+    const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
+    if (away > 30 && G.wombats.some((w) => w.stomach === 'digesting')) { const made = Pen.offline(Math.min(away, 7200)); if (made > 0) setTimeout(() => UI.toast(`While you were away (${U.time(Math.min(away, 7200))}), your wombats produced <b>${made}</b> cubes.`, 'good'), 600); }
+    G.paused = false;
+    Audio.setState(G.muted, !G.musicOff);
+    UI.setMode(G.mode = 'pen');
+    UI.refreshHUD(); UI.refreshHotbar(); UI.refreshCubeBar();
+    bindInput();
+    if (!G.seenIntro) { G.seenIntro = true; setTimeout(() => { UI.toast('Welcome! Select 🌿 Grass below, then click <b>' + G.wombats[0].name + '</b> to feed. Pet while digesting to speed it up.', 'good'); }, 800); setTimeout(() => UI.toast('When you have cubes, hit 🏗️ TOWER and stack them for money.', ''), 6000); }
+    FX.title('WOMBAT CUBE TYCOON', { size: 20, color: '#ffd23f', dur: 2.6, style: 'slam', sub: 'FEED • POOP • STACK • PROFIT' });
+    requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
+  }
+
+  if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
+  else init();
+  return { save, reset, setMode, get G() { return G; } };
+})();
+</script>

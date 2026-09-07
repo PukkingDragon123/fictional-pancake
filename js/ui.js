@@ -200,7 +200,15 @@ const UI = (() => {
     $('btn-help').onclick = () => openPanel('panel-help');
     $('btn-mute').onclick = () => { const m = Audio.toggleMute(); $('btn-mute').textContent = m ? '🔇' : '🔊'; G.muted = m; Main.save(); };
     $('btn-music').onclick = () => { const on = Audio.toggleMusic(); $('btn-music').textContent = on ? '🎵 Music: ON' : '🎵 Music: OFF'; G.musicOff = !on; Main.save(); };
-    $('btn-reset').onclick = () => { if (confirm('Reset ALL progress? This cannot be undone.')) Main.reset(); };
+    let resetArmed = 0;
+    $('btn-reset').onclick = () => {
+      const b = $('btn-reset');
+      if (Date.now() < resetArmed) { Main.reset(); return; }
+      resetArmed = Date.now() + 4000;
+      b.textContent = 'Click again to erase';
+      Audio.play('alarm');
+      setTimeout(() => { if (Date.now() >= resetArmed) { b.textContent = 'Reset Save'; resetArmed = 0; } }, 4100);
+    };
     document.querySelectorAll('.close').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
     for (const b of $('shop-tabs').children) b.onclick = () => { shopTab = b.dataset.tab; Audio.play('click'); renderShop(); };
     $('btn-start-run').onclick = () => { if (Tower.totalCubes() === 0) return; Tower.newRun(); };

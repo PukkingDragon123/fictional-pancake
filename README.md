@@ -7,6 +7,10 @@ open `index.html` in a browser (or serve the folder with any static server).
 python3 -m http.server 8000   # then visit http://localhost:8000
 ```
 
+`wombat-cube-tycoon.html` is a generated single-file build of the whole game (all CSS and JS
+inlined) for sharing or opening straight from disk. Rebuild it with `python3 build.py` after
+changing anything under `js/` or `css/`.
+
 ## The loop
 
 1. **Pen** – feed your wombats (select a food, click a wombat). They digest, then poop a **cube**.
