@@ -2,7 +2,7 @@
 const Audio = (() => {
   let ctx = null, master = null, musicGain = null, sfxGain = null;
   let muted = false, musicOn = true;
-  let musicMode = 'pen';
+  let musicMode = 'grove';
   let seqTimer = null, nextNoteTime = 0, step = 0;
 
   function ensure() {
@@ -84,7 +84,8 @@ const Audio = (() => {
 
   function schedule() {
     if (!ctx) return;
-    const bpm = musicMode === 'tower' ? 128 : 92;
+    // The shrine and the root network want a slower pulse than the grove.
+    const bpm = musicMode === 'tower' ? 128 : musicMode === 'shrine' ? 70 : musicMode === 'roots' ? 78 : 92;
     const spb = 60 / bpm / 4; // 16th
     while (nextNoteTime < ctx.currentTime + 0.15) {
       const bar = Math.floor(step / 16) % 8;

@@ -1,12 +1,17 @@
 /* Wombat Cube Tycoon - carved wood and parchment, one committed daylight theme */
 :root {
-  --ink: #241611; --ink2: #3a2a1e;
-  --wood0: #3a2214; --wood1: #5c3820; --wood2: #8a5a30; --wood3: #b98a52; --wood4: #d8b483;
-  --parch0: #e8cf9e; --parch1: #f6e6c0; --cream: #fff8e6;
-  --gold: #f2c14e; --goldD: #c9922b; --goldL: #ffe9a8;
-  --red: #c4442f; --redL: #e8705c;
-  --teal: #3f9e94; --tealL: #6fd3c8;
-  --leaf: #57933a; --leafL: #8cc85f;
+  /* Ash and bone for the shell, moss for anything alive, violet and gold for
+     anything divine. The panels stay bone-parchment so text is readable. */
+  --ink: #0d0a0c; --ink2: #1e1922;
+  --wood0: #1d1720; --wood1: #302739; --wood2: #463a4e; --wood3: #6b5c72; --wood4: #9c8ba0;
+  --parch0: #c0b8a6; --parch1: #ded6c2; --cream: #f4eeda;
+  --gold: #e6b73c; --goldD: #a2761a; --goldL: #ffe7a4;
+  --red: #a63047; --redD: #6f1c2d; --redL: #d4576b;
+  --teal: #3f8e94; --tealL: #6cc6cc;
+  --leaf: #3a7a38; --leafL: #82cd63;
+  --vio: #6a35ab; --vioD: #3d1d66; --vioL: #cfa8ff;
+  --stone: #4b4753; --stoneL: #8a8492;
+  --ashText: #3a3040; --dimText: #5a5060;
   --disp: "Press Start 2P", "Courier New", monospace;
   --body: "Pixelify Sans", "Trebuchet MS", system-ui, sans-serif;
 }
@@ -19,6 +24,7 @@ img.ico.sm { width: 16px; height: 16px; }
 img.ico.lg { width: 30px; height: 30px; }
 img.ico.xl { width: 40px; height: 40px; }
 .good { color: var(--leafL); } .warn { color: var(--redL); } .dim { color: var(--wood4); }
+.g { color: var(--leafL); } .r { color: var(--redL); }
 #app { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
 
 /* ---- wood surfaces ---- */
@@ -67,7 +73,7 @@ img.ico.xl { width: 40px; height: 40px; }
 .rel { position: relative; }
 
 /* ---- stage ---- */
-#stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: #14100c; overflow: hidden; }
+#stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: #0d0a0c; overflow: hidden; }
 #frame { position: relative; line-height: 0; box-shadow: 0 0 0 3px var(--ink), 0 0 34px rgba(0,0,0,0.6); }
 #game { image-rendering: pixelated; display: block; cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3C/svg%3E") 8 8, crosshair; }
 #tooltip {
@@ -256,3 +262,102 @@ select {
   .tab, .wbtn { font-size: 11px; padding: 6px 8px; }
   .slot { width: 46px; height: 46px; }
 }
+
+/* ==== the ash-and-bone shell ============================================= */
+/* Overrides and additions for the rebuilt interface: brush slots, the warren,
+   god cards, and the readouts on the three new scenes. */
+.plate.fruit b { color: var(--leafL); }
+.plate.favour b { color: var(--vioL); }
+.plate.moss b { color: var(--leafL); }
+.plate.coin b { color: var(--goldL); }
+.tab.active { background: linear-gradient(180deg, var(--vio), var(--vioD)); color: var(--cream); text-shadow: 0 1px 0 rgba(0,0,0,0.5); }
+.pip { background: var(--vio); color: var(--cream); border-color: var(--ink); }
+
+/* --- brush and offering slots --- */
+.slot {
+  position: relative; width: 78px; min-height: 62px; padding: 4px 3px 3px;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  background: linear-gradient(180deg, var(--wood2), var(--wood1));
+  border: 2px solid var(--ink); border-bottom-width: 4px; border-radius: 4px;
+  color: var(--cream); font-family: var(--body); font-size: 11px; line-height: 1.1;
+  transition: transform 0.1s;
+}
+.slot:hover { transform: translateY(-3px); }
+.slot.on { background: linear-gradient(180deg, var(--vio), var(--vioD)); box-shadow: 0 0 0 2px var(--vioL); }
+.slot.locked { opacity: 0.5; }
+.slot.prem { box-shadow: 0 0 0 2px var(--goldL); }
+.slot img.ico { width: 26px; height: 26px; }
+.slot .nm { font-size: 11px; color: var(--cream); white-space: nowrap; }
+.slot .ct { font-size: 11px; color: var(--goldL); font-variant-numeric: tabular-nums; }
+.slot .ct b.g { color: var(--leafL); }
+.slot .key { position: absolute; left: 3px; top: 1px; font-size: 10px; color: var(--wood4); }
+.slots .empty { color: var(--wood4); font-size: 13px; padding: 8px 4px; }
+#sel-seed {
+  font-family: var(--body); font-size: 13px; padding: 5px 8px; color: var(--cream);
+  background: var(--wood1); border: 2px solid var(--ink); border-radius: 3px;
+}
+
+/* --- readouts --- */
+.readout .row .k { color: var(--wood4); }
+.readout .row .v { color: var(--cream); }
+
+/* --- market items (the markup is: img, .txt, .act) --- */
+.item {
+  display: grid; grid-template-columns: 40px 1fr auto; grid-template-rows: auto;
+  align-items: center; gap: 3px 10px;
+  padding: 9px 10px; margin-bottom: 8px; background: var(--parch1);
+  border: 3px solid var(--wood1); box-shadow: 2px 2px 0 rgba(20,12,26,0.35);
+}
+.item.off { opacity: 0.62; border-style: dashed; }
+.item img.ico.xl { width: 38px; height: 38px; }
+.item .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.item .txt b { font-family: var(--disp); font-size: 10px; color: var(--ink); }
+.item .txt span { font-size: 13px; line-height: 1.35; color: var(--ashText); }
+.item .txt .lv { font-size: 11px; color: var(--goldD); }
+.item .txt .dim { color: var(--dimText); font-size: 12px; }
+.item .act { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.item .act .dim { color: var(--dimText); font-size: 12px; }
+.tag { font-size: 12px; padding: 3px 7px; background: var(--parch0); border: 2px solid var(--wood1); color: var(--ashText); }
+.tag.on { background: var(--leaf); color: var(--cream); border-color: var(--ink); }
+.lead { font-size: 13px; color: var(--ashText); margin: 0 0 10px; line-height: 1.5; }
+.buy.sm { font-size: 12px; padding: 4px 8px; }
+.buy.bone { background: linear-gradient(180deg, var(--parch1), var(--parch0)); }
+
+/* --- the warren --- */
+.panel.wide { width: min(880px, 96vw); }
+.warren { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px, 1fr)); gap: 10px; }
+.wcard {
+  padding: 9px 10px; background: var(--parch1); border: 3px solid var(--wood1);
+  box-shadow: 2px 2px 0 rgba(20,12,26,0.35); display: flex; flex-direction: column; gap: 5px;
+}
+.wcard.picked { border-color: var(--vio); box-shadow: 0 0 0 2px var(--vioL); }
+.wcard.paired { border-color: var(--red); }
+.wcard .whead { display: flex; flex-direction: column; gap: 1px; }
+.wcard .whead b { font-family: var(--disp); font-size: 10px; color: var(--ink); }
+.wcard .dim { color: var(--dimText); font-size: 12px; }
+.wcard .sm { font-size: 11px; }
+.wbars { display: flex; align-items: center; gap: 7px; }
+.wbars .bar { flex: 1; height: 8px; background: var(--wood1); border: 2px solid var(--ink); padding: 1px; }
+.wbars .bar i { display: block; height: 100%; }
+.traits { display: flex; flex-wrap: wrap; gap: 4px; }
+.trait { font-size: 11px; padding: 1px 5px; border: 2px solid var(--wood2); color: var(--ashText); background: rgba(0,0,0,0.05); }
+.trait.dimtrait { color: var(--dimText); border-color: var(--parch0); }
+.pairbar { height: 8px; background: var(--wood1); border: 2px solid var(--ink); padding: 1px; }
+.pairbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--redD), var(--redL)); }
+.wact { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 2px; }
+#warren-body h3 { font-family: var(--disp); font-size: 11px; color: var(--ink); margin: 16px 0 4px; }
+
+/* --- god card --- */
+.verse { font-size: 14px; line-height: 1.6; color: var(--ashText); font-style: italic; margin: 0 0 12px; max-width: 480px; margin-inline: auto; }
+.modal-card .row { display: flex; gap: 8px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+.modal-card .row .wbtn { color: var(--cream); }
+.modal-card > p { color: var(--ashText); }
+.sum .k { color: var(--dimText); }
+.sum .v.g { color: var(--leaf); }
+.sum .v.r { color: var(--red); }
+.perk.rare { border-color: var(--vio); box-shadow: 0 0 10px rgba(106,53,171,0.45); }
+.perk .ds, .item p, .card p { color: var(--ashText); }
+.toast.good { border-left-color: var(--leaf); }
+.toast.bad { border-left-color: var(--red); }
+.help ol li b { color: var(--ink); }
+.help .dim { color: var(--dimText); }

@@ -29,7 +29,8 @@ const U = {
     if (abs >= 1e4) return (n / 1e3).toFixed(1) + 'K';
     return String(n);
   },
-  money(n) { return '$' + U.fmt(n); },
+  // Wombat dollars. The grove has a currency; nobody remembers who issues it.
+  money(n) { return 'W$' + U.fmt(n); },
   time(s) {
     s = Math.max(0, Math.ceil(s));
     if (s < 60) return s + 's';

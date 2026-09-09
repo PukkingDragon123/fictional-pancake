@@ -2,30 +2,59 @@
 // Everything is drawn on small offscreen canvases at 1 art-pixel = 1 canvas
 // pixel, then blitted with smoothing off. Sprites are cached, so per-pixel
 // passes (outlines, dithering) are affordable.
+//
+// The palette tells the story in three ramps. ASH and BONE are the dead land
+// you start on: cold, desaturated, no green anywhere. MOSS is what comes back
+// where a wombat has worked the soil. VIOLET and GOLD belong to the gods and
+// appear nowhere else, so divine light always reads as divine.
 const PAL = {
-  ink: '#241611', ink2: '#3a2a1e',
-  wood0: '#3a2214', wood1: '#5c3820', wood2: '#8a5a30', wood3: '#b98a52', wood4: '#d8b483',
-  parch0: '#e8cf9e', parch1: '#f6e6c0', cream: '#fff8e6',
-  gold: '#f2c14e', goldD: '#c9922b', goldL: '#ffe9a8',
-  red: '#c4442f', redD: '#932c1e', redL: '#e8705c',
-  teal: '#3f9e94', tealL: '#6fd3c8',
-  grass0: '#3f6f2a', grass1: '#57933a', grass2: '#6fb04a', grass3: '#8cc85f',
-  soil0: '#5a3a22', soil1: '#7a5230', soil2: '#9a6f42',
-  sky0: '#7ec8e8', sky1: '#bfe7f5',
-  leaf0: '#2f5f24', leaf1: '#437d2e', leaf2: '#5c9c3c', leaf3: '#7cbb52',
-  bark0: '#3d2718', bark1: '#5e4028', bark2: '#7d5836', bark3: '#9c7249',
-  stone0: '#565666', stone1: '#7b7b88', stone2: '#9d9daa',
-  water0: '#2f7d9e', water1: '#4aa8c8', water2: '#7fd0e4',
-  sand: '#d8b483',
-  spot: '#fff3c4',
+  // ink: a true near-black. Every sprite gets this as a hard 1px outline.
+  ink: '#0d0a0c', ink2: '#1e1922', ink3: '#2c2531',
+
+  // --- the barren ground: ash over bone ---
+  ash0: '#241f2a', ash1: '#37313f', ash2: '#4e4757', ash3: '#6b6376', ash4: '#8b8397',
+  bone0: '#6e6a63', bone1: '#948d80', bone2: '#c0b8a6', bone3: '#e2dac6', bone4: '#f4eeda',
+
+  // --- what you bring back ---
+  moss0: '#17321c', moss1: '#265229', moss2: '#3a7a38', moss3: '#57a44a', moss4: '#82cd63',
+  grass0: '#17321c', grass1: '#265229', grass2: '#3a7a38', grass3: '#57a44a',
+  leaf0: '#17321c', leaf1: '#265229', leaf2: '#3a7a38', leaf3: '#57a44a',
+  soil0: '#241a13', soil1: '#3c2b1d', soil2: '#57402b', soil3: '#75593c',
+  wet0: '#1b1a12', wet1: '#302a1a',
+
+  // --- the gods: violet and gold, used nowhere else ---
+  vio0: '#210f38', vio1: '#3d1d66', vio2: '#6a35ab', vio3: '#9b62e0', vio4: '#cfa8ff',
+  gold: '#e6b73c', goldD: '#a2761a', goldL: '#ffe7a4', halo: '#fff3cf',
+
+  // --- dead wood, stone, standing water ---
+  bark0: '#241c1c', bark1: '#3a2e2b', bark2: '#54443d', bark3: '#715d51',
+  stone0: '#33303a', stone1: '#4b4753', stone2: '#67626f', stone3: '#8a8492',
+  water0: '#1d3a44', water1: '#2f6270', water2: '#589aa6',
+  blood: '#7c2230', bloodL: '#b8384a',
+
+  // --- interface: aged timber and bone parchment ---
+  wood0: '#1d1720', wood1: '#302739', wood2: '#463a4e', wood3: '#6b5c72', wood4: '#9c8ba0',
+  parch0: '#c0b8a6', parch1: '#ded6c2', cream: '#f4eeda',
+  red: '#a63047', redD: '#6f1c2d', redL: '#d4576b',
+  teal: '#3f8e94', tealL: '#6cc6cc',
+  sky0: '#2a2432', sky1: '#4a4152', sky2: '#7a6a78',
+  sand: '#8b8397', spot: '#fff3cf',
 };
 
+// Wombat pelts. The first four are common and stay in the ash range so a
+// wombat reads as part of the dead land until you restore it. Indices 4 and up
+// are rare variants; data.js owns how often each one shows up.
 const FUR = [
-  { base: '#8a6242', dark: '#5f4029', light: '#a9805a', belly: '#c2a07c', ear: '#c98a7a' },
-  { base: '#6f533c', dark: '#4a3526', light: '#8e6f52', belly: '#ab8c6b', ear: '#bd7f70' },
-  { base: '#9c7350', dark: '#6d4c31', light: '#bb9068', belly: '#d3b189', ear: '#d69b88' },
-  { base: '#a58358', dark: '#75593a', light: '#c2a077', belly: '#dcc39a', ear: '#d99f8c' },
+  { key: 'ash',    name: 'Ash',      base: '#6a6270', dark: '#453e4c', light: '#8a8291', belly: '#a9a0ae', ear: '#8c6f84', rare: 0 },
+  { key: 'dust',   name: 'Dust',     base: '#7b6d63', dark: '#524740', light: '#9a8a7d', belly: '#b8a695', ear: '#9a7468', rare: 0 },
+  { key: 'ochre',  name: 'Ochre',    base: '#8a6e4a', dark: '#5c4830', light: '#a98a60', belly: '#c4a87c', ear: '#a8736a', rare: 0 },
+  { key: 'slate',  name: 'Slate',    base: '#57606e', dark: '#383f4a', light: '#737d8c', belly: '#8f98a6', ear: '#7a6a80', rare: 0 },
+  { key: 'bone',   name: 'Bonecoat', base: '#c6bfae', dark: '#8f8878', light: '#e0d9c6', belly: '#f0e9d6', ear: '#c99a94', rare: 1 },
+  { key: 'moss',   name: 'Mossback', base: '#4d7444', dark: '#2f4c2c', light: '#6d9a5e', belly: '#93bd7c', ear: '#8a9a5c', rare: 1 },
+  { key: 'gilded', name: 'Gilded',   base: '#c99c3a', dark: '#8d6a1c', light: '#e8bf5e', belly: '#ffe093', ear: '#d09a5a', rare: 2 },
+  { key: 'void',   name: 'Voidborn', base: '#3a2a56', dark: '#221436', light: '#573f7c', belly: '#7358a4', ear: '#7a4fa8', rare: 2 },
 ];
+const FUR_BY_KEY = Object.fromEntries(FUR.map((f, i) => [f.key, Object.assign({ idx: i }, f)]));
 
 const Art = (() => {
   function cv(w, h) {
@@ -154,10 +183,64 @@ const Art = (() => {
     g.fillStyle = col; g.fillRect(0, 0, c.width, c.height);
     return c;
   }
+  // ---- Dithering ---------------------------------------------------------
+  // An 8x8 Bayer matrix, normalised to 0..1. Comparing a coverage value against
+  // BAYER[y&7][x&7] turns a smooth falloff into an ordered pixel pattern, which
+  // is what keeps a soft brush looking hand-stippled instead of blurred.
+  const BAYER = (() => {
+    let m = [[0, 2], [3, 1]];
+    for (let s = 0; s < 2; s++) {
+      const n = m.length, o = [];
+      for (let y = 0; y < n * 2; y++) {
+        o[y] = [];
+        for (let x = 0; x < n * 2; x++) {
+          const q = (y < n ? (x < n ? 0 : 2) : (x < n ? 3 : 1));
+          o[y][x] = m[y % n][x % n] * 4 + q;
+        }
+      }
+      m = o;
+    }
+    const d = m.length * m.length;
+    return m.map((row) => row.map((v) => (v + 0.5) / d));
+  })();
+  // Stamp a dithered disc of `col` into g. Coverage is 1 at the centre and
+  // falls to 0 at the rim; each pixel is kept only if coverage beats its
+  // threshold, so overlapping stamps build up an irregular, organic edge.
+  function ditherDisc(g, cx, cy, r, col, strength = 1, soft = 0.55) {
+    g.fillStyle = col;
+    const x0 = Math.floor(cx - r), x1 = Math.ceil(cx + r);
+    const y0 = Math.floor(cy - r), y1 = Math.ceil(cy + r);
+    const inner = r * (1 - soft);
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy);
+        if (d > r) continue;
+        const cov = (d <= inner ? 1 : 1 - (d - inner) / (r - inner || 1)) * strength;
+        if (cov >= 1 || cov > BAYER[y & 7][x & 7]) g.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+  // Erase with the same pattern, for a brush that takes ground away.
+  function ditherErase(g, cx, cy, r, strength = 1, soft = 0.55) {
+    const prev = g.globalCompositeOperation;
+    g.globalCompositeOperation = 'destination-out';
+    ditherDisc(g, cx, cy, r, '#000', strength, soft);
+    g.globalCompositeOperation = prev;
+  }
+  // A one-pixel scatter along a ring, for the gritty fringe of a fresh stamp.
+  function fringe(g, cx, cy, r, col, n, seed = 1) {
+    const rnd = rng(seed);
+    g.fillStyle = col;
+    for (let i = 0; i < n; i++) {
+      const a = rnd() * TAU, d = r * (0.86 + rnd() * 0.3);
+      g.fillRect(Math.round(cx + Math.cos(a) * d), Math.round(cy + Math.sin(a) * d * 0.72), 1, 1);
+    }
+  }
+
   // Seeded RNG helper for procedural variants
   function rng(seed) {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, underShade, flip, tinted, rng };
+  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, underShade, flip, tinted, rng, BAYER, ditherDisc, ditherErase, fringe };
 })();
