@@ -1,302 +1,342 @@
-// ---- Interface: ribbon, trays, shop, readouts, modals --------------------
+// ---- Interface: icons and numbers, almost no words -----------------------
 const UI = (() => {
   let G = null;
   const $ = (id) => document.getElementById(id);
-  let shopTab = 'feed';
+  let shopTab = 'seeds';
 
   function toast(msg, kind = '') {
     const t = document.createElement('div');
     t.className = 'toast ' + kind; t.innerHTML = msg;
     $('toasts').appendChild(t);
-    setTimeout(() => { t.style.transition = 'opacity 0.4s'; t.style.opacity = '0'; }, 2600);
-    setTimeout(() => t.remove(), 3100);
+    setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; }, 2400);
+    setTimeout(() => t.remove(), 2900);
   }
-  function hearts(n, max) {
-    let h = '';
-    for (let i = 0; i < max; i++) h += `<img src="${Icons.url('heart')}" alt="" style="width:13px;height:13px;image-rendering:pixelated;vertical-align:-2px;opacity:${i < n ? 1 : 0.28}">`;
-    return h;
-  }
+  const ic = (n, cls = '') => Icons.img(n, cls);
 
   // ---- ribbon -------------------------------------------------------------
   function refreshHUD() {
-    $('hud-money').textContent = U.fmt(G.money);
-    $('hud-cubes').textContent = Tower.total();
-    $('hud-acorns').textContent = Tree.acorns();
-    $('hud-best').textContent = G.record;
-    $('hud-inc').textContent = Tower.active && Tower.R.incomeRate ? '+' + U.fmt(Tower.R.incomeRate) + '/s' : '';
-    const spendable = SKILLS.some((s) => Tree.state(s) === 'ready');
-    const pip = $('pip-tree');
-    pip.hidden = !spendable;
-    pip.textContent = Tree.acorns();
+    $('s-wd').textContent = U.fmt(G.wd);
+    $('s-off').textContent = OFFER_ORDER.reduce((s, k) => s + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
+    const f = World.fraction();
+    $('s-forest').style.width = Math.round(f * 100) + '%';
+    $('s-forestn').textContent = Math.round(f * 100) + '%';
+    $('s-gods').textContent = Object.keys(G.summoned).length + '/' + GODS.length;
+    $('pip-shrine').hidden = !Ritual.readyGod();
+    $('pip-roots').hidden = Knowledge.ripeCount() === 0;
   }
 
-  function refreshFeedBar() {
-    const box = $('slots-feed');
-    box.innerHTML = '';
-    const hand = document.createElement('div');
-    hand.className = 'slot' + (!G.selFood ? ' active' : '');
-    hand.innerHTML = Icons.img('paw');
-    hand.onclick = () => { G.selFood = null; Audio.play('click'); refreshFeedBar(); };
-    hand.onmouseenter = (e) => showTip(e, '<b>Pet</b><br>Click a wombat to pet it. Faster digestion, more happiness.<br>Do not overdo it.');
-    hand.onmouseleave = hideTip;
-    box.appendChild(hand);
-    let i = 0;
-    for (const f of FOODS) {
-      if (!G.unlocked[f.key]) continue;
-      i++;
-      const n = G.food[f.key] || 0;
-      const el = document.createElement('div');
-      el.className = 'slot' + (G.selFood === f.key ? ' active' : '') + (n === 0 ? ' out' : '');
-      el.innerHTML = `${Icons.img(f.icon)}<span class="k">${i}</span><span class="n">${n}</span>`;
-      el.onclick = () => {
-        if (n === 0) { toast('No ' + f.name + ' left.', 'bad'); Audio.play('error'); openShop('feed'); return; }
-        G.selFood = G.selFood === f.key ? null : f.key; Audio.play('click'); refreshFeedBar();
-      };
-      el.onmouseenter = (e) => showTip(e, `<b>${f.name}</b><br>${f.desc}<br>Makes a <b>${CUBES[f.cube].name}</b> in ${f.digest}s &middot; +${f.hap} happy`);
-      el.onmouseleave = hideTip;
-      box.appendChild(el);
-    }
-    const on = (G.fac.trough || 0) > 0;
-    $('lbl-trough').hidden = !on; $('sel-trough').hidden = !on;
-    if (on) {
-      const sel = $('sel-trough');
-      sel.innerHTML = '<option value="">off</option>' + FOODS.filter((f) => G.unlocked[f.key])
-        .map((f) => `<option value="${f.key}"${G.troughFood === f.key ? ' selected' : ''}>${f.name} (${G.food[f.key] || 0})</option>`).join('');
-      sel.onchange = () => { G.troughFood = sel.value || null; Audio.play('click'); Main.save(); };
+  // ---- trays --------------------------------------------------------------
+  function refreshTray() {
+    const tools = $('slots-tools'), ctx = $('slots-ctx');
+    tools.innerHTML = ''; ctx.innerHTML = '';
+    const mode = G.mode;
+    $('tray-tools').hidden = mode !== 'grove';
+    if (mode === 'grove') {
+      TOOLS.forEach((t, i) => {
+        const locked = t.locked && !G.decor[t.locked];
+        const el = document.createElement('div');
+        el.className = 'slot' + (G.tool === t.key ? ' on' : '') + (locked ? ' locked' : '');
+        el.innerHTML = `${ic(t.icon)}<span class="k">${i + 1}</span>`;
+        el.onclick = () => {
+          if (locked) { Audio.play('error'); toast('needs a nest', 'bad'); return; }
+          G.tool = t.key; Grove.clearPair(); Audio.play('click'); refreshTray();
+        };
+        el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b><br>${t.desc}`);
+        el.onmouseleave = hideTip;
+        tools.appendChild(el);
+      });
+      if (G.tool === 'seed') seedSlots(ctx);
+      else if (G.tool === 'hand') foodSlots(ctx);
+      else ctx.innerHTML = '<span class="empty">drag to paint</span>';
+    } else if (mode === 'shrine') {
+      offerSlots(ctx, (k, e) => Ritual.stage(k, e.shiftKey ? 5 : 1));
+    } else if (mode === 'rite') {
+      offerSlots(ctx, (k) => { G.selOffer = k; Audio.play('click'); refreshTray(); }, true);
+    } else {
+      ctx.innerHTML = '<span class="empty">click a fruit</span>';
     }
   }
-
-  function refreshCubeBar() {
-    const box = $('slots-cube');
-    box.innerHTML = '';
-    let i = 0;
-    for (const k of CUBE_ORDER) {
-      const def = CUBES[k], n = G.cubes[k] || 0, p = G.premium[k] || 0;
-      if (n + p === 0) continue;
-      i++;
-      const el = document.createElement('div');
-      el.className = 'slot' + (G.selCube === k ? ' active' : '');
-      el.innerHTML = `${Icons.img(def.icon)}<span class="k">${i}</span><span class="n">${n + p}${p ? `<em>+${p}</em>` : ''}</span>`;
-      el.onclick = () => { G.selCube = k; Audio.play('click'); refreshCubeBar(); };
-      el.onmouseenter = (e) => showTip(e, cubeTip(def, p));
-      el.onmouseleave = hideTip;
-      box.appendChild(el);
-    }
-    if (!i) box.innerHTML = '<span class="label">barn empty &mdash; go and feed someone</span>';
-  }
-  function cubeTip(def, prem) {
-    const traits = [];
-    if (def.density >= 1.8) traits.push('heavy');
-    if (def.density <= 0.5) traits.push('very light');
-    if (def.adhesion) traits.push('sticky');
-    if (def.friction >= 0.85) traits.push('grippy');
-    if (def.friction <= 0.6) traits.push('slippery');
-    if (def.w > 1.2) traits.push('wide');
-    return `<b>${def.name}</b><br>${def.desc}<br>Pays ${U.money(def.value)} &middot; compost +${def.compost}${traits.length ? '<br><span class="dim" style="color:#6a4a30">' + traits.join(', ') + '</span>' : ''}${prem ? '<br><b>' + prem + ' premium</b> (double pay)' : ''}`;
-  }
-
-  function refreshCompostBar() {
-    const box = $('slots-compost');
-    box.innerHTML = '';
+  function seedSlots(box) {
     let any = 0;
-    for (const k of CUBE_ORDER) {
-      const def = CUBES[k], n = G.cubes[k] || 0, p = G.premium[k] || 0;
-      if (n + p === 0) continue;
+    for (const c of CROPS) {
+      if (c.god && !G.blessings[c.god] && !(G.seeds[c.key] > 0)) continue;
+      const n = G.seeds[c.key] || 0;
+      if (!n && !G.seen2) { /* still show so the player knows it exists */ }
       any++;
       const el = document.createElement('div');
-      el.className = 'slot';
-      el.innerHTML = `${Icons.img(def.icon)}<span class="n">${n + p}${p ? `<em>+${p}</em>` : ''}</span>`;
-      el.onclick = (e) => {
-        const many = e.shiftKey ? 10 : 1;
-        let done = 0;
-        for (let c = 0; c < many; c++) {
-          if ((G.cubes[k] || 0) > 0) { if (Tree.compost(k, false)) done++; }
-          else if ((G.premium[k] || 0) > 0) { if (Tree.compost(k, true)) done++; }
-          else break;
-        }
-        if (!done) Audio.play('error');
+      el.className = 'slot' + (G.selSeed === c.key ? ' on' : '') + (n === 0 ? ' out' : '');
+      el.innerHTML = `${ic(c.icon)}<span class="n">${n}</span>`;
+      el.onclick = () => {
+        if (!n) { Audio.play('error'); openPanel('panel-shop'); shopTab = 'seeds'; renderShop(); return; }
+        G.selSeed = c.key; Audio.play('click'); refreshTray();
       };
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>Compost for <b>+${def.compost}</b> growth${p ? ' (premium: +' + def.compost * 2 + ')' : ''}<br>Click one &middot; Shift-click ten`);
+      el.onmouseenter = (e) => showTip(e, `<b>${c.name}</b><br>${ic(OFFERINGS[c.offering].icon, 'sm')} ${OFFERINGS[c.offering].name}<br>${c.grow}s`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
-    if (!any) box.innerHTML = '<span class="label">no cubes to compost</span>';
-    const inf = Tree.info();
-    $('lbl-compost').textContent = inf.next ? `${TREE_STAGES[inf.stage + 1].name.toUpperCase()} AT ${inf.next}` : 'FULLY GROWN';
+    if (!any) box.innerHTML = '<span class="empty">no seed</span>';
+  }
+  function foodSlots(box) {
+    let any = 0;
+    for (const c of CROPS) {
+      const n = G.food[c.key] || 0;
+      if (!n) continue;
+      any++;
+      const el = document.createElement('div');
+      el.className = 'slot' + (G.selFood === c.key ? ' on' : '');
+      el.innerHTML = `${ic(c.icon)}<span class="n">${n}</span>`;
+      el.onclick = () => { G.selFood = G.selFood === c.key ? null : c.key; Audio.play('click'); refreshTray(); };
+      el.onmouseenter = (e) => showTip(e, `<b>${c.name}</b><br>feed a wombat<br>+${c.hap}`);
+      el.onmouseleave = hideTip;
+      box.appendChild(el);
+    }
+    const paw = document.createElement('div');
+    paw.className = 'slot' + (!G.selFood ? ' on' : '');
+    paw.innerHTML = ic('t_hand');
+    paw.onclick = () => { G.selFood = null; Audio.play('click'); refreshTray(); };
+    paw.onmouseenter = (e) => showTip(e, '<b>Pet</b><br>hurries digestion');
+    paw.onmouseleave = hideTip;
+    box.prepend(paw);
+    if (!any) box.appendChild(Object.assign(document.createElement('span'), { className: 'empty', textContent: 'harvest to feed' }));
+  }
+  function offerSlots(box, onClick, keys) {
+    let i = 0;
+    for (const k of OFFER_ORDER) {
+      const plain = G.offerings[k] || 0, bl = G.blessed[k] || 0;
+      if (plain + bl === 0) continue;
+      i++;
+      const def = OFFERINGS[k];
+      const el = document.createElement('div');
+      el.className = 'slot' + (keys && G.selOffer === k ? ' on' : '');
+      el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
+      el.onclick = (e) => onClick(k, e);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${def.value} at the rite${def.sell ? `<br>${def.sell} W$ pawned` : ''}${bl ? '<br><b>blessed</b> pays double' : ''}`);
+      el.onmouseleave = hideTip;
+      box.appendChild(el);
+    }
+    if (!i) box.innerHTML = '<span class="empty">no offerings</span>';
   }
 
-  function refreshTreeHUD() {
-    const inf = Tree.info();
-    $('t-stage').textContent = inf.name;
-    $('t-meter').style.width = Math.round(inf.frac * 100) + '%';
-    $('t-acorns').textContent = inf.acorns;
-    const ready = SKILLS.filter((s) => Tree.state(s) === 'ready').length;
-    $('t-note').textContent = ready ? `${ready} skill${ready > 1 ? 's' : ''} within reach` : inf.next ? 'Compost cubes to grow it' : 'Every bough has grown';
-    refreshCompostBar();
+  // ---- shrine overlay -----------------------------------------------------
+  function refreshRitual() {
+    const box = $('gods');
+    box.innerHTML = '';
+    const staged = Ritual.staged();
+    for (const god of GODS) {
+      const done = !!G.summoned[god.key];
+      const need = Ritual.need(god);
+      const ok = !done && Ritual.meets(god);
+      const el = document.createElement('div');
+      el.className = 'gcard' + (ok ? ' ready' : '') + (done ? ' done' : '');
+      const rows = Object.keys(need).map((k) => {
+        const have = staged[k] || 0;
+        return `<span class="${have >= need[k] ? 'ok' : 'no'}">${ic(OFFERINGS[k].icon)}${have}/${need[k]}</span>`;
+      }).join('');
+      el.innerHTML = `${ic(god.glyph)}<div class="need">${done ? `<span class="ok">${ic(god.artIcon)}</span>` : rows}</div>`;
+      el.onmouseenter = (e) => showTip(e, `<b>${god.name}</b><br><span class="dim">${god.title}</span><br>${god.blessing}${done ? '<br><span class="good">summoned</span>' : ''}`);
+      el.onmouseleave = hideTip;
+      el.onclick = () => { if (ok) Ritual.summon(); else Audio.play('error'); };
+      box.appendChild(el);
+    }
+    $('b-summon').disabled = !Ritual.readyGod();
   }
+  function refreshKnow() { refreshHUD(); }
 
+  // ---- rite ---------------------------------------------------------------
   function refreshRunHUD() {
     const R = Tower.R;
     if (!R.active) return;
-    $('r-height').textContent = R.height.toFixed(1);
-    $('r-crowd').textContent = Tower.crowdSize;
-    $('r-power').textContent = 'x' + R.power.toFixed(2);
-    $('r-earned').textContent = U.fmt(R.earned);
-    $('r-lives').innerHTML = hearts(R.lives, R.maxLives);
-    $('r-perks').innerHTML = R.perks.map((k) => {
-      const p = PERKS.find((q) => q.key === k);
-      return `<img src="${Icons.url(p.icon)}" alt="" title="${p.name}: ${p.desc}">`;
+    $('r-h').textContent = R.height.toFixed(1);
+    $('r-c').textContent = Tower.crowdSize;
+    $('r-e').textContent = U.fmt(R.earned);
+    let h = '';
+    for (let i = 0; i < R.maxLives; i++) h += `<img src="${Icons.url('heart')}" alt="" style="opacity:${i < R.lives ? 1 : 0.25}">`;
+    $('r-lives').innerHTML = h;
+    $('r-goals').innerHTML = R.goals.map((gl) => `<div class="${gl.done ? 'done' : ''}">${gl.text} ${gl.done ? '' : `${gl.at}/${gl.need}`}</div>`).join('');
+    $('r-boons').innerHTML = Object.keys(R.boons).map((k) => {
+      const b = CUPID_BOONS.find((x) => x.key === k);
+      return `<img src="${Icons.url(b.icon)}" alt="" title="${b.name}">`;
     }).join('');
   }
-  function onRunStart() { $('run-card').hidden = true; $('run-read').hidden = true; refreshRunHUD(); }
-  function onRunPlay() { $('run-read').hidden = false; refreshRunHUD(); }
-  function hideRunHUD() { $('run-read').hidden = true; }
-  function onRunEnd() { refreshRunCard(); refreshHUD(); refreshCubeBar(); }
-  function refreshRunCard() {
+  function onRunStart() { $('rite-card').hidden = true; $('rite-read').hidden = true; refreshRunHUD(); }
+  function onRunPlay() { $('rite-read').hidden = false; refreshRunHUD(); }
+  function hideRunHUD() { $('rite-read').hidden = true; }
+  function onRunEnd() { refreshRiteCard(); refreshHUD(); refreshTray(); }
+  function refreshRiteCard() {
     const n = Tower.total();
-    $('run-card').hidden = Tower.active || G.mode !== 'tower';
-    $('btn-start').disabled = n === 0;
-    $('run-note').innerHTML = n === 0
-      ? 'The barn is empty. Feed a wombat first.'
-      : `${n} cube${n > 1 ? 's' : ''} ready. Best tower so far: ${G.record}.`;
+    $('rite-card').hidden = Tower.active || G.mode !== 'rite';
+    $('b-start').disabled = n === 0;
+    $('rite-n').textContent = n;
   }
+  function hideAll() { $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('tray-tools').hidden = true; $('tray-ctx').hidden = true; }
 
   // ---- tooltip ------------------------------------------------------------
-  function showTip(e, html) { const t = $('tooltip'); t.innerHTML = html; t.hidden = false; positionTip(e.clientX, e.clientY); }
-  function positionTip(cx, cy) {
-    const t = $('tooltip'), st = $('frame').getBoundingClientRect();
+  function showTip(e, html) { const t = $('tip'); t.innerHTML = html; t.hidden = false; place(e.clientX, e.clientY); }
+  function place(cx, cy) {
+    const t = $('tip'), st = $('frame').getBoundingClientRect();
     let x = cx - st.left + 14, y = cy - st.top - t.offsetHeight - 12;
     if (x + t.offsetWidth > st.width) x = st.width - t.offsetWidth - 6;
     if (x < 4) x = 4;
     if (y < 4) y = cy - st.top + 20;
     t.style.left = x + 'px'; t.style.top = y + 'px';
   }
-  function hideTip() { $('tooltip').hidden = true; }
+  function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  function openPanel(id) { closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click'); }
+  function openPanel(id) { closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click'); if (id === 'panel-shop') renderShop(); if (id === 'panel-pawn') renderPawn(); }
   function closePanels() {
-    for (const id of ['panel-shop', 'panel-help']) $(id).hidden = true;
-    if ($('modal').hidden) G.paused = false;
+    for (const id of ['panel-shop', 'panel-pawn', 'panel-help']) $(id).hidden = true;
+    if ($('modal').hidden && !Ritual.active) G.paused = false;
   }
-  function openShop(tab) { if (tab) shopTab = tab; openPanel('panel-shop'); renderShop(); }
-  function spend(cost) {
-    if (G.money < cost) { toast('Not enough coins.', 'bad'); Audio.play('error'); return false; }
-    G.money -= cost; Audio.play('buy'); refreshHUD(); return true;
+  function spend(n) {
+    if (G.wd < n) { Audio.play('error'); toast('not enough', 'bad'); return false; }
+    G.wd -= n; Audio.play('buy'); refreshHUD(); return true;
   }
-  function priceBtn(label, cost, attrs) { return `<button class="buy" ${attrs}>${Icons.img('coin', 'sm')}${label ? label + ' ' : ''}${U.fmt(cost)}</button>`; }
+  function price(label, cost, attrs) { return `<button class="buy" ${attrs}>${ic('wdollar', 'sm')}${label ? label + ' ' : ''}${U.fmt(cost)}</button>`; }
 
   function renderShop() {
     for (const b of $('shop-tabs').children) b.classList.toggle('active', b.dataset.tab === shopTab);
-    const body = $('shop-body');
     let h = '<div class="grid">';
-    if (shopTab === 'feed') {
-      for (const f of FOODS) {
-        const open = G.unlocked[f.key];
-        h += `<div class="item ${open ? '' : 'shut'}">
-          <div class="pic">${Icons.img(f.icon, 'xl')}</div>
-          <h3>${f.name}</h3>
-          <p>${f.desc} Makes a ${CUBES[f.cube].name}.</p>
-          <div class="act">${open
-            ? `<span class="own">have ${G.food[f.key] || 0}</span>${priceBtn('', f.cost, `data-act="food" data-key="${f.key}" data-n="1"`)}${priceBtn('10x', f.cost * 10, `data-act="food" data-key="${f.key}" data-n="10"`)}`
-            : `<button class="buy alt" data-act="seed" data-key="${f.key}">${Icons.img('coin', 'sm')}Plant ${U.fmt(f.unlock)}</button>`}</div>
+    if (shopTab === 'seeds') {
+      for (const c of CROPS) {
+        const gated = c.god && !G.blessings[c.god];
+        h += `<div class="item ${gated ? '' : 'have'}">
+          <div class="pic">${ic(c.icon, 'xl')}</div>
+          <h3>${c.name}</h3>
+          <p>${ic(OFFERINGS[c.offering].icon, 'sm')} ${OFFERINGS[c.offering].name} &middot; ${c.grow}s</p>
+          <div class="act2"><span class="own">${G.seeds[c.key] || 0}</span>${gated
+            ? `<button class="buy" disabled>${ic('lock', 'sm')}</button>`
+            : price('', c.seed, `data-a="seed" data-k="${c.key}" data-n="1"`) + price('10x', c.seed * 10, `data-a="seed" data-k="${c.key}" data-n="10"`)}</div>
         </div>`;
       }
     } else if (shopTab === 'wombats') {
-      const n = G.wombats.length, cap = Pen.wombatCap(), cost = WOMBAT_COST(n);
+      const n = G.wombats.length, cap = Grove.capacity(), cost = WOMBAT_PRICE(n);
       h += `<div class="item">
-        <div class="pic">${Icons.img('wombat', 'xl')}</div>
-        <h3>Adopt a wombat <span class="lv">${n}/${cap}</span></h3>
-        <p>${n >= cap ? 'The pen is full. Build more fence.' : 'Another one, digesting on its own schedule.'}</p>
-        <div class="act">${priceBtn('', cost, `data-act="wombat" ${n >= cap ? 'disabled' : ''}`)}</div>
-      </div>`;
+        <div class="pic">${ic('wombat', 'xl')}</div>
+        <h3>Adopt <span class="lv">${n}/${cap}</span></h3>
+        <p>${n >= cap ? 'Dig another burrow first.' : 'One more mouth, one more offering.'}</p>
+        <div class="act2">${price('', cost, `data-a="womb" ${n >= cap ? 'disabled' : ''}`)}</div></div>`;
       for (const w of G.wombats) {
-        const st = w.stomach === 'empty' ? 'hungry' : w.stomach === 'digesting' ? 'digesting' : 'about to go';
-        h += `<div class="item have">
-          <div class="pic">${Icons.img('wombat', 'xl')}</div>
-          <h3>${w.name}</h3>
-          <p>${st} &middot; happy ${Math.round(w.hap)}/${Pen.hapCap()}</p>
-        </div>`;
+        const fur = Sprites.furOf(w.pelt);
+        const t = TRAITS.map((tr) => `${tr.name} ${w.traits[tr.key].toFixed(2)}`).join(' &middot; ');
+        h += `<div class="item have"><div class="pic">${ic('wombat', 'xl')}</div>
+          <h3>${w.name} <span class="lv">${Sprites.AGE[w.age].name}</span></h3>
+          <p>${fur.name}${fur.rare ? ' &#9670;' : ''}<br>${t}</p></div>`;
+      }
+    } else if (shopTab === 'build') {
+      for (const u of UPGRADES) {
+        const l = G.up[u.key] || 0, cost = Math.round(u.base * Math.pow(u.mult, l)), max = l >= u.max;
+        h += `<div class="item ${l ? 'have' : ''}"><div class="pic">${ic(u.icon, 'xl')}</div>
+          <h3>${u.name} <span class="lv">${l}/${u.max}</span></h3><p>${u.desc(l)}</p>
+          <div class="act2">${max ? '<button class="buy" disabled>max</button>' : price('', cost, `data-a="up" data-k="${u.key}"`)}</div></div>`;
       }
     } else {
-      for (const f of FACILITIES) {
-        const l = G.fac[f.key] || 0, cost = Math.round(f.base * Math.pow(f.mult, l)), maxed = l >= f.max;
-        h += `<div class="item ${l ? 'have' : ''}">
-          <div class="pic">${Icons.img(f.icon, 'xl')}</div>
-          <h3>${f.name} <span class="lv">${l}/${f.max}</span></h3>
-          <p>${f.desc(l)}</p>
-          <div class="act">${maxed ? '<button class="buy" disabled>done</button>' : priceBtn(l ? 'Upgrade' : 'Build', cost, `data-act="fac" data-key="${f.key}"`)}</div>
-        </div>`;
-      }
-      for (const it of FARM_ITEMS) {
-        const own = !!G.farm[it.key];
-        h += `<div class="item ${own ? 'have' : ''}">
-          <div class="pic">${Icons.img(it.icon, 'xl')}</div>
-          <h3>${it.name}</h3>
-          <p>${it.desc}</p>
-          <div class="act">${own ? '<button class="buy" disabled>in the pen</button>' : priceBtn('', it.cost, `data-act="item" data-key="${it.key}"`)}</div>
-        </div>`;
+      for (const d of DECOR) {
+        const own = !!G.decor[d.key];
+        h += `<div class="item ${own ? 'have' : ''}"><div class="pic">${ic(d.icon, 'xl')}</div>
+          <h3>${d.name}</h3><p>${d.desc}</p>
+          <div class="act2">${own ? '<button class="buy" disabled>set</button>' : price('', d.cost, `data-a="dec" data-k="${d.key}"`)}</div></div>`;
       }
     }
-    body.innerHTML = h + '</div>';
-    body.querySelectorAll('button.buy').forEach((b) => { if (!b.disabled) b.onclick = () => shopAction(b.dataset); });
+    $('shop-body').innerHTML = h + '</div>';
+    $('shop-body').querySelectorAll('button.buy').forEach((b) => { if (!b.disabled) b.onclick = () => shopAct(b.dataset); });
   }
-  function shopAction(d) {
-    switch (d.act) {
-      case 'food': { const f = FOOD_BY_KEY[d.key], n = +d.n; if (spend(f.cost * n)) G.food[f.key] = (G.food[f.key] || 0) + n; break; }
-      case 'seed': { const f = FOOD_BY_KEY[d.key]; if (spend(f.unlock)) { G.unlocked[f.key] = true; G.food[f.key] = (G.food[f.key] || 0) + 3; toast(f.name + ' planted. Three in the barn.', 'good'); } break; }
-      case 'wombat': {
+  function shopAct(d) {
+    switch (d.a) {
+      case 'seed': { const c = CROP_BY_KEY[d.k], n = +d.n; if (spend(c.seed * n)) G.seeds[c.k || c.key] = (G.seeds[c.key] || 0) + n; break; }
+      case 'womb': {
         const n = G.wombats.length;
-        if (n >= Pen.wombatCap()) return;
-        if (spend(WOMBAT_COST(n))) { const w = Pen.addWombat(); toast(w.name + ' moves in.', 'good'); FX.confettiBurst(320, 150, 26); }
+        if (n >= Grove.capacity()) return;
+        if (spend(WOMBAT_PRICE(n))) { const w = Grove.addWombat(); toast(w.name, 'good'); }
         break;
       }
-      case 'fac': {
-        const f = FACILITIES.find((x) => x.key === d.key), l = G.fac[f.key] || 0;
-        if (l >= f.max) return;
-        if (spend(Math.round(f.base * Math.pow(f.mult, l)))) {
-          G.fac[f.key] = l + 1;
-          toast(f.name + ' now level ' + (l + 1) + '.', 'good');
-          if (f.key === 'trough' && !G.troughFood) G.troughFood = 'grass';
-        }
+      case 'up': {
+        const u = UPGRADES.find((x) => x.key === d.k), l = G.up[u.key] || 0;
+        if (l >= u.max) return;
+        if (spend(Math.round(u.base * Math.pow(u.mult, l)))) { G.up[u.key] = l + 1; if (u.key === 'trough' && !G.troughFood) G.troughFood = 'ashgrass'; }
         break;
       }
-      case 'item': {
-        const it = FARM_ITEMS.find((x) => x.key === d.key);
-        if (G.farm[it.key]) return;
-        if (spend(it.cost)) { G.farm[it.key] = true; toast(it.name + ' set up in the pen.', 'good'); }
+      case 'dec': {
+        const dd = DECOR.find((x) => x.key === d.k);
+        if (G.decor[dd.key]) return;
+        if (spend(dd.cost)) { G.decor[dd.key] = true; toast(dd.name, 'good'); }
         break;
       }
     }
-    renderShop(); refreshFeedBar(); refreshHUD(); Main.save();
+    renderShop(); refreshTray(); refreshHUD(); Main.save();
+  }
+
+  function renderPawn() {
+    let h = '<div class="grid">';
+    let any = false;
+    for (const k of OFFER_ORDER) {
+      const def = OFFERINGS[k];
+      if (!def.sell) continue;
+      const n = (G.offerings[k] || 0) + (G.blessed[k] || 0);
+      any = any || n > 0;
+      h += `<div class="item ${n ? 'have' : ''}"><div class="pic">${ic(def.icon, 'xl')}</div>
+        <h3>${def.name} <span class="lv">${n}</span></h3><p>${def.sell} each</p>
+        <div class="act2">${n ? price('', def.sell, `data-s="off" data-k="${k}" data-n="1"`) + (n > 1 ? price('all', def.sell * n, `data-s="off" data-k="${k}" data-n="${n}"`) : '') : '<button class="buy" disabled>&mdash;</button>'}</div></div>`;
+    }
+    for (const god of GODS) {
+      const n = G.artifacts[god.key] || 0;
+      if (!n) continue;
+      any = true;
+      h += `<div class="item have"><div class="pic">${ic(god.artIcon, 'xl')}</div>
+        <h3>${god.artifact} <span class="lv">${n}</span></h3><p>${god.artValue} each</p>
+        <div class="act2">${price('', god.artValue, `data-s="art" data-k="${god.key}" data-n="1"`)}</div></div>`;
+    }
+    if (!any) h += `<div class="item"><div class="pic">${ic('wdollar', 'xl')}</div><h3>Nothing to pawn</h3><p>Gilded and rune offerings, and the gifts of gods.</p></div>`;
+    $('pawn-body').innerHTML = h + '</div>';
+    $('pawn-body').querySelectorAll('button.buy').forEach((b) => { if (!b.disabled) b.onclick = () => pawnAct(b.dataset); });
+  }
+  function pawnAct(d) {
+    const n = +d.n;
+    if (d.s === 'off') {
+      const def = OFFERINGS[d.k];
+      let sold = 0;
+      for (let i = 0; i < n; i++) {
+        if ((G.offerings[d.k] || 0) > 0) G.offerings[d.k]--;
+        else if ((G.blessed[d.k] || 0) > 0) G.blessed[d.k]--;
+        else break;
+        sold++;
+      }
+      G.wd += def.sell * sold;
+    } else {
+      const god = GOD_BY_KEY[d.k];
+      if ((G.artifacts[d.k] || 0) < n) return;
+      G.artifacts[d.k] -= n;
+      G.wd += god.artValue * n;
+    }
+    Audio.play('sell');
+    renderPawn(); refreshHUD(); refreshTray(); Main.save();
   }
 
   // ---- modals -------------------------------------------------------------
-  function showPerks(picks, pick) {
-    const m = $('modal'), c = $('modal-card');
-    c.innerHTML = `<h2>Pick a perk</h2><p>${Tower.R.settled} cubes standing.</p>
-      <div class="perks">${picks.map((p, i) => `<div class="perk ${p.rare ? 'rare' : ''}" data-i="${i}">
-        <img src="${Icons.url(p.icon)}" alt=""><span class="nm">${p.name}</span><span class="ds">${p.desc}</span></div>`).join('')}</div>`;
-    m.hidden = false;
-    c.querySelectorAll('.perk').forEach((el) => el.onclick = () => { m.hidden = true; Audio.play('buy'); pick(picks[+el.dataset.i]); });
+  function showBlessing(god) {
+    const m = $('modal'), c = $('mcard');
+    c.innerHTML = `<h2 style="color:${god.color}">${god.name}</h2><p>${god.title}</p>
+      <div class="mrow">
+        <div class="cell">${ic(god.glyph, 'xl')}<span>${god.blessing}</span></div>
+        <div class="cell">${ic(god.artIcon, 'xl')}<span>${god.artifact}</span></div>
+      </div>
+      <button class="act" id="b-ok"><img class="ico" src="${Icons.url('close')}" alt=""></button>`;
+    m.hidden = false; G.paused = true;
+    $('b-ok').onclick = () => { m.hidden = true; G.paused = false; Audio.play('click'); refreshHUD(); refreshTray(); refreshRitual(); };
   }
   function showSummary(s) {
-    const m = $('modal'), c = $('modal-card');
-    const perks = s.perks.map((k) => `<img src="${Icons.url(PERKS.find((p) => p.key === k).icon)}" alt="" style="width:22px;height:22px;image-rendering:pixelated;vertical-align:middle">`).join(' ') || '&mdash;';
-    c.innerHTML = `<h2 style="color:${s.cashed ? '#2f6b1f' : '#a12a1a'}">${s.cashed ? 'Cashed out' : 'It came down'}</h2>
-      <p>${s.cashed ? 'A clean exit. The crowd goes home happy.' : 'The crowd loved it anyway.'}</p>
+    const m = $('modal'), c = $('mcard');
+    c.innerHTML = `<h2 style="color:${s.cashed ? 'var(--m4)' : 'var(--redL)'}">${s.cashed ? U.money(s.earned).replace('$', '') + ' W$' : U.fmt(s.peak.toFixed(1))}</h2>
       <div class="sum">
-        <span class="k">Tallest</span><span class="v">${s.peak.toFixed(1)}</span>
-        <span class="k">Cubes standing / used</span><span class="v">${s.settled} / ${s.used}</span>
-        <span class="k">Cubes lost</span><span class="v">${s.lost}</span>
-        <span class="k">Crowd</span><span class="v">${s.crowd}</span>
-        <span class="k">Perks</span><span class="v">${perks}</span>
-        <span class="k">Cash-out bonus</span><span class="v g">${s.cashed ? '+' + U.money(s.bonus) : '&mdash;'}</span>
-        <span class="k">Takings</span><span class="v g">+${U.money(s.earned)}</span>
+        <span>${ic('u_seats', 'sm')}</span><span class="v">${s.peak.toFixed(1)}</span>
+        <span>${ic('offering', 'sm')}</span><span class="v">${s.settled}/${s.used}</span>
+        <span>${ic('wombat', 'sm')}</span><span class="v">${s.crowd}</span>
+        <span>${ic('eye', 'sm')}</span><span class="v">${s.goals}/3</span>
+        <span>${ic('wdollar', 'sm')}</span><span class="v">${U.fmt(s.earned)}</span>
       </div>
-      <button class="big" id="btn-ok">Back to the farm</button>`;
+      <button class="act" id="b-ok2"><img class="ico" src="${Icons.url('close')}" alt=""></button>`;
     m.hidden = false; G.paused = true;
-    $('btn-ok').onclick = () => { m.hidden = true; G.paused = false; Audio.play('click'); refreshRunCard(); refreshHUD(); Main.setMode('pen'); };
+    $('b-ok2').onclick = () => { m.hidden = true; G.paused = false; Audio.play('click'); refreshRiteCard(); refreshHUD(); Main.setMode('grove'); };
   }
 
   // ---- setup --------------------------------------------------------------
@@ -304,47 +344,47 @@ const UI = (() => {
     G = g;
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     document.querySelectorAll('.tab').forEach((b) => b.onclick = () => Main.setMode(b.dataset.mode));
-    $('btn-shop').onclick = () => openShop();
-    $('btn-help').onclick = () => openPanel('panel-help');
-    $('btn-sound').onclick = () => {
-      const muted = Audio.toggleMute();
-      G.muted = muted;
-      $('btn-sound').firstElementChild.src = Icons.url(muted ? 'mute' : 'sound');
+    $('b-shop').onclick = () => openPanel('panel-shop');
+    $('b-pawn').onclick = () => openPanel('panel-pawn');
+    $('b-help').onclick = () => openPanel('panel-help');
+    $('b-sound').onclick = () => {
+      const m = Audio.toggleMute(); G.muted = m;
+      $('b-sound').firstElementChild.src = Icons.url(m ? 'mute' : 'sound');
       Main.save();
     };
-    $('btn-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('btn-music').textContent = on ? 'Music: on' : 'Music: off'; Main.save(); };
+    $('b-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('b-music').textContent = on ? 'music' : 'muted'; Main.save(); };
     let armed = 0;
-    $('btn-reset').onclick = () => {
-      const b = $('btn-reset');
+    $('b-reset').onclick = () => {
+      const b = $('b-reset');
       if (Date.now() < armed) { Main.reset(); return; }
-      armed = Date.now() + 4000;
-      b.textContent = 'Click again to erase';
-      Audio.play('alarm');
-      setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'Reset save'; armed = 0; } }, 4100);
+      armed = Date.now() + 4000; b.textContent = 'sure?'; Audio.play('alarm');
+      setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'reset'; armed = 0; } }, 4100);
     };
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
     for (const b of $('shop-tabs').children) b.onclick = () => { shopTab = b.dataset.tab; Audio.play('click'); renderShop(); };
-    $('btn-start').onclick = () => { if (Tower.total()) Tower.newRun(); };
-    $('btn-cash').onclick = () => Tower.cashOut();
+    $('b-summon').onclick = () => Ritual.summon();
+    $('b-unstage').onclick = () => Ritual.clearStage();
+    $('b-start').onclick = () => { if (Tower.total()) Tower.newRun(); };
+    $('b-cash').onclick = () => Tower.cashOut();
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanels(); });
-    $('btn-sound').firstElementChild.src = Icons.url(G.muted ? 'mute' : 'sound');
-    $('btn-music').textContent = G.musicOff ? 'Music: off' : 'Music: on';
+    $('b-sound').firstElementChild.src = Icons.url(G.muted ? 'mute' : 'sound');
+    $('b-music').textContent = G.musicOff ? 'muted' : 'music';
   }
   function setMode(mode) {
     document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.mode === mode));
-    $('tray-feed').hidden = mode !== 'pen';
-    $('tray-compost').hidden = mode !== 'tree';
-    $('tray-cube').hidden = mode !== 'tower';
-    $('ov-tower').hidden = mode !== 'tower';
-    $('ov-tree').hidden = mode !== 'tree';
-    refreshRunCard(); refreshCubeBar(); refreshFeedBar();
-    if (mode === 'tree') refreshTreeHUD();
+    $('tray-tools').hidden = mode !== 'grove';
+    $('tray-ctx').hidden = false;
+    $('ov-shrine').hidden = mode !== 'shrine';
+    $('ov-rite').hidden = mode !== 'rite';
+    refreshTray(); refreshHUD();
+    if (mode === 'shrine') refreshRitual();
+    if (mode === 'rite') refreshRiteCard();
   }
-  function anyPanelOpen() { return !$('panel-shop').hidden || !$('panel-help').hidden || !$('modal').hidden; }
+  function anyPanel() { return !$('panel-shop').hidden || !$('panel-pawn').hidden || !$('panel-help').hidden || !$('modal').hidden; }
 
   return {
-    init, toast, refreshHUD, refreshFeedBar, refreshCubeBar, refreshCompostBar, refreshTreeHUD,
-    refreshRunHUD, refreshRunCard, onRunStart, onRunPlay, onRunEnd, hideRunHUD,
-    showPerks, showSummary, showTip, hideTip, positionTip, setMode, openShop, closePanels, anyPanelOpen,
+    init, toast, refreshHUD, refreshTray, refreshRitual, refreshKnow, refreshRunHUD, refreshRiteCard,
+    onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
+    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel,
   };
 })();

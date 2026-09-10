@@ -74,17 +74,45 @@ const Audio = (() => {
     levelup: () => { [0, 7, 12, 19].forEach((n, i) => tone({ freq: 392 * Math.pow(2, n / 12), type: 'square', dur: 0.3, vol: 0.15, delay: i * 0.1 })); },
     bounce: () => tone({ freq: 300, type: 'sine', dur: 0.12, vol: 0.25, slide: 500 }),
     squeak: () => tone({ freq: 1200, type: 'triangle', dur: 0.1, vol: 0.12, slide: 600 }),
+    snip: () => { noise({ dur: 0.07, vol: 0.22, lp: 5200, hp: 1800 }); tone({ freq: 2100, type: 'square', dur: 0.04, vol: 0.07 }); },
+    pluck: () => { tone({ freq: 520, type: 'triangle', dur: 0.1, vol: 0.2, slide: 340 }); noise({ dur: 0.06, vol: 0.12, lp: 3000, hp: 900 }); },
+    brush: () => noise({ dur: 0.12, vol: 0.1, lp: 2600, hp: 500, decayCurve: 1.4 }),
+    dig: () => { noise({ dur: 0.16, vol: 0.2, lp: 900 }); tone({ freq: 120, type: 'sine', dur: 0.14, vol: 0.18, slide: -50 }); },
+    splash: () => { noise({ dur: 0.2, vol: 0.16, lp: 4200, hp: 1200, decayCurve: 1.6 }); tone({ freq: 900, type: 'sine', dur: 0.12, vol: 0.08, slide: 500 }); },
+    thunder: () => {
+      noise({ dur: 1.8, vol: 0.55, lp: 420, decayCurve: 0.9 });
+      noise({ dur: 0.5, vol: 0.4, lp: 2400, hp: 200, decayCurve: 2 });
+      tone({ freq: 58, type: 'sine', dur: 1.6, vol: 0.45, slide: -22 });
+      noise({ dur: 1.1, vol: 0.3, lp: 700, delay: 0.35, decayCurve: 1.2 });
+    },
+    rumble: () => { noise({ dur: 1.4, vol: 0.26, lp: 260, decayCurve: 1 }); tone({ freq: 44, type: 'sine', dur: 1.4, vol: 0.3, slide: -12 }); },
+    chant: () => {
+      [0, 3, 7].forEach((n, i) => {
+        tone({ freq: 110 * Math.pow(2, n / 12), type: 'sawtooth', dur: 1.5, vol: 0.09, delay: i * 0.04, attack: 0.3, decay: 1.5 });
+        tone({ freq: 220 * Math.pow(2, n / 12), type: 'sine', dur: 1.5, vol: 0.06, delay: i * 0.04, attack: 0.4, decay: 1.5 });
+      });
+    },
+    chime: () => [0, 7, 12, 19, 24].forEach((n, i) => tone({ freq: 523 * Math.pow(2, n / 12), type: 'sine', dur: 1.1, vol: 0.12, delay: i * 0.07, decay: 1.1 })),
+    bless: () => {
+      [0, 4, 7, 11, 14].forEach((n, i) => tone({ freq: 330 * Math.pow(2, n / 12), type: 'triangle', dur: 0.9, vol: 0.13, delay: i * 0.1, decay: 0.9 }));
+      noise({ dur: 1.2, vol: 0.1, lp: 6000, hp: 2400, decayCurve: 1, delay: 0.2 });
+    },
+    growl: () => { tone({ freq: 70, type: 'sawtooth', dur: 0.9, vol: 0.2, slide: 24 }); noise({ dur: 0.9, vol: 0.12, lp: 340 }); },
+    sell: () => { tone({ freq: 660, type: 'square', dur: 0.07, vol: 0.14 }); tone({ freq: 990, type: 'square', dur: 0.09, vol: 0.13, delay: 0.07 }); tone({ freq: 1320, type: 'square', dur: 0.16, vol: 0.12, delay: 0.15 }); },
+    hatch: () => { tone({ freq: 380, type: 'triangle', dur: 0.14, vol: 0.16, slide: 420 }); tone({ freq: 900, type: 'sine', dur: 0.2, vol: 0.12, delay: 0.12, slide: 300 }); noise({ dur: 0.1, vol: 0.1, lp: 3000 }); },
+    munch: () => { for (let i = 0; i < 2; i++) noise({ dur: 0.07, vol: 0.2, lp: 800, delay: i * 0.13 }); },
   };
 
   // ---- Music: simple pattern sequencer -----------------------------------
-  const PEN_BASS = [0, 0, 7, 7, 5, 5, 3, 3];          // semitone offsets of root (C)
-  const PEN_ARP = [[0, 4, 7], [0, 4, 7], [7, 11, 14], [7, 11, 14], [5, 9, 12], [5, 9, 12], [3, 7, 10], [3, 7, 10]];
-  const TOWER_BASS = [0, 0, 0, 0, 5, 5, 3, 3];
-  const TOWER_ARP = [[0, 3, 7], [0, 3, 7], [0, 3, 7], [0, 3, 7], [5, 8, 12], [5, 8, 12], [3, 7, 10], [3, 7, 10]];
+  // Grove: aeolian, slow, mostly air. Shrine: the same root, driven.
+  const PEN_BASS = [0, 0, -5, -5, 3, 3, -2, -2];
+  const PEN_ARP = [[0, 3, 7], [0, 3, 7], [-5, 0, 3], [-5, 0, 3], [3, 7, 10], [3, 7, 10], [-2, 3, 7], [-2, 3, 7]];
+  const TOWER_BASS = [0, 0, 0, 0, -5, -5, 3, 3];
+  const TOWER_ARP = [[0, 3, 7], [0, 3, 7], [0, 3, 10], [0, 3, 10], [-5, 0, 7], [-5, 0, 7], [3, 7, 12], [3, 7, 12]];
 
   function schedule() {
     if (!ctx) return;
-    const bpm = musicMode === 'tower' ? 128 : 92;
+    const bpm = musicMode === 'tower' ? 124 : 74;
     const spb = 60 / bpm / 4; // 16th
     while (nextNoteTime < ctx.currentTime + 0.15) {
       const bar = Math.floor(step / 16) % 8;
@@ -97,7 +125,7 @@ const Audio = (() => {
       if (musicMode === 'tower' || s16 % 2 === 0) {
         const chord = arp[bar];
         const n = chord[(s16 >> 1) % 3] + (s16 % 8 >= 4 ? 12 : 0);
-        tone({ freq: root * 2 * Math.pow(2, n / 12), type: musicMode === 'tower' ? 'square' : 'sine', dur: spb * 0.9, vol: musicMode === 'tower' ? 0.13 : 0.25, delay: t, dest: musicGain });
+        tone({ freq: root * 2 * Math.pow(2, n / 12), type: musicMode === 'tower' ? 'square' : 'triangle', dur: spb * (musicMode === 'tower' ? 0.9 : 2.4), vol: musicMode === 'tower' ? 0.13 : 0.11, delay: t, attack: musicMode === 'tower' ? 0.005 : 0.12, dest: musicGain });
       }
       if (musicMode === 'tower' && (s16 === 0 || s16 === 8)) {
         // kick

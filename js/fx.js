@@ -4,6 +4,8 @@ const FX = (() => {
   const floaters = [];
   const confetti = [];
   const rings = [];
+  const bolts = [];
+  const tendrils = [];
   const cam = { x: 320, y: 180, zoom: 1, tx: 320, ty: 180, tzoom: 1, shake: 0, shakeX: 0, shakeY: 0, punch: 0 };
   const cine = {
     letterbox: 0, tLetterbox: 0,   // 0..1
@@ -29,6 +31,35 @@ const FX = (() => {
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
   function confettiBurst(x, y, n = 60) { for (let i = 0; i < n; i++) confetti.push({ x, y, vx: U.rand(-160, 160), vy: U.rand(-320, -80), life: U.rand(1.5, 3), rot: U.rand(0, TAU), vr: U.rand(-8, 8), w: U.rand(3, 6), h: U.rand(2, 4), color: U.pick(['#ff5c8a', '#ffd23f', '#3fe0ff', '#7dff3f', '#c77dff', '#ff9a3f']) }); }
 
+  // A jagged bolt with a couple of forks, alive for a few frames.
+  function lightning(x0, y0, x1, y1, opts = {}) {
+    const seg = opts.seg || 14, spread = opts.spread || 26;
+    const pts = [];
+    for (let i = 0; i <= seg; i++) {
+      const t = i / seg;
+      const j = i === 0 || i === seg ? 0 : (Math.random() - 0.5) * spread * (1 - Math.abs(t - 0.5));
+      pts.push([U.lerp(x0, x1, t) + j, U.lerp(y0, y1, t) + (Math.random() - 0.5) * 6]);
+    }
+    const forks = [];
+    for (let k = 0; k < (opts.forks ?? 2); k++) {
+      const i = 3 + Math.floor(Math.random() * (seg - 6));
+      const fp = [pts[i]];
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      for (let j = 1; j <= 4; j++) fp.push([pts[i][0] + dir * j * U.rand(6, 13), pts[i][1] + j * U.rand(6, 15)]);
+      forks.push(fp);
+    }
+    bolts.push({ pts, forks, life: opts.life || 0.22, maxLife: opts.life || 0.22, color: opts.color || '#fdf3dc', glow: opts.glow || 'rgba(185,142,240,0.55)', w: opts.w || 2 });
+  }
+  // Roots that push out of the ground and keep growing.
+  function root(x, y, opts = {}) {
+    const dir = opts.dir ?? (Math.random() < 0.5 ? -1 : 1);
+    tendrils.push({
+      x, y, len: 0, target: opts.len || U.rand(40, 90), dir,
+      curve: U.rand(0.4, 1.2) * dir, rise: opts.rise ?? U.rand(0.7, 1.25),
+      w: opts.w || U.rand(2.5, 5), life: opts.life || 3.4, maxLife: opts.life || 3.4,
+      speed: opts.speed || U.rand(70, 150), color: opts.color || '#412e20', tip: opts.tip || '#5d4430',
+    });
+  }
   function ring(x, y, r, color) { rings.push({ x, y, r0: r * 0.3, r1: r, life: 0.35, maxLife: 0.35, color: color || 'rgba(255,248,230,0.7)' }); }
   function shake(a) { cam.shake = Math.min(20, cam.shake + a); }
   function punch(a = 0.08) { cam.punch = Math.min(0.3, cam.punch + a); }
@@ -70,11 +101,18 @@ const FX = (() => {
     }
     for (let i = floaters.length - 1; i >= 0; i--) { const f = floaters[i]; f.life -= dt; if (f.life <= 0) { floaters.splice(i, 1); continue; } f.y += f.vy * dt; f.x += f.vx * dt; f.vy *= Math.max(0, 1 - 2 * dt); }
     for (let i = rings.length - 1; i >= 0; i--) { const r = rings[i]; r.life -= dt; if (r.life <= 0) rings.splice(i, 1); }
+    for (let i = bolts.length - 1; i >= 0; i--) { bolts[i].life -= dt; if (bolts[i].life <= 0) bolts.splice(i, 1); }
+    for (let i = tendrils.length - 1; i >= 0; i--) {
+      const t = tendrils[i];
+      t.life -= dt;
+      if (t.life <= 0) { tendrils.splice(i, 1); continue; }
+      if (t.len < t.target) t.len = Math.min(t.target, t.len + t.speed * dt);
+    }
     for (let i = confetti.length - 1; i >= 0; i--) { const c = confetti[i]; c.life -= dt; if (c.life <= 0) { confetti.splice(i, 1); continue; } c.vy += 300 * dt; c.vx *= Math.max(0, 1 - 1.5 * dt); c.vy *= Math.max(0, 1 - 1.5 * dt); c.x += c.vx * dt; c.y += c.vy * dt; c.rot += c.vr * dt; }
   }
 
   function drawParticles(g, layer = 0, worldOnly = false) {
-    if (layer === 0) drawRings(g);
+    if (layer === 0) { drawTendrils(g); drawRings(g); drawBolts(g); }
     for (const p of particles) {
       if (p.layer !== layer) continue;
       const a = U.clamp(p.life / p.maxLife, 0, 1);
@@ -88,6 +126,42 @@ const FX = (() => {
       else g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), Math.round(s), Math.round(s));
     }
     g.globalAlpha = 1;
+  }
+  function drawBolts(g) {
+    for (const b of bolts) {
+      const a = U.clamp(b.life / b.maxLife, 0, 1);
+      g.save();
+      g.lineCap = 'round'; g.lineJoin = 'round';
+      for (const pass of [{ c: b.glow, w: b.w * 4, al: a * 0.5 }, { c: b.color, w: b.w, al: a }]) {
+        g.globalAlpha = pass.al; g.strokeStyle = pass.c; g.lineWidth = pass.w;
+        g.beginPath();
+        g.moveTo(b.pts[0][0], b.pts[0][1]);
+        for (const p of b.pts) g.lineTo(p[0], p[1]);
+        for (const f of b.forks) { g.moveTo(f[0][0], f[0][1]); for (const p of f) g.lineTo(p[0], p[1]); }
+        g.stroke();
+      }
+      g.restore();
+      g.globalAlpha = 1;
+    }
+  }
+  function drawTendrils(g) {
+    for (const t of tendrils) {
+      const fade = U.clamp(t.life / t.maxLife, 0, 1);
+      g.globalAlpha = Math.min(1, fade * 2.2);
+      const steps = Math.max(2, Math.round(t.len / 3));
+      let px = t.x, py = t.y;
+      for (let i = 1; i <= steps; i++) {
+        const s = (i / steps) * t.len;
+        const nx = t.x + Math.sin(s * 0.05 * t.curve) * s * 0.42 * t.dir;
+        const ny = t.y - s * t.rise;
+        const w = Math.max(1, t.w * (1 - i / steps) + 1);
+        g.fillStyle = i > steps - 3 ? t.tip : t.color;
+        const n = Math.max(1, Math.round(Math.hypot(nx - px, ny - py)));
+        for (let k = 0; k <= n; k++) g.fillRect(Math.round(U.lerp(px, nx, k / n) - w / 2), Math.round(U.lerp(py, ny, k / n) - w / 2), Math.round(w), Math.round(w));
+        px = nx; py = ny;
+      }
+      g.globalAlpha = 1;
+    }
   }
   function drawRings(g) {
     for (const r of rings) {
@@ -147,7 +221,7 @@ const FX = (() => {
     }
     if (cine.flash > 0.01) { g.fillStyle = cine.flashColor; g.globalAlpha = Math.min(1, cine.flash); g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
   }
-  function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; rings.length = 0; }
+  function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; rings.length = 0; bolts.length = 0; tendrils.length = 0; }
 
-  return { cam, cine, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
+  return { cam, cine, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
 })();

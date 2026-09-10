@@ -13,7 +13,7 @@ body = html.split('<body>', 1)[1].split('<script src', 1)[0].strip()
 order = re.findall(r'js/(\w+)\.js', html)
 
 parts = [
-    '<title>Wombat Cube Tycoon</title>',
+    '<title>Wombat Gods</title>',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">',
@@ -27,5 +27,5 @@ for name in order:
     parts.append(f'<script>\n// ===== js/{name}.js =====\n{src}\n</script>')
 
 out = '\n\n'.join(parts) + '\n'
-open('wombat-cube-tycoon.html', 'w').write(out)
-print(f'wrote wombat-cube-tycoon.html ({len(out)} bytes, {len(order)} scripts inlined)')
+open('wombat-gods.html', 'w').write(out)
+print(f'wrote wombat-gods.html ({len(out)} bytes, {len(order)} scripts inlined)')

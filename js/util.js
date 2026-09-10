@@ -43,6 +43,13 @@ const U = {
     r = f(r); g = f(g); b = f(b);
     return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
   },
+  mix(a, b, f) {
+    const n1 = parseInt(a.slice(1), 16), n2 = parseInt(b.slice(1), 16);
+    const r = Math.round(U.lerp((n1 >> 16) & 255, (n2 >> 16) & 255, f));
+    const g = Math.round(U.lerp((n1 >> 8) & 255, (n2 >> 8) & 255, f));
+    const bl = Math.round(U.lerp(n1 & 255, n2 & 255, f));
+    return '#' + ((1 << 24) | (r << 16) | (g << 8) | bl).toString(16).slice(1);
+  },
   rgba(hex, a) {
     const n = parseInt(hex.slice(1), 16);
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;

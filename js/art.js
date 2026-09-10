@@ -1,31 +1,42 @@
-// ---- Pixel-art drawing primitives + shared palette -------------------------
+// ---- Pixel-art drawing primitives + shared palette ------------------------
 // Everything is drawn on small offscreen canvases at 1 art-pixel = 1 canvas
 // pixel, then blitted with smoothing off. Sprites are cached, so per-pixel
 // passes (outlines, dithering) are affordable.
+//
+// Palette is built around three states of the world: the barren forest you
+// inherit (ash, bone, dead wood), the living one you restore (moss, soil,
+// bark), and the divine (violet, gold, cold cyan) that breaks through when a
+// god is summoned.
 const PAL = {
-  ink: '#241611', ink2: '#3a2a1e',
-  wood0: '#3a2214', wood1: '#5c3820', wood2: '#8a5a30', wood3: '#b98a52', wood4: '#d8b483',
-  parch0: '#e8cf9e', parch1: '#f6e6c0', cream: '#fff8e6',
-  gold: '#f2c14e', goldD: '#c9922b', goldL: '#ffe9a8',
-  red: '#c4442f', redD: '#932c1e', redL: '#e8705c',
-  teal: '#3f9e94', tealL: '#6fd3c8',
-  grass0: '#3f6f2a', grass1: '#57933a', grass2: '#6fb04a', grass3: '#8cc85f',
-  soil0: '#5a3a22', soil1: '#7a5230', soil2: '#9a6f42',
-  sky0: '#7ec8e8', sky1: '#bfe7f5',
-  leaf0: '#2f5f24', leaf1: '#437d2e', leaf2: '#5c9c3c', leaf3: '#7cbb52',
-  bark0: '#3d2718', bark1: '#5e4028', bark2: '#7d5836', bark3: '#9c7249',
-  stone0: '#565666', stone1: '#7b7b88', stone2: '#9d9daa',
-  water0: '#2f7d9e', water1: '#4aa8c8', water2: '#7fd0e4',
-  sand: '#d8b483',
-  spot: '#fff3c4',
+  ink: '#120e14', ink2: '#241d2a',
+  stone0: '#1c1a24', stone1: '#2c2836', stone2: '#443e52', stone3: '#625a72', stone4: '#8b849c',
+  bone: '#cfc4b0', boneD: '#a89a84', ash: '#8a8290', ashD: '#5f5868', dust: '#6b6470',
+  dead0: '#2e241d', dead1: '#463629', dead2: '#67523d', dead3: '#8a7156',
+  moss0: '#1d3419', moss1: '#2f4f24', moss2: '#436f2f', moss3: '#5d9440', moss4: '#84bb59', moss5: '#b3dd86',
+  soil0: '#241810', soil1: '#3b2a1b', soil2: '#553d27', soil3: '#75573a', soil4: '#9b7a52',
+  bark0: '#2a1d15', bark1: '#412e20', bark2: '#5d4430', bark3: '#7d5f42',
+  gold0: '#6d4a10', gold1: '#a97c1e', gold2: '#d8a52f', gold3: '#f5cd5c', gold4: '#ffeeb0',
+  div0: '#1b1030', div1: '#33205c', div2: '#563391', div3: '#8354c9', div4: '#b98ef0', div5: '#e6d6ff',
+  cyan0: '#123c46', cyan1: '#22707f', cyan2: '#3fa8ba', cyan3: '#79dced', cyan4: '#c2f4ff',
+  red0: '#4a1712', red1: '#7e2a20', red2: '#b8412c', red3: '#e0705a',
+  parch0: '#d8c69c', parch1: '#efdcb4', cream: '#fdf3dc',
+  water0: '#1b4a5c', water1: '#2f7f96', water2: '#57b6c9', water3: '#9fe2ee',
+  rot0: '#4a4a22', rot1: '#6e6a2c', rot2: '#96903c',
 };
 
+// Wombat pelts. The first four are common; the rest are the rare variants
+// breeding can throw. `glow` marks a pelt that gets an aura.
 const FUR = [
-  { base: '#8a6242', dark: '#5f4029', light: '#a9805a', belly: '#c2a07c', ear: '#c98a7a' },
-  { base: '#6f533c', dark: '#4a3526', light: '#8e6f52', belly: '#ab8c6b', ear: '#bd7f70' },
-  { base: '#9c7350', dark: '#6d4c31', light: '#bb9068', belly: '#d3b189', ear: '#d69b88' },
-  { base: '#a58358', dark: '#75593a', light: '#c2a077', belly: '#dcc39a', ear: '#d99f8c' },
+  { key: 'brown', name: 'Brown', base: '#7b5b3e', dark: '#4e3826', light: '#9c7852', belly: '#b99a72', nose: '#2a1c14', rare: 0 },
+  { key: 'grey', name: 'Grey', base: '#6a6560', dark: '#443f3c', light: '#8b857e', belly: '#a8a199', nose: '#241f1d', rare: 0 },
+  { key: 'sand', name: 'Sand', base: '#9c8058', dark: '#6b563a', light: '#bda079', belly: '#d6bd96', nose: '#33261a', rare: 0 },
+  { key: 'dark', name: 'Soot', base: '#4c4038', dark: '#2e2620', light: '#6a5c50', belly: '#87786a', nose: '#1a1512', rare: 0 },
+  { key: 'albino', name: 'Pale', base: '#e6ded0', dark: '#b8ab9a', light: '#f8f2e6', belly: '#fffaf0', nose: '#d08a8a', rare: 1, eye: '#c4443f' },
+  { key: 'golden', name: 'Gilded', base: '#c99a2b', dark: '#8a6512', light: '#eec24f', belly: '#ffe19a', nose: '#4a3308', rare: 1, glow: '#f5cd5c' },
+  { key: 'mossy', name: 'Mossgrown', base: '#5d7a44', dark: '#39502a', light: '#7d9c5c', belly: '#a3bd82', nose: '#22301a', rare: 1, moss: 1 },
+  { key: 'cosmic', name: 'Starlit', base: '#463066', dark: '#281a3f', light: '#6b4c96', belly: '#8f6fbd', nose: '#170f24', rare: 2, glow: '#b98ef0', stars: 1 },
 ];
+const FUR_BY_KEY = Object.fromEntries(FUR.map((f) => [f.key, f]));
 
 const Art = (() => {
   function cv(w, h) {
