@@ -176,7 +176,7 @@ const Ritual = (() => {
     g.fillStyle = '#c2f4ff'; Art.ell(g, 92, 62, 17, 17);
     g.fillStyle = '#8ab6c9'; Art.ell(g, 99, 55, 6, 6); Art.ell(g, 86, 70, 4, 4);
     for (let i = 0; i < 8; i++) {
-      const img = Props.get('tree', f > 0.5 ? 0.5 : 0);
+      const img = Props.get('tree', `${['oak', 'pine', 'gnarl', 'birch'][i % 4]}|${i % 4}|${(f > 0.5 ? 0.3 : 0.52).toFixed(2)}`);
       g.globalAlpha = 0.55;
       g.drawImage(img, i * 88 - 26, 128, img.width * 1.25, img.height * 1.25);
     }
@@ -247,7 +247,7 @@ const Ritual = (() => {
     }
     // silhouetted forest
     g.fillStyle = '#0b0810';
-    for (let i = 0; i < 7; i++) { const img = Props.get('tree', 0); g.globalAlpha = 0.85; g.drawImage(img, i * 100 - 26, 26, img.width * 1.3, img.height * 1.3); }
+    for (let i = 0; i < 7; i++) { const img = Props.get('tree', `${['gnarl', 'dead', 'pine'][i % 3]}|${i % 3}|0.62`); g.globalAlpha = 0.85; g.drawImage(img, i * 100 - 26, 26, img.width * 1.3, img.height * 1.3); }
     g.globalAlpha = 1;
     g.fillStyle = '#141019'; g.fillRect(0, 262, W, H - 262);
     // rune circle brightening through the rite

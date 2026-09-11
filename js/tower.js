@@ -470,7 +470,7 @@ const Tower = (() => {
     g.fillStyle = '#9fd8e6'; Art.ell(g, PX - 196, -132, 12, 12); Art.ell(g, PX - 222, -104, 8, 8);
     // silhouetted forest ring
     for (let i = 0; i < 10; i++) {
-      const img = Props.get('tree', 0);
+      const img = Props.get('tree', `${['oak', 'gnarl', 'pine'][i % 3]}|${i % 3}|0.34`);
       const tx = PX - 420 + i * 96, sc = 1.5 + (i % 3) * 0.3;
       g.globalAlpha = 0.9;
       g.drawImage(img, tx, GROUND - img.height * sc + 8, img.width * sc, img.height * sc);
