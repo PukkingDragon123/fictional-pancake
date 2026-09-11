@@ -38,10 +38,21 @@ img.ico.xl { width: 40px; height: 40px; }
 /* ---- Everything the player touches is a thing, not a widget: a leather
    pouch, a paper pinned to the fence, a tool belt, a pocket notebook. ---- */
 :root {
+  --ol: #14100c;                      /* the one black line around everything */
+  --wood: #c98b3f; --wood2: #a86f2c; --woodL: #f0cf86; --woodD: #6d4418;
   --paper: #f0e3c2; --paper2: #e3d2ab; --paperD: #c9b489; --line: #b9a882;
   --leather: #6b4526; --leather2: #85582f; --leatherD: #4a2e17; --stitch: #d8bb85;
   --inkpen: #3c2a18; --pen: #4a3a6a; --rust: #a9502c;
 }
+
+.bev, #money, .rbtn, .mbtn, #dock, #flyout, .tool, .chip, .act, .wbtn, .buy, .x, .panel, #tip, .toast, #checklist, #notebook, .nbtab, .card, .readout .line, .goals div, .gcard, #rite-tray {
+  border: 3px solid var(--ol) !important;
+  box-shadow: inset 2px 2px 0 rgba(255,236,190,0.55), inset -2px -2px 0 rgba(60,30,10,0.45), 3px 3px 0 rgba(0,0,0,0.55) !important;
+}
+@keyframes bump { 0% { transform: rotate(-1.5deg) scale(1); } 35% { transform: rotate(-1.5deg) scale(1.22, 0.86); } 65% { transform: rotate(-1.5deg) scale(0.92, 1.1); } 100% { transform: rotate(-1.5deg) scale(1); } }
+@keyframes boing { 0% { transform: translateY(-5px) scale(1); } 40% { transform: translateY(-9px) scale(1.14, 0.88); } 70% { transform: translateY(-4px) scale(0.94, 1.08); } 100% { transform: translateY(-5px) scale(1); } }
+@keyframes tick { 0% { transform: scale(0); } 60% { transform: scale(1.5); } 100% { transform: scale(1); } }
+@keyframes settle { 0% { transform: rotate(-0.8deg) scale(0.6); opacity: 0; } 60% { transform: rotate(-0.8deg) scale(1.08); opacity: 1; } 100% { transform: rotate(-0.8deg) scale(1); } }
 
 /* money: a leather coin tag on a thong */
 #money {
@@ -60,6 +71,8 @@ img.ico.xl { width: 40px; height: 40px; }
   clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
 }
 #money b { font-weight: normal; color: #ffe9a8; font-size: 12px; text-shadow: 0 2px 0 rgba(0,0,0,0.45); }
+#money.bump { animation: bump 0.32s ease-out; }
+#money img.ico { filter: drop-shadow(0 1px 0 #000); }
 
 /* the clean-up list: a paper pinned up, taped at the corner, torn at the foot */
 #checklist {
@@ -68,8 +81,6 @@ img.ico.xl { width: 40px; height: 40px; }
   background:
     repeating-linear-gradient(180deg, rgba(185,168,130,0.22) 0 1px, rgba(0,0,0,0) 1px 15px),
     linear-gradient(160deg, #f2e5c4 0%, #ddc99d 100%);
-  border: 1px solid var(--paperD);
-  box-shadow: 2px 4px 0 rgba(0,0,0,0.4), inset 0 0 20px rgba(180,150,100,0.25);
   transform: rotate(1.4deg);
 }
 #checklist .tape {
@@ -90,7 +101,8 @@ img.ico.xl { width: 40px; height: 40px; }
 .task .box i { position: absolute; left: 0; top: -4px; width: 11px; height: 11px;
   background: linear-gradient(45deg, transparent 44%, var(--rust) 44% 60%, transparent 60%),
               linear-gradient(-45deg, transparent 44%, var(--rust) 44% 60%, transparent 60%); }
-.task.done { opacity: 0.55; }
+.task.done { opacity: 0.6; }
+.task.done .box i { animation: tick 0.35s ease-out; transform-origin: center; }
 .task.done b { text-decoration: line-through; }
 .task b { font-weight: normal; min-width: 34px; text-align: right; }
 .task .bar { flex: 1; height: 4px; background: rgba(90,70,40,0.2); border: 1px solid rgba(90,70,40,0.35); }
@@ -128,6 +140,7 @@ img.ico.xl { width: 40px; height: 40px; }
 #notebook h5 { margin: 0; font-size: 8px; line-height: 1.5; letter-spacing: 0.3px; }
 #notebook p { margin: 2px 0 0; font-size: 7px; line-height: 1.85; color: #5c4a30; }
 #notebook .nbnow.flash { animation: nbflash 0.9s ease-out; }
+#notebook:not(.shut) { animation: settle 0.3s ease-out; }
 @keyframes nbflash { from { background: rgba(233,190,90,0.6); } to { background: transparent; } }
 #notebook.shut { width: auto; padding: 0; background: none; border: none; box-shadow: none; }
 #notebook.shut::after, #notebook.shut .rings { display: none; }
@@ -144,7 +157,7 @@ img.ico.xl { width: 40px; height: 40px; }
   box-shadow: inset 0 1px 0 rgba(255,222,170,0.25), 2px 3px 0 rgba(0,0,0,0.4);
 }
 .rbtn:hover { filter: brightness(1.12); }
-.rbtn:active { transform: translate(1px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.4); }
+.rbtn:active { transform: scale(0.92) translateY(2px); }
 .rbtn.on { background: linear-gradient(180deg, #d8a52f, #a97c1e); }
 .rbtn.big { padding: 10px 12px; }
 .rbtn.full { background: linear-gradient(180deg, #6f9a44, #4a6f2c); }
@@ -162,10 +175,8 @@ img.ico.xl { width: 40px; height: 40px; }
   position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 6;
   display: flex; gap: 7px; padding: 9px 14px 11px;
   background:
-    repeating-linear-gradient(180deg, rgba(0,0,0,0.06) 0 2px, rgba(0,0,0,0) 2px 5px),
-    linear-gradient(180deg, var(--leather2) 0%, var(--leather) 55%, var(--leatherD) 100%);
-  border: 2px solid var(--leatherD);
-  box-shadow: inset 0 2px 0 rgba(255,222,170,0.2), inset 0 -4px 0 rgba(0,0,0,0.3), 0 5px 0 rgba(0,0,0,0.45);
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.07) 0 3px, rgba(0,0,0,0) 3px 11px),
+    linear-gradient(180deg, var(--wood) 0%, var(--wood2) 100%);
 }
 #dock::before, #dock::after {
   content: ''; position: absolute; top: 6px; bottom: 6px; width: 0;
@@ -174,11 +185,10 @@ img.ico.xl { width: 40px; height: 40px; }
 #dock::before { left: 6px; } #dock::after { right: 6px; }
 .tool {
   position: relative; width: 44px; height: 46px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #6b4f30, #3f2c1a);
-  border: 2px solid #1a1109;
-  box-shadow: inset 0 1px 0 rgba(255,222,170,0.25);
+  background: linear-gradient(180deg, #8a5f2e, #5c3d18);
   transition: transform 0.08s;
 }
+.tool:active { transform: scale(0.9) translateY(2px); }
 .tool::before {                      /* a slate plate so the tool reads against the leather */
   content: ''; position: absolute; left: 4px; right: 4px; top: 4px; bottom: 9px;
   background: linear-gradient(180deg, #4a4356, #2b2634);
@@ -190,7 +200,7 @@ img.ico.xl { width: 40px; height: 40px; }
   border-top: 1px solid rgba(255,222,170,0.3); border-bottom: 1px solid rgba(0,0,0,0.55);
 }
 .tool:hover { transform: translateY(-4px); }
-.tool.on { background: linear-gradient(180deg, #d8a52f, #8a6114); box-shadow: 0 0 0 2px #f5cd5c; transform: translateY(-5px); }
+.tool.on { background: linear-gradient(180deg, #f0c24a, #b8811c); transform: translateY(-5px); animation: boing 0.4s ease-out; }
 .tool.on::before { background: linear-gradient(180deg, #6a5f7e, #3a3348); box-shadow: inset 0 1px 0 rgba(230,220,255,0.4); }
 .tool.locked { opacity: 0.35; cursor: not-allowed; }
 .tool img.ico { width: 28px; height: 28px; position: relative; z-index: 1; margin-bottom: 5px; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.55)) brightness(1.12); }
@@ -219,7 +229,8 @@ img.ico.xl { width: 40px; height: 40px; }
   background: linear-gradient(180deg, #3a2a1c, #241a10); border: 2px solid #1a1109;
 }
 .chip:hover { filter: brightness(1.3); }
-.chip.on { background: linear-gradient(180deg, #5d7a34, #3a4f1e); box-shadow: 0 0 0 2px #98c25a; }
+.chip.on { background: linear-gradient(180deg, #7fa84a, #4a6f28); animation: boing 0.35s ease-out; transform: translateY(-5px); }
+.chip:active { transform: scale(0.9); }
 .chip.out { opacity: 0.35; }
 .chip img.ico { width: 22px; height: 22px; filter: brightness(1.1); }
 .chip .n { position: absolute; right: -1px; bottom: -2px; font-size: 7px; padding: 0 2px; color: #f6ecd4;
@@ -256,7 +267,7 @@ img.ico.xl { width: 40px; height: 40px; }
   box-shadow: inset 0 1px 0 rgba(255,230,255,0.25), 2px 3px 0 rgba(0,0,0,0.4);
 }
 .act:hover:not(:disabled) { filter: brightness(1.15); }
-.act:active:not(:disabled) { border-bottom-width: 3px; transform: translateY(2px); }
+.act:active:not(:disabled) { transform: scale(0.92) translateY(2px); }
 .act:disabled { background: var(--st2); filter: grayscale(0.6); cursor: not-allowed; opacity: 0.65; }
 .act.big { padding: 12px 24px; }
 .act.small { padding: 6px 8px; }
@@ -329,7 +340,7 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
   background: linear-gradient(180deg, #f0cd6a, #cfa33a); border: 1px solid #7a5a14; box-shadow: 1px 2px 0 rgba(0,0,0,0.3); }
 .buy img { width: 13px; height: 13px; image-rendering: pixelated; }
 .buy:hover:not(:disabled) { filter: brightness(1.1); }
-.buy:active:not(:disabled) { border-bottom-width: 2px; transform: translateY(2px); }
+.buy:active:not(:disabled) { transform: scale(0.92) translateY(1px); }
 .buy:disabled { background: var(--bark3); color: var(--bark1); cursor: not-allowed; }
 
 /* basket */
@@ -690,6 +701,25 @@ const Art = (() => {
       if (first >= 0) g.fillRect(x, first, 1, depth - (x % 2 === 0 ? 0 : 1));
     }
   }
+  // Ordered dither over the lower half of a shape: reads as grain, not noise.
+  function texture(canvas, alpha = 0.12) {
+    const g = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const img = g.getImageData(0, 0, w, h), a = img.data;
+    const tops = new Int16Array(w).fill(-1);
+    for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) if (a[(y * w + x) * 4 + 3] > 8) { tops[x] = y; break; }
+    for (let x = 0; x < w; x++) {
+      if (tops[x] < 0) continue;
+      for (let y = tops[x] + 3; y < h; y++) {
+        const i = (y * w + x) * 4;
+        if (a[i + 3] <= 8) continue;
+        if (((x + y) & 1) === 0 && ((x >> 1) + y) % 3 !== 0) continue;   // bayer-ish mask
+        const k = 1 - alpha * Math.min(1, (y - tops[x]) / Math.max(6, h - tops[x]) + 0.4);
+        a[i] = a[i] * k; a[i + 1] = a[i + 1] * k; a[i + 2] = a[i + 2] * k;
+      }
+    }
+    g.putImageData(img, 0, 0);
+  }
   // Darken the bottom edge of a silhouette (contact shadow inside the shape)
   function underShade(canvas, col = 'rgba(0,0,0,0.18)', depth = 2) {
     const g = canvas.getContext('2d');
@@ -719,7 +749,7 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, underShade, flip, tinted, rng };
+  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng };
 })();
 </script>
 
@@ -1554,8 +1584,10 @@ const Props = (() => {
     if (c) return c;
     const o = Art.cv(w, h);
     draw(o.g, w, h);
-    Art.topLight(o.c, 'rgba(255,242,208,0.22)', 2);
-    Art.underShade(o.c, 'rgba(18,12,24,0.26)', 2);
+    Art.texture(o.c, 0.14);
+    Art.topLight(o.c, 'rgba(255,242,208,0.26)', 2);
+    Art.underShade(o.c, 'rgba(18,12,24,0.3)', 2);
+    Art.outline(o.c, '#0a0810', 1);                 // everything wears the same black line
     cache.set(key, o.c);
     return o.c;
   }
@@ -1715,7 +1747,6 @@ const Props = (() => {
         Art.ell(g, cx + 15, base - 2, 6, 3, c[0]);
         if (+v % 2) { Art.rect(g, cx + 20, base - 6, 1.6, 4, '#e8dcc4'); Art.ell(g, cx + 20.8, base - 6, 3, 2, '#b8412c'); }
       }
-      Art.outline(g.canvas, sh > 0.5 ? '#080a0e' : PAL.ink, 0.75);
     });
   };
 
@@ -1773,7 +1804,6 @@ const Props = (() => {
       Art.ell(g, cx + 1, 9, 4, 3, L);
       Art.ell(g, cx + 1, 7, 2.4, 2, Y);
     }
-    Art.outline(g.canvas, PAL.ink, 0.7);
   });
 
   P.fallen = (v = 0) => cached('fallen' + v, 120, 46, (g) => {
@@ -1804,7 +1834,6 @@ const Props = (() => {
       Art.rect(g, mx - 0.6, my - 0.6, 1.4, 1, '#efdcb4');
     }
     Art.ell(g, 96, y - 4, 8, 4, PAL.moss1);
-    Art.outline(g.canvas, PAL.ink, 0.65);
   });
   P.stump = (v = 0) => cached('stump' + v, 34, 22, (g) => {
     Art.ell(g, 17, 19, 13, 5, PAL.bark0);
@@ -1814,7 +1843,6 @@ const Props = (() => {
     Art.ell(g, 17, 8, 8, 3, '#8a6a48');
     Art.ell(g, 17, 8, 4, 1.6, PAL.bark2);
     if (+v % 2) { Art.ell(g, 9, 6, 5, 2.4, PAL.moss2); Art.ell(g, 24, 7, 4, 2, PAL.moss3); }
-    Art.outline(g.canvas, PAL.ink, 0.65);
   });
 
   // ---- ground cover -------------------------------------------------------
@@ -1835,7 +1863,6 @@ const Props = (() => {
       Art.ell(g, 8 + Math.cos(a) * 3.2, 6 + Math.sin(a) * 3, 1.3, 1.2, k.mid);
     }
     Art.ell(g, 8, 6, 1.9, 1.8, k.core);
-    Art.outline(g.canvas, PAL.ink, 0.5);
   });
   P.mushroom = (v = 0) => cached('mush' + v, 18, 14, (g) => {
     const caps = [['#b8412c', '#e0705a'], ['#7d5f42', '#9b7a52'], ['#563391', '#8354c9']];
@@ -1847,7 +1874,6 @@ const Props = (() => {
       Art.ell(g, x - 0.8, 13 - h - 0.6, 2.6, 1.6, c[1]);
       Art.rect(g, x + 1, 13 - h - 1, 1, 1, PAL.cream);
     }
-    Art.outline(g.canvas, PAL.ink, 0.5);
   });
   P.rock = (v = 0) => cached('rock' + v, 26, 18, (g) => {
     const rnd = Art.rng(+v * 331 + 3);
@@ -1856,7 +1882,6 @@ const Props = (() => {
     Art.ell(g, 9, 10.5, 4, 2.2, PAL.stone4);
     for (let i = 0; i < 5; i++) Art.rect(g, 5 + rnd() * 14, 11 + rnd() * 5, 2, 1, PAL.stone1);
     Art.ell(g, 17, 10, 4, 2, PAL.moss2);
-    Art.outline(g.canvas, PAL.ink, 0.6);
   });
 
   // ---- ruins you can clear ------------------------------------------------
@@ -1886,7 +1911,6 @@ const Props = (() => {
         if (rnd() < 0.3) Art.ell(g, x + 5, y - 10, 4, 2, PAL.moss2);
       }
     }
-    Art.outline(g.canvas, PAL.ink, 0.65);
   });
 
   // ---- the altar: stone, carved with wombats bearing a burden --------------
@@ -1939,7 +1963,6 @@ const Props = (() => {
       Art.ell(g, px, fy - 34, 4.4, 2.8, PAL.gold1);
       Art.ell(g, px, fy - 36, 2.6, 2.4, PAL.gold3);
     }
-    Art.outline(g.canvas, PAL.ink, 0.75);
   });
 
   // ---- the Tree of Life seed ----------------------------------------------
@@ -1966,7 +1989,6 @@ const Props = (() => {
       Art.ell(g, cx, base - h - 2, 5 + (+stage), 4 + (+stage) * 0.6, PAL.moss2);
       Art.ell(g, cx - 1, base - h - 3, 3, 2.2, PAL.moss4);
     }
-    Art.outline(g.canvas, PAL.ink, 0.6);
   });
 
   // ---- buildings ----------------------------------------------------------
@@ -1984,14 +2006,12 @@ const Props = (() => {
     Art.ell(g, 72, 40, 8, 8, PAL.ink);
     Art.ell(g, 72, 40, 4.4, 4.4, PAL.stone3);
     Art.rect(g, 88, 24, 5, 8, PAL.gold3);
-    Art.outline(g.canvas, PAL.ink, 0.7);
   });
   P.crate = () => cached('crate', 22, 20, (g) => {
     Art.rect(g, 1, 3, 20, 16, PAL.bark2);
     Art.rect(g, 1, 3, 20, 2.4, PAL.bark3);
     Art.rect(g, 1, 16.6, 20, 2.4, PAL.bark1);
     Art.line(g, 2, 18, 20, 4, PAL.bark3, 1); Art.line(g, 20, 18, 2, 4, PAL.bark3, 1);
-    Art.outline(g.canvas, PAL.ink, 0.6);
   });
 
   // ---- crops --------------------------------------------------------------
@@ -2084,7 +2104,6 @@ const Props = (() => {
     Art.ell(g, 17, 11, 2.4, 4, PAL.gold4);
     Art.rect(g, 4, 26, 4, 4, PAL.stone2);
     Art.rect(g, 26, 26, 4, 4, PAL.stone2);
-    Art.outline(g.canvas, PAL.ink, 0.65);
   });
 
   // A stone pedestal, drawn to whatever width the stack platform needs.
@@ -2756,7 +2775,7 @@ const GATES = {
   moss: (g) => g.step >= 2,
   hoe: (g) => g.step >= 3,
   seed: (g) => g.step >= 3,
-  water: (g) => g.step >= 3,
+  water: (g) => g.step >= 2,        // grass needs a drink before the wombat comes
   food: (g) => g.step >= 3,
   pair: (g) => !!g.decor.nest,
 };
@@ -2766,7 +2785,7 @@ const GATE_WHY = {
   moss: 'the wrecks go first',
   hoe: 'sow the grass first',
   seed: 'sow the grass first',
-  water: 'sow the grass first',
+  water: 'the wrecks go first',
   food: 'sow the grass first',
   pair: 'needs a nest',
 };
@@ -2776,6 +2795,37 @@ const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
 const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
+
+// ---- The clearing: the small patch you actually have to tidy -------------
+const ZONE = { x: 512, y: 252, rx: 178, ry: 76 };
+const inZone = (x, y) => ((x - ZONE.x) / ZONE.rx) ** 2 + ((y - ZONE.y) / ZONE.ry) ** 2 <= 1;
+const ZONE_GRASS = 0.55;                 // how green the clearing has to be
+
+// Weeds take hits. Thistle, bramble, tussock, nettle.
+const WEED_HP = [3, 4, 2, 2];
+const WEED_COIN = 1;                     // W$ that falls out of a cut weed
+
+// Tools come in ranks; you start with junk and buy better at the mart.
+const TIERS = {
+  sickle: [
+    { name: 'Rusty Sickle', dmg: 1, radius: 20, cost: 0 },
+    { name: 'Iron Sickle', dmg: 2, radius: 26, cost: 90 },
+    { name: 'Moon Sickle', dmg: 4, radius: 34, cost: 280 },
+  ],
+  hoe: [
+    { name: 'Stick Hoe', radius: 13, cost: 0 },
+    { name: 'Iron Hoe', radius: 19, cost: 110 },
+    { name: 'Broad Hoe', radius: 26, cost: 320 },
+  ],
+  water: [
+    { name: 'Tin Can', radius: 18, cost: 0 },
+    { name: 'Copper Can', radius: 27, cost: 120 },
+    { name: 'Rain Can', radius: 36, cost: 360 },
+  ],
+};
+const tierIndex = (g, key) => Math.min(TIERS[key].length - 1, (g.tiers && g.tiers[key]) || 0);
+const tierOf = (g, key) => TIERS[key][tierIndex(g, key)];
+const nextTier = (g, key) => TIERS[key][tierIndex(g, key) + 1] || null;
 
 // ---- The map. Fog lifts as gods answer. ----------------------------------
 const SITES = [
@@ -3235,8 +3285,8 @@ const World = (() => {
     const r = Art.rng(51817);
     const s = G.world || {};
     if (!Array.isArray(s.weeds)) {
-      for (let i = 0; i < 190; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 12 + r() * (H - GROUND - 58), v: Math.floor(r() * 4), s: 1 + r() * 0.9 });
-    } else for (const w of s.weeds) weeds.push({ x: w.x, y: w.y, v: w.v || 0, s: w.s || 1 });
+      for (let i = 0; i < 190; i++) weeds.push(mkWeed(14 + r() * (W - 28), GROUND + 12 + r() * (H - GROUND - 58), Math.floor(r() * 4), 1 + r() * 0.9));
+    } else for (const w of s.weeds) weeds.push(mkWeed(w.x, w.y, w.v || 0, w.s || 1, w.hp));
     if (Array.isArray(s.strokes)) for (const k of s.strokes) {
       if (k[0] === 'g') { paint(grass, 'grass', k[1], k[2], k[3]); erase(soil, k[1], k[2], k[3]); }
       else { paint(soil, 'soil', k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
@@ -3246,6 +3296,10 @@ const World = (() => {
     if (Array.isArray(s.crops)) for (const c of s.crops) crops.push({ x: c.x, y: c.y, k: c.k, t: c.t, wet: c.wet || 0, thirst: c.thirst || 0 });
     if (Array.isArray(s.sprouts)) for (const p of s.sprouts) sprouts.push({ x: p.x, y: p.y, t: p.t, wet: p.wet || 0, r: p.r || 12 });
     measure();
+  }
+  function mkWeed(x, y, v, s, hp) {
+    const max = Math.min(4, Math.max(1, Math.round(WEED_HP[v] * (s > 1.5 ? 1.25 : 1))));
+    return { x, y, v, s, hp: hp == null ? max : Math.min(max, hp), max, shake: 0, cd: 0, hitT: 9 };
   }
   function mkBlade(x, y, v, h) { return { x, y, v: v ?? Math.floor(Math.random() * 3), h: h ?? 4 + Math.floor(Math.random() * 5), bend: 0, vel: 0 }; }
   function record(kind, x, y, r) {
@@ -3299,18 +3353,32 @@ const World = (() => {
     if (G.blessings.chonkades && Math.random() < 0.02 && seams.length < 12) { seams.push({ x, y, t: 0 }); FX.sparkle(x, y, 8, PAL.gold3); }
     return true;
   }
-  function clearWeeds(x, y, r) {
-    let n = 0;
+  // A sweep of the sickle hits everything in reach once; the weed shakes,
+  // sheds leaves, and comes out on the swing that empties it. Returns the
+  // spots where weeds died so the grove can drop coins there.
+  function hitWeeds(x, y, r, dmg) {
+    const dead = [];
+    let hit = 0;
     for (let i = weeds.length - 1; i >= 0; i--) {
       const w = weeds[i];
-      if (Math.hypot(w.x - x, (w.y - y) * 1.3) < r) {
-        weeds.splice(i, 1); n++;
-        FX.burst(w.x, w.y, 5, { color: [PAL.rot1, PAL.rot2, PAL.dead2], speed: 55, gravity: 120, life: 0.45, size: 2 });
+      if (w.cd > 0) continue;
+      if (Math.hypot(w.x - x, (w.y - y) * 1.3) > r) continue;
+      w.hp -= dmg; w.cd = 0.32; w.shake = 1; w.hitT = 0; hit++;
+      FX.burst(w.x, w.y - 10 * w.s, 4, { color: [PAL.rot1, PAL.rot2, PAL.dead2], speed: 60, gravity: 160, life: 0.45, size: 2 });
+      if (w.hp <= 0) {
+        weeds.splice(i, 1);
+        dead.push({ x: w.x, y: w.y, big: w.s > 1.5 });
+        FX.burst(w.x, w.y - 8, 10, { color: [PAL.rot1, PAL.rot2, PAL.dead2, '#a487d0'], speed: 90, gravity: 200, life: 0.6, size: 2 });
+        FX.dust(w.x, w.y, 4, PAL.soil3);
       }
     }
-    if (n) { G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) })); Audio.play('snip'); }
-    return n;
+    if (hit) {
+      G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2), hp: w.hp }));
+      Audio.play(dead.length ? 'snip' : 'brush');
+    }
+    return dead;
   }
+  const clearWeeds = (x, y, r) => hitWeeds(x, y, r, 99).length;
   function plant(x, y, key) {
     if (!hasSoil(x, y)) return 'nosoil';
     const def = CROP_BY_KEY[key];
@@ -3389,6 +3457,11 @@ const World = (() => {
     if (gustT <= 0) { gustT = U.rand(4, 11); gustWant = U.rand(0.25, 1.5); }
     gustA = U.lerp(gustA, gustWant, dt * 0.7);
     const w = wind * (0.5 + 0.5 * Math.sin(G.time * 0.7));
+    for (const wd of weeds) {
+      if (wd.cd > 0) wd.cd -= dt;
+      if (wd.shake > 0) wd.shake = Math.max(0, wd.shake - dt * 3.2);
+      wd.hitT += dt;
+    }
     for (const b of blades) {
       b.vel += (-b.bend * 46 - b.vel * 7 + w * 0.5 + gust(b.x) * 7 + Math.sin(G.time * 2.2 + b.x * 0.09) * 3) * dt;
       b.bend += b.vel * dt;
@@ -3437,9 +3510,25 @@ const World = (() => {
       for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++;
       restored = n * 16;
       G.world.restored = restored;
+      measureZone();
     } catch (e) { }
   }
   const fraction = () => U.clamp(restored / RESTORE_TARGET, 0, 1);
+  // How green the clearing is, measured off the same down-sample.
+  let zoneFrac = 0;
+  function measureZone() {
+    try {
+      const d = sample.getContext('2d').getImageData(0, 0, 256, 90).data;
+      let n = 0, tot = 0;
+      for (let y = 0; y < 90; y++) for (let x = 0; x < 256; x++) {
+        if (!inZone(x * 4 + 2, y * 4 + 2)) continue;
+        tot++;
+        if (d[(y * 256 + x) * 4 + 3] > 40) n++;
+      }
+      zoneFrac = tot ? n / tot : 0;
+    } catch (e) { }
+  }
+  const zoneFraction = () => zoneFrac;
 
   // ---- drawing ------------------------------------------------------------
   // A painted dirt bed, built once: banded tone, dithered grit, stones and
@@ -3552,14 +3641,21 @@ const World = (() => {
   function drawWeed(g, w) {
     const img = Props.get('weed', w.v);
     const s = w.s;
-    const sway = gust(w.x) * 2.4 + Math.sin(G.time * 1.1 + w.x * 0.08) * 1.2;
-    const dw = img.width * s, dh = img.height * s;
+    const wob = w.shake > 0 ? Math.sin(w.shake * 26) * 5 * w.shake : 0;
+    const sq = w.shake > 0 ? 1 - w.shake * 0.18 : 1;      // squash on the hit
+    const sway = gust(w.x) * 2.4 + Math.sin(G.time * 1.1 + w.x * 0.08) * 1.2 + wob;
+    const dw = img.width * s * (2 - sq), dh = img.height * s * sq;
     Art.ell(g, w.x, w.y + 1, dw * 0.3, 3, 'rgba(16,12,20,0.3)');
     g.save();
     g.translate(Math.round(w.x), Math.round(w.y + 3));
     g.transform(1, 0, -sway / dh, 1, 0, 0);          // lean the whole plant with the wind
     g.drawImage(img, Math.round(-dw / 2), Math.round(-dh), Math.round(dw), Math.round(dh));
     g.restore();
+    if (w.hitT < 1.6 && w.max > 1) {                  // health pips, only while it is being worked
+      const n = w.max, px = Math.round(w.x - n * 3), py = Math.round(w.y - dh - 6);
+      g.fillStyle = '#0a0810'; g.fillRect(px - 1, py - 1, n * 6 + 1, 5);
+      for (let i = 0; i < n; i++) { g.fillStyle = i < w.hp ? '#8fd15a' : '#3a2a2a'; g.fillRect(px + i * 6, py, 5, 3); }
+    }
   }
   function drawWeeds(g) { for (const w of weeds) drawWeed(g, w); }
   function drawCrops(g) {
@@ -3586,8 +3682,8 @@ const World = (() => {
 
   return {
     init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, drawCursor,
-    sowGrass, till, clearWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
-    fraction, measure, ripe, growTime,
+    sowGrass, till, clearWeeds, hitWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
+    fraction, zoneFraction, measure, ripe, growTime,
     get weeds() { return weeds; }, get crops() { return crops; },
     get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },
     save() {
@@ -3595,7 +3691,7 @@ const World = (() => {
       G.world.flowers = flowers.map((f) => ({ x: f.x, y: f.y, v: f.v }));
       G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1) }));
       G.world.sprouts = sprouts.map((p) => ({ x: p.x, y: p.y, t: +p.t.toFixed(1), wet: 0, r: p.r }));
-      G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) }));
+      G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2), hp: w.hp }));
       G.world.restored = restored;
     },
     SKY, GROUND, W, H,
@@ -3615,8 +3711,8 @@ const Grove = (() => {
   const SEED = { x: 512, y: 262 };
   const POST = { x: 846, y: 256 };
   const TRUCK = { x: 1140, y: 300, parked: false, t: 0 };
-  const PARK = 880;                      // where the truck stops when called
-  const drops = [], objects = [], ants = [], birds = [], owls = [];
+  const PARK = 750;                      // where the truck stops when called: the east edge of the clearing
+  const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0;
   let arrival = null, dragging = null;
 
@@ -3688,7 +3784,8 @@ const Grove = (() => {
   // ---- setup --------------------------------------------------------------
   function init(g) {
     G = g;
-    if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.length);
+    if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.filter((w) => inZone(w.x, w.y)).length);
+    if (!G.tiers) G.tiers = { sickle: 0, hoe: 0, water: 0 };
     objects.length = 0;
     const saved = G.objects;
     if (Array.isArray(saved) && saved.length) {
@@ -3696,10 +3793,10 @@ const Grove = (() => {
     } else {
       const r = Art.rng(8675309);
       const spots = [
-        ['fallen', 168, 300], ['fallen', 612, 256], ['fallen', 360, 306],
-        ['ruin', 252, 238], ['ruin', 700, 292], ['ruin', 900, 246],
-        ['stump', 96, 272], ['stump', 448, 234], ['stump', 790, 310], ['stump', 116, 312],
-        ['stump', 960, 300], ['fallen', 820, 214], ['ruin', 560, 296],
+        ['fallen', 604, 258], ['ruin', 418, 268], ['stump', 452, 230], ['ruin', 560, 288],
+        ['fallen', 168, 300], ['fallen', 360, 322], ['ruin', 252, 238], ['ruin', 720, 300],
+        ['ruin', 900, 246], ['stump', 96, 272], ['stump', 790, 316], ['stump', 116, 312],
+        ['stump', 960, 300], ['fallen', 820, 214],
       ];
       spots.forEach(([kind, x, y], i) => objects.push({ id: U.uid(), kind, x, y, v: i % 3, gone: 0 }));
     }
@@ -3710,13 +3807,16 @@ const Grove = (() => {
   function saveObjects() { G.objects = objects.map((o) => ({ id: o.id, kind: o.kind, x: o.x, y: o.y, v: o.v, gone: o.gone })); }
 
   // ---- checklist ----------------------------------------------------------
+  const zoneWeeds = () => World.weeds.filter((w) => inZone(w.x, w.y)).length;
+  const zoneJunk = () => objects.filter((o) => !o.gone && inZone(o.x, o.y)).length;
+  const zoneObjects = () => objects.filter((o) => inZone(o.x, o.y)).length;
   function tasks() {
-    const junk = objects.filter((o) => !o.gone).length;
-    const nw = G.startWeeds || 190;
+    const nw = G.startWeeds || 1, nj = zoneObjects();
+    const zf = World.zoneFraction();
     return [
-      { key: 'weeds', icon: 't_sickle', at: nw - World.weeds.length, need: nw, done: World.weeds.length === 0 },
-      { key: 'junk', icon: 't_destroy', at: objects.length - junk, need: objects.length, done: junk === 0 },
-      { key: 'grass', icon: 't_moss', at: Math.round(World.fraction() * 100), need: 18, done: World.fraction() >= 0.18 },
+      { key: 'weeds', icon: 't_sickle', at: nw - zoneWeeds(), need: nw, done: zoneWeeds() === 0 },
+      { key: 'junk', icon: 't_destroy', at: nj - zoneJunk(), need: nj, done: zoneJunk() === 0 },
+      { key: 'grass', icon: 't_moss', at: Math.round(zf * 100), need: Math.round(ZONE_GRASS * 100), done: zf >= ZONE_GRASS },
     ];
   }
   const groveClean = () => tasks().every((t) => t.done);
@@ -3802,6 +3902,25 @@ const Grove = (() => {
       const lf = leaves[i];
       lf.t += dt; lf.x += lf.vx * dt; lf.y += Math.sin(lf.t * 3 + lf.ph) * 22 * dt;
       if (lf.x > FX.cam.x + 420 || lf.t > 18) leaves.splice(i, 1);
+    }
+    for (let i = slashes.length - 1; i >= 0; i--) { slashes[i].t += dt; if (slashes[i].t > 0.18) slashes.splice(i, 1); }
+    for (let i = coins.length - 1; i >= 0; i--) {
+      const c = coins[i];
+      c.t += dt;
+      if (c.t < 0.7) {                              // pop out and bounce once
+        c.vy += 420 * dt; c.x += c.vx * dt; c.z += c.vy * dt;
+        if (c.z > 0) { c.z = 0; c.vy = -c.vy * 0.4; c.vx *= 0.6; }
+      } else {                                      // then fly to the purse in the corner
+        const tgt = toWorld(30, 22);
+        const k = 1 - Math.pow(0.002, dt);
+        c.x = U.lerp(c.x, tgt.x, k); c.y = U.lerp(c.y, tgt.y, k); c.z = U.lerp(c.z, 0, k);
+        if (Math.hypot(c.x - tgt.x, c.y - tgt.y) < 10) {
+          coins.splice(i, 1);
+          G.wd += c.n; G.stats.earned += c.n;
+          Audio.play('coin');
+          UI.bumpMoney();
+        }
+      }
     }
     if (arrival) { updateArrival(dt); return; }
     const cap = hapCap(), decay = 0.42;
@@ -4035,7 +4154,7 @@ const Grove = (() => {
     return best;
   }
   function spotAt(x, y) {
-    if (Math.abs(x - SEED.x) < 26 && y > SEED.y - 48 && y < SEED.y + 8) return 'seed';
+    if (Math.abs(x - SEED.x) < 16 && y > SEED.y - 40 && y < SEED.y + 6) return 'seed';
     if (Math.abs(x - POST.x) < 26 && y > POST.y - 52 && y < POST.y + 8) return 'post';
     return null;
   }
@@ -4046,8 +4165,9 @@ const Grove = (() => {
     if (arrival) return true;
     const tool = G.tool;
     if (y < GROUND) return false;
-    // the two landmarks answer to any tool; they are doors, not ground
-    if (first) {
+    // the two landmarks answer to any tool; they are doors, not ground -
+    // unless a weed is standing in front of them, in which case you meant the weed
+    if (first && !World.weeds.some((w) => Math.abs(w.x - x) < 16 && Math.abs(w.y - y) < 14)) {
       const spot = spotAt(x, y);
       if (spot === 'seed') { Main.setMode('tree'); return true; }
       if (spot === 'post') { Main.setMode('map'); return true; }
@@ -4086,12 +4206,19 @@ const Grove = (() => {
       return true;
     }
     const t = TOOL_BY_KEY[tool];
-    const r = World.brushRadius(t ? t.radius : 12);
+    const tier = TIERS[tool] ? tierOf(G, tool) : null;
+    const r = World.brushRadius(tier ? tier.radius : t ? t.radius : 12);
     if (!t || !t.radius) return true;
     switch (tool) {
       case 'moss': if (World.sowGrass(x, y, r) && first) Audio.play('brush'); World.disturb(x, y, r, 0.5); break;
       case 'hoe': World.till(x, y, r); if (first) Audio.play('dig'); break;
-      case 'sickle': World.clearWeeds(x, y, r); World.disturb(x, y, r, 0.8); break;
+      case 'sickle': {
+        if (first || Math.random() < 0.25) slashes.push({ x, y, t: 0, r });
+        const dead = World.hitWeeds(x, y, r, tier.dmg);
+        for (const d of dead) coins.push({ x: d.x, y: d.y - 10, vx: U.rand(-30, 30), vy: U.rand(-150, -90), z: 0, t: 0, n: d.big ? WEED_COIN * 2 : WEED_COIN });
+        World.disturb(x, y, r, 0.8);
+        break;
+      }
       case 'water': World.water(x, y, r); if (first) Audio.play('splash'); break;
       case 'seed': {
         const res = World.plant(x, y, G.selSeed);
@@ -4240,6 +4367,7 @@ const Grove = (() => {
     World.drawBlades(g);
     World.drawFlowers(g);
 
+    drawZone(g, f);
     // Everything on the ground sorts by its feet, weeds included, so a ruin
     // behind a stand of thistles is actually behind them.
     const items = [];
@@ -4266,6 +4394,25 @@ const Grove = (() => {
       const img = Sprites.crow(Math.floor(G.time * 8 + b.ph), !!b.perch);
       const fl = b.dir < 0 ? Art.flip(img) : img;
       g.drawImage(fl, Math.round(b.x - 12), Math.round(b.y - 9));
+    }
+    // coins and sickle swings
+    for (const c of coins) {
+      const y = c.y + c.z;
+      Art.ell(g, c.x, c.y + 1, 4, 1.6, 'rgba(0,0,0,0.3)');
+      const w = 6 * Math.abs(Math.cos(c.t * 9)) + 1.5;
+      Art.ell(g, c.x, y - 6, w, 5, '#0a0810');
+      Art.ell(g, c.x, y - 6, Math.max(0.5, w - 1.5), 3.6, PAL.gold2);
+      Art.ell(g, c.x - 1, y - 7, Math.max(0.5, w * 0.4), 1.4, PAL.gold4);
+    }
+    for (const sl of slashes) {
+      const k = sl.t / 0.18, a = 1 - k;
+      g.save();
+      g.translate(sl.x, sl.y); g.scale(1, 0.55); g.rotate(-0.6 + k * 1.8);
+      g.strokeStyle = `rgba(253,243,220,${(a * 0.9).toFixed(2)})`; g.lineWidth = 5;
+      g.beginPath(); g.arc(0, 0, sl.r * (0.6 + k * 0.5), -0.9, 0.9); g.stroke();
+      g.strokeStyle = `rgba(10,8,16,${(a * 0.9).toFixed(2)})`; g.lineWidth = 2;
+      g.beginPath(); g.arc(0, 0, sl.r * (0.6 + k * 0.5) + 3, -0.9, 0.9); g.stroke();
+      g.restore();
     }
     // leaves torn off and carried across the plot
     for (const lf of leaves) {
@@ -4301,6 +4448,25 @@ const Grove = (() => {
     vg.addColorStop(1, `rgba(8,7,14,${(0.5 - f * 0.2).toFixed(2)})`);
     g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
     edgeArrows(g);
+  }
+
+  // Stakes and rope around the clearing: this is the patch you have to tidy.
+  function drawZone(g, f) {
+    if (G.arrived) return;
+    const t = G.time;
+    g.setLineDash([5, 4]); g.lineDashOffset = -t * 6;
+    g.strokeStyle = 'rgba(10,8,16,0.85)'; g.lineWidth = 3;
+    g.beginPath(); g.ellipse(ZONE.x, ZONE.y, ZONE.rx, ZONE.ry, 0, 0, TAU); g.stroke();
+    g.strokeStyle = '#d8b26a'; g.lineWidth = 1;
+    g.beginPath(); g.ellipse(ZONE.x, ZONE.y, ZONE.rx, ZONE.ry, 0, 0, TAU); g.stroke();
+    g.setLineDash([]);
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * TAU, x = Math.round(ZONE.x + Math.cos(a) * ZONE.rx), y = Math.round(ZONE.y + Math.sin(a) * ZONE.ry);
+      g.fillStyle = '#0a0810'; g.fillRect(x - 3, y - 15, 6, 17);
+      g.fillStyle = PAL.bark2; g.fillRect(x - 2, y - 14, 4, 15);
+      g.fillStyle = PAL.bark3; g.fillRect(x - 2, y - 14, 1, 15);
+      g.fillStyle = '#c94a3a'; g.fillRect(x - 2, y - 14, 4, 3);
+    }
   }
 
   // A hint at each edge while there is more grove that way.
@@ -5416,6 +5582,7 @@ const Shop = (() => {
     else if (p.sprite === 'crate') crate(g, tint, p.icon);
     else if (p.sprite === 'scroll') scroll_(g, tint, p.icon);
     else if (p.sprite === 'stock') stock(g);
+    else if (p.sprite === 'tool') toolCard(g, p.icon);
     else jar(g, tint, p.icon);
     Art.outline(c, PAL.ink, 1);
     return c;
@@ -5468,6 +5635,16 @@ const Shop = (() => {
     Art.rect(g, 12, 17, 3, 22, 'rgba(255,255,255,0.45)');
     if (icon) Icons.blit(g, icon, 14, 27, 0.8);
   }
+  function toolCard(g, icon) {                    // a tool hung on a shop card
+    Art.rect(g, 5, 8, 30, 40, '#e0c98f');
+    Art.rect(g, 5, 8, 30, 4, '#f0dfb0');
+    Art.rect(g, 5, 44, 30, 4, '#b89a5e');
+    Art.rect(g, 17, 4, 6, 6, '#3a2a1a'); Art.rect(g, 19, 5, 2, 3, '#e0c98f');
+    Art.rect(g, 8, 14, 24, 24, '#3a3346');
+    Art.rect(g, 8, 14, 24, 2, '#5d5478');
+    Icons.blit(g, icon || 't_sickle', 10, 16, 1.25);
+    for (let i = 0; i < 3; i++) Art.rect(g, 9 + i * 8, 41, 6, 1.6, '#8a7455');
+  }
   function stock(g) {
     Art.ell(g, 20, 40, 17, 8, PAL.bark2);                       // basket
     Art.rect(g, 4, 30, 32, 12, PAL.bark2);
@@ -5490,6 +5667,14 @@ const Shop = (() => {
         locked: !!(c.god && !G.blessings[c.god]),
       });
     }
+    for (const key of Object.keys(TIERS)) {
+      const nxt = nextTier(G, key), cur = tierOf(G, key);
+      const icon = { sickle: 't_sickle', hoe: 't_hoe', water: 't_water' }[key];
+      out.push({
+        id: 'tier:' + key, kind: 'tier', key, name: nxt ? nxt.name : cur.name, price: nxt ? nxt.cost : 0,
+        sprite: 'tool', tint: '#8a6a3a', icon, note: nxt ? `rank ${tierIndex(G, key) + 2}` : 'best there is', sold: !nxt,
+      });
+    }
     out.push({ id: 'wombat', kind: 'wombat', key: 'wombat', name: 'Wombat', price: WOMBAT_PRICE(G.wombats.length), sprite: 'stock', icon: 'wombat', note: `${G.wombats.length}/${Grove.capacity()}` });
     for (const u of UPGRADES) {
       const l = G.up[u.key] || 0;
@@ -5504,6 +5689,7 @@ const Shop = (() => {
   // Each section is a gondola of three shelves under a coloured header sign,
   // laid out left to right; the player swipes sideways to walk the aisle.
   const SECTIONS = [
+    { key: 'tier',   name: 'TOOLS', color: '#8a6a3a', sub: 'sharper' },
     { key: 'seed',   name: 'SEEDS', color: '#3f8f4a', sub: 'sow it' },
     { key: 'up',     name: 'BUILD', color: '#2f6f9f', sub: 'dig it' },
     { key: 'dec',    name: 'YARD',  color: '#c97a25', sub: 'set it' },
@@ -5511,7 +5697,7 @@ const Shop = (() => {
   ];
   const SHELF_Y = [176, 234, 292];        // board tops, three to a gondola
   const COLW = 96;                        // one product slot
-  const AISLE0 = 340;                     // the entrance takes the first stretch
+  const AISLE0 = 470;                     // the doors and the cooler take the first stretch
   const GAP = 64;                         // between gondolas
   let slots = [], bays = [], counterX = 1200, worldW = 1500;
 
@@ -5541,6 +5727,7 @@ const Shop = (() => {
   function countOf(id) { return basket.filter((b) => b === id).length; }
   function priceOf(p, extra = 0) {
     if (p.kind === 'wombat') return WOMBAT_PRICE(G.wombats.length + extra);
+    if (p.kind === 'tier') { const t = TIERS[p.key][tierIndex(G, p.key) + 1 + extra]; return t ? t.cost : 0; }
     if (p.kind === 'up') { const u = UPGRADES.find((x) => x.key === p.key); return Math.round(u.base * Math.pow(u.mult, (G.up[p.key] || 0) + extra)); }
     return p.price;
   }
@@ -5570,7 +5757,7 @@ const Shop = (() => {
     if (p.locked) { Audio.play('error'); UI.toast('locked', 'bad'); return; }
     if (p.sold) { Audio.play('error'); return; }
     if (p.kind === 'wombat' && G.wombats.length + countOf(p.id) >= Grove.capacity()) { Audio.play('error'); UI.toast('no room', 'bad'); return; }
-    if (p.kind === 'dec' && countOf(p.id) >= 1) { Audio.play('error'); return; }
+    if ((p.kind === 'dec' || p.kind === 'tier') && countOf(p.id) >= 1) { Audio.play('error'); return; }
     basket.push(p.id);
     Audio.play('pop');
     const s = slots.find((sl) => sl.p.id === p.id);
@@ -5593,6 +5780,7 @@ const Shop = (() => {
       const p = cat.find((x) => x.id === id);
       if (!p) continue;
       if (p.kind === 'seed') G.seeds[p.key] = (G.seeds[p.key] || 0) + 6;
+      else if (p.kind === 'tier') { if (nextTier(G, p.key)) G.tiers[p.key] = tierIndex(G, p.key) + 1; }
       else if (p.kind === 'wombat') { if (G.wombats.length < Grove.capacity()) Grove.addWombat(); }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = true;
@@ -6041,19 +6229,19 @@ const Guide = (() => {
   const STEPS = [
     {
       key: 'weeds', icon: 't_sickle', title: 'Cut the weeds',
-      note: 'Take the sickle and drag across them. The whole plot, mind.',
-      at: () => 300, done: (g) => World.weeds.length === 0,
+      note: 'Take the sickle and drag across them. Just inside the rope will do; big ones take a few swings.',
+      at: () => ZONE.x - 120, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
       key: 'junk', icon: 't_destroy', title: 'Send for the ants',
       note: 'Logs and ruins are not ours to lift. The ants carry them, for a fee.',
-      at: () => { const o = Grove.objects.find((x) => !x.gone); return o ? o.x : 400; },
-      done: () => Grove.objects.every((o) => o.gone),
+      at: () => { const o = Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)); return o ? o.x : ZONE.x; },
+      done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
       key: 'grass', icon: 't_moss', title: 'Sow the grass',
-      note: 'Farm, then grass. Sprouts need time and a drink before they take.',
-      at: () => 460, done: () => World.fraction() >= 0.18,
+      note: 'Farm, then grass, inside the rope. Sprouts need time and a drink before they take.',
+      at: () => ZONE.x, done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
       key: 'arrive', icon: 'wombat', title: 'Wait for her',
@@ -6893,7 +7081,11 @@ const UI = (() => {
   }
 
   // ---- the only number on screen -----------------------------------------
+  let lastWd = null;
+  function bumpMoney() { const m = $('money'); m.classList.remove('bump'); void m.offsetWidth; m.classList.add('bump'); }
   function refreshHUD() {
+    if (lastWd !== null && G.wd !== lastWd) bumpMoney();
+    lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
     const truck = $('b-truck');
     truck.hidden = G.mode !== 'grove';
@@ -6911,7 +7103,7 @@ const UI = (() => {
     const ts = Grove.tasks();
     box.innerHTML = `<div class="tape"></div><h4>TO DO</h4>` + ts.map((t) => {
       const p = U.clamp(t.at / t.need, 0, 1);
-      return `<div class="task ${t.done ? 'done' : ''}">
+      return `<div class="task ${t.done ? 'done' : ''}" data-k="${t.key}">
         <span class="box">${t.done ? '<i></i>' : ''}</span>
         ${ic(t.icon, 'sm')}
         <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
@@ -6962,7 +7154,8 @@ const UI = (() => {
       el.className = 'tool' + (active ? ' on' : '') + (locked ? ' locked' : '');
       el.innerHTML = `${ic(shown.icon)}<span class="k">${i + 1}</span>${t.sub ? '<span class="more"></span>' : ''}${locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = () => pickTool(t, locked);
-      el.onmouseenter = (e) => showTip(e, locked ? `<b>${shown.name}</b><br><span class="warn">${GATE_WHY[t.key] || 'not yet'}</span>` : `<b>${shown.name}</b><br>${shown.desc}`);
+      const rank = TIERS[shown.key] ? `<br><span class="dim">${tierOf(G, shown.key).name}</span>` : '';
+      el.onmouseenter = (e) => showTip(e, locked ? `<b>${shown.name}</b><br><span class="warn">${GATE_WHY[t.key] || 'not yet'}</span>` : `<b>${shown.name}</b>${rank}<br>${shown.desc}`);
       el.onmouseleave = hideTip;
       dock.appendChild(el);
     });
@@ -7309,7 +7502,7 @@ const UI = (() => {
   function anyPanel() { return PANELS.some((id) => !$(id).hidden) || !$('modal').hidden; }
 
   return {
-    init, toast, refreshHUD, refreshTray, refreshAll, refreshList, refreshNotebook, refreshRitual, refreshKnow,
+    init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
     showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel,
@@ -7333,7 +7526,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {},
+      wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0 },
       pointer: { x: 320, y: 240, on: false },
       paused: false, muted: false, musicOff: false, lastSave: Date.now(), seen: false,
@@ -7533,7 +7726,8 @@ const Main = (() => {
       World.update(real);
       Grove.update(real);
       Guide.update(real);
-      if (G.mode === 'grove' && G.pointer.on && !down && !UI.anyPanel()) Grove.edgeScroll(screenP.x, real);
+      // the view follows the pointer at the edges, and keeps doing so while a cube is being carried
+      if (G.mode === 'grove' && G.pointer.on && (!down || (G.tool === 'drag' && !panning)) && !UI.anyPanel()) Grove.edgeScroll(screenP.x, real);
       if (G.mode === 'tree') Knowledge.update(real);
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);

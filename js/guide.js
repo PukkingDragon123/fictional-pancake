@@ -8,19 +8,19 @@ const Guide = (() => {
   const STEPS = [
     {
       key: 'weeds', icon: 't_sickle', title: 'Cut the weeds',
-      note: 'Take the sickle and drag across them. The whole plot, mind.',
-      at: () => 300, done: (g) => World.weeds.length === 0,
+      note: 'Take the sickle and drag across them. Just inside the rope will do; big ones take a few swings.',
+      at: () => ZONE.x - 120, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
       key: 'junk', icon: 't_destroy', title: 'Send for the ants',
       note: 'Logs and ruins are not ours to lift. The ants carry them, for a fee.',
-      at: () => { const o = Grove.objects.find((x) => !x.gone); return o ? o.x : 400; },
-      done: () => Grove.objects.every((o) => o.gone),
+      at: () => { const o = Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)); return o ? o.x : ZONE.x; },
+      done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
       key: 'grass', icon: 't_moss', title: 'Sow the grass',
-      note: 'Farm, then grass. Sprouts need time and a drink before they take.',
-      at: () => 460, done: () => World.fraction() >= 0.18,
+      note: 'Farm, then grass, inside the rope. Sprouts need time and a drink before they take.',
+      at: () => ZONE.x, done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
       key: 'arrive', icon: 'wombat', title: 'Wait for her',

@@ -154,6 +154,25 @@ const Art = (() => {
       if (first >= 0) g.fillRect(x, first, 1, depth - (x % 2 === 0 ? 0 : 1));
     }
   }
+  // Ordered dither over the lower half of a shape: reads as grain, not noise.
+  function texture(canvas, alpha = 0.12) {
+    const g = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const img = g.getImageData(0, 0, w, h), a = img.data;
+    const tops = new Int16Array(w).fill(-1);
+    for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) if (a[(y * w + x) * 4 + 3] > 8) { tops[x] = y; break; }
+    for (let x = 0; x < w; x++) {
+      if (tops[x] < 0) continue;
+      for (let y = tops[x] + 3; y < h; y++) {
+        const i = (y * w + x) * 4;
+        if (a[i + 3] <= 8) continue;
+        if (((x + y) & 1) === 0 && ((x >> 1) + y) % 3 !== 0) continue;   // bayer-ish mask
+        const k = 1 - alpha * Math.min(1, (y - tops[x]) / Math.max(6, h - tops[x]) + 0.4);
+        a[i] = a[i] * k; a[i + 1] = a[i + 1] * k; a[i + 2] = a[i + 2] * k;
+      }
+    }
+    g.putImageData(img, 0, 0);
+  }
   // Darken the bottom edge of a silhouette (contact shadow inside the shape)
   function underShade(canvas, col = 'rgba(0,0,0,0.18)', depth = 2) {
     const g = canvas.getContext('2d');
@@ -183,5 +202,5 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, underShade, flip, tinted, rng };
+  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng };
 })();

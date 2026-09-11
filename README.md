@@ -21,7 +21,10 @@ do to the ground is painted, not placed. There is no tile grid anywhere.
 Nothing on screen is a widget if it can be a thing instead: money is a leather coin tag,
 the clean-up list is a paper taped to the corner, the tools sit in a leather belt with
 stitched loops over slate pockets, the flyout is a canvas pouch, and every panel is a page
-in a spiral notebook. Nothing is rounded - every edge is a cut pixel corner. The tools are:
+in a spiral notebook. Every surface follows the same rule the good pixel-art farms use:
+one thick black line around it, a light bevel on the upper left, a dark one on the lower
+right, and a warm fill. Nothing is rounded. Buttons squash when pressed, the money tag
+bumps when coins land, ticks pop onto the list. The tools are:
 
 - **Hand** drags poop cubes to the truck, pets wombats, harvests, and opens the store,
   the signpost map and the Tree of Life seed.
@@ -29,14 +32,26 @@ in a spiral notebook. Nothing is rounded - every edge is a cut pixel corner. The
 - **Farm** opens the four ground brushes: **hoe** tills, **seed** sows the crop you pick,
   **grass** scatters sprouts, **water** feeds them. Sprouts and crops both take time and
   watering; grass does not appear the instant you drag.
-- **Sickle** clears weeds by sweeping over them. There are a hundred and ninety of them -
-  thistles, brambles, dry tussocks and nettles - and they are chest high.
+- **Sickle** cuts weeds. There are a hundred and ninety of them - thistles, brambles, dry
+  tussocks and nettles - chest high, and each takes a few swings: a weed has two to four
+  points of health, shakes and sheds leaves when hit, and shows its pips while you work
+  it. The rusty sickle you start with does one point a swing. Every weed that comes out
+  drops a coin that arcs into your purse, and that is how you afford a better one.
 - **Haul** calls an ant moving company. Five ants march in, shoulder the wreck and carry
   it off; it costs W$ per piece.
 - **Pair** unlocks with a nest.
 
-A paper list in the corner tracks the clean-up: weeds, wrecks, and grass. Finish it and
-the screen letterboxes, the camera pushes in, and one wombat walks into the grove.
+You do not have to tidy the whole plot. A rope on stakes marks out a clearing in the
+middle - about fifty weeds, four wrecks, and the grass to grow back over it - and the
+paper list in the corner tracks just that. Finish it and the screen letterboxes, the
+camera pushes in, and one wombat walks into the grove. The weeds beyond the rope are
+yours to cut for coin whenever you like.
+
+## Tools have ranks
+
+Sickle, hoe and watering can each come in three ranks - Rusty, Iron, Moon; Stick, Iron,
+Broad; Tin, Copper, Rain - and the mart's TOOLS aisle sells the next one up. Higher ranks
+swing wider, and the sickle hits harder.
 
 ## The cultist
 
@@ -134,8 +149,9 @@ timed blessing. Leave with the money before it comes down.
 
 ## Code map
 
-- One sun, upper left. Every prop leaves `Props.cached` with its top edge lit and its
-  underside darkened, so the whole scene agrees about where the light is.
+- One sun, upper left, and one black line. Every prop leaves `Props.cached` with ordered
+  dither grain over its lower half, its top edge lit, its underside darkened, and a solid
+  black outline, so the whole scene agrees about where the light is and where the edges are.
 - `js/art.js` - pixel primitives (snapped ellipses, scanline polygons, ink outlines) and
   the palette: barren ash, living moss, divine violet and gold.
 - `js/world.js` - the gridless ground. Two painted offscreen layers stamped by

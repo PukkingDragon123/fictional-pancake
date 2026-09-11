@@ -66,8 +66,8 @@ const World = (() => {
     const r = Art.rng(51817);
     const s = G.world || {};
     if (!Array.isArray(s.weeds)) {
-      for (let i = 0; i < 190; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 12 + r() * (H - GROUND - 58), v: Math.floor(r() * 4), s: 1 + r() * 0.9 });
-    } else for (const w of s.weeds) weeds.push({ x: w.x, y: w.y, v: w.v || 0, s: w.s || 1 });
+      for (let i = 0; i < 190; i++) weeds.push(mkWeed(14 + r() * (W - 28), GROUND + 12 + r() * (H - GROUND - 58), Math.floor(r() * 4), 1 + r() * 0.9));
+    } else for (const w of s.weeds) weeds.push(mkWeed(w.x, w.y, w.v || 0, w.s || 1, w.hp));
     if (Array.isArray(s.strokes)) for (const k of s.strokes) {
       if (k[0] === 'g') { paint(grass, 'grass', k[1], k[2], k[3]); erase(soil, k[1], k[2], k[3]); }
       else { paint(soil, 'soil', k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
@@ -77,6 +77,10 @@ const World = (() => {
     if (Array.isArray(s.crops)) for (const c of s.crops) crops.push({ x: c.x, y: c.y, k: c.k, t: c.t, wet: c.wet || 0, thirst: c.thirst || 0 });
     if (Array.isArray(s.sprouts)) for (const p of s.sprouts) sprouts.push({ x: p.x, y: p.y, t: p.t, wet: p.wet || 0, r: p.r || 12 });
     measure();
+  }
+  function mkWeed(x, y, v, s, hp) {
+    const max = Math.min(4, Math.max(1, Math.round(WEED_HP[v] * (s > 1.5 ? 1.25 : 1))));
+    return { x, y, v, s, hp: hp == null ? max : Math.min(max, hp), max, shake: 0, cd: 0, hitT: 9 };
   }
   function mkBlade(x, y, v, h) { return { x, y, v: v ?? Math.floor(Math.random() * 3), h: h ?? 4 + Math.floor(Math.random() * 5), bend: 0, vel: 0 }; }
   function record(kind, x, y, r) {
@@ -130,18 +134,32 @@ const World = (() => {
     if (G.blessings.chonkades && Math.random() < 0.02 && seams.length < 12) { seams.push({ x, y, t: 0 }); FX.sparkle(x, y, 8, PAL.gold3); }
     return true;
   }
-  function clearWeeds(x, y, r) {
-    let n = 0;
+  // A sweep of the sickle hits everything in reach once; the weed shakes,
+  // sheds leaves, and comes out on the swing that empties it. Returns the
+  // spots where weeds died so the grove can drop coins there.
+  function hitWeeds(x, y, r, dmg) {
+    const dead = [];
+    let hit = 0;
     for (let i = weeds.length - 1; i >= 0; i--) {
       const w = weeds[i];
-      if (Math.hypot(w.x - x, (w.y - y) * 1.3) < r) {
-        weeds.splice(i, 1); n++;
-        FX.burst(w.x, w.y, 5, { color: [PAL.rot1, PAL.rot2, PAL.dead2], speed: 55, gravity: 120, life: 0.45, size: 2 });
+      if (w.cd > 0) continue;
+      if (Math.hypot(w.x - x, (w.y - y) * 1.3) > r) continue;
+      w.hp -= dmg; w.cd = 0.32; w.shake = 1; w.hitT = 0; hit++;
+      FX.burst(w.x, w.y - 10 * w.s, 4, { color: [PAL.rot1, PAL.rot2, PAL.dead2], speed: 60, gravity: 160, life: 0.45, size: 2 });
+      if (w.hp <= 0) {
+        weeds.splice(i, 1);
+        dead.push({ x: w.x, y: w.y, big: w.s > 1.5 });
+        FX.burst(w.x, w.y - 8, 10, { color: [PAL.rot1, PAL.rot2, PAL.dead2, '#a487d0'], speed: 90, gravity: 200, life: 0.6, size: 2 });
+        FX.dust(w.x, w.y, 4, PAL.soil3);
       }
     }
-    if (n) { G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) })); Audio.play('snip'); }
-    return n;
+    if (hit) {
+      G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2), hp: w.hp }));
+      Audio.play(dead.length ? 'snip' : 'brush');
+    }
+    return dead;
   }
+  const clearWeeds = (x, y, r) => hitWeeds(x, y, r, 99).length;
   function plant(x, y, key) {
     if (!hasSoil(x, y)) return 'nosoil';
     const def = CROP_BY_KEY[key];
@@ -220,6 +238,11 @@ const World = (() => {
     if (gustT <= 0) { gustT = U.rand(4, 11); gustWant = U.rand(0.25, 1.5); }
     gustA = U.lerp(gustA, gustWant, dt * 0.7);
     const w = wind * (0.5 + 0.5 * Math.sin(G.time * 0.7));
+    for (const wd of weeds) {
+      if (wd.cd > 0) wd.cd -= dt;
+      if (wd.shake > 0) wd.shake = Math.max(0, wd.shake - dt * 3.2);
+      wd.hitT += dt;
+    }
     for (const b of blades) {
       b.vel += (-b.bend * 46 - b.vel * 7 + w * 0.5 + gust(b.x) * 7 + Math.sin(G.time * 2.2 + b.x * 0.09) * 3) * dt;
       b.bend += b.vel * dt;
@@ -268,9 +291,25 @@ const World = (() => {
       for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++;
       restored = n * 16;
       G.world.restored = restored;
+      measureZone();
     } catch (e) { }
   }
   const fraction = () => U.clamp(restored / RESTORE_TARGET, 0, 1);
+  // How green the clearing is, measured off the same down-sample.
+  let zoneFrac = 0;
+  function measureZone() {
+    try {
+      const d = sample.getContext('2d').getImageData(0, 0, 256, 90).data;
+      let n = 0, tot = 0;
+      for (let y = 0; y < 90; y++) for (let x = 0; x < 256; x++) {
+        if (!inZone(x * 4 + 2, y * 4 + 2)) continue;
+        tot++;
+        if (d[(y * 256 + x) * 4 + 3] > 40) n++;
+      }
+      zoneFrac = tot ? n / tot : 0;
+    } catch (e) { }
+  }
+  const zoneFraction = () => zoneFrac;
 
   // ---- drawing ------------------------------------------------------------
   // A painted dirt bed, built once: banded tone, dithered grit, stones and
@@ -383,14 +422,21 @@ const World = (() => {
   function drawWeed(g, w) {
     const img = Props.get('weed', w.v);
     const s = w.s;
-    const sway = gust(w.x) * 2.4 + Math.sin(G.time * 1.1 + w.x * 0.08) * 1.2;
-    const dw = img.width * s, dh = img.height * s;
+    const wob = w.shake > 0 ? Math.sin(w.shake * 26) * 5 * w.shake : 0;
+    const sq = w.shake > 0 ? 1 - w.shake * 0.18 : 1;      // squash on the hit
+    const sway = gust(w.x) * 2.4 + Math.sin(G.time * 1.1 + w.x * 0.08) * 1.2 + wob;
+    const dw = img.width * s * (2 - sq), dh = img.height * s * sq;
     Art.ell(g, w.x, w.y + 1, dw * 0.3, 3, 'rgba(16,12,20,0.3)');
     g.save();
     g.translate(Math.round(w.x), Math.round(w.y + 3));
     g.transform(1, 0, -sway / dh, 1, 0, 0);          // lean the whole plant with the wind
     g.drawImage(img, Math.round(-dw / 2), Math.round(-dh), Math.round(dw), Math.round(dh));
     g.restore();
+    if (w.hitT < 1.6 && w.max > 1) {                  // health pips, only while it is being worked
+      const n = w.max, px = Math.round(w.x - n * 3), py = Math.round(w.y - dh - 6);
+      g.fillStyle = '#0a0810'; g.fillRect(px - 1, py - 1, n * 6 + 1, 5);
+      for (let i = 0; i < n; i++) { g.fillStyle = i < w.hp ? '#8fd15a' : '#3a2a2a'; g.fillRect(px + i * 6, py, 5, 3); }
+    }
   }
   function drawWeeds(g) { for (const w of weeds) drawWeed(g, w); }
   function drawCrops(g) {
@@ -417,8 +463,8 @@ const World = (() => {
 
   return {
     init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, drawCursor,
-    sowGrass, till, clearWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
-    fraction, measure, ripe, growTime,
+    sowGrass, till, clearWeeds, hitWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
+    fraction, zoneFraction, measure, ripe, growTime,
     get weeds() { return weeds; }, get crops() { return crops; },
     get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },
     save() {
@@ -426,7 +472,7 @@ const World = (() => {
       G.world.flowers = flowers.map((f) => ({ x: f.x, y: f.y, v: f.v }));
       G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1) }));
       G.world.sprouts = sprouts.map((p) => ({ x: p.x, y: p.y, t: +p.t.toFixed(1), wet: 0, r: p.r }));
-      G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) }));
+      G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2), hp: w.hp }));
       G.world.restored = restored;
     },
     SKY, GROUND, W, H,

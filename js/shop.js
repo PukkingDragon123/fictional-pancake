@@ -23,6 +23,7 @@ const Shop = (() => {
     else if (p.sprite === 'crate') crate(g, tint, p.icon);
     else if (p.sprite === 'scroll') scroll_(g, tint, p.icon);
     else if (p.sprite === 'stock') stock(g);
+    else if (p.sprite === 'tool') toolCard(g, p.icon);
     else jar(g, tint, p.icon);
     Art.outline(c, PAL.ink, 1);
     return c;
@@ -75,6 +76,16 @@ const Shop = (() => {
     Art.rect(g, 12, 17, 3, 22, 'rgba(255,255,255,0.45)');
     if (icon) Icons.blit(g, icon, 14, 27, 0.8);
   }
+  function toolCard(g, icon) {                    // a tool hung on a shop card
+    Art.rect(g, 5, 8, 30, 40, '#e0c98f');
+    Art.rect(g, 5, 8, 30, 4, '#f0dfb0');
+    Art.rect(g, 5, 44, 30, 4, '#b89a5e');
+    Art.rect(g, 17, 4, 6, 6, '#3a2a1a'); Art.rect(g, 19, 5, 2, 3, '#e0c98f');
+    Art.rect(g, 8, 14, 24, 24, '#3a3346');
+    Art.rect(g, 8, 14, 24, 2, '#5d5478');
+    Icons.blit(g, icon || 't_sickle', 10, 16, 1.25);
+    for (let i = 0; i < 3; i++) Art.rect(g, 9 + i * 8, 41, 6, 1.6, '#8a7455');
+  }
   function stock(g) {
     Art.ell(g, 20, 40, 17, 8, PAL.bark2);                       // basket
     Art.rect(g, 4, 30, 32, 12, PAL.bark2);
@@ -97,6 +108,14 @@ const Shop = (() => {
         locked: !!(c.god && !G.blessings[c.god]),
       });
     }
+    for (const key of Object.keys(TIERS)) {
+      const nxt = nextTier(G, key), cur = tierOf(G, key);
+      const icon = { sickle: 't_sickle', hoe: 't_hoe', water: 't_water' }[key];
+      out.push({
+        id: 'tier:' + key, kind: 'tier', key, name: nxt ? nxt.name : cur.name, price: nxt ? nxt.cost : 0,
+        sprite: 'tool', tint: '#8a6a3a', icon, note: nxt ? `rank ${tierIndex(G, key) + 2}` : 'best there is', sold: !nxt,
+      });
+    }
     out.push({ id: 'wombat', kind: 'wombat', key: 'wombat', name: 'Wombat', price: WOMBAT_PRICE(G.wombats.length), sprite: 'stock', icon: 'wombat', note: `${G.wombats.length}/${Grove.capacity()}` });
     for (const u of UPGRADES) {
       const l = G.up[u.key] || 0;
@@ -111,6 +130,7 @@ const Shop = (() => {
   // Each section is a gondola of three shelves under a coloured header sign,
   // laid out left to right; the player swipes sideways to walk the aisle.
   const SECTIONS = [
+    { key: 'tier',   name: 'TOOLS', color: '#8a6a3a', sub: 'sharper' },
     { key: 'seed',   name: 'SEEDS', color: '#3f8f4a', sub: 'sow it' },
     { key: 'up',     name: 'BUILD', color: '#2f6f9f', sub: 'dig it' },
     { key: 'dec',    name: 'YARD',  color: '#c97a25', sub: 'set it' },
@@ -118,7 +138,7 @@ const Shop = (() => {
   ];
   const SHELF_Y = [176, 234, 292];        // board tops, three to a gondola
   const COLW = 96;                        // one product slot
-  const AISLE0 = 340;                     // the entrance takes the first stretch
+  const AISLE0 = 470;                     // the doors and the cooler take the first stretch
   const GAP = 64;                         // between gondolas
   let slots = [], bays = [], counterX = 1200, worldW = 1500;
 
@@ -148,6 +168,7 @@ const Shop = (() => {
   function countOf(id) { return basket.filter((b) => b === id).length; }
   function priceOf(p, extra = 0) {
     if (p.kind === 'wombat') return WOMBAT_PRICE(G.wombats.length + extra);
+    if (p.kind === 'tier') { const t = TIERS[p.key][tierIndex(G, p.key) + 1 + extra]; return t ? t.cost : 0; }
     if (p.kind === 'up') { const u = UPGRADES.find((x) => x.key === p.key); return Math.round(u.base * Math.pow(u.mult, (G.up[p.key] || 0) + extra)); }
     return p.price;
   }
@@ -177,7 +198,7 @@ const Shop = (() => {
     if (p.locked) { Audio.play('error'); UI.toast('locked', 'bad'); return; }
     if (p.sold) { Audio.play('error'); return; }
     if (p.kind === 'wombat' && G.wombats.length + countOf(p.id) >= Grove.capacity()) { Audio.play('error'); UI.toast('no room', 'bad'); return; }
-    if (p.kind === 'dec' && countOf(p.id) >= 1) { Audio.play('error'); return; }
+    if ((p.kind === 'dec' || p.kind === 'tier') && countOf(p.id) >= 1) { Audio.play('error'); return; }
     basket.push(p.id);
     Audio.play('pop');
     const s = slots.find((sl) => sl.p.id === p.id);
@@ -200,6 +221,7 @@ const Shop = (() => {
       const p = cat.find((x) => x.id === id);
       if (!p) continue;
       if (p.kind === 'seed') G.seeds[p.key] = (G.seeds[p.key] || 0) + 6;
+      else if (p.kind === 'tier') { if (nextTier(G, p.key)) G.tiers[p.key] = tierIndex(G, p.key) + 1; }
       else if (p.kind === 'wombat') { if (G.wombats.length < Grove.capacity()) Grove.addWombat(); }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = true;

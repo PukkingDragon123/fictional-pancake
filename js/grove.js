@@ -8,8 +8,8 @@ const Grove = (() => {
   const SEED = { x: 512, y: 262 };
   const POST = { x: 846, y: 256 };
   const TRUCK = { x: 1140, y: 300, parked: false, t: 0 };
-  const PARK = 880;                      // where the truck stops when called
-  const drops = [], objects = [], ants = [], birds = [], owls = [];
+  const PARK = 750;                      // where the truck stops when called: the east edge of the clearing
+  const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0;
   let arrival = null, dragging = null;
 
@@ -81,7 +81,8 @@ const Grove = (() => {
   // ---- setup --------------------------------------------------------------
   function init(g) {
     G = g;
-    if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.length);
+    if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.filter((w) => inZone(w.x, w.y)).length);
+    if (!G.tiers) G.tiers = { sickle: 0, hoe: 0, water: 0 };
     objects.length = 0;
     const saved = G.objects;
     if (Array.isArray(saved) && saved.length) {
@@ -89,10 +90,10 @@ const Grove = (() => {
     } else {
       const r = Art.rng(8675309);
       const spots = [
-        ['fallen', 168, 300], ['fallen', 612, 256], ['fallen', 360, 306],
-        ['ruin', 252, 238], ['ruin', 700, 292], ['ruin', 900, 246],
-        ['stump', 96, 272], ['stump', 448, 234], ['stump', 790, 310], ['stump', 116, 312],
-        ['stump', 960, 300], ['fallen', 820, 214], ['ruin', 560, 296],
+        ['fallen', 604, 258], ['ruin', 418, 268], ['stump', 452, 230], ['ruin', 560, 288],
+        ['fallen', 168, 300], ['fallen', 360, 322], ['ruin', 252, 238], ['ruin', 720, 300],
+        ['ruin', 900, 246], ['stump', 96, 272], ['stump', 790, 316], ['stump', 116, 312],
+        ['stump', 960, 300], ['fallen', 820, 214],
       ];
       spots.forEach(([kind, x, y], i) => objects.push({ id: U.uid(), kind, x, y, v: i % 3, gone: 0 }));
     }
@@ -103,13 +104,16 @@ const Grove = (() => {
   function saveObjects() { G.objects = objects.map((o) => ({ id: o.id, kind: o.kind, x: o.x, y: o.y, v: o.v, gone: o.gone })); }
 
   // ---- checklist ----------------------------------------------------------
+  const zoneWeeds = () => World.weeds.filter((w) => inZone(w.x, w.y)).length;
+  const zoneJunk = () => objects.filter((o) => !o.gone && inZone(o.x, o.y)).length;
+  const zoneObjects = () => objects.filter((o) => inZone(o.x, o.y)).length;
   function tasks() {
-    const junk = objects.filter((o) => !o.gone).length;
-    const nw = G.startWeeds || 190;
+    const nw = G.startWeeds || 1, nj = zoneObjects();
+    const zf = World.zoneFraction();
     return [
-      { key: 'weeds', icon: 't_sickle', at: nw - World.weeds.length, need: nw, done: World.weeds.length === 0 },
-      { key: 'junk', icon: 't_destroy', at: objects.length - junk, need: objects.length, done: junk === 0 },
-      { key: 'grass', icon: 't_moss', at: Math.round(World.fraction() * 100), need: 18, done: World.fraction() >= 0.18 },
+      { key: 'weeds', icon: 't_sickle', at: nw - zoneWeeds(), need: nw, done: zoneWeeds() === 0 },
+      { key: 'junk', icon: 't_destroy', at: nj - zoneJunk(), need: nj, done: zoneJunk() === 0 },
+      { key: 'grass', icon: 't_moss', at: Math.round(zf * 100), need: Math.round(ZONE_GRASS * 100), done: zf >= ZONE_GRASS },
     ];
   }
   const groveClean = () => tasks().every((t) => t.done);
@@ -195,6 +199,25 @@ const Grove = (() => {
       const lf = leaves[i];
       lf.t += dt; lf.x += lf.vx * dt; lf.y += Math.sin(lf.t * 3 + lf.ph) * 22 * dt;
       if (lf.x > FX.cam.x + 420 || lf.t > 18) leaves.splice(i, 1);
+    }
+    for (let i = slashes.length - 1; i >= 0; i--) { slashes[i].t += dt; if (slashes[i].t > 0.18) slashes.splice(i, 1); }
+    for (let i = coins.length - 1; i >= 0; i--) {
+      const c = coins[i];
+      c.t += dt;
+      if (c.t < 0.7) {                              // pop out and bounce once
+        c.vy += 420 * dt; c.x += c.vx * dt; c.z += c.vy * dt;
+        if (c.z > 0) { c.z = 0; c.vy = -c.vy * 0.4; c.vx *= 0.6; }
+      } else {                                      // then fly to the purse in the corner
+        const tgt = toWorld(30, 22);
+        const k = 1 - Math.pow(0.002, dt);
+        c.x = U.lerp(c.x, tgt.x, k); c.y = U.lerp(c.y, tgt.y, k); c.z = U.lerp(c.z, 0, k);
+        if (Math.hypot(c.x - tgt.x, c.y - tgt.y) < 10) {
+          coins.splice(i, 1);
+          G.wd += c.n; G.stats.earned += c.n;
+          Audio.play('coin');
+          UI.bumpMoney();
+        }
+      }
     }
     if (arrival) { updateArrival(dt); return; }
     const cap = hapCap(), decay = 0.42;
@@ -428,7 +451,7 @@ const Grove = (() => {
     return best;
   }
   function spotAt(x, y) {
-    if (Math.abs(x - SEED.x) < 26 && y > SEED.y - 48 && y < SEED.y + 8) return 'seed';
+    if (Math.abs(x - SEED.x) < 16 && y > SEED.y - 40 && y < SEED.y + 6) return 'seed';
     if (Math.abs(x - POST.x) < 26 && y > POST.y - 52 && y < POST.y + 8) return 'post';
     return null;
   }
@@ -439,8 +462,9 @@ const Grove = (() => {
     if (arrival) return true;
     const tool = G.tool;
     if (y < GROUND) return false;
-    // the two landmarks answer to any tool; they are doors, not ground
-    if (first) {
+    // the two landmarks answer to any tool; they are doors, not ground -
+    // unless a weed is standing in front of them, in which case you meant the weed
+    if (first && !World.weeds.some((w) => Math.abs(w.x - x) < 16 && Math.abs(w.y - y) < 14)) {
       const spot = spotAt(x, y);
       if (spot === 'seed') { Main.setMode('tree'); return true; }
       if (spot === 'post') { Main.setMode('map'); return true; }
@@ -479,12 +503,19 @@ const Grove = (() => {
       return true;
     }
     const t = TOOL_BY_KEY[tool];
-    const r = World.brushRadius(t ? t.radius : 12);
+    const tier = TIERS[tool] ? tierOf(G, tool) : null;
+    const r = World.brushRadius(tier ? tier.radius : t ? t.radius : 12);
     if (!t || !t.radius) return true;
     switch (tool) {
       case 'moss': if (World.sowGrass(x, y, r) && first) Audio.play('brush'); World.disturb(x, y, r, 0.5); break;
       case 'hoe': World.till(x, y, r); if (first) Audio.play('dig'); break;
-      case 'sickle': World.clearWeeds(x, y, r); World.disturb(x, y, r, 0.8); break;
+      case 'sickle': {
+        if (first || Math.random() < 0.25) slashes.push({ x, y, t: 0, r });
+        const dead = World.hitWeeds(x, y, r, tier.dmg);
+        for (const d of dead) coins.push({ x: d.x, y: d.y - 10, vx: U.rand(-30, 30), vy: U.rand(-150, -90), z: 0, t: 0, n: d.big ? WEED_COIN * 2 : WEED_COIN });
+        World.disturb(x, y, r, 0.8);
+        break;
+      }
       case 'water': World.water(x, y, r); if (first) Audio.play('splash'); break;
       case 'seed': {
         const res = World.plant(x, y, G.selSeed);
@@ -633,6 +664,7 @@ const Grove = (() => {
     World.drawBlades(g);
     World.drawFlowers(g);
 
+    drawZone(g, f);
     // Everything on the ground sorts by its feet, weeds included, so a ruin
     // behind a stand of thistles is actually behind them.
     const items = [];
@@ -659,6 +691,25 @@ const Grove = (() => {
       const img = Sprites.crow(Math.floor(G.time * 8 + b.ph), !!b.perch);
       const fl = b.dir < 0 ? Art.flip(img) : img;
       g.drawImage(fl, Math.round(b.x - 12), Math.round(b.y - 9));
+    }
+    // coins and sickle swings
+    for (const c of coins) {
+      const y = c.y + c.z;
+      Art.ell(g, c.x, c.y + 1, 4, 1.6, 'rgba(0,0,0,0.3)');
+      const w = 6 * Math.abs(Math.cos(c.t * 9)) + 1.5;
+      Art.ell(g, c.x, y - 6, w, 5, '#0a0810');
+      Art.ell(g, c.x, y - 6, Math.max(0.5, w - 1.5), 3.6, PAL.gold2);
+      Art.ell(g, c.x - 1, y - 7, Math.max(0.5, w * 0.4), 1.4, PAL.gold4);
+    }
+    for (const sl of slashes) {
+      const k = sl.t / 0.18, a = 1 - k;
+      g.save();
+      g.translate(sl.x, sl.y); g.scale(1, 0.55); g.rotate(-0.6 + k * 1.8);
+      g.strokeStyle = `rgba(253,243,220,${(a * 0.9).toFixed(2)})`; g.lineWidth = 5;
+      g.beginPath(); g.arc(0, 0, sl.r * (0.6 + k * 0.5), -0.9, 0.9); g.stroke();
+      g.strokeStyle = `rgba(10,8,16,${(a * 0.9).toFixed(2)})`; g.lineWidth = 2;
+      g.beginPath(); g.arc(0, 0, sl.r * (0.6 + k * 0.5) + 3, -0.9, 0.9); g.stroke();
+      g.restore();
     }
     // leaves torn off and carried across the plot
     for (const lf of leaves) {
@@ -694,6 +745,25 @@ const Grove = (() => {
     vg.addColorStop(1, `rgba(8,7,14,${(0.5 - f * 0.2).toFixed(2)})`);
     g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
     edgeArrows(g);
+  }
+
+  // Stakes and rope around the clearing: this is the patch you have to tidy.
+  function drawZone(g, f) {
+    if (G.arrived) return;
+    const t = G.time;
+    g.setLineDash([5, 4]); g.lineDashOffset = -t * 6;
+    g.strokeStyle = 'rgba(10,8,16,0.85)'; g.lineWidth = 3;
+    g.beginPath(); g.ellipse(ZONE.x, ZONE.y, ZONE.rx, ZONE.ry, 0, 0, TAU); g.stroke();
+    g.strokeStyle = '#d8b26a'; g.lineWidth = 1;
+    g.beginPath(); g.ellipse(ZONE.x, ZONE.y, ZONE.rx, ZONE.ry, 0, 0, TAU); g.stroke();
+    g.setLineDash([]);
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * TAU, x = Math.round(ZONE.x + Math.cos(a) * ZONE.rx), y = Math.round(ZONE.y + Math.sin(a) * ZONE.ry);
+      g.fillStyle = '#0a0810'; g.fillRect(x - 3, y - 15, 6, 17);
+      g.fillStyle = PAL.bark2; g.fillRect(x - 2, y - 14, 4, 15);
+      g.fillStyle = PAL.bark3; g.fillRect(x - 2, y - 14, 1, 15);
+      g.fillStyle = '#c94a3a'; g.fillRect(x - 2, y - 14, 4, 3);
+    }
   }
 
   // A hint at each edge while there is more grove that way.

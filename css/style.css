@@ -29,10 +29,21 @@ img.ico.xl { width: 40px; height: 40px; }
 /* ---- Everything the player touches is a thing, not a widget: a leather
    pouch, a paper pinned to the fence, a tool belt, a pocket notebook. ---- */
 :root {
+  --ol: #14100c;                      /* the one black line around everything */
+  --wood: #c98b3f; --wood2: #a86f2c; --woodL: #f0cf86; --woodD: #6d4418;
   --paper: #f0e3c2; --paper2: #e3d2ab; --paperD: #c9b489; --line: #b9a882;
   --leather: #6b4526; --leather2: #85582f; --leatherD: #4a2e17; --stitch: #d8bb85;
   --inkpen: #3c2a18; --pen: #4a3a6a; --rust: #a9502c;
 }
+
+.bev, #money, .rbtn, .mbtn, #dock, #flyout, .tool, .chip, .act, .wbtn, .buy, .x, .panel, #tip, .toast, #checklist, #notebook, .nbtab, .card, .readout .line, .goals div, .gcard, #rite-tray {
+  border: 3px solid var(--ol) !important;
+  box-shadow: inset 2px 2px 0 rgba(255,236,190,0.55), inset -2px -2px 0 rgba(60,30,10,0.45), 3px 3px 0 rgba(0,0,0,0.55) !important;
+}
+@keyframes bump { 0% { transform: rotate(-1.5deg) scale(1); } 35% { transform: rotate(-1.5deg) scale(1.22, 0.86); } 65% { transform: rotate(-1.5deg) scale(0.92, 1.1); } 100% { transform: rotate(-1.5deg) scale(1); } }
+@keyframes boing { 0% { transform: translateY(-5px) scale(1); } 40% { transform: translateY(-9px) scale(1.14, 0.88); } 70% { transform: translateY(-4px) scale(0.94, 1.08); } 100% { transform: translateY(-5px) scale(1); } }
+@keyframes tick { 0% { transform: scale(0); } 60% { transform: scale(1.5); } 100% { transform: scale(1); } }
+@keyframes settle { 0% { transform: rotate(-0.8deg) scale(0.6); opacity: 0; } 60% { transform: rotate(-0.8deg) scale(1.08); opacity: 1; } 100% { transform: rotate(-0.8deg) scale(1); } }
 
 /* money: a leather coin tag on a thong */
 #money {
@@ -51,6 +62,8 @@ img.ico.xl { width: 40px; height: 40px; }
   clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
 }
 #money b { font-weight: normal; color: #ffe9a8; font-size: 12px; text-shadow: 0 2px 0 rgba(0,0,0,0.45); }
+#money.bump { animation: bump 0.32s ease-out; }
+#money img.ico { filter: drop-shadow(0 1px 0 #000); }
 
 /* the clean-up list: a paper pinned up, taped at the corner, torn at the foot */
 #checklist {
@@ -59,8 +72,6 @@ img.ico.xl { width: 40px; height: 40px; }
   background:
     repeating-linear-gradient(180deg, rgba(185,168,130,0.22) 0 1px, rgba(0,0,0,0) 1px 15px),
     linear-gradient(160deg, #f2e5c4 0%, #ddc99d 100%);
-  border: 1px solid var(--paperD);
-  box-shadow: 2px 4px 0 rgba(0,0,0,0.4), inset 0 0 20px rgba(180,150,100,0.25);
   transform: rotate(1.4deg);
 }
 #checklist .tape {
@@ -81,7 +92,8 @@ img.ico.xl { width: 40px; height: 40px; }
 .task .box i { position: absolute; left: 0; top: -4px; width: 11px; height: 11px;
   background: linear-gradient(45deg, transparent 44%, var(--rust) 44% 60%, transparent 60%),
               linear-gradient(-45deg, transparent 44%, var(--rust) 44% 60%, transparent 60%); }
-.task.done { opacity: 0.55; }
+.task.done { opacity: 0.6; }
+.task.done .box i { animation: tick 0.35s ease-out; transform-origin: center; }
 .task.done b { text-decoration: line-through; }
 .task b { font-weight: normal; min-width: 34px; text-align: right; }
 .task .bar { flex: 1; height: 4px; background: rgba(90,70,40,0.2); border: 1px solid rgba(90,70,40,0.35); }
@@ -119,6 +131,7 @@ img.ico.xl { width: 40px; height: 40px; }
 #notebook h5 { margin: 0; font-size: 8px; line-height: 1.5; letter-spacing: 0.3px; }
 #notebook p { margin: 2px 0 0; font-size: 7px; line-height: 1.85; color: #5c4a30; }
 #notebook .nbnow.flash { animation: nbflash 0.9s ease-out; }
+#notebook:not(.shut) { animation: settle 0.3s ease-out; }
 @keyframes nbflash { from { background: rgba(233,190,90,0.6); } to { background: transparent; } }
 #notebook.shut { width: auto; padding: 0; background: none; border: none; box-shadow: none; }
 #notebook.shut::after, #notebook.shut .rings { display: none; }
@@ -135,7 +148,7 @@ img.ico.xl { width: 40px; height: 40px; }
   box-shadow: inset 0 1px 0 rgba(255,222,170,0.25), 2px 3px 0 rgba(0,0,0,0.4);
 }
 .rbtn:hover { filter: brightness(1.12); }
-.rbtn:active { transform: translate(1px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.4); }
+.rbtn:active { transform: scale(0.92) translateY(2px); }
 .rbtn.on { background: linear-gradient(180deg, #d8a52f, #a97c1e); }
 .rbtn.big { padding: 10px 12px; }
 .rbtn.full { background: linear-gradient(180deg, #6f9a44, #4a6f2c); }
@@ -153,10 +166,8 @@ img.ico.xl { width: 40px; height: 40px; }
   position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 6;
   display: flex; gap: 7px; padding: 9px 14px 11px;
   background:
-    repeating-linear-gradient(180deg, rgba(0,0,0,0.06) 0 2px, rgba(0,0,0,0) 2px 5px),
-    linear-gradient(180deg, var(--leather2) 0%, var(--leather) 55%, var(--leatherD) 100%);
-  border: 2px solid var(--leatherD);
-  box-shadow: inset 0 2px 0 rgba(255,222,170,0.2), inset 0 -4px 0 rgba(0,0,0,0.3), 0 5px 0 rgba(0,0,0,0.45);
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.07) 0 3px, rgba(0,0,0,0) 3px 11px),
+    linear-gradient(180deg, var(--wood) 0%, var(--wood2) 100%);
 }
 #dock::before, #dock::after {
   content: ''; position: absolute; top: 6px; bottom: 6px; width: 0;
@@ -165,11 +176,10 @@ img.ico.xl { width: 40px; height: 40px; }
 #dock::before { left: 6px; } #dock::after { right: 6px; }
 .tool {
   position: relative; width: 44px; height: 46px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #6b4f30, #3f2c1a);
-  border: 2px solid #1a1109;
-  box-shadow: inset 0 1px 0 rgba(255,222,170,0.25);
+  background: linear-gradient(180deg, #8a5f2e, #5c3d18);
   transition: transform 0.08s;
 }
+.tool:active { transform: scale(0.9) translateY(2px); }
 .tool::before {                      /* a slate plate so the tool reads against the leather */
   content: ''; position: absolute; left: 4px; right: 4px; top: 4px; bottom: 9px;
   background: linear-gradient(180deg, #4a4356, #2b2634);
@@ -181,7 +191,7 @@ img.ico.xl { width: 40px; height: 40px; }
   border-top: 1px solid rgba(255,222,170,0.3); border-bottom: 1px solid rgba(0,0,0,0.55);
 }
 .tool:hover { transform: translateY(-4px); }
-.tool.on { background: linear-gradient(180deg, #d8a52f, #8a6114); box-shadow: 0 0 0 2px #f5cd5c; transform: translateY(-5px); }
+.tool.on { background: linear-gradient(180deg, #f0c24a, #b8811c); transform: translateY(-5px); animation: boing 0.4s ease-out; }
 .tool.on::before { background: linear-gradient(180deg, #6a5f7e, #3a3348); box-shadow: inset 0 1px 0 rgba(230,220,255,0.4); }
 .tool.locked { opacity: 0.35; cursor: not-allowed; }
 .tool img.ico { width: 28px; height: 28px; position: relative; z-index: 1; margin-bottom: 5px; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.55)) brightness(1.12); }
@@ -210,7 +220,8 @@ img.ico.xl { width: 40px; height: 40px; }
   background: linear-gradient(180deg, #3a2a1c, #241a10); border: 2px solid #1a1109;
 }
 .chip:hover { filter: brightness(1.3); }
-.chip.on { background: linear-gradient(180deg, #5d7a34, #3a4f1e); box-shadow: 0 0 0 2px #98c25a; }
+.chip.on { background: linear-gradient(180deg, #7fa84a, #4a6f28); animation: boing 0.35s ease-out; transform: translateY(-5px); }
+.chip:active { transform: scale(0.9); }
 .chip.out { opacity: 0.35; }
 .chip img.ico { width: 22px; height: 22px; filter: brightness(1.1); }
 .chip .n { position: absolute; right: -1px; bottom: -2px; font-size: 7px; padding: 0 2px; color: #f6ecd4;
@@ -247,7 +258,7 @@ img.ico.xl { width: 40px; height: 40px; }
   box-shadow: inset 0 1px 0 rgba(255,230,255,0.25), 2px 3px 0 rgba(0,0,0,0.4);
 }
 .act:hover:not(:disabled) { filter: brightness(1.15); }
-.act:active:not(:disabled) { border-bottom-width: 3px; transform: translateY(2px); }
+.act:active:not(:disabled) { transform: scale(0.92) translateY(2px); }
 .act:disabled { background: var(--st2); filter: grayscale(0.6); cursor: not-allowed; opacity: 0.65; }
 .act.big { padding: 12px 24px; }
 .act.small { padding: 6px 8px; }
@@ -320,7 +331,7 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
   background: linear-gradient(180deg, #f0cd6a, #cfa33a); border: 1px solid #7a5a14; box-shadow: 1px 2px 0 rgba(0,0,0,0.3); }
 .buy img { width: 13px; height: 13px; image-rendering: pixelated; }
 .buy:hover:not(:disabled) { filter: brightness(1.1); }
-.buy:active:not(:disabled) { border-bottom-width: 2px; transform: translateY(2px); }
+.buy:active:not(:disabled) { transform: scale(0.92) translateY(1px); }
 .buy:disabled { background: var(--bark3); color: var(--bark1); cursor: not-allowed; }
 
 /* basket */

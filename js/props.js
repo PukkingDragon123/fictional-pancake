@@ -8,8 +8,10 @@ const Props = (() => {
     if (c) return c;
     const o = Art.cv(w, h);
     draw(o.g, w, h);
-    Art.topLight(o.c, 'rgba(255,242,208,0.22)', 2);
-    Art.underShade(o.c, 'rgba(18,12,24,0.26)', 2);
+    Art.texture(o.c, 0.14);
+    Art.topLight(o.c, 'rgba(255,242,208,0.26)', 2);
+    Art.underShade(o.c, 'rgba(18,12,24,0.3)', 2);
+    Art.outline(o.c, '#0a0810', 1);                 // everything wears the same black line
     cache.set(key, o.c);
     return o.c;
   }
@@ -169,7 +171,6 @@ const Props = (() => {
         Art.ell(g, cx + 15, base - 2, 6, 3, c[0]);
         if (+v % 2) { Art.rect(g, cx + 20, base - 6, 1.6, 4, '#e8dcc4'); Art.ell(g, cx + 20.8, base - 6, 3, 2, '#b8412c'); }
       }
-      Art.outline(g.canvas, sh > 0.5 ? '#080a0e' : PAL.ink, 0.75);
     });
   };
 
@@ -227,7 +228,6 @@ const Props = (() => {
       Art.ell(g, cx + 1, 9, 4, 3, L);
       Art.ell(g, cx + 1, 7, 2.4, 2, Y);
     }
-    Art.outline(g.canvas, PAL.ink, 0.7);
   });
 
   P.fallen = (v = 0) => cached('fallen' + v, 120, 46, (g) => {
@@ -258,7 +258,6 @@ const Props = (() => {
       Art.rect(g, mx - 0.6, my - 0.6, 1.4, 1, '#efdcb4');
     }
     Art.ell(g, 96, y - 4, 8, 4, PAL.moss1);
-    Art.outline(g.canvas, PAL.ink, 0.65);
   });
   P.stump = (v = 0) => cached('stump' + v, 34, 22, (g) => {
     Art.ell(g, 17, 19, 13, 5, PAL.bark0);
@@ -268,7 +267,6 @@ const Props = (() => {
     Art.ell(g, 17, 8, 8, 3, '#8a6a48');
     Art.ell(g, 17, 8, 4, 1.6, PAL.bark2);
     if (+v % 2) { Art.ell(g, 9, 6, 5, 2.4, PAL.moss2); Art.ell(g, 24, 7, 4, 2, PAL.moss3); }
-    Art.outline(g.canvas, PAL.ink, 0.65);
   });
 
   // ---- ground cover -------------------------------------------------------
@@ -289,7 +287,6 @@ const Props = (() => {
       Art.ell(g, 8 + Math.cos(a) * 3.2, 6 + Math.sin(a) * 3, 1.3, 1.2, k.mid);
     }
     Art.ell(g, 8, 6, 1.9, 1.8, k.core);
-    Art.outline(g.canvas, PAL.ink, 0.5);
   });
   P.mushroom = (v = 0) => cached('mush' + v, 18, 14, (g) => {
     const caps = [['#b8412c', '#e0705a'], ['#7d5f42', '#9b7a52'], ['#563391', '#8354c9']];
@@ -301,7 +298,6 @@ const Props = (() => {
       Art.ell(g, x - 0.8, 13 - h - 0.6, 2.6, 1.6, c[1]);
       Art.rect(g, x + 1, 13 - h - 1, 1, 1, PAL.cream);
     }
-    Art.outline(g.canvas, PAL.ink, 0.5);
   });
   P.rock = (v = 0) => cached('rock' + v, 26, 18, (g) => {
     const rnd = Art.rng(+v * 331 + 3);
@@ -310,7 +306,6 @@ const Props = (() => {
     Art.ell(g, 9, 10.5, 4, 2.2, PAL.stone4);
     for (let i = 0; i < 5; i++) Art.rect(g, 5 + rnd() * 14, 11 + rnd() * 5, 2, 1, PAL.stone1);
     Art.ell(g, 17, 10, 4, 2, PAL.moss2);
-    Art.outline(g.canvas, PAL.ink, 0.6);
   });
 
   // ---- ruins you can clear ------------------------------------------------
@@ -340,7 +335,6 @@ const Props = (() => {
         if (rnd() < 0.3) Art.ell(g, x + 5, y - 10, 4, 2, PAL.moss2);
       }
     }
-    Art.outline(g.canvas, PAL.ink, 0.65);
   });
 
   // ---- the altar: stone, carved with wombats bearing a burden --------------
@@ -393,7 +387,6 @@ const Props = (() => {
       Art.ell(g, px, fy - 34, 4.4, 2.8, PAL.gold1);
       Art.ell(g, px, fy - 36, 2.6, 2.4, PAL.gold3);
     }
-    Art.outline(g.canvas, PAL.ink, 0.75);
   });
 
   // ---- the Tree of Life seed ----------------------------------------------
@@ -420,7 +413,6 @@ const Props = (() => {
       Art.ell(g, cx, base - h - 2, 5 + (+stage), 4 + (+stage) * 0.6, PAL.moss2);
       Art.ell(g, cx - 1, base - h - 3, 3, 2.2, PAL.moss4);
     }
-    Art.outline(g.canvas, PAL.ink, 0.6);
   });
 
   // ---- buildings ----------------------------------------------------------
@@ -438,14 +430,12 @@ const Props = (() => {
     Art.ell(g, 72, 40, 8, 8, PAL.ink);
     Art.ell(g, 72, 40, 4.4, 4.4, PAL.stone3);
     Art.rect(g, 88, 24, 5, 8, PAL.gold3);
-    Art.outline(g.canvas, PAL.ink, 0.7);
   });
   P.crate = () => cached('crate', 22, 20, (g) => {
     Art.rect(g, 1, 3, 20, 16, PAL.bark2);
     Art.rect(g, 1, 3, 20, 2.4, PAL.bark3);
     Art.rect(g, 1, 16.6, 20, 2.4, PAL.bark1);
     Art.line(g, 2, 18, 20, 4, PAL.bark3, 1); Art.line(g, 20, 18, 2, 4, PAL.bark3, 1);
-    Art.outline(g.canvas, PAL.ink, 0.6);
   });
 
   // ---- crops --------------------------------------------------------------
@@ -538,7 +528,6 @@ const Props = (() => {
     Art.ell(g, 17, 11, 2.4, 4, PAL.gold4);
     Art.rect(g, 4, 26, 4, 4, PAL.stone2);
     Art.rect(g, 26, 26, 4, 4, PAL.stone2);
-    Art.outline(g.canvas, PAL.ink, 0.65);
   });
 
   // A stone pedestal, drawn to whatever width the stack platform needs.

@@ -52,7 +52,7 @@ const GATES = {
   moss: (g) => g.step >= 2,
   hoe: (g) => g.step >= 3,
   seed: (g) => g.step >= 3,
-  water: (g) => g.step >= 3,
+  water: (g) => g.step >= 2,        // grass needs a drink before the wombat comes
   food: (g) => g.step >= 3,
   pair: (g) => !!g.decor.nest,
 };
@@ -62,7 +62,7 @@ const GATE_WHY = {
   moss: 'the wrecks go first',
   hoe: 'sow the grass first',
   seed: 'sow the grass first',
-  water: 'sow the grass first',
+  water: 'the wrecks go first',
   food: 'sow the grass first',
   pair: 'needs a nest',
 };
@@ -72,6 +72,37 @@ const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
 const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
+
+// ---- The clearing: the small patch you actually have to tidy -------------
+const ZONE = { x: 512, y: 252, rx: 178, ry: 76 };
+const inZone = (x, y) => ((x - ZONE.x) / ZONE.rx) ** 2 + ((y - ZONE.y) / ZONE.ry) ** 2 <= 1;
+const ZONE_GRASS = 0.55;                 // how green the clearing has to be
+
+// Weeds take hits. Thistle, bramble, tussock, nettle.
+const WEED_HP = [3, 4, 2, 2];
+const WEED_COIN = 1;                     // W$ that falls out of a cut weed
+
+// Tools come in ranks; you start with junk and buy better at the mart.
+const TIERS = {
+  sickle: [
+    { name: 'Rusty Sickle', dmg: 1, radius: 20, cost: 0 },
+    { name: 'Iron Sickle', dmg: 2, radius: 26, cost: 90 },
+    { name: 'Moon Sickle', dmg: 4, radius: 34, cost: 280 },
+  ],
+  hoe: [
+    { name: 'Stick Hoe', radius: 13, cost: 0 },
+    { name: 'Iron Hoe', radius: 19, cost: 110 },
+    { name: 'Broad Hoe', radius: 26, cost: 320 },
+  ],
+  water: [
+    { name: 'Tin Can', radius: 18, cost: 0 },
+    { name: 'Copper Can', radius: 27, cost: 120 },
+    { name: 'Rain Can', radius: 36, cost: 360 },
+  ],
+};
+const tierIndex = (g, key) => Math.min(TIERS[key].length - 1, (g.tiers && g.tiers[key]) || 0);
+const tierOf = (g, key) => TIERS[key][tierIndex(g, key)];
+const nextTier = (g, key) => TIERS[key][tierIndex(g, key) + 1] || null;
 
 // ---- The map. Fog lifts as gods answer. ----------------------------------
 const SITES = [

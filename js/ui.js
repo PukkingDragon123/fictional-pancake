@@ -14,7 +14,11 @@ const UI = (() => {
   }
 
   // ---- the only number on screen -----------------------------------------
+  let lastWd = null;
+  function bumpMoney() { const m = $('money'); m.classList.remove('bump'); void m.offsetWidth; m.classList.add('bump'); }
   function refreshHUD() {
+    if (lastWd !== null && G.wd !== lastWd) bumpMoney();
+    lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
     const truck = $('b-truck');
     truck.hidden = G.mode !== 'grove';
@@ -32,7 +36,7 @@ const UI = (() => {
     const ts = Grove.tasks();
     box.innerHTML = `<div class="tape"></div><h4>TO DO</h4>` + ts.map((t) => {
       const p = U.clamp(t.at / t.need, 0, 1);
-      return `<div class="task ${t.done ? 'done' : ''}">
+      return `<div class="task ${t.done ? 'done' : ''}" data-k="${t.key}">
         <span class="box">${t.done ? '<i></i>' : ''}</span>
         ${ic(t.icon, 'sm')}
         <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
@@ -83,7 +87,8 @@ const UI = (() => {
       el.className = 'tool' + (active ? ' on' : '') + (locked ? ' locked' : '');
       el.innerHTML = `${ic(shown.icon)}<span class="k">${i + 1}</span>${t.sub ? '<span class="more"></span>' : ''}${locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = () => pickTool(t, locked);
-      el.onmouseenter = (e) => showTip(e, locked ? `<b>${shown.name}</b><br><span class="warn">${GATE_WHY[t.key] || 'not yet'}</span>` : `<b>${shown.name}</b><br>${shown.desc}`);
+      const rank = TIERS[shown.key] ? `<br><span class="dim">${tierOf(G, shown.key).name}</span>` : '';
+      el.onmouseenter = (e) => showTip(e, locked ? `<b>${shown.name}</b><br><span class="warn">${GATE_WHY[t.key] || 'not yet'}</span>` : `<b>${shown.name}</b>${rank}<br>${shown.desc}`);
       el.onmouseleave = hideTip;
       dock.appendChild(el);
     });
@@ -430,7 +435,7 @@ const UI = (() => {
   function anyPanel() { return PANELS.some((id) => !$(id).hidden) || !$('modal').hidden; }
 
   return {
-    init, toast, refreshHUD, refreshTray, refreshAll, refreshList, refreshNotebook, refreshRitual, refreshKnow,
+    init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
     showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel,
