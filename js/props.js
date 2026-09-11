@@ -294,44 +294,6 @@ const Props = (() => {
   });
 
   // ---- buildings ----------------------------------------------------------
-  P.store = () => cached('store', 128, 104, (g) => {
-    // log-and-plank shop with a striped awning and a lollipop sign
-    Art.rect(g, 8, 40, 112, 60, PAL.bark1);
-    for (let x = 10; x < 118; x += 9) Art.rect(g, x, 42, 7, 56, PAL.bark2);
-    for (let x = 10; x < 118; x += 9) Art.rect(g, x, 42, 1.6, 56, PAL.bark3);
-    Art.rect(g, 8, 40, 112, 3, PAL.bark3);
-    Art.rect(g, 4, 30, 120, 11, PAL.bark0);
-    // roof shingles
-    for (let r = 0; r < 3; r++) for (let x = 0; x < 130; x += 11) Art.rect(g, x - r * 4, 30 - r * 7, 10, 7, r % 2 ? '#4a3a52' : '#3a2c42');
-    Art.rect(g, 0, 30, 128, 3, '#2a2032');
-    // awning
-    for (let i = 0; i < 9; i++) Art.rect(g, 10 + i * 12, 44, 12, 9, i % 2 ? PAL.red1 : PAL.parch0);
-    Art.rect(g, 8, 52, 112, 2.6, PAL.bark0);
-    // window with goods
-    Art.rect(g, 16, 58, 34, 26, '#2a2230');
-    Art.rect(g, 18, 60, 30, 22, '#6f8fa8');
-    Art.rect(g, 18, 60, 30, 6, '#94b4c8');
-    for (let i = 0; i < 3; i++) Art.ell(g, 24 + i * 9, 74, 3.4, 3, [PAL.gold2, PAL.red2, PAL.div3][i]);
-    Art.rect(g, 32, 58, 2.4, 26, PAL.bark0);
-    Art.rect(g, 16, 70, 34, 2.4, PAL.bark0);
-    // door
-    Art.rect(g, 68, 56, 40, 44, PAL.bark0);
-    Art.rect(g, 71, 59, 34, 41, '#5d4430');
-    for (let x = 73; x < 104; x += 8) Art.rect(g, x, 60, 6, 39, '#6d5138');
-    Art.ell(g, 100, 80, 2.4, 2.4, PAL.gold3);
-    Art.rect(g, 68, 52, 40, 5, PAL.bark3);
-    // lollipop mascot sign on a post
-    Art.rect(g, 116, 56, 4, 44, PAL.bark2);
-    Art.ell(g, 118, 44, 15, 15, PAL.ink);
-    Art.ell(g, 118, 44, 13.4, 13.4, '#e8708a');
-    for (let i = 0; i < 5; i++) { const a = i * 1.25 + 0.4; Art.limb(g, 118, 44, 118 + Math.cos(a) * 12, 44 + Math.sin(a) * 12, 3.4, 2, '#ffd2dc'); }
-    Art.ell(g, 118, 44, 7.4, 7.4, PAL.cream);
-    // the mascot's face on the lolly
-    Art.rect(g, 114, 42, 2, 2.4, PAL.ink); Art.rect(g, 120, 42, 2, 2.4, PAL.ink);
-    Art.ell(g, 118, 46, 3.4, 2.4, '#bd8763'); Art.rect(g, 116.6, 45, 3, 1.6, '#4a2c20');
-    Art.rect(g, 113, 38, 3, 2.6, '#bd8763'); Art.rect(g, 121, 38, 3, 2.6, '#bd8763');
-    Art.outline(g.canvas, PAL.ink, 0.7);
-  });
   P.truck = () => cached('truck', 96, 48, (g) => {
     Art.rect(g, 6, 16, 54, 20, '#4a6f8a');       // bed
     Art.rect(g, 6, 16, 54, 3, '#6f97b0');

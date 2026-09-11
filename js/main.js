@@ -3,11 +3,11 @@ const Main = (() => {
   const KEY = 'wombat-gods-v4';
   const W = 640, H = 360;
   let canvas, g, last = 0, G = null;
-  let down = false, lastP = null, downP = null, moved = 0;
+  let down = false, lastP = null, downP = null, moved = 0, panning = false, screenP = { x: 320, y: 240 };
 
   function fresh() {
     return {
-      v: 4, wd: 260, record: 0, runs: 0, time: 0, mode: 'grove',
+      v: 4, wd: 300, startWeeds: 0, startBugs: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
@@ -69,7 +69,7 @@ const Main = (() => {
     save();
   }
   function back() {
-    if (G.mode === 'shrine' || G.mode === 'rite') setMode('map');
+    if (G.mode === 'shrine' || G.mode === 'rite' || G.mode === 'shop') setMode('map');
     else setMode('grove');
   }
 
@@ -78,6 +78,9 @@ const Main = (() => {
     const r = canvas.getBoundingClientRect();
     return { x: ((e.clientX - r.left) / r.width) * W, y: ((e.clientY - r.top) / r.height) * H };
   }
+  // In the grove the view pans, so screen coordinates are not world ones.
+  function world(p) { return G.mode === 'grove' ? Grove.toWorld(p.x, p.y) : p; }
+
   // Brushes interpolate along the drag so a fast sweep paints a continuous band.
   function stroke(p) {
     if (!lastP) { Grove.press(p.x, p.y, true); lastP = p; return; }
@@ -96,24 +99,35 @@ const Main = (() => {
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel() || G.paused) return;
       const p = pos(e);
-      down = true; lastP = null; downP = p; moved = 0;
-      if (G.mode === 'grove') stroke(p);
-      else if (G.mode === 'tree') lastP = p;
+      down = true; lastP = null; downP = p; moved = 0; panning = false;
+      screenP = p;
+      if (G.mode === 'grove') {
+        const w = world(p);
+        const consumed = Grove.press(w.x, w.y, true);
+        if (consumed) lastP = w;
+        else { panning = true; lastP = p; }     // grabbed nothing: drag the view
+      } else if (G.mode === 'tree') lastP = p;
       else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'rite') Tower.click(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
-      G.pointer.x = p.x; G.pointer.y = p.y; G.pointer.on = true;
+      screenP = p;
+      const wp = world(p);
+      G.pointer.x = wp.x; G.pointer.y = wp.y; G.pointer.on = true;
       if (Ritual.active) return;
       if (downP) moved = Math.max(moved, Math.hypot(p.x - downP.x, p.y - downP.y));
       if (down) {
-        if (G.mode === 'grove') { if (G.tool === 'drag') Grove.move(p.x, p.y); else stroke(p); UI.hideTip(); return; }
+        if (G.mode === 'grove') {
+          if (panning) { Grove.panBy(-(p.x - lastP.x)); lastP = p; UI.hideTip(); return; }
+          if (G.tool === 'drag') { Grove.move(wp.x, wp.y); UI.hideTip(); return; }
+          stroke(wp); UI.hideTip(); return;
+        }
         if (G.mode === 'tree' && lastP) { Knowledge.pan(p.x - lastP.x, p.y - lastP.y); lastP = p; UI.hideTip(); return; }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
-      if (G.mode === 'grove') tip = Grove.hover(p.x, p.y);
+      if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
       else if (G.mode === 'tree') tip = Knowledge.hover(p.x, p.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
@@ -122,17 +136,19 @@ const Main = (() => {
     const release = (e) => {
       if (!down) { down = false; lastP = null; downP = null; return; }
       const p = e ? pos(e) : downP;
-      if (G.mode === 'grove') Grove.release(p.x, p.y);
+      const wp = world(p);
+      if (G.mode === 'grove') { if (!panning) Grove.release(wp.x, wp.y); }
       else if (G.mode === 'shop') Shop.release(p.x, p.y);
       else if (G.mode === 'tree' && moved < 6) Knowledge.click(p.x, p.y);
       else if (G.mode === 'map' && moved < 8) Atlas.click(p.x, p.y);
-      down = false; lastP = null; downP = null;
+      down = false; lastP = null; downP = null; panning = false;
     };
     window.addEventListener('pointerup', (e) => release(e));
     window.addEventListener('pointercancel', () => { down = false; lastP = null; downP = null; });
     canvas.addEventListener('pointerleave', () => { G.pointer.on = false; UI.hideTip(); });
     canvas.addEventListener('wheel', (e) => {
-      if (G.mode === 'tree') { e.preventDefault(); const p = pos(e); Knowledge.scroll(e.deltaY, p.x, p.y); }
+      if (G.mode === 'grove') { e.preventDefault(); Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8); }
+      else if (G.mode === 'tree') { e.preventDefault(); const p = pos(e); Knowledge.scroll(e.deltaY, p.x, p.y); }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
@@ -151,6 +167,8 @@ const Main = (() => {
         if (e.key === '+' || e.key === '=') { Knowledge.zoomBy(1.2); e.preventDefault(); }
         if (e.key === '-' || e.key === '_') { Knowledge.zoomBy(1 / 1.2); e.preventDefault(); }
       } else if (G.mode === 'grove') {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { Grove.panBy(-70); e.preventDefault(); return; }
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { Grove.panBy(70); e.preventDefault(); return; }
         const n = parseInt(e.key);
         if (n >= 1 && n <= TOOLS.length) {
           const t = TOOLS[n - 1];
@@ -191,6 +209,7 @@ const Main = (() => {
     if (!G.paused) {
       World.update(real);
       Grove.update(real);
+      if (G.mode === 'grove' && G.pointer.on && !down && !UI.anyPanel()) Grove.edgeScroll(screenP.x, real);
       if (G.mode === 'tree') Knowledge.update(real);
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);

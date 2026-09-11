@@ -332,7 +332,9 @@ const Tower = (() => {
   }
 
   function update(dt, realDt) {
-    if (!R.active) { FX.cam.tzoom = 1; FX.cam.tx = PX; FX.cam.ty = 180; return; }
+    // Idle only parks the camera while the stack is actually on screen;
+    // other scenes drive the camera themselves.
+    if (!R.active) { if (G.mode === 'rite') { FX.cam.tzoom = 1; FX.cam.tx = PX; FX.cam.ty = 180; } return; }
     R.t += dt;
     if (R.phase === 'intro') { R.introT += realDt; if (R.introT > 1.9) { R.phase = 'play'; R.canDrop = true; FX.letterbox(false); UI.onRunPlay(); } }
     if (R.phase === 'play' && !G.paused) {

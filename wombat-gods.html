@@ -335,13 +335,13 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">The Rite of the Grove</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>The grove is dead. Cut the weeds, catch the bugs, have the ants haul off the wrecks, then sow grass by dragging.</li>
-        <li>Finish the list and a wombat walks in.</li>
+        <li>The grove is wider than the window. Drag bare ground, roll the wheel, or press the arrow keys to pan the camera.</li>
+        <li>Cut the weeds, catch the bugs, have the ants haul off the wrecks, then sow grass by dragging. Finish the list and a wombat walks in.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
         <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck, or call the truck to you.</li>
         <li>Click the seed in the middle of the plot for the Tree of Life. Drag to look around, scroll to zoom.</li>
-        <li>Click the signpost for the map. The Ritual Site is where gods are called; the Great Stack is where offerings are stacked.</li>
-        <li>The store sells seed, stock, ground and stone. Swipe the shelves, fill the basket, pay at the counter.</li>
+        <li>Click the signpost for the map. Wombat Mart sells seed and stock, the Ritual Site calls the gods, the Great Stack pays for a tall pile of offerings.</li>
+        <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the counter.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">music</button><button class="wbtn" id="b-reset">reset</button></div>
     </div>
@@ -1661,44 +1661,6 @@ const Props = (() => {
   });
 
   // ---- buildings ----------------------------------------------------------
-  P.store = () => cached('store', 128, 104, (g) => {
-    // log-and-plank shop with a striped awning and a lollipop sign
-    Art.rect(g, 8, 40, 112, 60, PAL.bark1);
-    for (let x = 10; x < 118; x += 9) Art.rect(g, x, 42, 7, 56, PAL.bark2);
-    for (let x = 10; x < 118; x += 9) Art.rect(g, x, 42, 1.6, 56, PAL.bark3);
-    Art.rect(g, 8, 40, 112, 3, PAL.bark3);
-    Art.rect(g, 4, 30, 120, 11, PAL.bark0);
-    // roof shingles
-    for (let r = 0; r < 3; r++) for (let x = 0; x < 130; x += 11) Art.rect(g, x - r * 4, 30 - r * 7, 10, 7, r % 2 ? '#4a3a52' : '#3a2c42');
-    Art.rect(g, 0, 30, 128, 3, '#2a2032');
-    // awning
-    for (let i = 0; i < 9; i++) Art.rect(g, 10 + i * 12, 44, 12, 9, i % 2 ? PAL.red1 : PAL.parch0);
-    Art.rect(g, 8, 52, 112, 2.6, PAL.bark0);
-    // window with goods
-    Art.rect(g, 16, 58, 34, 26, '#2a2230');
-    Art.rect(g, 18, 60, 30, 22, '#6f8fa8');
-    Art.rect(g, 18, 60, 30, 6, '#94b4c8');
-    for (let i = 0; i < 3; i++) Art.ell(g, 24 + i * 9, 74, 3.4, 3, [PAL.gold2, PAL.red2, PAL.div3][i]);
-    Art.rect(g, 32, 58, 2.4, 26, PAL.bark0);
-    Art.rect(g, 16, 70, 34, 2.4, PAL.bark0);
-    // door
-    Art.rect(g, 68, 56, 40, 44, PAL.bark0);
-    Art.rect(g, 71, 59, 34, 41, '#5d4430');
-    for (let x = 73; x < 104; x += 8) Art.rect(g, x, 60, 6, 39, '#6d5138');
-    Art.ell(g, 100, 80, 2.4, 2.4, PAL.gold3);
-    Art.rect(g, 68, 52, 40, 5, PAL.bark3);
-    // lollipop mascot sign on a post
-    Art.rect(g, 116, 56, 4, 44, PAL.bark2);
-    Art.ell(g, 118, 44, 15, 15, PAL.ink);
-    Art.ell(g, 118, 44, 13.4, 13.4, '#e8708a');
-    for (let i = 0; i < 5; i++) { const a = i * 1.25 + 0.4; Art.limb(g, 118, 44, 118 + Math.cos(a) * 12, 44 + Math.sin(a) * 12, 3.4, 2, '#ffd2dc'); }
-    Art.ell(g, 118, 44, 7.4, 7.4, PAL.cream);
-    // the mascot's face on the lolly
-    Art.rect(g, 114, 42, 2, 2.4, PAL.ink); Art.rect(g, 120, 42, 2, 2.4, PAL.ink);
-    Art.ell(g, 118, 46, 3.4, 2.4, '#bd8763'); Art.rect(g, 116.6, 45, 3, 1.6, '#4a2c20');
-    Art.rect(g, 113, 38, 3, 2.6, '#bd8763'); Art.rect(g, 121, 38, 3, 2.6, '#bd8763');
-    Art.outline(g.canvas, PAL.ink, 0.7);
-  });
   P.truck = () => cached('truck', 96, 48, (g) => {
     Art.rect(g, 6, 16, 54, 20, '#4a6f8a');       // bed
     Art.rect(g, 6, 16, 54, 3, '#6f97b0');
@@ -2485,12 +2447,13 @@ const BRUSH_KEYS = ['sickle', 'net', 'hoe', 'seed', 'moss', 'water'];
 
 // ---- The map. Fog lifts as gods answer. ----------------------------------
 const SITES = [
-  { key: 'grove',  name: 'The Grove',    x: 196, y: 232, icon: 'grove',   mode: 'grove',  need: 0 },
-  { key: 'ritual', name: 'Ritual Site',  x: 404, y: 138, icon: 'shrine',  mode: 'shrine', need: 0 },
-  { key: 'stack',  name: 'The Great Stack', x: 508, y: 246, icon: 'u_seats', mode: 'rite', need: 0 },
-  { key: 'quarry', name: 'Old Quarry',   x: 108, y: 110, icon: 'o_stone', need: 3 },
-  { key: 'lake',   name: 'Still Lake',   x: 556, y: 92,  icon: 'g_tide',  need: 5 },
-  { key: 'deep',   name: 'The Deepwood', x: 300, y: 64,  icon: 'a_owl',   need: 8 },
+  { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
+  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0 },
+  { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0 },
+  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0 },
+  { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
+  { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
+  { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },
 ];
 
 // ---- The ten Wombat Gods -------------------------------------------------
@@ -2617,8 +2580,8 @@ const GROW_TIME = { baby: 95, juvenile: 150 };
 const RARE_CHANCE = 0.07;
 
 const NAMES = ['Wilbur', 'Doris', 'Chonk', 'Beans', 'Mabel', 'Gus', 'Pudding', 'Winnie', 'Bruce', 'Nugget', 'Sheila', 'Tubs', 'Barnaby', 'Pip', 'Marge', 'Otis', 'Bramble', 'Kip', 'Nella', 'Dot'];
-const RESTORE_TARGET = 108000;  // painted grass pixels that count as a whole forest
-                                // (the ground is about 150k, so this is most of it)
+const RESTORE_TARGET = 172000;  // painted grass pixels that count as a whole forest
+                                // (the grove floor is about 238k, so this is most of it)
 </script>
 
 <script>
@@ -2877,7 +2840,7 @@ const FX = (() => {
 // water; when one matures it stains the ground layer and puts up blades, and
 // blades carry a little spring physics so anything walking through parts them.
 const World = (() => {
-  const W = 640, H = 360;
+  const W = 1024, H = 360;          // the grove is wider than the view; the camera pans
   const SKY = 126, GROUND = SKY + 2;
   let G = null;
   let grass = null, soil = null, sample = null;
@@ -2934,14 +2897,14 @@ const World = (() => {
 
   function init(g) {
     G = g;
-    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(160, 90).c;
+    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(256, 90).c;
     for (const a of [weeds, bugs, blades, crops, sprouts, flowers, seams]) a.length = 0;
     const r = Art.rng(51817);
     const s = G.world || {};
     if (!Array.isArray(s.weeds)) {
-      for (let i = 0; i < 88; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 14 + r() * (H - GROUND - 62), v: Math.floor(r() * 3), s: 0.85 + r() * 0.5 });
+      for (let i = 0; i < 130; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 14 + r() * (H - GROUND - 62), v: Math.floor(r() * 3), s: 0.85 + r() * 0.5 });
     } else for (const w of s.weeds) weeds.push({ x: w.x, y: w.y, v: w.v || 0, s: w.s || 1 });
-    if (!s.bugsOut) for (let i = 0; i < 15; i++) bugs.push(newBug(r));
+    if (!s.bugsOut) for (let i = 0; i < 22; i++) bugs.push(newBug(r));
     if (Array.isArray(s.strokes)) for (const k of s.strokes) {
       if (k[0] === 'g') { paint(grass, 'grass', k[1], k[2], k[3]); erase(soil, k[1], k[2], k[3]); }
       else { paint(soil, 'soil', k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
@@ -3137,7 +3100,7 @@ const World = (() => {
       disturb(b.x, b.y, 9, 0.16);
     }
     // bugs only creep back once the grove is lived in, so the opening list stays done
-    if (G.arrived && !G.blessings.artewombis && bugs.length < 12 && Math.random() < dt * 0.05) bugs.push(newBug());
+    if (G.arrived && !G.blessings.artewombis && bugs.length < 16 && Math.random() < dt * 0.05) bugs.push(newBug());
     for (const s of seams) s.t += dt;
     if (G.fruits.deeproots || G.blessings.wombeus) {
       spreadT += dt;
@@ -3155,9 +3118,9 @@ const World = (() => {
   function measure() {
     try {
       const g = sample.getContext('2d');
-      g.clearRect(0, 0, 160, 90); g.imageSmoothingEnabled = false;
-      g.drawImage(grass, 0, 0, 160, 90);
-      const d = g.getImageData(0, 0, 160, 90).data;
+      g.clearRect(0, 0, 256, 90); g.imageSmoothingEnabled = false;
+      g.drawImage(grass, 0, 0, 256, 90);
+      const d = g.getImageData(0, 0, 256, 90).data;
       let n = 0;
       for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++;
       restored = n * 16;
@@ -3351,39 +3314,68 @@ const World = (() => {
 // ---- The grove ------------------------------------------------------------
 const Grove = (() => {
   let G = null;
-  const W = 640, H = 360;
+  const W = 1024, H = 360;               // the grove itself
+  const VW = 640, VH = 360;              // what fits on screen at once
   const SKY = 126, GROUND = SKY + 2;
-  const WALK = { x0: 30, x1: 610, y0: GROUND + 30, y1: H - 48 };   // the dock owns the last 48px
-  const SEED = { x: 318, y: 262 };
-  const STORE = { x: 92, y: 214 };
-  const POST = { x: 566, y: 258 };
-  const TRUCK = { x: 720, y: 300, parked: false, t: 0 };
+  const WALK = { x0: 30, x1: W - 30, y0: GROUND + 30, y1: H - 48 };   // the dock owns the last 48px
+  const SEED = { x: 512, y: 262 };
+  const POST = { x: 846, y: 256 };
+  const TRUCK = { x: 1140, y: 300, parked: false, t: 0 };
+  const PARK = 880;                      // where the truck stops when called
   const drops = [], objects = [], ants = [], birds = [], owls = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0;
   let arrival = null, dragging = null;
 
   // fixed forest layers behind the plot
+  // Five layers of forest, each drifting at its own rate as the camera pans.
+  const PAR = [0.62, 0.46, 0.3, 0.15, 0.05];
   const layers = [];
   const R0 = Art.rng(31415);
-  for (let d = 0; d < 4; d++) {
+  for (let d = 0; d < 5; d++) {
     const row = [];
-    const n = 24 - d * 3;
+    const n = 34 - d * 4;
     for (let i = 0; i < n; i++) {
       row.push({
-        x: -40 + (i / n) * (W + 90) + R0() * 40,
-        y: SKY - 34 + d * 15 + R0() * 6,
+        x: -60 + (i / n) * (W + 140) + R0() * 42,
+        y: SKY - 40 + d * 13 + R0() * 6,
         kind: ['gnarl', 'pine', 'dead', 'oak', 'birch'][Math.floor(R0() * 5)],
         v: Math.floor(R0() * 4),
-        s: 0.44 + d * 0.17 + R0() * 0.08,
-        sh: 0.78 - d * 0.19,
+        s: 0.38 + d * 0.15 + R0() * 0.08,
+        sh: 0.88 - d * 0.17,
       });
     }
     layers.push(row);
   }
   const eyes = [];
-  for (let i = 0; i < 7; i++) eyes.push({ x: 30 + R0() * 580, y: SKY - 26 + R0() * 34, ph: R0() * TAU, on: 0 });
+  for (let i = 0; i < 11; i++) eyes.push({ x: 30 + R0() * (W - 60), y: SKY - 30 + R0() * 36, ph: R0() * TAU, on: 0 });
   const mist = [];
-  for (let i = 0; i < 6; i++) mist.push({ x: R0() * W, y: SKY - 10 + R0() * 50, w: 90 + R0() * 110, s: 2 + R0() * 4 });
+  for (let i = 0; i < 12; i++) mist.push({ x: R0() * W, y: SKY - 16 + R0() * 56, w: 110 + R0() * 150, s: 2 + R0() * 4, d: Math.floor(R0() * 3) });
+  const flies = [];   // slow motes over the treeline
+  for (let i = 0; i < 26; i++) flies.push({ x: R0() * W, y: SKY - 40 + R0() * 110, ph: R0() * TAU, sp: 0.25 + R0() * 0.5 });
+  const shafts = [];  // light falling through the canopy
+  for (let i = 0; i < 5; i++) shafts.push({ x: 60 + R0() * (W - 120), w: 26 + R0() * 40, lean: 26 + R0() * 22, a: 0.05 + R0() * 0.07 });
+
+  // ---- camera -------------------------------------------------------------
+  // The grove is wider than the window, so the view pans. Everything the
+  // player clicks is in world coordinates; Grove.toWorld does the conversion.
+  const CAM = { x: VW / 2, min: VW / 2, max: W - VW / 2 };
+  function clampCam() {
+    const half = VW / 2 / Math.max(0.2, FX.cam.zoom);
+    FX.cam.tx = U.clamp(FX.cam.tx, Math.min(W / 2, half), Math.max(W / 2, W - half));
+    FX.cam.ty = 180;
+  }
+  function panBy(dx) { if (arrival) return; FX.cam.tx += dx; clampCam(); FX.cam.x = FX.cam.tx; }
+  function panTo(x, snap) { FX.cam.tx = x; clampCam(); if (snap) FX.cam.x = FX.cam.tx; }
+  function toWorld(sx, sy) {
+    const c = FX.cam;
+    return { x: (sx - VW / 2) / c.zoom + c.x, y: (sy - VH / 2) / c.zoom + c.y };
+  }
+  function edgeScroll(sx, dt) {
+    if (arrival || G.paused) return;
+    const m = 26;
+    if (sx < m) panBy(-(m - sx) * 5 * dt);
+    else if (sx > VW - m) panBy((sx - (VW - m)) * 5 * dt);
+  }
 
   function capacity() { return 2 + (G.up.burrow || 0); }
   function hapCap() { let c = 62; for (const d of DECOR) if (G.decor[d.key] && d.hap) c += 10; return Math.min(100, c); }
@@ -3399,6 +3391,8 @@ const Grove = (() => {
   // ---- setup --------------------------------------------------------------
   function init(g) {
     G = g;
+    if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.length);
+    if (!G.startBugs) G.startBugs = Math.max(1, World.bugs.length);
     objects.length = 0;
     const saved = G.objects;
     if (Array.isArray(saved) && saved.length) {
@@ -3406,24 +3400,26 @@ const Grove = (() => {
     } else {
       const r = Art.rng(8675309);
       const spots = [
-        ['fallen', 148, 300], ['fallen', 470, 256], ['fallen', 268, 310],
-        ['ruin', 212, 238], ['ruin', 404, 290], ['ruin', 556, 320],
-        ['stump', 96, 276], ['stump', 350, 234], ['stump', 600, 296], ['stump', 112, 330],
+        ['fallen', 168, 300], ['fallen', 612, 256], ['fallen', 360, 306],
+        ['ruin', 252, 238], ['ruin', 700, 292], ['ruin', 900, 246],
+        ['stump', 96, 272], ['stump', 448, 234], ['stump', 790, 310], ['stump', 116, 312],
+        ['stump', 960, 300], ['fallen', 820, 214], ['ruin', 560, 296],
       ];
       spots.forEach(([kind, x, y], i) => objects.push({ id: U.uid(), kind, x, y, v: i % 3, gone: 0 }));
     }
-    for (let i = 0; i < 3; i++) birds.push({ x: R0() * W, y: 30 + R0() * 50, dir: R0() < 0.5 ? -1 : 1, ph: R0() * TAU, perch: null, t: R0() * 8 });
+    for (let i = 0; i < 5; i++) birds.push({ x: R0() * W, y: 30 + R0() * 50, dir: R0() < 0.5 ? -1 : 1, ph: R0() * TAU, perch: null, t: R0() * 8 });
     owls.length = 0;
-    owls.push({ x: 128, y: SKY - 8, blink: 0 }, { x: 508, y: SKY - 2, blink: 2 });
+    owls.push({ x: 128, y: SKY - 8, blink: 0 }, { x: 508, y: SKY - 2, blink: 2 }, { x: 812, y: SKY - 10, blink: 1.2 }, { x: 316, y: SKY - 4, blink: 3 });
   }
   function saveObjects() { G.objects = objects.map((o) => ({ id: o.id, kind: o.kind, x: o.x, y: o.y, v: o.v, gone: o.gone })); }
 
   // ---- checklist ----------------------------------------------------------
   function tasks() {
     const junk = objects.filter((o) => !o.gone).length;
+    const nw = G.startWeeds || 130, nb = G.startBugs || 22;
     return [
-      { key: 'weeds', icon: 't_sickle', at: 88 - World.weeds.length, need: 88, done: World.weeds.length === 0 },
-      { key: 'bugs', icon: 't_net', at: 15 - World.bugs.length, need: 15, done: World.bugs.length === 0 },
+      { key: 'weeds', icon: 't_sickle', at: nw - World.weeds.length, need: nw, done: World.weeds.length === 0 },
+      { key: 'bugs', icon: 't_net', at: nb - World.bugs.length, need: nb, done: World.bugs.length === 0 },
       { key: 'junk', icon: 't_destroy', at: objects.length - junk, need: objects.length, done: junk === 0 },
       { key: 'grass', icon: 't_moss', at: Math.round(World.fraction() * 100), need: 18, done: World.fraction() >= 0.18 },
     ];
@@ -3434,6 +3430,7 @@ const Grove = (() => {
     if (G.arrived || arrival || !groveClean()) return;
     G.arrived = true;
     arrival = { t: 0, x: -40, y: WALK.y0 + 44 };
+    panTo(VW / 2, true);
     G.paused = true;
     FX.letterbox(true);
     Audio.play('chime');
@@ -3447,7 +3444,7 @@ const Grove = (() => {
     // camera pushes in on the newcomer
     const z = U.clamp(1 + U.easeInOut(Math.min(1, a.t / 3.4)) * 1.9, 1, 2.9);
     FX.cam.tzoom = a.t > 6.6 ? 1 : z;
-    FX.cam.tx = a.t > 6.6 ? 320 : U.lerp(320, a.x, 0.85);
+    FX.cam.tx = a.t > 6.6 ? U.clamp(a.x, VW / 2, W - VW / 2) : U.lerp(VW / 2, a.x, 0.85);
     FX.cam.ty = a.t > 6.6 ? 180 : U.lerp(180, a.y - 26, 0.85);
     World.disturb(a.x, a.y, 26, 1.1);
     if (a.t > 3.2 && a.t < 3.4) FX.title('', { size: 1, dur: 0.1 });
@@ -3457,7 +3454,7 @@ const Grove = (() => {
       w.hap = 80;
       arrival = null;
       G.paused = false;
-      FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
+      FX.cam.tzoom = 1; FX.cam.ty = 180; panTo(U.clamp(w.x, VW / 2, W - VW / 2));
       FX.hearts(w.x, w.y - 40, 6);
       UI.toast('a wombat has come', 'good');
       UI.refreshAll();
@@ -3575,9 +3572,9 @@ const Grove = (() => {
     // the truck
     if (TRUCK.parked || TRUCK.t > 0) {
       TRUCK.t += dt;
-      const tx = TRUCK.parked ? 540 : 720;
+      const tx = TRUCK.parked ? PARK : W + 116;
       TRUCK.x = U.lerp(TRUCK.x, tx, 1 - Math.pow(0.06, dt));
-      if (!TRUCK.parked && TRUCK.x > 715) TRUCK.t = 0;
+      if (!TRUCK.parked && TRUCK.x > W + 110) TRUCK.t = 0;
     }
     // ant movers
     for (let i = ants.length - 1; i >= 0; i--) {
@@ -3681,6 +3678,7 @@ const Grove = (() => {
   function callTruck() {
     if (TRUCK.parked) { TRUCK.parked = false; TRUCK.t = 0.01; Audio.play('whoosh'); return; }
     TRUCK.parked = true; TRUCK.t = 0.01;
+    panTo(PARK - 40);
     Audio.play('whoosh');
     UI.toast('truck coming', 'good');
   }
@@ -3732,55 +3730,58 @@ const Grove = (() => {
   }
   function spotAt(x, y) {
     if (Math.abs(x - SEED.x) < 26 && y > SEED.y - 48 && y < SEED.y + 8) return 'seed';
-    if (x > STORE.x - 64 && x < STORE.x + 64 && y > STORE.y - 104 && y < STORE.y + 8) return 'store';
     if (Math.abs(x - POST.x) < 26 && y > POST.y - 52 && y < POST.y + 8) return 'post';
     return null;
   }
 
+  // Returns true when the press was consumed; the hand tool returning false
+  // means the player grabbed nothing, so the view pans instead.
   function press(x, y, first) {
-    if (arrival) return;
+    if (arrival) return true;
     const tool = G.tool;
-    if (y < GROUND) return;
-    if (tool === 'drag') {
-      if (!first) return;
-      const d = dropAt(x, y);
-      if (d) { dragging = d; d.z = Math.max(d.z, 12); Audio.play('click'); return; }
+    if (y < GROUND) return false;
+    // the two landmarks answer to any tool; they are doors, not ground
+    if (first) {
       const spot = spotAt(x, y);
-      if (spot === 'seed') { Main.setMode('tree'); return; }
-      if (spot === 'store') { Shop.open(); return; }
-      if (spot === 'post') { Main.setMode('map'); return; }
+      if (spot === 'seed') { Main.setMode('tree'); return true; }
+      if (spot === 'post') { Main.setMode('map'); return true; }
+    }
+    if (tool === 'drag') {
+      if (!first) return true;
+      const d = dropAt(x, y);
+      if (d) { dragging = d; d.z = Math.max(d.z, 12); Audio.play('click'); return true; }
       const w = wombatAt(x, y);
-      if (w) { pet(w); return; }
-      if (World.harvest(x, y)) return;
-      return;
+      if (w) { pet(w); return true; }
+      if (World.harvest(x, y)) return true;
+      return false;
     }
     if (tool === 'food') {
-      if (!first) return;
+      if (!first) return true;
       const w = wombatAt(x, y);
-      if (w) { if (G.selFood && (G.food[G.selFood] || 0) > 0) feed(w, G.selFood, false); else pet(w); }
-      return;
+      if (w) { if (G.selFood && (G.food[G.selFood] || 0) > 0) feed(w, G.selFood, false); else pet(w); return true; }
+      return false;
     }
     if (tool === 'destroy') {
-      if (!first) return;
+      if (!first) return true;
       const o = objAt(x, y);
-      if (o) demolish(o);
-      else Audio.play('error');
-      return;
+      if (o) { demolish(o); return true; }
+      return false;
     }
     if (tool === 'pair') {
-      if (!first) return;
+      if (!first) return true;
       const w = wombatAt(x, y);
-      if (!w || w.age !== 'adult' || w.gest > 0) { Audio.play('error'); return; }
-      if (!G.pairFirst) { G.pairFirst = w.id; FX.hearts(w.x, w.y - 30, 2); Audio.play('click'); return; }
+      if (!w || w.age !== 'adult' || w.gest > 0) { Audio.play('error'); return true; }
+      if (!G.pairFirst) { G.pairFirst = w.id; FX.hearts(w.x, w.y - 30, 2); Audio.play('click'); return true; }
       const a = G.wombats.find((m) => m.id === G.pairFirst);
       G.pairFirst = null;
-      if (!a || a === w || a.hap < 55 || w.hap < 55 || G.wombats.length >= capacity()) { Audio.play('error'); return; }
+      if (!a || a === w || a.hap < 55 || w.hap < 55 || G.wombats.length >= capacity()) { Audio.play('error'); return true; }
       w.gest = 26; w.mate = a.id; a.hap -= 8; w.hap -= 8;
       FX.hearts((w.x + a.x) / 2, w.y - 34, 8); Audio.play('bless');
-      return;
+      return true;
     }
     const t = TOOL_BY_KEY[tool];
     const r = World.brushRadius(t ? t.radius : 12);
+    if (!t || !t.radius) return true;
     switch (tool) {
       case 'moss': if (World.sowGrass(x, y, r) && first) Audio.play('brush'); World.disturb(x, y, r, 0.5); break;
       case 'hoe': World.till(x, y, r); if (first) Audio.play('dig'); break;
@@ -3791,14 +3792,16 @@ const Grove = (() => {
         const res = World.plant(x, y, G.selSeed);
         if (res === 'ok') { Audio.play('pluck'); UI.refreshTray(); }
         else if (res === 'nosoil' && first) { Audio.play('error'); UI.toast('till the soil first', 'bad'); }
-        else if (res === 'noseed' && first) { Audio.play('error'); Shop.open(); }
+        else if (res === 'noseed' && first) { Audio.play('error'); UI.toast('buy seed at the mart', 'bad'); }
         break;
       }
     }
+    return true;
   }
   function clearPair() { if (G) G.pairFirst = null; }
   function move(x, y) {
-    if (dragging) { dragging.x = x; dragging.y = y; dragging.z = 16; dragging.vz = 0; dragging.vx = 0; return; }
+    if (dragging) { dragging.x = U.clamp(x, 8, W - 8); dragging.y = y; dragging.z = 16; dragging.vz = 0; dragging.vx = 0; return true; }
+    return false;
   }
   function release(x, y) {
     if (!dragging) return;
@@ -3809,7 +3812,7 @@ const Grove = (() => {
   }
   function hover(x, y) {
     hoverW = (G.tool === 'drag' || G.tool === 'food' || G.tool === 'pair') ? wombatAt(x, y) : null;
-    hoverSpot = G.tool === 'drag' ? spotAt(x, y) : null;
+    hoverSpot = spotAt(x, y);
     hoverObj = G.tool === 'destroy' ? objAt(x, y) : null;
     if (hoverObj) return `<b>${hoverObj.kind === 'fallen' ? 'Fallen tree' : hoverObj.kind === 'ruin' ? 'Ruin' : 'Stump'}</b><br>${demolishCost(hoverObj)} W$ to have it carried off`;
     if (hoverW) {
@@ -3819,7 +3822,6 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'seed') return '<b>Tree of Life</b><br>a seed, waiting';
-    if (hoverSpot === 'store') return '<b>Store</b>';
     if (hoverSpot === 'post') return '<b>Map</b>';
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
     return null;
@@ -3829,49 +3831,92 @@ const Grove = (() => {
   function render(g) {
     const f = World.fraction();
     const cam = FX.cam;
+    const L = cam.x - VW / 2 / cam.zoom - 20, R = cam.x + VW / 2 / cam.zoom + 20;
+    const drift = cam.x - W / 2;           // how far the view has travelled
     g.save();
-    if (cam.zoom !== 1 || cam.x !== 320 || cam.y !== 180) {
-      g.translate(W / 2, H / 2); g.scale(cam.zoom, cam.zoom); g.translate(-cam.x, -cam.y);
+    g.translate(VW / 2, VH / 2); g.scale(cam.zoom, cam.zoom); g.translate(-cam.x, -cam.y);
+
+    // ---- sky: cold and overcast, warming only as the forest returns -------
+    const top = U.mix('#0d0f18', '#2d4462', f), bot = U.mix('#39323f', '#7fa39f', f);
+    for (let i = 0; i < 12; i++) {
+      g.fillStyle = U.mix(top, bot, i / 11);
+      g.fillRect(L, Math.round((SKY * i) / 12) - 40, R - L, Math.ceil(SKY / 12) + 42);
     }
-    // sky
-    const top = U.mix('#1a1a26', '#3c5570', f), bot = U.mix('#4a4652', '#8fb0ae', f);
-    for (let i = 0; i < 10; i++) { g.fillStyle = U.mix(top, bot, i / 9); g.fillRect(-80, Math.round((SKY * i) / 10) - 40, W + 160, Math.ceil(SKY / 10) + 42); }
-    const sg = g.createRadialGradient(120, 44, 4, 120, 44, 90);
-    sg.addColorStop(0, `rgba(255,238,176,${0.18 + f * 0.34})`); sg.addColorStop(1, 'rgba(255,238,176,0)');
-    g.fillStyle = sg; g.fillRect(30, -46, 180, 180);
-    g.fillStyle = U.mix('#6b6470', '#ffeeb0', f); Art.ell(g, 120, 44, 8, 8);
-    // dense forest, four layers deep, fog between
+    // a cold sun, low and pale, parked behind the canopy
+    const sunX = W * 0.22 + drift * 0.8, sunY = 40;
+    const sg = g.createRadialGradient(sunX, sunY, 4, sunX, sunY, 110);
+    sg.addColorStop(0, `rgba(255,238,196,${(0.12 + f * 0.3).toFixed(2)})`); sg.addColorStop(1, 'rgba(255,238,196,0)');
+    g.fillStyle = sg; g.fillRect(sunX - 110, sunY - 110, 220, 220);
+    g.fillStyle = U.mix('#5f5a68', '#ffeeb0', f); Art.ell(g, sunX, sunY, 8, 8);
+
+    // ---- five layers of trees, each at its own drift rate -----------------
     for (let d = 0; d < layers.length; d++) {
+      const off = drift * PAR[d];
       for (const t of layers[d]) {
-        const img = Props.get('tree', `${t.kind}|${t.v}|${(t.sh * (1 - f * 0.28)).toFixed(2)}`);
+        const x = t.x + off;
+        if (x < L - 90 || x > R + 90) continue;
+        const img = Props.get('tree', `${t.kind}|${t.v}|${(t.sh * (1 - f * 0.3)).toFixed(2)}`);
         const w2 = img.width * t.s, h2 = img.height * t.s;
-        g.drawImage(img, Math.round(t.x - w2 / 2), Math.round(t.y - h2), Math.round(w2), Math.round(h2));
+        g.drawImage(img, Math.round(x - w2 / 2), Math.round(t.y - h2), Math.round(w2), Math.round(h2));
       }
-      // watching eyes in the deepest layers
+      // things watching from the second row
       if (d === 1) for (const e of eyes) {
         if (e.on <= 0) continue;
+        const ex = e.x + off;
         const a = Math.min(1, e.on) * (0.5 + 0.5 * Math.sin(G.time * 9 + e.ph));
-        g.fillStyle = `rgba(245,205,92,${a * 0.9})`;
-        g.fillRect(e.x, e.y, 2, 2); g.fillRect(e.x + 5, e.y, 2, 2);
+        g.fillStyle = `rgba(245,205,92,${(a * 0.9).toFixed(3)})`;
+        g.fillRect(ex, e.y, 2, 2); g.fillRect(ex + 5, e.y, 2, 2);
       }
-      g.fillStyle = `rgba(${d < 2 ? '16,18,26' : '40,44,54'},${0.34 - d * 0.07 - f * 0.08})`;
-      g.fillRect(-80, SKY - 44 + d * 15, W + 160, 60);
+      // haze thickens toward the back of the wood
+      const hz = 0.4 - d * 0.06 - f * 0.1;
+      const hg = g.createLinearGradient(0, SKY - 56 + d * 13, 0, SKY + 8);
+      hg.addColorStop(0, `rgba(${d < 2 ? '12,14,22' : '46,50,62'},${Math.max(0, hz).toFixed(3)})`);
+      hg.addColorStop(1, `rgba(${d < 2 ? '12,14,22' : '46,50,62'},0)`);
+      g.fillStyle = hg; g.fillRect(L, SKY - 56 + d * 13, R - L, 70);
+      // fog banks caught between the trunks
+      for (const m of mist) {
+        if (m.d !== Math.min(2, d)) continue;
+        const mx = m.x + drift * PAR[d];
+        if (mx > R || mx + m.w < L) continue;
+        const a = (0.08 + (1 - f) * 0.16) * (0.6 + 0.4 * Math.sin(G.time * 0.4 + m.x));
+        const gr = g.createLinearGradient(0, m.y - 14, 0, m.y + 14);
+        gr.addColorStop(0, 'rgba(198,196,204,0)');
+        gr.addColorStop(0.5, `rgba(198,196,204,${a.toFixed(3)})`);
+        gr.addColorStop(1, 'rgba(198,196,204,0)');
+        g.fillStyle = gr; g.fillRect(mx, m.y - 14, m.w, 28);
+      }
+    }
+    // ---- light falling through the canopy ---------------------------------
+    for (const sh of shafts) {
+      const x = sh.x + drift * 0.2;
+      if (x < L - 120 || x > R + 120) continue;
+      const a = sh.a * (0.55 + 0.45 * Math.sin(G.time * 0.3 + sh.x)) * (0.5 + f * 0.9);
+      const gr = g.createLinearGradient(x, SKY - 60, x + sh.lean, GROUND + 90);
+      gr.addColorStop(0, `rgba(255,240,200,${a.toFixed(3)})`);
+      gr.addColorStop(1, 'rgba(255,240,200,0)');
+      g.fillStyle = gr;
+      g.beginPath();
+      g.moveTo(x - sh.w / 2, SKY - 60); g.lineTo(x + sh.w / 2, SKY - 60);
+      g.lineTo(x + sh.lean + sh.w, GROUND + 90); g.lineTo(x + sh.lean - sh.w, GROUND + 90);
+      g.closePath(); g.fill();
     }
     // owls on the near boughs
     for (const o of owls) {
+      const ox = o.x + drift * PAR[4];
+      if (ox < L - 40 || ox > R + 40) continue;
       const img = Sprites.owl(o.blink < 0.35 ? 3 : 0);
-      g.drawImage(img, Math.round(o.x - 12), Math.round(o.y - 26));
+      g.drawImage(img, Math.round(ox - 12), Math.round(o.y - 26));
     }
     World.drawGround(g);
-    // mist along the treeline
+    // ground fog rolling off the treeline into the plot
     for (const m of mist) {
-      const a = (0.1 + (1 - f) * 0.16) * (0.6 + 0.4 * Math.sin(G.time * 0.4 + m.x));
-      const gr = g.createLinearGradient(m.x, m.y - 12, m.x, m.y + 12);
-      gr.addColorStop(0, 'rgba(214,206,196,0)');
-      gr.addColorStop(0.5, `rgba(214,206,196,${a.toFixed(3)})`);
-      gr.addColorStop(1, 'rgba(214,206,196,0)');
-      g.fillStyle = gr;
-      g.fillRect(m.x, m.y - 12, m.w, 24);
+      if (m.d !== 2) continue;
+      const mx = m.x * 0.7 + 60;
+      const a = (0.07 + (1 - f) * 0.1) * (0.6 + 0.4 * Math.sin(G.time * 0.3 + m.x));
+      const gr = g.createLinearGradient(0, GROUND - 4, 0, GROUND + 30);
+      gr.addColorStop(0, `rgba(206,204,212,${a.toFixed(3)})`);
+      gr.addColorStop(1, 'rgba(206,204,212,0)');
+      g.fillStyle = gr; g.fillRect(mx, GROUND - 4, m.w * 1.4, 34);
     }
     World.drawSprouts(g);
     World.drawBlades(g);
@@ -3880,7 +3925,6 @@ const Grove = (() => {
 
     const items = [];
     items.push({ y: SEED.y, fn: () => drawSeed(g) });
-    items.push({ y: STORE.y, fn: () => drawStore(g) });
     items.push({ y: POST.y, fn: () => drawPost(g) });
     for (const o of objects) if (o.gone < 1) items.push({ y: o.y, fn: () => drawObject(g, o) });
     for (const d of DECOR) if (G.decor[d.key]) {
@@ -3891,7 +3935,7 @@ const Grove = (() => {
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
     if (arrival) items.push({ y: arrival.y, fn: () => Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S) });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
-    if (TRUCK.parked || TRUCK.x < 700) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
+    if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
@@ -3903,6 +3947,16 @@ const Grove = (() => {
       const fl = b.dir < 0 ? Art.flip(img) : img;
       g.drawImage(fl, Math.round(b.x - 12), Math.round(b.y - 9));
     }
+    // motes drifting through the dark under the trees
+    for (const fl of flies) {
+      const x = fl.x + Math.sin(G.time * fl.sp + fl.ph) * 22 + drift * 0.12;
+      if (x < L || x > R) continue;
+      const y = fl.y + Math.cos(G.time * fl.sp * 0.7 + fl.ph) * 13;
+      const a = (0.3 + 0.5 * (Math.sin(G.time * 2.2 + fl.ph) * 0.5 + 0.5)) * (0.4 + f * 0.6);
+      g.fillStyle = `rgba(${f > 0.4 ? '214,236,150' : '186,196,214'},${a.toFixed(2)})`;
+      g.fillRect(Math.round(x), Math.round(y), 1, 1);
+      if (a > 0.65) { g.globalAlpha = 0.2; g.fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 3); g.globalAlpha = 1; }
+    }
     FX.drawParticles(g, 0);
     FX.drawFloaters(g, false);
     for (const w of G.wombats) pips(g, w);
@@ -3911,6 +3965,31 @@ const Grove = (() => {
       if (t && t.radius > 0) World.drawCursor(g, G.pointer.x, G.pointer.y, World.brushRadius(t.radius), toolTint(G.tool));
     }
     g.restore();
+
+    // a cold wash while the wood is still dead; it lifts as the grove comes back
+    if (f < 0.95) { g.fillStyle = `rgba(26,34,58,${(0.2 * (1 - f)).toFixed(3)})`; g.fillRect(0, 0, VW, VH); }
+    // the whole grove sits inside a soft dark frame
+    const vg = g.createRadialGradient(VW / 2, VH * 0.52, VH * 0.4, VW / 2, VH * 0.52, VH * 1.02);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, `rgba(8,7,14,${(0.62 - f * 0.22).toFixed(2)})`);
+    g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
+    edgeArrows(g);
+  }
+
+  // A hint at each edge while there is more grove that way.
+  function edgeArrows(g) {
+    if (arrival) return;
+    const c = FX.cam, p = 0.5 + 0.5 * Math.sin(G.time * 3);
+    const room = VW / 2 / c.zoom;
+    for (const s2 of [-1, 1]) {
+      const more = s2 < 0 ? c.x - room > 2 : c.x + room < W - 2;
+      if (!more) continue;
+      const x = s2 < 0 ? 12 : VW - 12;
+      g.globalAlpha = 0.25 + p * 0.3;
+      g.fillStyle = PAL.cream;
+      for (let i = 0; i < 6; i++) g.fillRect(x + s2 * i, VH / 2 - 7 + i, 2, 14 - i * 2);
+      g.globalAlpha = 1;
+    }
   }
   function toolTint(k) { return { moss: PAL.moss4, hoe: PAL.soil4, sickle: PAL.rot2, net: PAL.cyan3, water: PAL.water2, seed: PAL.gold3 }[k] || PAL.cream; }
 
@@ -3969,14 +4048,6 @@ const Grove = (() => {
       g.fillRect(Math.round(SEED.x + Math.cos(a) * 14), Math.round(SEED.y - 16 + Math.sin(a) * 9), 2, 2);
     }
     if (hoverSpot === 'seed') outline(g, SEED.x - 24, SEED.y - 46, 48, 52);
-  }
-  function drawStore(g) {
-    const img = Props.get('store');
-    g.fillStyle = 'rgba(18,14,20,0.3)'; Art.ell(g, STORE.x, STORE.y + 2, 58, 9);
-    g.drawImage(img, Math.round(STORE.x - img.width / 2), Math.round(STORE.y - img.height + 6));
-    const m = Sprites.mascot(Math.floor(G.time * 3));
-    g.drawImage(m, Math.round(STORE.x + 44), Math.round(STORE.y - 96));
-    if (hoverSpot === 'store') outline(g, STORE.x - 64, STORE.y - 104, 128, 110);
   }
   function drawPost(g) {
     g.fillStyle = 'rgba(18,14,20,0.28)'; Art.ell(g, POST.x, POST.y + 1, 14, 4);
@@ -4082,10 +4153,10 @@ const Grove = (() => {
   }
 
   return {
-    init, update, render, press, move, release, hover, clearPair, addWombat, newWombat, feed, pet, offline,
+    init, update, render, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
-    SEED, STORE, POST, GROUND, WALK,
+    SEED, POST, GROUND, WALK, W, H, VW,
   };
 })();
 </script>
@@ -4917,17 +4988,13 @@ const Atlas = (() => {
 
 <script>
 // ===== js/shop.js =====
-// ---- The wombat store: a door, a counter, and shelves you swipe through ---
+// ---- Wombat Mart: a lit convenience store with signed aisles --------------
 const Shop = (() => {
   let G = null;
   const VW = 640, VH = 360;
-  const WORLDW = 1180;
-  const SHELF_Y = [150, 214, 278];        // board top, three boards
-  const COL0 = 96, COLW = 112, COLS = 7;
-  const COUNTER = 900;
   const cache = new Map();
   let phase = 'door', pt = 0, scroll = 0, tscroll = 0, till = 0, hover = null;
-  let drag = null, moved = 0, keeper = { x: 1010, y: 300, t: 0, pose: 'idle' };
+  let drag = null, moved = 0, keeper = { t: 0, pose: 'idle' };
   const basket = [], flies = [], motes = [];
 
   // ---- product sprites ----------------------------------------------------
@@ -5030,12 +5097,41 @@ const Shop = (() => {
     }
     return out;
   }
-  let slots = [];
+  // ---- layout: aisles by section, then the checkout -----------------------
+  // Each section is a gondola of three shelves under a coloured header sign,
+  // laid out left to right; the player swipes sideways to walk the aisle.
+  const SECTIONS = [
+    { key: 'seed',   name: 'SEEDS', color: '#3f8f4a', sub: 'sow it' },
+    { key: 'up',     name: 'BUILD', color: '#2f6f9f', sub: 'dig it' },
+    { key: 'dec',    name: 'YARD',  color: '#c97a25', sub: 'set it' },
+    { key: 'wombat', name: 'ADOPT', color: '#b8496a', sub: 'love it' },
+  ];
+  const SHELF_Y = [176, 234, 292];        // board tops, three to a gondola
+  const COLW = 96;                        // one product slot
+  const AISLE0 = 340;                     // the entrance takes the first stretch
+  const GAP = 64;                         // between gondolas
+  let slots = [], bays = [], counterX = 1200, worldW = 1500;
+
   function layout() {
     const list = catalogue();
-    slots = list.map((p, i) => ({
-      p, x: COL0 + (i % COLS) * COLW, y: SHELF_Y[Math.floor(i / COLS) % 3], i,
-    }));
+    slots = []; bays = [];
+    let x = AISLE0;
+    for (const sec of SECTIONS) {
+      const items = list.filter((p) => p.kind === sec.key);
+      if (!items.length) continue;
+      const cols = Math.ceil(items.length / 3);
+      const w = cols * COLW;
+      const taken = new Array(cols * 3).fill(false);
+      bays.push({ sec, x, w, cols, taken });
+      items.forEach((p, i) => {
+        const c = i % cols, r = Math.floor(i / cols);
+        taken[r * cols + c] = true;
+        slots.push({ p, x: x + c * COLW + COLW / 2, y: SHELF_Y[r], sec });
+      });
+      x += w + GAP;
+    }
+    counterX = x + 30;
+    worldW = counterX + 330;
   }
 
   // ---- basket -------------------------------------------------------------
@@ -5113,16 +5209,16 @@ const Shop = (() => {
     layout();
     phase = 'door'; pt = 0; scroll = 0; tscroll = 0; till = 0; hover = null;
     basket.length = 0; flies.length = 0;
-    if (!motes.length) { const r = Art.rng(99); for (let i = 0; i < 30; i++) motes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU }); }
+    if (!motes.length) { const r = Art.rng(99); for (let i = 0; i < 24; i++) motes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU }); }
     Audio.setMode('pen');
     Audio.play('door');
     UI.refreshBasket();
   }
-  function leave() { Main.setMode('grove'); }
+  function leave() { Main.setMode('map'); }
 
   function update(dt) {
     pt += dt;
-    if (phase === 'door' && pt > 2.3) { phase = 'aisle'; pt = 0; }
+    if (phase === 'door' && pt > 2.4) { phase = 'aisle'; pt = 0; }
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.0015, dt));
     keeper.t += dt;
     if (till > 0) { till -= dt; if (till <= 0) keeper.pose = 'idle'; }
@@ -5136,11 +5232,11 @@ const Shop = (() => {
   function slotAt(x, y) {
     for (const s of slots) {
       const sx = s.x - scroll;
-      if (x > sx - 22 && x < sx + 22 && y > s.y - 54 && y < s.y + 6) return s;
+      if (x > sx - 26 && x < sx + 26 && y > s.y - 58 && y < s.y + 6) return s;
     }
     return null;
   }
-  const overCounter = (x) => x + scroll > COUNTER - 40;
+  const overCounter = (x) => x + scroll > counterX - 30;
   function press(x, y) {
     if (phase !== 'aisle') { phase = 'aisle'; pt = 0; return; }
     drag = { x, y, s: tscroll }; moved = 0;
@@ -5148,7 +5244,7 @@ const Shop = (() => {
   function move(x, y) {
     if (!drag) return;
     moved = Math.max(moved, Math.abs(x - drag.x));
-    tscroll = U.clamp(drag.s - (x - drag.x), 0, WORLDW - VW);
+    tscroll = U.clamp(drag.s - (x - drag.x), 0, worldW - VW);
     scroll = tscroll;
   }
   function release(x, y) {
@@ -5158,157 +5254,161 @@ const Shop = (() => {
     if (wasDrag) return;
     const s = slotAt(x, y);
     if (s) { add(s.p); return; }
-    if (overCounter(x) && y > 170) { UI.openBasket(); Audio.play('click'); return; }
+    if (overCounter(x) && y > 150) { UI.openBasket(); Audio.play('click'); return; }
   }
   function hoverAt(x, y) {
     if (phase !== 'aisle') return null;
     const s = slotAt(x, y);
     hover = s;
-    if (!s) return overCounter(x) && y > 170 ? '<b>Counter</b><br>check out' : null;
+    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>pay for the basket' : null;
     const p = s.p;
     const tag = p.locked ? '<span class="warn">a god must bless it</span>'
       : p.sold ? '<span class="good">owned</span>'
         : `${Icons.img('wdollar', 'sm')} ${U.fmt(priceOf(p, countOf(p.id)))}`;
-    const extra = p.kind === 'seed' ? '<br>6 seeds' : p.note ? '<br>' + p.note : '';
+    const extra = p.kind === 'seed' ? '<br>6 seeds a packet' : p.note ? '<br>' + p.note : '';
     return `<b>${p.name}</b>${extra}<br>${tag}`;
   }
-  function wheel(dy) { tscroll = U.clamp(tscroll + dy, 0, WORLDW - VW); }
+  function wheel(dy) { tscroll = U.clamp(tscroll + dy, 0, worldW - VW); }
 
   // ---- render -------------------------------------------------------------
   function render(g) {
-    if (phase === 'door') { renderDoor(g); return; }
+    if (phase === 'door') { renderFront(g); return; }
     renderRoom(g);
   }
 
-  function renderDoor(g) {
-    const k = U.clamp(pt / 2.3, 0, 1);
-    const zoom = 1 + U.easeIn(k) * 2.6;
-    g.fillStyle = '#1b2418'; g.fillRect(0, 0, VW, VH);
-    // sky and ground behind the shop
-    const sky = g.createLinearGradient(0, 0, 0, VH);
-    sky.addColorStop(0, '#2a3550'); sky.addColorStop(1, '#4a5a46');
-    g.fillStyle = sky; g.fillRect(0, 0, VW, 230);
-    g.fillStyle = '#3c4a2e'; g.fillRect(0, 226, VW, VH - 226);
-    g.fillStyle = '#4e5f38'; g.fillRect(0, 226, VW, 4);
+  // The storefront: a lit box at dusk, glass all along the front, automatic
+  // doors sliding apart while the camera walks in.
+  function renderFront(g) {
+    const k = U.clamp(pt / 2.4, 0, 1);
+    const zoom = 1 + U.easeIn(k) * 2.8;
+    const slide = U.easeOut(U.clamp((pt - 0.5) / 0.9, 0, 1));
+    const dusk = g.createLinearGradient(0, 0, 0, VH);
+    dusk.addColorStop(0, '#161d33'); dusk.addColorStop(0.7, '#2e3550'); dusk.addColorStop(1, '#3c4038');
+    g.fillStyle = dusk; g.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 40; i++) { g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect((i * 137) % VW, (i * 61) % 90, 1, 1); }
 
     g.save();
-    g.translate(VW / 2, 250);
-    g.scale(zoom, zoom);
-    g.translate(-VW / 2, -250);
-    const img = Props.get('store');
-    const s = 2.2, dw = img.width * s, dh = img.height * s;
-    const dx = Math.round(VW / 2 - dw / 2), dy = Math.round(250 - dh);
-    g.drawImage(img, dx, dy, dw, dh);
+    g.translate(VW / 2, 250); g.scale(zoom, zoom); g.translate(-VW / 2, -250);
 
-    // the doorway, cut back into the facade
-    const doorX = dx + 70 * s, doorY = dy + 58 * s, doorW = 36 * s, doorH = 42 * s;
-    const swing = U.easeOut(U.clamp((pt - 0.35) / 1.1, 0, 1));
-    g.fillStyle = '#2a1f18'; g.fillRect(doorX, doorY, doorW, doorH);
-    const light = g.createLinearGradient(doorX, doorY, doorX + doorW, doorY + doorH);
-    light.addColorStop(0, `rgba(255,206,130,${(0.9 * swing).toFixed(2)})`);
-    light.addColorStop(1, `rgba(226,150,80,${(0.4 * swing).toFixed(2)})`);
-    g.fillStyle = light; g.fillRect(doorX, doorY, doorW, doorH);
-    if (swing > 0.2) {                        // the keeper waits at the counter
-      g.save();
-      g.beginPath(); g.rect(doorX + 2, doorY, doorW - 4, doorH); g.clip();
-      g.fillStyle = 'rgba(60,36,20,0.55)'; g.fillRect(doorX, doorY + doorH - 26, doorW, 26);
-      Sprites.blit(g, doorX + doorW * 0.56, doorY + doorH - 6, 'pray', Math.floor(pt * 3), 'sand', -1, 'adult', s * 0.5);
-      g.globalAlpha = 0.35 * swing;
-      g.fillStyle = PAL.gold4; g.fillRect(doorX, doorY, doorW, doorH);
-      g.globalAlpha = 1;
-      g.restore();
+    // the lot
+    g.fillStyle = '#3a3a40'; g.fillRect(0, 250, VW, VH - 250);
+    g.fillStyle = '#4a4a52'; g.fillRect(0, 250, VW, 3);
+    for (let i = 0; i < 7; i++) { g.fillStyle = 'rgba(240,236,200,0.35)'; g.fillRect(30 + i * 90, 296, 44, 3); }
+
+    const bx = 150, by = 96, bw = 340, bh = 154;
+    // body
+    g.fillStyle = '#e9e4d6'; g.fillRect(bx, by, bw, bh);
+    g.fillStyle = '#d6d0c0'; g.fillRect(bx, by + bh - 10, bw, 10);
+    // the house band: orange, green, red, the way every mart on earth is striped
+    g.fillStyle = '#c9581f'; g.fillRect(bx, by, bw, 9);
+    g.fillStyle = '#3f8f4a'; g.fillRect(bx, by + 9, bw, 9);
+    g.fillStyle = '#b8412c'; g.fillRect(bx, by + 18, bw, 5);
+    // parapet and sign box
+    g.fillStyle = '#f4f0e4'; g.fillRect(bx - 8, by - 26, bw + 16, 28);
+    g.fillStyle = '#cfc8b6'; g.fillRect(bx - 8, by - 4, bw + 16, 6);
+    g.fillStyle = '#2a2f3a'; g.fillRect(bx + 40, by - 22, bw - 80, 20);
+    const buzz = 0.85 + 0.15 * Math.sin(pt * 30);
+    g.globalAlpha = buzz;
+    FX.pixelText(g, 'WOMBAT MART', bx + bw / 2, by - 18, { color: '#f6f2e2', size: 11, ink: 3, inkColor: '#1a2030' });
+    g.globalAlpha = 1;
+    g.fillStyle = '#3f8f4a'; g.fillRect(bx + 22, by - 20, 14, 16);
+    g.fillStyle = '#c9581f'; g.fillRect(bx + bw - 36, by - 20, 14, 16);
+
+    // glass front, lit from inside
+    const glass = g.createLinearGradient(0, by + 26, 0, by + bh - 12);
+    glass.addColorStop(0, 'rgba(255,246,214,0.95)'); glass.addColorStop(1, 'rgba(226,214,176,0.9)');
+    g.fillStyle = '#2a2f3a'; g.fillRect(bx + 10, by + 26, bw - 20, bh - 38);
+    g.fillStyle = glass; g.fillRect(bx + 14, by + 30, bw - 28, bh - 46);
+    // shelving seen through the window
+    for (let i = 0; i < 3; i++) {
+      g.fillStyle = 'rgba(120,104,74,0.4)'; g.fillRect(bx + 22, by + 52 + i * 24, 120, 4);
+      for (let k2 = 0; k2 < 6; k2++) { g.fillStyle = ['#7a9a5a', '#c9581f', '#4a6a9a', '#b8496a'][(i + k2) % 4]; g.fillRect(bx + 26 + k2 * 19, by + 42 + i * 24, 11, 10); }
     }
-    // light spilling out onto the step
-    if (swing > 0.1) {
-      const spill = g.createLinearGradient(0, doorY + doorH, 0, doorY + doorH + 60);
-      spill.addColorStop(0, `rgba(255,206,130,${(0.35 * swing).toFixed(2)})`);
-      spill.addColorStop(1, 'rgba(255,206,130,0)');
+    // posters
+    g.fillStyle = '#d8402c'; g.fillRect(bx + 250, by + 44, 34, 26);
+    FX.pixelText(g, 'SALE', bx + 267, by + 52, { color: '#fff', size: 7, ink: false });
+    g.fillStyle = '#2f6f9f'; g.fillRect(bx + 292, by + 44, 34, 26);
+    FX.pixelText(g, 'OPEN', bx + 309, by + 52, { color: '#fff', size: 7, ink: false });
+    // mullions
+    g.fillStyle = '#2a2f3a';
+    for (let x2 = bx + 14; x2 < bx + bw - 14; x2 += 58) g.fillRect(x2, by + 30, 4, bh - 46);
+
+    // the automatic doors, sliding apart
+    const dW = 92, dX = bx + bw / 2 - dW / 2, dY = by + 34, dH = bh - 50;
+    g.fillStyle = '#1d2230'; g.fillRect(dX - 4, dY - 4, dW + 8, dH + 8);
+    // what you can see through the opening
+    g.save();
+    g.beginPath(); g.rect(dX, dY, dW, dH); g.clip();
+    const inner = g.createLinearGradient(0, dY, 0, dY + dH);
+    inner.addColorStop(0, '#fffbe8'); inner.addColorStop(1, '#e6d9b4');
+    g.fillStyle = inner; g.fillRect(dX, dY, dW, dH);
+    g.fillStyle = '#c9bd9a'; g.fillRect(dX, dY + dH - 22, dW, 22);
+    if (slide > 0.15) Sprites.blit(g, dX + dW * 0.5, dY + dH - 6, 'pray', Math.floor(pt * 3), 'sand', -1, 'adult', 1.5);
+    g.fillStyle = 'rgba(255,240,190,0.25)'; g.fillRect(dX, dY, dW, dH);
+    g.restore();
+    for (const s2 of [-1, 1]) {                     // the two glass leaves
+      const w2 = (dW / 2) * (1 - slide * 0.9);
+      const x2 = s2 < 0 ? dX : dX + dW - w2;
+      g.fillStyle = 'rgba(198,222,226,0.72)'; g.fillRect(x2, dY, w2, dH);
+      g.fillStyle = '#7f8b96'; g.fillRect(x2, dY, w2, 3); g.fillRect(x2, dY + dH - 3, w2, 3);
+      g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(x2 + (s2 < 0 ? 3 : w2 - 8), dY + 6, 4, dH - 14);
+      g.fillStyle = '#39414d'; g.fillRect(s2 < 0 ? x2 + w2 - 3 : x2, dY, 3, dH);
+    }
+    // light spilling over the kerb
+    if (slide > 0.05) {
+      const spill = g.createLinearGradient(0, dY + dH, 0, dY + dH + 70);
+      spill.addColorStop(0, `rgba(255,236,180,${(0.4 * slide).toFixed(2)})`);
+      spill.addColorStop(1, 'rgba(255,236,180,0)');
       g.fillStyle = spill;
       g.beginPath();
-      g.moveTo(doorX, doorY + doorH); g.lineTo(doorX + doorW, doorY + doorH);
-      g.lineTo(doorX + doorW + 30 * swing, doorY + doorH + 56); g.lineTo(doorX - 30 * swing, doorY + doorH + 56);
+      g.moveTo(dX, dY + dH); g.lineTo(dX + dW, dY + dH);
+      g.lineTo(dX + dW + 40 * slide, dY + dH + 64); g.lineTo(dX - 40 * slide, dY + dH + 64);
       g.closePath(); g.fill();
     }
-    // the swinging panel: hinged on the left, narrowing as it opens inward
-    const pw2 = doorW * (1 - swing * 0.88);
-    const skew = swing * 7;
-    g.save();
-    g.beginPath();
-    g.moveTo(doorX, doorY); g.lineTo(doorX + pw2, doorY + skew);
-    g.lineTo(doorX + pw2, doorY + doorH - skew); g.lineTo(doorX, doorY + doorH);
-    g.closePath(); g.clip();
-    g.fillStyle = U.mix('#5d4430', '#2f2118', swing * 0.6); g.fillRect(doorX, doorY, pw2, doorH);
-    g.fillStyle = U.mix('#6d5138', '#37271b', swing * 0.6);
-    for (let x = 3; x < pw2 - 2; x += Math.max(5, 14 * (1 - swing * 0.8))) g.fillRect(doorX + x, doorY + 4, Math.max(3, 9 * (1 - swing * 0.8)), doorH - 8);
-    if (swing < 0.6) { g.fillStyle = PAL.gold3; g.fillRect(doorX + pw2 - 9, doorY + doorH * 0.5, 4, 4); }
-    g.restore();
-    g.fillStyle = 'rgba(20,14,10,0.5)';
-    g.fillRect(doorX + pw2, doorY + skew, 2, doorH - skew * 2);
-    // bell
-    if (pt > 0.35 && pt < 0.9) {
-      const b = Math.sin((pt - 0.35) * 26) * 3;
-      Art.ell(g, doorX + doorW * 0.5 + b, doorY - 8, 5, 5, PAL.gold2);
-    }
+    // kerbside clutter
+    g.fillStyle = '#7f8b96'; g.fillRect(bx + 20, by + bh - 2, 34, 26);
+    g.fillStyle = '#b9c4cc'; g.fillRect(bx + 23, by + bh + 1, 28, 10);
+    FX.pixelText(g, 'ICE', bx + 37, by + bh + 12, { color: '#2f6f9f', size: 7, ink: false });
+    g.fillStyle = '#c9581f'; g.fillRect(bx + bw - 58, by + bh - 2, 26, 26);
+    g.fillStyle = '#e9e4d6'; g.fillRect(bx + bw - 55, by + bh + 2, 20, 8);
+    const m = Sprites.mascot(Math.floor(pt * 3));
+    g.drawImage(m, Math.round(bx + bw + 6), Math.round(by + bh + 22 - m.height));
     g.restore();
 
-    const fade = U.clamp((pt - 1.7) / 0.6, 0, 1);
-    g.fillStyle = `rgba(36,24,16,${fade})`; g.fillRect(0, 0, VW, VH);
-    if (pt < 1.6) FX.pixelText(g, 'OPEN', VW / 2, 300, { color: PAL.gold3, size: 10 });
+    const fade = U.clamp((pt - 1.8) / 0.6, 0, 1);
+    g.fillStyle = `rgba(250,244,224,${fade})`; g.fillRect(0, 0, VW, VH);
   }
 
   function renderRoom(g) {
-    const t = G.time;
-    const S = scroll;
+    const t = G.time, S = scroll;
+    // ---- ceiling, wall, floor ---------------------------------------------
+    g.fillStyle = '#e7e2d2'; g.fillRect(0, 0, VW, 96);
+    for (let x = -(S * 0.5) % 40; x < VW; x += 40) { g.fillStyle = '#d9d3c0'; g.fillRect(x, 0, 2, 96); }
+    for (let y = 22; y < 96; y += 26) { g.fillStyle = '#d9d3c0'; g.fillRect(0, y, VW, 2); }
+    // fluorescent tubes
+    for (let x = -(S * 0.7) % 190 + 40; x < VW + 60; x += 190) {
+      g.fillStyle = '#8e8a7c'; g.fillRect(x - 2, 0, 4, 14); g.fillRect(x + 64, 0, 4, 14);
+      g.fillStyle = '#cfcabb'; g.fillRect(x - 8, 14, 82, 10);
+      g.fillStyle = '#fffdf0'; g.fillRect(x - 4, 16, 74, 6);
+      const gl = g.createLinearGradient(0, 24, 0, 150);
+      gl.addColorStop(0, 'rgba(255,253,232,0.35)'); gl.addColorStop(1, 'rgba(255,253,232,0)');
+      g.fillStyle = gl; g.fillRect(x - 30, 24, 126, 130);
+    }
     // wall
-    const wall = g.createLinearGradient(0, 0, 0, VH);
-    wall.addColorStop(0, '#5a3f2c'); wall.addColorStop(0.6, '#6b4c33'); wall.addColorStop(1, '#4a3524');
-    g.fillStyle = wall; g.fillRect(0, 0, VW, VH);
-    for (let x = -(S * 0.6) % 24; x < VW; x += 24) { g.fillStyle = 'rgba(0,0,0,0.1)'; g.fillRect(x, 0, 2, 300); }
-    for (let x = -(S * 0.6) % 96 + 8; x < VW; x += 96) {   // wallpaper leaf motif
-      for (let y = 40; y < 300; y += 48) { Art.ell(g, x, y, 5, 3, 'rgba(210,168,110,0.12)'); Art.ell(g, x + 48, y + 24, 5, 3, 'rgba(210,168,110,0.12)'); }
-    }
-    // window at the far left with daylight
-    const wx = 40 - S;
-    if (wx > -180 && wx < VW) {
-      g.fillStyle = '#2e2018'; g.fillRect(wx, 44, 132, 96);
-      g.fillStyle = '#9fd0e4'; g.fillRect(wx + 5, 49, 122, 86);
-      g.fillStyle = '#c3e6f2'; g.fillRect(wx + 5, 49, 122, 30);
-      g.fillStyle = '#5d7d44'; Art.ell(g, wx + 34, 118, 26, 16, '#5d7d44'); Art.ell(g, wx + 92, 122, 22, 13, '#4a6a36');
-      g.fillStyle = '#2e2018'; g.fillRect(wx + 64, 44, 5, 96); g.fillRect(wx, 86, 132, 5);
-      const beam = g.createLinearGradient(wx, 140, wx + 90, 330);
-      beam.addColorStop(0, 'rgba(255,228,160,0.22)'); beam.addColorStop(1, 'rgba(255,228,160,0)');
-      g.fillStyle = beam; g.fillRect(wx - 10, 140, 190, 200);
-    }
-    // floor
-    for (let y = 300; y < VH; y++) {
-      g.fillStyle = U.mix('#4b3626', '#6b4e35', (y - 300) / (VH - 300));
-      g.fillRect(0, y, VW, 1);
-    }
-    for (let x = -(S) % 38; x < VW; x += 38) { g.fillStyle = 'rgba(0,0,0,0.24)'; g.fillRect(x, 300, 2, 60); }
-    for (let y = 306; y < VH; y += 16) { g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(0, y, VW, 1); g.fillStyle = 'rgba(255,224,170,0.06)'; g.fillRect(0, y + 1, VW, 1); }
-    g.fillStyle = '#7a5a3c'; g.fillRect(0, 300, VW, 2);
-    g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(0, 296, VW, 4);
-    // a worn rug down the middle of the aisle
-    const rx = 120 - S;
-    g.fillStyle = '#6d322d'; g.fillRect(rx, 322, 300, 34);
-    g.fillStyle = '#8c463f'; g.fillRect(rx + 6, 326, 288, 26);
-    g.fillStyle = '#b8875a'; g.fillRect(rx + 16, 332, 268, 2); g.fillRect(rx + 16, 344, 268, 2);
-    for (let i = 0; i < 12; i++) { g.fillStyle = '#c8a05a'; g.fillRect(rx + 24 + i * 22, 336, 8, 6); }
-    for (let i = 0; i < 20; i++) { g.fillStyle = '#6d322d'; g.fillRect(rx - 3, 324 + i * 1.6, 3, 1); g.fillRect(rx + 300, 324 + i * 1.6, 3, 1); }
+    g.fillStyle = '#f1ecdc'; g.fillRect(0, 96, VW, 214);
+    g.fillStyle = '#e2dcc8'; g.fillRect(0, 96, VW, 4);
+    for (let x = -(S) % 64; x < VW; x += 64) { g.fillStyle = 'rgba(0,0,0,0.03)'; g.fillRect(x, 96, 1, 214); }
+    // floor: pale tiles with a yellow line
+    g.fillStyle = '#dcd7c6'; g.fillRect(0, 310, VW, VH - 310);
+    for (let x = -(S) % 44; x < VW; x += 44) { g.fillStyle = '#cdc7b4'; g.fillRect(x, 310, 2, 50); }
+    for (let y = 316; y < VH; y += 13) { g.fillStyle = '#cdc7b4'; g.fillRect(0, y, VW, 1); }
+    g.fillStyle = '#d8b23a'; g.fillRect(0, 352, VW, 4);
+    g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(0, 310, VW, 2);
 
-    // shelves
-    for (let r = 0; r < 3; r++) {
-      const y = SHELF_Y[r];
-      g.fillStyle = '#3a281c'; g.fillRect(0, y + 3, VW, 12);
-      g.fillStyle = PAL.bark2; g.fillRect(0, y, VW, 6);
-      g.fillStyle = PAL.bark3; g.fillRect(0, y, VW, 2);
-      g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(0, y + 6, VW, 3);
-      for (let x = -(S % COLW) - 40; x < VW + 60; x += COLW) {   // uprights
-        g.fillStyle = PAL.bark1; g.fillRect(x, y - 58, 7, 64);
-        g.fillStyle = PAL.bark2; g.fillRect(x, y - 58, 3, 64);
-      }
-    }
-    // products
+    // ---- entrance stretch --------------------------------------------------
+    drawEntrance(g, 60 - S, t);
+    // ---- the aisles --------------------------------------------------------
+    for (const b of bays) drawBay(g, b, S);
     for (const s of slots) {
       const x = s.x - S;
       if (x < -60 || x > VW + 60) continue;
@@ -5316,30 +5416,19 @@ const Shop = (() => {
       const hot = hover === s;
       const bob = hot ? Math.sin(t * 7) * 1.5 : 0;
       g.globalAlpha = s.p.locked ? 0.45 : 1;
-      g.drawImage(img, Math.round(x - img.width / 2), Math.round(s.y - img.height + 4 + bob));
+      g.drawImage(img, Math.round(x - img.width / 2), Math.round(s.y - img.height + 10 + bob));
       g.globalAlpha = 1;
       if (s.p.locked) Icons.blit(g, 'lock', x - 8, s.y - 30, 1);
-      tag(g, x, s.y + 4, s.p, hot);
+      tag(g, x, s.y + 5, s.p, hot);
       const n = countOf(s.p.id);
-      if (n) { Art.ell(g, x + 16, s.y - 34, 7, 7, PAL.moss3); FX.pixelText(g, String(n), x + 16, s.y - 37, { color: PAL.cream, size: 7 }); }
+      if (n) {
+        Art.ell(g, x + 17, s.y - 36, 7, 7, '#3f8f4a');
+        FX.pixelText(g, String(n), x + 17, s.y - 39, { color: '#fff', size: 7 });
+      }
     }
-    // counter
-    drawCounter(g, COUNTER - S, t);
+    // ---- checkout ----------------------------------------------------------
+    drawCounter(g, counterX - S, t);
 
-    // hanging lamps in front
-    for (let x = -(S * 1.15) % 200 + 100; x < VW + 60; x += 200) {
-      g.fillStyle = '#2b1f18'; g.fillRect(x - 1, 0, 2, 26);
-      Art.ell(g, x, 32, 16, 9, '#2b1f18');
-      Art.ell(g, x, 30, 14, 8, '#c8a05a');
-      Art.ell(g, x, 36, 5, 4, '#fff0c0');
-      const gl = g.createRadialGradient(x, 40, 4, x, 40, 90);
-      gl.addColorStop(0, 'rgba(255,220,150,0.2)'); gl.addColorStop(1, 'rgba(255,220,150,0)');
-      g.fillStyle = gl; g.fillRect(x - 90, 0, 180, 180);
-    }
-    for (const m of motes) {
-      g.fillStyle = 'rgba(255,235,190,0.5)';
-      g.fillRect(Math.round((m.x + Math.sin(t * 0.4 + m.ph) * 20) % VW), Math.round(m.y + Math.cos(t * 0.3 + m.ph) * 14), 1, 1);
-    }
     // items flying to the basket
     for (const f of flies) {
       const k = U.easeIn(f.t);
@@ -5347,15 +5436,16 @@ const Shop = (() => {
       const s2 = 1 - k * 0.6;
       g.drawImage(f.pic, Math.round(x - f.pic.width * s2 / 2), Math.round(y - f.pic.height * s2 / 2), f.pic.width * s2, f.pic.height * s2);
     }
-    const vg = g.createRadialGradient(VW / 2, 170, 90, VW / 2, 180, 400);
-    vg.addColorStop(0, 'rgba(255,214,150,0.05)'); vg.addColorStop(1, 'rgba(24,14,8,0.55)');
-    g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
+    for (const m of motes) {
+      g.fillStyle = 'rgba(255,250,220,0.5)';
+      g.fillRect(Math.round((m.x + Math.sin(t * 0.4 + m.ph) * 20) % VW), Math.round(m.y + Math.cos(t * 0.3 + m.ph) * 14), 1, 1);
+    }
     // swipe hint
-    if (pt < 4 && tscroll < 20) {
-      const a = 0.5 + 0.5 * Math.sin(t * 4);
+    if (pt < 5 && tscroll < 20) {
+      const a = 0.45 + 0.45 * Math.sin(t * 4);
       g.globalAlpha = a;
-      FX.pixelText(g, 'SWIPE', VW - 70, VH - 78, { color: PAL.cream, size: 8 });
-      for (let i = 0; i < 3; i++) { g.fillStyle = PAL.gold3; g.fillRect(VW - 46 + i * 7, VH - 62, 4, 4); }
+      FX.pixelText(g, 'SWIPE', VW - 96, VH - 26, { color: '#2a2f3a', size: 8, inkColor: 'rgba(255,255,255,0.9)' });
+      for (let i = 0; i < 3; i++) { g.fillStyle = '#c9581f'; g.fillRect(VW - 44 + i * 9, VH - 24, 6, 6); }
       g.globalAlpha = 1;
     }
     FX.drawParticles(g, 0);
@@ -5363,58 +5453,169 @@ const Shop = (() => {
     FX.drawFloaters(g, false);
   }
 
+  // The stretch you walk in through: doors, a mat, a cooler wall, a basket stack.
+  function drawEntrance(g, x, t) {
+    if (x > VW + 60 || x < -360) return;
+    // the doors behind you
+    g.fillStyle = '#2a2f3a'; g.fillRect(x - 60, 120, 118, 190);
+    const outside = g.createLinearGradient(0, 124, 0, 306);
+    outside.addColorStop(0, '#38415e'); outside.addColorStop(1, '#4c5348');
+    g.fillStyle = outside; g.fillRect(x - 56, 124, 110, 182);
+    g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(x - 50, 132, 18, 168);
+    g.fillStyle = '#7f8b96'; g.fillRect(x - 4, 124, 6, 182);
+    g.fillStyle = '#c9581f'; g.fillRect(x - 60, 112, 118, 10);
+    FX.pixelText(g, 'IN', x - 1, 113, { color: '#fff', size: 7, ink: false });
+    // floor mat
+    g.fillStyle = '#4a4f44'; g.fillRect(x - 54, 312, 110, 24);
+    g.fillStyle = '#5c6254'; g.fillRect(x - 48, 316, 98, 16);
+    // basket stack
+    for (let i = 0; i < 4; i++) {
+      g.fillStyle = i % 2 ? '#c9581f' : '#d8663a';
+      g.fillRect(x + 74, 286 - i * 9, 40, 12);
+      g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(x + 74, 294 - i * 9, 40, 4);
+    }
+    FX.pixelText(g, 'BASKETS', x + 94, 268, { color: '#2a2f3a', size: 7, ink: false });
+    // the cooler wall
+    const cx = x + 140;
+    g.fillStyle = '#9aa4ac'; g.fillRect(cx, 118, 180, 192);
+    g.fillStyle = '#5f6a72'; g.fillRect(cx, 118, 180, 8);
+    for (let d = 0; d < 3; d++) {
+      const dx = cx + 6 + d * 58;
+      g.fillStyle = '#27323a'; g.fillRect(dx, 128, 52, 174);
+      const cold = g.createLinearGradient(0, 130, 0, 300);
+      cold.addColorStop(0, '#cfeaf2'); cold.addColorStop(1, '#8fc0d2');
+      g.fillStyle = cold; g.fillRect(dx + 3, 131, 46, 168);
+      for (let r = 0; r < 4; r++) {
+        g.fillStyle = '#b8c6cc'; g.fillRect(dx + 3, 168 + r * 34, 46, 4);
+        for (let b = 0; b < 5; b++) {
+          const col = ['#7a9a5a', '#c9581f', '#4a6a9a', '#b8496a', '#d8b23a'][(d + r + b) % 5];
+          g.fillStyle = col; g.fillRect(dx + 6 + b * 9, 152 + r * 34, 6, 16);
+          g.fillStyle = U.shade(col, 0.35); g.fillRect(dx + 6 + b * 9, 152 + r * 34, 6, 4);
+        }
+      }
+      g.fillStyle = 'rgba(255,255,255,0.3)'; g.fillRect(dx + 8, 134, 8, 160);
+      g.fillStyle = '#d8dde0'; g.fillRect(dx + 44, 196, 4, 26);
+    }
+    sign(g, cx + 90, 104, 'COLD', '#2f6f9f');
+  }
+
+  function drawBay(g, b, S) {
+    const x0 = b.x - S - COLW / 2, w = b.w;
+    if (x0 > VW + 40 || x0 + w < -40) return;
+    // gondola body
+    g.fillStyle = '#cfcabb'; g.fillRect(x0 - 10, 140, w + 20, 180);
+    g.fillStyle = '#bdb7a6'; g.fillRect(x0 - 10, 140, w + 20, 5);
+    g.fillStyle = '#a8a294'; g.fillRect(x0 - 10, 314, w + 20, 8);
+    for (const y of SHELF_Y) {
+      g.fillStyle = '#8e8879'; g.fillRect(x0 - 10, y + 4, w + 20, 10);   // shelf face
+      g.fillStyle = '#e4dfd0'; g.fillRect(x0 - 10, y, w + 20, 5);        // shelf top
+      g.fillStyle = 'rgba(255,255,255,0.55)'; g.fillRect(x0 - 10, y, w + 20, 2);
+      g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(x0 - 10, y + 14, w + 20, 3);
+    }
+    // generic stock fills whatever the catalogue does not, so no shelf is bare
+    for (let r = 0; r < 3; r++) for (let c = 0; c < b.cols; c++) {
+      if (b.taken[r * b.cols + c]) continue;
+      const fx = x0 + c * COLW + 6, fy = SHELF_Y[r];
+      for (let i = 0; i < 5; i++) {
+        const seed = (r * 7 + c * 13 + i * 3 + b.x) % 5;
+        const col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#b8496a', '#d8b23a'][seed];
+        const h = 16 + (seed % 3) * 4, w2 = 13;
+        g.fillStyle = U.shade(col, -0.45); g.fillRect(fx + i * 16, fy - h, w2, h);
+        g.fillStyle = col; g.fillRect(fx + i * 16, fy - h, w2 - 2, h - 1);
+        g.fillStyle = U.shade(col, 0.35); g.fillRect(fx + i * 16, fy - h, w2 - 2, 4);
+        g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(fx + i * 16 + 2, fy - h + 6, w2 - 6, 3);
+      }
+    }
+    for (let i = 0; i <= b.cols; i++) {                                   // uprights
+      const ux = x0 + i * COLW - 3;
+      g.fillStyle = '#b3ada0'; g.fillRect(ux, 140, 6, 180);
+      g.fillStyle = '#c9c4b6'; g.fillRect(ux, 140, 2, 180);
+    }
+    sign(g, x0 + w / 2, 112, b.sec.name, b.sec.color);
+  }
+
+  // A hanging aisle plaque, the thing that makes a shop legible at a glance.
+  function sign(g, cx, cy, text, color) {
+    const w = Math.max(74, text.length * 11 + 26);
+    g.fillStyle = '#8e8a7c'; g.fillRect(cx - w / 2 + 8, cy - 22, 3, 12); g.fillRect(cx + w / 2 - 11, cy - 22, 3, 12);
+    g.fillStyle = '#1d2230'; g.fillRect(cx - w / 2 - 2, cy - 12, w + 4, 30);
+    g.fillStyle = color; g.fillRect(cx - w / 2, cy - 10, w, 26);
+    g.fillStyle = U.shade(color, 0.28); g.fillRect(cx - w / 2, cy - 10, w, 4);
+    g.fillStyle = U.shade(color, -0.3); g.fillRect(cx - w / 2, cy + 12, w, 4);
+    FX.pixelText(g, text, cx, cy - 2, { color: '#fffdf0', size: 10, ink: 3, inkColor: U.shade(color, -0.5) });
+  }
+
   function tag(g, x, y, p, hot) {
     const txt = p.sold ? 'OWNED' : p.locked ? '---' : String(priceOf(p, countOf(p.id)));
     const w = txt.length * 6 + 12;
-    g.fillStyle = PAL.ink; g.fillRect(Math.round(x - w / 2) - 1, y - 1, w + 2, 13);
-    g.fillStyle = hot ? PAL.gold3 : PAL.parch1; g.fillRect(Math.round(x - w / 2), y, w, 11);
-    g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(Math.round(x - w / 2), y + 8, w, 3);
-    FX.pixelText(g, txt, x, y + 2, { color: '#3a2c1c', size: 7, ink: false });
+    g.fillStyle = hot ? '#d8b23a' : '#fffdf0'; g.fillRect(Math.round(x - w / 2), y, w, 11);
+    g.fillStyle = hot ? '#8a6a12' : '#b9b3a2'; g.fillRect(Math.round(x - w / 2), y + 9, w, 2);
+    g.fillStyle = '#c9581f'; g.fillRect(Math.round(x - w / 2), y, 3, 11);
+    FX.pixelText(g, txt, x + 1, y + 2, { color: '#2a2f3a', size: 7, ink: false });
   }
 
   function drawCounter(g, cx, t) {
-    if (cx > VW + 120 || cx < -320) return;
-    // back bar with bottles
-    g.fillStyle = '#3a281c'; g.fillRect(cx - 20, 150, 300, 10);
-    for (let i = 0; i < 8; i++) {
-      const x = cx + 6 + i * 30;
-      const col = ['#7a9a5a', '#a86a44', '#6a7ea8', '#b08a44'][i % 4];
-      Art.rect(g, x + 1, 134, 9, 16, col);
-      Art.rect(g, x + 3, 126, 5, 9, U.shade(col, -0.15));
-      Art.rect(g, x + 2.6, 124, 6, 2.4, PAL.bark2);
-      Art.rect(g, x + 2, 136, 2, 12, 'rgba(255,255,255,0.3)');
-      Art.rect(g, x + 1, 142, 9, 4, PAL.parch1);
-      Art.rect(g, x + 1, 149, 9, 1.4, 'rgba(0,0,0,0.4)');
+    if (cx > VW + 160 || cx < -420) return;
+    // back bar: cigarettes-and-lottery wall, slushie machine, hot case
+    g.fillStyle = '#cfcabb'; g.fillRect(cx - 10, 120, 300, 180);
+    g.fillStyle = '#bdb7a6'; g.fillRect(cx - 10, 120, 300, 5);
+    for (let r = 0; r < 3; r++) {
+      g.fillStyle = '#e4dfd0'; g.fillRect(cx - 6, 150 + r * 36, 150, 4);
+      for (let i = 0; i < 9; i++) {
+        const col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#b8496a'][(r + i) % 4];
+        g.fillStyle = col; g.fillRect(cx + 2 + i * 16, 132 + r * 36, 12, 18);
+        g.fillStyle = U.shade(col, 0.3); g.fillRect(cx + 2 + i * 16, 132 + r * 36, 12, 5);
+      }
     }
-    // the mascot standee
-    const m = Sprites.mascot(Math.floor(t * 3));
-    g.drawImage(m, Math.round(cx - 62), Math.round(300 - m.height));
-    g.fillStyle = '#2b1f18'; g.fillRect(Math.round(cx - 52), 300, 20, 6);
+    // slushie machine
+    const sx = cx + 168;
+    g.fillStyle = '#8e8a7c'; g.fillRect(sx, 150, 66, 74);
+    for (let i = 0; i < 2; i++) {
+      const col = i ? '#c9581f' : '#5f57b8';
+      g.fillStyle = '#d8e2e6'; g.fillRect(sx + 6 + i * 32, 156, 24, 40);
+      g.fillStyle = col; g.fillRect(sx + 8 + i * 32, 160 + Math.sin(t * 2 + i) * 1.5, 20, 34);
+      g.fillStyle = U.shade(col, 0.4); g.fillRect(sx + 8 + i * 32, 160 + Math.sin(t * 2 + i) * 1.5, 20, 4);
+      g.fillStyle = '#3a3f48'; g.fillRect(sx + 14 + i * 32, 198, 8, 8);
+    }
+    g.fillStyle = '#2a2f3a'; g.fillRect(sx, 142, 66, 9);
+    FX.pixelText(g, 'SLUSH', sx + 33, 143, { color: '#fff', size: 7, ink: false });
     // the keeper behind the counter
     const pose = till > 0 ? 'bite' : 'pray';
-    Sprites.blit(g, cx + 132, 306, pose, Math.floor(t * (till > 0 ? 8 : 2.5)), 'sand', -1, 'adult', 1.9);
-    // counter body
-    g.fillStyle = PAL.bark1; g.fillRect(cx + 10, 286, 250, 46);
-    g.fillStyle = PAL.bark2; g.fillRect(cx + 10, 286, 250, 8);
-    g.fillStyle = PAL.bark3; g.fillRect(cx + 10, 286, 250, 3);
-    for (let i = 0; i < 6; i++) { g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(cx + 20 + i * 40, 296, 3, 36); }
+    Sprites.blit(g, cx + 112, 320, pose, Math.floor(t * (till > 0 ? 8 : 2.5)), 'sand', -1, 'adult', 2.4);
+    // counter body: pale top, panelled front, a kick rail and the house stripe
+    g.fillStyle = '#c9c3b2'; g.fillRect(cx, 284, 250, 48);
+    g.fillStyle = '#efeade'; g.fillRect(cx, 284, 250, 8);
+    g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(cx, 284, 250, 2);
+    for (let i = 0; i < 5; i++) { g.fillStyle = 'rgba(0,0,0,0.1)'; g.fillRect(cx + 12 + i * 48, 298, 36, 26); }
+    g.fillStyle = '#c9581f'; g.fillRect(cx, 292, 250, 5);
+    g.fillStyle = '#9a9484'; g.fillRect(cx, 326, 250, 6);
+    g.fillStyle = '#74705f'; g.fillRect(cx, 332, 250, 4);
+    // card reader on a stalk
+    g.fillStyle = '#3d434e'; g.fillRect(cx + 214, 268, 20, 18);
+    g.fillStyle = '#8ad0a0'; g.fillRect(cx + 217, 271, 14, 8);
+    g.fillStyle = '#5a6069'; g.fillRect(cx + 222, 280, 4, 6);
     // register
-    g.fillStyle = '#4a4250'; g.fillRect(cx + 168, 258, 46, 30);
-    g.fillStyle = '#5e5668'; g.fillRect(cx + 168, 258, 46, 6);
-    g.fillStyle = '#8ad0a0'; g.fillRect(cx + 174, 264, 34, 12);
-    FX.pixelText(g, till > 0 ? 'TA' : 'W$', cx + 191, 266, { color: '#1d3324', size: 7, ink: false });
-    for (let i = 0; i < 3; i++) { g.fillStyle = PAL.gold2; g.fillRect(cx + 174 + i * 12, 280, 8, 4); }
-    // lollipop jar on the counter
-    Art.rect(g, cx + 40, 262, 22, 26, 'rgba(200,228,238,0.45)');
-    for (let i = 0; i < 5; i++) Art.ell(g, cx + 46 + (i % 3) * 6, 272 + (i % 2) * 7, 4, 4, ['#e8708a', '#f5cd5c', '#79dced'][i % 3]);
-    Art.rect(g, cx + 40, 256, 22, 7, PAL.bark2);
-    // receipt printing
+    g.fillStyle = '#3d434e'; g.fillRect(cx + 150, 252, 52, 32);
+    g.fillStyle = '#525965'; g.fillRect(cx + 150, 252, 52, 6);
+    g.fillStyle = '#8ad0a0'; g.fillRect(cx + 156, 258, 40, 13);
+    FX.pixelText(g, till > 0 ? 'TA!' : 'W$', cx + 176, 260, { color: '#1d3324', size: 7, ink: false });
+    for (let i = 0; i < 3; i++) { g.fillStyle = '#d8d2c2'; g.fillRect(cx + 156 + i * 14, 275, 10, 5); }
+    // lollipop jar and a hot-dog roller
+    Art.rect(g, cx + 30, 256, 24, 28, 'rgba(210,236,244,0.6)');
+    for (let i = 0; i < 6; i++) Art.ell(g, cx + 36 + (i % 3) * 7, 266 + (i % 2) * 8, 4, 4, ['#e8708a', '#f5cd5c', '#79dced'][i % 3]);
+    Art.rect(g, cx + 30, 250, 24, 7, '#c9581f');
+    g.fillStyle = '#8e8a7c'; g.fillRect(cx + 66, 262, 68, 22);
+    for (let i = 0; i < 4; i++) { g.fillStyle = '#a8663a'; g.fillRect(cx + 70 + i * 16, 266 + Math.sin(t * 3 + i) * 1, 12, 5); }
+    g.fillStyle = '#d8d2c2'; g.fillRect(cx + 66, 258, 68, 5);
+    // receipt
     if (till > 0) {
       const h = U.clamp((2 - till) * 40, 0, 48);
-      g.fillStyle = PAL.cream; g.fillRect(cx + 186, 258 - h, 14, h);
-      g.fillStyle = '#b9ab90'; for (let y = 4; y < h; y += 6) g.fillRect(cx + 188, 258 - h + y, 10, 1);
+      g.fillStyle = '#fffdf0'; g.fillRect(cx + 170, 252 - h, 14, h);
+      g.fillStyle = '#b9b3a2'; for (let y = 4; y < h; y += 6) g.fillRect(cx + 172, 252 - h + y, 10, 1);
     }
-    FX.pixelText(g, 'PAY HERE', cx + 135, 236, { color: PAL.gold3, size: 8 });
+    sign(g, cx + 120, 104, 'PAY', '#b8412c');
+    const m = Sprites.mascot(Math.floor(t * 3));
+    g.drawImage(m, Math.round(cx + 232), Math.round(330 - m.height));
   }
 
   return {
@@ -5761,7 +5962,9 @@ const Tower = (() => {
   }
 
   function update(dt, realDt) {
-    if (!R.active) { FX.cam.tzoom = 1; FX.cam.tx = PX; FX.cam.ty = 180; return; }
+    // Idle only parks the camera while the stack is actually on screen;
+    // other scenes drive the camera themselves.
+    if (!R.active) { if (G.mode === 'rite') { FX.cam.tzoom = 1; FX.cam.tx = PX; FX.cam.ty = 180; } return; }
     R.t += dt;
     if (R.phase === 'intro') { R.introT += realDt; if (R.introT > 1.9) { R.phase = 'play'; R.canDrop = true; FX.letterbox(false); UI.onRunPlay(); } }
     if (R.phase === 'play' && !G.paused) {
@@ -6518,11 +6721,11 @@ const Main = (() => {
   const KEY = 'wombat-gods-v4';
   const W = 640, H = 360;
   let canvas, g, last = 0, G = null;
-  let down = false, lastP = null, downP = null, moved = 0;
+  let down = false, lastP = null, downP = null, moved = 0, panning = false, screenP = { x: 320, y: 240 };
 
   function fresh() {
     return {
-      v: 4, wd: 260, record: 0, runs: 0, time: 0, mode: 'grove',
+      v: 4, wd: 300, startWeeds: 0, startBugs: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
@@ -6584,7 +6787,7 @@ const Main = (() => {
     save();
   }
   function back() {
-    if (G.mode === 'shrine' || G.mode === 'rite') setMode('map');
+    if (G.mode === 'shrine' || G.mode === 'rite' || G.mode === 'shop') setMode('map');
     else setMode('grove');
   }
 
@@ -6593,6 +6796,9 @@ const Main = (() => {
     const r = canvas.getBoundingClientRect();
     return { x: ((e.clientX - r.left) / r.width) * W, y: ((e.clientY - r.top) / r.height) * H };
   }
+  // In the grove the view pans, so screen coordinates are not world ones.
+  function world(p) { return G.mode === 'grove' ? Grove.toWorld(p.x, p.y) : p; }
+
   // Brushes interpolate along the drag so a fast sweep paints a continuous band.
   function stroke(p) {
     if (!lastP) { Grove.press(p.x, p.y, true); lastP = p; return; }
@@ -6611,24 +6817,35 @@ const Main = (() => {
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel() || G.paused) return;
       const p = pos(e);
-      down = true; lastP = null; downP = p; moved = 0;
-      if (G.mode === 'grove') stroke(p);
-      else if (G.mode === 'tree') lastP = p;
+      down = true; lastP = null; downP = p; moved = 0; panning = false;
+      screenP = p;
+      if (G.mode === 'grove') {
+        const w = world(p);
+        const consumed = Grove.press(w.x, w.y, true);
+        if (consumed) lastP = w;
+        else { panning = true; lastP = p; }     // grabbed nothing: drag the view
+      } else if (G.mode === 'tree') lastP = p;
       else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'rite') Tower.click(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
-      G.pointer.x = p.x; G.pointer.y = p.y; G.pointer.on = true;
+      screenP = p;
+      const wp = world(p);
+      G.pointer.x = wp.x; G.pointer.y = wp.y; G.pointer.on = true;
       if (Ritual.active) return;
       if (downP) moved = Math.max(moved, Math.hypot(p.x - downP.x, p.y - downP.y));
       if (down) {
-        if (G.mode === 'grove') { if (G.tool === 'drag') Grove.move(p.x, p.y); else stroke(p); UI.hideTip(); return; }
+        if (G.mode === 'grove') {
+          if (panning) { Grove.panBy(-(p.x - lastP.x)); lastP = p; UI.hideTip(); return; }
+          if (G.tool === 'drag') { Grove.move(wp.x, wp.y); UI.hideTip(); return; }
+          stroke(wp); UI.hideTip(); return;
+        }
         if (G.mode === 'tree' && lastP) { Knowledge.pan(p.x - lastP.x, p.y - lastP.y); lastP = p; UI.hideTip(); return; }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
-      if (G.mode === 'grove') tip = Grove.hover(p.x, p.y);
+      if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
       else if (G.mode === 'tree') tip = Knowledge.hover(p.x, p.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
@@ -6637,17 +6854,19 @@ const Main = (() => {
     const release = (e) => {
       if (!down) { down = false; lastP = null; downP = null; return; }
       const p = e ? pos(e) : downP;
-      if (G.mode === 'grove') Grove.release(p.x, p.y);
+      const wp = world(p);
+      if (G.mode === 'grove') { if (!panning) Grove.release(wp.x, wp.y); }
       else if (G.mode === 'shop') Shop.release(p.x, p.y);
       else if (G.mode === 'tree' && moved < 6) Knowledge.click(p.x, p.y);
       else if (G.mode === 'map' && moved < 8) Atlas.click(p.x, p.y);
-      down = false; lastP = null; downP = null;
+      down = false; lastP = null; downP = null; panning = false;
     };
     window.addEventListener('pointerup', (e) => release(e));
     window.addEventListener('pointercancel', () => { down = false; lastP = null; downP = null; });
     canvas.addEventListener('pointerleave', () => { G.pointer.on = false; UI.hideTip(); });
     canvas.addEventListener('wheel', (e) => {
-      if (G.mode === 'tree') { e.preventDefault(); const p = pos(e); Knowledge.scroll(e.deltaY, p.x, p.y); }
+      if (G.mode === 'grove') { e.preventDefault(); Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8); }
+      else if (G.mode === 'tree') { e.preventDefault(); const p = pos(e); Knowledge.scroll(e.deltaY, p.x, p.y); }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
@@ -6666,6 +6885,8 @@ const Main = (() => {
         if (e.key === '+' || e.key === '=') { Knowledge.zoomBy(1.2); e.preventDefault(); }
         if (e.key === '-' || e.key === '_') { Knowledge.zoomBy(1 / 1.2); e.preventDefault(); }
       } else if (G.mode === 'grove') {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { Grove.panBy(-70); e.preventDefault(); return; }
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { Grove.panBy(70); e.preventDefault(); return; }
         const n = parseInt(e.key);
         if (n >= 1 && n <= TOOLS.length) {
           const t = TOOLS[n - 1];
@@ -6706,6 +6927,7 @@ const Main = (() => {
     if (!G.paused) {
       World.update(real);
       Grove.update(real);
+      if (G.mode === 'grove' && G.pointer.on && !down && !UI.anyPanel()) Grove.edgeScroll(screenP.x, real);
       if (G.mode === 'tree') Knowledge.update(real);
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);

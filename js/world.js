@@ -3,7 +3,7 @@
 // water; when one matures it stains the ground layer and puts up blades, and
 // blades carry a little spring physics so anything walking through parts them.
 const World = (() => {
-  const W = 640, H = 360;
+  const W = 1024, H = 360;          // the grove is wider than the view; the camera pans
   const SKY = 126, GROUND = SKY + 2;
   let G = null;
   let grass = null, soil = null, sample = null;
@@ -60,14 +60,14 @@ const World = (() => {
 
   function init(g) {
     G = g;
-    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(160, 90).c;
+    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(256, 90).c;
     for (const a of [weeds, bugs, blades, crops, sprouts, flowers, seams]) a.length = 0;
     const r = Art.rng(51817);
     const s = G.world || {};
     if (!Array.isArray(s.weeds)) {
-      for (let i = 0; i < 88; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 14 + r() * (H - GROUND - 62), v: Math.floor(r() * 3), s: 0.85 + r() * 0.5 });
+      for (let i = 0; i < 130; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 14 + r() * (H - GROUND - 62), v: Math.floor(r() * 3), s: 0.85 + r() * 0.5 });
     } else for (const w of s.weeds) weeds.push({ x: w.x, y: w.y, v: w.v || 0, s: w.s || 1 });
-    if (!s.bugsOut) for (let i = 0; i < 15; i++) bugs.push(newBug(r));
+    if (!s.bugsOut) for (let i = 0; i < 22; i++) bugs.push(newBug(r));
     if (Array.isArray(s.strokes)) for (const k of s.strokes) {
       if (k[0] === 'g') { paint(grass, 'grass', k[1], k[2], k[3]); erase(soil, k[1], k[2], k[3]); }
       else { paint(soil, 'soil', k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
@@ -263,7 +263,7 @@ const World = (() => {
       disturb(b.x, b.y, 9, 0.16);
     }
     // bugs only creep back once the grove is lived in, so the opening list stays done
-    if (G.arrived && !G.blessings.artewombis && bugs.length < 12 && Math.random() < dt * 0.05) bugs.push(newBug());
+    if (G.arrived && !G.blessings.artewombis && bugs.length < 16 && Math.random() < dt * 0.05) bugs.push(newBug());
     for (const s of seams) s.t += dt;
     if (G.fruits.deeproots || G.blessings.wombeus) {
       spreadT += dt;
@@ -281,9 +281,9 @@ const World = (() => {
   function measure() {
     try {
       const g = sample.getContext('2d');
-      g.clearRect(0, 0, 160, 90); g.imageSmoothingEnabled = false;
-      g.drawImage(grass, 0, 0, 160, 90);
-      const d = g.getImageData(0, 0, 160, 90).data;
+      g.clearRect(0, 0, 256, 90); g.imageSmoothingEnabled = false;
+      g.drawImage(grass, 0, 0, 256, 90);
+      const d = g.getImageData(0, 0, 256, 90).data;
       let n = 0;
       for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++;
       restored = n * 16;

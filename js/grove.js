@@ -1,39 +1,68 @@
 // ---- The grove ------------------------------------------------------------
 const Grove = (() => {
   let G = null;
-  const W = 640, H = 360;
+  const W = 1024, H = 360;               // the grove itself
+  const VW = 640, VH = 360;              // what fits on screen at once
   const SKY = 126, GROUND = SKY + 2;
-  const WALK = { x0: 30, x1: 610, y0: GROUND + 30, y1: H - 48 };   // the dock owns the last 48px
-  const SEED = { x: 318, y: 262 };
-  const STORE = { x: 92, y: 214 };
-  const POST = { x: 566, y: 258 };
-  const TRUCK = { x: 720, y: 300, parked: false, t: 0 };
+  const WALK = { x0: 30, x1: W - 30, y0: GROUND + 30, y1: H - 48 };   // the dock owns the last 48px
+  const SEED = { x: 512, y: 262 };
+  const POST = { x: 846, y: 256 };
+  const TRUCK = { x: 1140, y: 300, parked: false, t: 0 };
+  const PARK = 880;                      // where the truck stops when called
   const drops = [], objects = [], ants = [], birds = [], owls = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0;
   let arrival = null, dragging = null;
 
   // fixed forest layers behind the plot
+  // Five layers of forest, each drifting at its own rate as the camera pans.
+  const PAR = [0.62, 0.46, 0.3, 0.15, 0.05];
   const layers = [];
   const R0 = Art.rng(31415);
-  for (let d = 0; d < 4; d++) {
+  for (let d = 0; d < 5; d++) {
     const row = [];
-    const n = 24 - d * 3;
+    const n = 34 - d * 4;
     for (let i = 0; i < n; i++) {
       row.push({
-        x: -40 + (i / n) * (W + 90) + R0() * 40,
-        y: SKY - 34 + d * 15 + R0() * 6,
+        x: -60 + (i / n) * (W + 140) + R0() * 42,
+        y: SKY - 40 + d * 13 + R0() * 6,
         kind: ['gnarl', 'pine', 'dead', 'oak', 'birch'][Math.floor(R0() * 5)],
         v: Math.floor(R0() * 4),
-        s: 0.44 + d * 0.17 + R0() * 0.08,
-        sh: 0.78 - d * 0.19,
+        s: 0.38 + d * 0.15 + R0() * 0.08,
+        sh: 0.88 - d * 0.17,
       });
     }
     layers.push(row);
   }
   const eyes = [];
-  for (let i = 0; i < 7; i++) eyes.push({ x: 30 + R0() * 580, y: SKY - 26 + R0() * 34, ph: R0() * TAU, on: 0 });
+  for (let i = 0; i < 11; i++) eyes.push({ x: 30 + R0() * (W - 60), y: SKY - 30 + R0() * 36, ph: R0() * TAU, on: 0 });
   const mist = [];
-  for (let i = 0; i < 6; i++) mist.push({ x: R0() * W, y: SKY - 10 + R0() * 50, w: 90 + R0() * 110, s: 2 + R0() * 4 });
+  for (let i = 0; i < 12; i++) mist.push({ x: R0() * W, y: SKY - 16 + R0() * 56, w: 110 + R0() * 150, s: 2 + R0() * 4, d: Math.floor(R0() * 3) });
+  const flies = [];   // slow motes over the treeline
+  for (let i = 0; i < 26; i++) flies.push({ x: R0() * W, y: SKY - 40 + R0() * 110, ph: R0() * TAU, sp: 0.25 + R0() * 0.5 });
+  const shafts = [];  // light falling through the canopy
+  for (let i = 0; i < 5; i++) shafts.push({ x: 60 + R0() * (W - 120), w: 26 + R0() * 40, lean: 26 + R0() * 22, a: 0.05 + R0() * 0.07 });
+
+  // ---- camera -------------------------------------------------------------
+  // The grove is wider than the window, so the view pans. Everything the
+  // player clicks is in world coordinates; Grove.toWorld does the conversion.
+  const CAM = { x: VW / 2, min: VW / 2, max: W - VW / 2 };
+  function clampCam() {
+    const half = VW / 2 / Math.max(0.2, FX.cam.zoom);
+    FX.cam.tx = U.clamp(FX.cam.tx, Math.min(W / 2, half), Math.max(W / 2, W - half));
+    FX.cam.ty = 180;
+  }
+  function panBy(dx) { if (arrival) return; FX.cam.tx += dx; clampCam(); FX.cam.x = FX.cam.tx; }
+  function panTo(x, snap) { FX.cam.tx = x; clampCam(); if (snap) FX.cam.x = FX.cam.tx; }
+  function toWorld(sx, sy) {
+    const c = FX.cam;
+    return { x: (sx - VW / 2) / c.zoom + c.x, y: (sy - VH / 2) / c.zoom + c.y };
+  }
+  function edgeScroll(sx, dt) {
+    if (arrival || G.paused) return;
+    const m = 26;
+    if (sx < m) panBy(-(m - sx) * 5 * dt);
+    else if (sx > VW - m) panBy((sx - (VW - m)) * 5 * dt);
+  }
 
   function capacity() { return 2 + (G.up.burrow || 0); }
   function hapCap() { let c = 62; for (const d of DECOR) if (G.decor[d.key] && d.hap) c += 10; return Math.min(100, c); }
@@ -49,6 +78,8 @@ const Grove = (() => {
   // ---- setup --------------------------------------------------------------
   function init(g) {
     G = g;
+    if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.length);
+    if (!G.startBugs) G.startBugs = Math.max(1, World.bugs.length);
     objects.length = 0;
     const saved = G.objects;
     if (Array.isArray(saved) && saved.length) {
@@ -56,24 +87,26 @@ const Grove = (() => {
     } else {
       const r = Art.rng(8675309);
       const spots = [
-        ['fallen', 148, 300], ['fallen', 470, 256], ['fallen', 268, 310],
-        ['ruin', 212, 238], ['ruin', 404, 290], ['ruin', 556, 320],
-        ['stump', 96, 276], ['stump', 350, 234], ['stump', 600, 296], ['stump', 112, 330],
+        ['fallen', 168, 300], ['fallen', 612, 256], ['fallen', 360, 306],
+        ['ruin', 252, 238], ['ruin', 700, 292], ['ruin', 900, 246],
+        ['stump', 96, 272], ['stump', 448, 234], ['stump', 790, 310], ['stump', 116, 312],
+        ['stump', 960, 300], ['fallen', 820, 214], ['ruin', 560, 296],
       ];
       spots.forEach(([kind, x, y], i) => objects.push({ id: U.uid(), kind, x, y, v: i % 3, gone: 0 }));
     }
-    for (let i = 0; i < 3; i++) birds.push({ x: R0() * W, y: 30 + R0() * 50, dir: R0() < 0.5 ? -1 : 1, ph: R0() * TAU, perch: null, t: R0() * 8 });
+    for (let i = 0; i < 5; i++) birds.push({ x: R0() * W, y: 30 + R0() * 50, dir: R0() < 0.5 ? -1 : 1, ph: R0() * TAU, perch: null, t: R0() * 8 });
     owls.length = 0;
-    owls.push({ x: 128, y: SKY - 8, blink: 0 }, { x: 508, y: SKY - 2, blink: 2 });
+    owls.push({ x: 128, y: SKY - 8, blink: 0 }, { x: 508, y: SKY - 2, blink: 2 }, { x: 812, y: SKY - 10, blink: 1.2 }, { x: 316, y: SKY - 4, blink: 3 });
   }
   function saveObjects() { G.objects = objects.map((o) => ({ id: o.id, kind: o.kind, x: o.x, y: o.y, v: o.v, gone: o.gone })); }
 
   // ---- checklist ----------------------------------------------------------
   function tasks() {
     const junk = objects.filter((o) => !o.gone).length;
+    const nw = G.startWeeds || 130, nb = G.startBugs || 22;
     return [
-      { key: 'weeds', icon: 't_sickle', at: 88 - World.weeds.length, need: 88, done: World.weeds.length === 0 },
-      { key: 'bugs', icon: 't_net', at: 15 - World.bugs.length, need: 15, done: World.bugs.length === 0 },
+      { key: 'weeds', icon: 't_sickle', at: nw - World.weeds.length, need: nw, done: World.weeds.length === 0 },
+      { key: 'bugs', icon: 't_net', at: nb - World.bugs.length, need: nb, done: World.bugs.length === 0 },
       { key: 'junk', icon: 't_destroy', at: objects.length - junk, need: objects.length, done: junk === 0 },
       { key: 'grass', icon: 't_moss', at: Math.round(World.fraction() * 100), need: 18, done: World.fraction() >= 0.18 },
     ];
@@ -84,6 +117,7 @@ const Grove = (() => {
     if (G.arrived || arrival || !groveClean()) return;
     G.arrived = true;
     arrival = { t: 0, x: -40, y: WALK.y0 + 44 };
+    panTo(VW / 2, true);
     G.paused = true;
     FX.letterbox(true);
     Audio.play('chime');
@@ -97,7 +131,7 @@ const Grove = (() => {
     // camera pushes in on the newcomer
     const z = U.clamp(1 + U.easeInOut(Math.min(1, a.t / 3.4)) * 1.9, 1, 2.9);
     FX.cam.tzoom = a.t > 6.6 ? 1 : z;
-    FX.cam.tx = a.t > 6.6 ? 320 : U.lerp(320, a.x, 0.85);
+    FX.cam.tx = a.t > 6.6 ? U.clamp(a.x, VW / 2, W - VW / 2) : U.lerp(VW / 2, a.x, 0.85);
     FX.cam.ty = a.t > 6.6 ? 180 : U.lerp(180, a.y - 26, 0.85);
     World.disturb(a.x, a.y, 26, 1.1);
     if (a.t > 3.2 && a.t < 3.4) FX.title('', { size: 1, dur: 0.1 });
@@ -107,7 +141,7 @@ const Grove = (() => {
       w.hap = 80;
       arrival = null;
       G.paused = false;
-      FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
+      FX.cam.tzoom = 1; FX.cam.ty = 180; panTo(U.clamp(w.x, VW / 2, W - VW / 2));
       FX.hearts(w.x, w.y - 40, 6);
       UI.toast('a wombat has come', 'good');
       UI.refreshAll();
@@ -225,9 +259,9 @@ const Grove = (() => {
     // the truck
     if (TRUCK.parked || TRUCK.t > 0) {
       TRUCK.t += dt;
-      const tx = TRUCK.parked ? 540 : 720;
+      const tx = TRUCK.parked ? PARK : W + 116;
       TRUCK.x = U.lerp(TRUCK.x, tx, 1 - Math.pow(0.06, dt));
-      if (!TRUCK.parked && TRUCK.x > 715) TRUCK.t = 0;
+      if (!TRUCK.parked && TRUCK.x > W + 110) TRUCK.t = 0;
     }
     // ant movers
     for (let i = ants.length - 1; i >= 0; i--) {
@@ -331,6 +365,7 @@ const Grove = (() => {
   function callTruck() {
     if (TRUCK.parked) { TRUCK.parked = false; TRUCK.t = 0.01; Audio.play('whoosh'); return; }
     TRUCK.parked = true; TRUCK.t = 0.01;
+    panTo(PARK - 40);
     Audio.play('whoosh');
     UI.toast('truck coming', 'good');
   }
@@ -382,55 +417,58 @@ const Grove = (() => {
   }
   function spotAt(x, y) {
     if (Math.abs(x - SEED.x) < 26 && y > SEED.y - 48 && y < SEED.y + 8) return 'seed';
-    if (x > STORE.x - 64 && x < STORE.x + 64 && y > STORE.y - 104 && y < STORE.y + 8) return 'store';
     if (Math.abs(x - POST.x) < 26 && y > POST.y - 52 && y < POST.y + 8) return 'post';
     return null;
   }
 
+  // Returns true when the press was consumed; the hand tool returning false
+  // means the player grabbed nothing, so the view pans instead.
   function press(x, y, first) {
-    if (arrival) return;
+    if (arrival) return true;
     const tool = G.tool;
-    if (y < GROUND) return;
-    if (tool === 'drag') {
-      if (!first) return;
-      const d = dropAt(x, y);
-      if (d) { dragging = d; d.z = Math.max(d.z, 12); Audio.play('click'); return; }
+    if (y < GROUND) return false;
+    // the two landmarks answer to any tool; they are doors, not ground
+    if (first) {
       const spot = spotAt(x, y);
-      if (spot === 'seed') { Main.setMode('tree'); return; }
-      if (spot === 'store') { Shop.open(); return; }
-      if (spot === 'post') { Main.setMode('map'); return; }
+      if (spot === 'seed') { Main.setMode('tree'); return true; }
+      if (spot === 'post') { Main.setMode('map'); return true; }
+    }
+    if (tool === 'drag') {
+      if (!first) return true;
+      const d = dropAt(x, y);
+      if (d) { dragging = d; d.z = Math.max(d.z, 12); Audio.play('click'); return true; }
       const w = wombatAt(x, y);
-      if (w) { pet(w); return; }
-      if (World.harvest(x, y)) return;
-      return;
+      if (w) { pet(w); return true; }
+      if (World.harvest(x, y)) return true;
+      return false;
     }
     if (tool === 'food') {
-      if (!first) return;
+      if (!first) return true;
       const w = wombatAt(x, y);
-      if (w) { if (G.selFood && (G.food[G.selFood] || 0) > 0) feed(w, G.selFood, false); else pet(w); }
-      return;
+      if (w) { if (G.selFood && (G.food[G.selFood] || 0) > 0) feed(w, G.selFood, false); else pet(w); return true; }
+      return false;
     }
     if (tool === 'destroy') {
-      if (!first) return;
+      if (!first) return true;
       const o = objAt(x, y);
-      if (o) demolish(o);
-      else Audio.play('error');
-      return;
+      if (o) { demolish(o); return true; }
+      return false;
     }
     if (tool === 'pair') {
-      if (!first) return;
+      if (!first) return true;
       const w = wombatAt(x, y);
-      if (!w || w.age !== 'adult' || w.gest > 0) { Audio.play('error'); return; }
-      if (!G.pairFirst) { G.pairFirst = w.id; FX.hearts(w.x, w.y - 30, 2); Audio.play('click'); return; }
+      if (!w || w.age !== 'adult' || w.gest > 0) { Audio.play('error'); return true; }
+      if (!G.pairFirst) { G.pairFirst = w.id; FX.hearts(w.x, w.y - 30, 2); Audio.play('click'); return true; }
       const a = G.wombats.find((m) => m.id === G.pairFirst);
       G.pairFirst = null;
-      if (!a || a === w || a.hap < 55 || w.hap < 55 || G.wombats.length >= capacity()) { Audio.play('error'); return; }
+      if (!a || a === w || a.hap < 55 || w.hap < 55 || G.wombats.length >= capacity()) { Audio.play('error'); return true; }
       w.gest = 26; w.mate = a.id; a.hap -= 8; w.hap -= 8;
       FX.hearts((w.x + a.x) / 2, w.y - 34, 8); Audio.play('bless');
-      return;
+      return true;
     }
     const t = TOOL_BY_KEY[tool];
     const r = World.brushRadius(t ? t.radius : 12);
+    if (!t || !t.radius) return true;
     switch (tool) {
       case 'moss': if (World.sowGrass(x, y, r) && first) Audio.play('brush'); World.disturb(x, y, r, 0.5); break;
       case 'hoe': World.till(x, y, r); if (first) Audio.play('dig'); break;
@@ -441,14 +479,16 @@ const Grove = (() => {
         const res = World.plant(x, y, G.selSeed);
         if (res === 'ok') { Audio.play('pluck'); UI.refreshTray(); }
         else if (res === 'nosoil' && first) { Audio.play('error'); UI.toast('till the soil first', 'bad'); }
-        else if (res === 'noseed' && first) { Audio.play('error'); Shop.open(); }
+        else if (res === 'noseed' && first) { Audio.play('error'); UI.toast('buy seed at the mart', 'bad'); }
         break;
       }
     }
+    return true;
   }
   function clearPair() { if (G) G.pairFirst = null; }
   function move(x, y) {
-    if (dragging) { dragging.x = x; dragging.y = y; dragging.z = 16; dragging.vz = 0; dragging.vx = 0; return; }
+    if (dragging) { dragging.x = U.clamp(x, 8, W - 8); dragging.y = y; dragging.z = 16; dragging.vz = 0; dragging.vx = 0; return true; }
+    return false;
   }
   function release(x, y) {
     if (!dragging) return;
@@ -459,7 +499,7 @@ const Grove = (() => {
   }
   function hover(x, y) {
     hoverW = (G.tool === 'drag' || G.tool === 'food' || G.tool === 'pair') ? wombatAt(x, y) : null;
-    hoverSpot = G.tool === 'drag' ? spotAt(x, y) : null;
+    hoverSpot = spotAt(x, y);
     hoverObj = G.tool === 'destroy' ? objAt(x, y) : null;
     if (hoverObj) return `<b>${hoverObj.kind === 'fallen' ? 'Fallen tree' : hoverObj.kind === 'ruin' ? 'Ruin' : 'Stump'}</b><br>${demolishCost(hoverObj)} W$ to have it carried off`;
     if (hoverW) {
@@ -469,7 +509,6 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'seed') return '<b>Tree of Life</b><br>a seed, waiting';
-    if (hoverSpot === 'store') return '<b>Store</b>';
     if (hoverSpot === 'post') return '<b>Map</b>';
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
     return null;
@@ -479,49 +518,92 @@ const Grove = (() => {
   function render(g) {
     const f = World.fraction();
     const cam = FX.cam;
+    const L = cam.x - VW / 2 / cam.zoom - 20, R = cam.x + VW / 2 / cam.zoom + 20;
+    const drift = cam.x - W / 2;           // how far the view has travelled
     g.save();
-    if (cam.zoom !== 1 || cam.x !== 320 || cam.y !== 180) {
-      g.translate(W / 2, H / 2); g.scale(cam.zoom, cam.zoom); g.translate(-cam.x, -cam.y);
+    g.translate(VW / 2, VH / 2); g.scale(cam.zoom, cam.zoom); g.translate(-cam.x, -cam.y);
+
+    // ---- sky: cold and overcast, warming only as the forest returns -------
+    const top = U.mix('#0d0f18', '#2d4462', f), bot = U.mix('#39323f', '#7fa39f', f);
+    for (let i = 0; i < 12; i++) {
+      g.fillStyle = U.mix(top, bot, i / 11);
+      g.fillRect(L, Math.round((SKY * i) / 12) - 40, R - L, Math.ceil(SKY / 12) + 42);
     }
-    // sky
-    const top = U.mix('#1a1a26', '#3c5570', f), bot = U.mix('#4a4652', '#8fb0ae', f);
-    for (let i = 0; i < 10; i++) { g.fillStyle = U.mix(top, bot, i / 9); g.fillRect(-80, Math.round((SKY * i) / 10) - 40, W + 160, Math.ceil(SKY / 10) + 42); }
-    const sg = g.createRadialGradient(120, 44, 4, 120, 44, 90);
-    sg.addColorStop(0, `rgba(255,238,176,${0.18 + f * 0.34})`); sg.addColorStop(1, 'rgba(255,238,176,0)');
-    g.fillStyle = sg; g.fillRect(30, -46, 180, 180);
-    g.fillStyle = U.mix('#6b6470', '#ffeeb0', f); Art.ell(g, 120, 44, 8, 8);
-    // dense forest, four layers deep, fog between
+    // a cold sun, low and pale, parked behind the canopy
+    const sunX = W * 0.22 + drift * 0.8, sunY = 40;
+    const sg = g.createRadialGradient(sunX, sunY, 4, sunX, sunY, 110);
+    sg.addColorStop(0, `rgba(255,238,196,${(0.12 + f * 0.3).toFixed(2)})`); sg.addColorStop(1, 'rgba(255,238,196,0)');
+    g.fillStyle = sg; g.fillRect(sunX - 110, sunY - 110, 220, 220);
+    g.fillStyle = U.mix('#5f5a68', '#ffeeb0', f); Art.ell(g, sunX, sunY, 8, 8);
+
+    // ---- five layers of trees, each at its own drift rate -----------------
     for (let d = 0; d < layers.length; d++) {
+      const off = drift * PAR[d];
       for (const t of layers[d]) {
-        const img = Props.get('tree', `${t.kind}|${t.v}|${(t.sh * (1 - f * 0.28)).toFixed(2)}`);
+        const x = t.x + off;
+        if (x < L - 90 || x > R + 90) continue;
+        const img = Props.get('tree', `${t.kind}|${t.v}|${(t.sh * (1 - f * 0.3)).toFixed(2)}`);
         const w2 = img.width * t.s, h2 = img.height * t.s;
-        g.drawImage(img, Math.round(t.x - w2 / 2), Math.round(t.y - h2), Math.round(w2), Math.round(h2));
+        g.drawImage(img, Math.round(x - w2 / 2), Math.round(t.y - h2), Math.round(w2), Math.round(h2));
       }
-      // watching eyes in the deepest layers
+      // things watching from the second row
       if (d === 1) for (const e of eyes) {
         if (e.on <= 0) continue;
+        const ex = e.x + off;
         const a = Math.min(1, e.on) * (0.5 + 0.5 * Math.sin(G.time * 9 + e.ph));
-        g.fillStyle = `rgba(245,205,92,${a * 0.9})`;
-        g.fillRect(e.x, e.y, 2, 2); g.fillRect(e.x + 5, e.y, 2, 2);
+        g.fillStyle = `rgba(245,205,92,${(a * 0.9).toFixed(3)})`;
+        g.fillRect(ex, e.y, 2, 2); g.fillRect(ex + 5, e.y, 2, 2);
       }
-      g.fillStyle = `rgba(${d < 2 ? '16,18,26' : '40,44,54'},${0.34 - d * 0.07 - f * 0.08})`;
-      g.fillRect(-80, SKY - 44 + d * 15, W + 160, 60);
+      // haze thickens toward the back of the wood
+      const hz = 0.4 - d * 0.06 - f * 0.1;
+      const hg = g.createLinearGradient(0, SKY - 56 + d * 13, 0, SKY + 8);
+      hg.addColorStop(0, `rgba(${d < 2 ? '12,14,22' : '46,50,62'},${Math.max(0, hz).toFixed(3)})`);
+      hg.addColorStop(1, `rgba(${d < 2 ? '12,14,22' : '46,50,62'},0)`);
+      g.fillStyle = hg; g.fillRect(L, SKY - 56 + d * 13, R - L, 70);
+      // fog banks caught between the trunks
+      for (const m of mist) {
+        if (m.d !== Math.min(2, d)) continue;
+        const mx = m.x + drift * PAR[d];
+        if (mx > R || mx + m.w < L) continue;
+        const a = (0.08 + (1 - f) * 0.16) * (0.6 + 0.4 * Math.sin(G.time * 0.4 + m.x));
+        const gr = g.createLinearGradient(0, m.y - 14, 0, m.y + 14);
+        gr.addColorStop(0, 'rgba(198,196,204,0)');
+        gr.addColorStop(0.5, `rgba(198,196,204,${a.toFixed(3)})`);
+        gr.addColorStop(1, 'rgba(198,196,204,0)');
+        g.fillStyle = gr; g.fillRect(mx, m.y - 14, m.w, 28);
+      }
+    }
+    // ---- light falling through the canopy ---------------------------------
+    for (const sh of shafts) {
+      const x = sh.x + drift * 0.2;
+      if (x < L - 120 || x > R + 120) continue;
+      const a = sh.a * (0.55 + 0.45 * Math.sin(G.time * 0.3 + sh.x)) * (0.5 + f * 0.9);
+      const gr = g.createLinearGradient(x, SKY - 60, x + sh.lean, GROUND + 90);
+      gr.addColorStop(0, `rgba(255,240,200,${a.toFixed(3)})`);
+      gr.addColorStop(1, 'rgba(255,240,200,0)');
+      g.fillStyle = gr;
+      g.beginPath();
+      g.moveTo(x - sh.w / 2, SKY - 60); g.lineTo(x + sh.w / 2, SKY - 60);
+      g.lineTo(x + sh.lean + sh.w, GROUND + 90); g.lineTo(x + sh.lean - sh.w, GROUND + 90);
+      g.closePath(); g.fill();
     }
     // owls on the near boughs
     for (const o of owls) {
+      const ox = o.x + drift * PAR[4];
+      if (ox < L - 40 || ox > R + 40) continue;
       const img = Sprites.owl(o.blink < 0.35 ? 3 : 0);
-      g.drawImage(img, Math.round(o.x - 12), Math.round(o.y - 26));
+      g.drawImage(img, Math.round(ox - 12), Math.round(o.y - 26));
     }
     World.drawGround(g);
-    // mist along the treeline
+    // ground fog rolling off the treeline into the plot
     for (const m of mist) {
-      const a = (0.1 + (1 - f) * 0.16) * (0.6 + 0.4 * Math.sin(G.time * 0.4 + m.x));
-      const gr = g.createLinearGradient(m.x, m.y - 12, m.x, m.y + 12);
-      gr.addColorStop(0, 'rgba(214,206,196,0)');
-      gr.addColorStop(0.5, `rgba(214,206,196,${a.toFixed(3)})`);
-      gr.addColorStop(1, 'rgba(214,206,196,0)');
-      g.fillStyle = gr;
-      g.fillRect(m.x, m.y - 12, m.w, 24);
+      if (m.d !== 2) continue;
+      const mx = m.x * 0.7 + 60;
+      const a = (0.07 + (1 - f) * 0.1) * (0.6 + 0.4 * Math.sin(G.time * 0.3 + m.x));
+      const gr = g.createLinearGradient(0, GROUND - 4, 0, GROUND + 30);
+      gr.addColorStop(0, `rgba(206,204,212,${a.toFixed(3)})`);
+      gr.addColorStop(1, 'rgba(206,204,212,0)');
+      g.fillStyle = gr; g.fillRect(mx, GROUND - 4, m.w * 1.4, 34);
     }
     World.drawSprouts(g);
     World.drawBlades(g);
@@ -530,7 +612,6 @@ const Grove = (() => {
 
     const items = [];
     items.push({ y: SEED.y, fn: () => drawSeed(g) });
-    items.push({ y: STORE.y, fn: () => drawStore(g) });
     items.push({ y: POST.y, fn: () => drawPost(g) });
     for (const o of objects) if (o.gone < 1) items.push({ y: o.y, fn: () => drawObject(g, o) });
     for (const d of DECOR) if (G.decor[d.key]) {
@@ -541,7 +622,7 @@ const Grove = (() => {
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
     if (arrival) items.push({ y: arrival.y, fn: () => Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S) });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
-    if (TRUCK.parked || TRUCK.x < 700) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
+    if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
@@ -553,6 +634,16 @@ const Grove = (() => {
       const fl = b.dir < 0 ? Art.flip(img) : img;
       g.drawImage(fl, Math.round(b.x - 12), Math.round(b.y - 9));
     }
+    // motes drifting through the dark under the trees
+    for (const fl of flies) {
+      const x = fl.x + Math.sin(G.time * fl.sp + fl.ph) * 22 + drift * 0.12;
+      if (x < L || x > R) continue;
+      const y = fl.y + Math.cos(G.time * fl.sp * 0.7 + fl.ph) * 13;
+      const a = (0.3 + 0.5 * (Math.sin(G.time * 2.2 + fl.ph) * 0.5 + 0.5)) * (0.4 + f * 0.6);
+      g.fillStyle = `rgba(${f > 0.4 ? '214,236,150' : '186,196,214'},${a.toFixed(2)})`;
+      g.fillRect(Math.round(x), Math.round(y), 1, 1);
+      if (a > 0.65) { g.globalAlpha = 0.2; g.fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 3); g.globalAlpha = 1; }
+    }
     FX.drawParticles(g, 0);
     FX.drawFloaters(g, false);
     for (const w of G.wombats) pips(g, w);
@@ -561,6 +652,31 @@ const Grove = (() => {
       if (t && t.radius > 0) World.drawCursor(g, G.pointer.x, G.pointer.y, World.brushRadius(t.radius), toolTint(G.tool));
     }
     g.restore();
+
+    // a cold wash while the wood is still dead; it lifts as the grove comes back
+    if (f < 0.95) { g.fillStyle = `rgba(26,34,58,${(0.2 * (1 - f)).toFixed(3)})`; g.fillRect(0, 0, VW, VH); }
+    // the whole grove sits inside a soft dark frame
+    const vg = g.createRadialGradient(VW / 2, VH * 0.52, VH * 0.4, VW / 2, VH * 0.52, VH * 1.02);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, `rgba(8,7,14,${(0.62 - f * 0.22).toFixed(2)})`);
+    g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
+    edgeArrows(g);
+  }
+
+  // A hint at each edge while there is more grove that way.
+  function edgeArrows(g) {
+    if (arrival) return;
+    const c = FX.cam, p = 0.5 + 0.5 * Math.sin(G.time * 3);
+    const room = VW / 2 / c.zoom;
+    for (const s2 of [-1, 1]) {
+      const more = s2 < 0 ? c.x - room > 2 : c.x + room < W - 2;
+      if (!more) continue;
+      const x = s2 < 0 ? 12 : VW - 12;
+      g.globalAlpha = 0.25 + p * 0.3;
+      g.fillStyle = PAL.cream;
+      for (let i = 0; i < 6; i++) g.fillRect(x + s2 * i, VH / 2 - 7 + i, 2, 14 - i * 2);
+      g.globalAlpha = 1;
+    }
   }
   function toolTint(k) { return { moss: PAL.moss4, hoe: PAL.soil4, sickle: PAL.rot2, net: PAL.cyan3, water: PAL.water2, seed: PAL.gold3 }[k] || PAL.cream; }
 
@@ -619,14 +735,6 @@ const Grove = (() => {
       g.fillRect(Math.round(SEED.x + Math.cos(a) * 14), Math.round(SEED.y - 16 + Math.sin(a) * 9), 2, 2);
     }
     if (hoverSpot === 'seed') outline(g, SEED.x - 24, SEED.y - 46, 48, 52);
-  }
-  function drawStore(g) {
-    const img = Props.get('store');
-    g.fillStyle = 'rgba(18,14,20,0.3)'; Art.ell(g, STORE.x, STORE.y + 2, 58, 9);
-    g.drawImage(img, Math.round(STORE.x - img.width / 2), Math.round(STORE.y - img.height + 6));
-    const m = Sprites.mascot(Math.floor(G.time * 3));
-    g.drawImage(m, Math.round(STORE.x + 44), Math.round(STORE.y - 96));
-    if (hoverSpot === 'store') outline(g, STORE.x - 64, STORE.y - 104, 128, 110);
   }
   function drawPost(g) {
     g.fillStyle = 'rgba(18,14,20,0.28)'; Art.ell(g, POST.x, POST.y + 1, 14, 4);
@@ -732,9 +840,9 @@ const Grove = (() => {
   }
 
   return {
-    init, update, render, press, move, release, hover, clearPair, addWombat, newWombat, feed, pet, offline,
+    init, update, render, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
-    SEED, STORE, POST, GROUND, WALK,
+    SEED, POST, GROUND, WALK, W, H, VW,
   };
 })();

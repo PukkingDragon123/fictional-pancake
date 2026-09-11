@@ -13,8 +13,10 @@ inlined). Rebuild it with `python3 build.py` after changing anything in `js/` or
 ## The grove
 
 You inherit an empty, ash-grey plot with no wombats on it: fallen trees, ruins, weeds,
-bugs, and a scary forest pressing in behind with crows and owls in it. Everything you do
-to the ground is painted, not placed. There is no tile grid anywhere.
+bugs, and a dark forest pressing in behind with crows and owls in it. The grove is wider
+than the window - drag bare ground, roll the wheel, or press the arrow keys and the
+camera pans, with five layers of trees drifting past at their own rates. Everything you
+do to the ground is painted, not placed. There is no tile grid anywhere.
 
 The only thing on the screen at the top is your money. Everything else is a dock of
 seven tools along the bottom:
@@ -39,10 +41,14 @@ Brushes interpolate along the drag, so a fast sweep paints a continuous band.
 
 Fed wombats leave stackable cubes on the ground. Drag them into the truck, or press the
 truck button to call it over. The signpost opens a fogged parchment **map**: the grove,
-the Ritual Site and the Great Stack are yours, the rest is under fog until enough gods
-answer. The **store** has a lollipop mascot out front; the door swings open on a wombat
-behind the counter, you swipe the shelves sideways, click a product to drop it in the
-basket, and pay at the counter.
+**Wombat Mart**, the Ritual Site and the Great Stack are yours, the rest is under fog
+until enough gods answer.
+
+Wombat Mart is a convenience store, striped sign and all. The glass doors slide apart on
+a lit interior, and inside are signed aisles - SEEDS, BUILD, YARD, ADOPT - of gondola
+shelving with price tags on every shelf lip, a cooler wall of bottles, a basket stack, a
+slushie machine and a checkout counter with a wombat behind it. Swipe sideways to walk
+the aisles, click a product into the basket, and pay at the counter.
 
 ## Wombats
 
@@ -97,10 +103,10 @@ timed blessing. Leave with the money before it comes down.
 
 | Where | Keys |
 | --- | --- |
-| Grove | Drag to use the brush. `1`-`7` pick a tool. `M` map |
+| Grove | Drag to use the brush, drag bare ground to pan. `1`-`7` tools, arrows pan, `M` map |
 | Shrine | Click an offering to stage it, shift-click for five |
 | Tree of Life | Drag to pan, wheel or `+`/`-` to zoom. Click a fruit |
-| Store | Drag sideways to swipe the shelves. Click a product, then the counter |
+| Mart | Drag sideways to walk the aisles. Click a product, then the counter |
 | Rite | `Space` drop, `1`-`9` pick, `R` turn, `C` cash out. Click a cupid |
 | Anywhere | `Esc` back or close, `H` help |
 

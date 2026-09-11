@@ -51,12 +51,13 @@ const BRUSH_KEYS = ['sickle', 'net', 'hoe', 'seed', 'moss', 'water'];
 
 // ---- The map. Fog lifts as gods answer. ----------------------------------
 const SITES = [
-  { key: 'grove',  name: 'The Grove',    x: 196, y: 232, icon: 'grove',   mode: 'grove',  need: 0 },
-  { key: 'ritual', name: 'Ritual Site',  x: 404, y: 138, icon: 'shrine',  mode: 'shrine', need: 0 },
-  { key: 'stack',  name: 'The Great Stack', x: 508, y: 246, icon: 'u_seats', mode: 'rite', need: 0 },
-  { key: 'quarry', name: 'Old Quarry',   x: 108, y: 110, icon: 'o_stone', need: 3 },
-  { key: 'lake',   name: 'Still Lake',   x: 556, y: 92,  icon: 'g_tide',  need: 5 },
-  { key: 'deep',   name: 'The Deepwood', x: 300, y: 64,  icon: 'a_owl',   need: 8 },
+  { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
+  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0 },
+  { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0 },
+  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0 },
+  { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
+  { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
+  { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },
 ];
 
 // ---- The ten Wombat Gods -------------------------------------------------
@@ -183,5 +184,5 @@ const GROW_TIME = { baby: 95, juvenile: 150 };
 const RARE_CHANCE = 0.07;
 
 const NAMES = ['Wilbur', 'Doris', 'Chonk', 'Beans', 'Mabel', 'Gus', 'Pudding', 'Winnie', 'Bruce', 'Nugget', 'Sheila', 'Tubs', 'Barnaby', 'Pip', 'Marge', 'Otis', 'Bramble', 'Kip', 'Nella', 'Dot'];
-const RESTORE_TARGET = 108000;  // painted grass pixels that count as a whole forest
-                                // (the ground is about 150k, so this is most of it)
+const RESTORE_TARGET = 172000;  // painted grass pixels that count as a whole forest
+                                // (the grove floor is about 238k, so this is most of it)
