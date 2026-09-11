@@ -174,10 +174,10 @@ const Main = (() => {
         const n = parseInt(e.key);
         if (n >= 1 && n <= TOOLS.length) {
           const t = TOOLS[n - 1];
-          if (!(t.locked && !G.decor[t.locked])) {
+          if (unlocked(G, t.key)) {
             G.tool = t.sub ? t.sub[0] : t.key;
             Grove.clearPair(); UI.refreshTray(); Audio.play('click');
-          }
+          } else Audio.play('error');
         }
       }
     });

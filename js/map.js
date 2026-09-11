@@ -68,7 +68,10 @@ const Atlas = (() => {
     return c;
   }
 
-  function unlocked(s) { return Object.keys(G.summoned).length >= (s.need || 0); }
+  function unlocked(s) {
+    if (Object.keys(G.summoned).length < (s.need || 0)) return false;
+    return s.gate ? s.gate(G) : true;
+  }
 
   function init(g) {
     G = g;
@@ -97,7 +100,7 @@ const Atlas = (() => {
     if (travel) return;
     const s = siteAt(x, y);
     if (!s) return;
-    if (!unlocked(s)) { Audio.play('error'); UI.toast('fog', 'bad'); return; }
+    if (!unlocked(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return; }
     if (!s.mode) { Audio.play('error'); return; }
     travel = { t: 0, site: s };
     Audio.play('whoosh');
@@ -106,7 +109,7 @@ const Atlas = (() => {
   function hoverAt(x, y) {
     hover = siteAt(x, y);
     if (!hover) return null;
-    if (!unlocked(hover)) return `<b>?</b><br>${hover.need} gods must answer first`;
+    if (!unlocked(hover)) return `<b>?</b><br>${hover.gate && !hover.gate(G) ? hover.why : hover.need + ' gods must answer first'}`;
     return `<b>${hover.name}</b>`;
   }
   function update(dt) {

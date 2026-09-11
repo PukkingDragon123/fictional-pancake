@@ -20,8 +20,8 @@ do to the ground is painted, not placed. There is no tile grid anywhere.
 
 Nothing on screen is a widget if it can be a thing instead: money is a leather coin tag,
 the clean-up list is a paper taped to the corner, the tools sit in a leather belt with
-stitched loops, the flyout is a canvas pouch, and every panel is a page in a spiral
-notebook. The tools are:
+stitched loops over slate pockets, the flyout is a canvas pouch, and every panel is a page
+in a spiral notebook. Nothing is rounded - every edge is a cut pixel corner. The tools are:
 
 - **Hand** drags poop cubes to the truck, pets wombats, harvests, and opens the store,
   the signpost map and the Tree of Life seed.
@@ -98,9 +98,20 @@ Gilded and rune offerings, and the gods' artifacts, sell for **W$** at the store
 W$ buys seed, wombats, burrows, troughs, carts, seating, decorations - and the ants.
 
 A small magical seed sits in the middle of the plot. Click it and the view becomes the
-**Tree of Life**, which you can pan and zoom freely. Twelve skills hang in its boughs as
-fruit, ripening at thresholds of forest restored. Buy one and a wombat climbs up, sits
-on its haunches and eats it, crumbs and all.
+**Tree of Life** - a proper skill tree. Three branches (SOIL, BEAST, RITE) of four ranks,
+each rank a plaque with a big icon, its name, its cost and its state, joined by limbs with
+sap running up the ones that are open. A rank only opens when the rank below it has been
+eaten and the forest has come back far enough to ripen it. Pick one and the card along the
+bottom gives you the full description and the LEARN button; buy it and a wombat walks up
+the branch and eats the fruit, crumbs and all. Drag to pan, wheel to zoom.
+
+## Locks
+
+Almost nothing is handed over at the start. You begin with a hand and a sickle; the ants
+arrive once the weeds are down, the ground brushes once the wrecks are gone, the seed,
+water and food tools once the grass is in. The map is fog except your own grove until the
+mart, the ritual site and the great stack each earn their place on it. The cultist's
+notebook always names what opens the next thing.
 
 ## The Rite
 
@@ -123,6 +134,8 @@ timed blessing. Leave with the money before it comes down.
 
 ## Code map
 
+- One sun, upper left. Every prop leaves `Props.cached` with its top edge lit and its
+  underside darkened, so the whole scene agrees about where the light is.
 - `js/art.js` - pixel primitives (snapped ellipses, scanline polygons, ink outlines) and
   the palette: barren ash, living moss, divine violet and gold.
 - `js/world.js` - the gridless ground. Two painted offscreen layers stamped by

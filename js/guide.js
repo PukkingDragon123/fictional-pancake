@@ -90,6 +90,7 @@ const Guide = (() => {
     cult.pose = 'point'; cult.t = 0; cult.hop = 1;
     Audio.play('chime');
     FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
+    UI.refreshAll();           // a finished step can hand over a new tool
     UI.refreshNotebook();
     Main.save();
     if (finished()) UI.toast('the notebook is full', 'good');

@@ -1,11 +1,15 @@
 // ---- Scenery: forest, ruins, altar, buildings ----------------------------
 const Props = (() => {
   const cache = new Map();
+  // Every prop gets the same treatment on the way out: one sun from the upper
+  // left, a shadow along its underside. That is what gives a scene direction.
   function cached(key, w, h, draw) {
     let c = cache.get(key);
     if (c) return c;
     const o = Art.cv(w, h);
     draw(o.g, w, h);
+    Art.topLight(o.c, 'rgba(255,242,208,0.22)', 2);
+    Art.underShade(o.c, 'rgba(18,12,24,0.26)', 2);
     cache.set(key, o.c);
     return o.c;
   }

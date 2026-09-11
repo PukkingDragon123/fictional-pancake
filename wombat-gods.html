@@ -50,12 +50,14 @@ img.ico.xl { width: 40px; height: 40px; }
   background: linear-gradient(180deg, var(--leather2), var(--leather));
   border: 2px solid var(--leatherD);
   box-shadow: inset 0 1px 0 rgba(255,222,170,0.3), inset 0 -3px 0 rgba(0,0,0,0.25), 2px 3px 0 rgba(0,0,0,0.45);
-  border-radius: 3px 10px 10px 3px;
   transform: rotate(-1.5deg);
   font-variant-numeric: tabular-nums; pointer-events: none;
 }
 #money::before {
-  content: ''; position: absolute; inset: 3px; border: 1px dashed var(--stitch); opacity: 0.55; border-radius: 2px 8px 8px 2px;
+  content: ''; position: absolute; inset: 3px; border: 1px dashed var(--stitch); opacity: 0.55;
+}
+#money, .rbtn, .mbtn, #dock, #flyout, .tool, .chip, .act, .wbtn, .buy, .x {
+  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
 }
 #money b { font-weight: normal; color: #ffe9a8; font-size: 12px; text-shadow: 0 2px 0 rgba(0,0,0,0.45); }
 
@@ -138,7 +140,7 @@ img.ico.xl { width: 40px; height: 40px; }
 .rbtn {
   display: flex; align-items: center; gap: 5px; padding: 8px 10px;
   background: linear-gradient(180deg, var(--leather2), var(--leather));
-  border: 2px solid var(--leatherD); border-radius: 4px;
+  border: 2px solid var(--leatherD);
   box-shadow: inset 0 1px 0 rgba(255,222,170,0.25), 2px 3px 0 rgba(0,0,0,0.4);
 }
 .rbtn:hover { filter: brightness(1.12); }
@@ -151,8 +153,7 @@ img.ico.xl { width: 40px; height: 40px; }
 #mini { position: absolute; left: 12px; bottom: 12px; z-index: 6; display: flex; gap: 5px; }
 .mbtn {
   display: flex; align-items: center; justify-content: center; padding: 6px 7px;
-  background: linear-gradient(180deg, #7a5a3a, #563a22); border: 2px solid var(--leatherD);
-  border-radius: 3px; box-shadow: 1px 2px 0 rgba(0,0,0,0.4); opacity: 0.9;
+  background: linear-gradient(180deg, #7a5a3a, #563a22); border: 2px solid var(--leatherD); box-shadow: 1px 2px 0 rgba(0,0,0,0.4); opacity: 0.9;
 }
 .mbtn:hover { opacity: 1; filter: brightness(1.15); }
 
@@ -163,7 +164,7 @@ img.ico.xl { width: 40px; height: 40px; }
   background:
     repeating-linear-gradient(180deg, rgba(0,0,0,0.06) 0 2px, rgba(0,0,0,0) 2px 5px),
     linear-gradient(180deg, var(--leather2) 0%, var(--leather) 55%, var(--leatherD) 100%);
-  border: 2px solid var(--leatherD); border-radius: 7px;
+  border: 2px solid var(--leatherD);
   box-shadow: inset 0 2px 0 rgba(255,222,170,0.2), inset 0 -4px 0 rgba(0,0,0,0.3), 0 5px 0 rgba(0,0,0,0.45);
 }
 #dock::before, #dock::after {
@@ -172,24 +173,34 @@ img.ico.xl { width: 40px; height: 40px; }
 }
 #dock::before { left: 6px; } #dock::after { right: 6px; }
 .tool {
-  position: relative; width: 42px; height: 44px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #3a2a1c, #241a10);
-  border: 2px solid #1a1109; border-radius: 4px;
-  box-shadow: inset 0 2px 0 rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,210,150,0.12);
+  position: relative; width: 44px; height: 46px; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #6b4f30, #3f2c1a);
+  border: 2px solid #1a1109;
+  box-shadow: inset 0 1px 0 rgba(255,222,170,0.25);
   transition: transform 0.08s;
 }
-.tool::after {                       /* the leather loop across the pocket */
-  content: ''; position: absolute; left: -3px; right: -3px; bottom: 7px; height: 7px;
-  background: linear-gradient(180deg, var(--leather2), var(--leatherD));
-  border-top: 1px solid rgba(255,222,170,0.25); border-bottom: 1px solid rgba(0,0,0,0.5);
-  opacity: 0.95;
+.tool::before {                      /* a slate plate so the tool reads against the leather */
+  content: ''; position: absolute; left: 4px; right: 4px; top: 4px; bottom: 9px;
+  background: linear-gradient(180deg, #4a4356, #2b2634);
+  box-shadow: inset 0 1px 0 rgba(190,180,210,0.3), inset 0 -2px 0 rgba(0,0,0,0.4);
+}
+.tool::after {                       /* the leather loop across the foot of the pocket */
+  content: ''; position: absolute; left: -3px; right: -3px; bottom: 2px; height: 6px;
+  background: linear-gradient(180deg, #8a6134, var(--leatherD));
+  border-top: 1px solid rgba(255,222,170,0.3); border-bottom: 1px solid rgba(0,0,0,0.55);
 }
 .tool:hover { transform: translateY(-4px); }
-.tool.on { background: linear-gradient(180deg, #7a5c2a, #4a3616); box-shadow: 0 0 0 2px #d8a52f, inset 0 2px 0 rgba(255,220,150,0.25); transform: translateY(-4px); }
+.tool.on { background: linear-gradient(180deg, #d8a52f, #8a6114); box-shadow: 0 0 0 2px #f5cd5c; transform: translateY(-5px); }
+.tool.on::before { background: linear-gradient(180deg, #6a5f7e, #3a3348); box-shadow: inset 0 1px 0 rgba(230,220,255,0.4); }
 .tool.locked { opacity: 0.35; cursor: not-allowed; }
-.tool img.ico { width: 26px; height: 26px; position: relative; z-index: 1; margin-bottom: 3px; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.5)); }
+.tool img.ico { width: 28px; height: 28px; position: relative; z-index: 1; margin-bottom: 5px; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.55)) brightness(1.12); }
 .tool .k { position: absolute; left: 3px; top: 2px; font-size: 7px; color: rgba(240,220,180,0.4); z-index: 2; }
 .tool.on .k { color: rgba(30,20,10,0.55); }
+.tool .lk, .chip .lk { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-58%); z-index: 3; padding: 2px;
+  background: rgba(12,9,16,0.72); filter: drop-shadow(0 1px 0 #000); }
+.tool .lk img, .chip .lk img { width: 16px; height: 16px; }
+.tool.locked { filter: grayscale(0.9) brightness(0.62); }
+.tool.locked::before { background: linear-gradient(180deg, #33303a, #211e28); }
 .tool .more { position: absolute; right: 3px; top: 3px; width: 0; height: 0; border: 3px solid transparent; border-top-color: var(--stitch); z-index: 2; }
 
 /* the flyout: a canvas pouch flipped open above the belt */
@@ -197,7 +208,7 @@ img.ico.xl { width: 40px; height: 40px; }
   position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); z-index: 6;
   display: flex; gap: 5px; padding: 8px 10px 9px; max-width: 92%; flex-wrap: wrap; justify-content: center;
   background: linear-gradient(180deg, #a88a5c 0%, #8a6e45 100%);
-  border: 2px solid #4a3a22; border-radius: 5px;
+  border: 2px solid #4a3a22;
   box-shadow: inset 0 2px 0 rgba(255,240,200,0.2), 0 4px 0 rgba(0,0,0,0.4);
 }
 #flyout::before {
@@ -205,12 +216,12 @@ img.ico.xl { width: 40px; height: 40px; }
 }
 .chip {
   position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #3a2a1c, #241a10); border: 2px solid #1a1109; border-radius: 3px;
+  background: linear-gradient(180deg, #3a2a1c, #241a10); border: 2px solid #1a1109;
 }
 .chip:hover { filter: brightness(1.3); }
 .chip.on { background: linear-gradient(180deg, #5d7a34, #3a4f1e); box-shadow: 0 0 0 2px #98c25a; }
 .chip.out { opacity: 0.35; }
-.chip img.ico { width: 22px; height: 22px; }
+.chip img.ico { width: 22px; height: 22px; filter: brightness(1.1); }
 .chip .n { position: absolute; right: -1px; bottom: -2px; font-size: 7px; padding: 0 2px; color: #f6ecd4;
   background: #241a10; border: 1px solid #0f0a06; font-variant-numeric: tabular-nums; }
 .chip .n em { color: #d8a52f; font-style: normal; }
@@ -240,7 +251,7 @@ img.ico.xl { width: 40px; height: 40px; }
 }
 .bigrow { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--g3); }
 .act {
-  display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 15px; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 15px;
   background: linear-gradient(180deg, #7a52c2, #4a2a86); border: 1px solid #2a1650;
   box-shadow: inset 0 1px 0 rgba(255,230,255,0.25), 2px 3px 0 rgba(0,0,0,0.4);
 }
@@ -249,7 +260,7 @@ img.ico.xl { width: 40px; height: 40px; }
 .act:disabled { background: var(--st2); filter: grayscale(0.6); cursor: not-allowed; opacity: 0.65; }
 .act.big { padding: 12px 24px; }
 .act.small { padding: 6px 8px; }
-.wbtn { display: flex; align-items: center; gap: 5px; padding: 6px 10px; color: #f6ecd4; border-radius: 3px;
+.wbtn { display: flex; align-items: center; gap: 5px; padding: 6px 10px; color: #f6ecd4;
   background: linear-gradient(180deg, #7a5a3a, #563a22); border: 1px solid #34200f; box-shadow: 1px 2px 0 rgba(0,0,0,0.35); }
 .wbtn:hover { filter: brightness(1.15); }
 .keys { display: flex; gap: 5px; }
@@ -302,7 +313,7 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
 .phead { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 2px solid #b7a37f;
   color: var(--inkpen); background: rgba(255,255,255,0.18); }
 .ptitle { font-size: 10px; flex: 1; }
-.x { background: linear-gradient(180deg, #c55a3a, #9a3f22); border: 1px solid #5a2312; padding: 4px 6px; margin-left: auto; border-radius: 2px; box-shadow: 1px 2px 0 rgba(0,0,0,0.35); }
+.x { background: linear-gradient(180deg, #c55a3a, #9a3f22); border: 1px solid #5a2312; padding: 4px 6px; margin-left: auto; box-shadow: 1px 2px 0 rgba(0,0,0,0.35); }
 .pbody { overflow-y: auto; padding: 10px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
 .item { display: grid; grid-template-columns: 40px 1fr; gap: 4px 9px; padding: 8px; align-items: center;
@@ -315,7 +326,7 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
 .item p { grid-column: 2; margin: 0; font-size: 8px; line-height: 1.7; color: #5a4530; }
 .item .act2 { grid-column: 1 / 3; display: flex; gap: 5px; justify-content: flex-end; align-items: center; margin-top: 3px; }
 .buy { display: flex; gap: 4px; align-items: center; padding: 5px 9px; color: #3a2a14; font-variant-numeric: tabular-nums;
-  background: linear-gradient(180deg, #f0cd6a, #cfa33a); border: 1px solid #7a5a14; border-radius: 2px; box-shadow: 1px 2px 0 rgba(0,0,0,0.3); }
+  background: linear-gradient(180deg, #f0cd6a, #cfa33a); border: 1px solid #7a5a14; box-shadow: 1px 2px 0 rgba(0,0,0,0.3); }
 .buy img { width: 13px; height: 13px; image-rendering: pixelated; }
 .buy:hover:not(:disabled) { filter: brightness(1.1); }
 .buy:active:not(:disabled) { border-bottom-width: 2px; transform: translateY(2px); }
@@ -667,6 +678,18 @@ const Art = (() => {
     g.globalAlpha = 1;
     return canvas;
   }
+  // Light the top edge of a silhouette: one sun, upper left, for everything.
+  function topLight(canvas, col = 'rgba(255,240,205,0.28)', depth = 2) {
+    const g = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const a = g.getImageData(0, 0, w, h).data;
+    g.fillStyle = col;
+    for (let x = 0; x < w; x++) {
+      let first = -1;
+      for (let y = 0; y < h; y++) if (a[(y * w + x) * 4 + 3] > 8) { first = y; break; }
+      if (first >= 0) g.fillRect(x, first, 1, depth - (x % 2 === 0 ? 0 : 1));
+    }
+  }
   // Darken the bottom edge of a silhouette (contact shadow inside the shape)
   function underShade(canvas, col = 'rgba(0,0,0,0.18)', depth = 2) {
     const g = canvas.getContext('2d');
@@ -696,7 +719,7 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, underShade, flip, tinted, rng };
+  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, underShade, flip, tinted, rng };
 })();
 </script>
 
@@ -1524,11 +1547,15 @@ const Sprites = (() => {
 // ---- Scenery: forest, ruins, altar, buildings ----------------------------
 const Props = (() => {
   const cache = new Map();
+  // Every prop gets the same treatment on the way out: one sun from the upper
+  // left, a shadow along its underside. That is what gives a scene direction.
   function cached(key, w, h, draw) {
     let c = cache.get(key);
     if (c) return c;
     const o = Art.cv(w, h);
     draw(o.g, w, h);
+    Art.topLight(o.c, 'rgba(255,242,208,0.22)', 2);
+    Art.underShade(o.c, 'rgba(18,12,24,0.26)', 2);
     cache.set(key, o.c);
     return o.c;
   }
@@ -2712,7 +2739,7 @@ const TOOLS = [
   { key: 'farm',    name: 'Farm',   icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'Hoe, seed, grass, water.' },
   { key: 'sickle',  name: 'Sickle', icon: 't_sickle',  radius: 22, desc: 'Cut the weeds.' },
   { key: 'destroy', name: 'Haul',   icon: 't_destroy', radius: 0,  desc: 'Ants carry it off, for a fee.' },
-  { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  locked: 'nest', desc: 'Pair two adults.' },
+  { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  desc: 'Pair two adults.' },
 ];
 const SUBTOOLS = [
   { key: 'hoe',   name: 'Hoe',   icon: 't_hoe',   radius: 15, desc: 'Till bare ground into beds.' },
@@ -2720,6 +2747,31 @@ const SUBTOOLS = [
   { key: 'moss',  name: 'Grass', icon: 't_moss',  radius: 19, desc: 'Sow grass. It sprouts slowly.' },
   { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
 ];
+// Nothing is handed over at once. The cultist teaches a tool, then you own it.
+const GATES = {
+  drag: () => true,
+  sickle: () => true,
+  destroy: (g) => g.step >= 1,
+  farm: (g) => g.step >= 2,
+  moss: (g) => g.step >= 2,
+  hoe: (g) => g.step >= 3,
+  seed: (g) => g.step >= 3,
+  water: (g) => g.step >= 3,
+  food: (g) => g.step >= 3,
+  pair: (g) => !!g.decor.nest,
+};
+const GATE_WHY = {
+  destroy: 'clear the weeds first',
+  farm: 'the wrecks go first',
+  moss: 'the wrecks go first',
+  hoe: 'sow the grass first',
+  seed: 'sow the grass first',
+  water: 'sow the grass first',
+  food: 'sow the grass first',
+  pair: 'needs a nest',
+};
+const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
+
 const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
@@ -2728,9 +2780,9 @@ const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
 // ---- The map. Fog lifts as gods answer. ----------------------------------
 const SITES = [
   { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
-  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0 },
-  { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0 },
-  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0 },
+  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
+  { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
+  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0, gate: (g) => OFFER_ORDER.reduce((s2, k) => s2 + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0) >= 4, why: 'four offerings first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
   { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },
@@ -3127,6 +3179,7 @@ const World = (() => {
   const stamps = new Map();
   const weeds = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
   let restored = 0, sampleT = 0, spreadT = 0, wind = 0, windT = 0;
+  let gustA = 0, gustWant = 0.5, gustT = 0;
 
   function stampSet(kind, r) {
     const key = `${kind}:${r}`;
@@ -3323,18 +3376,26 @@ const World = (() => {
     }
   }
 
+  // A gust is a wave that travels across the grove: everything rooted in the
+  // ground leans to the same wave, which is what makes a field look alive.
+  function gust(x) {
+    return (Math.sin(G.time * 1.8 - x * 0.012) * 0.5 + 0.5) * gustA;
+  }
   function update(dt) {
     // wind gusts drive the whole sward
     windT -= dt;
     if (windT <= 0) { windT = U.rand(3, 8); wind = U.rand(-1, 1) * U.rand(6, 22); }
+    gustT -= dt;
+    if (gustT <= 0) { gustT = U.rand(4, 11); gustWant = U.rand(0.25, 1.5); }
+    gustA = U.lerp(gustA, gustWant, dt * 0.7);
     const w = wind * (0.5 + 0.5 * Math.sin(G.time * 0.7));
     for (const b of blades) {
-      b.vel += (-b.bend * 46 - b.vel * 7 + w * 0.5 + Math.sin(G.time * 2.2 + b.x * 0.09) * 3) * dt;
+      b.vel += (-b.bend * 46 - b.vel * 7 + w * 0.5 + gust(b.x) * 7 + Math.sin(G.time * 2.2 + b.x * 0.09) * 3) * dt;
       b.bend += b.vel * dt;
       b.bend = U.clamp(b.bend, -2.6, 2.6);
     }
     for (const f of flowers) {
-      f.vel += (-f.bend * 40 - f.vel * 6.5 + w * 0.35) * dt;
+      f.vel += (-f.bend * 40 - f.vel * 6.5 + w * 0.35 + gust(f.x) * 5) * dt;
       f.bend += f.vel * dt;
       f.bend = U.clamp(f.bend, -2.2, 2.2);
     }
@@ -3488,15 +3549,19 @@ const World = (() => {
       else if (p.t > 5) { g.fillStyle = 'rgba(216,165,47,0.2)'; Art.ell(g, p.x, p.y, p.r * 0.5, p.r * 0.22); }
     }
   }
-  function drawWeeds(g) {
-    for (const w of weeds) {
-      const img = Props.get('weed', w.v);
-      const s = w.s;
-      const sway = Math.sin(G.time * 1.1 + w.x * 0.08) * 1.6 + wind * 0.05;
-      const dw = img.width * s, dh = img.height * s;
-      g.drawImage(img, Math.round(w.x - dw / 2 + sway), Math.round(w.y - dh + 3), Math.round(dw), Math.round(dh));
-    }
+  function drawWeed(g, w) {
+    const img = Props.get('weed', w.v);
+    const s = w.s;
+    const sway = gust(w.x) * 2.4 + Math.sin(G.time * 1.1 + w.x * 0.08) * 1.2;
+    const dw = img.width * s, dh = img.height * s;
+    Art.ell(g, w.x, w.y + 1, dw * 0.3, 3, 'rgba(16,12,20,0.3)');
+    g.save();
+    g.translate(Math.round(w.x), Math.round(w.y + 3));
+    g.transform(1, 0, -sway / dh, 1, 0, 0);          // lean the whole plant with the wind
+    g.drawImage(img, Math.round(-dw / 2), Math.round(-dh), Math.round(dw), Math.round(dh));
+    g.restore();
   }
+  function drawWeeds(g) { for (const w of weeds) drawWeed(g, w); }
   function drawCrops(g) {
     for (const c of crops) {
       const p = U.clamp(c.t / growTime(c), 0, 1);
@@ -3520,7 +3585,7 @@ const World = (() => {
   }
 
   return {
-    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawCrops, drawCursor,
+    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, drawCursor,
     sowGrass, till, clearWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
     fraction, measure, ripe, growTime,
     get weeds() { return weeds; }, get crops() { return crops; },
@@ -3581,6 +3646,9 @@ const Grove = (() => {
   for (let i = 0; i < 12; i++) mist.push({ x: R0() * W, y: SKY - 16 + R0() * 56, w: 110 + R0() * 150, s: 2 + R0() * 4, d: Math.floor(R0() * 3) });
   const flies = [];   // slow motes over the treeline
   for (let i = 0; i < 26; i++) flies.push({ x: R0() * W, y: SKY - 40 + R0() * 110, ph: R0() * TAU, sp: 0.25 + R0() * 0.5 });
+  const clouds = [];  // slow weather overhead
+  for (let i = 0; i < 7; i++) clouds.push({ x: R0() * (W + 400) - 200, y: 8 + R0() * 54, w: 60 + R0() * 90, h: 9 + R0() * 9, s: 3 + R0() * 6, a: 0.1 + R0() * 0.16 });
+  const leaves = []; // leaves crossing the plot on the gust
   const shafts = [];  // light falling through the canopy
   for (let i = 0; i < 5; i++) shafts.push({ x: 60 + R0() * (W - 120), w: 26 + R0() * 40, lean: 26 + R0() * 22, a: 0.05 + R0() * 0.07 });
 
@@ -3637,7 +3705,7 @@ const Grove = (() => {
     }
     for (let i = 0; i < 5; i++) birds.push({ x: R0() * W, y: 30 + R0() * 50, dir: R0() < 0.5 ? -1 : 1, ph: R0() * TAU, perch: null, t: R0() * 8 });
     owls.length = 0;
-    owls.push({ x: 128, y: SKY - 8, blink: 0 }, { x: 508, y: SKY - 2, blink: 2 }, { x: 812, y: SKY - 10, blink: 1.2 }, { x: 316, y: SKY - 4, blink: 3 });
+    owls.push({ x: 236, y: SKY - 8, blink: 0 }, { x: 742, y: SKY - 4, blink: 2.4 });
   }
   function saveObjects() { G.objects = objects.map((o) => ({ id: o.id, kind: o.kind, x: o.x, y: o.y, v: o.v, gone: o.gone })); }
 
@@ -3724,6 +3792,17 @@ const Grove = (() => {
   }
 
   function update(dt) {
+    // weather: clouds crawl, leaves tear loose on a gust
+    for (const c of clouds) { c.x += c.s * dt; if (c.x > W + 220) c.x = -c.w - 220; }
+    const gu = World.gust(FX.cam.x);
+    if (leaves.length < 26 && Math.random() < dt * (1.4 + gu * 5)) {
+      leaves.push({ x: FX.cam.x - 380, y: GROUND - 40 + Math.random() * 180, vx: 40 + gu * 90 + Math.random() * 40, ph: Math.random() * TAU, t: 0, c: ['#7f9a4a', '#a8843a', '#8a5a2a', '#6d8c3a'][Math.floor(Math.random() * 4)] });
+    }
+    for (let i = leaves.length - 1; i >= 0; i--) {
+      const lf = leaves[i];
+      lf.t += dt; lf.x += lf.vx * dt; lf.y += Math.sin(lf.t * 3 + lf.ph) * 22 * dt;
+      if (lf.x > FX.cam.x + 420 || lf.t > 18) leaves.splice(i, 1);
+    }
     if (arrival) { updateArrival(dt); return; }
     const cap = hapCap(), decay = 0.42;
     for (const w of G.wombats) {
@@ -4075,11 +4154,24 @@ const Grove = (() => {
     g.fillStyle = sg; g.fillRect(sunX - 110, sunY - 110, 220, 220);
     g.fillStyle = U.mix('#5f5a68', '#ffeeb0', f); Art.ell(g, sunX, sunY, 8, 8);
 
+    // clouds, drifting the other way to the parallax so the sky feels deep
+    for (const c of clouds) {
+      const x = c.x + drift * 0.85;
+      if (x > R + 120 || x + c.w < L - 120) continue;
+      g.fillStyle = `rgba(226,228,238,${(c.a * (1 - f * 0.3)).toFixed(3)})`;
+      g.fillRect(x, c.y, c.w, c.h);
+      g.fillRect(x + 8, c.y - c.h * 0.45, c.w - 24, c.h * 0.5);
+      g.fillStyle = `rgba(255,250,236,${(c.a * 0.7).toFixed(3)})`;
+      g.fillRect(x + 8, c.y - c.h * 0.45, c.w - 24, 2);
+      g.fillStyle = `rgba(60,66,90,${(c.a * 0.5).toFixed(3)})`;
+      g.fillRect(x, c.y + c.h - 2, c.w, 2);
+    }
     // ---- five layers of trees, each at its own drift rate -----------------
     for (let d = 0; d < layers.length; d++) {
       const off = drift * PAR[d];
+      const swayD = World.gust(0) * (0.8 + d * 0.5);
       for (const t of layers[d]) {
-        const x = t.x + off;
+        const x = t.x + off + World.gust(t.x) * (1.2 + d * 1.1);
         if (x < L - 90 || x > R + 90) continue;
         const img = Props.get('tree', `${t.kind}|${t.v}|${(t.sh * (1 - f * 0.3)).toFixed(2)}`);
         const w2 = img.width * t.s, h2 = img.height * t.s;
@@ -4146,10 +4238,12 @@ const Grove = (() => {
     }
     World.drawSprouts(g);
     World.drawBlades(g);
-    World.drawWeeds(g);
     World.drawFlowers(g);
 
+    // Everything on the ground sorts by its feet, weeds included, so a ruin
+    // behind a stand of thistles is actually behind them.
     const items = [];
+    for (const w of World.weeds) items.push({ y: w.y, fn: () => World.drawWeed(g, w) });
     items.push({ y: SEED.y, fn: () => drawSeed(g) });
     items.push({ y: POST.y, fn: () => drawPost(g) });
     for (const o of objects) if (o.gone < 1) items.push({ y: o.y, fn: () => drawObject(g, o) });
@@ -4173,6 +4267,13 @@ const Grove = (() => {
       const fl = b.dir < 0 ? Art.flip(img) : img;
       g.drawImage(fl, Math.round(b.x - 12), Math.round(b.y - 9));
     }
+    // leaves torn off and carried across the plot
+    for (const lf of leaves) {
+      g.fillStyle = lf.c;
+      g.fillRect(Math.round(lf.x), Math.round(lf.y), 2, 2);
+      g.fillStyle = 'rgba(0,0,0,0.25)';
+      g.fillRect(Math.round(lf.x), Math.round(lf.y) + 2, 2, 1);
+    }
     // motes drifting through the dark under the trees
     for (const fl of flies) {
       const x = fl.x + Math.sin(G.time * fl.sp + fl.ph) * 22 + drift * 0.12;
@@ -4193,11 +4294,11 @@ const Grove = (() => {
     g.restore();
 
     // a cold wash while the wood is still dead; it lifts as the grove comes back
-    if (f < 0.95) { g.fillStyle = `rgba(26,34,58,${(0.2 * (1 - f)).toFixed(3)})`; g.fillRect(0, 0, VW, VH); }
+    if (f < 0.95) { g.fillStyle = `rgba(26,34,58,${(0.13 * (1 - f)).toFixed(3)})`; g.fillRect(0, 0, VW, VH); }
     // the whole grove sits inside a soft dark frame
     const vg = g.createRadialGradient(VW / 2, VH * 0.52, VH * 0.4, VW / 2, VH * 0.52, VH * 1.02);
     vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, `rgba(8,7,14,${(0.62 - f * 0.22).toFixed(2)})`);
+    vg.addColorStop(1, `rgba(8,7,14,${(0.5 - f * 0.2).toFixed(2)})`);
     g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
     edgeArrows(g);
   }
@@ -4731,90 +4832,91 @@ const Ritual = (() => {
 
 <script>
 // ===== js/knowledge.js =====
-// ---- The Tree of Life: a zoomable tree whose fruit are skills --------------
+// ---- The Tree of Life: a proper skill tree, branches, plaques and all -----
+// Three branches of four ranks. A rank only opens once the one below it is
+// eaten, and only once the forest has come back far enough to ripen it.
 const Knowledge = (() => {
   let G = null;
   const VW = 640, VH = 360;
-  const AW = 340, AH = 470;              // art-pixel size of the tree canvas
-  const ZMIN = 0.74, ZMAX = 3.2;
-  const cam = { x: AW / 2, y: AH * 0.45, z: 0.78, tx: AW / 2, ty: AH * 0.45, tz: 0.78 };
-  let tree = null, hover = -1, pinch = 0;
+  const WW = 760, WH = 620;
+  const COLX = [150, 380, 610];
+  const ROWY = [470, 362, 254, 146];
+  const NW = 128, NH = 74;                 // a node plaque
+  const ZMIN = 0.5, ZMAX = 1.8;
+  const CARD = 76, CY = (VH - CARD) / 2;      // the tree lives above the detail card
+  const cam = { x: WW / 2, y: 288, z: 0.62, tx: WW / 2, ty: 288, tz: 0.62 };
+  let tree = null, hover = -1, sel = -1, learnHot = false;
   const eating = { on: false, t: 0, fruit: null, x: 0, y: 0, dir: 1, bites: 0, phase: 'climb' };
   const motes = [], crumbs = [];
-  const FRUIT_COL = [
-    { skin: '#c4442f', lit: '#e0705a', dark: '#7d2418' },
-    { skin: '#8354c9', lit: '#b98ef0', dark: '#452a6e' },
-    { skin: '#d8a52f', lit: '#f5cd5c', dark: '#8a5f14' },
+  const BRANCH = [
+    { name: 'SOIL', col: '#5d9440', dark: '#2f4f24' },
+    { name: 'BEAST', col: '#c4623f', dark: '#6b2f1c' },
+    { name: 'RITE', col: '#8354c9', dark: '#412266' },
   ];
 
   function ensure() {
     if (!tree) {
-      tree = Props.buildLifeTree(AW, AH, 707);
-      for (let i = 0; i < 46; i++) motes.push({ x: Math.random() * AW, y: Math.random() * AH, ph: Math.random() * TAU, s: 0.4 + Math.random() * 1.2 });
+      tree = Props.buildLifeTree(360, 500, 707);
+      for (let i = 0; i < 40; i++) motes.push({ x: Math.random() * WW, y: Math.random() * WH, ph: Math.random() * TAU, s: Math.random() < 0.4 ? 2 : 1 });
     }
     return tree;
   }
-  function anchorFor(f) {
-    const list = ensure().anchors.filter((a) => a.root === f.root);
-    return list[f.i] || { x: AW / 2, y: AH * 0.4 };
-  }
+  const nodeAt = (f) => ({ x: COLX[f.root], y: ROWY[f.i] });
   const owned = (f) => !!G.fruits[f.key];
-  const ripe = (f) => World.fraction() >= f.at;
+  const prereq = (f) => (f.i === 0 ? null : FRUITS.find((x) => x.root === f.root && x.i === f.i - 1));
   function state(f) {
     if (owned(f)) return 'eaten';
-    if (!ripe(f)) return 'unripe';
+    const p = prereq(f);
+    if (p && !owned(p)) return 'locked';
+    if (World.fraction() < f.at) return 'unripe';
     return G.wd >= f.cost ? 'ready' : 'costly';
   }
   function ripeCount() { return FRUITS.filter((f) => state(f) === 'ready').length; }
 
   // ---- camera -------------------------------------------------------------
-  function sx(wx) { return (wx - cam.x) * cam.z + VW / 2; }
-  function sy(wy) { return (wy - cam.y) * cam.z + VH / 2; }
-  function wx(s) { return (s - VW / 2) / cam.z + cam.x; }
-  function wy(s) { return (s - VH / 2) / cam.z + cam.y; }
+  const sx = (x) => (x - cam.x) * cam.z + VW / 2;
+  const sy = (y) => (y - cam.y) * cam.z + CY;
+  const wxOf = (s) => (s - VW / 2) / cam.z + cam.x;
+  const wyOf = (s) => (s - CY) / cam.z + cam.y;
   function clampCam() {
-    const halfW = VW / 2 / cam.tz, halfH = VH / 2 / cam.tz;
-    cam.tx = halfW * 2 > AW ? AW / 2 : U.clamp(cam.tx, halfW, AW - halfW);
-    cam.ty = halfH * 2 > AH ? AH / 2 : U.clamp(cam.ty, halfH, AH - halfH);
+    const hw = VW / 2 / cam.tz, hh = CY / cam.tz;
+    const top = 96, bot = 530;                  // where the tree actually starts and ends
+    cam.tx = hw * 2 > WW ? WW / 2 : U.clamp(cam.tx, hw, WW - hw);
+    const lo = top + hh - 40, hi = bot - hh + 40;
+    cam.ty = lo > hi ? (top + bot) / 2 : U.clamp(cam.ty, lo, hi);
   }
   function zoomAt(mult, px, py) {
-    const before = { x: wx(px), y: wy(py) };
-    cam.tz = U.clamp(cam.tz * mult, ZMIN, ZMAX);
-    cam.z = cam.tz;
-    cam.tx = before.x - (px - VW / 2) / cam.z;
-    cam.ty = before.y - (py - VH / 2) / cam.z;
-    clampCam();
-    cam.x = cam.tx; cam.y = cam.ty;
+    const bx = wxOf(px), by = wyOf(py);
+    cam.tz = U.clamp(cam.tz * mult, ZMIN, ZMAX); cam.z = cam.tz;
+    cam.tx = bx - (px - VW / 2) / cam.z; cam.ty = by - (py - CY) / cam.z;
+    clampCam(); cam.x = cam.tx; cam.y = cam.ty;
   }
-  function zoomBy(mult) { zoomAt(mult, VW / 2, VH / 2); }
+  function zoomBy(m) { zoomAt(m, VW / 2, VH / 2); }
   function pan(dx, dy) { cam.tx -= dx / cam.z; cam.ty -= dy / cam.z; clampCam(); cam.x = cam.tx; cam.y = cam.ty; }
-  function lookAt(x, y, z) {
-    if (z) cam.tz = U.clamp(z, ZMIN, ZMAX);
-    cam.tx = x; cam.ty = y; clampCam();
-  }
+  function lookAt(x, y, z) { if (z) cam.tz = U.clamp(z, ZMIN, ZMAX); cam.tx = x; cam.ty = y; clampCam(); }
 
   function enter() {
     ensure();
     const t = FRUITS.find((f) => state(f) === 'ready') || FRUITS.find((f) => !owned(f)) || FRUITS[0];
-    const a = anchorFor(t);
-    cam.z = cam.tz = 1.5;
-    lookAt(a.x, a.y, 1.5);
-    cam.x = cam.tx; cam.y = cam.ty;
+    sel = FRUITS.indexOf(t);
+    const a = nodeAt(t);
+    cam.z = cam.tz = 0.62;
+    lookAt(WW / 2, 288, 0.62); cam.x = cam.tx; cam.y = cam.ty;
     Audio.setMode('pen');
   }
 
-  // ---- buying -------------------------------------------------------------
+  // ---- learning -----------------------------------------------------------
   function buy(f) {
     const st = state(f);
     if (st === 'eaten' || eating.on) return;
-    if (st === 'unripe') { Audio.play('error'); UI.toast('not ripe', 'bad'); return; }
+    if (st === 'locked') { Audio.play('error'); UI.toast('eat the one below first', 'bad'); return; }
+    if (st === 'unripe') { Audio.play('error'); UI.toast(`ripens at ${Math.round(f.at * 100)}% forest`, 'bad'); return; }
     if (st === 'costly') { Audio.play('error'); UI.toast('not enough', 'bad'); return; }
     G.wd -= f.cost;
-    const a = anchorFor(f);
+    const a = nodeAt(f);
     eating.on = true; eating.t = 0; eating.fruit = f; eating.bites = 0; eating.phase = 'climb';
-    eating.dir = a.x < AW / 2 ? 1 : -1;
-    eating.x = a.x - eating.dir * 34; eating.y = tree.base;
-    lookAt(a.x, a.y - 6, Math.max(cam.tz, 1.9));
+    eating.dir = 1; eating.x = a.x - 90; eating.y = a.y + NH / 2 + 14;
+    lookAt(a.x, a.y, Math.max(cam.tz, 1));
     Audio.play('click');
     UI.refreshAll();
   }
@@ -4829,164 +4931,236 @@ const Knowledge = (() => {
       if (c.t > 1.4) crumbs.splice(i, 1);
     }
     if (!eating.on) return;
-    const e = eating, a = anchorFor(e.fruit);
+    const e = eating, a = nodeAt(e.fruit);
     e.t += dt;
     if (e.phase === 'climb') {
-      const k = U.easeInOut(Math.min(1, e.t / 1.5));
-      e.x = U.lerp(a.x - e.dir * 34, a.x - e.dir * 11, k);
-      e.y = U.lerp(tree.base, a.y + 7, k);
-      if (e.t >= 1.5) { e.phase = 'bite'; e.t = 0; }
+      const k = U.easeInOut(Math.min(1, e.t / 1.2));
+      e.x = U.lerp(a.x - 90, a.x - 26, k);
+      e.y = a.y + NH / 2 + 14;
+      if (e.t >= 1.2) { e.phase = 'bite'; e.t = 0; }
     } else if (e.phase === 'bite') {
-      const per = 0.42;
+      const per = 0.4;
       if (e.t > per * (e.bites + 1) && e.bites < 3) {
         e.bites++;
         Audio.play('munch');
-        for (let i = 0; i < 5; i++) crumbs.push({ x: a.x, y: a.y, vx: U.rand(-26, 26), vy: U.rand(-40, -6), t: 0, c: FRUIT_COL[e.fruit.root].skin });
+        for (let i = 0; i < 6; i++) crumbs.push({ x: a.x, y: a.y, vx: U.rand(-30, 30), vy: U.rand(-50, -10), t: 0, c: BRANCH[e.fruit.root].col });
       }
       if (e.bites >= 3 && e.t > per * 3 + 0.3) {
         G.fruits[e.fruit.key] = true;
-        FX.sparkle(VW / 2, VH / 2, 16, PAL.gold3);
+        FX.sparkle(VW / 2, VH / 2, 18, PAL.gold3);
         Audio.play('bless');
         UI.toast(e.fruit.name, 'good');
         e.phase = 'down'; e.t = 0;
       }
     } else {
-      const k = U.easeIn(Math.min(1, e.t / 1.1));
-      e.x = U.lerp(a.x - e.dir * 11, a.x - e.dir * 46, k);
-      e.y = U.lerp(a.y + 7, tree.base, k);
-      if (e.t >= 1.1) { e.on = false; e.fruit = null; UI.refreshAll(); Main.save(); }
+      const k = U.easeIn(Math.min(1, e.t / 0.9));
+      e.x = U.lerp(a.x - 26, a.x - 110, k);
+      if (e.t >= 0.9) { e.on = false; e.fruit = null; UI.refreshAll(); Main.save(); }
     }
   }
 
   // ---- input --------------------------------------------------------------
-  function fruitAt(px, py) {
-    let best = -1, bd = 1e9;
-    FRUITS.forEach((f, i) => {
-      const a = anchorFor(f);
-      const d = Math.hypot(sx(a.x) - px, sy(a.y) - py);
-      const r = Math.max(16, 11 * cam.z);
-      if (d < r && d < bd) { bd = d; best = i; }
-    });
-    return best;
+  function indexAt(px, py) {
+    const wx = wxOf(px), wy = wyOf(py);
+    for (let i = 0; i < FRUITS.length; i++) {
+      const a = nodeAt(FRUITS[i]);
+      if (Math.abs(wx - a.x) < NW / 2 && Math.abs(wy - a.y) < NH / 2) return i;
+    }
+    return -1;
+  }
+  const LEARN = { x: VW - 132, y: VH - 42, w: 118, h: 30 };
+  function overLearn(px, py) {
+    return sel >= 0 && px > LEARN.x && px < LEARN.x + LEARN.w && py > LEARN.y && py < LEARN.y + LEARN.h;
   }
   function click(px, py) {
-    const i = fruitAt(px, py);
-    if (i >= 0) buy(FRUITS[i]);
+    if (overLearn(px, py)) { buy(FRUITS[sel]); return; }
+    const i = indexAt(px, py);
+    if (i < 0) return;
+    if (i === sel) buy(FRUITS[i]);
+    else { sel = i; Audio.play('click'); }
   }
   function hoverAt(px, py) {
-    hover = fruitAt(px, py);
-    if (hover < 0) return null;
-    const f = FRUITS[hover], st = state(f);
-    const tag = st === 'eaten' ? '<span class="good">eaten</span>'
-      : st === 'unripe' ? `<span class="warn">ripens at ${Math.round(f.at * 100)}%</span>`
-        : `${Icons.img('wdollar', 'sm')} ${f.cost}`;
-    return `<b>${f.name}</b><br>${f.desc}<br>${tag}`;
+    hover = indexAt(px, py);
+    learnHot = overLearn(px, py);
+    return null;                                    // the tree carries its own detail card
   }
-  function scroll(dy, px, py) { zoomAt(dy < 0 ? 1.16 : 1 / 1.16, px ?? VW / 2, py ?? VH / 2); }
+  function scroll(dy, px, py) { zoomAt(dy < 0 ? 1.14 : 1 / 1.14, px ?? VW / 2, py ?? VH / 2); }
 
-  // ---- scene --------------------------------------------------------------
+  // ---- drawing ------------------------------------------------------------
+  // square plaques, hard corners, light from the upper left
+  function plaque(g, x, y, w, h, face, edge, lit) {
+    const X = Math.round(x - w / 2), Y = Math.round(y - h / 2);
+    g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillRect(X + 3, Y + 4, w, h);
+    g.fillStyle = edge; g.fillRect(X, Y, w, h);
+    g.fillStyle = face; g.fillRect(X + 2, Y + 2, w - 4, h - 4);
+    g.fillStyle = lit; g.fillRect(X + 2, Y + 2, w - 4, 2);
+    g.fillStyle = lit; g.fillRect(X + 2, Y + 2, 2, h - 4);
+    g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(X + 2, Y + h - 4, w - 4, 2); g.fillRect(X + w - 4, Y + 2, 2, h - 4);
+    g.fillStyle = edge;                                    // notched corners
+    g.fillRect(X, Y, 3, 3); g.fillRect(X + w - 3, Y, 3, 3);
+    g.fillRect(X, Y + h - 3, 3, 3); g.fillRect(X + w - 3, Y + h - 3, 3, 3);
+  }
+
   function render(g) {
     ensure();
     const t = G.time;
-    // deep night sky, slow aurora
     const sky = g.createLinearGradient(0, 0, 0, VH);
-    sky.addColorStop(0, '#0a0714'); sky.addColorStop(0.55, '#150f24'); sky.addColorStop(1, '#241830');
+    sky.addColorStop(0, '#0b0916'); sky.addColorStop(0.6, '#141026'); sky.addColorStop(1, '#1d1630');
     g.fillStyle = sky; g.fillRect(0, 0, VW, VH);
-    g.globalAlpha = 0.2;
-    for (let i = 0; i < 4; i++) {
-      g.fillStyle = ['#2a2050', '#1d3a44', '#3a2450', '#1f2f4a'][i];
-      const y = 20 + i * 26 + Math.sin(t * 0.3 + i) * 10;
-      g.fillRect(0, y, VW, 16);
-    }
-    g.globalAlpha = 1;
-    for (let i = 0; i < 60; i++) {
-      const x = (i * 97) % VW, y = (i * 53) % 150;
-      g.fillStyle = i % 5 === 0 ? PAL.gold3 : 'rgba(240,235,255,0.6)';
-      if ((Math.sin(t * 1.6 + i) + 1) > 0.4) g.fillRect(x, y, 1, 1);
+    for (let i = 0; i < 70; i++) {
+      const x = (i * 97) % VW, y = (i * 53) % VH;
+      if ((Math.sin(t * 1.4 + i) + 1) > 0.6) { g.fillStyle = i % 6 === 0 ? PAL.gold3 : 'rgba(230,226,255,0.5)'; g.fillRect(x, y, 1, 1); }
     }
 
     g.save();
-    g.translate(VW / 2, VH / 2);
-    g.scale(cam.z, cam.z);
-    g.translate(-cam.x, -cam.y);
+    g.translate(VW / 2, CY); g.scale(cam.z, cam.z); g.translate(-cam.x, -cam.y);
 
-    // soft glow behind the canopy
-    const gl = g.createRadialGradient(AW / 2, tree.topY, 10, AW / 2, tree.topY, AW * 0.55);
-    gl.addColorStop(0, 'rgba(133,84,201,0.28)'); gl.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = gl; g.fillRect(0, 0, AW, AH);
-    g.imageSmoothingEnabled = false;
-    g.drawImage(tree.canvas, 0, 0);
-
-    // ground line under the roots
-    g.fillStyle = '#160f1c'; g.fillRect(-200, tree.base + 6, AW + 400, AH);
-    g.fillStyle = '#221830'; g.fillRect(-200, tree.base + 6, AW + 400, 3);
-
-    // drifting motes
+    // the tree itself, standing behind the ranks
+    g.globalAlpha = 0.28;
+    g.drawImage(tree.canvas, Math.round(WW / 2 - tree.canvas.width / 2), Math.round(WH - tree.canvas.height + 30));
+    g.globalAlpha = 1;
     for (const m of motes) {
-      const a = 0.3 + 0.5 * (Math.sin(t * 1.1 + m.ph) * 0.5 + 0.5);
+      const a = 0.25 + 0.45 * (Math.sin(t * 1.2 + m.ph) * 0.5 + 0.5);
       g.fillStyle = `rgba(245,205,92,${a.toFixed(2)})`;
-      g.fillRect(Math.round(m.x + Math.sin(t * 0.4 + m.ph) * 12), Math.round(m.y + Math.cos(t * 0.31 + m.ph) * 9), m.s < 1 ? 1 : 2, m.s < 1 ? 1 : 2);
+      g.fillRect(Math.round(m.x + Math.sin(t * 0.4 + m.ph) * 14), Math.round(m.y + Math.cos(t * 0.3 + m.ph) * 10), m.s, m.s);
     }
 
-    FRUITS.forEach((f, i) => drawFruit(g, f, anchorFor(f), i === hover, t));
+    // branch banners
+    for (let b = 0; b < 3; b++) {
+      const x = COLX[b], y = ROWY[3] - 76;
+      plaque(g, x, y, 150, 34, BRANCH[b].dark, '#0e0b16', U.mix(BRANCH[b].col, '#ffffff', 0.25));
+      FX.pixelText(g, BRANCH[b].name, x, y - 6, { color: '#fdf3dc', size: 12, ink: 3, inkColor: '#0e0b16' });
+    }
+    // limbs between the ranks
+    for (const f of FRUITS) {
+      const p = prereq(f);
+      const a = nodeAt(f);
+      const from = p ? nodeAt(p) : { x: COLX[f.root], y: ROWY[0] + 96 };
+      const on = p ? owned(p) : true;
+      const live = on && owned(f);
+      const col = live ? BRANCH[f.root].col : on ? '#4a4258' : '#2a2536';
+      g.fillStyle = '#0e0b16';
+      g.fillRect(Math.round(a.x - 7), Math.round(a.y + NH / 2), 14, Math.round(from.y - NH / 2 - (a.y + NH / 2)));
+      g.fillStyle = col;
+      g.fillRect(Math.round(a.x - 5), Math.round(a.y + NH / 2), 10, Math.round(from.y - NH / 2 - (a.y + NH / 2)));
+      g.fillStyle = 'rgba(255,255,255,0.18)';
+      g.fillRect(Math.round(a.x - 5), Math.round(a.y + NH / 2), 3, Math.round(from.y - NH / 2 - (a.y + NH / 2)));
+      if (on && !owned(f)) {                       // sap running up an open limb
+        const k = (t * 0.4 + f.i * 0.3) % 1;
+        const yy = U.lerp(from.y - NH / 2, a.y + NH / 2, k);
+        g.fillStyle = PAL.gold3; g.fillRect(Math.round(a.x - 3), Math.round(yy), 6, 5);
+      }
+    }
+    // the trunk stub under the first rank
+    g.fillStyle = '#0e0b16'; g.fillRect(COLX[0] - 7, ROWY[0] + 90, COLX[2] - COLX[0] + 14, 14);
+    g.fillStyle = '#4a3524'; g.fillRect(COLX[0] - 5, ROWY[0] + 92, COLX[2] - COLX[0] + 10, 10);
+    g.fillStyle = 'rgba(255,255,255,0.14)'; g.fillRect(COLX[0] - 5, ROWY[0] + 92, COLX[2] - COLX[0] + 10, 3);
+
+    FRUITS.forEach((f, i) => drawNode(g, f, i, t));
     for (const c of crumbs) { g.fillStyle = c.c; g.fillRect(Math.round(c.x), Math.round(c.y), 2, 2); }
-    if (eating.on) drawEater(g);
+    if (eating.on) {
+      const bite = eating.phase === 'bite' ? Math.max(0, Math.sin(eating.t * 7.5)) : 0;
+      const pose = eating.phase === 'bite' ? 'eat' : 'walk';
+      Sprites.blit(g, eating.x, eating.y, pose, Math.floor(t * 9), 'brown', eating.dir, 'adult', 1, bite * 0.18);
+    }
     g.restore();
 
-    // vignette
-    const vg = g.createRadialGradient(VW / 2, VH / 2, VH * 0.34, VW / 2, VH / 2, VH * 0.86);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(6,4,10,0.72)');
+    detail(g, t);
+    const vg = g.createRadialGradient(VW / 2, VH / 2, VH * 0.4, VW / 2, VH / 2, VH);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(6,4,12,0.7)');
     g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
     FX.drawParticles(g, 0);
     FX.drawFloaters(g, false);
   }
 
-  function drawFruit(g, f, a, hot, t) {
-    const st = state(f);
-    const col = FRUIT_COL[f.root];
-    const bob = Math.sin(t * 1.7 + f.i * 1.3 + f.root) * 1.4;
-    const x = Math.round(a.x), y = Math.round(a.y + bob);
-    if (st === 'eaten') {                       // a bare stem and two leaves
-      g.fillStyle = PAL.bark1; g.fillRect(x, y - 5, 1, 5);
-      g.fillStyle = PAL.moss3; g.fillRect(x - 4, y - 2, 3, 2); g.fillRect(x + 2, y - 4, 3, 2);
-      return;
+  function drawNode(g, f, i, t) {
+    const a = nodeAt(f), st = state(f);
+    const B = BRANCH[f.root];
+    const hot = hover === i || sel === i;
+    const pulse = 0.5 + 0.5 * Math.sin(t * 3 + i);
+    let face = '#3a3350', edge = '#0e0b16', lit = '#5d5478';
+    if (st === 'eaten') { face = U.mix(B.dark, B.col, 0.5); lit = U.mix(B.col, '#ffffff', 0.45); }
+    else if (st === 'ready') { face = U.mix('#3d3654', B.dark, 0.7); lit = U.mix(B.col, '#ffffff', 0.3); }
+    else if (st === 'costly') { face = '#3a3350'; lit = '#6a6084'; }
+    else if (st === 'unripe') { face = '#2e2840'; lit = '#4c445f'; }
+    else { face = '#221e2e'; lit = '#3a3346'; }
+    if (st === 'ready') {                       // a halo you can see from across the tree
+      g.fillStyle = `rgba(245,205,92,${(0.1 + pulse * 0.16).toFixed(2)})`;
+      g.fillRect(Math.round(a.x - NW / 2 - 5), Math.round(a.y - NH / 2 - 5), NW + 10, NH + 10);
     }
-    const r = st === 'unripe' ? 4.5 : 6;
-    if (st === 'unripe') {                      // a faint husk, so every seat reads
-      g.globalAlpha = 0.5;
-      Art.ellBand(g, x, y, r + 3, r + 3, 1, '#6f8a5c');
-      g.globalAlpha = 1;
+    plaque(g, a.x, a.y, NW, NH, face, hot ? '#f5cd5c' : edge, lit);
+    // icon on the left, text to the right: the shape every skill tree uses
+    const ix = a.x - NW / 2 + 10, iy = a.y - 16;
+    g.fillStyle = '#0e0b16'; g.fillRect(ix - 2, iy - 2, 36, 36);
+    g.fillStyle = st === 'eaten' ? U.mix(B.col, '#000000', 0.45) : '#191528';
+    g.fillRect(ix, iy, 32, 32);
+    g.globalAlpha = st === 'locked' ? 0.3 : st === 'unripe' ? 0.55 : 1;
+    Icons.blit(g, f.icon, ix, iy, 2);
+    g.globalAlpha = 1;
+    const tx = ix + 42;
+    FX.pixelText(g, f.name.toUpperCase(), tx, a.y - 22, { color: st === 'locked' ? '#8a82a0' : '#fffaf0', size: 8, align: 'left', ink: 2, inkColor: '#0e0b16' });
+    if (st === 'eaten') {
+      FX.pixelText(g, 'LEARNED', tx, a.y - 6, { color: B.col, size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' });
+      g.fillStyle = B.col;                       // a tick in the corner
+      g.fillRect(a.x + NW / 2 - 16, a.y - NH / 2 + 8, 3, 3);
+      g.fillRect(a.x + NW / 2 - 13, a.y - NH / 2 + 11, 3, 3);
+      g.fillRect(a.x + NW / 2 - 10, a.y - NH / 2 + 8, 3, 3);
+      g.fillRect(a.x + NW / 2 - 7, a.y - NH / 2 + 5, 3, 3);
+    } else if (st === 'locked') {
+      Icons.blit(g, 'lock', tx, a.y - 8, 1);
+      FX.pixelText(g, 'LOCKED', tx + 20, a.y - 6, { color: '#8a82a0', size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' });
+    } else if (st === 'unripe') {
+      FX.pixelText(g, `FOREST ${Math.round(f.at * 100)}%`, tx, a.y - 6, { color: '#9cc47f', size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' });
+    } else {
+      Icons.blit(g, 'wdollar', tx, a.y - 10, 0.9);
+      FX.pixelText(g, String(f.cost), tx + 17, a.y - 6, { color: st === 'costly' ? '#e0705a' : PAL.gold3, size: 8, align: 'left', ink: 2, inkColor: '#0e0b16' });
     }
-    if (st === 'ready') {                       // halo
-      const pulse = 0.5 + 0.5 * Math.sin(t * 3 + f.i);
-      g.globalAlpha = 0.22 + pulse * 0.24;
-      g.fillStyle = col.lit;
-      g.beginPath(); g.arc(x, y, r + 6 + pulse * 2, 0, TAU); g.fill();
-      g.globalAlpha = 1;
-    }
-    g.fillStyle = PAL.bark1; g.fillRect(x, y - r - 4, 1, 4);
-    g.fillStyle = PAL.moss3; g.fillRect(x + 1, y - r - 4, 3, 2);
-    const body = st === 'unripe' ? '#3c4a2e' : col.skin;
-    Art.ell(g, x, y, r, r * 1.08, body);
-    Art.ell(g, x - r * 0.36, y - r * 0.34, r * 0.42, r * 0.4, st === 'unripe' ? '#4e6039' : col.lit);
-    Art.ell(g, x + r * 0.4, y + r * 0.42, r * 0.34, r * 0.3, col.dark);
-    if (st !== 'unripe') {
-      Icons.blit(g, f.icon, x - 5, y - 5, 0.62);
-      if (st === 'costly') { g.globalAlpha = 0.55; g.fillStyle = '#0b0812'; Art.ell(g, x, y, r, r * 1.08, '#0b0812'); g.globalAlpha = 1; Icons.blit(g, 'lock', x - 4, y - 4, 0.5); }
-    }
-    Art.ell(g, x, y, r, r * 1.08, 'rgba(0,0,0,0)');
-    if (hot) {
-      g.strokeStyle = PAL.cream; g.lineWidth = 1;
-      g.strokeRect(x - r - 3.5, y - r - 3.5, (r + 3.5) * 2, (r + 4) * 2);
-    }
+    FX.pixelText(g, `RANK ${f.i + 1}`, tx, a.y + 10, { color: '#8a82a0', size: 6, align: 'left', ink: 2, inkColor: '#0e0b16' });
   }
 
-  function drawEater(g) {
-    const e = eating;
-    const bite = e.phase === 'bite' ? Math.max(0, Math.sin(e.t * 7.5)) : 0;
-    const pose = e.phase === 'bite' ? 'eat' : 'run';
-    const fr = Math.floor(G.time * 9);
-    Sprites.blit(g, e.x, e.y, pose, fr, 'brown', e.dir, 'adult', 0.62, bite * 0.18);
+  // The card along the bottom: what the thing does, and the button that buys it.
+  function detail(g, t) {
+    const f = sel >= 0 ? FRUITS[sel] : null;
+    const H = CARD, Y = VH - H;
+    g.fillStyle = '#0e0b16'; g.fillRect(0, Y - 3, VW, H + 3);
+    g.fillStyle = '#1b1728'; g.fillRect(0, Y, VW, H);
+    g.fillStyle = '#2e2840'; g.fillRect(0, Y, VW, 2);
+    for (let x = 0; x < VW; x += 8) { g.fillStyle = 'rgba(255,255,255,0.02)'; g.fillRect(x, Y + 2, 4, H - 2); }
+    if (!f) {
+      FX.pixelText(g, 'PICK A FRUIT', VW / 2, Y + 32, { color: '#6a6280', size: 10 });
+      return;
+    }
+    const B = BRANCH[f.root], st = state(f);
+    g.fillStyle = '#0e0b16'; g.fillRect(12, Y + 12, 52, 52);
+    g.fillStyle = U.mix(B.dark, '#000000', 0.3); g.fillRect(14, Y + 14, 48, 48);
+    g.fillStyle = U.mix(B.col, '#ffffff', 0.25); g.fillRect(14, Y + 14, 48, 2);
+    Icons.blit(g, f.icon, 22, Y + 22, 2);
+    FX.pixelText(g, f.name.toUpperCase(), 76, Y + 12, { color: '#fdf3dc', size: 11, align: 'left', ink: 3, inkColor: '#0e0b16' });
+    FX.pixelText(g, `${BRANCH[f.root].name} - RANK ${f.i + 1}`, 76, Y + 28, { color: B.col, size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' });
+    // wrap the description over two lines
+    const words = f.desc.split(' ');
+    let line = '', lines = [];
+    for (const w of words) {
+      if ((line + w).length > 44) { lines.push(line.trim()); line = ''; }
+      line += w + ' ';
+    }
+    lines.push(line.trim());
+    lines.slice(0, 2).forEach((l, i) => FX.pixelText(g, l, 76, Y + 42 + i * 13, { color: '#d2ccdf', size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' }));
+    // the button
+    const ok = st === 'ready';
+    const face = ok ? (learnHot ? '#7a52c2' : '#5d3aa0') : '#2a2536';
+    plaque(g, LEARN.x + LEARN.w / 2, LEARN.y + LEARN.h / 2, LEARN.w, LEARN.h, face, ok ? '#f5cd5c' : '#0e0b16', ok ? '#a77ee0' : '#3d3550');
+    const label = st === 'eaten' ? 'LEARNED' : st === 'locked' ? 'LOCKED' : st === 'unripe' ? 'NOT RIPE' : st === 'costly' ? 'TOO DEAR' : 'LEARN';
+    FX.pixelText(g, label, LEARN.x + LEARN.w / 2, LEARN.y + 11, { color: ok ? '#fdf3dc' : '#6a6280', size: 9, ink: 3, inkColor: '#0e0b16' });
+    if (!ok && st !== 'eaten') {
+      const why = st === 'locked' ? 'EAT THE RANK BELOW' : st === 'unripe' ? `FOREST ${Math.round(f.at * 100)}%` : `NEED ${f.cost}`;
+      FX.pixelText(g, why, LEARN.x + LEARN.w / 2, LEARN.y - 12, { color: '#8a7f9a', size: 7, ink: 2, inkColor: '#0e0b16' });
+    } else if (ok) {
+      Icons.blit(g, 'wdollar', LEARN.x - 34, LEARN.y + 6, 1);
+      FX.pixelText(g, String(f.cost), LEARN.x - 16, LEARN.y + 9, { color: PAL.gold3, size: 9, align: 'left', ink: 2, inkColor: '#0e0b16' });
+    }
+    const learned = FRUITS.filter(owned).length;
+    FX.pixelText(g, `${learned}/${FRUITS.length}`, VW - 12, Y + 12, { color: '#6a6280', size: 8, align: 'right', ink: 2, inkColor: '#0e0b16' });
   }
 
   return {
@@ -5069,7 +5243,10 @@ const Atlas = (() => {
     return c;
   }
 
-  function unlocked(s) { return Object.keys(G.summoned).length >= (s.need || 0); }
+  function unlocked(s) {
+    if (Object.keys(G.summoned).length < (s.need || 0)) return false;
+    return s.gate ? s.gate(G) : true;
+  }
 
   function init(g) {
     G = g;
@@ -5098,7 +5275,7 @@ const Atlas = (() => {
     if (travel) return;
     const s = siteAt(x, y);
     if (!s) return;
-    if (!unlocked(s)) { Audio.play('error'); UI.toast('fog', 'bad'); return; }
+    if (!unlocked(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return; }
     if (!s.mode) { Audio.play('error'); return; }
     travel = { t: 0, site: s };
     Audio.play('whoosh');
@@ -5107,7 +5284,7 @@ const Atlas = (() => {
   function hoverAt(x, y) {
     hover = siteAt(x, y);
     if (!hover) return null;
-    if (!unlocked(hover)) return `<b>?</b><br>${hover.need} gods must answer first`;
+    if (!unlocked(hover)) return `<b>?</b><br>${hover.gate && !hover.gate(G) ? hover.why : hover.need + ' gods must answer first'}`;
     return `<b>${hover.name}</b>`;
   }
   function update(dt) {
@@ -5946,6 +6123,7 @@ const Guide = (() => {
     cult.pose = 'point'; cult.t = 0; cult.hop = 1;
     Audio.play('chime');
     FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
+    UI.refreshAll();           // a finished step can hand over a new tool
     UI.refreshNotebook();
     Main.save();
     if (finished()) UI.toast('the notebook is full', 'good');
@@ -6777,21 +6955,21 @@ const UI = (() => {
     if (G.mode !== 'grove') { $('flyout').hidden = true; return; }
     dock.innerHTML = '';
     TOOLS.forEach((t, i) => {
-      const locked = t.locked && !G.decor[t.locked];
+      const locked = !unlocked(G, t.key);
       const active = G.tool === t.key || (t.sub && t.sub.includes(G.tool));
       const shown = t.sub && t.sub.includes(G.tool) ? TOOL_BY_KEY[G.tool] : t;
       const el = document.createElement('button');
       el.className = 'tool' + (active ? ' on' : '') + (locked ? ' locked' : '');
-      el.innerHTML = `${ic(shown.icon)}<span class="k">${i + 1}</span>${t.sub ? '<span class="more"></span>' : ''}`;
+      el.innerHTML = `${ic(shown.icon)}<span class="k">${i + 1}</span>${t.sub ? '<span class="more"></span>' : ''}${locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = () => pickTool(t, locked);
-      el.onmouseenter = (e) => showTip(e, `<b>${shown.name}</b><br>${shown.desc}`);
+      el.onmouseenter = (e) => showTip(e, locked ? `<b>${shown.name}</b><br><span class="warn">${GATE_WHY[t.key] || 'not yet'}</span>` : `<b>${shown.name}</b><br>${shown.desc}`);
       el.onmouseleave = hideTip;
       dock.appendChild(el);
     });
     renderFlyout();
   }
   function pickTool(t, locked) {
-    if (locked) { Audio.play('error'); toast('needs a nest', 'bad'); return; }
+    if (locked) { Audio.play('error'); toast(GATE_WHY[t.key] || 'not yet', 'bad'); return; }
     Audio.play('click');
     Grove.clearPair();
     if (t.sub) {
@@ -6811,9 +6989,14 @@ const UI = (() => {
     if (flyout === 'farm') {
       for (const k of FARM_KEYS) {
         const t = TOOL_BY_KEY[k];
-        const el = chip(t.icon, G.tool === k, k === 'seed' ? String(G.seeds[G.selSeed] || 0) : '');
-        el.onclick = () => { G.tool = k; flyout = k === 'seed' ? 'seed' : 'farm'; Audio.play('click'); refreshTray(); };
-        el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b><br>${t.desc}`);
+        const lk = !unlocked(G, k);
+        const el = chip(t.icon, G.tool === k, k === 'seed' ? String(G.seeds[G.selSeed] || 0) : '', lk);
+        if (lk) el.innerHTML += `<span class="lk">${ic('lock', 'sm')}</span>`;
+        el.onclick = () => {
+          if (lk) { Audio.play('error'); toast(GATE_WHY[k] || 'not yet', 'bad'); return; }
+          G.tool = k; flyout = k === 'seed' ? 'seed' : 'farm'; Audio.play('click'); refreshTray();
+        };
+        el.onmouseenter = (e) => showTip(e, lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[k]}</span>` : `<b>${t.name}</b><br>${t.desc}`);
         el.onmouseleave = hideTip;
         box.appendChild(el);
       }
@@ -7312,10 +7495,10 @@ const Main = (() => {
         const n = parseInt(e.key);
         if (n >= 1 && n <= TOOLS.length) {
           const t = TOOLS[n - 1];
-          if (!(t.locked && !G.decor[t.locked])) {
+          if (unlocked(G, t.key)) {
             G.tool = t.sub ? t.sub[0] : t.key;
             Grove.clearPair(); UI.refreshTray(); Audio.play('click');
-          }
+          } else Audio.play('error');
         }
       }
     });

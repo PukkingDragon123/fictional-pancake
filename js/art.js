@@ -142,6 +142,18 @@ const Art = (() => {
     g.globalAlpha = 1;
     return canvas;
   }
+  // Light the top edge of a silhouette: one sun, upper left, for everything.
+  function topLight(canvas, col = 'rgba(255,240,205,0.28)', depth = 2) {
+    const g = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    const a = g.getImageData(0, 0, w, h).data;
+    g.fillStyle = col;
+    for (let x = 0; x < w; x++) {
+      let first = -1;
+      for (let y = 0; y < h; y++) if (a[(y * w + x) * 4 + 3] > 8) { first = y; break; }
+      if (first >= 0) g.fillRect(x, first, 1, depth - (x % 2 === 0 ? 0 : 1));
+    }
+  }
   // Darken the bottom edge of a silhouette (contact shadow inside the shape)
   function underShade(canvas, col = 'rgba(0,0,0,0.18)', depth = 2) {
     const g = canvas.getContext('2d');
@@ -171,5 +183,5 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, underShade, flip, tinted, rng };
+  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, underShade, flip, tinted, rng };
 })();

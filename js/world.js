@@ -10,6 +10,7 @@ const World = (() => {
   const stamps = new Map();
   const weeds = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
   let restored = 0, sampleT = 0, spreadT = 0, wind = 0, windT = 0;
+  let gustA = 0, gustWant = 0.5, gustT = 0;
 
   function stampSet(kind, r) {
     const key = `${kind}:${r}`;
@@ -206,18 +207,26 @@ const World = (() => {
     }
   }
 
+  // A gust is a wave that travels across the grove: everything rooted in the
+  // ground leans to the same wave, which is what makes a field look alive.
+  function gust(x) {
+    return (Math.sin(G.time * 1.8 - x * 0.012) * 0.5 + 0.5) * gustA;
+  }
   function update(dt) {
     // wind gusts drive the whole sward
     windT -= dt;
     if (windT <= 0) { windT = U.rand(3, 8); wind = U.rand(-1, 1) * U.rand(6, 22); }
+    gustT -= dt;
+    if (gustT <= 0) { gustT = U.rand(4, 11); gustWant = U.rand(0.25, 1.5); }
+    gustA = U.lerp(gustA, gustWant, dt * 0.7);
     const w = wind * (0.5 + 0.5 * Math.sin(G.time * 0.7));
     for (const b of blades) {
-      b.vel += (-b.bend * 46 - b.vel * 7 + w * 0.5 + Math.sin(G.time * 2.2 + b.x * 0.09) * 3) * dt;
+      b.vel += (-b.bend * 46 - b.vel * 7 + w * 0.5 + gust(b.x) * 7 + Math.sin(G.time * 2.2 + b.x * 0.09) * 3) * dt;
       b.bend += b.vel * dt;
       b.bend = U.clamp(b.bend, -2.6, 2.6);
     }
     for (const f of flowers) {
-      f.vel += (-f.bend * 40 - f.vel * 6.5 + w * 0.35) * dt;
+      f.vel += (-f.bend * 40 - f.vel * 6.5 + w * 0.35 + gust(f.x) * 5) * dt;
       f.bend += f.vel * dt;
       f.bend = U.clamp(f.bend, -2.2, 2.2);
     }
@@ -371,15 +380,19 @@ const World = (() => {
       else if (p.t > 5) { g.fillStyle = 'rgba(216,165,47,0.2)'; Art.ell(g, p.x, p.y, p.r * 0.5, p.r * 0.22); }
     }
   }
-  function drawWeeds(g) {
-    for (const w of weeds) {
-      const img = Props.get('weed', w.v);
-      const s = w.s;
-      const sway = Math.sin(G.time * 1.1 + w.x * 0.08) * 1.6 + wind * 0.05;
-      const dw = img.width * s, dh = img.height * s;
-      g.drawImage(img, Math.round(w.x - dw / 2 + sway), Math.round(w.y - dh + 3), Math.round(dw), Math.round(dh));
-    }
+  function drawWeed(g, w) {
+    const img = Props.get('weed', w.v);
+    const s = w.s;
+    const sway = gust(w.x) * 2.4 + Math.sin(G.time * 1.1 + w.x * 0.08) * 1.2;
+    const dw = img.width * s, dh = img.height * s;
+    Art.ell(g, w.x, w.y + 1, dw * 0.3, 3, 'rgba(16,12,20,0.3)');
+    g.save();
+    g.translate(Math.round(w.x), Math.round(w.y + 3));
+    g.transform(1, 0, -sway / dh, 1, 0, 0);          // lean the whole plant with the wind
+    g.drawImage(img, Math.round(-dw / 2), Math.round(-dh), Math.round(dw), Math.round(dh));
+    g.restore();
   }
+  function drawWeeds(g) { for (const w of weeds) drawWeed(g, w); }
   function drawCrops(g) {
     for (const c of crops) {
       const p = U.clamp(c.t / growTime(c), 0, 1);
@@ -403,7 +416,7 @@ const World = (() => {
   }
 
   return {
-    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawCrops, drawCursor,
+    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, drawCursor,
     sowGrass, till, clearWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
     fraction, measure, ripe, growTime,
     get weeds() { return weeds; }, get crops() { return crops; },

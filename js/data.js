@@ -35,7 +35,7 @@ const TOOLS = [
   { key: 'farm',    name: 'Farm',   icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'Hoe, seed, grass, water.' },
   { key: 'sickle',  name: 'Sickle', icon: 't_sickle',  radius: 22, desc: 'Cut the weeds.' },
   { key: 'destroy', name: 'Haul',   icon: 't_destroy', radius: 0,  desc: 'Ants carry it off, for a fee.' },
-  { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  locked: 'nest', desc: 'Pair two adults.' },
+  { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  desc: 'Pair two adults.' },
 ];
 const SUBTOOLS = [
   { key: 'hoe',   name: 'Hoe',   icon: 't_hoe',   radius: 15, desc: 'Till bare ground into beds.' },
@@ -43,6 +43,31 @@ const SUBTOOLS = [
   { key: 'moss',  name: 'Grass', icon: 't_moss',  radius: 19, desc: 'Sow grass. It sprouts slowly.' },
   { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
 ];
+// Nothing is handed over at once. The cultist teaches a tool, then you own it.
+const GATES = {
+  drag: () => true,
+  sickle: () => true,
+  destroy: (g) => g.step >= 1,
+  farm: (g) => g.step >= 2,
+  moss: (g) => g.step >= 2,
+  hoe: (g) => g.step >= 3,
+  seed: (g) => g.step >= 3,
+  water: (g) => g.step >= 3,
+  food: (g) => g.step >= 3,
+  pair: (g) => !!g.decor.nest,
+};
+const GATE_WHY = {
+  destroy: 'clear the weeds first',
+  farm: 'the wrecks go first',
+  moss: 'the wrecks go first',
+  hoe: 'sow the grass first',
+  seed: 'sow the grass first',
+  water: 'sow the grass first',
+  food: 'sow the grass first',
+  pair: 'needs a nest',
+};
+const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
+
 const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
@@ -51,9 +76,9 @@ const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
 // ---- The map. Fog lifts as gods answer. ----------------------------------
 const SITES = [
   { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
-  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0 },
-  { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0 },
-  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0 },
+  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
+  { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
+  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0, gate: (g) => OFFER_ORDER.reduce((s2, k) => s2 + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0) >= 4, why: 'four offerings first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
   { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },

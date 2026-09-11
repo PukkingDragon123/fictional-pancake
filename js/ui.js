@@ -76,21 +76,21 @@ const UI = (() => {
     if (G.mode !== 'grove') { $('flyout').hidden = true; return; }
     dock.innerHTML = '';
     TOOLS.forEach((t, i) => {
-      const locked = t.locked && !G.decor[t.locked];
+      const locked = !unlocked(G, t.key);
       const active = G.tool === t.key || (t.sub && t.sub.includes(G.tool));
       const shown = t.sub && t.sub.includes(G.tool) ? TOOL_BY_KEY[G.tool] : t;
       const el = document.createElement('button');
       el.className = 'tool' + (active ? ' on' : '') + (locked ? ' locked' : '');
-      el.innerHTML = `${ic(shown.icon)}<span class="k">${i + 1}</span>${t.sub ? '<span class="more"></span>' : ''}`;
+      el.innerHTML = `${ic(shown.icon)}<span class="k">${i + 1}</span>${t.sub ? '<span class="more"></span>' : ''}${locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = () => pickTool(t, locked);
-      el.onmouseenter = (e) => showTip(e, `<b>${shown.name}</b><br>${shown.desc}`);
+      el.onmouseenter = (e) => showTip(e, locked ? `<b>${shown.name}</b><br><span class="warn">${GATE_WHY[t.key] || 'not yet'}</span>` : `<b>${shown.name}</b><br>${shown.desc}`);
       el.onmouseleave = hideTip;
       dock.appendChild(el);
     });
     renderFlyout();
   }
   function pickTool(t, locked) {
-    if (locked) { Audio.play('error'); toast('needs a nest', 'bad'); return; }
+    if (locked) { Audio.play('error'); toast(GATE_WHY[t.key] || 'not yet', 'bad'); return; }
     Audio.play('click');
     Grove.clearPair();
     if (t.sub) {
@@ -110,9 +110,14 @@ const UI = (() => {
     if (flyout === 'farm') {
       for (const k of FARM_KEYS) {
         const t = TOOL_BY_KEY[k];
-        const el = chip(t.icon, G.tool === k, k === 'seed' ? String(G.seeds[G.selSeed] || 0) : '');
-        el.onclick = () => { G.tool = k; flyout = k === 'seed' ? 'seed' : 'farm'; Audio.play('click'); refreshTray(); };
-        el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b><br>${t.desc}`);
+        const lk = !unlocked(G, k);
+        const el = chip(t.icon, G.tool === k, k === 'seed' ? String(G.seeds[G.selSeed] || 0) : '', lk);
+        if (lk) el.innerHTML += `<span class="lk">${ic('lock', 'sm')}</span>`;
+        el.onclick = () => {
+          if (lk) { Audio.play('error'); toast(GATE_WHY[k] || 'not yet', 'bad'); return; }
+          G.tool = k; flyout = k === 'seed' ? 'seed' : 'farm'; Audio.play('click'); refreshTray();
+        };
+        el.onmouseenter = (e) => showTip(e, lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[k]}</span>` : `<b>${t.name}</b><br>${t.desc}`);
         el.onmouseleave = hideTip;
         box.appendChild(el);
       }
