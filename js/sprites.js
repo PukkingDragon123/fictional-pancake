@@ -262,6 +262,54 @@ const Sprites = (() => {
   }
   function furOf(pelt) { return typeof pelt === 'string' ? (FUR_BY_KEY[pelt] || FUR[0]) : FUR[pelt % FUR.length]; }
 
+  // ---- the cultist: a wombat in a robe, with a notebook -------------------
+  function cultist(frame, pose = 'idle') {
+    const f = frame % 6;
+    const key = `cult:${f}:${pose}`;
+    let img = cache.get(key); if (img) return img;
+    const { c, g } = Art.cv(40, 54);
+    const R0 = '#2a1b4a', R1 = '#3d2a66', R2 = '#563391', R3 = '#6f49ad';
+    const GOLD = '#d8a52f', GOLD2 = '#f5cd5c';
+    const bob = pose === 'idle' ? [0, 0, 1, 1, 0, -1][f] : [0, -1, -1, 0, 0, 0][f];
+    const arm = pose === 'point' ? 1 : 0;
+    const y0 = 10 + bob;
+    // robe: a bell of cloth, wider at the hem
+    Art.poly(g, [[14, y0 + 6], [26, y0 + 6], [33, 48], [7, 48]], R2);
+    Art.poly(g, [[14, y0 + 6], [20, y0 + 6], [22, 48], [7, 48]], R3);
+    Art.rect(g, 7, 44, 26, 3, R1);
+    Art.rect(g, 7, 47, 26, 2, R0);
+    for (let i = 0; i < 5; i++) Art.rect(g, 9 + i * 5, 44, 2, 3, GOLD);      // hem trim
+    // sleeves
+    Art.limb(g, 14, y0 + 14, 6, y0 + 26 - arm * 8, 7, 5, R1);
+    Art.limb(g, 26, y0 + 14, 34, y0 + 24 - arm * 12, 7, 5, R2);
+    // paws
+    Art.ell(g, 6, y0 + 27 - arm * 8, 3.4, 3, '#a66e4f');
+    Art.ell(g, 34, y0 + 25 - arm * 12, 3.4, 3, '#a66e4f');
+    // the notebook in the left paw
+    if (pose !== 'point') {
+      Art.rect(g, 2, y0 + 22, 11, 9, '#e8dcc0');
+      Art.rect(g, 2, y0 + 22, 11, 2, '#c9b892');
+      Art.rect(g, 2, y0 + 22, 2, 9, '#8a5a3a');
+      for (let i = 0; i < 3; i++) Art.rect(g, 5, y0 + 25 + i * 2, 7, 1, '#9a8f74');
+    }
+    // hood and head
+    Art.ell(g, 20, y0 + 6, 12, 11, R1);
+    Art.ell(g, 20, y0 + 4, 11, 9, R2);
+    Art.ell(g, 21, y0 + 8, 8, 7, '#180f2e');                                  // the dark inside
+    Art.rect(g, 17, y0 + 8, 2, 2, GOLD2);                                     // eyes in the shadow
+    Art.rect(g, 23, y0 + 8, 2, 2, GOLD2);
+    Art.ell(g, 25, y0 + 11, 4, 3, '#7a5a42');                                 // a snout poking out
+    Art.rect(g, 24, y0 + 10, 4, 1.4, '#4a2c20');
+    Art.ell(g, 20, y0 - 4, 5, 3, R1);                                         // the peak of the hood
+    Art.ell(g, 20, y0 - 5, 3, 2, R3);
+    // a little charm hanging at the chest
+    Art.rect(g, 20, y0 + 15, 1, 4, GOLD);
+    Art.ell(g, 20.5, y0 + 20, 2.4, 2.4, GOLD2);
+    Art.outline(c, PAL.ink, 1);
+    cache.set(key, c);
+    return c;
+  }
+
   // ---- ant movers ---------------------------------------------------------
   function ant(frame, carrying) {
     const f = frame % 4;
@@ -594,5 +642,5 @@ const Sprites = (() => {
     if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = Math.max(1, px); g.strokeRect(x0, y0, w, h); }
   }
 
-  return { S, AGE, POSES, wombat, blit, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, init() { }, clear: () => cache.clear() };
+  return { S, AGE, POSES, wombat, blit, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
 })();

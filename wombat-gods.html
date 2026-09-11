@@ -35,90 +35,186 @@ img.ico.xl { width: 40px; height: 40px; }
 #frame { position: relative; line-height: 0; box-shadow: 0 0 0 3px var(--ink), 0 0 60px rgba(0,0,0,0.8); }
 #game { image-rendering: pixelated; display: block; cursor: crosshair; touch-action: none; width: 100%; height: 100%; }
 
-/* ---- the only readout: money --------------------------------------------- */
+/* ---- Everything the player touches is a thing, not a widget: a leather
+   pouch, a paper pinned to the fence, a tool belt, a pocket notebook. ---- */
+:root {
+  --paper: #f0e3c2; --paper2: #e3d2ab; --paperD: #c9b489; --line: #b9a882;
+  --leather: #6b4526; --leather2: #85582f; --leatherD: #4a2e17; --stitch: #d8bb85;
+  --inkpen: #3c2a18; --pen: #4a3a6a; --rust: #a9502c;
+}
+
+/* money: a leather coin tag on a thong */
 #money {
-  position: absolute; left: 10px; top: 10px; z-index: 6;
-  display: flex; align-items: center; gap: 7px; padding: 6px 11px 6px 8px;
-  background: linear-gradient(180deg, rgba(28,26,36,0.92), rgba(12,10,18,0.94));
-  border: 2px solid var(--ink); box-shadow: inset 0 1px 0 rgba(139,132,156,0.3), 2px 2px 0 rgba(0,0,0,0.5);
-  font-variant-numeric: tabular-nums; letter-spacing: 0.5px; pointer-events: none;
+  position: absolute; left: 12px; top: 12px; z-index: 6;
+  display: flex; align-items: center; gap: 7px; padding: 7px 12px 8px 9px;
+  background: linear-gradient(180deg, var(--leather2), var(--leather));
+  border: 2px solid var(--leatherD);
+  box-shadow: inset 0 1px 0 rgba(255,222,170,0.3), inset 0 -3px 0 rgba(0,0,0,0.25), 2px 3px 0 rgba(0,0,0,0.45);
+  border-radius: 3px 10px 10px 3px;
+  transform: rotate(-1.5deg);
+  font-variant-numeric: tabular-nums; pointer-events: none;
 }
-#money b { font-weight: normal; color: var(--g3); font-size: 12px; }
+#money::before {
+  content: ''; position: absolute; inset: 3px; border: 1px dashed var(--stitch); opacity: 0.55; border-radius: 2px 8px 8px 2px;
+}
+#money b { font-weight: normal; color: #ffe9a8; font-size: 12px; text-shadow: 0 2px 0 rgba(0,0,0,0.45); }
 
-/* ---- the cleanup list ---------------------------------------------------- */
+/* the clean-up list: a paper pinned up, taped at the corner, torn at the foot */
 #checklist {
-  position: absolute; right: 10px; top: 10px; z-index: 6; width: 136px;
-  display: flex; flex-direction: column; gap: 3px; pointer-events: none;
+  position: absolute; right: 14px; top: 14px; z-index: 6; width: 158px;
+  padding: 12px 10px 14px; pointer-events: none;
+  background:
+    repeating-linear-gradient(180deg, rgba(185,168,130,0.22) 0 1px, rgba(0,0,0,0) 1px 15px),
+    linear-gradient(160deg, #f2e5c4 0%, #ddc99d 100%);
+  border: 1px solid var(--paperD);
+  box-shadow: 2px 4px 0 rgba(0,0,0,0.4), inset 0 0 20px rgba(180,150,100,0.25);
+  transform: rotate(1.4deg);
 }
+#checklist .tape {
+  position: absolute; left: 50%; top: -9px; width: 52px; height: 17px; margin-left: -26px;
+  background: rgba(214,196,146,0.85); border-left: 1px solid rgba(255,255,255,0.4); border-right: 1px solid rgba(0,0,0,0.1);
+  transform: rotate(-3deg); box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+}
+#checklist .tear {
+  position: absolute; left: 0; right: 0; bottom: -6px; height: 7px;
+  background: repeating-linear-gradient(90deg, var(--paper2) 0 5px, transparent 5px 6px, var(--paper2) 6px 9px, transparent 9px 11px);
+}
+#checklist h4 { margin: 0 0 7px; font-size: 9px; color: var(--inkpen); letter-spacing: 2px; border-bottom: 2px solid var(--line); padding-bottom: 4px; }
 .task {
-  display: flex; align-items: center; gap: 5px; padding: 4px 5px;
-  background: rgba(14,11,20,0.82); border: 2px solid var(--ink); border-left: 3px solid var(--st3);
-  font-size: 7px; color: var(--parch); font-variant-numeric: tabular-nums;
+  display: flex; align-items: center; gap: 5px; padding: 3px 0;
+  font-size: 7px; color: var(--inkpen); font-variant-numeric: tabular-nums;
 }
-.task.done { border-left-color: var(--m4); opacity: 0.7; }
-.task b { font-weight: normal; min-width: 32px; text-align: right; }
-.task .bar { flex: 1; height: 5px; background: #0c0a12; border: 1px solid #000; padding: 0; }
-.task .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--m2), var(--m4)); }
+.task .box { position: relative; width: 9px; height: 9px; border: 1px solid var(--inkpen); flex: none; background: rgba(255,255,255,0.35); }
+.task .box i { position: absolute; left: 0; top: -4px; width: 11px; height: 11px;
+  background: linear-gradient(45deg, transparent 44%, var(--rust) 44% 60%, transparent 60%),
+              linear-gradient(-45deg, transparent 44%, var(--rust) 44% 60%, transparent 60%); }
+.task.done { opacity: 0.55; }
+.task.done b { text-decoration: line-through; }
+.task b { font-weight: normal; min-width: 34px; text-align: right; }
+.task .bar { flex: 1; height: 4px; background: rgba(90,70,40,0.2); border: 1px solid rgba(90,70,40,0.35); }
+.task .bar i { display: block; height: 100%; background: var(--rust); }
+.task img.ico { filter: saturate(0.75) contrast(1.05); }
 
-/* ---- side and corner buttons --------------------------------------------- */
-#side { position: absolute; right: 10px; bottom: 74px; z-index: 6; display: flex; flex-direction: column; gap: 6px; }
+/* the cultist's notebook */
+#notebook {
+  position: absolute; left: 12px; bottom: 54px; z-index: 7; width: 194px;
+  padding: 10px 11px 13px 20px; color: var(--inkpen); overflow: hidden;
+  pointer-events: none;                     /* the paper never eats a click meant for the grove */
+  background:
+    repeating-linear-gradient(180deg, rgba(120,140,180,0.2) 0 1px, rgba(0,0,0,0) 1px 13px),
+    linear-gradient(170deg, #f6ecd4, #e7d8b4);
+  border: 1px solid #bda98a; border-left: 3px solid #9c8158;
+  box-shadow: 3px 4px 0 rgba(0,0,0,0.45); transform: rotate(-0.8deg);
+}
+#notebook::after { content: ''; position: absolute; left: 13px; top: 0; bottom: 0; width: 1px; background: rgba(170,80,60,0.5); }
+#notebook .rings { position: absolute; left: 2px; top: 8px; bottom: 8px; width: 8px;
+  background: repeating-linear-gradient(180deg, #9aa0aa 0 3px, transparent 3px 13px); }
+#notebook button { pointer-events: auto; }
+#notebook .nbshut { position: absolute; right: 4px; top: 2px; background: none; border: none; color: #8a7550; font-size: 12px; padding: 0 4px; }
+#notebook .nbhead { display: flex; align-items: center; gap: 5px; font-size: 7px; color: #8a7550; margin-bottom: 5px; }
+#notebook .nbdone { display: flex; align-items: center; gap: 5px; font-size: 7px; opacity: 0.5; padding: 2px 0; line-height: 1.4; text-decoration: line-through; }
+#notebook .nbnow { position: relative; margin-top: 6px; padding-left: 14px; padding-top: 2px; display: grid; grid-template-columns: 1fr 34px; gap: 2px 6px; align-items: start; overflow: hidden; }
+#notebook .nbnow .box, #notebook .nbdone .box { position: relative; width: 8px; height: 8px; border: 1px solid var(--inkpen); flex: none; }
+#notebook .nbnow .box { position: absolute; left: 0; top: 3px; }
+#notebook .nbdone .box i, #notebook .nbnow .box i { position: absolute; left: 0; top: -4px; width: 10px; height: 10px;
+  background: linear-gradient(45deg, transparent 44%, var(--rust) 44% 62%, transparent 62%),
+              linear-gradient(-45deg, transparent 44%, var(--rust) 44% 62%, transparent 62%); }
+#notebook .nbnow .pic { grid-column: 2; grid-row: 1 / 3; padding: 3px; background: rgba(255,255,255,0.45); border: 1px dashed #b09a70; }
+#notebook .nbnow .pic img { width: 22px; height: 22px; }
+#notebook h5 { grid-column: 1; }
+#notebook p { grid-column: 1 / 3; }
+#notebook h5 { margin: 0; font-size: 8px; line-height: 1.5; letter-spacing: 0.3px; }
+#notebook p { margin: 2px 0 0; font-size: 7px; line-height: 1.85; color: #5c4a30; }
+#notebook .nbnow.flash { animation: nbflash 0.9s ease-out; }
+@keyframes nbflash { from { background: rgba(233,190,90,0.6); } to { background: transparent; } }
+#notebook.shut { width: auto; padding: 0; background: none; border: none; box-shadow: none; }
+#notebook.shut::after, #notebook.shut .rings { display: none; }
+.nbtab { display: flex; align-items: center; gap: 4px; padding: 6px 9px; color: var(--inkpen); font-size: 7px;
+  background: linear-gradient(170deg, #f6ecd4, #e0d0ac); border: 1px solid #bda98a; border-left: 3px solid #9c8158;
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.4); }
+
+/* side buttons: little wooden signs */
+#side { position: absolute; right: 14px; bottom: 86px; z-index: 6; display: flex; flex-direction: column; gap: 6px; }
 .rbtn {
   display: flex; align-items: center; gap: 5px; padding: 8px 10px;
-  background: linear-gradient(180deg, var(--st3), var(--st2));
-  border: 2px solid var(--ink); border-bottom-width: 4px;
+  background: linear-gradient(180deg, var(--leather2), var(--leather));
+  border: 2px solid var(--leatherD); border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,222,170,0.25), 2px 3px 0 rgba(0,0,0,0.4);
 }
-.rbtn:hover { background: linear-gradient(180deg, var(--st4), var(--st3)); }
-.rbtn:active { border-bottom-width: 2px; transform: translateY(2px); }
-.rbtn.on { background: linear-gradient(180deg, var(--g2), var(--g1)); }
+.rbtn:hover { filter: brightness(1.12); }
+.rbtn:active { transform: translate(1px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.4); }
+.rbtn.on { background: linear-gradient(180deg, #d8a52f, #a97c1e); }
 .rbtn.big { padding: 10px 12px; }
-.rbtn.full { background: linear-gradient(180deg, var(--m3), var(--m2)); }
-.rbtn b { font-weight: normal; font-size: 11px; }
+.rbtn.full { background: linear-gradient(180deg, #6f9a44, #4a6f2c); }
+.rbtn b { font-weight: normal; font-size: 11px; color: #ffe9a8; }
 
-#mini { position: absolute; left: 10px; bottom: 10px; z-index: 6; display: flex; gap: 5px; }
+#mini { position: absolute; left: 12px; bottom: 12px; z-index: 6; display: flex; gap: 5px; }
 .mbtn {
-  display: flex; align-items: center; justify-content: center; padding: 6px;
-  background: rgba(20,17,28,0.86); border: 2px solid var(--ink); border-bottom-width: 3px; opacity: 0.8;
+  display: flex; align-items: center; justify-content: center; padding: 6px 7px;
+  background: linear-gradient(180deg, #7a5a3a, #563a22); border: 2px solid var(--leatherD);
+  border-radius: 3px; box-shadow: 1px 2px 0 rgba(0,0,0,0.4); opacity: 0.9;
 }
-.mbtn:hover { opacity: 1; background: var(--st2); }
+.mbtn:hover { opacity: 1; filter: brightness(1.15); }
 
-/* ---- tool dock ----------------------------------------------------------- */
+/* the tool belt */
 #dock {
-  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 6;
-  display: flex; gap: 5px; padding: 6px;
-  background: linear-gradient(180deg, rgba(44,40,54,0.9), rgba(18,15,24,0.92));
-  border: 2px solid var(--ink); box-shadow: inset 0 1px 0 rgba(139,132,156,0.22), 0 4px 0 rgba(0,0,0,0.45);
+  position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 6;
+  display: flex; gap: 7px; padding: 9px 14px 11px;
+  background:
+    repeating-linear-gradient(180deg, rgba(0,0,0,0.06) 0 2px, rgba(0,0,0,0) 2px 5px),
+    linear-gradient(180deg, var(--leather2) 0%, var(--leather) 55%, var(--leatherD) 100%);
+  border: 2px solid var(--leatherD); border-radius: 7px;
+  box-shadow: inset 0 2px 0 rgba(255,222,170,0.2), inset 0 -4px 0 rgba(0,0,0,0.3), 0 5px 0 rgba(0,0,0,0.45);
 }
+#dock::before, #dock::after {
+  content: ''; position: absolute; top: 6px; bottom: 6px; width: 0;
+  border-left: 2px dashed var(--stitch); opacity: 0.5;
+}
+#dock::before { left: 6px; } #dock::after { right: 6px; }
 .tool {
-  position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #211d2c, #16131d);
-  border: 2px solid var(--ink); box-shadow: inset 0 2px 0 rgba(0,0,0,0.4);
-  transition: transform 0.07s;
+  position: relative; width: 42px; height: 44px; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #3a2a1c, #241a10);
+  border: 2px solid #1a1109; border-radius: 4px;
+  box-shadow: inset 0 2px 0 rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,210,150,0.12);
+  transition: transform 0.08s;
 }
-.tool:hover { transform: translateY(-3px); }
-.tool.on { background: linear-gradient(180deg, var(--g2), var(--g1)); box-shadow: 0 0 0 2px var(--g3); }
-.tool.locked { opacity: 0.3; cursor: not-allowed; }
-.tool img.ico { width: 26px; height: 26px; }
-.tool .k { position: absolute; left: 2px; top: 1px; font-size: 7px; color: var(--st4); }
-.tool.on .k { color: rgba(18,14,20,0.6); }
-.tool .more { position: absolute; right: 2px; bottom: 1px; width: 0; height: 0; border: 3px solid transparent; border-right-color: var(--cream); border-bottom-color: var(--cream); }
+.tool::after {                       /* the leather loop across the pocket */
+  content: ''; position: absolute; left: -3px; right: -3px; bottom: 7px; height: 7px;
+  background: linear-gradient(180deg, var(--leather2), var(--leatherD));
+  border-top: 1px solid rgba(255,222,170,0.25); border-bottom: 1px solid rgba(0,0,0,0.5);
+  opacity: 0.95;
+}
+.tool:hover { transform: translateY(-4px); }
+.tool.on { background: linear-gradient(180deg, #7a5c2a, #4a3616); box-shadow: 0 0 0 2px #d8a52f, inset 0 2px 0 rgba(255,220,150,0.25); transform: translateY(-4px); }
+.tool.locked { opacity: 0.35; cursor: not-allowed; }
+.tool img.ico { width: 26px; height: 26px; position: relative; z-index: 1; margin-bottom: 3px; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.5)); }
+.tool .k { position: absolute; left: 3px; top: 2px; font-size: 7px; color: rgba(240,220,180,0.4); z-index: 2; }
+.tool.on .k { color: rgba(30,20,10,0.55); }
+.tool .more { position: absolute; right: 3px; top: 3px; width: 0; height: 0; border: 3px solid transparent; border-top-color: var(--stitch); z-index: 2; }
 
+/* the flyout: a canvas pouch flipped open above the belt */
 #flyout {
-  position: absolute; left: 50%; bottom: 66px; transform: translateX(-50%); z-index: 6;
-  display: flex; gap: 4px; padding: 5px; max-width: 92%; flex-wrap: wrap; justify-content: center;
-  background: linear-gradient(180deg, rgba(44,40,54,0.94), rgba(18,15,24,0.94));
-  border: 2px solid var(--ink); box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+  position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); z-index: 6;
+  display: flex; gap: 5px; padding: 8px 10px 9px; max-width: 92%; flex-wrap: wrap; justify-content: center;
+  background: linear-gradient(180deg, #a88a5c 0%, #8a6e45 100%);
+  border: 2px solid #4a3a22; border-radius: 5px;
+  box-shadow: inset 0 2px 0 rgba(255,240,200,0.2), 0 4px 0 rgba(0,0,0,0.4);
+}
+#flyout::before {
+  content: ''; position: absolute; left: 8px; right: 8px; top: 3px; height: 0; border-top: 2px dashed rgba(240,220,170,0.5);
 }
 .chip {
   position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #211d2c, #16131d); border: 2px solid var(--ink);
+  background: linear-gradient(180deg, #3a2a1c, #241a10); border: 2px solid #1a1109; border-radius: 3px;
 }
-.chip:hover { background: var(--st2); }
-.chip.on { background: linear-gradient(180deg, var(--m3), var(--m2)); box-shadow: 0 0 0 2px var(--m4); }
-.chip.out { opacity: 0.38; }
+.chip:hover { filter: brightness(1.3); }
+.chip.on { background: linear-gradient(180deg, #5d7a34, #3a4f1e); box-shadow: 0 0 0 2px #98c25a; }
+.chip.out { opacity: 0.35; }
 .chip img.ico { width: 22px; height: 22px; }
-.chip .n { position: absolute; right: 0; bottom: -1px; font-size: 7px; padding: 0 2px; background: rgba(10,8,16,0.9); font-variant-numeric: tabular-nums; }
-.chip .n em { color: var(--d4); font-style: normal; }
-.chip .k { position: absolute; left: 1px; top: 0; font-size: 6px; color: var(--st4); }
+.chip .n { position: absolute; right: -1px; bottom: -2px; font-size: 7px; padding: 0 2px; color: #f6ecd4;
+  background: #241a10; border: 1px solid #0f0a06; font-variant-numeric: tabular-nums; }
+.chip .n em { color: #d8a52f; font-style: normal; }
+.chip .k { position: absolute; left: 1px; top: 0; font-size: 6px; color: rgba(240,220,180,0.45); }
 .strip { display: flex; gap: 4px; flex-wrap: wrap; }
 .strip .empty { font-size: 8px; color: var(--st4); }
 
@@ -144,15 +240,17 @@ img.ico.xl { width: 40px; height: 40px; }
 }
 .bigrow { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--g3); }
 .act {
-  display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px;
-  background: linear-gradient(180deg, var(--d3), var(--d2)); border: 3px solid var(--ink); border-bottom-width: 5px;
+  display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 15px; border-radius: 3px;
+  background: linear-gradient(180deg, #7a52c2, #4a2a86); border: 1px solid #2a1650;
+  box-shadow: inset 0 1px 0 rgba(255,230,255,0.25), 2px 3px 0 rgba(0,0,0,0.4);
 }
 .act:hover:not(:disabled) { filter: brightness(1.15); }
 .act:active:not(:disabled) { border-bottom-width: 3px; transform: translateY(2px); }
 .act:disabled { background: var(--st2); filter: grayscale(0.6); cursor: not-allowed; opacity: 0.65; }
 .act.big { padding: 12px 24px; }
 .act.small { padding: 6px 8px; }
-.wbtn { display: flex; align-items: center; gap: 5px; padding: 6px 9px; background: linear-gradient(180deg, var(--st3), var(--st2)); border: 2px solid var(--ink); border-bottom-width: 4px; }
+.wbtn { display: flex; align-items: center; gap: 5px; padding: 6px 10px; color: #f6ecd4; border-radius: 3px;
+  background: linear-gradient(180deg, #7a5a3a, #563a22); border: 1px solid #34200f; box-shadow: 1px 2px 0 rgba(0,0,0,0.35); }
 .wbtn:hover { filter: brightness(1.15); }
 .keys { display: flex; gap: 5px; }
 kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width: 3px; padding: 2px 4px; font-size: 7px; color: var(--cream); }
@@ -188,21 +286,27 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
 
 /* ---- panels -------------------------------------------------------------- */
 .panel {
-  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 30;
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-0.4deg); z-index: 30;
   width: min(700px, 94vw); max-height: 84vh; display: flex; flex-direction: column;
-  background: linear-gradient(180deg, var(--parch1), var(--parch)); color: var(--ink);
-  border: 3px solid var(--ink); box-shadow: 0 0 0 4px var(--bark2), 0 16px 48px rgba(0,0,0,0.72);
-  animation: pop 0.15s ease-out;
+  padding-left: 16px; color: var(--inkpen);
+  background:
+    repeating-linear-gradient(180deg, rgba(120,140,180,0.18) 0 1px, rgba(0,0,0,0) 1px 16px),
+    linear-gradient(170deg, #f6ecd4, #e3d2ab);
+  border: 1px solid #b7a37f; border-left: 4px solid #9c8158;
+  box-shadow: 6px 8px 0 rgba(0,0,0,0.5); animation: pop 0.15s ease-out;
 }
-@keyframes pop { from { transform: translate(-50%,-50%) scale(0.9); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
-.phead { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 3px solid var(--ink);
-  background: repeating-linear-gradient(90deg, rgba(0,0,0,0.14) 0 2px, rgba(0,0,0,0) 2px 8px), linear-gradient(180deg, var(--st2), var(--st1)); color: var(--cream); }
+.panel::before { content: ''; position: absolute; left: 4px; top: 10px; bottom: 10px; width: 8px;
+  background: repeating-linear-gradient(180deg, #9aa0aa 0 3px, transparent 3px 14px); }
+.panel::after { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 1px; background: rgba(170,80,60,0.45); }
+@keyframes pop { from { transform: translate(-50%,-50%) rotate(-0.4deg) scale(0.9); opacity: 0; } to { transform: translate(-50%,-50%) rotate(-0.4deg) scale(1); opacity: 1; } }
+.phead { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 2px solid #b7a37f;
+  color: var(--inkpen); background: rgba(255,255,255,0.18); }
 .ptitle { font-size: 10px; flex: 1; }
-.x { background: var(--red); border: 2px solid var(--ink); border-bottom-width: 4px; padding: 4px 6px; margin-left: auto; }
+.x { background: linear-gradient(180deg, #c55a3a, #9a3f22); border: 1px solid #5a2312; padding: 4px 6px; margin-left: auto; border-radius: 2px; box-shadow: 1px 2px 0 rgba(0,0,0,0.35); }
 .pbody { overflow-y: auto; padding: 10px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
 .item { display: grid; grid-template-columns: 40px 1fr; gap: 4px 9px; padding: 8px; align-items: center;
-  background: var(--parch1); border: 3px solid var(--bark1); box-shadow: 2px 2px 0 rgba(65,46,32,0.3); }
+  background: rgba(255,252,240,0.55); border: 1px dashed #a8906a; box-shadow: 2px 2px 0 rgba(65,46,32,0.18); }
 .item.have { border-color: var(--m2); }
 .item .pic { grid-row: 1 / 3; }
 .item .pic img { width: 40px; height: 40px; image-rendering: pixelated; }
@@ -210,8 +314,8 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
 .item h3 .lv { font-size: 8px; color: var(--g1); }
 .item p { grid-column: 2; margin: 0; font-size: 8px; line-height: 1.7; color: #5a4530; }
 .item .act2 { grid-column: 1 / 3; display: flex; gap: 5px; justify-content: flex-end; align-items: center; margin-top: 3px; }
-.buy { display: flex; gap: 4px; align-items: center; padding: 5px 8px; color: var(--ink); font-variant-numeric: tabular-nums;
-  background: linear-gradient(180deg, var(--g3), var(--g2)); border: 2px solid var(--ink); border-bottom-width: 4px; }
+.buy { display: flex; gap: 4px; align-items: center; padding: 5px 9px; color: #3a2a14; font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #f0cd6a, #cfa33a); border: 1px solid #7a5a14; border-radius: 2px; box-shadow: 1px 2px 0 rgba(0,0,0,0.3); }
 .buy img { width: 13px; height: 13px; image-rendering: pixelated; }
 .buy:hover:not(:disabled) { filter: brightness(1.1); }
 .buy:active:not(:disabled) { border-bottom-width: 2px; transform: translateY(2px); }
@@ -219,15 +323,17 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
 
 /* basket */
 .blist { display: flex; flex-direction: column; gap: 4px; }
-.brow { display: flex; align-items: center; gap: 8px; padding: 5px 7px; background: var(--parch1); border: 2px solid var(--bark1); font-size: 8px; color: var(--bark0); }
+.brow { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 8px; color: var(--inkpen);
+  background: rgba(255,252,240,0.5); border-bottom: 1px dashed #b7a37f; }
 .brow img.ico { image-rendering: pixelated; }
 .brow .bn { flex: 1; }
 .brow .bq { color: var(--g1); }
 .brow .bp { display: flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
 .bx { background: var(--red); border: 2px solid var(--ink); padding: 2px 3px; }
-.btotal { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 7px 9px; background: var(--bark1); color: var(--cream); border: 2px solid var(--ink); }
-.btotal b { font-size: 13px; color: var(--g3); font-weight: normal; font-variant-numeric: tabular-nums; }
-.btotal .dim { margin-left: auto; font-size: 8px; color: var(--parch); }
+.btotal { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px; color: #3a2a14;
+  background: rgba(255,252,240,0.6); border: 1px dashed #a8906a; border-top: 2px solid #a8906a; }
+.btotal b { font-size: 13px; color: #8a5a12; font-weight: normal; font-variant-numeric: tabular-nums; }
+.btotal .dim { margin-left: auto; font-size: 8px; color: #7a6a4a; }
 .brow2 { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
 .brow2 .act { background: linear-gradient(180deg, var(--m3), var(--m2)); }
 .empty2 { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px; color: #6a5a48; }
@@ -253,11 +359,11 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
 .sum .v { color: var(--g3); text-align: right; font-variant-numeric: tabular-nums; }
 
 #toasts { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; z-index: 50; pointer-events: none; }
-.toast { padding: 6px 9px; font-size: 8px; color: var(--ink); max-width: 300px; line-height: 1.7;
-  background: var(--parch1); border: 3px solid var(--bark1); border-left-width: 5px; box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
-  animation: slide 0.2s ease-out; }
-.toast.good { border-left-color: var(--m3); }
-.toast.bad { border-left-color: var(--red); }
+.toast { padding: 7px 11px; font-size: 8px; color: var(--inkpen); max-width: 300px; line-height: 1.7;
+  background: linear-gradient(170deg, #f6ecd4, #e3d2ab); border: 1px solid #b7a37f; border-left: 4px solid #9c8158;
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.45); transform: rotate(-0.6deg); animation: slide 0.2s ease-out; }
+.toast.good { border-left-color: #5d8f3a; }
+.toast.bad { border-left-color: #b8412c; }
 @keyframes slide { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 @media (max-width: 700px) {
@@ -282,6 +388,8 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
 
     <div id="flyout" hidden></div>
     <div id="dock"></div>
+
+    <div id="notebook" hidden></div>
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
@@ -336,7 +444,7 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
     <div class="pbody help">
       <ol>
         <li>The grove is wider than the window. Drag bare ground, roll the wheel, or press the arrow keys to pan the camera.</li>
-        <li>Cut the weeds, catch the bugs, have the ants haul off the wrecks, then sow grass by dragging. Finish the list and a wombat walks in.</li>
+        <li>Cut the weeds, have the ants haul off the wrecks, then sow grass by dragging. Finish the list and a wombat walks in.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
         <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck, or call the truck to you.</li>
         <li>Click the seed in the middle of the plot for the Tree of Life. Drag to look around, scroll to zoom.</li>
@@ -1027,6 +1135,54 @@ const Sprites = (() => {
   }
   function furOf(pelt) { return typeof pelt === 'string' ? (FUR_BY_KEY[pelt] || FUR[0]) : FUR[pelt % FUR.length]; }
 
+  // ---- the cultist: a wombat in a robe, with a notebook -------------------
+  function cultist(frame, pose = 'idle') {
+    const f = frame % 6;
+    const key = `cult:${f}:${pose}`;
+    let img = cache.get(key); if (img) return img;
+    const { c, g } = Art.cv(40, 54);
+    const R0 = '#2a1b4a', R1 = '#3d2a66', R2 = '#563391', R3 = '#6f49ad';
+    const GOLD = '#d8a52f', GOLD2 = '#f5cd5c';
+    const bob = pose === 'idle' ? [0, 0, 1, 1, 0, -1][f] : [0, -1, -1, 0, 0, 0][f];
+    const arm = pose === 'point' ? 1 : 0;
+    const y0 = 10 + bob;
+    // robe: a bell of cloth, wider at the hem
+    Art.poly(g, [[14, y0 + 6], [26, y0 + 6], [33, 48], [7, 48]], R2);
+    Art.poly(g, [[14, y0 + 6], [20, y0 + 6], [22, 48], [7, 48]], R3);
+    Art.rect(g, 7, 44, 26, 3, R1);
+    Art.rect(g, 7, 47, 26, 2, R0);
+    for (let i = 0; i < 5; i++) Art.rect(g, 9 + i * 5, 44, 2, 3, GOLD);      // hem trim
+    // sleeves
+    Art.limb(g, 14, y0 + 14, 6, y0 + 26 - arm * 8, 7, 5, R1);
+    Art.limb(g, 26, y0 + 14, 34, y0 + 24 - arm * 12, 7, 5, R2);
+    // paws
+    Art.ell(g, 6, y0 + 27 - arm * 8, 3.4, 3, '#a66e4f');
+    Art.ell(g, 34, y0 + 25 - arm * 12, 3.4, 3, '#a66e4f');
+    // the notebook in the left paw
+    if (pose !== 'point') {
+      Art.rect(g, 2, y0 + 22, 11, 9, '#e8dcc0');
+      Art.rect(g, 2, y0 + 22, 11, 2, '#c9b892');
+      Art.rect(g, 2, y0 + 22, 2, 9, '#8a5a3a');
+      for (let i = 0; i < 3; i++) Art.rect(g, 5, y0 + 25 + i * 2, 7, 1, '#9a8f74');
+    }
+    // hood and head
+    Art.ell(g, 20, y0 + 6, 12, 11, R1);
+    Art.ell(g, 20, y0 + 4, 11, 9, R2);
+    Art.ell(g, 21, y0 + 8, 8, 7, '#180f2e');                                  // the dark inside
+    Art.rect(g, 17, y0 + 8, 2, 2, GOLD2);                                     // eyes in the shadow
+    Art.rect(g, 23, y0 + 8, 2, 2, GOLD2);
+    Art.ell(g, 25, y0 + 11, 4, 3, '#7a5a42');                                 // a snout poking out
+    Art.rect(g, 24, y0 + 10, 4, 1.4, '#4a2c20');
+    Art.ell(g, 20, y0 - 4, 5, 3, R1);                                         // the peak of the hood
+    Art.ell(g, 20, y0 - 5, 3, 2, R3);
+    // a little charm hanging at the chest
+    Art.rect(g, 20, y0 + 15, 1, 4, GOLD);
+    Art.ell(g, 20.5, y0 + 20, 2.4, 2.4, GOLD2);
+    Art.outline(c, PAL.ink, 1);
+    cache.set(key, c);
+    return c;
+  }
+
   // ---- ant movers ---------------------------------------------------------
   function ant(frame, carrying) {
     const f = frame % 4;
@@ -1359,7 +1515,7 @@ const Sprites = (() => {
     if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = Math.max(1, px); g.strokeRect(x0, y0, w, h); }
   }
 
-  return { S, AGE, POSES, wombat, blit, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, init() { }, clear: () => cache.clear() };
+  return { S, AGE, POSES, wombat, blit, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
 })();
 </script>
 
@@ -1386,46 +1542,83 @@ const Props = (() => {
     Art.limb(g, x0 - w0 * 0.22, y0, x1 - w1 * 0.2, y1, w0 * 0.34, w1 * 0.3, c2);
     Art.limb(g, x0 + w0 * 0.28, y0, x1 + w1 * 0.24, y1, w0 * 0.22, w1 * 0.2, c0);
   }
+  // A cozy canopy: a handful of fat round puffs, a dark underside, sun on the
+  // upper left, and a scatter of loose leaves along the silhouette.
   function canopy(g, x, y, rx, ry, cols, rnd, dense) {
-    const n = dense ? 9 : 6;
+    const n = dense ? 7 : 5;
+    const puffs = [];
     for (let i = 0; i < n; i++) {
-      const a = (i / n) * TAU + rnd() * 0.4;
-      const d = 0.45 + rnd() * 0.55;
-      const cx = x + Math.cos(a) * rx * d, cy = y + Math.sin(a) * ry * d;
-      Art.ell(g, cx, cy, rx * (0.42 + rnd() * 0.26), ry * (0.45 + rnd() * 0.28), cols[0]);
+      const a = Math.PI + (i / (n - 1)) * Math.PI;          // across the top
+      const d = 0.5 + rnd() * 0.4;
+      puffs.push({
+        x: x + Math.cos(a) * rx * d,
+        y: y + Math.sin(a) * ry * d * 0.8 + ry * 0.12,
+        rx: rx * (0.42 + rnd() * 0.2), ry: ry * (0.46 + rnd() * 0.2),
+      });
     }
-    Art.ell(g, x, y, rx * 0.8, ry * 0.78, cols[1]);
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * TAU - 0.7, d = 0.3 + rnd() * 0.4;
-      Art.ell(g, x + Math.cos(a) * rx * d, y + Math.sin(a) * ry * d - ry * 0.2, rx * 0.3, ry * 0.3, cols[2]);
+    puffs.push({ x: x, y: y + ry * 0.1, rx: rx * 0.72, ry: ry * 0.72 });
+    for (const p of puffs) Art.ell(g, p.x, p.y + ry * 0.16, p.rx * 1.04, p.ry, cols[0]);   // shadow mass
+    for (const p of puffs) Art.ell(g, p.x, p.y, p.rx, p.ry, cols[1]);                      // body
+    for (const p of puffs) Art.ell(g, p.x - p.rx * 0.2, p.y - p.ry * 0.22, p.rx * 0.72, p.ry * 0.66, cols[2]);
+    for (const p of puffs) {                                                               // sun on the crown
+      Art.ell(g, p.x - p.rx * 0.32, p.y - p.ry * 0.42, p.rx * 0.4, p.ry * 0.34, cols[3]);
+      Art.speckle(g, p.x - p.rx * 0.2, p.y - p.ry * 0.3, p.rx * 0.6, p.ry * 0.5, cols[3], Math.round(p.rx * 1.2), Math.floor(p.x * 7 + p.y));
+      Art.speckle(g, p.x, p.y + p.ry * 0.5, p.rx * 0.8, p.ry * 0.3, cols[0], Math.round(p.rx * 0.8), Math.floor(p.y * 11 + p.x));
     }
-    Art.speckle(g, x, y - ry * 0.3, rx * 0.85, ry * 0.6, cols[3], Math.round(rx * ry * 0.1), Math.floor(x * 7 + y));
-    Art.speckle(g, x, y + ry * 0.45, rx * 0.9, ry * 0.4, cols[0], Math.round(rx * 0.9), Math.floor(y * 11 + x));
+    // a few leaves shaken loose at the edge, which is what stops it reading as a blob
+    for (let i = 0; i < (dense ? 10 : 6); i++) {
+      const a = Math.PI + rnd() * Math.PI;
+      const lx = x + Math.cos(a) * rx * (1.02 + rnd() * 0.14);
+      const ly = y + Math.sin(a) * ry * (0.9 + rnd() * 0.2);
+      Art.ell(g, lx, ly, 2.4, 1.8, rnd() < 0.5 ? cols[2] : cols[1]);
+    }
   }
+  // Cozy foliage palettes: cool shade, leafy body, sunlit crown.
+  const LEAF = {
+    oak:   ['#28502c', '#3d7a3a', '#5aa14a', '#93cd63'],
+    gnarl: ['#264a34', '#3a6b45', '#528a54', '#82b46b'],
+    birch: ['#356030', '#528a3c', '#74ad4e', '#a8d46c'],
+    pine:  ['#1d3c2a', '#2e5a39', '#417a46', '#639e57'],
+    scrub: ['#2e4a26', '#456b33', '#5f8f43', '#8bb45c'],
+  };
+
   P.tree = (spec) => {
     const [kind, v, shade] = String(spec).split('|');
     const sh = +shade || 0;
     return cached(`tree:${kind}:${v}:${sh}`, 96, 150, (g) => {
       const rnd = Art.rng((+v + 1) * 977 + kind.length * 31);
-      const S = (c) => (sh ? U.mix(c, '#0f1218', sh) : c);
+      const S = (c) => (sh ? U.mix(c, '#101520', sh) : c);
+      const P4 = (k) => LEAF[k].map(S);
       const cx = 48, base = 148;
       const B0 = S(PAL.bark0), B1 = S(PAL.bark1), B2 = S(PAL.bark2), B3 = S(PAL.bark3);
       const lean = (rnd() - 0.5) * 10;
+      // a little swell of roots, so nothing looks stuck in the ground
+      const roots = (w) => {
+        for (let i = -2; i <= 2; i++) if (i) Art.limb(g, cx + i * 3, base - 8, cx + i * (w + rnd() * 4), base + 2, 5, 1.6, B1);
+        Art.ell(g, cx, base, w + 6, 4, B0);
+      };
       if (kind === 'pine') {
-        bark(g, cx, base, cx + lean * 0.4, 34, 11, 5, B3, B1, B0);
-        const cols = [S('#1a2e18'), S('#24421f'), S('#2f5527'), S('#3d6b31')];
-        for (let i = 0; i < 7; i++) {
-          const y = 124 - i * 14, w = 40 - i * 4.6;
-          for (let k = 0; k < 3; k++) {
-            const yy = y - k * 3.4, ww = w - k * 5;
-            Art.poly(g, [[cx - ww, yy], [cx + ww, yy], [cx + ww * 0.45, yy - 12], [cx - ww * 0.45, yy - 12]], cols[k % 3]);
+        bark(g, cx, base, cx + lean * 0.4, 40, 10, 5, B3, B1, B0);
+        roots(10);
+        const c = P4('pine');
+        for (let i = 0; i < 6; i++) {                       // rounded, scalloped tiers
+          const y = 126 - i * 17, w = 38 - i * 5.2;
+          Art.ell(g, cx, y + 3, w, 9, c[0]);
+          const lobes = Math.max(3, 6 - i);
+          for (let k = 0; k < lobes; k++) {
+            const lx = cx - w + (k / (lobes - 1)) * w * 2;
+            Art.ell(g, lx, y - 1, w / lobes + 3, 7.5, c[1]);
+            Art.ell(g, lx - 1, y - 4, w / lobes + 1, 5.5, c[2]);
           }
-          Art.speckle(g, cx, y - 5, w * 0.8, 5, cols[3], Math.round(w * 0.5), i + +v);
+          Art.ell(g, cx - w * 0.3, y - 6, w * 0.5, 4.5, c[3]);
+          Art.speckle(g, cx, y - 3, w * 0.85, 5, c[3], Math.round(w * 0.5), i + +v);
         }
-        Art.poly(g, [[cx - 7, 40], [cx + 7, 40], [cx, 18]], cols[1]);
-        Art.poly(g, [[cx - 4, 34], [cx + 4, 34], [cx, 20]], cols[2]);
+        Art.ell(g, cx, 22, 9, 10, c[1]);
+        Art.ell(g, cx - 2, 20, 6, 7, c[2]);
+        Art.ell(g, cx - 3, 17, 3.4, 3.4, c[3]);
       } else if (kind === 'dead') {
         bark(g, cx, base, cx + lean, 48, 13, 6, B3, B1, B0);
+        roots(12);
         for (let i = 0; i < 7; i++) {
           const side = i % 2 ? 1 : -1, y0 = 112 - i * 11;
           const x1 = cx + side * (16 + i * 4), y1 = y0 - 18 - i * 3;
@@ -1437,36 +1630,125 @@ const Props = (() => {
         Art.limb(g, cx + lean, 48, cx + lean + 13, 22, 4.4, 1.4, B1);
         Art.limb(g, cx + lean - 12, 24, cx + lean - 19, 12, 1.6, 0.8, B0);
         Art.limb(g, cx + lean + 13, 22, cx + lean + 20, 11, 1.6, 0.8, B0);
-      } else if (kind === 'birch') {
-        bark(g, cx, base, cx + lean * 0.5, 52, 9, 5, S('#e8e2d4'), S('#cfc6b4'), S('#a89c88'));
-        for (let i = 0; i < 9; i++) Art.rect(g, cx - 5 + rnd() * 9, 60 + i * 9, 4 + rnd() * 3, 1.6, S('#3a352c'));
-        for (let i = 0; i < 4; i++) {
-          const side = i % 2 ? 1 : -1, y0 = 96 - i * 14;
-          Art.limb(g, cx, y0, cx + side * (14 + i * 3), y0 - 16, 3, 1.2, S('#cfc6b4'));
+        if (+v % 2) {                                        // one tuft clinging on
+          const c = P4('scrub');
+          Art.ell(g, cx + 14, 66, 9, 6, c[1]); Art.ell(g, cx + 12, 63, 6, 4, c[2]);
         }
-        canopy(g, cx + lean * 0.5, 40, 34, 24, [S('#3c5c22'), S('#4e7430'), S('#66913f'), S('#8cb95a')], rnd, 1);
+        for (let i = 0; i < 4; i++) Art.ell(g, cx - 14 + rnd() * 28, base - 2 - rnd() * 4, 3, 1.6, S('#6a5a44'));
+      } else if (kind === 'birch') {
+        bark(g, cx, base, cx + lean * 0.5, 56, 9, 5, S('#f0ece0'), S('#dcd6c6'), S('#b4a894'));
+        roots(8);
+        for (let i = 0; i < 9; i++) Art.rect(g, cx - 5 + rnd() * 9, 64 + i * 9, 4 + rnd() * 3, 1.6, S('#3a352c'));
+        for (let i = 0; i < 4; i++) {
+          const side = i % 2 ? 1 : -1, y0 = 98 - i * 14;
+          Art.limb(g, cx, y0, cx + side * (14 + i * 3), y0 - 16, 3, 1.2, S('#dcd6c6'));
+        }
+        canopy(g, cx + lean * 0.5, 42, 33, 25, P4('birch'), rnd, 1);
       } else if (kind === 'gnarl') {
-        bark(g, cx, base, cx + lean * 1.6, 66, 16, 8, B3, B1, B0);
-        for (let i = -2; i <= 2; i++) if (i) Art.limb(g, cx + i * 4, base - 8, cx + i * 15, base + 2, 5, 1.6, B1);
-        for (let i = 0; i < 5; i++) {
-          const side = i % 2 ? 1 : -1, y0 = 110 - i * 13;
+        bark(g, cx, base, cx + lean * 1.6, 70, 16, 8, B3, B1, B0);
+        roots(15);
+        for (let i = 0; i < 3; i++) {                       // knots
+          Art.ell(g, cx - 6 + rnd() * 12, 90 + i * 18, 4, 3, B0);
+          Art.ell(g, cx - 6 + rnd() * 12, 90 + i * 18, 2, 1.4, B2);
+        }
+        for (let i = 0; i < 4; i++) {
+          const side = i % 2 ? 1 : -1, y0 = 108 - i * 14;
           const x1 = cx + side * (20 + i * 5), y1 = y0 - 14;
           Art.limb(g, cx + side * 5, y0, x1, y1, 6 - i * 0.6, 2, B1);
-          canopy(g, x1 + side * 6, y1 - 8, 20, 14, [S('#22361a'), S('#2e4a22'), S('#3d6130'), S('#527c3c')], rnd, 0);
+          canopy(g, x1 + side * 6, y1 - 8, 19, 14, P4('gnarl'), rnd, 0);
         }
-        canopy(g, cx + lean, 48, 38, 26, [S('#22361a'), S('#2e4a22'), S('#3d6130'), S('#527c3c')], rnd, 1);
+        canopy(g, cx + lean, 50, 37, 27, P4('gnarl'), rnd, 1);
       } else {
-        bark(g, cx, base, cx + lean, 60, 13, 7, B3, B1, B0);
-        for (let i = -2; i <= 2; i++) if (i) Art.limb(g, cx + i * 3, base - 6, cx + i * 13, base + 2, 4.4, 1.5, B1);
+        bark(g, cx, base, cx + lean, 62, 13, 7, B3, B1, B0);
+        roots(13);
         for (let i = 0; i < 4; i++) {
           const side = i % 2 ? 1 : -1, y0 = 104 - i * 15;
           Art.limb(g, cx + side * 4, y0, cx + side * (18 + i * 4), y0 - 18, 4.6 - i * 0.5, 1.6, B1);
         }
-        canopy(g, cx + lean, 44, 40, 28, [S('#2b4a20'), S('#3a6129'), S('#4d7f36'), S('#6da348')], rnd, 1);
+        const c = P4('oak');
+        canopy(g, cx + lean, 46, 39, 28, c, rnd, 1);
+        if (+v % 3 === 0 && sh < 0.5) {                      // a few apples
+          for (let i = 0; i < 4; i++) {
+            const ax = cx + lean + (rnd() - 0.5) * 56, ay = 40 + rnd() * 28;
+            Art.ell(g, ax, ay, 2.6, 2.6, '#c9503f');
+            Art.rect(g, ax, ay - 3.4, 1, 2, '#5a3a22');
+          }
+        }
+        if (+v % 3 === 1 && sh < 0.5) {                      // a nest on a bough
+          Art.ell(g, cx + 22, 74, 7, 3.6, '#7a5c38');
+          Art.ell(g, cx + 22, 73, 5.4, 2.4, '#5f4527');
+          Art.ell(g, cx + 20, 72, 1.8, 1.4, '#e8e2d0');
+          Art.ell(g, cx + 23.4, 72.4, 1.8, 1.4, '#e8e2d0');
+        }
       }
-      Art.outline(g.canvas, sh > 0.5 ? '#080a0e' : PAL.ink, 0.7);
+      // toadstools and a tuft at the foot of every living tree
+      if (kind !== 'dead' && sh < 0.62) {
+        const c = P4('scrub');
+        Art.ell(g, cx - 16, base - 3, 7, 3.4, c[1]);
+        Art.ell(g, cx + 15, base - 2, 6, 3, c[0]);
+        if (+v % 2) { Art.rect(g, cx + 20, base - 6, 1.6, 4, '#e8dcc4'); Art.ell(g, cx + 20.8, base - 6, 3, 2, '#b8412c'); }
+      }
+      Art.outline(g.canvas, sh > 0.5 ? '#080a0e' : PAL.ink, 0.75);
     });
   };
+
+  // ---- weeds: the thing choking the plot, so they want to read big ---------
+  P.weed = (v = 0) => cached('weed' + v, 34, 40, (g) => {
+    const rnd = Art.rng((+v + 1) * 733);
+    const D = '#3b4a1e', M = '#5d7128', L = '#86974a', Y = '#a8a054', ROT = '#6d5a2c';
+    const cx = 17, base = 38;
+    if (+v === 0) {                       // thistle: tall, spiny, purple heads
+      for (let i = -1; i <= 1; i++) {
+        Art.limb(g, cx + i * 2, base, cx + i * 7, 12 + Math.abs(i) * 6, 3.4, 1.6, i ? M : D);
+      }
+      for (let i = 0; i < 7; i++) {
+        const side = i % 2 ? 1 : -1, y = base - 6 - i * 4;
+        Art.poly(g, [[cx, y], [cx + side * 12, y - 3], [cx + side * 7, y + 3]], i % 3 ? M : L);
+        Art.line(g, cx + side * 4, y, cx + side * 12, y - 3, D, 1);
+      }
+      for (const [hx, hy] of [[cx - 6, 12], [cx + 7, 17], [cx, 7]]) {
+        Art.ell(g, hx, hy + 3, 4, 3, M);
+        Art.ell(g, hx, hy, 3.4, 3.4, '#7a5ea8');
+        Art.ell(g, hx - 1, hy - 1, 2, 1.6, '#a487d0');
+        for (let k = 0; k < 5; k++) Art.rect(g, hx - 3 + k * 1.6, hy - 4, 1, 2.4, '#a487d0');
+      }
+    } else if (+v === 1) {                // bramble: low, wide, thorny, berries
+      for (let i = 0; i < 5; i++) {
+        const a = -0.3 - i * 0.55, r = 13 + rnd() * 4;
+        const ex = cx + Math.cos(a) * r, ey = base - 6 + Math.sin(a) * r * 0.7;
+        Art.limb(g, cx, base - 4, ex, ey, 3, 1.2, ROT);
+        for (let k = 1; k < 4; k++) {
+          const t = k / 4, lx = U.lerp(cx, ex, t), ly = U.lerp(base - 4, ey, t);
+          Art.ell(g, lx, ly - 2, 4, 3, k % 2 ? M : D);
+          Art.rect(g, lx, ly + 1, 1, 2, ROT);
+        }
+        if (i % 2) { Art.ell(g, ex, ey - 2, 2.2, 2.2, '#3a2038'); Art.ell(g, ex - 0.6, ey - 2.6, 1, 0.8, '#6a4a68'); }
+      }
+      Art.ell(g, cx, base - 2, 13, 4, D);
+    } else if (+v === 2) {                // dry tussock: a fan of dead blades
+      for (let i = 0; i < 13; i++) {
+        const t = i / 12, a = -2.6 + t * 1.7;
+        const h = 20 + rnd() * 12;
+        const ex = cx + Math.cos(a) * h * 0.7, ey = base - 2 + Math.sin(a) * h;
+        Art.limb(g, cx + (t - 0.5) * 6, base, ex, ey, 2.2, 0.8, i % 3 === 0 ? Y : i % 3 === 1 ? L : M);
+      }
+      Art.ell(g, cx, base - 1, 9, 3.4, ROT);
+      for (let i = 0; i < 3; i++) Art.ell(g, cx - 6 + i * 6, 14 + i * 3, 1.6, 3, Y);
+    } else {                              // nettle: broad serrated leaves
+      Art.limb(g, cx, base, cx + 1, 10, 3, 1.6, M);
+      for (let i = 0; i < 5; i++) {
+        const side = i % 2 ? 1 : -1, y = base - 7 - i * 6;
+        const w = 11 - i * 1.2;
+        Art.poly(g, [[cx, y], [cx + side * w, y - 5], [cx + side * w * 0.8, y + 4]], i % 2 ? M : L);
+        Art.line(g, cx, y, cx + side * w, y - 5, D, 1);
+        for (let k = 0; k < 3; k++) Art.rect(g, cx + side * (3 + k * 3), y - 5 + k, 1, 1, D);
+      }
+      Art.ell(g, cx + 1, 9, 4, 3, L);
+      Art.ell(g, cx + 1, 7, 2.4, 2, Y);
+    }
+    Art.outline(g.canvas, PAL.ink, 0.7);
+  });
+
   P.fallen = (v = 0) => cached('fallen' + v, 120, 46, (g) => {
     const rnd = Art.rng(+v * 613 + 7);
     const y = 30;
@@ -1930,7 +2212,6 @@ const Icons = (() => {
     mascot: (d) => { d.E(8, 6, 5.5, 5.5, R2); d.E(8, 6, 4, 4, PAL.parch1); d.E(8, 6, 2.4, 2.4, K3); d.R(7, 7, 1, 1, I); d.R(9, 7, 1, 1, I); d.R(7, 11, 2, 5, PAL.parch0); },
     t_hand: (d) => { d.E(8, 11, 4, 3.4, K3); d.E(4.6, 6, 1.7, 2, K3); d.E(7, 5, 1.7, 2, K3); d.E(9.6, 5, 1.7, 2, K3); d.E(12, 7, 1.7, 2, K3); d.E(8, 11, 2, 1.4, R3); },
     t_sickle: (d) => { d.L(3, 14, 8, 9, K2, 2); for (let i = 0; i < 7; i++) { const a = -0.4 + i * 0.42; d.R(8 + Math.cos(a) * 6, 8 + Math.sin(a) * 6, 2, 2, S4); } d.E(11, 4, 2, 2, C); },
-    t_net: (d) => { d.L(2, 14, 7, 9, K2, 2); d.E(10, 6, 5.5, 5.5, S3); d.E(10, 6, 4, 4, 'rgba(0,0,0,0)'); for (let i = -3; i <= 3; i += 2) { d.R(10 + i, 2, 1, 8, C); d.R(6, 6 + i, 8, 1, C); } },
     t_hoe: (d) => { d.L(3, 14, 11, 5, K2, 2); d.R(9, 2, 6, 3, S3); d.R(12, 2, 3, 6, S3); d.R(9, 2, 6, 1, S4); },
     t_moss: (d) => { d.R(1, 11, 14, 4, E2); for (let i = 0; i < 6; i++) { const x = 2 + i * 2.4; d.R(x, 6 + (i % 2), 1, 6, M2); d.R(x + 1, 4 + (i % 3), 1, 5, M3); } d.E(12, 4, 2, 1.6, M4); },
     t_seed: (d) => { d.E(8, 10, 6, 5, PAL.parch0); d.R(2, 5, 12, 3, K2); d.E(6, 10, 1.6, 2, K3); d.E(9.6, 11, 1.6, 2, K3); d.E(8, 8, 1.4, 1.8, K1); d.R(2, 5, 12, 1, K3); },
@@ -2430,7 +2711,6 @@ const TOOLS = [
   { key: 'food',    name: 'Food',   icon: 't_food',    radius: 0,  desc: 'Pick a food, then a wombat.' },
   { key: 'farm',    name: 'Farm',   icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'Hoe, seed, grass, water.' },
   { key: 'sickle',  name: 'Sickle', icon: 't_sickle',  radius: 22, desc: 'Cut the weeds.' },
-  { key: 'net',     name: 'Net',    icon: 't_net',     radius: 24, desc: 'Catch the bugs.' },
   { key: 'destroy', name: 'Haul',   icon: 't_destroy', radius: 0,  desc: 'Ants carry it off, for a fee.' },
   { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  locked: 'nest', desc: 'Pair two adults.' },
 ];
@@ -2443,7 +2723,7 @@ const SUBTOOLS = [
 const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
-const BRUSH_KEYS = ['sickle', 'net', 'hoe', 'seed', 'moss', 'water'];
+const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
 
 // ---- The map. Fog lifts as gods answer. ----------------------------------
 const SITES = [
@@ -2478,7 +2758,7 @@ const GODS = [
   {
     key: 'artewombis', name: 'Artewombis', title: 'Of Moon and Hunt', crown: 'crescent',
     color: '#79dced', eye: '#ffffff', glyph: 'g_moon', artIcon: 'a_bow', artifact: 'Moon Bow', artValue: 340,
-    blessing: 'Bugs keep out of the grove.', ritual: { husk: 5, resin: 2 }, tier: 2,
+    blessing: 'Rare pelts come twice as often.', ritual: { husk: 5, resin: 2 }, tier: 2,
   },
   {
     key: 'wombeus', name: 'Wombeus', title: 'Of the Storm', crown: 'bolt',
@@ -2845,7 +3125,7 @@ const World = (() => {
   let G = null;
   let grass = null, soil = null, sample = null;
   const stamps = new Map();
-  const weeds = [], bugs = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
+  const weeds = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
   let restored = 0, sampleT = 0, spreadT = 0, wind = 0, windT = 0;
 
   function stampSet(kind, r) {
@@ -2898,13 +3178,12 @@ const World = (() => {
   function init(g) {
     G = g;
     grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(256, 90).c;
-    for (const a of [weeds, bugs, blades, crops, sprouts, flowers, seams]) a.length = 0;
+    for (const a of [weeds, blades, crops, sprouts, flowers, seams]) a.length = 0;
     const r = Art.rng(51817);
     const s = G.world || {};
     if (!Array.isArray(s.weeds)) {
-      for (let i = 0; i < 130; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 14 + r() * (H - GROUND - 62), v: Math.floor(r() * 3), s: 0.85 + r() * 0.5 });
+      for (let i = 0; i < 190; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 12 + r() * (H - GROUND - 58), v: Math.floor(r() * 4), s: 1 + r() * 0.9 });
     } else for (const w of s.weeds) weeds.push({ x: w.x, y: w.y, v: w.v || 0, s: w.s || 1 });
-    if (!s.bugsOut) for (let i = 0; i < 22; i++) bugs.push(newBug(r));
     if (Array.isArray(s.strokes)) for (const k of s.strokes) {
       if (k[0] === 'g') { paint(grass, 'grass', k[1], k[2], k[3]); erase(soil, k[1], k[2], k[3]); }
       else { paint(soil, 'soil', k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
@@ -2916,10 +3195,6 @@ const World = (() => {
     measure();
   }
   function mkBlade(x, y, v, h) { return { x, y, v: v ?? Math.floor(Math.random() * 3), h: h ?? 4 + Math.floor(Math.random() * 5), bend: 0, vel: 0 }; }
-  function newBug(rnd) {
-    const r = rnd || Math.random;
-    return { x: 14 + r() * (W - 28), y: GROUND + 12 + r() * (H - GROUND - 58), vx: (r() - 0.5) * 26, vy: (r() - 0.5) * 14, v: Math.floor(r() * 3), ph: r() * TAU };
-  }
   function record(kind, x, y, r) {
     const s = G.world;
     if (!s.strokes) s.strokes = [];
@@ -2981,19 +3256,6 @@ const World = (() => {
       }
     }
     if (n) { G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) })); Audio.play('snip'); }
-    return n;
-  }
-  function catchBugs(x, y, r) {
-    let n = 0;
-    for (let i = bugs.length - 1; i >= 0; i--) {
-      const b = bugs[i];
-      if (Math.hypot(b.x - x, (b.y - y) * 1.3) < r) {
-        bugs.splice(i, 1); n++;
-        FX.burst(b.x, b.y, 6, { color: [PAL.cyan3, PAL.cream], speed: 70, gravity: 40, life: 0.4, size: 2 });
-        FX.ring(b.x, b.y, 14, 'rgba(121,220,237,0.7)');
-      }
-    }
-    if (n) Audio.play('pop');
     return n;
   }
   function plant(x, y, key) {
@@ -3090,17 +3352,6 @@ const World = (() => {
       if (wet) c.wet -= dt; else c.thirst += dt;
       if (!ripe(c)) c.t += dt * (wet ? 1.7 : c.thirst > 26 ? 0.25 : 0.8) * (G.blessings.burrowseidon ? 1.25 : 1);
     }
-    for (const b of bugs) {
-      b.ph += dt * 3;
-      b.x += b.vx * dt; b.y += b.vy * dt;
-      if (Math.random() < 0.02) { b.vx = U.rand(-30, 30); b.vy = U.rand(-16, 16); }
-      if (b.x < 10 || b.x > W - 10) b.vx *= -1;
-      if (b.y < GROUND + 8 || b.y > H - 48) b.vy *= -1;
-      b.x = U.clamp(b.x, 10, W - 10); b.y = U.clamp(b.y, GROUND + 8, H - 48);
-      disturb(b.x, b.y, 9, 0.16);
-    }
-    // bugs only creep back once the grove is lived in, so the opening list stays done
-    if (G.arrived && !G.blessings.artewombis && bugs.length < 16 && Math.random() < dt * 0.05) bugs.push(newBug());
     for (const s of seams) s.t += dt;
     if (G.fruits.deeproots || G.blessings.wombeus) {
       spreadT += dt;
@@ -3239,32 +3490,11 @@ const World = (() => {
   }
   function drawWeeds(g) {
     for (const w of weeds) {
-      const s = w.s, sway = Math.sin(G.time * 1.1 + w.x * 0.08) * 1.4 + wind * 0.05;
-      g.fillStyle = PAL.rot0;
-      g.fillRect(w.x | 0, (w.y - 9 * s) | 0, 2, 9 * s);
-      for (let i = 0; i < 4; i++) {
-        g.fillStyle = [PAL.rot1, PAL.rot2, PAL.dead3][(w.v + i) % 3];
-        const ly = w.y - 3 - i * 2.6 * s, side = i % 2 ? 1 : -1;
-        g.fillRect((w.x + side * (2 + i) + sway * (i / 4)) | 0, ly | 0, 3, 1.4);
-      }
-      g.fillStyle = PAL.rot2;
-      g.fillRect((w.x + sway) | 0, (w.y - 12 * s) | 0, 2, 3);
-    }
-  }
-  function drawBugs(g) {
-    for (const b of bugs) {
-      const hop = Math.abs(Math.sin(b.ph)) * 2, y = b.y - hop;
-      g.fillStyle = 'rgba(18,14,20,0.25)'; g.fillRect((b.x - 2) | 0, b.y | 0, 5, 2);
-      g.fillStyle = [PAL.ink2, '#4a3a1c', '#3a2a3a'][b.v];
-      g.fillRect((b.x - 2) | 0, (y - 3) | 0, 5, 4);
-      g.fillStyle = [PAL.rot2, PAL.gold1, PAL.div3][b.v];
-      g.fillRect((b.x - 1) | 0, (y - 3) | 0, 3, 2);
-      g.fillStyle = PAL.ink;
-      const lf = Math.sin(b.ph * 3) > 0 ? 1 : 0;
-      g.fillRect((b.x - 3) | 0, (y - 1 + lf) | 0, 1, 1);
-      g.fillRect((b.x + 3) | 0, (y - 1 + (1 - lf)) | 0, 1, 1);
-      g.fillRect((b.x - 3) | 0, (y - 3) | 0, 1, 1);
-      g.fillRect((b.x + 3) | 0, (y - 3) | 0, 1, 1);
+      const img = Props.get('weed', w.v);
+      const s = w.s;
+      const sway = Math.sin(G.time * 1.1 + w.x * 0.08) * 1.6 + wind * 0.05;
+      const dw = img.width * s, dh = img.height * s;
+      g.drawImage(img, Math.round(w.x - dw / 2 + sway), Math.round(w.y - dh + 3), Math.round(dw), Math.round(dh));
     }
   }
   function drawCrops(g) {
@@ -3290,10 +3520,10 @@ const World = (() => {
   }
 
   return {
-    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawBugs, drawCrops, drawCursor,
-    sowGrass, till, clearWeeds, catchBugs, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
+    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawCrops, drawCursor,
+    sowGrass, till, clearWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
     fraction, measure, ripe, growTime,
-    get weeds() { return weeds; }, get bugs() { return bugs; }, get crops() { return crops; },
+    get weeds() { return weeds; }, get crops() { return crops; },
     get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },
     save() {
       G.world.blades = blades.map((b) => ({ x: b.x, y: b.y, v: b.v, h: b.h }));
@@ -3301,7 +3531,6 @@ const World = (() => {
       G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1) }));
       G.world.sprouts = sprouts.map((p) => ({ x: p.x, y: p.y, t: +p.t.toFixed(1), wet: 0, r: p.r }));
       G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) }));
-      G.world.bugsOut = bugs.length === 0;
       G.world.restored = restored;
     },
     SKY, GROUND, W, H,
@@ -3392,7 +3621,6 @@ const Grove = (() => {
   function init(g) {
     G = g;
     if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.length);
-    if (!G.startBugs) G.startBugs = Math.max(1, World.bugs.length);
     objects.length = 0;
     const saved = G.objects;
     if (Array.isArray(saved) && saved.length) {
@@ -3416,10 +3644,9 @@ const Grove = (() => {
   // ---- checklist ----------------------------------------------------------
   function tasks() {
     const junk = objects.filter((o) => !o.gone).length;
-    const nw = G.startWeeds || 130, nb = G.startBugs || 22;
+    const nw = G.startWeeds || 190;
     return [
       { key: 'weeds', icon: 't_sickle', at: nw - World.weeds.length, need: nw, done: World.weeds.length === 0 },
-      { key: 'bugs', icon: 't_net', at: nb - World.bugs.length, need: nb, done: World.bugs.length === 0 },
       { key: 'junk', icon: 't_destroy', at: objects.length - junk, need: objects.length, done: junk === 0 },
       { key: 'grass', icon: 't_moss', at: Math.round(World.fraction() * 100), need: 18, done: World.fraction() >= 0.18 },
     ];
@@ -3472,7 +3699,7 @@ const Grove = (() => {
     return t;
   }
   function pickPelt(a, b) {
-    if (U.chance(RARE_CHANCE * (a && b ? 2 : 1))) return U.pick(FUR.filter((f) => f.rare)).key;
+    if (U.chance(RARE_CHANCE * (a && b ? 2 : 1) * (G.blessings.artewombis ? 2 : 1))) return U.pick(FUR.filter((f) => f.rare)).key;
     if (a && b) return U.chance(0.5) ? a.pelt : b.pelt;
     return U.pick(FUR.filter((f) => !f.rare)).key;
   }
@@ -3786,7 +4013,6 @@ const Grove = (() => {
       case 'moss': if (World.sowGrass(x, y, r) && first) Audio.play('brush'); World.disturb(x, y, r, 0.5); break;
       case 'hoe': World.till(x, y, r); if (first) Audio.play('dig'); break;
       case 'sickle': World.clearWeeds(x, y, r); World.disturb(x, y, r, 0.8); break;
-      case 'net': World.catchBugs(x, y, r); World.disturb(x, y, r, 0.6); break;
       case 'water': World.water(x, y, r); if (first) Audio.play('splash'); break;
       case 'seed': {
         const res = World.plant(x, y, G.selSeed);
@@ -3933,6 +4159,7 @@ const Grove = (() => {
     }
     items.push({ y: -1, fn: () => World.drawCrops(g) });
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
+    items.push({ y: Guide.cult.y, fn: () => Guide.draw(g) });
     if (arrival) items.push({ y: arrival.y, fn: () => Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S) });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
     if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
@@ -3940,7 +4167,6 @@ const Grove = (() => {
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
 
-    World.drawBugs(g);
     // crows
     for (const b of birds) {
       const img = Sprites.crow(Math.floor(G.time * 8 + b.ph), !!b.perch);
@@ -3991,7 +4217,7 @@ const Grove = (() => {
       g.globalAlpha = 1;
     }
   }
-  function toolTint(k) { return { moss: PAL.moss4, hoe: PAL.soil4, sickle: PAL.rot2, net: PAL.cyan3, water: PAL.water2, seed: PAL.gold3 }[k] || PAL.cream; }
+  function toolTint(k) { return { moss: PAL.moss4, hoe: PAL.soil4, sickle: PAL.rot2, water: PAL.water2, seed: PAL.gold3 }[k] || PAL.cream; }
 
   function drawObject(g, o) {
     g.save();
@@ -5627,6 +5853,168 @@ const Shop = (() => {
 </script>
 
 <script>
+// ===== js/guide.js =====
+// ---- The cultist: a robed wombat who writes the tutorial in her notebook --
+const Guide = (() => {
+  let G = null;
+  const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0 };
+  let flash = 0, hidden = false;
+
+  // Each step is a line in the notebook and a place for her to stand.
+  const STEPS = [
+    {
+      key: 'weeds', icon: 't_sickle', title: 'Cut the weeds',
+      note: 'Take the sickle and drag across them. The whole plot, mind.',
+      at: () => 300, done: (g) => World.weeds.length === 0,
+    },
+    {
+      key: 'junk', icon: 't_destroy', title: 'Send for the ants',
+      note: 'Logs and ruins are not ours to lift. The ants carry them, for a fee.',
+      at: () => { const o = Grove.objects.find((x) => !x.gone); return o ? o.x : 400; },
+      done: () => Grove.objects.every((o) => o.gone),
+    },
+    {
+      key: 'grass', icon: 't_moss', title: 'Sow the grass',
+      note: 'Farm, then grass. Sprouts need time and a drink before they take.',
+      at: () => 460, done: () => World.fraction() >= 0.18,
+    },
+    {
+      key: 'arrive', icon: 'wombat', title: 'Wait for her',
+      note: 'A clean grove calls a wombat. One always comes.',
+      at: () => 320, done: (g) => g.wombats.length > 0,
+    },
+    {
+      key: 'sow', icon: 't_hoe', title: 'Break a bed and sow it',
+      note: 'Hoe a patch, then seed on the bare soil.',
+      at: () => 380, done: () => World.crops.length > 0,
+    },
+    {
+      key: 'pick', icon: 't_water', title: 'Water, then pick',
+      note: 'Thirsty crops sulk. When one glows, click it with the hand.',
+      at: () => { const c = World.crops[0]; return c ? c.x : 380; },
+      done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
+    },
+    {
+      key: 'feed', icon: 't_food', title: 'Feed her',
+      note: 'Food tool, pick what you grew, then click the wombat.',
+      at: (g) => (g.wombats[0] ? g.wombats[0].x : 340),
+      done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
+    },
+    {
+      key: 'load', icon: 'truck', title: 'Load the cubes',
+      note: 'What she leaves is an offering. Drag it to the truck, or call the truck over.',
+      at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
+      done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
+    },
+    {
+      key: 'tree', icon: 'tree', title: 'Wake the seed',
+      note: 'The seed in the middle of the plot is the Tree of Life. Click it.',
+      at: () => Grove.SEED.x, done: (g) => !!(g.visited && g.visited.tree),
+    },
+    {
+      key: 'map', icon: 'map', title: 'Read the signpost',
+      note: 'It shows the mart, the ritual site, and the fog over the rest.',
+      at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.map),
+    },
+    {
+      key: 'mart', icon: 'shop', title: 'Walk the mart',
+      note: 'Seed, stock and stone. Basket first, counter after.',
+      at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.shop),
+    },
+    {
+      key: 'god', icon: 'shrine', title: 'Call one of them',
+      note: 'Stack what she leaves at the ritual site. They do answer.',
+      at: () => Grove.POST.x, done: (g) => Object.keys(g.summoned).length > 0,
+    },
+  ];
+
+  function init(g) {
+    G = g;
+    if (!G.visited) G.visited = {};
+    if (typeof G.step !== 'number') G.step = 0;
+    cult.x = cult.tx = 240;
+  }
+  const finished = () => G.step >= STEPS.length;
+  const step = () => (finished() ? null : STEPS[G.step]);
+
+  function check() {
+    const s = step();
+    if (!s) return;
+    if (!s.done(G)) return;
+    G.step++;
+    flash = 1.6;
+    cult.pose = 'point'; cult.t = 0; cult.hop = 1;
+    Audio.play('chime');
+    FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
+    UI.refreshNotebook();
+    Main.save();
+    if (finished()) UI.toast('the notebook is full', 'good');
+  }
+
+  function update(dt) {
+    if (flash > 0) flash -= dt;
+    cult.t += dt;
+    if (cult.hop > 0) cult.hop = Math.max(0, cult.hop - dt * 1.6);
+    const s = step();
+    if (s) {
+      const want = U.clamp(s.at(G), 60, Grove.W - 60);
+      cult.tx = want + 46;
+    }
+    const dx = cult.tx - cult.x;
+    if (Math.abs(dx) > 3) {
+      cult.dir = dx > 0 ? 1 : -1;
+      cult.x += U.clamp(dx, -52 * dt, 52 * dt);
+      cult.pose = 'walk';
+    } else if (cult.pose === 'walk') cult.pose = 'idle';
+    if (cult.hop <= 0 && cult.pose === 'point') cult.pose = 'idle';
+    check();
+  }
+
+  // She stands in the grove and points at whatever the step is about.
+  function draw(g) {
+    if (finished() || hidden) return;
+    const bobF = Math.floor(cult.t * (cult.pose === 'walk' ? 7 : 3)) % 6;
+    const img = Sprites.cultist(bobF, cult.pose === 'point' ? 'point' : 'idle');
+    const lift = cult.pose === 'walk' ? Math.abs(Math.sin(cult.t * 9)) * 2 : 0;
+    const sc = 1.4;
+    const dw = img.width * sc, dh = img.height * sc;
+    g.fillStyle = 'rgba(18,14,20,0.28)';
+    Art.ell(g, cult.x, cult.y + 2, 14, 4);
+    const draw2 = cult.dir < 0 ? Art.flip(img) : img;
+    g.drawImage(draw2, Math.round(cult.x - dw / 2), Math.round(cult.y - dh + 4 - lift), Math.round(dw), Math.round(dh));
+    // the glow of her lantern-charm, and a nudge toward the job
+    const p = 0.5 + 0.5 * Math.sin(cult.t * 3);
+    const gr = g.createRadialGradient(cult.x, cult.y - 24, 2, cult.x, cult.y - 24, 40 + p * 8);
+    gr.addColorStop(0, `rgba(185,142,240,${(0.14 + p * 0.1).toFixed(2)})`);
+    gr.addColorStop(1, 'rgba(185,142,240,0)');
+    g.fillStyle = gr; g.fillRect(cult.x - 48, cult.y - 72, 96, 96);
+    const s = step();
+    if (s && cult.pose !== 'walk') {
+      const tx = U.clamp(s.at(G), 40, Grove.W - 40);
+      const a = 0.4 + 0.4 * Math.sin(cult.t * 4);
+      g.globalAlpha = a;
+      g.fillStyle = PAL.gold3;
+      for (let i = 0; i < 5; i++) {
+        const k = i / 4;
+        g.fillRect(Math.round(U.lerp(cult.x, tx, k)), Math.round(cult.y - 52 + Math.sin(k * Math.PI) * -10), 2, 2);
+      }
+      Icons.blit(g, s.icon, tx - 8, cult.y - 74 - Math.sin(cult.t * 3) * 2, 1);
+      g.globalAlpha = 1;
+    }
+  }
+
+  function state() {
+    return {
+      i: G.step, total: STEPS.length, steps: STEPS,
+      step: step(), flash: flash > 0, hidden, done: finished(),
+    };
+  }
+  function toggle() { hidden = !hidden; UI.refreshNotebook(); }
+  return { init, update, draw, state, toggle, check, get cult() { return cult; }, STEPS };
+})();
+</script>
+
+<script>
 // ===== js/tower.js =====
 // ---- The Rite: stack offerings on the shrine plinth ----------------------
 const Tower = (() => {
@@ -6334,20 +6722,52 @@ const UI = (() => {
     truck.classList.toggle('on', Grove.truck.parked);
     $('b-back').hidden = G.mode === 'grove';
     refreshList();
+    refreshNotebook();
   }
 
-  // ---- cleanup checklist --------------------------------------------------
+  // ---- the clean-up list, a paper pinned to the fence ---------------------
   function refreshList() {
     const box = $('checklist');
     if (G.mode !== 'grove' || G.arrived) { box.hidden = true; return; }
     box.hidden = false;
     const ts = Grove.tasks();
-    box.innerHTML = ts.map((t) => {
+    box.innerHTML = `<div class="tape"></div><h4>TO DO</h4>` + ts.map((t) => {
       const p = U.clamp(t.at / t.need, 0, 1);
-      return `<div class="task ${t.done ? 'done' : ''}">${ic(t.icon, 'sm')}
+      return `<div class="task ${t.done ? 'done' : ''}">
+        <span class="box">${t.done ? '<i></i>' : ''}</span>
+        ${ic(t.icon, 'sm')}
         <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
-        ${t.done ? ic('check', 'sm') : `<b>${Math.max(0, Math.round(t.at))}/${t.need}</b>`}</div>`;
-    }).join('');
+        <b>${Math.max(0, Math.round(t.at))}/${t.need}</b></div>`;
+    }).join('') + '<div class="tear"></div>';
+  }
+
+  // ---- the cultist's notebook --------------------------------------------
+  function refreshNotebook() {
+    const box = $('notebook');
+    if (!G || G.mode !== 'grove') { box.hidden = true; return; }
+    const st = Guide.state();
+    if (st.done) { box.hidden = true; return; }
+    box.hidden = false;
+    if (st.hidden) {
+      box.className = 'shut';
+      box.innerHTML = `<button class="nbtab">${ic('leaf', 'sm')}<span>${st.i}/${st.total}</span></button>`;
+      box.querySelector('.nbtab').onclick = () => Guide.toggle();
+      return;
+    }
+    box.className = '';
+    const past = st.steps.slice(Math.max(0, st.i - 2), st.i);
+    box.innerHTML = `
+      <div class="rings"></div>
+      <button class="nbshut">&minus;</button>
+      <div class="nbhead">${ic('eye', 'sm')}<span>${st.i + 1} of ${st.total}</span></div>
+      ${past.map((p) => `<div class="nbdone"><span class="box"><i></i></span>${p.title}</div>`).join('')}
+      <div class="nbnow ${st.flash ? 'flash' : ''}">
+        <span class="box"></span>
+        <div class="pic">${ic(st.step.icon, 'lg')}</div>
+        <h5>${st.step.title}</h5>
+        <p>${st.step.note}</p>
+      </div>`;
+    box.querySelector('.nbshut').onclick = () => Guide.toggle();
   }
 
   // ---- dock ---------------------------------------------------------------
@@ -6656,7 +7076,7 @@ const UI = (() => {
   }
 
   function hideAll() {
-    $('dock').hidden = true; $('flyout').hidden = true; $('checklist').hidden = true;
+    $('dock').hidden = true; $('flyout').hidden = true; $('checklist').hidden = true; $('notebook').hidden = true;
     $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true;
     $('b-truck').hidden = true; $('b-back').hidden = true;
   }
@@ -6706,7 +7126,7 @@ const UI = (() => {
   function anyPanel() { return PANELS.some((id) => !$(id).hidden) || !$('modal').hidden; }
 
   return {
-    init, toast, refreshHUD, refreshTray, refreshAll, refreshList, refreshRitual, refreshKnow,
+    init, toast, refreshHUD, refreshTray, refreshAll, refreshList, refreshNotebook, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
     showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel,
@@ -6718,19 +7138,19 @@ const UI = (() => {
 // ===== js/main.js =====
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
-  const KEY = 'wombat-gods-v4';
+  const KEY = 'wombat-gods-v5';
   const W = 640, H = 360;
   let canvas, g, last = 0, G = null;
   let down = false, lastP = null, downP = null, moved = 0, panning = false, screenP = { x: 320, y: 240 };
 
   function fresh() {
     return {
-      v: 4, wd: 300, startWeeds: 0, startBugs: 0, record: 0, runs: 0, time: 0, mode: 'grove',
+      v: 5, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      wombats: [], objects: null, arrived: false, pairFirst: null,
+      wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {},
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0 },
       pointer: { x: 320, y: 240, on: false },
       paused: false, muted: false, musicOff: false, lastSave: Date.now(), seen: false,
@@ -6776,6 +7196,8 @@ const Main = (() => {
     if (Tower.active && mode !== 'rite') { UI.toast('finish the stack', 'bad'); Audio.play('error'); return; }
     if (Ritual.active) return;
     G.mode = mode;
+    if (!G.visited) G.visited = {};
+    G.visited[mode] = true;
     UI.setMode(mode);
     FX.clear(); FX.flash('#120e14', 0.5);
     if (mode !== 'shop') Audio.play('whoosh');
@@ -6927,6 +7349,7 @@ const Main = (() => {
     if (!G.paused) {
       World.update(real);
       Grove.update(real);
+      Guide.update(real);
       if (G.mode === 'grove' && G.pointer.on && !down && !UI.anyPanel()) Grove.edgeScroll(screenP.x, real);
       if (G.mode === 'tree') Knowledge.update(real);
       else if (G.mode === 'map') Atlas.update(real);
@@ -6969,7 +7392,7 @@ const Main = (() => {
     G = load() || fresh();
     window.G = G;
     World.init(G);
-    Grove.init(G); Ritual.init(G); Knowledge.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Knowledge.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); UI.init(G);
 
     const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
     if (away > 30 && G.wombats.some((w) => w.stomach === 'digesting')) {

@@ -8,7 +8,7 @@ const World = (() => {
   let G = null;
   let grass = null, soil = null, sample = null;
   const stamps = new Map();
-  const weeds = [], bugs = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
+  const weeds = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
   let restored = 0, sampleT = 0, spreadT = 0, wind = 0, windT = 0;
 
   function stampSet(kind, r) {
@@ -61,13 +61,12 @@ const World = (() => {
   function init(g) {
     G = g;
     grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(256, 90).c;
-    for (const a of [weeds, bugs, blades, crops, sprouts, flowers, seams]) a.length = 0;
+    for (const a of [weeds, blades, crops, sprouts, flowers, seams]) a.length = 0;
     const r = Art.rng(51817);
     const s = G.world || {};
     if (!Array.isArray(s.weeds)) {
-      for (let i = 0; i < 130; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 14 + r() * (H - GROUND - 62), v: Math.floor(r() * 3), s: 0.85 + r() * 0.5 });
+      for (let i = 0; i < 190; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 12 + r() * (H - GROUND - 58), v: Math.floor(r() * 4), s: 1 + r() * 0.9 });
     } else for (const w of s.weeds) weeds.push({ x: w.x, y: w.y, v: w.v || 0, s: w.s || 1 });
-    if (!s.bugsOut) for (let i = 0; i < 22; i++) bugs.push(newBug(r));
     if (Array.isArray(s.strokes)) for (const k of s.strokes) {
       if (k[0] === 'g') { paint(grass, 'grass', k[1], k[2], k[3]); erase(soil, k[1], k[2], k[3]); }
       else { paint(soil, 'soil', k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
@@ -79,10 +78,6 @@ const World = (() => {
     measure();
   }
   function mkBlade(x, y, v, h) { return { x, y, v: v ?? Math.floor(Math.random() * 3), h: h ?? 4 + Math.floor(Math.random() * 5), bend: 0, vel: 0 }; }
-  function newBug(rnd) {
-    const r = rnd || Math.random;
-    return { x: 14 + r() * (W - 28), y: GROUND + 12 + r() * (H - GROUND - 58), vx: (r() - 0.5) * 26, vy: (r() - 0.5) * 14, v: Math.floor(r() * 3), ph: r() * TAU };
-  }
   function record(kind, x, y, r) {
     const s = G.world;
     if (!s.strokes) s.strokes = [];
@@ -144,19 +139,6 @@ const World = (() => {
       }
     }
     if (n) { G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) })); Audio.play('snip'); }
-    return n;
-  }
-  function catchBugs(x, y, r) {
-    let n = 0;
-    for (let i = bugs.length - 1; i >= 0; i--) {
-      const b = bugs[i];
-      if (Math.hypot(b.x - x, (b.y - y) * 1.3) < r) {
-        bugs.splice(i, 1); n++;
-        FX.burst(b.x, b.y, 6, { color: [PAL.cyan3, PAL.cream], speed: 70, gravity: 40, life: 0.4, size: 2 });
-        FX.ring(b.x, b.y, 14, 'rgba(121,220,237,0.7)');
-      }
-    }
-    if (n) Audio.play('pop');
     return n;
   }
   function plant(x, y, key) {
@@ -253,17 +235,6 @@ const World = (() => {
       if (wet) c.wet -= dt; else c.thirst += dt;
       if (!ripe(c)) c.t += dt * (wet ? 1.7 : c.thirst > 26 ? 0.25 : 0.8) * (G.blessings.burrowseidon ? 1.25 : 1);
     }
-    for (const b of bugs) {
-      b.ph += dt * 3;
-      b.x += b.vx * dt; b.y += b.vy * dt;
-      if (Math.random() < 0.02) { b.vx = U.rand(-30, 30); b.vy = U.rand(-16, 16); }
-      if (b.x < 10 || b.x > W - 10) b.vx *= -1;
-      if (b.y < GROUND + 8 || b.y > H - 48) b.vy *= -1;
-      b.x = U.clamp(b.x, 10, W - 10); b.y = U.clamp(b.y, GROUND + 8, H - 48);
-      disturb(b.x, b.y, 9, 0.16);
-    }
-    // bugs only creep back once the grove is lived in, so the opening list stays done
-    if (G.arrived && !G.blessings.artewombis && bugs.length < 16 && Math.random() < dt * 0.05) bugs.push(newBug());
     for (const s of seams) s.t += dt;
     if (G.fruits.deeproots || G.blessings.wombeus) {
       spreadT += dt;
@@ -402,32 +373,11 @@ const World = (() => {
   }
   function drawWeeds(g) {
     for (const w of weeds) {
-      const s = w.s, sway = Math.sin(G.time * 1.1 + w.x * 0.08) * 1.4 + wind * 0.05;
-      g.fillStyle = PAL.rot0;
-      g.fillRect(w.x | 0, (w.y - 9 * s) | 0, 2, 9 * s);
-      for (let i = 0; i < 4; i++) {
-        g.fillStyle = [PAL.rot1, PAL.rot2, PAL.dead3][(w.v + i) % 3];
-        const ly = w.y - 3 - i * 2.6 * s, side = i % 2 ? 1 : -1;
-        g.fillRect((w.x + side * (2 + i) + sway * (i / 4)) | 0, ly | 0, 3, 1.4);
-      }
-      g.fillStyle = PAL.rot2;
-      g.fillRect((w.x + sway) | 0, (w.y - 12 * s) | 0, 2, 3);
-    }
-  }
-  function drawBugs(g) {
-    for (const b of bugs) {
-      const hop = Math.abs(Math.sin(b.ph)) * 2, y = b.y - hop;
-      g.fillStyle = 'rgba(18,14,20,0.25)'; g.fillRect((b.x - 2) | 0, b.y | 0, 5, 2);
-      g.fillStyle = [PAL.ink2, '#4a3a1c', '#3a2a3a'][b.v];
-      g.fillRect((b.x - 2) | 0, (y - 3) | 0, 5, 4);
-      g.fillStyle = [PAL.rot2, PAL.gold1, PAL.div3][b.v];
-      g.fillRect((b.x - 1) | 0, (y - 3) | 0, 3, 2);
-      g.fillStyle = PAL.ink;
-      const lf = Math.sin(b.ph * 3) > 0 ? 1 : 0;
-      g.fillRect((b.x - 3) | 0, (y - 1 + lf) | 0, 1, 1);
-      g.fillRect((b.x + 3) | 0, (y - 1 + (1 - lf)) | 0, 1, 1);
-      g.fillRect((b.x - 3) | 0, (y - 3) | 0, 1, 1);
-      g.fillRect((b.x + 3) | 0, (y - 3) | 0, 1, 1);
+      const img = Props.get('weed', w.v);
+      const s = w.s;
+      const sway = Math.sin(G.time * 1.1 + w.x * 0.08) * 1.6 + wind * 0.05;
+      const dw = img.width * s, dh = img.height * s;
+      g.drawImage(img, Math.round(w.x - dw / 2 + sway), Math.round(w.y - dh + 3), Math.round(dw), Math.round(dh));
     }
   }
   function drawCrops(g) {
@@ -453,10 +403,10 @@ const World = (() => {
   }
 
   return {
-    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawBugs, drawCrops, drawCursor,
-    sowGrass, till, clearWeeds, catchBugs, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
+    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawCrops, drawCursor,
+    sowGrass, till, clearWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
     fraction, measure, ripe, growTime,
-    get weeds() { return weeds; }, get bugs() { return bugs; }, get crops() { return crops; },
+    get weeds() { return weeds; }, get crops() { return crops; },
     get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },
     save() {
       G.world.blades = blades.map((b) => ({ x: b.x, y: b.y, v: b.v, h: b.h }));
@@ -464,7 +414,6 @@ const World = (() => {
       G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1) }));
       G.world.sprouts = sprouts.map((p) => ({ x: p.x, y: p.y, t: +p.t.toFixed(1), wet: 0, r: p.r }));
       G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) }));
-      G.world.bugsOut = bugs.length === 0;
       G.world.restored = restored;
     },
     SKY, GROUND, W, H,

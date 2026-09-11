@@ -1,18 +1,18 @@
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
-  const KEY = 'wombat-gods-v4';
+  const KEY = 'wombat-gods-v5';
   const W = 640, H = 360;
   let canvas, g, last = 0, G = null;
   let down = false, lastP = null, downP = null, moved = 0, panning = false, screenP = { x: 320, y: 240 };
 
   function fresh() {
     return {
-      v: 4, wd: 300, startWeeds: 0, startBugs: 0, record: 0, runs: 0, time: 0, mode: 'grove',
+      v: 5, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      wombats: [], objects: null, arrived: false, pairFirst: null,
+      wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {},
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0 },
       pointer: { x: 320, y: 240, on: false },
       paused: false, muted: false, musicOff: false, lastSave: Date.now(), seen: false,
@@ -58,6 +58,8 @@ const Main = (() => {
     if (Tower.active && mode !== 'rite') { UI.toast('finish the stack', 'bad'); Audio.play('error'); return; }
     if (Ritual.active) return;
     G.mode = mode;
+    if (!G.visited) G.visited = {};
+    G.visited[mode] = true;
     UI.setMode(mode);
     FX.clear(); FX.flash('#120e14', 0.5);
     if (mode !== 'shop') Audio.play('whoosh');
@@ -209,6 +211,7 @@ const Main = (() => {
     if (!G.paused) {
       World.update(real);
       Grove.update(real);
+      Guide.update(real);
       if (G.mode === 'grove' && G.pointer.on && !down && !UI.anyPanel()) Grove.edgeScroll(screenP.x, real);
       if (G.mode === 'tree') Knowledge.update(real);
       else if (G.mode === 'map') Atlas.update(real);
@@ -251,7 +254,7 @@ const Main = (() => {
     G = load() || fresh();
     window.G = G;
     World.init(G);
-    Grove.init(G); Ritual.init(G); Knowledge.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Knowledge.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); UI.init(G);
 
     const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
     if (away > 30 && G.wombats.some((w) => w.stomach === 'digesting')) {

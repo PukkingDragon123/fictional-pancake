@@ -21,20 +21,52 @@ const UI = (() => {
     truck.classList.toggle('on', Grove.truck.parked);
     $('b-back').hidden = G.mode === 'grove';
     refreshList();
+    refreshNotebook();
   }
 
-  // ---- cleanup checklist --------------------------------------------------
+  // ---- the clean-up list, a paper pinned to the fence ---------------------
   function refreshList() {
     const box = $('checklist');
     if (G.mode !== 'grove' || G.arrived) { box.hidden = true; return; }
     box.hidden = false;
     const ts = Grove.tasks();
-    box.innerHTML = ts.map((t) => {
+    box.innerHTML = `<div class="tape"></div><h4>TO DO</h4>` + ts.map((t) => {
       const p = U.clamp(t.at / t.need, 0, 1);
-      return `<div class="task ${t.done ? 'done' : ''}">${ic(t.icon, 'sm')}
+      return `<div class="task ${t.done ? 'done' : ''}">
+        <span class="box">${t.done ? '<i></i>' : ''}</span>
+        ${ic(t.icon, 'sm')}
         <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
-        ${t.done ? ic('check', 'sm') : `<b>${Math.max(0, Math.round(t.at))}/${t.need}</b>`}</div>`;
-    }).join('');
+        <b>${Math.max(0, Math.round(t.at))}/${t.need}</b></div>`;
+    }).join('') + '<div class="tear"></div>';
+  }
+
+  // ---- the cultist's notebook --------------------------------------------
+  function refreshNotebook() {
+    const box = $('notebook');
+    if (!G || G.mode !== 'grove') { box.hidden = true; return; }
+    const st = Guide.state();
+    if (st.done) { box.hidden = true; return; }
+    box.hidden = false;
+    if (st.hidden) {
+      box.className = 'shut';
+      box.innerHTML = `<button class="nbtab">${ic('leaf', 'sm')}<span>${st.i}/${st.total}</span></button>`;
+      box.querySelector('.nbtab').onclick = () => Guide.toggle();
+      return;
+    }
+    box.className = '';
+    const past = st.steps.slice(Math.max(0, st.i - 2), st.i);
+    box.innerHTML = `
+      <div class="rings"></div>
+      <button class="nbshut">&minus;</button>
+      <div class="nbhead">${ic('eye', 'sm')}<span>${st.i + 1} of ${st.total}</span></div>
+      ${past.map((p) => `<div class="nbdone"><span class="box"><i></i></span>${p.title}</div>`).join('')}
+      <div class="nbnow ${st.flash ? 'flash' : ''}">
+        <span class="box"></span>
+        <div class="pic">${ic(st.step.icon, 'lg')}</div>
+        <h5>${st.step.title}</h5>
+        <p>${st.step.note}</p>
+      </div>`;
+    box.querySelector('.nbshut').onclick = () => Guide.toggle();
   }
 
   // ---- dock ---------------------------------------------------------------
@@ -343,7 +375,7 @@ const UI = (() => {
   }
 
   function hideAll() {
-    $('dock').hidden = true; $('flyout').hidden = true; $('checklist').hidden = true;
+    $('dock').hidden = true; $('flyout').hidden = true; $('checklist').hidden = true; $('notebook').hidden = true;
     $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true;
     $('b-truck').hidden = true; $('b-back').hidden = true;
   }
@@ -393,7 +425,7 @@ const UI = (() => {
   function anyPanel() { return PANELS.some((id) => !$(id).hidden) || !$('modal').hidden; }
 
   return {
-    init, toast, refreshHUD, refreshTray, refreshAll, refreshList, refreshRitual, refreshKnow,
+    init, toast, refreshHUD, refreshTray, refreshAll, refreshList, refreshNotebook, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
     showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel,

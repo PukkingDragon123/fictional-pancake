@@ -79,7 +79,6 @@ const Grove = (() => {
   function init(g) {
     G = g;
     if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.length);
-    if (!G.startBugs) G.startBugs = Math.max(1, World.bugs.length);
     objects.length = 0;
     const saved = G.objects;
     if (Array.isArray(saved) && saved.length) {
@@ -103,10 +102,9 @@ const Grove = (() => {
   // ---- checklist ----------------------------------------------------------
   function tasks() {
     const junk = objects.filter((o) => !o.gone).length;
-    const nw = G.startWeeds || 130, nb = G.startBugs || 22;
+    const nw = G.startWeeds || 190;
     return [
       { key: 'weeds', icon: 't_sickle', at: nw - World.weeds.length, need: nw, done: World.weeds.length === 0 },
-      { key: 'bugs', icon: 't_net', at: nb - World.bugs.length, need: nb, done: World.bugs.length === 0 },
       { key: 'junk', icon: 't_destroy', at: objects.length - junk, need: objects.length, done: junk === 0 },
       { key: 'grass', icon: 't_moss', at: Math.round(World.fraction() * 100), need: 18, done: World.fraction() >= 0.18 },
     ];
@@ -159,7 +157,7 @@ const Grove = (() => {
     return t;
   }
   function pickPelt(a, b) {
-    if (U.chance(RARE_CHANCE * (a && b ? 2 : 1))) return U.pick(FUR.filter((f) => f.rare)).key;
+    if (U.chance(RARE_CHANCE * (a && b ? 2 : 1) * (G.blessings.artewombis ? 2 : 1))) return U.pick(FUR.filter((f) => f.rare)).key;
     if (a && b) return U.chance(0.5) ? a.pelt : b.pelt;
     return U.pick(FUR.filter((f) => !f.rare)).key;
   }
@@ -473,7 +471,6 @@ const Grove = (() => {
       case 'moss': if (World.sowGrass(x, y, r) && first) Audio.play('brush'); World.disturb(x, y, r, 0.5); break;
       case 'hoe': World.till(x, y, r); if (first) Audio.play('dig'); break;
       case 'sickle': World.clearWeeds(x, y, r); World.disturb(x, y, r, 0.8); break;
-      case 'net': World.catchBugs(x, y, r); World.disturb(x, y, r, 0.6); break;
       case 'water': World.water(x, y, r); if (first) Audio.play('splash'); break;
       case 'seed': {
         const res = World.plant(x, y, G.selSeed);
@@ -620,6 +617,7 @@ const Grove = (() => {
     }
     items.push({ y: -1, fn: () => World.drawCrops(g) });
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
+    items.push({ y: Guide.cult.y, fn: () => Guide.draw(g) });
     if (arrival) items.push({ y: arrival.y, fn: () => Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S) });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
     if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
@@ -627,7 +625,6 @@ const Grove = (() => {
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
 
-    World.drawBugs(g);
     // crows
     for (const b of birds) {
       const img = Sprites.crow(Math.floor(G.time * 8 + b.ph), !!b.perch);
@@ -678,7 +675,7 @@ const Grove = (() => {
       g.globalAlpha = 1;
     }
   }
-  function toolTint(k) { return { moss: PAL.moss4, hoe: PAL.soil4, sickle: PAL.rot2, net: PAL.cyan3, water: PAL.water2, seed: PAL.gold3 }[k] || PAL.cream; }
+  function toolTint(k) { return { moss: PAL.moss4, hoe: PAL.soil4, sickle: PAL.rot2, water: PAL.water2, seed: PAL.gold3 }[k] || PAL.cream; }
 
   function drawObject(g, o) {
     g.save();

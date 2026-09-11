@@ -34,7 +34,6 @@ const TOOLS = [
   { key: 'food',    name: 'Food',   icon: 't_food',    radius: 0,  desc: 'Pick a food, then a wombat.' },
   { key: 'farm',    name: 'Farm',   icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'Hoe, seed, grass, water.' },
   { key: 'sickle',  name: 'Sickle', icon: 't_sickle',  radius: 22, desc: 'Cut the weeds.' },
-  { key: 'net',     name: 'Net',    icon: 't_net',     radius: 24, desc: 'Catch the bugs.' },
   { key: 'destroy', name: 'Haul',   icon: 't_destroy', radius: 0,  desc: 'Ants carry it off, for a fee.' },
   { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  locked: 'nest', desc: 'Pair two adults.' },
 ];
@@ -47,7 +46,7 @@ const SUBTOOLS = [
 const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
-const BRUSH_KEYS = ['sickle', 'net', 'hoe', 'seed', 'moss', 'water'];
+const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
 
 // ---- The map. Fog lifts as gods answer. ----------------------------------
 const SITES = [
@@ -82,7 +81,7 @@ const GODS = [
   {
     key: 'artewombis', name: 'Artewombis', title: 'Of Moon and Hunt', crown: 'crescent',
     color: '#79dced', eye: '#ffffff', glyph: 'g_moon', artIcon: 'a_bow', artifact: 'Moon Bow', artValue: 340,
-    blessing: 'Bugs keep out of the grove.', ritual: { husk: 5, resin: 2 }, tier: 2,
+    blessing: 'Rare pelts come twice as often.', ritual: { husk: 5, resin: 2 }, tier: 2,
   },
   {
     key: 'wombeus', name: 'Wombeus', title: 'Of the Storm', crown: 'bolt',

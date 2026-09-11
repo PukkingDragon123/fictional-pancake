@@ -18,8 +18,10 @@ than the window - drag bare ground, roll the wheel, or press the arrow keys and 
 camera pans, with five layers of trees drifting past at their own rates. Everything you
 do to the ground is painted, not placed. There is no tile grid anywhere.
 
-The only thing on the screen at the top is your money. Everything else is a dock of
-seven tools along the bottom:
+Nothing on screen is a widget if it can be a thing instead: money is a leather coin tag,
+the clean-up list is a paper taped to the corner, the tools sit in a leather belt with
+stitched loops, the flyout is a canvas pouch, and every panel is a page in a spiral
+notebook. The tools are:
 
 - **Hand** drags poop cubes to the truck, pets wombats, harvests, and opens the store,
   the signpost map and the Tree of Life seed.
@@ -27,13 +29,22 @@ seven tools along the bottom:
 - **Farm** opens the four ground brushes: **hoe** tills, **seed** sows the crop you pick,
   **grass** scatters sprouts, **water** feeds them. Sprouts and crops both take time and
   watering; grass does not appear the instant you drag.
-- **Sickle** clears weeds, **net** catches bugs, both by sweeping over them.
+- **Sickle** clears weeds by sweeping over them. There are a hundred and ninety of them -
+  thistles, brambles, dry tussocks and nettles - and they are chest high.
 - **Haul** calls an ant moving company. Five ants march in, shoulder the wreck and carry
   it off; it costs W$ per piece.
 - **Pair** unlocks with a nest.
 
-A checklist in the corner tracks the clean-up: weeds, bugs, wrecks, and grass. Finish it
-and the screen letterboxes, the camera pushes in, and one wombat walks into the grove.
+A paper list in the corner tracks the clean-up: weeds, wrecks, and grass. Finish it and
+the screen letterboxes, the camera pushes in, and one wombat walks into the grove.
+
+## The cultist
+
+A wombat in a violet robe follows you around the grove with a pocket notebook, standing
+near whatever needs doing and pointing at it. Her notebook sits in the corner of the
+screen: the step you are on, a sketch of the tool, a line of advice, and the steps behind
+it struck through and ticked in red. Twelve of them, from cutting the first weed to
+calling the first god. Fold it shut with the minus if you would rather work it out.
 
 Brushes interpolate along the drag, so a fast sweep paints a continuous band.
 
@@ -73,7 +84,7 @@ rises out of the glare. Each grants a standing blessing and drops an artifact.
 | Demewombra | Harvest | Crops ripen twice as fast |
 | Burrowseidon | Deep water | Rain waters the whole grove |
 | Apollowomb | Sun and song | Wombats digest half again as fast |
-| Artewombis | Moon and hunt | Bugs keep out of the grove |
+| Artewombis | Moon and hunt | Rare pelts come twice as often |
 | Wombeus | Storm | Lightning seeds grass across bare ground |
 | Hephaeswomb | Forge | Every brush works twice as wide |
 | Athenwomb | Wisdom | One more fruit ripens on the Tree |

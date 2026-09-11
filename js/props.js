@@ -19,46 +19,83 @@ const Props = (() => {
     Art.limb(g, x0 - w0 * 0.22, y0, x1 - w1 * 0.2, y1, w0 * 0.34, w1 * 0.3, c2);
     Art.limb(g, x0 + w0 * 0.28, y0, x1 + w1 * 0.24, y1, w0 * 0.22, w1 * 0.2, c0);
   }
+  // A cozy canopy: a handful of fat round puffs, a dark underside, sun on the
+  // upper left, and a scatter of loose leaves along the silhouette.
   function canopy(g, x, y, rx, ry, cols, rnd, dense) {
-    const n = dense ? 9 : 6;
+    const n = dense ? 7 : 5;
+    const puffs = [];
     for (let i = 0; i < n; i++) {
-      const a = (i / n) * TAU + rnd() * 0.4;
-      const d = 0.45 + rnd() * 0.55;
-      const cx = x + Math.cos(a) * rx * d, cy = y + Math.sin(a) * ry * d;
-      Art.ell(g, cx, cy, rx * (0.42 + rnd() * 0.26), ry * (0.45 + rnd() * 0.28), cols[0]);
+      const a = Math.PI + (i / (n - 1)) * Math.PI;          // across the top
+      const d = 0.5 + rnd() * 0.4;
+      puffs.push({
+        x: x + Math.cos(a) * rx * d,
+        y: y + Math.sin(a) * ry * d * 0.8 + ry * 0.12,
+        rx: rx * (0.42 + rnd() * 0.2), ry: ry * (0.46 + rnd() * 0.2),
+      });
     }
-    Art.ell(g, x, y, rx * 0.8, ry * 0.78, cols[1]);
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * TAU - 0.7, d = 0.3 + rnd() * 0.4;
-      Art.ell(g, x + Math.cos(a) * rx * d, y + Math.sin(a) * ry * d - ry * 0.2, rx * 0.3, ry * 0.3, cols[2]);
+    puffs.push({ x: x, y: y + ry * 0.1, rx: rx * 0.72, ry: ry * 0.72 });
+    for (const p of puffs) Art.ell(g, p.x, p.y + ry * 0.16, p.rx * 1.04, p.ry, cols[0]);   // shadow mass
+    for (const p of puffs) Art.ell(g, p.x, p.y, p.rx, p.ry, cols[1]);                      // body
+    for (const p of puffs) Art.ell(g, p.x - p.rx * 0.2, p.y - p.ry * 0.22, p.rx * 0.72, p.ry * 0.66, cols[2]);
+    for (const p of puffs) {                                                               // sun on the crown
+      Art.ell(g, p.x - p.rx * 0.32, p.y - p.ry * 0.42, p.rx * 0.4, p.ry * 0.34, cols[3]);
+      Art.speckle(g, p.x - p.rx * 0.2, p.y - p.ry * 0.3, p.rx * 0.6, p.ry * 0.5, cols[3], Math.round(p.rx * 1.2), Math.floor(p.x * 7 + p.y));
+      Art.speckle(g, p.x, p.y + p.ry * 0.5, p.rx * 0.8, p.ry * 0.3, cols[0], Math.round(p.rx * 0.8), Math.floor(p.y * 11 + p.x));
     }
-    Art.speckle(g, x, y - ry * 0.3, rx * 0.85, ry * 0.6, cols[3], Math.round(rx * ry * 0.1), Math.floor(x * 7 + y));
-    Art.speckle(g, x, y + ry * 0.45, rx * 0.9, ry * 0.4, cols[0], Math.round(rx * 0.9), Math.floor(y * 11 + x));
+    // a few leaves shaken loose at the edge, which is what stops it reading as a blob
+    for (let i = 0; i < (dense ? 10 : 6); i++) {
+      const a = Math.PI + rnd() * Math.PI;
+      const lx = x + Math.cos(a) * rx * (1.02 + rnd() * 0.14);
+      const ly = y + Math.sin(a) * ry * (0.9 + rnd() * 0.2);
+      Art.ell(g, lx, ly, 2.4, 1.8, rnd() < 0.5 ? cols[2] : cols[1]);
+    }
   }
+  // Cozy foliage palettes: cool shade, leafy body, sunlit crown.
+  const LEAF = {
+    oak:   ['#28502c', '#3d7a3a', '#5aa14a', '#93cd63'],
+    gnarl: ['#264a34', '#3a6b45', '#528a54', '#82b46b'],
+    birch: ['#356030', '#528a3c', '#74ad4e', '#a8d46c'],
+    pine:  ['#1d3c2a', '#2e5a39', '#417a46', '#639e57'],
+    scrub: ['#2e4a26', '#456b33', '#5f8f43', '#8bb45c'],
+  };
+
   P.tree = (spec) => {
     const [kind, v, shade] = String(spec).split('|');
     const sh = +shade || 0;
     return cached(`tree:${kind}:${v}:${sh}`, 96, 150, (g) => {
       const rnd = Art.rng((+v + 1) * 977 + kind.length * 31);
-      const S = (c) => (sh ? U.mix(c, '#0f1218', sh) : c);
+      const S = (c) => (sh ? U.mix(c, '#101520', sh) : c);
+      const P4 = (k) => LEAF[k].map(S);
       const cx = 48, base = 148;
       const B0 = S(PAL.bark0), B1 = S(PAL.bark1), B2 = S(PAL.bark2), B3 = S(PAL.bark3);
       const lean = (rnd() - 0.5) * 10;
+      // a little swell of roots, so nothing looks stuck in the ground
+      const roots = (w) => {
+        for (let i = -2; i <= 2; i++) if (i) Art.limb(g, cx + i * 3, base - 8, cx + i * (w + rnd() * 4), base + 2, 5, 1.6, B1);
+        Art.ell(g, cx, base, w + 6, 4, B0);
+      };
       if (kind === 'pine') {
-        bark(g, cx, base, cx + lean * 0.4, 34, 11, 5, B3, B1, B0);
-        const cols = [S('#1a2e18'), S('#24421f'), S('#2f5527'), S('#3d6b31')];
-        for (let i = 0; i < 7; i++) {
-          const y = 124 - i * 14, w = 40 - i * 4.6;
-          for (let k = 0; k < 3; k++) {
-            const yy = y - k * 3.4, ww = w - k * 5;
-            Art.poly(g, [[cx - ww, yy], [cx + ww, yy], [cx + ww * 0.45, yy - 12], [cx - ww * 0.45, yy - 12]], cols[k % 3]);
+        bark(g, cx, base, cx + lean * 0.4, 40, 10, 5, B3, B1, B0);
+        roots(10);
+        const c = P4('pine');
+        for (let i = 0; i < 6; i++) {                       // rounded, scalloped tiers
+          const y = 126 - i * 17, w = 38 - i * 5.2;
+          Art.ell(g, cx, y + 3, w, 9, c[0]);
+          const lobes = Math.max(3, 6 - i);
+          for (let k = 0; k < lobes; k++) {
+            const lx = cx - w + (k / (lobes - 1)) * w * 2;
+            Art.ell(g, lx, y - 1, w / lobes + 3, 7.5, c[1]);
+            Art.ell(g, lx - 1, y - 4, w / lobes + 1, 5.5, c[2]);
           }
-          Art.speckle(g, cx, y - 5, w * 0.8, 5, cols[3], Math.round(w * 0.5), i + +v);
+          Art.ell(g, cx - w * 0.3, y - 6, w * 0.5, 4.5, c[3]);
+          Art.speckle(g, cx, y - 3, w * 0.85, 5, c[3], Math.round(w * 0.5), i + +v);
         }
-        Art.poly(g, [[cx - 7, 40], [cx + 7, 40], [cx, 18]], cols[1]);
-        Art.poly(g, [[cx - 4, 34], [cx + 4, 34], [cx, 20]], cols[2]);
+        Art.ell(g, cx, 22, 9, 10, c[1]);
+        Art.ell(g, cx - 2, 20, 6, 7, c[2]);
+        Art.ell(g, cx - 3, 17, 3.4, 3.4, c[3]);
       } else if (kind === 'dead') {
         bark(g, cx, base, cx + lean, 48, 13, 6, B3, B1, B0);
+        roots(12);
         for (let i = 0; i < 7; i++) {
           const side = i % 2 ? 1 : -1, y0 = 112 - i * 11;
           const x1 = cx + side * (16 + i * 4), y1 = y0 - 18 - i * 3;
@@ -70,36 +107,125 @@ const Props = (() => {
         Art.limb(g, cx + lean, 48, cx + lean + 13, 22, 4.4, 1.4, B1);
         Art.limb(g, cx + lean - 12, 24, cx + lean - 19, 12, 1.6, 0.8, B0);
         Art.limb(g, cx + lean + 13, 22, cx + lean + 20, 11, 1.6, 0.8, B0);
-      } else if (kind === 'birch') {
-        bark(g, cx, base, cx + lean * 0.5, 52, 9, 5, S('#e8e2d4'), S('#cfc6b4'), S('#a89c88'));
-        for (let i = 0; i < 9; i++) Art.rect(g, cx - 5 + rnd() * 9, 60 + i * 9, 4 + rnd() * 3, 1.6, S('#3a352c'));
-        for (let i = 0; i < 4; i++) {
-          const side = i % 2 ? 1 : -1, y0 = 96 - i * 14;
-          Art.limb(g, cx, y0, cx + side * (14 + i * 3), y0 - 16, 3, 1.2, S('#cfc6b4'));
+        if (+v % 2) {                                        // one tuft clinging on
+          const c = P4('scrub');
+          Art.ell(g, cx + 14, 66, 9, 6, c[1]); Art.ell(g, cx + 12, 63, 6, 4, c[2]);
         }
-        canopy(g, cx + lean * 0.5, 40, 34, 24, [S('#3c5c22'), S('#4e7430'), S('#66913f'), S('#8cb95a')], rnd, 1);
+        for (let i = 0; i < 4; i++) Art.ell(g, cx - 14 + rnd() * 28, base - 2 - rnd() * 4, 3, 1.6, S('#6a5a44'));
+      } else if (kind === 'birch') {
+        bark(g, cx, base, cx + lean * 0.5, 56, 9, 5, S('#f0ece0'), S('#dcd6c6'), S('#b4a894'));
+        roots(8);
+        for (let i = 0; i < 9; i++) Art.rect(g, cx - 5 + rnd() * 9, 64 + i * 9, 4 + rnd() * 3, 1.6, S('#3a352c'));
+        for (let i = 0; i < 4; i++) {
+          const side = i % 2 ? 1 : -1, y0 = 98 - i * 14;
+          Art.limb(g, cx, y0, cx + side * (14 + i * 3), y0 - 16, 3, 1.2, S('#dcd6c6'));
+        }
+        canopy(g, cx + lean * 0.5, 42, 33, 25, P4('birch'), rnd, 1);
       } else if (kind === 'gnarl') {
-        bark(g, cx, base, cx + lean * 1.6, 66, 16, 8, B3, B1, B0);
-        for (let i = -2; i <= 2; i++) if (i) Art.limb(g, cx + i * 4, base - 8, cx + i * 15, base + 2, 5, 1.6, B1);
-        for (let i = 0; i < 5; i++) {
-          const side = i % 2 ? 1 : -1, y0 = 110 - i * 13;
+        bark(g, cx, base, cx + lean * 1.6, 70, 16, 8, B3, B1, B0);
+        roots(15);
+        for (let i = 0; i < 3; i++) {                       // knots
+          Art.ell(g, cx - 6 + rnd() * 12, 90 + i * 18, 4, 3, B0);
+          Art.ell(g, cx - 6 + rnd() * 12, 90 + i * 18, 2, 1.4, B2);
+        }
+        for (let i = 0; i < 4; i++) {
+          const side = i % 2 ? 1 : -1, y0 = 108 - i * 14;
           const x1 = cx + side * (20 + i * 5), y1 = y0 - 14;
           Art.limb(g, cx + side * 5, y0, x1, y1, 6 - i * 0.6, 2, B1);
-          canopy(g, x1 + side * 6, y1 - 8, 20, 14, [S('#22361a'), S('#2e4a22'), S('#3d6130'), S('#527c3c')], rnd, 0);
+          canopy(g, x1 + side * 6, y1 - 8, 19, 14, P4('gnarl'), rnd, 0);
         }
-        canopy(g, cx + lean, 48, 38, 26, [S('#22361a'), S('#2e4a22'), S('#3d6130'), S('#527c3c')], rnd, 1);
+        canopy(g, cx + lean, 50, 37, 27, P4('gnarl'), rnd, 1);
       } else {
-        bark(g, cx, base, cx + lean, 60, 13, 7, B3, B1, B0);
-        for (let i = -2; i <= 2; i++) if (i) Art.limb(g, cx + i * 3, base - 6, cx + i * 13, base + 2, 4.4, 1.5, B1);
+        bark(g, cx, base, cx + lean, 62, 13, 7, B3, B1, B0);
+        roots(13);
         for (let i = 0; i < 4; i++) {
           const side = i % 2 ? 1 : -1, y0 = 104 - i * 15;
           Art.limb(g, cx + side * 4, y0, cx + side * (18 + i * 4), y0 - 18, 4.6 - i * 0.5, 1.6, B1);
         }
-        canopy(g, cx + lean, 44, 40, 28, [S('#2b4a20'), S('#3a6129'), S('#4d7f36'), S('#6da348')], rnd, 1);
+        const c = P4('oak');
+        canopy(g, cx + lean, 46, 39, 28, c, rnd, 1);
+        if (+v % 3 === 0 && sh < 0.5) {                      // a few apples
+          for (let i = 0; i < 4; i++) {
+            const ax = cx + lean + (rnd() - 0.5) * 56, ay = 40 + rnd() * 28;
+            Art.ell(g, ax, ay, 2.6, 2.6, '#c9503f');
+            Art.rect(g, ax, ay - 3.4, 1, 2, '#5a3a22');
+          }
+        }
+        if (+v % 3 === 1 && sh < 0.5) {                      // a nest on a bough
+          Art.ell(g, cx + 22, 74, 7, 3.6, '#7a5c38');
+          Art.ell(g, cx + 22, 73, 5.4, 2.4, '#5f4527');
+          Art.ell(g, cx + 20, 72, 1.8, 1.4, '#e8e2d0');
+          Art.ell(g, cx + 23.4, 72.4, 1.8, 1.4, '#e8e2d0');
+        }
       }
-      Art.outline(g.canvas, sh > 0.5 ? '#080a0e' : PAL.ink, 0.7);
+      // toadstools and a tuft at the foot of every living tree
+      if (kind !== 'dead' && sh < 0.62) {
+        const c = P4('scrub');
+        Art.ell(g, cx - 16, base - 3, 7, 3.4, c[1]);
+        Art.ell(g, cx + 15, base - 2, 6, 3, c[0]);
+        if (+v % 2) { Art.rect(g, cx + 20, base - 6, 1.6, 4, '#e8dcc4'); Art.ell(g, cx + 20.8, base - 6, 3, 2, '#b8412c'); }
+      }
+      Art.outline(g.canvas, sh > 0.5 ? '#080a0e' : PAL.ink, 0.75);
     });
   };
+
+  // ---- weeds: the thing choking the plot, so they want to read big ---------
+  P.weed = (v = 0) => cached('weed' + v, 34, 40, (g) => {
+    const rnd = Art.rng((+v + 1) * 733);
+    const D = '#3b4a1e', M = '#5d7128', L = '#86974a', Y = '#a8a054', ROT = '#6d5a2c';
+    const cx = 17, base = 38;
+    if (+v === 0) {                       // thistle: tall, spiny, purple heads
+      for (let i = -1; i <= 1; i++) {
+        Art.limb(g, cx + i * 2, base, cx + i * 7, 12 + Math.abs(i) * 6, 3.4, 1.6, i ? M : D);
+      }
+      for (let i = 0; i < 7; i++) {
+        const side = i % 2 ? 1 : -1, y = base - 6 - i * 4;
+        Art.poly(g, [[cx, y], [cx + side * 12, y - 3], [cx + side * 7, y + 3]], i % 3 ? M : L);
+        Art.line(g, cx + side * 4, y, cx + side * 12, y - 3, D, 1);
+      }
+      for (const [hx, hy] of [[cx - 6, 12], [cx + 7, 17], [cx, 7]]) {
+        Art.ell(g, hx, hy + 3, 4, 3, M);
+        Art.ell(g, hx, hy, 3.4, 3.4, '#7a5ea8');
+        Art.ell(g, hx - 1, hy - 1, 2, 1.6, '#a487d0');
+        for (let k = 0; k < 5; k++) Art.rect(g, hx - 3 + k * 1.6, hy - 4, 1, 2.4, '#a487d0');
+      }
+    } else if (+v === 1) {                // bramble: low, wide, thorny, berries
+      for (let i = 0; i < 5; i++) {
+        const a = -0.3 - i * 0.55, r = 13 + rnd() * 4;
+        const ex = cx + Math.cos(a) * r, ey = base - 6 + Math.sin(a) * r * 0.7;
+        Art.limb(g, cx, base - 4, ex, ey, 3, 1.2, ROT);
+        for (let k = 1; k < 4; k++) {
+          const t = k / 4, lx = U.lerp(cx, ex, t), ly = U.lerp(base - 4, ey, t);
+          Art.ell(g, lx, ly - 2, 4, 3, k % 2 ? M : D);
+          Art.rect(g, lx, ly + 1, 1, 2, ROT);
+        }
+        if (i % 2) { Art.ell(g, ex, ey - 2, 2.2, 2.2, '#3a2038'); Art.ell(g, ex - 0.6, ey - 2.6, 1, 0.8, '#6a4a68'); }
+      }
+      Art.ell(g, cx, base - 2, 13, 4, D);
+    } else if (+v === 2) {                // dry tussock: a fan of dead blades
+      for (let i = 0; i < 13; i++) {
+        const t = i / 12, a = -2.6 + t * 1.7;
+        const h = 20 + rnd() * 12;
+        const ex = cx + Math.cos(a) * h * 0.7, ey = base - 2 + Math.sin(a) * h;
+        Art.limb(g, cx + (t - 0.5) * 6, base, ex, ey, 2.2, 0.8, i % 3 === 0 ? Y : i % 3 === 1 ? L : M);
+      }
+      Art.ell(g, cx, base - 1, 9, 3.4, ROT);
+      for (let i = 0; i < 3; i++) Art.ell(g, cx - 6 + i * 6, 14 + i * 3, 1.6, 3, Y);
+    } else {                              // nettle: broad serrated leaves
+      Art.limb(g, cx, base, cx + 1, 10, 3, 1.6, M);
+      for (let i = 0; i < 5; i++) {
+        const side = i % 2 ? 1 : -1, y = base - 7 - i * 6;
+        const w = 11 - i * 1.2;
+        Art.poly(g, [[cx, y], [cx + side * w, y - 5], [cx + side * w * 0.8, y + 4]], i % 2 ? M : L);
+        Art.line(g, cx, y, cx + side * w, y - 5, D, 1);
+        for (let k = 0; k < 3; k++) Art.rect(g, cx + side * (3 + k * 3), y - 5 + k, 1, 1, D);
+      }
+      Art.ell(g, cx + 1, 9, 4, 3, L);
+      Art.ell(g, cx + 1, 7, 2.4, 2, Y);
+    }
+    Art.outline(g.canvas, PAL.ink, 0.7);
+  });
+
   P.fallen = (v = 0) => cached('fallen' + v, 120, 46, (g) => {
     const rnd = Art.rng(+v * 613 + 7);
     const y = 30;
