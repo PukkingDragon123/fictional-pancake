@@ -12,20 +12,41 @@ inlined). Rebuild it with `python3 build.py` after changing anything in `js/` or
 
 ## The grove
 
-You inherit an ash-grey grove: bare trees, weeds, bugs, deadfall. Everything you do to
-the ground is painted, not placed. There is no tile grid anywhere.
+You inherit an empty, ash-grey plot with no wombats on it: fallen trees, ruins, weeds,
+bugs, and a scary forest pressing in behind with crows and owls in it. Everything you do
+to the ground is painted, not placed. There is no tile grid anywhere.
 
+The only thing on the screen at the top is your money. Everything else is a dock of
+seven tools along the bottom:
+
+- **Hand** drags poop cubes to the truck, pets wombats, harvests, and opens the store,
+  the signpost map and the Tree of Life seed.
+- **Food** opens every food you have grown, so you can pick what to feed.
+- **Farm** opens the four ground brushes: **hoe** tills, **seed** sows the crop you pick,
+  **grass** scatters sprouts, **water** feeds them. Sprouts and crops both take time and
+  watering; grass does not appear the instant you drag.
 - **Sickle** clears weeds, **net** catches bugs, both by sweeping over them.
-- **Moss** sows grass wherever you drag. That is what restores the forest, and the sky,
-  the treeline and the earth all change colour as the fraction climbs.
-- **Hoe** tills soil, **seeds** sow a crop along the drag, **water** speeds it up.
-- **Hand** harvests a ripe crop, pets a wombat, feeds it, or picks up an offering.
+- **Haul** calls an ant moving company. Five ants march in, shoulder the wreck and carry
+  it off; it costs W$ per piece.
+- **Pair** unlocks with a nest.
+
+A checklist in the corner tracks the clean-up: weeds, bugs, wrecks, and grass. Finish it
+and the screen letterboxes, the camera pushes in, and one wombat walks into the grove.
 
 Brushes interpolate along the drag, so a fast sweep paints a continuous band.
 
+## Poop, the truck, the map and the store
+
+Fed wombats leave stackable cubes on the ground. Drag them into the truck, or press the
+truck button to call it over. The signpost opens a fogged parchment **map**: the grove,
+the Ritual Site and the Great Stack are yours, the rest is under fog until enough gods
+answer. The **store** has a lollipop mascot out front; the door swings open on a wombat
+behind the counter, you swipe the shelves sideways, click a product to drop it in the
+basket, and pay at the counter.
+
 ## Wombats
 
-Chunky, fat, black-outlined, with single-pixel eyes. Ten poses, all computed rather
+Chunky, fat, blocky and black-outlined, with small square eyes. Ten poses, all computed rather
 than keyed: idle, walk, run, eat, graze, sleep, dig, happy, pray, bite. Feed one and it
 leaves an **offering**; pet it to hurry that along. Happy wombats leave blessed ones.
 
@@ -54,14 +75,15 @@ rises out of the glare. Each grants a standing blessing and drops an artifact.
 | Chonkades | The under-burrow | Gold seams surface in tilled soil |
 | Wombonysus | The long feast | Offerings at the shrine pay double |
 
-## W$ and the Tree of Knowledge
+## W$ and the Tree of Life
 
-Gilded and rune offerings, and the gods' artifacts, pawn for **W$** at the stall. W$ buys
-seed, wombats, burrows, troughs, carts, seating, and decorations.
+Gilded and rune offerings, and the gods' artifacts, sell for **W$** at the store counter.
+W$ buys seed, wombats, burrows, troughs, carts, seating, decorations - and the ants.
 
-Click the tree to climb down into its roots. Twelve skills hang there as fruit, ripening
-at thresholds of forest restored. Buy one and a wombat walks over, sits up on its
-haunches and eats it, crumbs and all.
+A small magical seed sits in the middle of the plot. Click it and the view becomes the
+**Tree of Life**, which you can pan and zoom freely. Twelve skills hang in its boughs as
+fruit, ripening at thresholds of forest restored. Buy one and a wombat climbs up, sits
+on its haunches and eats it, crumbs and all.
 
 ## The Rite
 
@@ -75,11 +97,12 @@ timed blessing. Leave with the money before it comes down.
 
 | Where | Keys |
 | --- | --- |
-| Grove | Drag to use the brush. `1`-`8` pick a tool |
+| Grove | Drag to use the brush. `1`-`7` pick a tool. `M` map |
 | Shrine | Click an offering to stage it, shift-click for five |
-| Roots | Drag or scroll to climb. Click a fruit |
+| Tree of Life | Drag to pan, wheel or `+`/`-` to zoom. Click a fruit |
+| Store | Drag sideways to swipe the shelves. Click a product, then the counter |
 | Rite | `Space` drop, `1`-`9` pick, `R` turn, `C` cash out. Click a cupid |
-| Anywhere | `Tab` next place, `B` buy, `H` help, `Esc` close |
+| Anywhere | `Esc` back or close, `H` help |
 
 ## Code map
 
@@ -90,13 +113,15 @@ timed blessing. Leave with the money before it comes down.
   coverage measured by downsampling the paint layer.
 - `js/sprites.js` - one routine draws every wombat. Age is a coordinate scale about the
   feet, pelts are palette swaps, poses are computed curves. Also gods and cupids.
-- `js/props.js` - dead and living trees, shrine, decorations, crops, and the root network
-  generator, which returns the artwork together with the seat of every fruit.
+- `js/props.js` - dead and living trees, fallen logs, ruins, the carved stone altar, the
+  store, the truck, crops, and the Tree of Life generator, which returns the artwork
+  together with the seat of every fruit.
 - `js/icons.js` - every interface icon, drawn as pixel art. The game uses no emoji.
 - `js/physics.js` - impulse-based rigid bodies: warm-started sequential impulses,
   split-impulse position correction, speculative contacts, adhesion, and a sleep
   threshold that clears solver jitter in tall stacks.
-- `js/grove.js`, `js/ritual.js`, `js/knowledge.js`, `js/tower.js` - the four scenes.
+- `js/grove.js`, `js/ritual.js`, `js/knowledge.js`, `js/map.js`, `js/shop.js`,
+  `js/tower.js` - the six scenes.
 - `js/fx.js` - particles, camera, shake, slow motion, lightning, growing roots.
 - `js/audio.js` - WebAudio effects and a modal chiptune sequencer.
 - `js/data.js` - all balance data. `js/ui.js` - interface. `js/main.js` - state and loop.

@@ -27,15 +27,16 @@ const PAL = {
 // Wombat pelts. The first four are common; the rest are the rare variants
 // breeding can throw. `glow` marks a pelt that gets an aura.
 const FUR = [
-  { key: 'brown', name: 'Brown', base: '#7b5b3e', dark: '#4e3826', light: '#9c7852', belly: '#b99a72', nose: '#2a1c14', rare: 0 },
-  { key: 'grey', name: 'Grey', base: '#6a6560', dark: '#443f3c', light: '#8b857e', belly: '#a8a199', nose: '#241f1d', rare: 0 },
-  { key: 'sand', name: 'Sand', base: '#9c8058', dark: '#6b563a', light: '#bda079', belly: '#d6bd96', nose: '#33261a', rare: 0 },
-  { key: 'dark', name: 'Soot', base: '#4c4038', dark: '#2e2620', light: '#6a5c50', belly: '#87786a', nose: '#1a1512', rare: 0 },
-  { key: 'albino', name: 'Pale', base: '#e6ded0', dark: '#b8ab9a', light: '#f8f2e6', belly: '#fffaf0', nose: '#d08a8a', rare: 1, eye: '#c4443f' },
-  { key: 'golden', name: 'Gilded', base: '#c99a2b', dark: '#8a6512', light: '#eec24f', belly: '#ffe19a', nose: '#4a3308', rare: 1, glow: '#f5cd5c' },
-  { key: 'mossy', name: 'Mossgrown', base: '#5d7a44', dark: '#39502a', light: '#7d9c5c', belly: '#a3bd82', nose: '#22301a', rare: 1, moss: 1 },
-  { key: 'cosmic', name: 'Starlit', base: '#463066', dark: '#281a3f', light: '#6b4c96', belly: '#8f6fbd', nose: '#170f24', rare: 2, glow: '#b98ef0', stars: 1 },
+  { key: 'brown', name: 'Brown', light: '#d1a184', base: '#bd8763', mid: '#a66e4f', dark: '#8a553e', deep: '#6b4030', nose: '#4a2c20', ink: '#3a2419', rare: 0 },
+  { key: 'grey', name: 'Grey', light: '#b4aca4', base: '#9c9289', mid: '#847a72', dark: '#6b625c', deep: '#514944', nose: '#332d29', ink: '#241f1c', rare: 0 },
+  { key: 'sand', name: 'Sand', light: '#e0c096', base: '#cca878', mid: '#b28c5e', dark: '#947049', deep: '#735436', nose: '#4c3722', ink: '#3a2a19', rare: 0 },
+  { key: 'soot', name: 'Soot', light: '#8a7a6e', base: '#726256', mid: '#5c4e44', dark: '#463b33', deep: '#332b25', nose: '#221c18', ink: '#171310', rare: 0 },
+  { key: 'pale', name: 'Pale', light: '#fbf3e6', base: '#eee2cf', mid: '#dccbb2', dark: '#c4b096', deep: '#a8927a', nose: '#d08a8a', ink: '#7a6450', rare: 1, eye: '#c4443f' },
+  { key: 'gilded', name: 'Gilded', light: '#ffe6a0', base: '#edc255', mid: '#d0a130', dark: '#a87c18', deep: '#7d5a0e', nose: '#4a3308', ink: '#3d2c06', rare: 1, glow: '#f5cd5c' },
+  { key: 'mossy', name: 'Mossgrown', light: '#9dbb78', base: '#7f9c5c', mid: '#688045', dark: '#4f6433', deep: '#3a4a26', nose: '#22301a', ink: '#1b2614', rare: 1, moss: 1 },
+  { key: 'starlit', name: 'Starlit', light: '#8f6fbd', base: '#6f4fa0', mid: '#573c82', dark: '#402c62', deep: '#2c1e45', nose: '#170f24', ink: '#120b1c', rare: 2, glow: '#b98ef0', stars: 1 },
 ];
+for (const f of FUR) { f.belly = f.light; f.ear = f.mid; }
 const FUR_BY_KEY = Object.fromEntries(FUR.map((f) => [f.key, f]));
 
 const Art = (() => {

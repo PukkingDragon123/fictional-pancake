@@ -12,34 +12,30 @@
 </head>
 <body>
 <div id="app">
-  <header id="hud">
-    <div class="row">
-      <div class="plate" id="p-wd" title="Wombat Dollars"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
-      <div class="plate" id="p-off" title="Offerings"><img class="ico" data-ico="offering" alt=""><b id="s-off">0</b></div>
-      <div class="plate wide" id="p-forest" title="Forest restored"><img class="ico" data-ico="leaf" alt=""><span class="meter"><i id="s-forest"></i></span><b id="s-forestn">0%</b></div>
-      <div class="plate" id="p-gods" title="Gods summoned"><img class="ico" data-ico="eye" alt=""><b id="s-gods">0</b></div>
-    </div>
-    <div class="row tabs">
-      <button class="tab active" data-mode="grove" title="Grove"><img class="ico" data-ico="grove" alt=""></button>
-      <button class="tab rel" data-mode="shrine" title="Shrine"><img class="ico" data-ico="shrine" alt=""><span class="pip" id="pip-shrine" hidden></span></button>
-      <button class="tab rel" data-mode="roots" title="Tree of Knowledge"><img class="ico" data-ico="tree" alt=""><span class="pip" id="pip-roots" hidden></span></button>
-      <button class="tab" data-mode="rite" title="The Rite"><img class="ico" data-ico="u_seats" alt=""></button>
-    </div>
-    <div class="row">
-      <button class="wbtn" id="b-shop" title="Buy"><img class="ico" data-ico="shop" alt=""></button>
-      <button class="wbtn" id="b-pawn" title="Pawnbroker"><img class="ico" data-ico="wdollar" alt=""></button>
-      <button class="wbtn" id="b-sound" title="Sound"><img class="ico" data-ico="sound" alt=""></button>
-      <button class="wbtn" id="b-help" title="Help"><img class="ico" data-ico="eye" alt=""></button>
-    </div>
-  </header>
-
   <main id="stage">
    <div id="frame">
     <canvas id="game" width="640" height="360"></canvas>
     <div id="tip" hidden></div>
 
+    <div id="money"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
+    <div id="checklist" hidden></div>
+
+    <div id="side">
+      <button class="rbtn" id="b-truck" hidden><img class="ico" data-ico="truck" alt=""></button>
+    </div>
+
+    <div id="flyout" hidden></div>
+    <div id="dock"></div>
+
+    <div id="mini">
+      <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
+      <button class="mbtn" id="b-sound"><img class="ico sm" data-ico="sound" alt=""></button>
+      <button class="mbtn" id="b-help"><img class="ico sm" data-ico="eye" alt=""></button>
+    </div>
+
     <div id="ov-shrine" class="overlay" hidden>
       <div id="gods" class="godlist"></div>
+      <div id="offer-slots" class="strip"></div>
       <button id="b-summon" class="act" disabled><img class="ico" data-ico="eye" alt=""></button>
       <button id="b-unstage" class="act small" title="Take back"><img class="ico" data-ico="close" alt=""></button>
     </div>
@@ -60,27 +56,22 @@
         <div id="r-boons" class="boons"></div>
         <button id="b-cash" class="act"><img class="ico" data-ico="wdollar" alt=""></button>
       </div>
+      <div id="rite-tray" class="strip" hidden><div id="rite-slots"></div></div>
+    </div>
+
+    <div id="ov-shop" class="overlay" hidden>
+      <button id="b-basket" class="rbtn big"><img class="ico" data-ico="basket" alt=""><b id="s-basket">0</b></button>
     </div>
    </div>
   </main>
 
-  <footer id="bar">
-    <div id="tray-tools" class="tray"><div class="slots" id="slots-tools"></div></div>
-    <div id="tray-ctx" class="tray"><div class="slots" id="slots-ctx"></div></div>
-  </footer>
-
-  <div id="panel-shop" class="panel" hidden>
-    <div class="phead"><img class="ico" data-ico="shop" alt=""><div class="ptabs" id="shop-tabs">
-      <button data-tab="seeds" class="active"><img class="ico sm" data-ico="t_seed" alt=""></button>
-      <button data-tab="wombats"><img class="ico sm" data-ico="wombat" alt=""></button>
-      <button data-tab="build"><img class="ico sm" data-ico="u_shrine" alt=""></button>
-      <button data-tab="decor"><img class="ico sm" data-ico="d_brazier" alt=""></button>
-    </div><button class="x" data-close="panel-shop"><img class="ico sm" data-ico="close" alt=""></button></div>
-    <div class="pbody" id="shop-body"></div>
+  <div id="panel-basket" class="panel" hidden>
+    <div class="phead"><img class="ico" data-ico="basket" alt=""><span class="ptitle">Basket</span><button class="x" data-close="panel-basket"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="pbody" id="basket-body"></div>
   </div>
 
   <div id="panel-pawn" class="panel" hidden>
-    <div class="phead"><img class="ico" data-ico="wdollar" alt=""><span class="ptitle">Pawnbroker</span><button class="x" data-close="panel-pawn"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="phead"><img class="ico" data-ico="wdollar" alt=""><span class="ptitle">Sell</span><button class="x" data-close="panel-pawn"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody" id="pawn-body"></div>
   </div>
 
@@ -88,13 +79,13 @@
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">The Rite of the Grove</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>The grove is dead. Clear the weeds and the bugs, then sow moss by dragging &mdash; nothing snaps to a grid.</li>
-        <li>Till a patch, sow a crop on it, water it, and pick it when it glows.</li>
-        <li>Feed a wombat and it will leave an offering. Pet it to hurry that along.</li>
-        <li>Stage offerings at the shrine. When a god's demand is met, summon it.</li>
-        <li>Pawn gold and artifacts for W$. Spend W$ on seed, stock, ground and stone.</li>
-        <li>The Tree of Knowledge grows fruit as the forest returns. A wombat eats the fruit for you.</li>
-        <li>At the Rite, stack offerings on the plinth. Catch a cupid for a blessing. Leave before it falls.</li>
+        <li>The grove is dead. Cut the weeds, catch the bugs, have the ants haul off the wrecks, then sow grass by dragging.</li>
+        <li>Finish the list and a wombat walks in.</li>
+        <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
+        <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck, or call the truck to you.</li>
+        <li>Click the seed in the middle of the plot for the Tree of Life. Drag to look around, scroll to zoom.</li>
+        <li>Click the signpost for the map. The Ritual Site is where gods are called; the Great Stack is where offerings are stacked.</li>
+        <li>The store sells seed, stock, ground and stone. Swipe the shelves, fill the basket, pay at the counter.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">music</button><button class="wbtn" id="b-reset">reset</button></div>
     </div>
@@ -117,6 +108,8 @@
 <script src="js/grove.js"></script>
 <script src="js/ritual.js"></script>
 <script src="js/knowledge.js"></script>
+<script src="js/map.js"></script>
+<script src="js/shop.js"></script>
 <script src="js/tower.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>

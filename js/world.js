@@ -1,53 +1,41 @@
-// ---- The grove floor: painted terrain, no tile grid ----------------------
-// Two offscreen layers hold what you have painted: grass, and tilled soil on
-// top of it. Brushes are pre-rendered dithered discs stamped along the drag
-// path, so a fast sweep never leaves gaps and nothing snaps to a lattice.
-// Weeds, bugs, crops and blades live at float positions.
+// ---- The grove floor: painted, gridless, and alive -----------------------
+// Grass is not painted on instantly. Sowing scatters sprouts that need time and
+// water; when one matures it stains the ground layer and puts up blades, and
+// blades carry a little spring physics so anything walking through parts them.
 const World = (() => {
   const W = 640, H = 360;
-  const SKY = 118, GROUND = SKY + 2;
+  const SKY = 126, GROUND = SKY + 2;
   let G = null;
   let grass = null, soil = null, sample = null;
   const stamps = new Map();
-  const weeds = [], bugs = [], blades = [], crops = [], seams = [], litter = [];
-  let restored = 0, sampleT = 0, seedT = 0;
+  const weeds = [], bugs = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
+  let restored = 0, sampleT = 0, spreadT = 0, wind = 0, windT = 0;
 
-  // ---- brush stamps -------------------------------------------------------
   function stampSet(kind, r) {
     const key = `${kind}:${r}`;
     let set = stamps.get(key);
     if (set) return set;
     set = [];
-    const palettes = {
-      grass: [PAL.moss1, PAL.moss2, PAL.moss3, PAL.moss4],
-      soil: [PAL.soil1, PAL.soil2, PAL.soil3],
-      mask: ['#fff'],
-    };
-    const cols = palettes[kind] || palettes.mask;
+    const cols = { grass: [PAL.moss1, PAL.moss2, PAL.moss3, PAL.moss4], soil: [PAL.soil1, PAL.soil2, PAL.soil3], mask: ['#fff'] }[kind] || ['#fff'];
     for (let v = 0; v < 4; v++) {
       const d = r * 2 + 2;
       const { c, g } = Art.cv(d, d);
-      const rnd = Art.rng(r * 977 + v * 31 + (kind === 'soil' ? 7 : 0));
-      const cx = d / 2, cy = d / 2;
-      for (let y = 0; y < d; y++) {
-        for (let x = 0; x < d; x++) {
-          const dx = x - cx + 0.5, dy = (y - cy + 0.5) * 1.35;   // squashed: ground is seen at an angle
-          const dist = Math.hypot(dx, dy) / r;
-          if (dist > 1) continue;
-          if (dist > 0.66 && rnd() > (1 - dist) / 0.34) continue;  // dithered rim
-          let col = cols[Math.floor(rnd() * cols.length)];
-          if (kind === 'grass' && dist < 0.4 && rnd() < 0.3) col = PAL.moss4;
-          if (kind === 'soil' && Math.floor(y / 3) % 2 === 0 && rnd() < 0.5) col = PAL.soil1;   // furrows
-          g.fillStyle = col;
-          g.fillRect(x, y, 1, 1);
-        }
+      const rnd = Art.rng(r * 977 + v * 31 + kind.length);
+      for (let y = 0; y < d; y++) for (let x = 0; x < d; x++) {
+        const dx = x - d / 2 + 0.5, dy = (y - d / 2 + 0.5) * 1.35;
+        const dist = Math.hypot(dx, dy) / r;
+        if (dist > 1) continue;
+        if (dist > 0.62 && rnd() > (1 - dist) / 0.38) continue;
+        let col = cols[Math.floor(rnd() * cols.length)];
+        if (kind === 'grass' && dist < 0.4 && rnd() < 0.3) col = PAL.moss4;
+        if (kind === 'soil' && Math.floor(y / 3) % 2 === 0 && rnd() < 0.5) col = PAL.soil1;
+        g.fillStyle = col; g.fillRect(x, y, 1, 1);
       }
       set.push(c);
     }
     stamps.set(key, set);
     return set;
   }
-
   function paint(layer, kind, x, y, r) {
     const set = stampSet(kind, r);
     const img = set[Math.floor(Math.random() * set.length)];
@@ -57,8 +45,7 @@ const World = (() => {
     const set = stampSet('mask', r);
     const img = set[Math.floor(Math.random() * set.length)];
     const g = layer.getContext('2d');
-    g.save();
-    g.globalCompositeOperation = 'destination-out';
+    g.save(); g.globalCompositeOperation = 'destination-out';
     g.drawImage(img, Math.round(x - img.width / 2), Math.round(y - img.height / 2));
     g.restore();
   }
@@ -71,86 +58,80 @@ const World = (() => {
     try { return grass.getContext('2d').getImageData(Math.round(x), Math.round(y), 1, 1).data[3] > 40; } catch (e) { return false; }
   }
 
-  // ---- setup --------------------------------------------------------------
   function init(g) {
     G = g;
-    grass = Art.cv(W, H).c;
-    soil = Art.cv(W, H).c;
-    sample = Art.cv(160, 90).c;
-    weeds.length = bugs.length = blades.length = crops.length = seams.length = litter.length = 0;
-    const r = Art.rng(90210);
-    // the grove you inherit: choked with weeds, crawling, strewn with deadfall
-    for (let i = 0; i < 96; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 10 + r() * (H - GROUND - 24), v: Math.floor(r() * 3), s: 0.8 + r() * 0.5 });
-    for (let i = 0; i < 16; i++) bugs.push(newBug(r));
-    for (let i = 0; i < 26; i++) litter.push({ x: 8 + r() * (W - 16), y: GROUND + 4 + r() * (H - GROUND - 14), v: Math.floor(r() * 4), f: r() < 0.5 ? -1 : 1 });
-    // restore anything the save had
-    const s = G.world;
-    if (s && Array.isArray(s.strokes)) for (const k of s.strokes) {
+    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(160, 90).c;
+    for (const a of [weeds, bugs, blades, crops, sprouts, flowers, seams]) a.length = 0;
+    const r = Art.rng(51817);
+    const s = G.world || {};
+    if (!Array.isArray(s.weeds)) {
+      for (let i = 0; i < 88; i++) weeds.push({ x: 14 + r() * (W - 28), y: GROUND + 14 + r() * (H - GROUND - 62), v: Math.floor(r() * 3), s: 0.85 + r() * 0.5 });
+    } else for (const w of s.weeds) weeds.push({ x: w.x, y: w.y, v: w.v || 0, s: w.s || 1 });
+    if (!s.bugsOut) for (let i = 0; i < 15; i++) bugs.push(newBug(r));
+    if (Array.isArray(s.strokes)) for (const k of s.strokes) {
       if (k[0] === 'g') { paint(grass, 'grass', k[1], k[2], k[3]); erase(soil, k[1], k[2], k[3]); }
       else { paint(soil, 'soil', k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
     }
-    if (s && Array.isArray(s.blades)) for (const b of s.blades) blades.push(b);
-    if (s && Array.isArray(s.crops)) for (const c of s.crops) crops.push(c);
-    if (s && Array.isArray(s.weeds)) {
-      weeds.length = 0;
-      for (const w of s.weeds) weeds.push({ x: w.x, y: w.y, v: w.v || 0, s: w.s || 1 });
-    }
-    if (s && s.bugsOut) bugs.length = 0;
+    if (Array.isArray(s.blades)) for (const b of s.blades) blades.push(mkBlade(b.x, b.y, b.v, b.h));
+    if (Array.isArray(s.flowers)) for (const f of s.flowers) flowers.push({ x: f.x, y: f.y, v: f.v, bend: 0, vel: 0 });
+    if (Array.isArray(s.crops)) for (const c of s.crops) crops.push({ x: c.x, y: c.y, k: c.k, t: c.t, wet: c.wet || 0, thirst: c.thirst || 0 });
+    if (Array.isArray(s.sprouts)) for (const p of s.sprouts) sprouts.push({ x: p.x, y: p.y, t: p.t, wet: p.wet || 0, r: p.r || 12 });
     measure();
   }
+  function mkBlade(x, y, v, h) { return { x, y, v: v ?? Math.floor(Math.random() * 3), h: h ?? 4 + Math.floor(Math.random() * 5), bend: 0, vel: 0 }; }
   function newBug(rnd) {
     const r = rnd || Math.random;
-    return {
-      x: 14 + r() * (W - 28), y: GROUND + 12 + r() * (H - GROUND - 26),
-      vx: (r() - 0.5) * 26, vy: (r() - 0.5) * 14, v: Math.floor(r() * 3),
-      ph: r() * TAU, hop: 0,
-    };
+    return { x: 14 + r() * (W - 28), y: GROUND + 12 + r() * (H - GROUND - 58), vx: (r() - 0.5) * 26, vy: (r() - 0.5) * 14, v: Math.floor(r() * 3), ph: r() * TAU };
   }
-  // Strokes are the save format: replaying them rebuilds the exact terrain.
   function record(kind, x, y, r) {
     const s = G.world;
     if (!s.strokes) s.strokes = [];
     s.strokes.push([kind, Math.round(x), Math.round(y), r]);
-    if (s.strokes.length > 4200) s.strokes.splice(0, 600);   // keep saves bounded
+    if (s.strokes.length > 4600) s.strokes.splice(0, 700);
   }
-
-  // ---- brush actions ------------------------------------------------------
   function brushRadius(base) {
     let r = base;
     if (G.fruits.broadbrush) r *= 1.35;
     if (G.blessings.hephaeswomb) r *= 2;
     return Math.max(4, Math.round(r));
   }
+
+  // ---- brushes ------------------------------------------------------------
   function sowGrass(x, y, r) {
     if (y < GROUND) return false;
-    paint(grass, 'grass', x, y, r);
-    erase(soil, x, y, r);
-    record('g', x, y, r);
-    // a few standing blades so grass is not just a flat wash
-    const n = 1 + Math.floor(r / 8);
-    for (let i = 0; i < n; i++) {
-      const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * r * 0.85;
-      const bx = x + Math.cos(a) * d, by = y + Math.sin(a) * d * 0.72;
-      if (by < GROUND + 2 || blades.length > 900) continue;
-      blades.push({ x: +bx.toFixed(1), y: +by.toFixed(1), v: Math.floor(Math.random() * 3), h: 3 + Math.floor(Math.random() * 4) });
-    }
-    FX.burst(x, y, 3, { color: [PAL.moss4, PAL.moss3, PAL.moss5], speed: 32, gravity: -12, life: 0.5, size: 2 });
+    for (const p of sprouts) if (Math.hypot(p.x - x, (p.y - y) * 1.3) < r * 0.7) return false;
+    if (hasGrass(x, y) && Math.random() < 0.8) return false;
+    sprouts.push({ x: +x.toFixed(1), y: +y.toFixed(1), t: 0, wet: 0, r: Math.max(8, Math.round(r * 0.8)) });
+    FX.burst(x, y, 3, { color: [PAL.moss4, PAL.moss3], speed: 26, gravity: -8, life: 0.45, size: 2 });
     return true;
+  }
+  function bloom(p) {
+    paint(grass, 'grass', p.x, p.y, p.r);
+    erase(soil, p.x, p.y, p.r);
+    record('g', p.x, p.y, p.r);
+    const n = 2 + Math.floor(p.r / 6);
+    for (let i = 0; i < n && blades.length < 1100; i++) {
+      const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * p.r * 0.85;
+      const bx = p.x + Math.cos(a) * d, by = p.y + Math.sin(a) * d * 0.72;
+      if (by < GROUND + 2) continue;
+      blades.push(mkBlade(+bx.toFixed(1), +by.toFixed(1)));
+    }
+    if (Math.random() < 0.22 && flowers.length < 110) {
+      flowers.push({ x: +(p.x + U.rand(-p.r * 0.6, p.r * 0.6)).toFixed(1), y: +(p.y + U.rand(-4, 4)).toFixed(1), v: Math.floor(Math.random() * 5), bend: 0, vel: 0 });
+    }
+    FX.burst(p.x, p.y, 7, { color: [PAL.moss4, PAL.moss5, PAL.moss3], speed: 46, gravity: -14, life: 0.6, size: 2 });
+    Audio.play('pluck');
   }
   function till(x, y, r) {
     if (y < GROUND) return false;
     paint(soil, 'soil', x, y, r);
     erase(grass, x, y, r);
     record('s', x, y, r);
-    for (let i = blades.length - 1; i >= 0; i--) {
-      const b = blades[i];
-      if (Math.abs(b.x - x) < r && Math.abs(b.y - y) < r * 0.8) blades.splice(i, 1);
-    }
-    FX.burst(x, y, 4, { color: [PAL.soil2, PAL.soil3, PAL.soil1], speed: 40, gravity: 90, life: 0.4, size: 2 });
-    if (G.blessings.chonkades && Math.random() < 0.02 && seams.length < 12) {
-      seams.push({ x, y, t: 0 });
-      FX.sparkle(x, y, 8, PAL.gold3);
-    }
+    for (let i = blades.length - 1; i >= 0; i--) { const b = blades[i]; if (Math.abs(b.x - x) < r && Math.abs(b.y - y) < r * 0.8) blades.splice(i, 1); }
+    for (let i = flowers.length - 1; i >= 0; i--) { const f = flowers[i]; if (Math.abs(f.x - x) < r && Math.abs(f.y - y) < r * 0.8) flowers.splice(i, 1); }
+    for (let i = sprouts.length - 1; i >= 0; i--) { const p = sprouts[i]; if (Math.abs(p.x - x) < r && Math.abs(p.y - y) < r * 0.8) sprouts.splice(i, 1); }
+    FX.burst(x, y, 5, { color: [PAL.soil2, PAL.soil3, PAL.soil1], speed: 46, gravity: 110, life: 0.45, size: 2 });
+    if (G.blessings.chonkades && Math.random() < 0.02 && seams.length < 12) { seams.push({ x, y, t: 0 }); FX.sparkle(x, y, 8, PAL.gold3); }
     return true;
   }
   function clearWeeds(x, y, r) {
@@ -162,7 +143,7 @@ const World = (() => {
         FX.burst(w.x, w.y, 5, { color: [PAL.rot1, PAL.rot2, PAL.dead2], speed: 55, gravity: 120, life: 0.45, size: 2 });
       }
     }
-    if (n) { G.world.weeds = weeds.map((w) => ({ x: w.x, y: w.y, v: w.v, s: w.s })); Audio.play('snip'); }
+    if (n) { G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) })); Audio.play('snip'); }
     return n;
   }
   function catchBugs(x, y, r) {
@@ -179,30 +160,31 @@ const World = (() => {
     return n;
   }
   function plant(x, y, key) {
-    if (!hasSoil(x, y)) return false;
+    if (!hasSoil(x, y)) return 'nosoil';
     const def = CROP_BY_KEY[key];
     if (!def) return false;
-    for (const c of crops) if (Math.hypot(c.x - x, (c.y - y) * 1.4) < 13) return false;
-    if ((G.seeds[key] || 0) <= 0) return false;
+    for (const c of crops) if (Math.hypot(c.x - x, (c.y - y) * 1.4) < 14) return false;
+    if ((G.seeds[key] || 0) <= 0) return 'noseed';
     G.seeds[key]--;
-    crops.push({ x: +x.toFixed(1), y: +y.toFixed(1), k: key, t: 0, wet: 0 });
+    crops.push({ x: +x.toFixed(1), y: +y.toFixed(1), k: key, t: 0, wet: 6, thirst: 0 });
     FX.burst(x, y, 4, { color: [def.color, PAL.soil3], speed: 30, gravity: 60, life: 0.4, size: 2 });
-    return true;
+    return 'ok';
   }
   function water(x, y, r) {
     let n = 0;
-    for (const c of crops) if (Math.hypot(c.x - x, (c.y - y) * 1.3) < r) { c.wet = Math.min(14, c.wet + 3); n++; }
-    for (let i = 0; i < 2; i++) FX.spawn({ x: x + U.rand(-r * 0.6, r * 0.6), y: y - 10, vx: 0, vy: 90, life: 0.35, size: 2, color: PAL.water2, gravity: 200 });
+    for (const c of crops) if (Math.hypot(c.x - x, (c.y - y) * 1.3) < r) { c.wet = Math.min(22, c.wet + 5); c.thirst = 0; n++; }
+    for (const p of sprouts) if (Math.hypot(p.x - x, (p.y - y) * 1.3) < r) { p.wet = Math.min(20, p.wet + 5); n++; }
+    for (let i = 0; i < 3; i++) FX.spawn({ x: x + U.rand(-r * 0.6, r * 0.6), y: y - 12, vx: 0, vy: 110, life: 0.3, size: 2, color: PAL.water2, gravity: 240 });
+    disturb(x, y, r, 0.5);
     return n;
   }
-  function ripe(c) { return c.t >= growTime(c); }
   function growTime(c) {
-    const def = CROP_BY_KEY[c.k];
-    let t = def.grow;
+    let t = CROP_BY_KEY[c.k].grow;
     if (G.fruits.quickseed) t *= 0.67;
     if (G.blessings.demewombra) t *= 0.5;
     return t;
   }
+  const ripe = (c) => c.t >= growTime(c);
   function harvest(x, y) {
     for (let i = crops.length - 1; i >= 0; i--) {
       const c = crops[i];
@@ -213,8 +195,8 @@ const World = (() => {
       G.food[c.k] = (G.food[c.k] || 0) + def.yield;
       G.stats.harvested = (G.stats.harvested || 0) + 1;
       Audio.play('pluck');
-      FX.burst(c.x, c.y - 8, 8, { color: [def.color, PAL.cream], speed: 70, gravity: 120, life: 0.5, size: 2 });
-      FX.float(c.x, c.y - 20, '+' + def.yield, { color: PAL.moss5, size: 8 });
+      FX.burst(c.x, c.y - 10, 9, { color: [def.color, PAL.cream], speed: 74, gravity: 130, life: 0.5, size: 2 });
+      FX.float(c.x, c.y - 22, '+' + def.yield, { color: PAL.moss5, size: 8 });
       return 'ok';
     }
     for (let i = seams.length - 1; i >= 0; i--) {
@@ -222,54 +204,84 @@ const World = (() => {
       if (Math.hypot(s.x - x, (s.y - y) * 1.4) > 15) continue;
       seams.splice(i, 1);
       G.offerings.gold = (G.offerings.gold || 0) + 1;
-      Audio.play('coin');
-      FX.sparkle(s.x, s.y, 14, PAL.gold4);
-      FX.float(s.x, s.y - 18, '+1', { color: PAL.gold4, size: 9 });
+      Audio.play('coin'); FX.sparkle(s.x, s.y, 14, PAL.gold4);
       return 'gold';
     }
     return null;
   }
+  // anything moving through the grass parts it
+  function disturb(x, y, r, strength) {
+    for (const b of blades) {
+      const d = Math.hypot(b.x - x, (b.y - y) * 1.6);
+      if (d > r) continue;
+      const dir = b.x >= x ? 1 : -1;
+      b.vel += dir * (1 - d / r) * strength * 34;
+    }
+    for (const f of flowers) {
+      const d = Math.hypot(f.x - x, (f.y - y) * 1.6);
+      if (d > r) continue;
+      f.vel += (f.x >= x ? 1 : -1) * (1 - d / r) * strength * 22;
+    }
+  }
 
-  // ---- simulation ---------------------------------------------------------
   function update(dt) {
+    // wind gusts drive the whole sward
+    windT -= dt;
+    if (windT <= 0) { windT = U.rand(3, 8); wind = U.rand(-1, 1) * U.rand(6, 22); }
+    const w = wind * (0.5 + 0.5 * Math.sin(G.time * 0.7));
+    for (const b of blades) {
+      b.vel += (-b.bend * 46 - b.vel * 7 + w * 0.5 + Math.sin(G.time * 2.2 + b.x * 0.09) * 3) * dt;
+      b.bend += b.vel * dt;
+      b.bend = U.clamp(b.bend, -2.6, 2.6);
+    }
+    for (const f of flowers) {
+      f.vel += (-f.bend * 40 - f.vel * 6.5 + w * 0.35) * dt;
+      f.bend += f.vel * dt;
+      f.bend = U.clamp(f.bend, -2.2, 2.2);
+    }
+    // sprouts take root
+    for (let i = sprouts.length - 1; i >= 0; i--) {
+      const p = sprouts[i];
+      const rate = p.wet > 0 ? 1.9 : 0.75;
+      if (p.wet > 0) p.wet -= dt;
+      p.t += dt * rate * (G.blessings.burrowseidon ? 1.3 : 1);
+      if (p.t >= 16) { bloom(p); sprouts.splice(i, 1); }
+    }
+    // crops grow, and get thirsty if left alone
     for (const c of crops) {
-      const wet = c.wet > 0 ? 1.5 : 1;
-      if (c.wet > 0) c.wet -= dt;
-      c.t += dt * wet * (G.blessings.burrowseidon ? 1.25 : 1);
+      const wet = c.wet > 0;
+      if (wet) c.wet -= dt; else c.thirst += dt;
+      if (!ripe(c)) c.t += dt * (wet ? 1.7 : c.thirst > 26 ? 0.25 : 0.8) * (G.blessings.burrowseidon ? 1.25 : 1);
     }
     for (const b of bugs) {
       b.ph += dt * 3;
       b.x += b.vx * dt; b.y += b.vy * dt;
       if (Math.random() < 0.02) { b.vx = U.rand(-30, 30); b.vy = U.rand(-16, 16); }
       if (b.x < 10 || b.x > W - 10) b.vx *= -1;
-      if (b.y < GROUND + 8 || b.y > H - 12) b.vy *= -1;
-      b.x = U.clamp(b.x, 10, W - 10); b.y = U.clamp(b.y, GROUND + 8, H - 12);
+      if (b.y < GROUND + 8 || b.y > H - 48) b.vy *= -1;
+      b.x = U.clamp(b.x, 10, W - 10); b.y = U.clamp(b.y, GROUND + 8, H - 48);
+      disturb(b.x, b.y, 9, 0.16);
     }
-    // bugs breed back unless Artewombis keeps them out
-    if (!G.blessings.artewombis && bugs.length < 18 && Math.random() < dt * 0.05) bugs.push(newBug());
+    // bugs only creep back once the grove is lived in, so the opening list stays done
+    if (G.arrived && !G.blessings.artewombis && bugs.length < 12 && Math.random() < dt * 0.05) bugs.push(newBug());
     for (const s of seams) s.t += dt;
-    // Deep Roots and the storm blessing creep grass outward on their own
     if (G.fruits.deeproots || G.blessings.wombeus) {
-      seedT += dt;
-      const every = G.blessings.wombeus ? 1.1 : 2.4;
-      if (seedT > every && blades.length) {
-        seedT = 0;
+      spreadT += dt;
+      const every = G.blessings.wombeus ? 1.2 : 2.6;
+      if (spreadT > every && blades.length) {
+        spreadT = 0;
         const b = U.pick(blades);
-        const a = Math.random() * TAU, d = 12 + Math.random() * 16;
-        const nx = U.clamp(b.x + Math.cos(a) * d, 6, W - 6);
-        const ny = U.clamp(b.y + Math.sin(a) * d * 0.7, GROUND + 4, H - 6);
-        if (!hasGrass(nx, ny) && !hasSoil(nx, ny)) sowGrass(nx, ny, 9);
+        const a = Math.random() * TAU, d = 13 + Math.random() * 16;
+        sowGrass(U.clamp(b.x + Math.cos(a) * d, 6, W - 6), U.clamp(b.y + Math.sin(a) * d * 0.7, GROUND + 4, H - 6), 10);
       }
     }
     sampleT += dt;
-    if (sampleT > 1.6) { sampleT = 0; measure(); }
+    if (sampleT > 1.5) { sampleT = 0; measure(); }
   }
-  // Exact coverage read straight off the paint layer, downscaled for speed.
   function measure() {
     try {
       const g = sample.getContext('2d');
-      g.clearRect(0, 0, 160, 90);
-      g.imageSmoothingEnabled = false;
+      g.clearRect(0, 0, 160, 90); g.imageSmoothingEnabled = false;
       g.drawImage(grass, 0, 0, 160, 90);
       const d = g.getImageData(0, 0, 160, 90).data;
       let n = 0;
@@ -278,104 +290,179 @@ const World = (() => {
       G.world.restored = restored;
     } catch (e) { }
   }
-  function fraction() { return U.clamp(restored / RESTORE_TARGET, 0, 1); }
+  const fraction = () => U.clamp(restored / RESTORE_TARGET, 0, 1);
 
   // ---- drawing ------------------------------------------------------------
+  // A painted dirt bed, built once: banded tone, dithered grit, stones and
+  // cracks. The green wash on top is how much of the forest has come back.
+  let dirt = null;
+  function dirtTex() {
+    if (dirt) return dirt;
+    const h = H - GROUND + 4;
+    const { c, g } = Art.cv(W, h);
+    const r = Art.rng(2468);
+    for (let y = 0; y < h; y++) {
+      const t = y / h;
+      g.fillStyle = U.mix('#463f33', '#6d6252', U.easeOut(t));
+      g.fillRect(0, y, W, 1);
+    }
+    for (let i = 0; i < 9000; i++) {
+      const x = Math.floor(r() * W), y = Math.floor(r() * h);
+      g.globalAlpha = 0.16 + r() * 0.3;
+      g.fillStyle = ['#5b5344', '#776c59', '#3c362c', '#847863'][Math.floor(r() * 4)];
+      g.fillRect(x, y, 1, 1);
+    }
+    g.globalAlpha = 1;
+    for (let i = 0; i < 46; i++) {          // damp and dry patches
+      const x = r() * W, y = 6 + r() * (h - 12), rx = 14 + r() * 30, ry = 5 + r() * 11;
+      const col = r() < 0.5 ? 'rgba(48,42,34,0.28)' : 'rgba(140,128,104,0.16)';
+      Art.ell(g, x, y, rx, ry, col);
+      Art.speckle(g, x, y, rx, ry, r() < 0.5 ? '#3f3a30' : '#7d735f', 26, i);
+    }
+    for (let i = 0; i < 26; i++) {          // cracks and cart ruts
+      let x = r() * W, y = 10 + r() * (h - 20);
+      const dir = r() < 0.5 ? 1 : -1, n = 4 + Math.floor(r() * 6);
+      for (let k = 0; k < n; k++) {
+        g.fillStyle = 'rgba(34,28,22,0.5)';
+        g.fillRect(Math.round(x), Math.round(y), 3 + Math.floor(r() * 4), 1);
+        g.fillStyle = 'rgba(150,138,116,0.16)';
+        g.fillRect(Math.round(x), Math.round(y) + 1, 3, 1);
+        x += dir * (3 + r() * 4); y += (r() - 0.5) * 2.4;
+      }
+    }
+    for (let i = 0; i < 70; i++) {          // pebbles
+      const x = Math.round(r() * W), y = Math.round(6 + r() * (h - 12));
+      const w2 = 2 + Math.floor(r() * 3);
+      g.fillStyle = '#6b6455'; g.fillRect(x, y, w2, 2);
+      g.fillStyle = '#8d8573'; g.fillRect(x, y, w2, 1);
+      g.fillStyle = 'rgba(24,20,16,0.45)'; g.fillRect(x, y + 2, w2 + 1, 1);
+    }
+    for (let i = 0; i < 16; i++) {          // little bones and twigs
+      const x = Math.round(r() * W), y = Math.round(10 + r() * (h - 16));
+      g.fillStyle = '#4a4034';
+      g.fillRect(x, y, 5 + Math.floor(r() * 4), 1);
+      g.fillRect(x + 2, y - 1, 2, 1);
+    }
+    dirt = c;
+    return c;
+  }
+
   function drawGround(g) {
     const f = fraction();
-    // bare earth, greening slightly as the grove comes back
-    const base = f < 0.5 ? U.mix('#6b6355', '#5f6a4a', f * 2) : U.mix('#5f6a4a', '#4f6a3c', (f - 0.5) * 2);
-    g.fillStyle = base; g.fillRect(0, GROUND - 2, W, H - GROUND + 2);
-    g.fillStyle = 'rgba(30,22,18,0.28)';
-    for (let i = 0; i < 40; i++) { const x = (i * 73) % W, y = GROUND + 8 + ((i * 137) % (H - GROUND - 16)); g.fillRect(x, y, 7 + (i % 3) * 4, 2); }
-    g.fillStyle = 'rgba(207,196,176,0.14)';
-    for (let i = 0; i < 22; i++) g.fillRect((i * 113) % W, GROUND + 14 + ((i * 61) % (H - GROUND - 22)), 4, 2);
-    // painted layers
+    g.drawImage(dirtTex(), 0, GROUND - 2);
+    if (f > 0.01) {                          // the green creeping back
+      g.globalAlpha = Math.min(0.55, f * 0.7);
+      g.fillStyle = U.mix('#4d6a3a', '#3f6a30', f);
+      g.fillRect(0, GROUND - 2, W, H - GROUND + 2);
+      g.globalAlpha = 1;
+    }
+    // the treeline throws a band of shade across the back of the plot
+    const sh = g.createLinearGradient(0, GROUND - 2, 0, GROUND + 46);
+    sh.addColorStop(0, 'rgba(14,12,18,0.5)'); sh.addColorStop(1, 'rgba(14,12,18,0)');
+    g.fillStyle = sh; g.fillRect(0, GROUND - 2, W, 48);
     g.drawImage(grass, 0, 0);
     g.drawImage(soil, 0, 0);
   }
   function drawBlades(g) {
     for (const b of blades) {
-      const sway = Math.sin(G.time * 1.6 + b.x * 0.06) * 1.2;
-      g.fillStyle = [PAL.moss2, PAL.moss3, PAL.moss4][b.v];
-      g.fillRect(b.x | 0, (b.y - b.h) | 0, 1, b.h);
-      g.fillRect((b.x + sway) | 0, (b.y - b.h - 1) | 0, 1, 2);
+      const cols = [PAL.moss2, PAL.moss3, PAL.moss4][b.v];
+      const x = b.x | 0, y = b.y | 0;
+      for (let i = 0; i < b.h; i++) {
+        const t = i / b.h;
+        g.fillStyle = i > b.h - 2 ? PAL.moss5 : cols;
+        g.fillRect(Math.round(x + b.bend * t * t * 2.2), y - i, 1, 1);
+      }
       g.fillStyle = PAL.moss1;
-      g.fillRect((b.x + 1) | 0, (b.y - b.h * 0.6) | 0, 1, b.h * 0.6);
+      g.fillRect(x + 1, y - Math.round(b.h * 0.5), 1, Math.round(b.h * 0.5));
+    }
+  }
+  function drawFlowers(g) {
+    for (const f of flowers) {
+      const img = Props.get('flower', f.v);
+      const sh = Math.round(f.bend * 2.2);
+      g.drawImage(img, Math.round(f.x - 8 + sh), Math.round(f.y - 17));
+    }
+  }
+  function drawSprouts(g) {
+    for (const p of sprouts) {
+      const t = U.clamp(p.t / 16, 0, 1);
+      const n = 3 + Math.round(t * 4);
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * TAU + p.x;
+        const sx = p.x + Math.cos(a) * p.r * 0.4, sy = p.y + Math.sin(a) * p.r * 0.28;
+        const h = 1 + t * 4;
+        g.fillStyle = p.wet > 0 ? PAL.moss4 : t > 0.5 ? PAL.moss3 : '#6d7a4a';
+        g.fillRect(sx | 0, (sy - h) | 0, 1, h);
+        g.fillStyle = PAL.moss2;
+        g.fillRect((sx + 1) | 0, (sy - h * 0.6) | 0, 1, 1);
+      }
+      if (p.wet > 0) { g.fillStyle = 'rgba(87,182,201,0.16)'; Art.ell(g, p.x, p.y, p.r * 0.7, p.r * 0.3); }
+      else if (p.t > 5) { g.fillStyle = 'rgba(216,165,47,0.2)'; Art.ell(g, p.x, p.y, p.r * 0.5, p.r * 0.22); }
     }
   }
   function drawWeeds(g) {
     for (const w of weeds) {
-      const s = w.s, sway = Math.sin(G.time * 1.1 + w.x * 0.08) * 1.4;
+      const s = w.s, sway = Math.sin(G.time * 1.1 + w.x * 0.08) * 1.4 + wind * 0.05;
       g.fillStyle = PAL.rot0;
-      g.fillRect(w.x | 0, (w.y - 8 * s) | 0, 2, 8 * s);
-      g.fillStyle = [PAL.rot1, PAL.rot2, PAL.dead3][w.v];
+      g.fillRect(w.x | 0, (w.y - 9 * s) | 0, 2, 9 * s);
       for (let i = 0; i < 4; i++) {
-        const ly = w.y - 3 - i * 2.4 * s, side = i % 2 ? 1 : -1;
-        g.fillRect((w.x + side * (2 + i) + sway * (i / 4)) | 0, ly | 0, 3, 1);
+        g.fillStyle = [PAL.rot1, PAL.rot2, PAL.dead3][(w.v + i) % 3];
+        const ly = w.y - 3 - i * 2.6 * s, side = i % 2 ? 1 : -1;
+        g.fillRect((w.x + side * (2 + i) + sway * (i / 4)) | 0, ly | 0, 3, 1.4);
       }
       g.fillStyle = PAL.rot2;
-      g.fillRect((w.x + sway) | 0, (w.y - 11 * s) | 0, 2, 3);
+      g.fillRect((w.x + sway) | 0, (w.y - 12 * s) | 0, 2, 3);
     }
   }
   function drawBugs(g) {
     for (const b of bugs) {
-      const hop = Math.abs(Math.sin(b.ph)) * 2;
-      const y = b.y - hop;
-      g.fillStyle = 'rgba(20,16,14,0.25)'; g.fillRect((b.x - 2) | 0, b.y | 0, 5, 2);
+      const hop = Math.abs(Math.sin(b.ph)) * 2, y = b.y - hop;
+      g.fillStyle = 'rgba(18,14,20,0.25)'; g.fillRect((b.x - 2) | 0, b.y | 0, 5, 2);
       g.fillStyle = [PAL.ink2, '#4a3a1c', '#3a2a3a'][b.v];
       g.fillRect((b.x - 2) | 0, (y - 3) | 0, 5, 4);
       g.fillStyle = [PAL.rot2, PAL.gold1, PAL.div3][b.v];
       g.fillRect((b.x - 1) | 0, (y - 3) | 0, 3, 2);
       g.fillStyle = PAL.ink;
-      const legf = Math.sin(b.ph * 3) > 0 ? 1 : 0;
-      g.fillRect((b.x - 3) | 0, (y - 1 + legf) | 0, 1, 1);
-      g.fillRect((b.x + 3) | 0, (y - 1 + (1 - legf)) | 0, 1, 1);
+      const lf = Math.sin(b.ph * 3) > 0 ? 1 : 0;
+      g.fillRect((b.x - 3) | 0, (y - 1 + lf) | 0, 1, 1);
+      g.fillRect((b.x + 3) | 0, (y - 1 + (1 - lf)) | 0, 1, 1);
       g.fillRect((b.x - 3) | 0, (y - 3) | 0, 1, 1);
       g.fillRect((b.x + 3) | 0, (y - 3) | 0, 1, 1);
     }
   }
   function drawCrops(g) {
     for (const c of crops) {
-      const def = CROP_BY_KEY[c.k];
       const p = U.clamp(c.t / growTime(c), 0, 1);
-      Props.drawCrop(g, def, c.x, c.y, p, G.time, c.wet > 0);
+      Props.drawCrop(g, CROP_BY_KEY[c.k], c.x, c.y, p, G.time, c.wet > 0, wind * 0.02);
+      if (c.thirst > 26) { const tw = 0.5 + 0.5 * Math.sin(G.time * 5); g.fillStyle = `rgba(216,165,47,${0.4 + tw * 0.3})`; g.fillRect((c.x - 1) | 0, (c.y - 30) | 0, 2, 5); g.fillRect((c.x - 1) | 0, (c.y - 24) | 0, 2, 2); }
     }
     for (const s of seams) {
       const pulse = 0.55 + 0.45 * Math.sin(G.time * 4 + s.x);
-      g.fillStyle = `rgba(245,205,92,${0.35 + pulse * 0.3})`;
-      Art.ell(g, s.x, s.y, 7, 3);
+      g.fillStyle = `rgba(245,205,92,${0.3 + pulse * 0.3})`; Art.ell(g, s.x, s.y, 7, 3);
       g.fillStyle = PAL.gold3; g.fillRect((s.x - 2) | 0, (s.y - 2) | 0, 4, 3);
       g.fillStyle = PAL.gold4; g.fillRect((s.x - 1) | 0, (s.y - 2) | 0, 2, 1);
     }
   }
-  function drawLitter(g) {
-    for (const l of litter) {
-      const img = Props.get('deadfall', l.v);
-      g.drawImage(l.f < 0 ? Art.flip(img) : img, Math.round(l.x - img.width / 2), Math.round(l.y - img.height + 3));
-    }
-  }
-  // ghost ring under the cursor, so a brush reads as a brush
   function drawCursor(g, x, y, r, col) {
     if (r <= 0) return;
     g.save();
     g.globalAlpha = 0.5 + 0.2 * Math.sin(G.time * 6);
-    g.strokeStyle = col; g.lineWidth = 1;
-    g.setLineDash([3, 4]);
+    g.strokeStyle = col; g.lineWidth = 1; g.setLineDash([3, 4]);
     g.beginPath(); g.ellipse(x, y, r, r * 0.74, 0, 0, TAU); g.stroke();
-    g.setLineDash([]);
-    g.restore();
+    g.setLineDash([]); g.restore();
   }
 
   return {
-    init, update, drawGround, drawBlades, drawWeeds, drawBugs, drawCrops, drawLitter, drawCursor,
-    sowGrass, till, clearWeeds, catchBugs, plant, water, harvest, hasSoil, hasGrass, brushRadius,
+    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawBugs, drawCrops, drawCursor,
+    sowGrass, till, clearWeeds, catchBugs, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
     fraction, measure, ripe, growTime,
     get weeds() { return weeds; }, get bugs() { return bugs; }, get crops() { return crops; },
-    get blades() { return blades; }, get seams() { return seams; },
+    get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },
     save() {
       G.world.blades = blades.map((b) => ({ x: b.x, y: b.y, v: b.v, h: b.h }));
-      G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0 }));
+      G.world.flowers = flowers.map((f) => ({ x: f.x, y: f.y, v: f.v }));
+      G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1) }));
+      G.world.sprouts = sprouts.map((p) => ({ x: p.x, y: p.y, t: +p.t.toFixed(1), wet: 0, r: p.r }));
       G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2) }));
       G.world.bugsOut = bugs.length === 0;
       G.world.restored = restored;

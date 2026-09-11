@@ -27,16 +27,36 @@ const CROPS = [
 ];
 const CROP_BY_KEY = Object.fromEntries(CROPS.map((c) => [c.key, c]));
 
-// Brushes. Everything is painted or dragged; nothing snaps to a grid.
+// ---- Tools ---------------------------------------------------------------
+// The dock holds seven. Farm opens a flyout with the four ground brushes.
 const TOOLS = [
-  { key: 'hand',  name: 'Hand',    icon: 't_hand',  radius: 0,  desc: 'Pet, harvest, pick up.' },
-  { key: 'sickle', name: 'Sickle', icon: 't_sickle', radius: 22, desc: 'Clear weeds.' },
-  { key: 'net',   name: 'Net',     icon: 't_net',   radius: 24, desc: 'Catch bugs.' },
-  { key: 'hoe',   name: 'Hoe',     icon: 't_hoe',   radius: 15, desc: 'Till soil.' },
-  { key: 'moss',  name: 'Moss',    icon: 't_moss',  radius: 19, desc: 'Sow grass. Restores the forest.' },
-  { key: 'seed',  name: 'Seeds',   icon: 't_seed',  radius: 13, desc: 'Sow the chosen crop on tilled soil.' },
-  { key: 'water', name: 'Water',   icon: 't_water', radius: 22, desc: 'Water crops.' },
-  { key: 'pair',  name: 'Pair',    icon: 't_pair',  radius: 0,  locked: 'nest', desc: 'Pair two adults.' },
+  { key: 'drag',    name: 'Hand',   icon: 't_drag',    radius: 0,  desc: 'Drag poop to the truck. Pet. Pick.' },
+  { key: 'food',    name: 'Food',   icon: 't_food',    radius: 0,  desc: 'Pick a food, then a wombat.' },
+  { key: 'farm',    name: 'Farm',   icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'Hoe, seed, grass, water.' },
+  { key: 'sickle',  name: 'Sickle', icon: 't_sickle',  radius: 22, desc: 'Cut the weeds.' },
+  { key: 'net',     name: 'Net',    icon: 't_net',     radius: 24, desc: 'Catch the bugs.' },
+  { key: 'destroy', name: 'Haul',   icon: 't_destroy', radius: 0,  desc: 'Ants carry it off, for a fee.' },
+  { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  locked: 'nest', desc: 'Pair two adults.' },
+];
+const SUBTOOLS = [
+  { key: 'hoe',   name: 'Hoe',   icon: 't_hoe',   radius: 15, desc: 'Till bare ground into beds.' },
+  { key: 'seed',  name: 'Seed',  icon: 't_seed',  radius: 13, desc: 'Sow on tilled soil. Water it.' },
+  { key: 'moss',  name: 'Grass', icon: 't_moss',  radius: 19, desc: 'Sow grass. It sprouts slowly.' },
+  { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
+];
+const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
+const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
+const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
+const BRUSH_KEYS = ['sickle', 'net', 'hoe', 'seed', 'moss', 'water'];
+
+// ---- The map. Fog lifts as gods answer. ----------------------------------
+const SITES = [
+  { key: 'grove',  name: 'The Grove',    x: 196, y: 232, icon: 'grove',   mode: 'grove',  need: 0 },
+  { key: 'ritual', name: 'Ritual Site',  x: 404, y: 138, icon: 'shrine',  mode: 'shrine', need: 0 },
+  { key: 'stack',  name: 'The Great Stack', x: 508, y: 246, icon: 'u_seats', mode: 'rite', need: 0 },
+  { key: 'quarry', name: 'Old Quarry',   x: 108, y: 110, icon: 'o_stone', need: 3 },
+  { key: 'lake',   name: 'Still Lake',   x: 556, y: 92,  icon: 'g_tide',  need: 5 },
+  { key: 'deep',   name: 'The Deepwood', x: 300, y: 64,  icon: 'a_owl',   need: 8 },
 ];
 
 // ---- The ten Wombat Gods -------------------------------------------------

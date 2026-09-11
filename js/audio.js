@@ -101,6 +101,13 @@ const Audio = (() => {
     sell: () => { tone({ freq: 660, type: 'square', dur: 0.07, vol: 0.14 }); tone({ freq: 990, type: 'square', dur: 0.09, vol: 0.13, delay: 0.07 }); tone({ freq: 1320, type: 'square', dur: 0.16, vol: 0.12, delay: 0.15 }); },
     hatch: () => { tone({ freq: 380, type: 'triangle', dur: 0.14, vol: 0.16, slide: 420 }); tone({ freq: 900, type: 'sine', dur: 0.2, vol: 0.12, delay: 0.12, slide: 300 }); noise({ dur: 0.1, vol: 0.1, lp: 3000 }); },
     munch: () => { for (let i = 0; i < 2; i++) noise({ dur: 0.07, vol: 0.2, lp: 800, delay: i * 0.13 }); },
+    door: () => {
+      noise({ dur: 0.5, vol: 0.16, lp: 700, decayCurve: 0.8 });
+      tone({ freq: 180, type: 'sawtooth', dur: 0.45, vol: 0.07, slide: 70 });
+      [0, 7].forEach((n, i) => tone({ freq: 1046 * Math.pow(2, n / 12), type: 'sine', dur: 0.7, vol: 0.12, delay: 0.34 + i * 0.09, decay: 0.7 }));
+    },
+    till: () => { tone({ freq: 1568, type: 'square', dur: 0.06, vol: 0.14 }); noise({ dur: 0.22, vol: 0.12, lp: 5200, hp: 1600, delay: 0.05 }); tone({ freq: 784, type: 'square', dur: 0.18, vol: 0.12, delay: 0.1 }); },
+    scuttle: () => { for (let i = 0; i < 4; i++) noise({ dur: 0.04, vol: 0.07, lp: 4200, hp: 1400, delay: i * 0.07 }); },
   };
 
   // ---- Music: simple pattern sequencer -----------------------------------

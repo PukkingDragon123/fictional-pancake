@@ -223,5 +223,23 @@ const FX = (() => {
   }
   function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; rings.length = 0; bolts.length = 0; tendrils.length = 0; }
 
-  return { cam, cine, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
+  // Small pixel text with an ink halo, for signs and map labels.
+  function pixelText(g, text, x, y, o = {}) {
+    const size = o.size && o.size > 3 ? o.size : (o.size || 1) * 7;
+    g.save();
+    g.font = `${size}px "Press Start 2P", monospace`;
+    g.textAlign = o.align || 'center';
+    g.textBaseline = o.baseline || 'top';
+    if (o.ink !== false) {
+      g.lineWidth = o.ink === true || o.ink === undefined ? 3 : o.ink;
+      g.strokeStyle = o.inkColor || 'rgba(18,14,20,0.9)';
+      g.lineJoin = 'round';
+      g.strokeText(text, Math.round(x), Math.round(y));
+    }
+    g.fillStyle = o.color || PAL.cream;
+    g.fillText(text, Math.round(x), Math.round(y));
+    g.restore();
+  }
+
+  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
 })();
