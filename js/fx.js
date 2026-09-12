@@ -228,7 +228,7 @@ const FX = (() => {
   function pixelText(g, text, x, y, o = {}) {
     const size = o.size && o.size > 3 ? o.size : (o.size || 1) * 7;
     g.save();
-    g.font = `${size}px ${o.font || '"Silkscreen", "Press Start 2P", monospace'}`;
+    g.font = `${o.weight || 600} ${size}px ${o.font || '"Pixelify Sans", "Silkscreen", monospace'}`;
     g.textAlign = o.align || 'center';
     g.textBaseline = o.baseline || 'top';
     const X = Math.round(x), Y = Math.round(y);

@@ -10,66 +10,66 @@ const Guide = (() => {
   // Each step is a line in the notebook and a place for her to stand.
   const STEPS = [
     {
-      key: 'weeds', say: 'Cut the weeds inside my rope. Big ones take a few swings.', praise: 'Clean cut! Take these.', icon: 't_sickle', title: 'Cut the weeds',
+      key: 'weeds', say: 'Cut the *weeds* inside my rope. Big ones take a few swings.', praise: 'Clean cut! *Take these.*', icon: 't_sickle', title: 'Cut the weeds',
       note: 'Take the sickle and drag across them. Just inside the rope will do; big ones take a few swings.',
       at: () => ZONE.x - 120, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
-      key: 'junk', say: 'Those wrecks are not ours to lift. Send for the ants.', praise: 'The ants thank you. So do I.', icon: 't_destroy', title: 'Send for the ants',
+      key: 'junk', say: 'Those wrecks are not ours to lift. Send for the *ants*.', praise: 'The ants thank you. *So do I.*', icon: 't_destroy', title: 'Send for the ants',
       note: 'Logs and ruins are not ours to lift. The ants carry them, for a fee.',
       at: () => { const o = Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)); return o ? o.x : ZONE.x; },
       done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
-      key: 'grass', say: 'Farm tool, then grass, inside the rope. Water it or it sulks.', praise: 'Green again. Here.', icon: 't_moss', title: 'Sow the grass',
+      key: 'grass', say: 'Farm tool, then *grass*, inside the rope. Water it or it sulks.', praise: '*Green again.* Here.', icon: 't_moss', title: 'Sow the grass',
       note: 'Farm, then grass, inside the rope. Sprouts need time and a drink before they take.',
       at: () => ZONE.x, done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
-      key: 'arrive', say: 'Hush now. A clean grove calls one of them.', praise: 'She came! I knew it.', icon: 'wombat', title: 'Wait for her',
+      key: 'arrive', say: 'Hush now. A clean grove calls *one of them*.', praise: '*She came!* I knew it.', icon: 'wombat', title: 'Wait for her',
       note: 'A clean grove calls a wombat. One always comes.',
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
-      key: 'sow', say: 'Hoe a bed and drop seed on the bare soil.', praise: 'Sown. Good hands.', icon: 't_hoe', title: 'Break a bed and sow it',
+      key: 'sow', say: '*Hoe* a bed and drop *seed* on the bare soil.', praise: 'Sown. *Good hands.*', icon: 't_hoe', title: 'Break a bed and sow it',
       note: 'Hoe a patch, then seed on the bare soil.',
       at: () => 380, done: () => World.crops.length > 0,
     },
     {
-      key: 'pick', say: 'Water it. When it glows, pick it with the hand.', praise: 'A harvest! Take your cut.', icon: 't_water', title: 'Water, then pick',
+      key: 'pick', say: '*Water* it. When it *glows*, pick it with the hand.', praise: '*A harvest!* Take your cut.', icon: 't_water', title: 'Water, then pick',
       note: 'Thirsty crops sulk. When one glows, click it with the hand.',
       at: () => { const c = World.crops[0]; return c ? c.x : 380; },
       done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
     },
     {
-      key: 'feed', say: 'Food tool, pick what you grew, click the wombat.', praise: 'Fed and content. Well done.', icon: 't_food', title: 'Feed her',
+      key: 'feed', say: '*Food* tool, pick what you grew, click the *wombat*.', praise: 'Fed and content. *Well done.*', icon: 't_food', title: 'Feed her',
       note: 'Food tool, pick what you grew, then click the wombat.',
       at: (g) => (g.wombats[0] ? g.wombats[0].x : 340),
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', say: 'What she leaves is holy. Drag it to the truck.', praise: 'Loaded. The gods will notice.', icon: 'truck', title: 'Load the cubes',
+      key: 'load', say: 'What she leaves is holy. Drag it to the *truck*.', praise: 'Loaded. *The gods will notice.*', icon: 'truck', title: 'Load the cubes',
       note: 'What she leaves is an offering. Drag it to the truck, or call the truck over.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
       done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
     },
     {
-      key: 'tree', say: 'The seed in the middle - click it. It is the Tree of Life.', praise: 'You have seen it. Good.', icon: 'tree', title: 'Wake the seed',
+      key: 'tree', say: 'The seed in the middle - *click it*. It is the *Tree of Life*.', praise: 'You have seen it. *Good.*', icon: 'tree', title: 'Wake the seed',
       note: 'The seed in the middle of the plot is the Tree of Life. Click it.',
       at: () => Grove.SEED.x, done: (g) => !!(g.visited && g.visited.tree),
     },
     {
-      key: 'map', say: 'Read the signpost. Everything else is out there.', praise: 'Now you know the way.', icon: 'map', title: 'Read the signpost',
+      key: 'map', say: 'Read the *signpost*. Everything else is out there.', praise: '*Now you know the way.*', icon: 'map', title: 'Read the signpost',
       note: 'It shows the mart, the ritual site, and the fog over the rest.',
       at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.map),
     },
     {
-      key: 'mart', say: 'Walk the mart. Basket first, counter after.', praise: 'A fair trade.', icon: 'shop', title: 'Walk the mart',
+      key: 'mart', say: 'Walk the *mart*. Basket first, counter after.', praise: '*A fair trade.*', icon: 'shop', title: 'Walk the mart',
       note: 'Seed, stock and stone. Basket first, counter after.',
       at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.shop),
     },
     {
-      key: 'god', say: 'Stack what she leaves at the ritual site. Call one down.', praise: 'They answered! I am so proud.', icon: 'shrine', title: 'Call one of them',
+      key: 'god', say: 'Stack what she leaves at the *ritual site*. Call one down.', praise: '*They answered!* I am so proud.', icon: 'shrine', title: 'Call one of them',
       note: 'Stack what she leaves at the ritual site. They do answer.',
       at: () => Grove.POST.x, done: (g) => Object.keys(g.summoned).length > 0,
     },
@@ -175,64 +175,189 @@ const Guide = (() => {
     }
   }
 
-  // A speech bubble built like the panels: a cream page in a green frame with
-  // gold studs, a tail down to her hood, typed out a letter at a time.
+  // ---- the speech bubble ---------------------------------------------------
+  // A page in a wooden frame, but it behaves like a comic: it lands with a
+  // squash, wobbles as it settles, every letter pops in oversized and drops
+  // into place, words she stresses come out in gold, and praise arrives on a
+  // starburst with lines flying off it.
+  const BFONT = '"Pixelify Sans", "Silkscreen", monospace';
+  const BSIZE = 12, LH = 15;
+
+  // split the text into characters, honouring *stress* markers, and wrap it
+  function layout(g, text, maxW) {
+    g.font = `600 ${BSIZE}px ${BFONT}`;
+    const chars = [];
+    let em = false, idx = 0;
+    for (const ch of text) {
+      if (ch === '*') { em = !em; continue; }
+      chars.push({ c: ch, em, i: idx++ });
+    }
+    const lines = [];
+    let line = [], w = 0, wordStart = 0, wordW = 0;
+    for (const ch of chars) {
+      const cw = g.measureText(ch.c).width;
+      if (ch.c === ' ') { wordStart = line.length + 1; wordW = 0; }
+      else wordW += cw;
+      line.push(ch); w += cw;
+      if (w > maxW && wordStart > 0 && line.length > wordStart) {
+        const carry = line.splice(wordStart);
+        while (line.length && line[line.length - 1].c === ' ') line.pop();
+        lines.push(line);
+        line = carry; w = wordW; wordStart = 0;
+      }
+    }
+    if (line.length) lines.push(line);
+    for (const l of lines) {
+      let x = 0;
+      for (const ch of l) { ch.x = x; x += g.measureText(ch.c).width; }
+      l.w = x;
+    }
+    return lines;
+  }
+
+  function star(g, x, y, r, col) {
+    const p = [];
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU - Math.PI / 2, rr = i % 2 ? r * 0.36 : r;
+      p.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]);
+    }
+    Art.poly(g, p, col);
+  }
+
   function drawBubble(g) {
     if (bubble.life <= 0 || !bubble.text) return;
-    const full = bubble.text;
-    const shown = full.slice(0, Math.min(full.length, Math.floor(bubble.shown)));
-    const words = full.split(' '), lines = [];
-    let line = '';
-    for (const w of words) { if ((line + w).length > 26) { lines.push(line.trim()); line = ''; } line += w + ' '; }
-    lines.push(line.trim());
-    const cols = Math.max(...lines.map((l) => l.length));
-    const W = Math.max(84, cols * 6 + 26), H = lines.length * 13 + 18;
-    const scale = 1 + Math.sin(bubble.pop * Math.PI) * 0.18;
+    const praise = bubble.kind === 'praise';
+    const OL = '#1c1008';
+    const PG1 = '#a5825a', PG2 = praise ? '#e2cb9c' : '#c8a87e', PG3 = praise ? '#f6e6bc' : '#dcc49a';
+    const WD0 = '#2a180c', WD1 = praise ? '#7a5210' : '#4a2c1a', WD2 = praise ? '#c1912a' : '#6b4526', WD3 = praise ? '#f2cf62' : '#8a5c33';
+    const TL1 = '#2f7a90', TL2 = '#4fa6be', TL3 = '#8fd4e4';
+    const GD2 = '#e0a82e', GD3 = '#f2cf62', GD4 = '#ffeaa8';
+
+    const lines = layout(g, bubble.text, 168);
+    const W = Math.max(96, Math.ceil(Math.max(...lines.map((l) => l.w))) + 26);
+    const H = lines.length * LH + 20;
+    const shownN = Math.floor(bubble.shown);
+    const total = lines.reduce((n, l) => n + l.length, 0);
+    const done = shownN >= total;
+
+    // where it sits: above her head, always inside the view
     const half = W / 2 + 10;
     const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
     const bx = lo > hi ? FX.cam.x : U.clamp(cult.x + 6, lo, hi);
-    const by = Math.max(24 + H, cult.y - 78);
-    // by is the bottom of the bubble; the frame is drawn from by - H
-    const praise = bubble.kind === 'praise';
-    const OL = '#1c1008';
-    const PG1 = '#a5825a', PG2 = praise ? '#dcc38e' : '#c2a176', PG3 = praise ? '#f0dcae' : '#d8bd92';
-    const WD0 = '#2a180c', WD1 = praise ? '#7a5210' : '#4a2c1a', WD2 = praise ? '#b8801c' : '#6b4526', WD3 = praise ? '#e0a82e' : '#8a5c33';
-    const TL1 = '#2f7a90', TL2 = '#4fa6be', TL3 = '#8fd4e4';
+    const bob = Math.sin(G.time * 2.4) * 1.6;
+    const by = Math.max(30 + H, cult.y - 94) + bob;
+
+    // the landing: a squash that overshoots, and a wobble that settles
+    const p = bubble.pop;
+    const sx = 1 + Math.sin(p * Math.PI) * 0.26 + p * 0.1;
+    const sy = 1 + Math.sin(p * Math.PI) * 0.26 - p * 0.14;
+    const rot = Math.sin(p * 13) * 0.075 * p;
+
     g.save();
-    g.translate(bx, by); g.scale(scale, scale); g.translate(-bx, -by);
+    g.translate(bx, by); g.rotate(rot); g.scale(sx, sy); g.translate(-bx, -by);
     const X = Math.round(bx - W / 2), Y = Math.round(by - H);
+    const CXb = bx, CYb = by - H / 2;
+
+    if (praise) {
+      // a starburst behind the whole thing, turning slowly
+      const spin = G.time * 0.7;
+      const pts = [];
+      for (let i = 0; i < 40; i++) {
+        const a = (i / 40) * TAU + spin, far = i % 2 === 0;
+        const jag = far ? 20 + Math.sin(i * 2.1) * 7 : 4;
+        pts.push([CXb + Math.cos(a) * (W / 2 + jag), CYb + Math.sin(a) * (H / 2 + jag * 0.92)]);
+      }
+      Art.poly(g, pts, 'rgba(28,16,8,0.9)');
+      const pts2 = pts.map(([px, py]) => [CXb + (px - CXb) * 0.9, CYb + (py - CYb) * 0.9]);
+      Art.poly(g, pts2, GD2);
+      const pts3 = pts.map(([px, py]) => [CXb + (px - CXb) * 0.82, CYb + (py - CYb) * 0.82]);
+      Art.poly(g, pts3, GD3);
+      // lines flying off, and a couple of stars
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * TAU + spin * 1.4;
+        const r0 = W / 2 + 26, r1 = r0 + 8 + Math.sin(G.time * 6 + i) * 5;
+        Art.line(g, CXb + Math.cos(a) * r0, CYb + Math.sin(a) * r0 * 0.8,
+                    CXb + Math.cos(a) * r1, CYb + Math.sin(a) * r1 * 0.8, GD4, 2);
+      }
+      for (let i = 0; i < 4; i++) {
+        const a = G.time * 1.6 + i * 1.57, r = W / 2 + 34 + Math.sin(G.time * 3 + i) * 4;
+        star(g, CXb + Math.cos(a) * r, CYb + Math.sin(a) * r * 0.8, 4 + Math.sin(G.time * 5 + i) * 1.4, GD4);
+      }
+    } else if (p > 0.05) {
+      // little marks popping off the moment she starts speaking
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * TAU, r = (1 - p) * 26 + 12;
+        star(g, CXb + Math.cos(a) * (W / 2 + r * 0.5), CYb + Math.sin(a) * (H / 2 + r * 0.4), 3 * p, GD4);
+      }
+    }
+
+    // the frame: wood cover, parchment page, teal brackets
     g.fillStyle = 'rgba(0,0,0,0.4)'; g.fillRect(X + 3, Y + 5, W, H);
     g.fillStyle = OL; g.fillRect(X - 3, Y - 3, W + 6, H + 6);
-    g.fillStyle = WD1; g.fillRect(X, Y, W, H);                       // the cover
+    g.fillStyle = WD1; g.fillRect(X, Y, W, H);
     g.fillStyle = WD3; g.fillRect(X + 1, Y + 1, W - 2, 2);
     g.fillStyle = WD0; g.fillRect(X + 1, Y + H - 3, W - 2, 2);
     g.fillStyle = WD2; g.fillRect(X + 3, Y + 3, W - 6, H - 6);
-    g.fillStyle = PG2; g.fillRect(X + 5, Y + 5, W - 10, H - 10);     // the page
+    g.fillStyle = PG2; g.fillRect(X + 5, Y + 5, W - 10, H - 10);
+    Tex.fill(g, 'paper', X + 5, Y + 5, W - 10, H - 10, 0.5);
     g.fillStyle = PG3; g.fillRect(X + 5, Y + 5, W - 10, 2);
     g.fillStyle = PG1; g.fillRect(X + 5, Y + H - 8, W - 10, 3);
-    for (let i = 0; i < W - 10; i += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(X + 5 + i, Y + 7, 2, H - 14); }
-    // teal brackets at the corners
     const put = (x, y, bw, bh) => {
       g.fillStyle = OL; g.fillRect(x - 1, y - 1, bw + 2, bh + 2);
       g.fillStyle = TL1; g.fillRect(x, y, bw, bh);
       g.fillStyle = TL2; g.fillRect(x, y, bw, Math.max(1, Math.round(bh * 0.62)));
       g.fillStyle = TL3; g.fillRect(x, y, bw, 1);
     };
-    for (const sx of [0, 1]) for (const sy of [0, 1]) {
-      put(sx ? X + W - 11 : X, sy ? Y + H - 4 : Y, 11, 4);
-      put(sx ? X + W - 4 : X, sy ? Y + H - 11 : Y, 4, 11);
+    for (const qx of [0, 1]) for (const qy of [0, 1]) {
+      put(qx ? X + W - 11 : X, qy ? Y + H - 4 : Y, 11, 4);
+      put(qx ? X + W - 4 : X, qy ? Y + H - 11 : Y, 4, 11);
     }
-    const tx = U.clamp(cult.x + 6, X + 16, X + W - 16);              // the tail still points at her
-    g.fillStyle = OL; g.beginPath(); g.moveTo(tx - 11, Y + H - 1); g.lineTo(tx - 2, Y + H + 13); g.lineTo(tx + 5, Y + H - 1); g.fill();
-    g.fillStyle = WD1; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 9); g.lineTo(tx + 2, Y + H - 2); g.fill();
+    // the tail, still pointing at her, with a wag
+    const tx = U.clamp(cult.x + 6 + Math.sin(G.time * 3.2) * 2, X + 18, X + W - 18);
+    g.fillStyle = OL; g.beginPath(); g.moveTo(tx - 11, Y + H - 1); g.lineTo(tx - 2, Y + H + 14); g.lineTo(tx + 6, Y + H - 1); g.fill();
+    g.fillStyle = WD1; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 10); g.lineTo(tx + 3, Y + H - 2); g.fill();
     g.fillStyle = PG2; g.fillRect(X + 5, Y + H - 7, W - 10, 2);
-    let acc = 0;
-    lines.forEach((l, i) => {
-      const part = shown.slice(acc, acc + l.length);
-      acc += l.length + 1;
-      FX.pixelText(g, part, X + 12, Y + 11 + i * 13, { color: '#33200f', size: 10, align: 'left', ink: false });
+
+    // ---- the letters: each one lands oversized and drops into place --------
+    g.font = `600 ${BSIZE}px ${BFONT}`;
+    g.textAlign = 'left'; g.textBaseline = 'top';
+    let n = 0;
+    lines.forEach((l, li) => {
+      const ly = Y + 11 + li * LH;
+      for (const ch of l) {
+        if (ch.i >= shownN) { n++; continue; }
+        const age = bubble.shown - ch.i;
+        const k = U.clamp(age / 2.6, 0, 1);
+        const e = 1 - U.easeOut(k);
+        const cs = 1 + e * 1.5;
+        const cx = X + 13 + ch.x, cy = ly - e * 7;
+        const tilt = e * (ch.i % 2 ? 0.5 : -0.5);
+        g.save();
+        g.translate(cx, cy); g.rotate(tilt); g.scale(cs, cs);
+        const body = ch.em ? '#a36a10' : '#33200f';
+        const shadow = ch.em ? 'rgba(255,234,168,0.9)' : 'rgba(232,214,178,0.85)';
+        g.fillStyle = shadow; g.fillText(ch.c, 1, 1);
+        g.fillStyle = body; g.fillText(ch.c, 0, 0);
+        if (ch.em && e < 0.1) { g.fillStyle = 'rgba(255,234,168,0.5)'; g.fillText(ch.c, -1, -1); }
+        g.restore();
+        n++;
+      }
     });
-    if (shown.length < full.length && Math.floor(bubble.life * 6) % 2) { g.fillStyle = '#33200f'; g.fillRect(X + W - 13, Y + H - 13, 4, 4); }
+
+    // ---- the cue in the corner ---------------------------------------------
+    if (!done) {                                        // still speaking: three dots
+      for (let i = 0; i < 3; i++) {
+        const up = Math.max(0, Math.sin(G.time * 7 - i * 0.7)) * 3;
+        g.fillStyle = i === Math.floor(G.time * 4) % 3 ? '#33200f' : '#8d6a44';
+        g.fillRect(X + W - 24 + i * 6, Y + H - 12 - up, 3, 3);
+      }
+    } else {                                            // finished: a bouncing arrow
+      const up = Math.abs(Math.sin(G.time * 4)) * 3;
+      const ax = X + W - 16, ay = Y + H - 13 + up;
+      g.fillStyle = OL; g.fillRect(ax - 5, ay - 1, 10, 3); g.fillRect(ax - 3, ay + 2, 6, 3); g.fillRect(ax - 1, ay + 5, 2, 2);
+      g.fillStyle = GD2; g.fillRect(ax - 4, ay, 8, 2); g.fillRect(ax - 2, ay + 2, 4, 2);
+      g.fillStyle = GD4; g.fillRect(ax - 4, ay, 8, 1);
+    }
     g.restore();
   }
 

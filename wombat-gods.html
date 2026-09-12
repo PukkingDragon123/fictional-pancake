@@ -23,14 +23,14 @@
   --ink: #33200f; --ink2: #5e422a;
   --m3: #5d9440; --m4: #84bb59;
   --cream: #eddcb6; --parch: #c2a176;
-  --f: "Silkscreen", "Press Start 2P", monospace;
+  --f: "Pixelify Sans", "Silkscreen", monospace;
   --ft: "Press Start 2P", "Silkscreen", monospace;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { margin: 0; height: 100%; overflow: hidden; color: var(--ink); font-family: var(--f); font-size: 14px;
+html, body { margin: 0; height: 100%; overflow: hidden; color: var(--ink); font-family: var(--f); font-size: 16px;
   background: radial-gradient(ellipse at 50% 42%, var(--pp2) 0%, var(--pp1) 46%, var(--pp0) 100%); }
-button { font-family: var(--f); cursor: pointer; color: var(--cream); font-size: 13px; }
+button { font-family: var(--f); cursor: pointer; color: var(--cream); font-size: 15px; font-weight: 600; }
 img.ico { width: 26px; height: 26px; image-rendering: pixelated; display: block; }
 img.ico.sm { width: 18px; height: 18px; }
 img.ico.lg { width: 34px; height: 34px; }
@@ -56,7 +56,10 @@ img.ico.xl { width: 48px; height: 48px; }
 .btn, .act, .wbtn, .buy, .rbtn, .hub {
   position: relative; display: flex; align-items: center; justify-content: center; gap: 7px;
   padding: 9px 15px; color: #3d2606; font-family: var(--f); text-shadow: 0 1px 0 rgba(255,240,190,0.4);
-  background: linear-gradient(180deg, var(--gd3) 0 26%, var(--gd2) 26% 64%, var(--gd1) 64% 100%);
+  background:
+    linear-gradient(180deg, rgba(255,250,215,0.72) 0 18%, rgba(255,240,180,0.24) 18% 34%, rgba(0,0,0,0) 34% 62%, rgba(0,0,0,0.22) 62% 82%, rgba(0,0,0,0.42) 82% 100%),
+    var(--tex-gold, none) repeat,
+    linear-gradient(180deg, var(--gd2), var(--gd1));
   border: 3px solid var(--ol);
   box-shadow: inset 0 0 0 2px rgba(255,240,190,0.5), 0 5px 0 0 var(--gd0), 0 5px 0 3px var(--ol);
   transition: transform 0.04s;
@@ -72,7 +75,10 @@ img.ico.xl { width: 48px; height: 48px; }
 .x, .bx {
   position: relative; display: flex; align-items: center; justify-content: center; padding: 6px 8px;
   color: #fff2e0; border: 3px solid var(--ol);
-  background: linear-gradient(180deg, var(--am3) 0 26%, var(--am2) 26% 64%, var(--am1) 64% 100%);
+  background:
+    linear-gradient(180deg, rgba(255,230,190,0.66) 0 18%, rgba(255,214,160,0.2) 18% 34%, rgba(0,0,0,0) 34% 62%, rgba(0,0,0,0.24) 62% 82%, rgba(0,0,0,0.44) 82% 100%),
+    var(--tex-amber, none) repeat,
+    linear-gradient(180deg, var(--am2), var(--am1));
   box-shadow: inset 0 0 0 2px rgba(255,210,160,0.4), 0 4px 0 0 var(--am0), 0 4px 0 3px var(--ol);
 }
 .x:hover, .bx:hover { background: linear-gradient(180deg, #ffb877 0 26%, #e08a36 26% 64%, #b8601c 64% 100%); }
@@ -80,7 +86,10 @@ img.ico.xl { width: 48px; height: 48px; }
 .mbtn {
   position: relative; display: flex; align-items: center; justify-content: center; padding: 7px 9px;
   border: 3px solid var(--ol);
-  background: linear-gradient(180deg, var(--sl2) 0 26%, var(--sl1) 26% 66%, var(--sl0) 66% 100%);
+  background:
+    linear-gradient(180deg, rgba(214,236,255,0.5) 0 18%, rgba(180,210,246,0.16) 18% 34%, rgba(0,0,0,0) 34% 60%, rgba(0,0,0,0.3) 60% 82%, rgba(0,0,0,0.5) 82% 100%),
+    var(--tex-slate, none) repeat,
+    linear-gradient(180deg, var(--sl1), var(--sl0));
   box-shadow: inset 0 0 0 2px rgba(180,208,246,0.35), 0 4px 0 0 #101c30, 0 4px 0 3px var(--ol);
 }
 .mbtn:hover { background: linear-gradient(180deg, #7c9ed0 0 26%, #4f73a6 26% 66%, #253c62 66% 100%); }
@@ -107,8 +116,9 @@ img.ico.xl { width: 48px; height: 48px; }
   display: flex; align-items: center; gap: 9px; padding: 8px 16px;
   font-variant-numeric: tabular-nums; pointer-events: none;
   background:
-    repeating-linear-gradient(96deg, rgba(0,0,0,0.14) 0 2px, rgba(0,0,0,0) 2px 11px),
-    linear-gradient(180deg, var(--wd3) 0 16%, var(--wd2) 16% 52%, var(--wd1) 52% 84%, var(--wd0) 84% 100%);
+    linear-gradient(180deg, rgba(255,220,160,0.36) 0 13%, rgba(0,0,0,0) 13% 46%, rgba(0,0,0,0.18) 46% 78%, rgba(0,0,0,0.4) 78% 100%),
+    var(--tex-wood, none) repeat,
+    linear-gradient(180deg, var(--wd2), var(--wd1));
   border: 3px solid var(--ol);
   box-shadow: inset 0 2px 0 rgba(210,160,100,0.4), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
 }
@@ -127,8 +137,10 @@ img.ico.xl { width: 48px; height: 48px; }
   position: absolute; right: 24px; top: 30px; z-index: 6; width: 206px;
   padding: 16px 12px 12px; pointer-events: none; color: var(--ink);
   background:
-    repeating-linear-gradient(92deg, rgba(125,92,58,0.07) 0 3px, rgba(0,0,0,0) 3px 9px),
-    linear-gradient(168deg, var(--pg3) 0%, var(--pg2) 62%, var(--pg1) 100%);
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2));
   border: 7px solid var(--wd1);
   box-shadow: inset 0 0 0 2px var(--wd2), inset 0 0 22px rgba(90,60,30,0.28), 0 0 0 4px var(--ol), 0 10px 0 4px rgba(0,0,0,0.42);
 }
@@ -148,11 +160,12 @@ img.ico.xl { width: 48px; height: 48px; }
   position: relative; z-index: 1; margin: -30px -2px 14px; padding: 9px 18px 8px; text-align: center; line-height: 1;
   color: #f6e4bb; font-family: var(--ft); font-size: 11px; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(0,0,0,0.6);
   background:
-    repeating-linear-gradient(96deg, rgba(0,0,0,0.14) 0 2px, rgba(0,0,0,0) 2px 11px),
-    linear-gradient(180deg, var(--wd3) 0 16%, var(--wd2) 16% 52%, var(--wd1) 52% 84%, var(--wd0) 84% 100%);
+    linear-gradient(180deg, rgba(255,220,160,0.36) 0 13%, rgba(0,0,0,0) 13% 46%, rgba(0,0,0,0.18) 46% 78%, rgba(0,0,0,0.4) 78% 100%),
+    var(--tex-wood, none) repeat,
+    linear-gradient(180deg, var(--wd2), var(--wd1));
   border: 3px solid var(--ol); box-shadow: inset 0 2px 0 rgba(210,160,100,0.4), 0 3px 0 0 var(--wd0), 0 3px 0 3px var(--ol);
 }
-.task { display: flex; align-items: center; gap: 7px; padding: 5px 2px; font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.task { display: flex; align-items: center; gap: 7px; padding: 5px 2px; font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
 .task .box { position: relative; width: 14px; height: 14px; flex: none; background: var(--pg4); border: 2px solid var(--ink); }
 .task .box i { position: absolute; left: -1px; top: -6px; width: 16px; height: 16px;
   background: linear-gradient(45deg, transparent 44%, #44762a 44% 62%, transparent 62%),
@@ -161,15 +174,17 @@ img.ico.xl { width: 48px; height: 48px; }
 .task.done .box i { animation: tick 0.35s ease-out; transform-origin: center; }
 .task.done b { text-decoration: line-through; }
 .task img.ico { width: 24px; height: 24px; }
-.task b { font-weight: normal; min-width: 46px; text-align: right; font-size: 13px; }
-.task b small { font-size: 11px; color: var(--ink2); }
+.task b { font-weight: 600; min-width: 46px; text-align: right; font-size: 15px; }
+.task b small { font-size: 13px; color: var(--ink2); }
 /* the segmented gold bar from the sheet */
 .task .bar { flex: 1; height: 11px; padding: 2px; background: var(--wd0); border: 2px solid var(--ol);
   box-shadow: inset 0 1px 0 rgba(0,0,0,0.5); overflow: hidden; }
 .task .bar i { display: block; height: 100%;
   background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.45) 0 1px, rgba(0,0,0,0) 1px 5px),
-    linear-gradient(180deg, var(--gd3) 0 40%, var(--gd1) 40% 100%); }
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.5) 0 1px, rgba(0,0,0,0) 1px 5px),
+    var(--tex-gold, none) repeat,
+    linear-gradient(180deg, rgba(255,246,205,0.6) 0 34%, rgba(0,0,0,0.2) 34% 100%),
+    linear-gradient(180deg, var(--gd2), var(--gd1)); }
 
 /* ---- corner buttons ------------------------------------------------------ */
 #side { position: absolute; right: 20px; bottom: 18px; z-index: 6; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
@@ -184,9 +199,13 @@ img.ico.xl { width: 48px; height: 48px; }
 
 /* ---- tooltip ------------------------------------------------------------- */
 #tip {
-  position: absolute; pointer-events: none; z-index: 20; max-width: 280px; line-height: 1.6;
-  color: var(--ink); padding: 9px 11px; font-size: 13px;
-  background: linear-gradient(168deg, var(--pg3), var(--pg1));
+  position: absolute; pointer-events: none; z-index: 20; max-width: 290px; line-height: 1.55;
+  color: var(--ink); padding: 9px 11px; font-size: 15px;
+  background:
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2));
   border: 4px solid var(--wd1);
   box-shadow: inset 0 0 0 2px var(--wd2), 0 0 0 3px var(--ol), 5px 6px 0 rgba(0,0,0,0.5);
 }
@@ -200,8 +219,10 @@ img.ico.xl { width: 48px; height: 48px; }
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 30px; color: var(--ink);
   background:
-    repeating-linear-gradient(92deg, rgba(125,92,58,0.07) 0 3px, rgba(0,0,0,0) 3px 9px),
-    linear-gradient(168deg, var(--pg3) 0%, var(--pg2) 62%, var(--pg1) 100%);
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2));
   border: 7px solid var(--wd1);
   box-shadow: inset 0 0 0 2px var(--wd2), inset 0 0 26px rgba(90,60,30,0.3), 0 0 0 4px var(--ol), 0 12px 0 4px rgba(0,0,0,0.5);
 }
@@ -209,11 +230,15 @@ img.ico.xl { width: 48px; height: 48px; }
 .act.big { padding: 13px 26px; }
 .act.small { padding: 7px 9px; }
 .keys { display: flex; gap: 6px; }
-kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 5px; padding: 4px 7px; font-size: 13px; color: var(--ink); font-family: var(--f); }
+kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 5px; padding: 4px 7px; font-size: 14px; color: var(--ink); font-family: var(--f); }
 
 #ov-shrine .godlist { position: absolute; right: 10px; top: 10px; bottom: 74px; width: 164px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
 .gcard { display: flex; align-items: center; gap: 6px; padding: 5px 6px; cursor: pointer; color: var(--ink);
-  background: linear-gradient(168deg, var(--pg3), var(--pg1)); border: 3px solid var(--ol); border-left: 7px solid var(--wd2);
+  background:
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2)); border: 3px solid var(--ol); border-left: 7px solid var(--wd2);
   box-shadow: inset 0 0 0 2px var(--wd2), 0 3px 0 rgba(0,0,0,0.45); }
 .gcard.ready { border-left-color: var(--gd2); }
 .gcard.done { opacity: 0.5; border-left-color: var(--tl2); }
@@ -225,7 +250,10 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 #b-summon { position: absolute; right: 12px; bottom: 12px; }
 #b-unstage { position: absolute; left: 12px; bottom: 12px; }
 #rite-tray { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); padding: 8px;
-  background: linear-gradient(180deg, var(--wd2), var(--wd0)); border: 3px solid var(--ol);
+  background:
+    linear-gradient(180deg, rgba(255,214,150,0.26) 0 11%, rgba(0,0,0,0) 11% 56%, rgba(0,0,0,0.36) 56% 100%),
+    var(--tex-darkwood, none) repeat,
+    linear-gradient(180deg, var(--wd1), var(--wd0)); border: 3px solid var(--ol);
   box-shadow: inset 0 2px 0 rgba(210,160,100,0.3), 0 5px 0 rgba(0,0,0,0.5); }
 #rite-slots { display: flex; gap: 6px; }
 #b-basket { position: absolute; right: 14px; bottom: 14px; }
@@ -234,7 +262,10 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 .strip { display: flex; gap: 6px; flex-wrap: wrap; }
 .strip .empty { font-size: 12px; color: var(--pg4); }
 .chip { position: relative; width: 50px; height: 50px; flex: none; display: flex; align-items: center; justify-content: center; padding: 0;
-  background: linear-gradient(162deg, #5d3d22 0%, #442c18 56%, #2f1d0f 100%); border: 3px solid var(--ol);
+  background:
+    linear-gradient(162deg, rgba(230,184,124,0.3) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%),
+    var(--tex-cellwood, none) repeat,
+    linear-gradient(180deg, #442c18, #33200f); border: 3px solid var(--ol);
   box-shadow: inset 0 2px 0 rgba(210,160,100,0.22), inset 0 -3px 0 rgba(0,0,0,0.45); }
 .chip::before { content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
@@ -250,17 +281,28 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 
 .readout { position: absolute; left: 12px; top: 60px; display: flex; flex-direction: column; gap: 5px; }
 .readout .line { display: flex; align-items: center; gap: 7px; padding: 4px 9px; min-width: 104px; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink);
-  background: linear-gradient(168deg, var(--pg3), var(--pg1)); border: 3px solid var(--ol); border-left: 7px solid var(--wd2); box-shadow: inset 0 0 0 2px var(--wd2); }
+  background:
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2)); border: 3px solid var(--ol); border-left: 7px solid var(--wd2); box-shadow: inset 0 0 0 2px var(--wd2); }
 .readout .line img { width: 18px; height: 18px; image-rendering: pixelated; }
 #r-lives { gap: 3px; }
 #r-lives img { width: 16px; height: 16px; image-rendering: pixelated; }
 .goals { display: flex; flex-direction: column; gap: 4px; }
 .goals div { display: flex; align-items: center; gap: 6px; padding: 4px 8px; font-size: 12px; color: var(--ink);
-  background: linear-gradient(168deg, var(--pg3), var(--pg1)); border: 3px solid var(--ol); border-left: 7px solid var(--tl2); box-shadow: inset 0 0 0 2px var(--wd2); }
+  background:
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2)); border: 3px solid var(--ol); border-left: 7px solid var(--tl2); box-shadow: inset 0 0 0 2px var(--wd2); }
 .goals div.done { border-left-color: #6ea83e; color: #3f6b1c; }
 .boons { display: flex; gap: 4px; flex-wrap: wrap; max-width: 128px; }
 .boons img { width: 26px; height: 26px; image-rendering: pixelated; padding: 2px;
-  background: linear-gradient(162deg, #5d3d22, #2f1d0f); border: 3px solid var(--ol); }
+  background:
+    linear-gradient(162deg, rgba(230,184,124,0.3) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%),
+    var(--tex-cellwood, none) repeat,
+    linear-gradient(180deg, #442c18, #33200f); border: 3px solid var(--ol); }
 
 /* ---- panels: the open book ----------------------------------------------- */
 .panel {
@@ -268,8 +310,10 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
   width: min(780px, 94vw); max-height: 86vh; display: flex; flex-direction: column;
   padding: 0 0 18px; color: var(--ink); animation: pop 0.15s ease-out;
   background:
-    repeating-linear-gradient(92deg, rgba(125,92,58,0.07) 0 3px, rgba(0,0,0,0) 3px 9px),
-    linear-gradient(168deg, var(--pg3) 0%, var(--pg2) 62%, var(--pg1) 100%);
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2));
   border: 8px solid var(--wd1);
   box-shadow: inset 0 0 0 3px var(--wd2), inset 0 0 34px rgba(90,60,30,0.3), 0 0 0 5px var(--ol), 0 14px 0 5px rgba(0,0,0,0.55);
 }
@@ -295,8 +339,9 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
   margin: -24px 34px 14px; padding: 11px 22px 11px 18px;
   color: #f6e4bb; font-family: var(--ft); font-size: 12px; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(0,0,0,0.6);
   background:
-    repeating-linear-gradient(96deg, rgba(0,0,0,0.14) 0 2px, rgba(0,0,0,0) 2px 11px),
-    linear-gradient(180deg, var(--wd3) 0 16%, var(--wd2) 16% 52%, var(--wd1) 52% 84%, var(--wd0) 84% 100%);
+    linear-gradient(180deg, rgba(255,220,160,0.36) 0 13%, rgba(0,0,0,0) 13% 46%, rgba(0,0,0,0.18) 46% 78%, rgba(0,0,0,0.4) 78% 100%),
+    var(--tex-wood, none) repeat,
+    linear-gradient(180deg, var(--wd2), var(--wd1));
   border: 3px solid var(--ol); box-shadow: inset 0 2px 0 rgba(210,160,100,0.4), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
 }
 .phead::before, .phead::after {
@@ -310,11 +355,18 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 .pbody { position: relative; z-index: 1; overflow-y: auto; padding: 4px 20px 2px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
 .item { display: grid; grid-template-columns: 58px 1fr; gap: 5px 11px; padding: 10px; align-items: center;
-  background: linear-gradient(168deg, var(--pg4), var(--pg2)); border: 3px solid var(--ol);
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,250,225,0.44) 0%, rgba(255,250,225,0) 62%),
+    linear-gradient(168deg, rgba(246,234,204,0.4) 0%, rgba(0,0,0,0) 44%, rgba(118,86,52,0.22) 100%),
+    var(--tex-paper2, none) repeat,
+    linear-gradient(180deg, var(--pg3), var(--pg3)); border: 3px solid var(--ol);
   box-shadow: inset 0 0 0 2px var(--pg1), 0 4px 0 rgba(0,0,0,0.4); }
 .item.have { box-shadow: inset 0 0 0 2px var(--gd2), 0 4px 0 rgba(0,0,0,0.4); }
 .item .pic { grid-row: 1 / 3; position: relative; width: 54px; height: 54px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(162deg, #5d3d22 0%, #442c18 56%, #2f1d0f 100%); border: 3px solid var(--ol);
+  background:
+    linear-gradient(162deg, rgba(230,184,124,0.3) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%),
+    var(--tex-cellwood, none) repeat,
+    linear-gradient(180deg, #442c18, #33200f); border: 3px solid var(--ol);
   box-shadow: inset 0 2px 0 rgba(210,160,100,0.22), inset 0 -3px 0 rgba(0,0,0,0.45); }
 .item .pic::before { content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
@@ -325,7 +377,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 .item .pic img { width: 40px; height: 40px; image-rendering: pixelated; }
 .item h3 { grid-column: 2; margin: 0; font-family: var(--ft); font-size: 10px; display: flex; gap: 8px; align-items: baseline; color: #6b3d12; }
 .item h3 .lv { font-family: var(--f); font-size: 13px; color: var(--gd0); }
-.item p { grid-column: 2; margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink2); }
+.item p { grid-column: 2; margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink2); }
 .item .act2 { grid-column: 1 / 3; display: flex; gap: 6px; justify-content: flex-end; align-items: center; margin-top: 6px; }
 .buy { padding: 7px 11px; font-variant-numeric: tabular-nums; font-size: 13px; }
 .buy img { width: 17px; height: 17px; image-rendering: pixelated; }
@@ -333,30 +385,40 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 
 /* basket */
 .blist { display: flex; flex-direction: column; gap: 6px; }
-.brow { display: flex; align-items: center; gap: 10px; padding: 7px 9px; font-size: 13px; color: var(--ink);
-  background: linear-gradient(168deg, var(--pg4), var(--pg2)); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--pg1); }
+.brow { display: flex; align-items: center; gap: 10px; padding: 7px 9px; font-size: 15px; color: var(--ink);
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,250,225,0.44) 0%, rgba(255,250,225,0) 62%),
+    linear-gradient(168deg, rgba(246,234,204,0.4) 0%, rgba(0,0,0,0) 44%, rgba(118,86,52,0.22) 100%),
+    var(--tex-paper2, none) repeat,
+    linear-gradient(180deg, var(--pg3), var(--pg3)); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--pg1); }
 .brow img.ico { image-rendering: pixelated; }
 .brow .bn { flex: 1; }
 .brow .bq { color: var(--gd0); }
 .brow .bp { display: flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
 .btotal { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 12px; color: var(--ink);
-  background: linear-gradient(168deg, var(--pg4), var(--pg2)); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--pg1); }
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,250,225,0.44) 0%, rgba(255,250,225,0) 62%),
+    linear-gradient(168deg, rgba(246,234,204,0.4) 0%, rgba(0,0,0,0) 44%, rgba(118,86,52,0.22) 100%),
+    var(--tex-paper2, none) repeat,
+    linear-gradient(180deg, var(--pg3), var(--pg3)); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--pg1); }
 .btotal b { font-family: var(--ft); font-size: 14px; color: #8a5a12; font-weight: normal; font-variant-numeric: tabular-nums; }
 .btotal .dim { margin-left: auto; font-size: 12px; }
 .brow2 { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
 .empty2 { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px; color: var(--ink2); }
 .empty2 img { image-rendering: pixelated; }
-.empty2 p { margin: 0; font-size: 13px; }
+.empty2 p { margin: 0; font-size: 15px; }
 
-.help ol { padding-left: 22px; font-size: 13px; line-height: 1.9; color: var(--ink); }
+.help ol { padding-left: 22px; font-size: 15px; line-height: 1.75; color: var(--ink); }
 .help li { margin-bottom: 5px; }
 .help .row { display: flex; gap: 8px; margin-top: 12px; }
 
 .modal { position: fixed; inset: 0; background: rgba(20,10,32,0.8); z-index: 40; display: flex; align-items: center; justify-content: center; }
 .mcard { position: relative; width: min(660px, 92vw); padding: 26px; text-align: center; color: var(--ink); animation: pop2 0.15s ease-out;
   background:
-    repeating-linear-gradient(92deg, rgba(125,92,58,0.07) 0 3px, rgba(0,0,0,0) 3px 9px),
-    linear-gradient(168deg, var(--pg3) 0%, var(--pg2) 62%, var(--pg1) 100%);
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2));
   border: 8px solid var(--wd1);
   box-shadow: inset 0 0 0 3px var(--wd2), inset 0 0 34px rgba(90,60,30,0.3), 0 0 0 5px var(--ol), 0 14px 0 5px rgba(0,0,0,0.6); }
 .mcard::after {
@@ -372,7 +434,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     linear-gradient(90deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 100% 100%/8px 22px no-repeat;
 }
 .mcard h2 { margin: 0 0 10px; font-family: var(--ft); font-size: 16px; }
-.mcard p { font-size: 13px; line-height: 1.7; color: var(--ink2); margin: 0 0 12px; }
+.mcard p { font-size: 15px; line-height: 1.6; color: var(--ink2); margin: 0 0 12px; }
 .mcard .act { margin: 0 auto; }
 .mrow { display: flex; gap: 18px; align-items: center; justify-content: center; margin: 14px 0; flex-wrap: wrap; }
 .mrow .cell { display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 13px; }
@@ -382,8 +444,12 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 .sum .v { color: #8a5a12; text-align: right; font-variant-numeric: tabular-nums; }
 
 #toasts { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 50; pointer-events: none; }
-.toast { padding: 9px 14px; font-size: 13px; color: var(--ink); max-width: 340px; line-height: 1.6; animation: slide 0.2s ease-out;
-  background: linear-gradient(168deg, var(--pg3), var(--pg1));
+.toast { padding: 9px 14px; font-size: 15px; color: var(--ink); max-width: 340px; line-height: 1.55; animation: slide 0.2s ease-out;
+  background:
+    radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
+    linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
+    var(--tex-paper, none) repeat,
+    linear-gradient(180deg, var(--pg2), var(--pg2));
   border: 4px solid var(--wd1);
   box-shadow: inset 0 0 0 2px var(--wd2), 0 0 0 3px var(--ol), 0 6px 0 rgba(0,0,0,0.5); }
 .toast.good { border-color: #6ea83e; }
@@ -395,7 +461,10 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
   position: absolute; width: 56px; height: 56px; margin: -28px 0 0 -28px; padding: 0;
   display: flex; align-items: center; justify-content: center;
   animation: spoke-in 0.16s ease-out both;
-  background: linear-gradient(162deg, #6b4728 0%, #4d3119 56%, #33200f 100%);
+  background:
+    linear-gradient(162deg, rgba(230,184,124,0.3) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%),
+    var(--tex-cellwood, none) repeat,
+    linear-gradient(180deg, #442c18, #33200f);
   border: 3px solid var(--ol);
   box-shadow: inset 0 2px 0 rgba(210,160,100,0.26), inset 0 -3px 0 rgba(0,0,0,0.45), 0 5px 0 0 #241505, 0 5px 0 3px var(--ol);
 }
@@ -783,6 +852,162 @@ const Art = (() => {
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
   return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng };
+})();
+</script>
+
+<script>
+// ===== js/tex.js =====
+// ---- Procedural tiling textures ------------------------------------------
+// Flat gradients read as plastic. These are small seamless tiles painted a
+// pixel at a time - wood grain and knots, paper fibre, brushed metal, beaten
+// gold - handed to CSS as data URLs and to the canvas as repeat patterns.
+const Tex = (() => {
+  const urls = new Map(), pats = new Map(), tiles = new Map();
+
+  function tile(name, w, h, draw) {
+    let c = tiles.get(name);
+    if (c) return c;
+    const o = Art.cv(w, h);
+    draw(o.g, w, h, Art.rng(name.length * 7717 + w * 31 + h));
+    tiles.set(name, o.c);
+    return o.c;
+  }
+  // wrap a dot into the tile so nothing shows a seam
+  const dot = (g, x, y, w, h, col) => { g.fillStyle = col; g.fillRect(((x % w) + w) % w, ((y % h) + h) % h, 1, 1); };
+
+  // ---- wood: grain running the long way, a couple of knots ---------------
+  function wood(base, dark, light, knots) {
+    return (g, w, h, r) => {
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < h * 1.6; i++) {                     // grain lines
+        const y0 = 1 + r() * (h - 2), k = 1 + Math.floor(r() * 3);
+        const amp = 0.6 + r() * 1.6, ph = r() * TAU;
+        const col = r() < 0.5 ? dark : light;
+        const a = 0.25 + r() * 0.5;
+        g.globalAlpha = a;
+        for (let x = 0; x < w; x++) {
+          const y = Math.round(y0 + Math.sin((x / w) * TAU * k + ph) * amp);
+          g.fillStyle = col; g.fillRect(x, ((y % h) + h) % h, 1, 1);
+        }
+        g.globalAlpha = 1;
+      }
+      for (let i = 0; i < (knots || 2); i++) {                 // knots, kept off the seams
+        const kx = 8 + r() * (w - 16), ky = 6 + r() * (h - 12);
+        for (let ring = 4; ring >= 1; ring--) {
+          g.globalAlpha = 0.5;
+          Art.ell(g, kx, ky, ring * 1.9, ring * 1.25, ring % 2 ? dark : light);
+        }
+        g.globalAlpha = 0.75; Art.ell(g, kx, ky, 1.6, 1.1, dark);
+        g.globalAlpha = 1;
+      }
+      for (let i = 0; i < w * h * 0.05; i++) dot(g, r() * w, r() * h, w, h, r() < 0.5 ? dark : light);
+    };
+  }
+  // ---- paper: fibre, laid lines, a few old stains ------------------------
+  function paper(base, dark, light, stain) {
+    return (g, w, h, r) => {
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for (let y = 3; y < h; y += 7) {                         // laid lines
+        g.globalAlpha = 0.16; g.fillStyle = dark; g.fillRect(0, y, w, 1);
+        g.globalAlpha = 0.1; g.fillStyle = light; g.fillRect(0, y + 1, w, 1);
+      }
+      g.globalAlpha = 1;
+      for (let i = 0; i < w * h * 0.15; i++) {                 // fibre
+        const q = r();
+        dot(g, r() * w, r() * h, w, h, q < 0.42 ? dark : q < 0.84 ? light : base);
+      }
+      for (let i = 0; i < 3; i++) {                            // stains
+        const sx = 10 + r() * (w - 20), sy = 8 + r() * (h - 16), sr = 4 + r() * 7;
+        g.globalAlpha = 0.07;
+        Art.ell(g, sx, sy, sr, sr * 0.7, stain || dark);
+        g.globalAlpha = 0.05;
+        Art.ell(g, sx + 2, sy + 1, sr * 0.6, sr * 0.45, stain || dark);
+        g.globalAlpha = 1;
+      }
+    };
+  }
+  // ---- metal: brushed the short way, with a bright band ------------------
+  function metal(base, dark, light) {
+    return (g, w, h, r) => {
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for (let x = 0; x < w; x++) {
+        const q = r();
+        g.globalAlpha = 0.12 + r() * 0.3;
+        g.fillStyle = q < 0.45 ? dark : light;
+        g.fillRect(x, 0, 1, h);
+      }
+      g.globalAlpha = 1;
+      for (let i = 0; i < w * h * 0.12; i++) dot(g, r() * w, r() * h, w, h, r() < 0.5 ? dark : light);
+    };
+  }
+  // ---- gold: beaten, with hammer dents and a sparkle or two --------------
+  function beaten(base, dark, light) {
+    return (g, w, h, r) => {
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 22; i++) {                           // hammer dents
+        const dx = 3 + r() * (w - 6), dy = 3 + r() * (h - 6), dr = 1.6 + r() * 2.4;
+        g.globalAlpha = 0.2; Art.ell(g, dx, dy + 0.8, dr, dr * 0.8, dark);
+        g.globalAlpha = 0.24; Art.ell(g, dx - 0.5, dy - 0.6, dr * 0.7, dr * 0.5, light);
+      }
+      g.globalAlpha = 1;
+      for (let i = 0; i < w * h * 0.1; i++) dot(g, r() * w, r() * h, w, h, r() < 0.5 ? dark : light);
+      for (let i = 0; i < 3; i++) {                            // a glint
+        const sx = 4 + r() * (w - 8), sy = 4 + r() * (h - 8);
+        g.fillStyle = light; g.fillRect(sx, sy, 1, 1); g.fillRect(sx + 1, sy, 1, 1);
+      }
+    };
+  }
+
+  const DEF = {
+    wood:     [72, 40, wood('#6b4526', '#3f2611', '#a2714a', 2)],
+    darkwood: [72, 40, wood('#4a2c1a', '#25150a', '#7a4e2c', 2)],
+    cellwood: [48, 48, wood('#442c18', '#22140a', '#6b4728', 1)],
+    paper:    [72, 72, paper('#c2a176', '#8d6a44', '#e3cda2', '#9a7248')],
+    paper2:   [72, 72, paper('#d8bd92', '#a5825a', '#f2e2bd', '#a9814f')],
+    metal:    [26, 26, metal('#4fa6be', '#22647a', '#a6e3f2')],
+    gold:     [26, 26, beaten('#e0a82e', '#9a6c12', '#ffeaa8')],
+    amber:    [26, 26, beaten('#cf7a2a', '#8a440f', '#ffc98a')],
+    slate:    [26, 26, metal('#3f5f8f', '#1e3050', '#9fbde6')],
+  };
+
+  function canvas(name) {
+    const d = DEF[name];
+    if (!d) return null;
+    return tile(name, d[0], d[1], d[2]);
+  }
+  function url(name) {
+    let u = urls.get(name);
+    if (u !== undefined) return u;
+    const c = canvas(name);
+    u = c ? c.toDataURL() : '';
+    urls.set(name, u);
+    return u;
+  }
+  // a repeat pattern for the game canvas; the tile is shared with CSS
+  function pat(g, name) {
+    let p = pats.get(name);
+    if (p !== undefined) return p;
+    const c = canvas(name);
+    p = c ? g.createPattern(c, 'repeat') : null;
+    pats.set(name, p);
+    return p;
+  }
+  // fill a rect with a texture, tinted by whatever is already underneath
+  function fill(g, name, x, y, w, h, alpha) {
+    const p = pat(g, name);
+    if (!p) return;
+    g.save();
+    if (alpha != null) g.globalAlpha = alpha;
+    g.fillStyle = p;
+    g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+    g.restore();
+  }
+  // hand every tile to CSS as a custom property
+  function install() {
+    const root = document.documentElement.style;
+    for (const k of Object.keys(DEF)) root.setProperty('--tex-' + k, `url(${url(k)})`);
+  }
+  return { url, canvas, pat, fill, install, names: () => Object.keys(DEF) };
 })();
 </script>
 
@@ -3544,7 +3769,7 @@ const FX = (() => {
   function pixelText(g, text, x, y, o = {}) {
     const size = o.size && o.size > 3 ? o.size : (o.size || 1) * 7;
     g.save();
-    g.font = `${size}px ${o.font || '"Silkscreen", "Press Start 2P", monospace'}`;
+    g.font = `${o.weight || 600} ${size}px ${o.font || '"Pixelify Sans", "Silkscreen", monospace'}`;
     g.textAlign = o.align || 'center';
     g.textBaseline = o.baseline || 'top';
     const X = Math.round(x), Y = Math.round(y);
@@ -5376,8 +5601,8 @@ const Knowledge = (() => {
   const WW = 1500, WH = 900;
   const GROUND = 780, BASE = 750, FORK = 630;
   const COLX = [450, 750, 1050];                 // one column per branch
-  const ROWY = [552, 440, 328, 216];             // one row per rank
-  const NW = 170, NH = 72;
+  const ROWY = [556, 448, 340, 232];             // one row per rank
+  const NW = 176, NH = 80;
   const ZMIN = 0.34, ZMAX = 1.8;
   const CARD = 88, CY = (VH - CARD) / 2;
   const cam = { x: BASE, y: 480, z: 0.45, tx: BASE, ty: 480, tz: 0.45 };
@@ -5646,11 +5871,12 @@ const Knowledge = (() => {
     g.fillStyle = WD1; g.fillRect(X, Y, w, h);
     g.fillStyle = WD3; g.fillRect(X + 1, Y + 1, w - 2, 2);
     g.fillStyle = WD0; g.fillRect(X + 1, Y + h - 3, w - 2, 2);
+    Tex.fill(g, 'darkwood', X, Y, w, h, 0.55);
     g.fillStyle = WD2; g.fillRect(X + 4, Y + 4, w - 8, h - 8);
     g.fillStyle = page || PG2; g.fillRect(X + 6, Y + 6, w - 12, h - 12);
+    Tex.fill(g, 'paper', X + 6, Y + 6, w - 12, h - 12, 0.55);
     g.fillStyle = PG3; g.fillRect(X + 6, Y + 6, w - 12, 2);
     g.fillStyle = PG1; g.fillRect(X + 6, Y + h - 9, w - 12, 3);
-    for (let i = 0; i < w - 12; i += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(X + 6 + i, Y + 8, 2, h - 17); }
     bracket(g, X, Y, w, h);
   }
   // the four teal corner brackets
@@ -5674,6 +5900,7 @@ const Knowledge = (() => {
     g.fillStyle = '#442c18'; g.fillRect(X, Y, s, s);
     g.fillStyle = '#5d3d22'; g.fillRect(X, Y, s, Math.round(s * 0.5));
     g.fillStyle = '#6b4728'; g.fillRect(X, Y, s, 2);
+    Tex.fill(g, 'cellwood', X, Y, s, s, 0.6);
     g.fillStyle = '#2f1d0f'; g.fillRect(X, Y + s - 3, s, 3);
     for (const [cx, cy] of [[X, Y], [X + s - 4, Y], [X, Y + s - 4], [X + s - 4, Y + s - 4]]) {
       g.fillStyle = GD1; g.fillRect(cx, cy, 4, 4);
@@ -5692,6 +5919,7 @@ const Knowledge = (() => {
     g.fillStyle = T[2]; g.fillRect(X, Y + d, w, h);
     g.fillStyle = T[1]; g.fillRect(X, Y + d, w, Math.round(h * 0.64));
     g.fillStyle = T[0]; g.fillRect(X, Y + d, w, Math.round(h * 0.26));
+    Tex.fill(g, tone === 'green' ? 'metal' : tone === 'dead' ? 'slate' : tone === 'amber' ? 'amber' : 'gold', X, Y + d, w, h, 0.24);
     g.fillStyle = 'rgba(255,246,210,0.55)'; g.fillRect(X + 2, Y + 2 + d, w - 4, 1);
     g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(X + 2, Y + h - 3 + d, w - 4, 1);
     if (label) FX.pixelText(g, label, X + w / 2, Y + d + Math.round(h / 2) - 5, { color: T[4], size: 10, ink: false });
@@ -5705,12 +5933,15 @@ const Knowledge = (() => {
     g.fillStyle = WD1; g.fillRect(X, Y, w, Math.round(h * 0.84));
     g.fillStyle = WD2; g.fillRect(X, Y, w, Math.round(h * 0.52));
     g.fillStyle = WD3; g.fillRect(X, Y, w, Math.round(h * 0.17));
-    for (let i = 2; i < w - 2; i += 11) { g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(X + i, Y + 2, 2, h - 4); }
+    Tex.fill(g, 'wood', X, Y, w, h, 0.55);
     for (const bx of [X - 11, X + w - 6]) {                // the teal end caps
       g.fillStyle = OL; g.fillRect(bx - 3, Y - 8, 23, h + 16);
       g.fillStyle = TL1; g.fillRect(bx, Y - 5, 17, h + 10);
       g.fillStyle = TL2; g.fillRect(bx, Y - 5, 17, Math.round((h + 10) * 0.5));
       g.fillStyle = TL3; g.fillRect(bx, Y - 5, 17, 3);
+      Tex.fill(g, 'metal', bx, Y - 5, 17, h + 10, 0.4);
+      g.fillStyle = GD2; g.fillRect(bx + 7, Y - 1, 3, 3); g.fillRect(bx + 7, Y + h + 2, 3, 3);   // rivets
+      g.fillStyle = GD4; g.fillRect(bx + 7, Y - 1, 3, 1); g.fillRect(bx + 7, Y + h + 2, 3, 1);
     }
     if (label) FX.pixelText(g, label, X + w / 2, Y + Math.round(h / 2) - 6, { color: '#f6e4bb', size: 11, ink: 2, inkColor: 'rgba(0,0,0,0.6)' });
   }
@@ -5924,26 +6155,26 @@ const Knowledge = (() => {
     g.fillStyle = B.col; g.fillRect(X + 6, Y + 6, 5, NH - 12);
     g.fillStyle = B.dark; g.fillRect(X + 6, Y + NH - 9, 5, 3);
     // the icon in its inventory slot
-    const S = 44, ix = X + 16, iy = Y + (NH - S) / 2;
+    const S = 50, ix = X + 17, iy = Y + (NH - S) / 2;
     slot(g, ix, iy, S);
     g.globalAlpha = dim ? 0.45 : 1;
-    Icons.blit(g, f.icon, ix + 4, iy + 4, 2.25);
+    Icons.blit(g, f.icon, ix + 5, iy + 5, 2.5);
     g.globalAlpha = dim ? 0.82 : 1;
-    const tx = ix + S + 12;
-    FX.pixelText(g, f.name.toUpperCase(), tx, Y + 12, { color: INK, size: 9, align: 'left', ink: false });
+    const tx = ix + S + 13;
+    FX.pixelText(g, f.name.toUpperCase(), tx, Y + 13, { color: INK, size: 12, align: 'left', ink: false });
     if (st === 'eaten') {
-      FX.pixelText(g, 'GROWN', tx, Y + 28, { color: '#2f6b1f', size: 10, align: 'left', ink: false });
-      Icons.blit(g, 'check', X + NW - 24, Y + 8, 1);
+      FX.pixelText(g, 'GROWN', tx, Y + 31, { color: '#3f6b1c', size: 12, align: 'left', ink: false });
+      Icons.blit(g, 'check', X + NW - 27, Y + NH - 28, 1.2);
     } else if (st === 'locked') {
-      Icons.blit(g, 'lock', tx, Y + 26, 0.9);
-      FX.pixelText(g, 'LOCKED', tx + 18, Y + 28, { color: INK2, size: 10, align: 'left', ink: false });
+      Icons.blit(g, 'lock', tx - 1, Y + 28, 1);
+      FX.pixelText(g, 'LOCKED', tx + 20, Y + 31, { color: INK2, size: 12, align: 'left', ink: false });
     } else if (st === 'unripe') {
-      FX.pixelText(g, `FOREST ${Math.round(f.at * 100)}%`, tx, Y + 28, { color: '#7a5a12', size: 10, align: 'left', ink: false });
+      FX.pixelText(g, `FOREST ${Math.round(f.at * 100)}%`, tx, Y + 31, { color: '#8a5410', size: 12, align: 'left', ink: false });
     } else {
-      Icons.blit(g, 'wdollar', tx - 2, Y + 24, 1);
-      FX.pixelText(g, String(f.cost), tx + 18, Y + 28, { color: st === 'costly' ? '#9a2a1a' : '#7a5a12', size: 11, align: 'left', ink: false });
+      Icons.blit(g, 'wdollar', tx - 2, Y + 26, 1.2);
+      FX.pixelText(g, String(f.cost), tx + 21, Y + 31, { color: st === 'costly' ? '#9a2a1a' : '#8a5410', size: 13, align: 'left', ink: false });
     }
-    FX.pixelText(g, `${B.name}  ${f.i + 1}/4`, tx, Y + 46, { color: INK2, size: 8, align: 'left', ink: false });
+    FX.pixelText(g, `${B.name}  ${f.i + 1}/4`, tx, Y + 52, { color: INK2, size: 10, align: 'left', ink: false });
     g.globalAlpha = 1;
   }
 
@@ -5952,9 +6183,10 @@ const Knowledge = (() => {
     const H = CARD, Y = VH - H;
     g.fillStyle = OL; g.fillRect(0, Y - 4, VW, H + 4);
     g.fillStyle = PG2; g.fillRect(0, Y, VW, H);
+    Tex.fill(g, 'paper', 0, Y, VW, H, 0.55);
     g.fillStyle = PG3; g.fillRect(0, Y, VW, 3);
-    for (let x = 0; x < VW; x += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(x, Y + 4, 2, H - 6); }
     g.fillStyle = WD1; g.fillRect(0, Y - 7, VW, 7);
+    Tex.fill(g, 'wood', 0, Y - 7, VW, 7, 0.5);
     g.fillStyle = WD3; g.fillRect(0, Y - 7, VW, 2);
     g.fillStyle = WD0; g.fillRect(0, Y - 2, VW, 2);
 
@@ -5978,7 +6210,7 @@ const Knowledge = (() => {
     FX.pixelText(g, `${B.name}  BRANCH ${f.i + 1} OF 4`, 94, Y + 32, { color: '#6b3d12', size: 9, align: 'left', ink: false });
     const words = f.desc.split(' ');
     let line = ''; const lines = [];
-    for (const w of words) { if ((line + w).length > 52) { lines.push(line.trim()); line = ''; } line += w + ' '; }
+    for (const w of words) { if ((line + w).length > 46) { lines.push(line.trim()); line = ''; } line += w + ' '; }
     lines.push(line.trim());
     lines.slice(0, 2).forEach((l, i) => FX.pixelText(g, l, 84, Y + 50 + i * 15, { color: INK2, size: 10, align: 'left', ink: false }));
 
@@ -6897,66 +7129,66 @@ const Guide = (() => {
   // Each step is a line in the notebook and a place for her to stand.
   const STEPS = [
     {
-      key: 'weeds', say: 'Cut the weeds inside my rope. Big ones take a few swings.', praise: 'Clean cut! Take these.', icon: 't_sickle', title: 'Cut the weeds',
+      key: 'weeds', say: 'Cut the *weeds* inside my rope. Big ones take a few swings.', praise: 'Clean cut! *Take these.*', icon: 't_sickle', title: 'Cut the weeds',
       note: 'Take the sickle and drag across them. Just inside the rope will do; big ones take a few swings.',
       at: () => ZONE.x - 120, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
-      key: 'junk', say: 'Those wrecks are not ours to lift. Send for the ants.', praise: 'The ants thank you. So do I.', icon: 't_destroy', title: 'Send for the ants',
+      key: 'junk', say: 'Those wrecks are not ours to lift. Send for the *ants*.', praise: 'The ants thank you. *So do I.*', icon: 't_destroy', title: 'Send for the ants',
       note: 'Logs and ruins are not ours to lift. The ants carry them, for a fee.',
       at: () => { const o = Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)); return o ? o.x : ZONE.x; },
       done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
-      key: 'grass', say: 'Farm tool, then grass, inside the rope. Water it or it sulks.', praise: 'Green again. Here.', icon: 't_moss', title: 'Sow the grass',
+      key: 'grass', say: 'Farm tool, then *grass*, inside the rope. Water it or it sulks.', praise: '*Green again.* Here.', icon: 't_moss', title: 'Sow the grass',
       note: 'Farm, then grass, inside the rope. Sprouts need time and a drink before they take.',
       at: () => ZONE.x, done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
-      key: 'arrive', say: 'Hush now. A clean grove calls one of them.', praise: 'She came! I knew it.', icon: 'wombat', title: 'Wait for her',
+      key: 'arrive', say: 'Hush now. A clean grove calls *one of them*.', praise: '*She came!* I knew it.', icon: 'wombat', title: 'Wait for her',
       note: 'A clean grove calls a wombat. One always comes.',
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
-      key: 'sow', say: 'Hoe a bed and drop seed on the bare soil.', praise: 'Sown. Good hands.', icon: 't_hoe', title: 'Break a bed and sow it',
+      key: 'sow', say: '*Hoe* a bed and drop *seed* on the bare soil.', praise: 'Sown. *Good hands.*', icon: 't_hoe', title: 'Break a bed and sow it',
       note: 'Hoe a patch, then seed on the bare soil.',
       at: () => 380, done: () => World.crops.length > 0,
     },
     {
-      key: 'pick', say: 'Water it. When it glows, pick it with the hand.', praise: 'A harvest! Take your cut.', icon: 't_water', title: 'Water, then pick',
+      key: 'pick', say: '*Water* it. When it *glows*, pick it with the hand.', praise: '*A harvest!* Take your cut.', icon: 't_water', title: 'Water, then pick',
       note: 'Thirsty crops sulk. When one glows, click it with the hand.',
       at: () => { const c = World.crops[0]; return c ? c.x : 380; },
       done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
     },
     {
-      key: 'feed', say: 'Food tool, pick what you grew, click the wombat.', praise: 'Fed and content. Well done.', icon: 't_food', title: 'Feed her',
+      key: 'feed', say: '*Food* tool, pick what you grew, click the *wombat*.', praise: 'Fed and content. *Well done.*', icon: 't_food', title: 'Feed her',
       note: 'Food tool, pick what you grew, then click the wombat.',
       at: (g) => (g.wombats[0] ? g.wombats[0].x : 340),
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', say: 'What she leaves is holy. Drag it to the truck.', praise: 'Loaded. The gods will notice.', icon: 'truck', title: 'Load the cubes',
+      key: 'load', say: 'What she leaves is holy. Drag it to the *truck*.', praise: 'Loaded. *The gods will notice.*', icon: 'truck', title: 'Load the cubes',
       note: 'What she leaves is an offering. Drag it to the truck, or call the truck over.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
       done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
     },
     {
-      key: 'tree', say: 'The seed in the middle - click it. It is the Tree of Life.', praise: 'You have seen it. Good.', icon: 'tree', title: 'Wake the seed',
+      key: 'tree', say: 'The seed in the middle - *click it*. It is the *Tree of Life*.', praise: 'You have seen it. *Good.*', icon: 'tree', title: 'Wake the seed',
       note: 'The seed in the middle of the plot is the Tree of Life. Click it.',
       at: () => Grove.SEED.x, done: (g) => !!(g.visited && g.visited.tree),
     },
     {
-      key: 'map', say: 'Read the signpost. Everything else is out there.', praise: 'Now you know the way.', icon: 'map', title: 'Read the signpost',
+      key: 'map', say: 'Read the *signpost*. Everything else is out there.', praise: '*Now you know the way.*', icon: 'map', title: 'Read the signpost',
       note: 'It shows the mart, the ritual site, and the fog over the rest.',
       at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.map),
     },
     {
-      key: 'mart', say: 'Walk the mart. Basket first, counter after.', praise: 'A fair trade.', icon: 'shop', title: 'Walk the mart',
+      key: 'mart', say: 'Walk the *mart*. Basket first, counter after.', praise: '*A fair trade.*', icon: 'shop', title: 'Walk the mart',
       note: 'Seed, stock and stone. Basket first, counter after.',
       at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.shop),
     },
     {
-      key: 'god', say: 'Stack what she leaves at the ritual site. Call one down.', praise: 'They answered! I am so proud.', icon: 'shrine', title: 'Call one of them',
+      key: 'god', say: 'Stack what she leaves at the *ritual site*. Call one down.', praise: '*They answered!* I am so proud.', icon: 'shrine', title: 'Call one of them',
       note: 'Stack what she leaves at the ritual site. They do answer.',
       at: () => Grove.POST.x, done: (g) => Object.keys(g.summoned).length > 0,
     },
@@ -7062,64 +7294,189 @@ const Guide = (() => {
     }
   }
 
-  // A speech bubble built like the panels: a cream page in a green frame with
-  // gold studs, a tail down to her hood, typed out a letter at a time.
+  // ---- the speech bubble ---------------------------------------------------
+  // A page in a wooden frame, but it behaves like a comic: it lands with a
+  // squash, wobbles as it settles, every letter pops in oversized and drops
+  // into place, words she stresses come out in gold, and praise arrives on a
+  // starburst with lines flying off it.
+  const BFONT = '"Pixelify Sans", "Silkscreen", monospace';
+  const BSIZE = 12, LH = 15;
+
+  // split the text into characters, honouring *stress* markers, and wrap it
+  function layout(g, text, maxW) {
+    g.font = `600 ${BSIZE}px ${BFONT}`;
+    const chars = [];
+    let em = false, idx = 0;
+    for (const ch of text) {
+      if (ch === '*') { em = !em; continue; }
+      chars.push({ c: ch, em, i: idx++ });
+    }
+    const lines = [];
+    let line = [], w = 0, wordStart = 0, wordW = 0;
+    for (const ch of chars) {
+      const cw = g.measureText(ch.c).width;
+      if (ch.c === ' ') { wordStart = line.length + 1; wordW = 0; }
+      else wordW += cw;
+      line.push(ch); w += cw;
+      if (w > maxW && wordStart > 0 && line.length > wordStart) {
+        const carry = line.splice(wordStart);
+        while (line.length && line[line.length - 1].c === ' ') line.pop();
+        lines.push(line);
+        line = carry; w = wordW; wordStart = 0;
+      }
+    }
+    if (line.length) lines.push(line);
+    for (const l of lines) {
+      let x = 0;
+      for (const ch of l) { ch.x = x; x += g.measureText(ch.c).width; }
+      l.w = x;
+    }
+    return lines;
+  }
+
+  function star(g, x, y, r, col) {
+    const p = [];
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU - Math.PI / 2, rr = i % 2 ? r * 0.36 : r;
+      p.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]);
+    }
+    Art.poly(g, p, col);
+  }
+
   function drawBubble(g) {
     if (bubble.life <= 0 || !bubble.text) return;
-    const full = bubble.text;
-    const shown = full.slice(0, Math.min(full.length, Math.floor(bubble.shown)));
-    const words = full.split(' '), lines = [];
-    let line = '';
-    for (const w of words) { if ((line + w).length > 26) { lines.push(line.trim()); line = ''; } line += w + ' '; }
-    lines.push(line.trim());
-    const cols = Math.max(...lines.map((l) => l.length));
-    const W = Math.max(84, cols * 6 + 26), H = lines.length * 13 + 18;
-    const scale = 1 + Math.sin(bubble.pop * Math.PI) * 0.18;
+    const praise = bubble.kind === 'praise';
+    const OL = '#1c1008';
+    const PG1 = '#a5825a', PG2 = praise ? '#e2cb9c' : '#c8a87e', PG3 = praise ? '#f6e6bc' : '#dcc49a';
+    const WD0 = '#2a180c', WD1 = praise ? '#7a5210' : '#4a2c1a', WD2 = praise ? '#c1912a' : '#6b4526', WD3 = praise ? '#f2cf62' : '#8a5c33';
+    const TL1 = '#2f7a90', TL2 = '#4fa6be', TL3 = '#8fd4e4';
+    const GD2 = '#e0a82e', GD3 = '#f2cf62', GD4 = '#ffeaa8';
+
+    const lines = layout(g, bubble.text, 168);
+    const W = Math.max(96, Math.ceil(Math.max(...lines.map((l) => l.w))) + 26);
+    const H = lines.length * LH + 20;
+    const shownN = Math.floor(bubble.shown);
+    const total = lines.reduce((n, l) => n + l.length, 0);
+    const done = shownN >= total;
+
+    // where it sits: above her head, always inside the view
     const half = W / 2 + 10;
     const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
     const bx = lo > hi ? FX.cam.x : U.clamp(cult.x + 6, lo, hi);
-    const by = Math.max(24 + H, cult.y - 78);
-    // by is the bottom of the bubble; the frame is drawn from by - H
-    const praise = bubble.kind === 'praise';
-    const OL = '#1c1008';
-    const PG1 = '#a5825a', PG2 = praise ? '#dcc38e' : '#c2a176', PG3 = praise ? '#f0dcae' : '#d8bd92';
-    const WD0 = '#2a180c', WD1 = praise ? '#7a5210' : '#4a2c1a', WD2 = praise ? '#b8801c' : '#6b4526', WD3 = praise ? '#e0a82e' : '#8a5c33';
-    const TL1 = '#2f7a90', TL2 = '#4fa6be', TL3 = '#8fd4e4';
+    const bob = Math.sin(G.time * 2.4) * 1.6;
+    const by = Math.max(30 + H, cult.y - 94) + bob;
+
+    // the landing: a squash that overshoots, and a wobble that settles
+    const p = bubble.pop;
+    const sx = 1 + Math.sin(p * Math.PI) * 0.26 + p * 0.1;
+    const sy = 1 + Math.sin(p * Math.PI) * 0.26 - p * 0.14;
+    const rot = Math.sin(p * 13) * 0.075 * p;
+
     g.save();
-    g.translate(bx, by); g.scale(scale, scale); g.translate(-bx, -by);
+    g.translate(bx, by); g.rotate(rot); g.scale(sx, sy); g.translate(-bx, -by);
     const X = Math.round(bx - W / 2), Y = Math.round(by - H);
+    const CXb = bx, CYb = by - H / 2;
+
+    if (praise) {
+      // a starburst behind the whole thing, turning slowly
+      const spin = G.time * 0.7;
+      const pts = [];
+      for (let i = 0; i < 40; i++) {
+        const a = (i / 40) * TAU + spin, far = i % 2 === 0;
+        const jag = far ? 20 + Math.sin(i * 2.1) * 7 : 4;
+        pts.push([CXb + Math.cos(a) * (W / 2 + jag), CYb + Math.sin(a) * (H / 2 + jag * 0.92)]);
+      }
+      Art.poly(g, pts, 'rgba(28,16,8,0.9)');
+      const pts2 = pts.map(([px, py]) => [CXb + (px - CXb) * 0.9, CYb + (py - CYb) * 0.9]);
+      Art.poly(g, pts2, GD2);
+      const pts3 = pts.map(([px, py]) => [CXb + (px - CXb) * 0.82, CYb + (py - CYb) * 0.82]);
+      Art.poly(g, pts3, GD3);
+      // lines flying off, and a couple of stars
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * TAU + spin * 1.4;
+        const r0 = W / 2 + 26, r1 = r0 + 8 + Math.sin(G.time * 6 + i) * 5;
+        Art.line(g, CXb + Math.cos(a) * r0, CYb + Math.sin(a) * r0 * 0.8,
+                    CXb + Math.cos(a) * r1, CYb + Math.sin(a) * r1 * 0.8, GD4, 2);
+      }
+      for (let i = 0; i < 4; i++) {
+        const a = G.time * 1.6 + i * 1.57, r = W / 2 + 34 + Math.sin(G.time * 3 + i) * 4;
+        star(g, CXb + Math.cos(a) * r, CYb + Math.sin(a) * r * 0.8, 4 + Math.sin(G.time * 5 + i) * 1.4, GD4);
+      }
+    } else if (p > 0.05) {
+      // little marks popping off the moment she starts speaking
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * TAU, r = (1 - p) * 26 + 12;
+        star(g, CXb + Math.cos(a) * (W / 2 + r * 0.5), CYb + Math.sin(a) * (H / 2 + r * 0.4), 3 * p, GD4);
+      }
+    }
+
+    // the frame: wood cover, parchment page, teal brackets
     g.fillStyle = 'rgba(0,0,0,0.4)'; g.fillRect(X + 3, Y + 5, W, H);
     g.fillStyle = OL; g.fillRect(X - 3, Y - 3, W + 6, H + 6);
-    g.fillStyle = WD1; g.fillRect(X, Y, W, H);                       // the cover
+    g.fillStyle = WD1; g.fillRect(X, Y, W, H);
     g.fillStyle = WD3; g.fillRect(X + 1, Y + 1, W - 2, 2);
     g.fillStyle = WD0; g.fillRect(X + 1, Y + H - 3, W - 2, 2);
     g.fillStyle = WD2; g.fillRect(X + 3, Y + 3, W - 6, H - 6);
-    g.fillStyle = PG2; g.fillRect(X + 5, Y + 5, W - 10, H - 10);     // the page
+    g.fillStyle = PG2; g.fillRect(X + 5, Y + 5, W - 10, H - 10);
+    Tex.fill(g, 'paper', X + 5, Y + 5, W - 10, H - 10, 0.5);
     g.fillStyle = PG3; g.fillRect(X + 5, Y + 5, W - 10, 2);
     g.fillStyle = PG1; g.fillRect(X + 5, Y + H - 8, W - 10, 3);
-    for (let i = 0; i < W - 10; i += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(X + 5 + i, Y + 7, 2, H - 14); }
-    // teal brackets at the corners
     const put = (x, y, bw, bh) => {
       g.fillStyle = OL; g.fillRect(x - 1, y - 1, bw + 2, bh + 2);
       g.fillStyle = TL1; g.fillRect(x, y, bw, bh);
       g.fillStyle = TL2; g.fillRect(x, y, bw, Math.max(1, Math.round(bh * 0.62)));
       g.fillStyle = TL3; g.fillRect(x, y, bw, 1);
     };
-    for (const sx of [0, 1]) for (const sy of [0, 1]) {
-      put(sx ? X + W - 11 : X, sy ? Y + H - 4 : Y, 11, 4);
-      put(sx ? X + W - 4 : X, sy ? Y + H - 11 : Y, 4, 11);
+    for (const qx of [0, 1]) for (const qy of [0, 1]) {
+      put(qx ? X + W - 11 : X, qy ? Y + H - 4 : Y, 11, 4);
+      put(qx ? X + W - 4 : X, qy ? Y + H - 11 : Y, 4, 11);
     }
-    const tx = U.clamp(cult.x + 6, X + 16, X + W - 16);              // the tail still points at her
-    g.fillStyle = OL; g.beginPath(); g.moveTo(tx - 11, Y + H - 1); g.lineTo(tx - 2, Y + H + 13); g.lineTo(tx + 5, Y + H - 1); g.fill();
-    g.fillStyle = WD1; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 9); g.lineTo(tx + 2, Y + H - 2); g.fill();
+    // the tail, still pointing at her, with a wag
+    const tx = U.clamp(cult.x + 6 + Math.sin(G.time * 3.2) * 2, X + 18, X + W - 18);
+    g.fillStyle = OL; g.beginPath(); g.moveTo(tx - 11, Y + H - 1); g.lineTo(tx - 2, Y + H + 14); g.lineTo(tx + 6, Y + H - 1); g.fill();
+    g.fillStyle = WD1; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 10); g.lineTo(tx + 3, Y + H - 2); g.fill();
     g.fillStyle = PG2; g.fillRect(X + 5, Y + H - 7, W - 10, 2);
-    let acc = 0;
-    lines.forEach((l, i) => {
-      const part = shown.slice(acc, acc + l.length);
-      acc += l.length + 1;
-      FX.pixelText(g, part, X + 12, Y + 11 + i * 13, { color: '#33200f', size: 10, align: 'left', ink: false });
+
+    // ---- the letters: each one lands oversized and drops into place --------
+    g.font = `600 ${BSIZE}px ${BFONT}`;
+    g.textAlign = 'left'; g.textBaseline = 'top';
+    let n = 0;
+    lines.forEach((l, li) => {
+      const ly = Y + 11 + li * LH;
+      for (const ch of l) {
+        if (ch.i >= shownN) { n++; continue; }
+        const age = bubble.shown - ch.i;
+        const k = U.clamp(age / 2.6, 0, 1);
+        const e = 1 - U.easeOut(k);
+        const cs = 1 + e * 1.5;
+        const cx = X + 13 + ch.x, cy = ly - e * 7;
+        const tilt = e * (ch.i % 2 ? 0.5 : -0.5);
+        g.save();
+        g.translate(cx, cy); g.rotate(tilt); g.scale(cs, cs);
+        const body = ch.em ? '#a36a10' : '#33200f';
+        const shadow = ch.em ? 'rgba(255,234,168,0.9)' : 'rgba(232,214,178,0.85)';
+        g.fillStyle = shadow; g.fillText(ch.c, 1, 1);
+        g.fillStyle = body; g.fillText(ch.c, 0, 0);
+        if (ch.em && e < 0.1) { g.fillStyle = 'rgba(255,234,168,0.5)'; g.fillText(ch.c, -1, -1); }
+        g.restore();
+        n++;
+      }
     });
-    if (shown.length < full.length && Math.floor(bubble.life * 6) % 2) { g.fillStyle = '#33200f'; g.fillRect(X + W - 13, Y + H - 13, 4, 4); }
+
+    // ---- the cue in the corner ---------------------------------------------
+    if (!done) {                                        // still speaking: three dots
+      for (let i = 0; i < 3; i++) {
+        const up = Math.max(0, Math.sin(G.time * 7 - i * 0.7)) * 3;
+        g.fillStyle = i === Math.floor(G.time * 4) % 3 ? '#33200f' : '#8d6a44';
+        g.fillRect(X + W - 24 + i * 6, Y + H - 12 - up, 3, 3);
+      }
+    } else {                                            // finished: a bouncing arrow
+      const up = Math.abs(Math.sin(G.time * 4)) * 3;
+      const ax = X + W - 16, ay = Y + H - 13 + up;
+      g.fillStyle = OL; g.fillRect(ax - 5, ay - 1, 10, 3); g.fillRect(ax - 3, ay + 2, 6, 3); g.fillRect(ax - 1, ay + 5, 2, 2);
+      g.fillStyle = GD2; g.fillRect(ax - 4, ay, 8, 2); g.fillRect(ax - 2, ay + 2, 4, 2);
+      g.fillStyle = GD4; g.fillRect(ax - 4, ay, 8, 1);
+    }
     g.restore();
   }
 
@@ -8166,6 +8523,7 @@ const UI = (() => {
   // ---- setup --------------------------------------------------------------
   function init(g) {
     G = g;
+    Tex.install();                         // wood, paper, metal and gold, painted not faked
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-truck').onclick = () => { Grove.callTruck(); refreshHUD(); };

@@ -345,6 +345,7 @@ const UI = (() => {
   // ---- setup --------------------------------------------------------------
   function init(g) {
     G = g;
+    Tex.install();                         // wood, paper, metal and gold, painted not faked
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-truck').onclick = () => { Grove.callTruck(); refreshHUD(); };

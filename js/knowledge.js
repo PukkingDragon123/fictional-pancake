@@ -10,8 +10,8 @@ const Knowledge = (() => {
   const WW = 1500, WH = 900;
   const GROUND = 780, BASE = 750, FORK = 630;
   const COLX = [450, 750, 1050];                 // one column per branch
-  const ROWY = [552, 440, 328, 216];             // one row per rank
-  const NW = 170, NH = 72;
+  const ROWY = [556, 448, 340, 232];             // one row per rank
+  const NW = 176, NH = 80;
   const ZMIN = 0.34, ZMAX = 1.8;
   const CARD = 88, CY = (VH - CARD) / 2;
   const cam = { x: BASE, y: 480, z: 0.45, tx: BASE, ty: 480, tz: 0.45 };
@@ -280,11 +280,12 @@ const Knowledge = (() => {
     g.fillStyle = WD1; g.fillRect(X, Y, w, h);
     g.fillStyle = WD3; g.fillRect(X + 1, Y + 1, w - 2, 2);
     g.fillStyle = WD0; g.fillRect(X + 1, Y + h - 3, w - 2, 2);
+    Tex.fill(g, 'darkwood', X, Y, w, h, 0.55);
     g.fillStyle = WD2; g.fillRect(X + 4, Y + 4, w - 8, h - 8);
     g.fillStyle = page || PG2; g.fillRect(X + 6, Y + 6, w - 12, h - 12);
+    Tex.fill(g, 'paper', X + 6, Y + 6, w - 12, h - 12, 0.55);
     g.fillStyle = PG3; g.fillRect(X + 6, Y + 6, w - 12, 2);
     g.fillStyle = PG1; g.fillRect(X + 6, Y + h - 9, w - 12, 3);
-    for (let i = 0; i < w - 12; i += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(X + 6 + i, Y + 8, 2, h - 17); }
     bracket(g, X, Y, w, h);
   }
   // the four teal corner brackets
@@ -308,6 +309,7 @@ const Knowledge = (() => {
     g.fillStyle = '#442c18'; g.fillRect(X, Y, s, s);
     g.fillStyle = '#5d3d22'; g.fillRect(X, Y, s, Math.round(s * 0.5));
     g.fillStyle = '#6b4728'; g.fillRect(X, Y, s, 2);
+    Tex.fill(g, 'cellwood', X, Y, s, s, 0.6);
     g.fillStyle = '#2f1d0f'; g.fillRect(X, Y + s - 3, s, 3);
     for (const [cx, cy] of [[X, Y], [X + s - 4, Y], [X, Y + s - 4], [X + s - 4, Y + s - 4]]) {
       g.fillStyle = GD1; g.fillRect(cx, cy, 4, 4);
@@ -326,6 +328,7 @@ const Knowledge = (() => {
     g.fillStyle = T[2]; g.fillRect(X, Y + d, w, h);
     g.fillStyle = T[1]; g.fillRect(X, Y + d, w, Math.round(h * 0.64));
     g.fillStyle = T[0]; g.fillRect(X, Y + d, w, Math.round(h * 0.26));
+    Tex.fill(g, tone === 'green' ? 'metal' : tone === 'dead' ? 'slate' : tone === 'amber' ? 'amber' : 'gold', X, Y + d, w, h, 0.24);
     g.fillStyle = 'rgba(255,246,210,0.55)'; g.fillRect(X + 2, Y + 2 + d, w - 4, 1);
     g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(X + 2, Y + h - 3 + d, w - 4, 1);
     if (label) FX.pixelText(g, label, X + w / 2, Y + d + Math.round(h / 2) - 5, { color: T[4], size: 10, ink: false });
@@ -339,12 +342,15 @@ const Knowledge = (() => {
     g.fillStyle = WD1; g.fillRect(X, Y, w, Math.round(h * 0.84));
     g.fillStyle = WD2; g.fillRect(X, Y, w, Math.round(h * 0.52));
     g.fillStyle = WD3; g.fillRect(X, Y, w, Math.round(h * 0.17));
-    for (let i = 2; i < w - 2; i += 11) { g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(X + i, Y + 2, 2, h - 4); }
+    Tex.fill(g, 'wood', X, Y, w, h, 0.55);
     for (const bx of [X - 11, X + w - 6]) {                // the teal end caps
       g.fillStyle = OL; g.fillRect(bx - 3, Y - 8, 23, h + 16);
       g.fillStyle = TL1; g.fillRect(bx, Y - 5, 17, h + 10);
       g.fillStyle = TL2; g.fillRect(bx, Y - 5, 17, Math.round((h + 10) * 0.5));
       g.fillStyle = TL3; g.fillRect(bx, Y - 5, 17, 3);
+      Tex.fill(g, 'metal', bx, Y - 5, 17, h + 10, 0.4);
+      g.fillStyle = GD2; g.fillRect(bx + 7, Y - 1, 3, 3); g.fillRect(bx + 7, Y + h + 2, 3, 3);   // rivets
+      g.fillStyle = GD4; g.fillRect(bx + 7, Y - 1, 3, 1); g.fillRect(bx + 7, Y + h + 2, 3, 1);
     }
     if (label) FX.pixelText(g, label, X + w / 2, Y + Math.round(h / 2) - 6, { color: '#f6e4bb', size: 11, ink: 2, inkColor: 'rgba(0,0,0,0.6)' });
   }
@@ -558,26 +564,26 @@ const Knowledge = (() => {
     g.fillStyle = B.col; g.fillRect(X + 6, Y + 6, 5, NH - 12);
     g.fillStyle = B.dark; g.fillRect(X + 6, Y + NH - 9, 5, 3);
     // the icon in its inventory slot
-    const S = 44, ix = X + 16, iy = Y + (NH - S) / 2;
+    const S = 50, ix = X + 17, iy = Y + (NH - S) / 2;
     slot(g, ix, iy, S);
     g.globalAlpha = dim ? 0.45 : 1;
-    Icons.blit(g, f.icon, ix + 4, iy + 4, 2.25);
+    Icons.blit(g, f.icon, ix + 5, iy + 5, 2.5);
     g.globalAlpha = dim ? 0.82 : 1;
-    const tx = ix + S + 12;
-    FX.pixelText(g, f.name.toUpperCase(), tx, Y + 12, { color: INK, size: 9, align: 'left', ink: false });
+    const tx = ix + S + 13;
+    FX.pixelText(g, f.name.toUpperCase(), tx, Y + 13, { color: INK, size: 12, align: 'left', ink: false });
     if (st === 'eaten') {
-      FX.pixelText(g, 'GROWN', tx, Y + 28, { color: '#2f6b1f', size: 10, align: 'left', ink: false });
-      Icons.blit(g, 'check', X + NW - 24, Y + 8, 1);
+      FX.pixelText(g, 'GROWN', tx, Y + 31, { color: '#3f6b1c', size: 12, align: 'left', ink: false });
+      Icons.blit(g, 'check', X + NW - 27, Y + NH - 28, 1.2);
     } else if (st === 'locked') {
-      Icons.blit(g, 'lock', tx, Y + 26, 0.9);
-      FX.pixelText(g, 'LOCKED', tx + 18, Y + 28, { color: INK2, size: 10, align: 'left', ink: false });
+      Icons.blit(g, 'lock', tx - 1, Y + 28, 1);
+      FX.pixelText(g, 'LOCKED', tx + 20, Y + 31, { color: INK2, size: 12, align: 'left', ink: false });
     } else if (st === 'unripe') {
-      FX.pixelText(g, `FOREST ${Math.round(f.at * 100)}%`, tx, Y + 28, { color: '#7a5a12', size: 10, align: 'left', ink: false });
+      FX.pixelText(g, `FOREST ${Math.round(f.at * 100)}%`, tx, Y + 31, { color: '#8a5410', size: 12, align: 'left', ink: false });
     } else {
-      Icons.blit(g, 'wdollar', tx - 2, Y + 24, 1);
-      FX.pixelText(g, String(f.cost), tx + 18, Y + 28, { color: st === 'costly' ? '#9a2a1a' : '#7a5a12', size: 11, align: 'left', ink: false });
+      Icons.blit(g, 'wdollar', tx - 2, Y + 26, 1.2);
+      FX.pixelText(g, String(f.cost), tx + 21, Y + 31, { color: st === 'costly' ? '#9a2a1a' : '#8a5410', size: 13, align: 'left', ink: false });
     }
-    FX.pixelText(g, `${B.name}  ${f.i + 1}/4`, tx, Y + 46, { color: INK2, size: 8, align: 'left', ink: false });
+    FX.pixelText(g, `${B.name}  ${f.i + 1}/4`, tx, Y + 52, { color: INK2, size: 10, align: 'left', ink: false });
     g.globalAlpha = 1;
   }
 
@@ -586,9 +592,10 @@ const Knowledge = (() => {
     const H = CARD, Y = VH - H;
     g.fillStyle = OL; g.fillRect(0, Y - 4, VW, H + 4);
     g.fillStyle = PG2; g.fillRect(0, Y, VW, H);
+    Tex.fill(g, 'paper', 0, Y, VW, H, 0.55);
     g.fillStyle = PG3; g.fillRect(0, Y, VW, 3);
-    for (let x = 0; x < VW; x += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(x, Y + 4, 2, H - 6); }
     g.fillStyle = WD1; g.fillRect(0, Y - 7, VW, 7);
+    Tex.fill(g, 'wood', 0, Y - 7, VW, 7, 0.5);
     g.fillStyle = WD3; g.fillRect(0, Y - 7, VW, 2);
     g.fillStyle = WD0; g.fillRect(0, Y - 2, VW, 2);
 
@@ -612,7 +619,7 @@ const Knowledge = (() => {
     FX.pixelText(g, `${B.name}  BRANCH ${f.i + 1} OF 4`, 94, Y + 32, { color: '#6b3d12', size: 9, align: 'left', ink: false });
     const words = f.desc.split(' ');
     let line = ''; const lines = [];
-    for (const w of words) { if ((line + w).length > 52) { lines.push(line.trim()); line = ''; } line += w + ' '; }
+    for (const w of words) { if ((line + w).length > 46) { lines.push(line.trim()); line = ''; } line += w + ' '; }
     lines.push(line.trim());
     lines.slice(0, 2).forEach((l, i) => FX.pixelText(g, l, 84, Y + 50 + i * 15, { color: INK2, size: 10, align: 'left', ink: false }));
 
