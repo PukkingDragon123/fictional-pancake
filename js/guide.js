@@ -5,7 +5,7 @@ const Guide = (() => {
   let flash = 0, hidden = false;
   // the speech bubble: what she is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [12, 18, 24, 0, 20, 20, 24, 30, 30, 30, 36, 60];
+  const REWARD = [12, 18, 24, 0, 20, 20, 24, 30, 30, 36, 60];
 
   // Each step is a line in the notebook and a place for her to stand.
   const STEPS = [
@@ -54,24 +54,19 @@ const Guide = (() => {
       done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
     },
     {
-      key: 'tree', say: 'The seed in the middle - *click it*. It is the *Tree of Life*.', praise: 'You have seen it. *Good.*', icon: 'tree', title: 'Wake the seed',
-      note: 'The seed in the middle of the plot is the Tree of Life. Click it.',
-      at: () => Grove.SEED.x, done: (g) => !!(g.visited && g.visited.tree),
-    },
-    {
-      key: 'map', say: 'Read the *signpost*. Everything else is out there.', praise: '*Now you know the way.*', icon: 'map', title: 'Read the signpost',
-      note: 'It shows the mart, the ritual site, and the fog over the rest.',
-      at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.map),
+      key: 'map', say: 'The *truck* has a map. Everything else is out there.', praise: '*Now you know the way.*', icon: 'map', title: 'Open the map',
+      note: 'The truck has a map: the mart, the ritual site, and fog over the rest.',
+      at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.map),
     },
     {
       key: 'mart', say: 'Walk the *mart*. Basket first, counter after.', praise: '*A fair trade.*', icon: 'shop', title: 'Walk the mart',
       note: 'Seed, stock and stone. Basket first, counter after.',
-      at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.shop),
+      at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.shop),
     },
     {
       key: 'god', say: 'Stack what she leaves at the *ritual site*. Call one down.', praise: '*They answered!* I am so proud.', icon: 'shrine', title: 'Call one of them',
       note: 'Stack what she leaves at the ritual site. They do answer.',
-      at: () => Grove.POST.x, done: (g) => Object.keys(g.summoned).length > 0,
+      at: () => Grove.TRUCK.x, done: (g) => Object.keys(g.summoned).length > 0,
     },
   ];
 
@@ -179,38 +174,31 @@ const Guide = (() => {
   // squash, wobbles as it settles, every letter pops in oversized and drops
   // into place, words she stresses come out in gold, and praise arrives on a
   // starburst with lines flying off it.
-  const BFONT = '"Fredoka", "Trebuchet MS", sans-serif';
-  const BSIZE = 13, LH = 16;
+  const BS = 2, LH = Font.CH * 2 + 4;          // two-pixel blocks, a line every 18
 
   // split the text into characters, honouring *stress* markers, and wrap it
-  function layout(g, text, maxW) {
-    g.font = `600 ${BSIZE}px ${BFONT}`;
+  function layout(text, maxW) {
     const chars = [];
     let em = false, idx = 0;
     for (const ch of text) {
       if (ch === '*') { em = !em; continue; }
       chars.push({ c: ch, em, i: idx++ });
     }
+    const adv = Font.advance(BS);
     const lines = [];
-    let line = [], w = 0, wordStart = 0, wordW = 0;
+    let line = [], w = 0, wordStart = 0;
     for (const ch of chars) {
-      const cw = g.measureText(ch.c).width;
-      if (ch.c === ' ') { wordStart = line.length + 1; wordW = 0; }
-      else wordW += cw;
-      line.push(ch); w += cw;
+      if (ch.c === ' ') wordStart = line.length + 1;
+      line.push(ch); w += adv;
       if (w > maxW && wordStart > 0 && line.length > wordStart) {
         const carry = line.splice(wordStart);
         while (line.length && line[line.length - 1].c === ' ') line.pop();
         lines.push(line);
-        line = carry; w = wordW; wordStart = 0;
+        line = carry; w = carry.length * adv; wordStart = 0;
       }
     }
     if (line.length) lines.push(line);
-    for (const l of lines) {
-      let x = 0;
-      for (const ch of l) { ch.x = x; x += g.measureText(ch.c).width; }
-      l.w = x;
-    }
+    for (const l of lines) { l.forEach((ch, i) => { ch.x = i * adv; }); l.w = l.length * adv; }
     return lines;
   }
 
@@ -232,7 +220,7 @@ const Guide = (() => {
     const TL1 = '#2f7a90', TL2 = '#4fa6be', TL3 = '#8fd4e4';
     const GD2 = '#e0a82e', GD3 = '#f2cf62', GD4 = '#ffeaa8';
 
-    const lines = layout(g, bubble.text, 168);
+    const lines = layout(bubble.text, 160);
     const W = Math.max(96, Math.ceil(Math.max(...lines.map((l) => l.w))) + 26);
     const H = lines.length * LH + 20;
     const shownN = Math.floor(bubble.shown);
@@ -318,28 +306,19 @@ const Guide = (() => {
     g.fillStyle = PG2; g.fillRect(X + 5, Y + H - 7, W - 10, 2);
 
     // ---- the letters: each one lands oversized and drops into place --------
-    g.font = `600 ${BSIZE}px ${BFONT}`;
-    g.textAlign = 'left'; g.textBaseline = 'top';
-    let n = 0;
     lines.forEach((l, li) => {
       const ly = Y + 11 + li * LH;
       for (const ch of l) {
-        if (ch.i >= shownN) { n++; continue; }
+        if (ch.i >= shownN || ch.c === ' ') continue;
         const age = bubble.shown - ch.i;
         const k = U.clamp(age / 2.6, 0, 1);
         const e = 1 - U.easeOut(k);
-        const cs = 1 + e * 1.5;
-        const cx = X + 13 + ch.x, cy = ly - e * 7;
-        const tilt = e * (ch.i % 2 ? 0.5 : -0.5);
-        g.save();
-        g.translate(cx, cy); g.rotate(tilt); g.scale(cs, cs);
+        const cs = BS + Math.round(e * 2);                 // it lands a block or two oversized
+        const cx = X + 13 + ch.x - (cs - BS) * Font.CW / 2;
+        const cy = ly - Math.round(e * 7) - (cs - BS) * Font.CH / 2;
         const body = ch.em ? '#a36a10' : '#33200f';
-        const shadow = ch.em ? 'rgba(255,234,168,0.9)' : 'rgba(232,214,178,0.85)';
-        g.fillStyle = shadow; g.fillText(ch.c, 1, 1);
-        g.fillStyle = body; g.fillText(ch.c, 0, 0);
-        if (ch.em && e < 0.1) { g.fillStyle = 'rgba(255,234,168,0.5)'; g.fillText(ch.c, -1, -1); }
-        g.restore();
-        n++;
+        const shade = ch.em ? 'rgba(255,234,168,0.9)' : 'rgba(232,214,178,0.85)';
+        Font.draw(g, ch.c, cx, cy, { scale: cs, color: body, shadow: shade, shadowDist: -1, align: 'left' });
       }
     });
 

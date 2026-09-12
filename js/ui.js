@@ -16,12 +16,10 @@ const UI = (() => {
   let lastWd = null;
   function bumpMoney() { const m = $('money'); m.classList.remove('bump'); void m.offsetWidth; m.classList.add('bump'); }
   function refreshHUD() {
+    if (G.mode === 'intro') { $('checklist').hidden = true; return; }
     if (lastWd !== null && G.wd !== lastWd) bumpMoney();
     lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
-    const truck = $('b-truck');
-    truck.hidden = G.mode !== 'grove';
-    truck.classList.toggle('on', Grove.truck.parked);
     $('b-back').hidden = G.mode === 'grove';
     refreshList();
     refreshNotebook();
@@ -350,7 +348,7 @@ const UI = (() => {
   function hideAll() {
     closeWheel(); $('checklist').hidden = true; $('b-tool').hidden = true;
     $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true;
-    $('b-truck').hidden = true; $('b-back').hidden = true;
+    $('b-back').hidden = true;
   }
   function refreshAll() { refreshHUD(); refreshTray(); if (G.mode === 'shrine') refreshRitual(); if (G.mode === 'rite') refreshRiteCard(); }
 
@@ -360,7 +358,6 @@ const UI = (() => {
     Tex.install();                         // wood, paper, metal and gold, painted not faked
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
-    $('b-truck').onclick = () => { Grove.callTruck(); refreshHUD(); };
     $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(470, 120); };
     $('b-help').onclick = () => openPanel('panel-help');
     $('b-sound').onclick = () => {
@@ -382,12 +379,14 @@ const UI = (() => {
     $('b-unstage').onclick = () => Ritual.clearStage();
     $('b-start').onclick = () => { if (Tower.total()) Tower.newRun(); };
     $('b-cash').onclick = () => Tower.cashOut();
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanels(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); } });
     $('b-sound').firstElementChild.src = Icons.url(G.muted ? 'mute' : 'sound');
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {
-    $('money').classList.toggle('low', mode === 'tree');   // the tree owns the top strip
+    const intro = mode === 'intro';
+    $('money').hidden = intro; $('mini').hidden = intro; $('side').hidden = intro;
+    if (intro) { closeWheel(); $('checklist').hidden = true; }
     $('ov-shrine').hidden = mode !== 'shrine';
     $('ov-rite').hidden = mode !== 'rite';
     $('ov-shop').hidden = mode !== 'shop';

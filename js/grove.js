@@ -8,7 +8,7 @@ const Grove = (() => {
   const WALK = { x0: 30, x1: W - 30, y0: GROUND + 34, y1: H - 58 };
   const SEED = { x: 512, y: 300 };
   const POST = { x: 846, y: 286 };
-  const TRUCK = { x: 1140, y: 372, parked: false, t: 0 };
+  const TRUCK = { x: 742, y: 372, parked: true, t: 1 };   // always here; it is how you leave
   const PARK = 750;                      // where the truck stops when called: the east edge of the clearing
   const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0;
@@ -410,14 +410,8 @@ const Grove = (() => {
     for (let i = 0; i < n; i++) coins.push({ x: x + U.rand(-6, 6), y, vx: U.rand(-60, 60), vy: U.rand(-190, -110), z: 0, t: -i * 0.04, n: 1 });
     Audio.play('cash');
   }
-  function callTruck() {
-    if (TRUCK.parked) { TRUCK.parked = false; TRUCK.t = 0.01; Audio.play('whoosh'); return; }
-    TRUCK.parked = true; TRUCK.t = 0.01;
-    panTo(PARK - 40);
-    Audio.play('whoosh');
-    UI.toast('truck coming', 'good');
-  }
-  function truckHit(x, y) { return TRUCK.parked && x > TRUCK.x - 50 && x < TRUCK.x + 46 && y > TRUCK.y - 46 && y < TRUCK.y + 8; }
+  function callTruck() { panTo(TRUCK.x - 40); }     // nothing to call any more: just look at it
+  function truckHit(x, y) { return x > TRUCK.x - 50 && x < TRUCK.x + 46 && y > TRUCK.y - 46 && y < TRUCK.y + 8; }
 
   // ---- ant movers ---------------------------------------------------------
   function demolishCost(o) { return o.kind === 'fallen' ? 20 : o.kind === 'ruin' ? 25 : 10; }
@@ -464,8 +458,7 @@ const Grove = (() => {
     return best;
   }
   function spotAt(x, y) {
-    if (Math.abs(x - SEED.x) < 16 && y > SEED.y - 40 && y < SEED.y + 6) return 'seed';
-    if (Math.abs(x - POST.x) < 26 && y > POST.y - 52 && y < POST.y + 8) return 'post';
+    if (x > TRUCK.x - 50 && x < TRUCK.x + 46 && y > TRUCK.y - 48 && y < TRUCK.y + 8) return 'truck';
     return null;
   }
 
@@ -478,9 +471,7 @@ const Grove = (() => {
     // the two landmarks answer to any tool; they are doors, not ground -
     // unless a weed is standing in front of them, in which case you meant the weed
     if (first && !World.weeds.some((w) => Math.abs(w.x - x) < 16 && Math.abs(w.y - y) < 14)) {
-      const spot = spotAt(x, y);
-      if (spot === 'seed') { Main.setMode('tree'); return true; }
-      if (spot === 'post') { Main.setMode('map'); return true; }
+      if (spotAt(x, y) === 'truck' && !dragging) { Main.setMode('map'); return true; }
     }
     if (tool === 'drag') {
       if (!first) return true;
@@ -563,8 +554,7 @@ const Grove = (() => {
       const fur = Sprites.furOf(w.pelt);
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
-    if (hoverSpot === 'seed') return '<b>Tree of Life</b><br>a seed, waiting';
-    if (hoverSpot === 'post') return '<b>Map</b>';
+    if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
     return null;
   }
@@ -683,8 +673,6 @@ const Grove = (() => {
     // behind a stand of thistles is actually behind them.
     const items = [];
     for (const w of World.weeds) items.push({ y: w.y, fn: () => World.drawWeed(g, w) });
-    items.push({ y: SEED.y, fn: () => drawSeed(g) });
-    items.push({ y: POST.y, fn: () => drawPost(g) });
     for (const o of objects) if (o.gone < 1) items.push({ y: o.y, fn: () => drawObject(g, o) });
     for (const d of DECOR) if (G.decor[d.key]) {
       const dx = WALK.x0 + d.spot[0] * (WALK.x1 - WALK.x0), dy = WALK.y0 + d.spot[1] * (WALK.y1 - WALK.y0);
@@ -863,7 +851,7 @@ const Grove = (() => {
       g.fillStyle = PAL.div4;
       g.fillRect(Math.round(SEED.x + Math.cos(a) * 14), Math.round(SEED.y - 16 + Math.sin(a) * 9), 2, 2);
     }
-    if (hoverSpot === 'seed') outline(g, SEED.x - 24, SEED.y - 46, 48, 52);
+
   }
   function drawPost(g) {
     g.fillStyle = 'rgba(18,14,20,0.3)'; Art.poly(g, [[POST.x - 7, POST.y], [POST.x + 7, POST.y], [POST.x + 20, POST.y + 5], [POST.x + 6, POST.y + 5]], g.fillStyle);
@@ -875,7 +863,7 @@ const Grove = (() => {
     g.fillRect(POST.x - 11, POST.y - 43, 10, 2); g.fillRect(POST.x - 4, POST.y - 39, 14, 2);
     g.fillRect(POST.x - 11, POST.y - 36, 8, 2);
     g.fillStyle = PAL.red2; g.fillRect(POST.x + 6, POST.y - 43, 3, 3);
-    if (hoverSpot === 'post') outline(g, POST.x - 20, POST.y - 50, 42, 56);
+    if (hoverSpot === 'truck') outline(g, TRUCK.x - 50, TRUCK.y - 48, 96, 56);
   }
   function outline(g, x, y, w, h) {
     g.save(); g.strokeStyle = PAL.gold3; g.lineWidth = 1; g.setLineDash([3, 4]);
@@ -971,6 +959,6 @@ const Grove = (() => {
     init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
-    SEED, POST, GROUND, WALK, W, H, VW,
+    SEED, POST, TRUCK, GROUND, WALK, W, H, VW,
   };
 })();

@@ -302,9 +302,9 @@ const Sprites = (() => {
     const waist = shoulder + 15;
     const hip = shoulder + 20;
     const hem = (sit ? 62 : CGY) - hemUp;
-    const shW = sit ? 8 : 7;                    // half-width at the shoulders
-    const hipW = sit ? 11 : 6.6;
-    const hemW = (sit ? 14 : 10.4) + flare;
+    const shW = sit ? 9 : 8.2;                  // half-width at the shoulders
+    const hipW = sit ? 12.6 : 8.8;              // she is a comfortable person
+    const hemW = (sit ? 15 : 11.8) + flare;
 
     // ---- boots, when the hem lifts off them --------------------------------
     if (hemUp > 1 || stride) {
@@ -336,6 +336,8 @@ const Sprites = (() => {
 
     // ---- torso -------------------------------------------------------------
     Art.poly(g, [[CX - shW, shoulder], [CX + shW, shoulder], [CX + hipW, hip], [CX - hipW, hip]], R2);
+    Art.ell(g, CX, hip - 4, hipW + 0.6, 7.5, R2);            // a round belly under the cord
+    Art.ell(g, CX - 2.6, hip - 6, hipW * 0.52, 4, R3);
     Art.poly(g, [[CX - shW, shoulder], [CX - shW * 0.34, shoulder], [CX - hipW * 0.3, hip], [CX - hipW, hip]], R3);
     Art.rect(g, CX - shW, shoulder, 1.6, hip - shoulder, R4);
 
@@ -377,13 +379,10 @@ const Sprites = (() => {
     Art.ell(g, CX - 3.2, my + 2, shW * 0.56, 3.8, R4);
     Art.ell(g, CX + 3.6, my + 3.6, shW * 0.46, 3.2, R1);
     Art.ellBand(g, CX, my + 3.6, shW + 1.8, 6, GOLD, 0.86, 1);
-    if (view !== 'back') {                                       // a teal clasp and amulet
+    if (view !== 'back') {                                       // a teal clasp and the charm
       Art.ell(g, CX, my + 1, 2.4, 2, TEAL);
       Art.ell(g, CX - 0.4, my + 0.6, 1.2, 1, TEAL2);
-      Art.rect(g, CX - 0.5, my + 3, 1, 3.4, GOLD);
-      Art.ell(g, CX, my + 7.4, 2.6, 2.6, GOLD);
-      Art.ell(g, CX, my + 7.4, 1.5, 1.5, WINE);
-      Art.rect(g, CX - 1.2, my + 6.4, 1, 1, GOLD2);
+      wombachu(g, CX, my + 9.5, 0.62);
     }
 
     // ---- the hood, and the face inside it ----------------------------------
@@ -412,13 +411,19 @@ const Sprites = (() => {
       const ey = faceY + (hurt > 0 ? -0.4 : 0.4);
       if (pose === 'hurt') { Art.rect(g, hx - 3.4, ey, 2.6, 1.2, GOLD2); Art.rect(g, hx + 1, ey, 2.6, 1.2, GOLD2); }
       else {
-        Art.ell(g, hx - 1.7, ey + 0.5, 2.1, 1.8, 'rgba(255,226,120,0.2)');
-        Art.ell(g, hx + 1.9, ey + 0.5, 2.1, 1.8, 'rgba(255,226,120,0.2)');
-        Art.rect(g, hx - 2.8, ey - 0.3, 2.2, 2.2, 'rgba(255,232,150,0.42)');
-        Art.rect(g, hx + 0.8, ey - 0.3, 2.2, 2.2, 'rgba(255,232,150,0.42)');
-        Art.rect(g, hx - 2.5, ey, 1.6, 1.6, '#fff8d8'); Art.rect(g, hx + 1.1, ey, 1.6, 1.6, '#fff8d8');
-        Art.rect(g, hx - 2.5, ey, 1.6, 0.7, '#ffffff'); Art.rect(g, hx + 1.1, ey, 1.6, 0.7, '#ffffff');
-        if (f === 4 && pose === 'idle') Art.rect(g, hx - 2.8, ey - 0.3, 6, 2.2, VOID);
+        // a pair of very dark glasses, with the eyes burning behind them
+        Art.rect(g, hx - 3.4, ey - 0.6, 2.8, 2.8, 'rgba(255,232,150,0.3)');
+        Art.rect(g, hx + 0.7, ey - 0.6, 2.8, 2.8, 'rgba(255,232,150,0.3)');
+        Art.rect(g, hx - 3.6, ey - 0.9, 7.4, 1, '#0a0710');           // the bar across the brow
+        Art.rect(g, hx - 3.6, ey, 3.2, 2.6, '#120b18');               // left lens
+        Art.rect(g, hx + 0.5, ey, 3.2, 2.6, '#120b18');               // right lens
+        Art.rect(g, hx - 0.4, ey + 0.4, 1, 1, '#2a1a36');             // the bridge
+        Art.rect(g, hx - 3.6, ey, 3.2, 0.8, '#3a2a4c');
+        Art.rect(g, hx + 0.5, ey, 3.2, 0.8, '#3a2a4c');
+        Art.rect(g, hx - 3.2, ey + 0.4, 1, 1.4, '#fff8d8');           // the glint
+        Art.rect(g, hx + 0.9, ey + 0.4, 1, 1.4, '#fff8d8');
+        Art.rect(g, hx - 4.4, ey - 0.2, 1, 1.6, '#0a0710');           // temples
+        Art.rect(g, hx + 3.5, ey - 0.2, 1, 1.6, '#0a0710');
       }
     }
 
@@ -438,6 +443,31 @@ const Sprites = (() => {
     Art.outline(c, '#0a0810', 1);
     cache.set(key, c);
     return c;
+  }
+
+  // ---- the Wombachu charm -------------------------------------------------
+  // A wombat done up as the electric mouse: yellow, black-tipped ears, red
+  // cheeks and a lightning tail. It hangs from the cultist's neck on a chain.
+  const WOMB_Y = '#f2cf3a', WOMB_Y2 = '#ffe98a', WOMB_D = '#b8891a';
+  const CHAIN = '#c1912a', CHAIN2 = '#f2cf62';
+  function wombachu(g, x, y, s) {
+    Art.rect(g, x - 0.5, y - 6 * s, 1, 4 * s, CHAIN);             // the chain
+    Art.rect(g, x - 1, y - 3 * s, 2, 1, CHAIN2);
+    // ears, black at the tips
+    for (const d of [-1, 1]) {
+      Art.poly(g, [[x + d * 1.6 * s, y - 1.4 * s], [x + d * 3.4 * s, y - 5.2 * s], [x + d * 4.2 * s, y - 3.4 * s]], WOMB_Y);
+      Art.poly(g, [[x + d * 3.1 * s, y - 4.3 * s], [x + d * 3.4 * s, y - 5.2 * s], [x + d * 4.2 * s, y - 3.4 * s]], '#1a1208');
+    }
+    Art.ell(g, x + 4.6 * s, y + 1.4 * s, 1.6 * s, 1.1 * s, WOMB_Y);   // the bolt of a tail
+    Art.poly(g, [[x + 4 * s, y + 1.6 * s], [x + 6.6 * s, y - 0.6 * s], [x + 5.4 * s, y + 0.6 * s], [x + 6.8 * s, y + 1.4 * s], [x + 4.6 * s, y + 2.6 * s]], WOMB_Y2);
+    Art.ell(g, x, y + 0.4 * s, 3.6 * s, 3.2 * s, WOMB_D);             // the body
+    Art.ell(g, x, y, 3.4 * s, 3 * s, WOMB_Y);
+    Art.ell(g, x - 0.9 * s, y - 0.9 * s, 1.9 * s, 1.5 * s, WOMB_Y2);
+    Art.ell(g, x - 2.1 * s, y + 0.9 * s, 1 * s, 0.8 * s, '#e04a3c');  // the cheeks
+    Art.ell(g, x + 2.1 * s, y + 0.9 * s, 1 * s, 0.8 * s, '#e04a3c');
+    Art.rect(g, x - 1.5 * s, y - 0.5 * s, 0.9 * s, 0.9 * s, '#1a1208');
+    Art.rect(g, x + 0.7 * s, y - 0.5 * s, 0.9 * s, 0.9 * s, '#1a1208');
+    Art.rect(g, x - 0.4 * s, y + 0.8 * s, 0.9 * s, 0.7 * s, '#1a1208');  // the snout
   }
 
   // ---- ant movers ---------------------------------------------------------
@@ -772,5 +802,5 @@ const Sprites = (() => {
     if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = Math.max(1, px); g.strokeRect(x0, y0, w, h); }
   }
 
-  return { S, AGE, POSES, CULT_POSES, wombat, blit, shadow, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
+  return { S, AGE, POSES, CULT_POSES, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
 })();

@@ -7,7 +7,7 @@ const Main = (() => {
 
   function fresh() {
     return {
-      v: 6, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
+      v: 6, introDone: false, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
@@ -52,6 +52,14 @@ const Main = (() => {
       return s;
     } catch (e) { return null; }
   }
+  // the first words of the grove, held back until the intro is over
+  function openingBeats() {
+    if (!G || G.seen) return;
+    G.seen = true;
+    FX.title('WOMBAT GODS', { size: 20, color: PAL.div4, dur: 2.6, style: 'slam', sub: 'restore the grove' });
+    setTimeout(() => UI.toast('the grove is dead', 'bad'), 1400);
+    setTimeout(() => UI.toast('clear the list and one will come'), 6400);
+  }
   function reset() { Store.clear(KEY).then(() => location.reload(), () => location.reload()); }
 
   // ---- modes --------------------------------------------------------------
@@ -65,8 +73,8 @@ const Main = (() => {
     FX.clear(); FX.flash('#120e14', 0.5);
     if (mode !== 'shop') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
-    if (mode === 'grove') Grove.enter();
-    else if (mode === 'tree') Knowledge.enter();
+    if (mode === 'intro') Intro.enter();
+    else if (mode === 'grove') Grove.enter();
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
     Audio.setMode(mode === 'rite' && Tower.active ? 'tower' : 'pen');
@@ -107,14 +115,14 @@ const Main = (() => {
       if (UI.wheelOpen()) { UI.closeWheel(); return; }
       down = true; lastP = null; downP = p; moved = 0; panning = false;
       screenP = p;
+      if (G.mode === 'intro') { Intro.press(p.x, p.y); return; }
       if (G.mode === 'grove') {
         const w = world(p);
         if (Guide.hit(w.x, w.y)) { Guide.poke(); down = false; return; }
         const consumed = Grove.press(w.x, w.y, true);
         if (consumed) lastP = w;
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
-      } else if (G.mode === 'tree') lastP = p;
-      else if (G.mode === 'shop') Shop.press(p.x, p.y);
+      } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'rite') Tower.click(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
@@ -122,6 +130,7 @@ const Main = (() => {
       screenP = p;
       const wp = world(p);
       G.pointer.x = wp.x; G.pointer.y = wp.y; G.pointer.on = true;
+      if (G.mode === 'intro') { Intro.move(p.x, p.y); return; }
       if (Ritual.active) return;
       if (downP) moved = Math.max(moved, Math.hypot(p.x - downP.x, p.y - downP.y));
       if (down) {
@@ -130,23 +139,21 @@ const Main = (() => {
           if (G.tool === 'drag') { Grove.move(wp.x, wp.y); UI.hideTip(); return; }
           stroke(wp); UI.hideTip(); return;
         }
-        if (G.mode === 'tree' && lastP) { Knowledge.pan(p.x - lastP.x, p.y - lastP.y); lastP = p; UI.hideTip(); return; }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
-      else if (G.mode === 'tree') tip = Knowledge.hover(p.x, p.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
+      if (G.mode === 'intro') { Intro.release(); down = false; return; }
       if (!down) { down = false; lastP = null; downP = null; return; }
       const p = e ? pos(e) : downP;
       const wp = world(p);
       if (G.mode === 'grove') { if (!panning) Grove.release(wp.x, wp.y); }
       else if (G.mode === 'shop') Shop.release(p.x, p.y);
-      else if (G.mode === 'tree' && moved < 6) Knowledge.click(p.x, p.y);
       else if (G.mode === 'map' && moved < 8) Atlas.click(p.x, p.y);
       down = false; lastP = null; downP = null; panning = false;
     };
@@ -156,7 +163,6 @@ const Main = (() => {
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     canvas.addEventListener('wheel', (e) => {
       if (G.mode === 'grove') { e.preventDefault(); Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8); }
-      else if (G.mode === 'tree') { e.preventDefault(); const p = pos(e); Knowledge.scroll(e.deltaY, p.x, p.y); }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
@@ -172,9 +178,7 @@ const Main = (() => {
       if (G.mode === 'rite') {
         if (Tower.key(e.key)) e.preventDefault();
         if (e.key === 'c' || e.key === 'C') Tower.cashOut();
-      } else if (G.mode === 'tree') {
-        if (e.key === '+' || e.key === '=') { Knowledge.zoomBy(1.2); e.preventDefault(); }
-        if (e.key === '-' || e.key === '_') { Knowledge.zoomBy(1 / 1.2); e.preventDefault(); }
+      } else if (false) {
       } else if (G.mode === 'grove') {
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { Grove.panBy(-70); e.preventDefault(); return; }
         if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { Grove.panBy(70); e.preventDefault(); return; }
@@ -214,20 +218,20 @@ const Main = (() => {
     if (G.paused) gdt = 0;
     G.time += real;
 
-    Ritual.update(gdt, real);
-    if (!G.paused) {
+    if (G.mode === 'intro') Intro.update(real);
+    else Ritual.update(gdt, real);
+    if (G.mode !== 'intro' && !G.paused) {
       World.update(real);
       Grove.update(real);
       Guide.update(real);
       // the view follows the pointer at the edges, and keeps doing so while a cube is being carried
       if (G.mode === 'grove' && G.pointer.on && (!down || (G.tool === 'drag' && !panning)) && !UI.anyPanel()) Grove.edgeScroll(screenP.x, real);
-      if (G.mode === 'tree') Knowledge.update(real);
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
-    Tower.update(gdt, real);
+    if (G.mode !== 'intro') Tower.update(gdt, real);
     // The rite pauses the world but its own effects must keep running, or
     // bolts and roots spawned during the cutscene never expire.
     FX.updateWorld(Ritual.active ? real : G.mode === 'rite' ? gdt : (G.paused ? 0 : real));
@@ -238,9 +242,9 @@ const Main = (() => {
     if (Ritual.active) Ritual.renderScene(g);
     else {
       g.save(); g.translate(FX.cam.shakeX, FX.cam.shakeY);
-      if (G.mode === 'grove') Grove.render(g);
+      if (G.mode === 'intro') Intro.render(g);
+      else if (G.mode === 'grove') Grove.render(g);
       else if (G.mode === 'shrine') Ritual.renderShrine(g);
-      else if (G.mode === 'tree') Knowledge.render(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
       else Tower.render(g);
@@ -275,7 +279,7 @@ const Main = (() => {
     G = load() || fresh();
     window.G = G;
     World.init(G);
-    Grove.init(G); Ritual.init(G); Knowledge.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
 
     const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
     if (away > 30 && G.wombats.some((w) => w.stomach === 'digesting')) {
@@ -284,21 +288,15 @@ const Main = (() => {
     }
     G.paused = false;
     Audio.setState(G.muted, !G.musicOff);
-    G.mode = 'grove';
-    Grove.enter();
-    UI.setMode('grove');
+    if (!G.introDone) { G.mode = 'intro'; Intro.enter(); UI.setMode('intro'); }
+    else { G.mode = 'grove'; Grove.enter(); UI.setMode('grove'); }
     window.addEventListener('resize', resize);
     resize(); setTimeout(resize, 60);
     bind();
-    if (!G.seen) {
-      G.seen = true;
-      setTimeout(() => UI.toast('the grove is dead', 'bad'), 1200);
-      setTimeout(() => UI.toast('clear the list and one will come'), 6200);
-    }
-    FX.title('WOMBAT GODS', { size: 20, color: PAL.div4, dur: 2.6, style: 'slam', sub: 'restore the grove' });
+    if (!G.seen && G.introDone) openingBeats();
     requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
   }
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
-  return { save, reset, setMode, back, get G() { return G; } };
+  return { save, reset, setMode, back, openingBeats, get G() { return G; } };
 })();
