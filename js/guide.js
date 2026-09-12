@@ -1,7 +1,7 @@
 // ---- The cultist: a robed wombat who writes the tutorial in her notebook --
 const Guide = (() => {
   let G = null;
-  const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0 };
+  const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0 };
   let flash = 0, hidden = false;
 
   // Each step is a line in the notebook and a place for her to stand.
@@ -87,7 +87,7 @@ const Guide = (() => {
     if (!s.done(G)) return;
     G.step++;
     flash = 1.6;
-    cult.pose = 'point'; cult.t = 0; cult.hop = 1;
+    cult.pose = 'cast'; cult.castT = 1.6; cult.t = 0; cult.still = 0;
     Audio.play('chime');
     FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
     UI.refreshAll();           // a finished step can hand over a new tool
@@ -106,21 +106,24 @@ const Guide = (() => {
       cult.tx = want + 46;
     }
     const dx = cult.tx - cult.x;
-    if (Math.abs(dx) > 3) {
+    if (cult.castT > 0) { cult.castT -= dt; if (cult.castT <= 0) cult.pose = 'idle'; }
+    else if (Math.abs(dx) > 3) {
       cult.dir = dx > 0 ? 1 : -1;
       cult.x += U.clamp(dx, -52 * dt, 52 * dt);
-      cult.pose = 'walk';
-    } else if (cult.pose === 'walk') cult.pose = 'idle';
-    if (cult.hop <= 0 && cult.pose === 'point') cult.pose = 'idle';
+      cult.pose = Math.abs(dx) > 120 ? 'run' : 'walk'; cult.still = 0;
+    } else {
+      cult.still += dt;
+      cult.pose = cult.still > 16 ? 'sit' : 'idle';       // she takes a seat if you dawdle
+    }
     check();
   }
 
   // She stands in the grove and points at whatever the step is about.
   function draw(g) {
     if (finished() || hidden) return;
-    const bobF = Math.floor(cult.t * (cult.pose === 'walk' ? 7 : 3)) % 6;
-    const img = Sprites.cultist(bobF, cult.pose === 'point' ? 'point' : 'idle');
-    const lift = cult.pose === 'walk' ? Math.abs(Math.sin(cult.t * 9)) * 2 : 0;
+    const rate = { walk: 8, run: 12, cast: 5, sit: 2, idle: 3 }[cult.pose] || 4;
+    const img = Sprites.cultist(Math.floor(cult.t * rate), cult.pose);
+    const lift = 0;
     const sc = 1.4;
     const dw = img.width * sc, dh = img.height * sc;
     g.fillStyle = 'rgba(18,14,20,0.28)';
@@ -134,7 +137,7 @@ const Guide = (() => {
     gr.addColorStop(1, 'rgba(185,142,240,0)');
     g.fillStyle = gr; g.fillRect(cult.x - 48, cult.y - 72, 96, 96);
     const s = step();
-    if (s && cult.pose !== 'walk') {
+    if (s && cult.pose !== 'walk' && cult.pose !== 'run') {
       const tx = U.clamp(s.at(G), 40, Grove.W - 40);
       const a = 0.4 + 0.4 * Math.sin(cult.t * 4);
       g.globalAlpha = a;

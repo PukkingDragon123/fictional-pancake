@@ -27,7 +27,7 @@ const PAL = {
 // Wombat pelts. The first four are common; the rest are the rare variants
 // breeding can throw. `glow` marks a pelt that gets an aura.
 const FUR = [
-  { key: 'brown', name: 'Brown', light: '#d1a184', base: '#bd8763', mid: '#a66e4f', dark: '#8a553e', deep: '#6b4030', nose: '#4a2c20', ink: '#3a2419', rare: 0 },
+  { key: 'brown', name: 'Brown', light: '#e2ab8c', base: '#c98a6c', mid: '#a86d54', dark: '#7e4d3d', deep: '#5a352c', nose: '#2a1a18', ink: '#1a1010', rare: 0 },
   { key: 'grey', name: 'Grey', light: '#b4aca4', base: '#9c9289', mid: '#847a72', dark: '#6b625c', deep: '#514944', nose: '#332d29', ink: '#241f1c', rare: 0 },
   { key: 'sand', name: 'Sand', light: '#e0c096', base: '#cca878', mid: '#b28c5e', dark: '#947049', deep: '#735436', nose: '#4c3722', ink: '#3a2a19', rare: 0 },
   { key: 'soot', name: 'Soot', light: '#8a7a6e', base: '#726256', mid: '#5c4e44', dark: '#463b33', deep: '#332b25', nose: '#221c18', ink: '#171310', rare: 0 },

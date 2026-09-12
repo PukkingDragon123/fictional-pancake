@@ -9,95 +9,68 @@ const Sprites = (() => {
   const AX = 22, GY = 27;         // anchor: feet centre / ground line
   const cache = new Map();
 
-  const AGE = { baby: { k: 0.62, head: 1.24, name: 'Joey' }, juvenile: { k: 0.78, head: 1.12, name: 'Juvenile' }, adult: { k: 1, head: 1, name: 'Adult' } };
-  const POSES = { idle: 6, walk: 8, run: 6, eat: 6, graze: 4, sleep: 2, dig: 6, happy: 6, pray: 6, bite: 6 };
+  const AGE = { baby: { k: 0.62, head: 1.2, name: 'Joey' }, juvenile: { k: 0.78, head: 1.1, name: 'Juvenile' }, adult: { k: 1, head: 1, name: 'Adult' } };
+  // Every animation on the sheet, plus the few the grove itself needs.
+  const POSES = { idle: 4, walk: 8, run: 6, turn: 6, jump: 5, hurt: 4, sit: 3, lie: 2, sleep: 3, eat: 6, graze: 4, dig: 6, happy: 5, pray: 6, bite: 6 };
 
   function pose(name, f) {
     const n = POSES[name] || 1, t = f / n;
     const p = {
-      bob: 0, roll: 0, squash: 0, headDip: 0, headFwd: 0, front: 0, headTurn: 0, jaw: 0, ear: 0, blink: 0,
-      leg: [0, 0, 0, 0], rear: 0, sit: 0, reach: 0, tuck: 0, sway: 0,
+      bob: 0, squash: 0, headDip: 0, headFwd: 0, front: 0, rear: 0, jaw: 0, ear: 0, blink: 0,
+      leg: [0, 0, 0, 0], tuck: 0, sit: 0, lie: 0, sleep: 0, view: 'side', tilt: 0, hurt: 0, reach: 0, z: 0,
     };
-    const s = Math.sin(t * TAU), c = Math.cos(t * TAU);
+    const s = Math.sin(t * TAU);
     switch (name) {
-      case 'idle':
-        p.bob = s * 0.45; p.squash = s * 0.025;
-        p.ear = f === 2 ? 1 : 0; p.blink = f === 4 ? 1 : 0;
-        p.headTurn = f >= 3 ? 0.6 : 0;
-        break;
+      case 'idle': p.bob = s * 0.5; p.blink = f === 3 ? 1 : 0; p.ear = f === 1 ? 1 : 0; break;
       case 'walk': {
-        // diagonal gait: front-left swings with back-right
         const a = Math.sin(t * TAU), b = Math.sin(t * TAU + Math.PI);
-        p.leg = [Math.max(0, a) * 5, Math.max(0, b) * 5, Math.max(0, b) * 5, Math.max(0, a) * 5];
-        p.bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.1;
-        p.roll = a * 1.1;
-        p.headDip = Math.abs(Math.sin(t * TAU * 2)) * 1.6 - 0.6;
-        p.headFwd = a * 1.2;
-        p.squash = Math.sin(t * TAU * 2) * 0.05;
+        p.leg = [Math.max(0, a) * 4, Math.max(0, b) * 4, Math.max(0, b) * 4, Math.max(0, a) * 4];
+        p.bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.4;
+        p.headDip = Math.abs(Math.sin(t * TAU * 2)) * 1.2 - 0.5;
         break;
       }
       case 'run': {
-        const a = Math.sin(t * TAU), b = Math.sin(t * TAU + Math.PI * 0.55);
-        p.leg = [Math.max(0, a) * 7, Math.max(0, a) * 6.4, Math.max(0, b) * 7, Math.max(0, b) * 6.4];
-        p.bob = -Math.abs(Math.sin(t * TAU)) * 3.6;
-        p.squash = -0.09 + Math.sin(t * TAU * 2) * 0.09;
-        p.headDip = 2.4; p.headFwd = 2.6; p.front = 1.4; p.roll = a * 1.2;
+        const a = Math.sin(t * TAU), b = Math.sin(t * TAU + Math.PI * 0.6);
+        p.leg = [Math.max(0, a) * 6, Math.max(0, a) * 5, Math.max(0, b) * 6, Math.max(0, b) * 5];
+        p.bob = -Math.abs(Math.sin(t * TAU)) * 3; p.front = 1.2; p.headFwd = 2; p.squash = -0.06 + Math.sin(t * TAU * 2) * 0.06;
         break;
       }
-      case 'eat':
-        // muzzle right down on the ground, shoulders dropped, jaw working
-        p.headDip = 8.2; p.headFwd = 2.6; p.front = 3.6; p.rear = -1.2;
-        p.jaw = Math.abs(Math.sin(t * TAU * 2)) * 1.4;
-        p.bob = 0.5 + s * 0.3; p.ear = f % 3 === 0 ? 1 : 0;
+      case 'turn': p.view = ['side', 'quarter', 'back', 'back', 'quarter', 'side'][f]; p.blink = f === 1 || f === 4 ? 0 : 0; break;
+      case 'jump': {
+        const lift = [0, -9, -14, -9, 0][f];
+        p.bob = lift; p.tuck = f === 2 ? 1 : f === 1 || f === 3 ? 0.5 : 0;
+        p.squash = f === 0 ? 0.16 : f === 4 ? 0.2 : f === 2 ? -0.12 : -0.05;
+        p.tilt = f === 1 ? -0.18 : f === 3 ? 0.18 : 0; p.ear = f === 2 ? 1 : 0;
         break;
-      case 'graze':
-        p.headDip = 7.6; p.headFwd = 2.2; p.front = 3.2;
-        p.sway = s * 2.6; p.bob = 0.4;
-        p.jaw = f % 2 ? 0.7 : 0;
-        break;
-      case 'sleep':
-        p.tuck = 1; p.squash = 0.14 + (f ? 0.03 : 0); p.bob = 2.1;
-        p.headDip = 3.4; p.ear = -1; p.blink = 1;
-        break;
+      }
+      case 'hurt': p.hurt = [1, 0.7, 0.4, 0][f]; p.tilt = 0.28 * p.hurt; p.blink = f < 3 ? 1 : 0; p.bob = -p.hurt * 2; break;
+      case 'sit': p.sit = 1; p.bob = s * 0.4; p.blink = f === 2 ? 1 : 0; break;
+      case 'lie': p.lie = 1; p.bob = f ? 0.6 : 0; break;
+      case 'sleep': p.lie = 1; p.sleep = 1; p.blink = 1; p.z = f; p.bob = f === 1 ? 0.6 : 0; break;
+      case 'eat': p.headDip = 7; p.headFwd = 2.4; p.front = 3.2; p.rear = -1; p.jaw = Math.abs(Math.sin(t * TAU * 2)) * 1.4; p.bob = 0.4; break;
+      case 'graze': p.headDip = 6.5; p.headFwd = 2; p.front = 2.6; p.jaw = f % 2 ? 0.8 : 0; break;
       case 'dig': {
-        // rump up, shoulders down, front paws scrabbling
         const a = Math.sin(t * TAU * 2), b = Math.sin(t * TAU * 2 + Math.PI);
-        p.leg = [0, 0, Math.max(0, a) * 7, Math.max(0, b) * 7];
-        p.headDip = 5.4; p.headFwd = 1.8; p.front = 4.2; p.rear = -2.6;
-        p.bob = 0.8; p.jaw = 0.4; p.squash = 0.05;
+        p.leg = [0, 0, Math.max(0, a) * 6, Math.max(0, b) * 6];
+        p.headDip = 4.6; p.headFwd = 1.6; p.front = 3.6; p.rear = -2.4; p.jaw = 0.4;
         break;
       }
-      case 'happy':
-        p.bob = -Math.abs(Math.sin(t * TAU)) * 4.2;
-        p.squash = -0.05 - Math.sin(t * TAU) * 0.07;
-        p.ear = 1; p.roll = Math.sin(t * TAU * 2) * 0.6; p.jaw = 0.8;
-        p.leg = [1.5, 1.5, 1.5, 1.5].map((v, i) => v * Math.max(0, Math.sin(t * TAU)));
+      case 'happy': {
+        const lift = [0, -5, -8, -5, 0][f];
+        p.bob = lift; p.tuck = f === 2 ? 0.6 : 0; p.ear = 1; p.jaw = 0.8; p.squash = f === 0 || f === 4 ? 0.12 : -0.06;
         break;
-      case 'pray':
-        p.sit = 1; p.reach = 0.55 + s * 0.2; p.headDip = -1.2;
-        p.bob = s * 0.5; p.blink = f === 3 ? 1 : 0; p.ear = 1;
-        break;
-      case 'bite':
-        p.sit = 1; p.reach = 1; p.headDip = -2.4 + (f > 2 ? 1.2 : 0);
-        p.jaw = f > 2 ? 1.4 : 0.2; p.bob = -s * 0.6; p.ear = 1;
-        break;
+      }
+      case 'pray': p.sit = 1; p.reach = 0.6 + s * 0.2; p.bob = s * 0.4; p.blink = f === 3 ? 1 : 0; p.ear = 1; break;
+      case 'bite': p.sit = 1; p.reach = 1; p.jaw = f > 2 ? 1.4 : 0.2; p.bob = -s * 0.5; p.ear = 1; break;
     }
     return p;
   }
 
   // ---- the wombat ---------------------------------------------------------
-  // Built from stacked blocks rather than ellipses: a heavy rounded brick of a
-  // body, a squared head that merges straight into it with no neck, a big dark
-  // snout, square eyes, and four stubby legs with clear gaps between them.
-  // Proportions taken from the reference: the head is over 40% of the total
-  // length and nearly as tall as the body, the snout is a heavy dark block,
-  // and four thick stubby legs leave clear gaps between the pairs.
-  // Fur mottling, given in body-relative units (0..1 across, 0..1 down).
-  const PATCH = [
-    [0.14, 0.28, 0.20, 0.20, 1], [0.42, 0.16, 0.22, 0.18, 1], [0.68, 0.34, 0.18, 0.20, -1],
-    [0.26, 0.62, 0.24, 0.18, -1], [0.58, 0.66, 0.20, 0.16, -1], [0.84, 0.20, 0.14, 0.18, 1],
-  ];
-
+  // Drawn to the sheet: a fat rounded loaf of a body, the head a rounded bump
+  // on the front that carries a big dark nose block and two dot eyes, small
+  // round ears, four stubby legs ending in dark paws, a darker dithered saddle
+  // along the back, and one black line around the lot.
   function drawWombat(g, fur, name, f, ageKey) {
     const p = pose(name, f);
     const A = AGE[ageKey] || AGE.adult;
@@ -106,133 +79,130 @@ const Sprites = (() => {
     const Y = (y) => GY + (y - GY) * K;
     const L = (v) => Math.max(1, v * K);
     const R = (x, y, w, h, col) => Art.rect(g, X(x), Y(y), L(w), L(h), col);
-
-    const sit = p.sit, tuck = p.tuck;
-    const lift = p.bob;
-    // ---- the body box -------------------------------------------------------
-    const bw = 26 - sit * 10;
-    const bh = (13 + sit * 7 + (tuck ? 1 : 0)) * (1 - p.squash * 0.55);
-    const bx = 4 + sit * 5;
-    const legLen = tuck ? 0.5 : 7 - sit * 2;
-    const by = GY - legLen - bh + lift;
-    // the spine tilts: shoulders drop to eat and dig, the rump lifts
-    const tiltAt = (t) => U.lerp(-p.rear, p.front, t) * 0.55;
-    const corner = (i) => {
-      const d = Math.min(i, bw - 1 - i);
-      return d < 1 ? 3 : d < 2 ? 1.6 : d < 3 ? 0.6 : 0;
+    const E = (x, y, rx, ry, col) => Art.ell(g, X(x), Y(y), Math.max(0.6, rx * K), Math.max(0.6, ry * K), col);
+    const saddle = (cx, cy, rx, ry) => {
+      Art.speckle(g, X(cx), Y(cy), rx * K, ry * K, fur.mid, Math.round(rx * ry * 0.55), 7);
+      Art.speckle(g, X(cx), Y(cy - ry * 0.4), rx * K * 0.9, ry * K * 0.5, fur.dark, Math.round(rx * ry * 0.2), 13);
+    };
+    const paws = (x, y, w) => { R(x, y, w, 2.2, fur.deep); R(x, y + 1.4, w, 1, fur.ink); };
+    const eye = (x, y, closed) => { if (closed) R(x - 0.4, y + 0.6, 3, 1, fur.ink); else R(x, y, 2, 2, fur.ink); };
+    const nose = (x, y, w, h) => { E(x + w / 2, y + h / 2, w / 2, h / 2, fur.nose); R(x + 1, y + h - 0.6, w - 2, 1, fur.ink); if (p.jaw > 0.6) { R(x + 1, y + h + 0.4, w - 2.4, 1.6, fur.ink); R(x + 1.6, y + h + 0.6, 1.2, 1, PAL.cream); } };
+    const ears = (lx, rx, y, lift) => {
+      E(lx, y - lift * 0.8, 2.6 * HK, 2.6 * HK, fur.mid); E(lx, y + 0.4 - lift * 0.8, 1.4 * HK, 1.4 * HK, fur.dark);
+      E(rx, y - lift, 2.6 * HK, 2.6 * HK, fur.base); E(rx, y + 0.4 - lift, 1.4 * HK, 1.4 * HK, fur.mid);
+    };
+    const glow = () => {
+      if (fur.moss) { E(16, 8, 4, 1.8, PAL.moss3); E(24, 7.5, 3, 1.6, PAL.moss2); }
+      if (fur.stars) { R(14, 12, 1, 1, PAL.div5); R(20, 10, 1, 1, PAL.cream); R(26, 13, 1, 1, PAL.div4); }
     };
 
-    // ---- legs, behind the body ---------------------------------------------
-    if (!tuck) {
-      const legs = sit
-        ? [[bx + 1, 0], [bx + bw - 7, 1]]
-        : [[bx + 1, 0], [bx + 7, 1], [bx + bw - 12, 2], [bx + bw - 6, 3]];
+    // ---- turn frames: the back and the three-quarter view -------------------
+    if (p.view === 'back') {
+      E(22, 15.5, 11.5, 8.5, fur.base);
+      R(11, 12, 22, 9, fur.base);
+      saddle(22, 12, 9, 4);
+      E(22, 7.5, 7.5 * HK, 6.5 * HK, fur.base);                 // the back of the head
+      ears(17, 27, 2.5, 0);
+      E(22, 20.5, 1.6, 1.4, fur.dark);                          // the tail dot
+      for (const lx of [10, 17, 24, 31]) { R(lx, 21, 5, 6, fur.mid); paws(lx - 0.5, 24.8, 6); }
+      glow();
+      return;
+    }
+    if (p.view === 'quarter') {
+      E(21, 15.5, 11, 8, fur.base); R(11, 11, 20, 10, fur.base);
+      saddle(19, 12, 8, 4);
+      E(27, 12.5, 8 * HK, 7.5 * HK, fur.base);                  // face turned toward us
+      E(29, 15, 5.5 * HK, 4.5 * HK, fur.light);
+      ears(21, 31, 6, 0);
+      eye(24, 11, p.blink); eye(30, 11, p.blink);
+      nose(24.5, 14, 6.5, 4.5);
+      for (const lx of [10, 16, 23, 29]) { R(lx, 21, 5, 6, fur.mid); paws(lx - 0.5, 24.8, 6); }
+      glow();
+      return;
+    }
+
+    // ---- lying flat, asleep or not ------------------------------------------
+    if (p.lie) {
+      E(19, 20.5 + p.bob, 14, 6, fur.base);
+      R(6, 18 + p.bob, 26, 6, fur.base);
+      saddle(18, 18, 11, 3);
+      E(30, 18.5 + p.bob, 8 * HK, 6 * HK, fur.base);
+      E(32, 20, 5 * HK, 3.5 * HK, fur.light);
+      ears(25, 33, 13 + p.bob, 0);
+      eye(29.5, 17 + p.bob, p.blink);
+      nose(33.5, 19 + p.bob, 6.5, 4.5);
+      R(7, 24.5, 6, 2.2, fur.deep); R(14, 25, 5, 1.6, fur.deep); R(25, 25, 5, 1.6, fur.deep);
+      if (p.sleep) {                                             // the z, drifting up
+        const zx = 36 + p.z * 1.2, zy = 4 - p.z * 3;
+        R(zx, zy, 4, 1, PAL.div4); R(zx + 2, zy + 1, 1, 1, PAL.div4); R(zx + 1, zy + 2, 1, 1, PAL.div4); R(zx, zy + 3, 4, 1, PAL.div4);
+      }
+      glow();
+      return;
+    }
+
+    // ---- sitting up on the rump ---------------------------------------------
+    if (p.sit) {
+      const by = 14 + p.bob;
+      E(20, by + 2, 9.5, 10.5, fur.base);                        // a tall pear of a body
+      E(19, by + 8, 10.5, 6, fur.base);
+      E(19, by + 6, 6.5, 6, fur.light);                          // pale belly
+      saddle(16, by - 1, 6, 5);
+      R(12, 23.6, 6, 3, fur.deep); R(22, 23.6, 6, 3, fur.deep);  // rear feet splayed
+      R(12, 25.6, 6, 1, fur.ink); R(22, 25.6, 6, 1, fur.ink);
+      E(23, by - 8, 7.5 * HK, 6.8 * HK, fur.base);               // head on top
+      ears(18, 27, by - 14.6, p.ear);
+      eye(21, by - 9.5, p.blink); eye(26.5, by - 9.5, p.blink);
+      nose(23, by - 6.5, 6.5, 4.5);
+      const py = by + 4 - p.reach * 3;                          // front paws held up
+      E(15, py, 2.6, 2.4, fur.mid); E(23, py - 1, 2.6, 2.4, fur.base);
+      R(13.5, py + 1, 3, 1, fur.ink); R(21.5, py, 3, 1, fur.ink);
+      glow();
+      return;
+    }
+
+    // ---- the side view everything else uses ----------------------------------
+    const bob = p.bob;
+    g.save();
+    if (p.tilt) { g.translate(X(20), Y(20)); g.rotate(-p.tilt); g.translate(-X(20), -Y(20)); }
+    const sq = p.squash, bw = 13 * (1 + sq * 0.6), bh = 7.5 * (1 - sq);
+    const by = 15.5 + bob + (7.5 - bh);
+    const tiltF = (t) => U.lerp(-p.rear, p.front, t) * 0.5;
+    // legs first, so the belly overlaps their tops
+    if (p.tuck < 1) {
+      const legs = [[9, 0], [15, 1], [24, 2], [30, 3]];
       for (const [lx, i] of legs) {
-        const lf = p.leg[i] || 0;
-        const swing = (i >= 2 ? 1 : -1) * lf * 0.3;
-        const t = (lx - bx) / bw;
-        const top = by + bh + tiltAt(t) - 2;
-        const h = GY - top - lf;
-        if (h <= 1) continue;
-        R(lx + swing, top, 5.6, h, fur.mid);
-        R(lx + swing, top, 1.4, h, fur.base);                    // lit edge
-        R(lx + swing + 4.2, top, 1.4, h, fur.dark);              // shaded edge
-        R(lx + swing - 0.5, GY - lf - 2.8, 6.6, 2.8, fur.dark);  // paw
-        R(lx + swing - 0.5, GY - lf - 1.2, 6.6, 1.2, fur.deep);
-        R(lx + swing + 0.4, GY - lf - 0.9, 1, 0.9, fur.ink);     // claws
-        R(lx + swing + 2.6, GY - lf - 0.9, 1, 0.9, fur.ink);
-        R(lx + swing + 4.8, GY - lf - 0.9, 1, 0.9, fur.ink);
+        const lf = (p.leg[i] || 0) + p.tuck * 4;
+        const swing = (i >= 2 ? 1 : -1) * (p.leg[i] || 0) * 0.35;
+        const top = by + bh - 4 + tiltF((lx - 7) / 26) + bob * 0.2;
+        const floor = Math.min(GY, by + bh + 4.5);            // airborne legs hang from the body
+        const h = floor - top - lf;
+        if (h > 1.2) {
+          R(lx + swing, top, 5, h, i % 2 ? fur.mid : fur.base);
+          R(lx + swing + 3.6, top, 1.4, h, fur.dark);
+          paws(lx + swing - 0.4, floor - lf - 2.2, 6);
+        }
       }
     }
-
-    // ---- the body, drawn as tilted columns ---------------------------------
-    for (let i = 0; i < bw; i++) {
-      const t = (i + 0.5) / bw;
-      const ins = corner(i);
-      const top = by + tiltAt(t) + ins;
-      const h = bh - ins * 2;
-      if (h <= 1) continue;
-      R(bx + i, top, 1, h, fur.base);
-      R(bx + i, top, 1, Math.min(2, h * 0.3), fur.light);             // sun on the back
-      R(bx + i, top + h - h * 0.34, 1, h * 0.2, fur.mid);             // turn of the flank
-      R(bx + i, top + h - h * 0.16, 1, h * 0.16, fur.dark);           // belly shade
+    // body: a loaf with a fatter rump
+    E(20, by, bw, bh, fur.base);
+    R(9, by - bh + 2, 22 * (1 + sq * 0.4), bh * 2 - 4, fur.base);
+    E(9.5, by + 0.8 - p.rear * 0.4, 5.5, bh * 0.85, fur.base);
+    E(20, by + bh * 0.55, bw * 0.75, bh * 0.4, fur.light);         // belly
+    saddle(18, by - bh * 0.35, 10, bh * 0.55);
+    R(7, by - 1, 1.6, 3, fur.mid);                                // the tail nub
+    // head: a rounded bump on the front, rising above the back
+    const hx = 30 + p.headFwd, hy = 13 + bob + p.headDip + p.front * 0.6;
+    E(hx, hy, 8.5 * HK, 7.5 * HK, fur.base);
+    E(hx + 1.5, hy + 2.5, 5.5 * HK, 4.2 * HK, fur.light);         // cheek
+    Art.speckle(g, X(hx - 2), Y(hy - 3), 5 * K, 2.5 * K, fur.mid, 6, 3);
+    ears(hx - 5, hx + 3, hy - 7.2 * HK, p.ear);
+    eye(hx - 1.5, hy - 2.2, p.blink);
+    nose(hx + 3, hy + 0.6, 7, 4.8);
+    if (p.hurt > 0) {                                             // little stars over the head
+      for (let i = 0; i < 3; i++) { const a = p.hurt * 4 + i * 2.1; R(hx - 3 + Math.cos(a) * 7, hy - 9 + Math.sin(a) * 2, 1.4, 1.4, PAL.gold3); }
     }
-    // mottling
-    for (const [px, py, pw, ph, d] of PATCH) {
-      const i = px * bw;
-      const t = (i + pw * bw * 0.5) / bw;
-      R(bx + i, by + tiltAt(t) + py * bh, pw * bw, ph * bh * 0.6, d > 0 ? fur.light : fur.mid);
-    }
-    if (fur.moss) { R(bx + 4, by + tiltAt(0.2) - 1, 7, 2.4, PAL.moss3); R(bx + 13, by + tiltAt(0.5) - 1.4, 5, 2.4, PAL.moss2); }
-    if (fur.stars) { R(bx + 5, by + 5, 1, 1, PAL.div5); R(bx + 12, by + 8, 1, 1, PAL.cream); R(bx + 18, by + 6, 1, 1, PAL.div4); }
-    // tail nub
-    if (!tuck && !sit) R(bx - 2.2, by + tiltAt(0) + bh * 0.5, 2.8, 3.6, fur.dark);
-
-    // ---- the head, always overlapping the shoulders ------------------------
-    const hw = 15 * HK, hh = 14 * HK;
-    const shoulder = by + tiltAt(1);
-    const hx = sit ? bx + bw / 2 - 15 * HK / 2 + 2 : bx + bw - 5 + p.headFwd * 0.8;
-    const hy = shoulder + bh - hh - 1.5 + p.headDip - sit * (hh * 0.8);
-    const hcorner = (i) => { const d = Math.min(i, hw - 1 - i); return d < 1 ? 3 : d < 2 ? 1.6 : d < 3 ? 0.6 : 0; };
-
-    // ears first, so the skull overlaps their base
-    const earLift = p.ear < 0 ? 2.6 : -p.ear * 0.8;
-    for (const [ex, w2] of [[hx + 1.5, 4.4], [hx + hw - 6, 4.8]]) {
-      R(ex, hy - 3.2 + earLift, w2 * HK, 4.6 * HK, fur.mid);
-      R(ex + 0.8, hy - 2.2 + earLift, (w2 - 1.8) * HK, 2.6 * HK, fur.ear || fur.dark);
-      R(ex, hy - 3.2 + earLift, w2 * HK, 1.2 * HK, fur.base);
-    }
-    for (let i = 0; i < hw; i++) {
-      const ins = hcorner(i);
-      const top = hy + ins, h = hh - ins * 2;
-      if (h <= 1) continue;
-      R(hx + i, top, 1, h, fur.base);
-      R(hx + i, top, 1, Math.min(2.2, h * 0.28), fur.light);
-      R(hx + i, top + h - h * 0.2, 1, h * 0.2, fur.mid);
-    }
-    if (sit) R(hx + 1, hy + hh - 1, hw - 2, 1.2, fur.dark);
-    else R(hx - 0.6, hy + 2.4, 1, hh - 4, fur.dark);
-    // cheek, a shade lighter, so the face reads against the body
-    R(hx + 1.5, hy + 3.4 * HK, 5.5 * HK, 5 * HK, fur.light);
-    R(hx + hw - 8, hy + 2.6 * HK, 5 * HK, 4 * HK, fur.light);
-
-    // ---- muzzle, nose, mouth -----------------------------------------------
-    const sw = 9.5 * HK, shh = 6.4 * HK;
-    const sx = hx + hw - sw + 1.2, sy = hy + hh - shh - 0.6 + p.jaw * 0.5;
-    R(sx + 1, sy, sw - 2, 1.4, fur.mid);
-    R(sx, sy + 1.2, sw, shh - 2.4, fur.dark);
-    R(sx + 1, sy + shh - 1.4, sw - 2, 1.4, fur.deep);
-    R(sx + sw - 5, sy + 1.2, 4, 2.6, fur.nose);                  // the big nose pad
-    R(sx + sw - 4.6, sy + 1.4, 3.2, 1.2, fur.ink);
-    if (p.jaw > 0.6) {                                           // an open mouth
-      R(sx + 1.4, sy + shh - 0.8, sw - 3, 2.8, fur.ink);
-      R(sx + 2.2, sy + shh - 0.2, 1.6, 1.4, PAL.cream);
-      R(sx + 5.2, sy + shh - 0.2, 1.6, 1.4, PAL.cream);
-    } else {
-      R(sx + 1.6, sy + shh - 0.6, sw - 3.4, 1.2, fur.ink);
-    }
-
-    // ---- eyes ---------------------------------------------------------------
-    const eyeCol = fur.eye || fur.ink;
-    const ey = hy + 4.6 * HK;
-    const eyes = [[hx + 2.6, 1]];
-    if (p.headTurn < 0.3) eyes.push([hx + hw - 8.6, 0]);
-    for (const [ex, glint] of eyes) {
-      if (p.blink) { R(ex - 0.2, ey + 1.4, 3.4 * HK, 1.2 * HK, fur.deep); continue; }
-      R(ex, ey, 2.8 * HK, 3 * HK, eyeCol);
-      R(ex + 0.4, ey + 0.4, 1 * HK, 1 * HK, PAL.cream);
-      if (glint && fur.glow) R(ex - 1, ey - 1, 4.8 * HK, 5 * HK, U.rgba(fur.glow, 0.3));
-    }
-
-    // ---- front paws when sitting up ----------------------------------------
-    if (sit) {
-      const py2 = hy + hh + 0.5 - p.reach * 3.4;
-      for (const [px2, dy] of [[hx - 1.5, 0], [hx + 6, -1]]) {
-        R(px2, py2 + dy, 5, 4.4, fur.mid);
-        R(px2, py2 + dy, 5, 1.2, fur.base);
-        R(px2, py2 + dy + 3.2, 5, 1.2, fur.ink);
-      }
-    }
+    glow();
+    g.restore();
   }
 
   function wombatKey(name, f, pelt, facing, age) { return `w:${name}:${f}:${pelt}:${facing}:${age}`; }
@@ -262,50 +232,95 @@ const Sprites = (() => {
   }
   function furOf(pelt) { return typeof pelt === 'string' ? (FUR_BY_KEY[pelt] || FUR[0]) : FUR[pelt % FUR.length]; }
 
-  // ---- the cultist: a wombat in a robe, with a notebook -------------------
+  // ---- the cultist: hooded robe, gold hem, a black void where a face goes --
+  const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 3 };
   function cultist(frame, pose = 'idle') {
-    const f = frame % 6;
+    const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
     const key = `cult:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
-    const { c, g } = Art.cv(40, 54);
-    const R0 = '#2a1b4a', R1 = '#3d2a66', R2 = '#563391', R3 = '#6f49ad';
-    const GOLD = '#d8a52f', GOLD2 = '#f5cd5c';
-    const bob = pose === 'idle' ? [0, 0, 1, 1, 0, -1][f] : [0, -1, -1, 0, 0, 0][f];
-    const arm = pose === 'point' ? 1 : 0;
-    const y0 = 10 + bob;
-    // robe: a bell of cloth, wider at the hem
-    Art.poly(g, [[14, y0 + 6], [26, y0 + 6], [33, 48], [7, 48]], R2);
-    Art.poly(g, [[14, y0 + 6], [20, y0 + 6], [22, 48], [7, 48]], R3);
-    Art.rect(g, 7, 44, 26, 3, R1);
-    Art.rect(g, 7, 47, 26, 2, R0);
-    for (let i = 0; i < 5; i++) Art.rect(g, 9 + i * 5, 44, 2, 3, GOLD);      // hem trim
-    // sleeves
-    Art.limb(g, 14, y0 + 14, 6, y0 + 26 - arm * 8, 7, 5, R1);
-    Art.limb(g, 26, y0 + 14, 34, y0 + 24 - arm * 12, 7, 5, R2);
-    // paws
-    Art.ell(g, 6, y0 + 27 - arm * 8, 3.4, 3, '#a66e4f');
-    Art.ell(g, 34, y0 + 25 - arm * 12, 3.4, 3, '#a66e4f');
-    // the notebook in the left paw
-    if (pose !== 'point') {
-      Art.rect(g, 2, y0 + 22, 11, 9, '#e8dcc0');
-      Art.rect(g, 2, y0 + 22, 11, 2, '#c9b892');
-      Art.rect(g, 2, y0 + 22, 2, 9, '#8a5a3a');
-      for (let i = 0; i < 3; i++) Art.rect(g, 5, y0 + 25 + i * 2, 7, 1, '#9a8f74');
+    const { c, g } = Art.cv(40, 56);
+    const R0 = '#141018', R1 = '#1f1a25', R2 = '#2c2632', R3 = '#3d3646';
+    const GOLD = '#c9a35a', GOLD2 = '#ead08a', VOID = '#07060a', WINE = '#5c2a3a';
+    const S = Math.sin(t * TAU);
+    let bob = 0, lean = 0, flare = 0, hemUp = 0, sleeveL = 0, sleeveR = 0, view = 'front', sit = 0, lie = 0, hurt = 0, staff = 0, spark = 0;
+    switch (pose) {
+      case 'idle': bob = [0, 0, 1, 1, 0, 0][f]; sleeveL = S * 0.6; sleeveR = -S * 0.6; break;
+      case 'walk': lean = 1.5; flare = Math.abs(S) * 2; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.2; sleeveL = S * 2; sleeveR = -S * 2; break;
+      case 'run': lean = 4; flare = 3 + Math.abs(S) * 2.5; hemUp = 3; bob = -Math.abs(Math.sin(t * TAU * 2)) * 2; sleeveL = S * 3 - 2; sleeveR = -S * 3 - 2; break;
+      case 'turn': view = ['front', 'quarter', 'back', 'back', 'quarter', 'front'][f]; break;
+      case 'jump': bob = [1, -8, -13, -8, 1][f]; hemUp = [0, 3, 5, 3, 0][f]; flare = [0, 2, 3, 2, 0][f]; sleeveL = sleeveR = [0, -4, -6, -4, 0][f]; break;
+      case 'cast': staff = Math.min(1, f / 2); spark = f >= 3 ? f - 2 : 0; sleeveL = -1 - staff * 3; sleeveR = -6 - staff * 8; bob = f >= 3 ? -1 : 0; break;
+      case 'hurt': hurt = [1, 0.6, 0.2][f]; lean = -3 * hurt; bob = hurt * 1.5; break;
+      case 'sit': sit = 1; bob = [0, 0.5, 0][f]; break;
+      case 'sleep': lie = 1; break;
     }
-    // hood and head
-    Art.ell(g, 20, y0 + 6, 12, 11, R1);
-    Art.ell(g, 20, y0 + 4, 11, 9, R2);
-    Art.ell(g, 21, y0 + 8, 8, 7, '#180f2e');                                  // the dark inside
-    Art.rect(g, 17, y0 + 8, 2, 2, GOLD2);                                     // eyes in the shadow
-    Art.rect(g, 23, y0 + 8, 2, 2, GOLD2);
-    Art.ell(g, 25, y0 + 11, 4, 3, '#7a5a42');                                 // a snout poking out
-    Art.rect(g, 24, y0 + 10, 4, 1.4, '#4a2c20');
-    Art.ell(g, 20, y0 - 4, 5, 3, R1);                                         // the peak of the hood
-    Art.ell(g, 20, y0 - 5, 3, 2, R3);
-    // a little charm hanging at the chest
-    Art.rect(g, 20, y0 + 15, 1, 4, GOLD);
-    Art.ell(g, 20.5, y0 + 20, 2.4, 2.4, GOLD2);
-    Art.outline(c, PAL.ink, 1);
+    const y0 = 4 + bob;
+    g.save();
+    if (lean) { g.translate(20, 52); g.transform(1, 0, lean * 0.06, 1, 0, 0); g.translate(-20, -52); }
+
+    if (lie) {                                                    // a puddle of robe, hood at the left
+      Art.ell(g, 22, 47, 15, 5, R1); Art.ell(g, 22, 46, 13, 4, R2); Art.ell(g, 20, 44.5, 8, 2.5, R3);
+      for (let i = 0; i < 6; i++) Art.rect(g, 10 + i * 4.4, 50, 2.6, 2, GOLD);
+      Art.ell(g, 9, 44, 7, 6, R2); Art.ell(g, 9, 43, 6, 5, R1); Art.ell(g, 8, 45, 3.6, 3.4, VOID);
+      Art.ell(g, 9, 39, 3, 2, R3);
+      const zx = 20 + f * 2, zy = 30 - f * 4;
+      Art.rect(g, zx, zy, 4, 1, GOLD2); Art.rect(g, zx + 2, zy + 1, 1, 1, GOLD2); Art.rect(g, zx + 1, zy + 2, 1, 1, GOLD2); Art.rect(g, zx, zy + 3, 4, 1, GOLD2);
+      g.restore(); Art.outline(c, '#0a0810', 1); cache.set(key, c); return c;
+    }
+
+    const skirtTop = sit ? 34 : 24 + y0, hem = 52 - hemUp;
+    const half = (sit ? 15 : 10) + flare;
+    // the robe, a bell from the shoulders to the ground
+    Art.poly(g, [[20 - 7, skirtTop], [20 + 7, skirtTop], [20 + half, hem], [20 - half, hem]], R2);
+    Art.poly(g, [[20 - 7, skirtTop], [20 - 1, skirtTop], [20 - half * 0.35, hem], [20 - half, hem]], R3);   // the lit fold
+    Art.poly(g, [[20 + 2, skirtTop], [20 + 7, skirtTop], [20 + half, hem], [20 + half * 0.5, hem]], R1);   // the shadow fold
+    for (let i = -2; i <= 2; i++) Art.rect(g, 20 + i * 3.2 + S * 0.4, skirtTop + 6, 1, hem - skirtTop - 8, i % 2 ? R1 : R3);
+    Art.rect(g, 20 - half, hem - 3, half * 2, 3, R0);
+    for (let i = 0; i <= half; i += 3.3) { Art.rect(g, 20 - half + i, hem - 4, 2, 2.4, GOLD); Art.rect(g, 20 - half + i + 1, hem - 2, 1.4, 2, GOLD2); }   // the gold points of the hem
+    if (view !== 'back') Art.poly(g, [[18, hem - 7], [22, hem - 7], [23.5, hem], [16.5, hem]], WINE);   // the under-robe showing
+    // torso and shoulders
+    if (!sit) { Art.rect(g, 13, 20 + y0, 14, 8, R2); Art.rect(g, 13, 20 + y0, 5, 8, R3); }
+    Art.ell(g, 20, 21 + y0, 10, 4, R2); Art.ell(g, 16, 20 + y0, 5, 2.4, R3);
+    // sleeves hanging from the shoulders, cuffs trimmed in gold; hands never show
+    const armY = (sit ? 30 : 24 + y0);
+    Art.limb(g, 13, armY, 8 + sleeveL * 0.5, armY + 14 + sleeveL, 6, 5, R1);
+    Art.limb(g, 27, armY, 32 + sleeveR * 0.5, armY + 14 + sleeveR, 6, 5, R2);
+    Art.rect(g, 6 + sleeveL * 0.5, armY + 13 + sleeveL, 5, 1.6, GOLD);
+    Art.rect(g, 29.5 + sleeveR * 0.5, armY + 13 + sleeveR, 5, 1.6, GOLD);
+    // the emblem on the chest: a cross with a ring
+    if (view !== 'back' && !sit) {
+      Art.rect(g, 19.4, 24 + y0, 1.6, 9, GOLD); Art.rect(g, 17, 27 + y0, 6.4, 1.6, GOLD);
+      Art.ell(g, 20.2, 24.5 + y0, 1.6, 1.6, GOLD2); Art.rect(g, 19.4, 24 + y0, 1.6, 2, GOLD2);
+    }
+    // the hood: tall, pointed, with nothing inside it
+    const hy = (sit ? 12 : 4) + y0;
+    Art.poly(g, [[20, hy - 3], [30, hy + 12], [10, hy + 12]], R2);
+    Art.ell(g, 20, hy + 12, 10, 9, R2);
+    Art.ell(g, 16, hy + 9, 5, 6, R3);
+    Art.ell(g, 25, hy + 13, 5, 6, R1);
+    Art.poly(g, [[20, hy - 3], [23, hy + 5], [17, hy + 5]], R3);
+    if (view === 'back') {
+      Art.ell(g, 20, hy + 13, 7, 7, R1);                         // just cloth from behind
+    } else {
+      const vx = view === 'quarter' ? 22 : 20;
+      Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);                   // the void
+      Art.ellBand(g, vx, hy + 13, 6.4, 7.4, GOLD, 0, 1);         // gold edge of the opening
+      Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);
+      if (hurt > 0) { Art.rect(g, vx - 3, hy + 11, 2, 1, GOLD2); Art.rect(g, vx + 1, hy + 11, 2, 1, GOLD2); }
+    }
+    // casting: a staff crowned with a cross, and sparks
+    if (staff > 0) {
+      const sx = 32 + sleeveR * 0.5 + 2, top = armY + 12 + sleeveR - 30 + (1 - staff) * 6;
+      Art.rect(g, sx, top, 1.6, 40 - top, '#6a4a2a');
+      Art.rect(g, sx - 2, top - 6, 5.6, 1.6, GOLD); Art.rect(g, sx, top - 9, 1.6, 8, GOLD);
+      Art.ell(g, sx + 0.8, top - 9, 1.8, 1.8, GOLD2);
+      for (let i = 0; i < spark * 4; i++) {
+        const a = i * 1.7 + f, r = 6 + spark * 3;
+        Art.rect(g, sx + 0.8 + Math.cos(a) * r, top - 6 + Math.sin(a) * r * 0.7, 1.4, 1.4, i % 2 ? GOLD2 : PAL.cream);
+      }
+    }
+    g.restore();
+    Art.outline(c, '#0a0810', 1);
     cache.set(key, c);
     return c;
   }
@@ -642,5 +657,5 @@ const Sprites = (() => {
     if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = Math.max(1, px); g.strokeRect(x0, y0, w, h); }
   }
 
-  return { S, AGE, POSES, wombat, blit, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
+  return { S, AGE, POSES, CULT_POSES, wombat, blit, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
 })();

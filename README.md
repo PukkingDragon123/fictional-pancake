@@ -55,8 +55,11 @@ swing wider, and the sickle hits harder.
 
 ## The cultist
 
-A wombat in a violet robe follows you around the grove with a pocket notebook, standing
-near whatever needs doing and pointing at it. Her notebook sits in the corner of the
+A hooded figure in a charcoal robe - gold hem, gold cuffs, a gold cross on the chest, and
+nothing but black inside the hood - follows you around the grove, walks or runs to whatever
+needs doing, raises a staff and casts when you finish a step, and sits down if you dawdle.
+Nine animations (idle, walk, run, turn, jump, cast, hurt, sit, sleep), all on
+`sheets/cultist.png`. She keeps a pocket notebook, and Her notebook sits in the corner of the
 screen: the step you are on, a sketch of the tool, a line of advice, and the steps behind
 it struck through and ticked in red. Twelve of them, from cutting the first weed to
 calling the first god. Fold it shut with the minus if you would rather work it out.
@@ -78,9 +81,13 @@ the aisles, click a product into the basket, and pay at the counter.
 
 ## Wombats
 
-Chunky, fat, blocky and black-outlined, with small square eyes. Ten poses, all computed rather
-than keyed: idle, walk, run, eat, graze, sleep, dig, happy, pray, bite. Feed one and it
-leaves an **offering**; pet it to hurry that along. Happy wombats leave blessed ones.
+Drawn to a sprite sheet: a fat rounded loaf of a body, the head a rounded bump on the
+front carrying a big dark nose block and two dot eyes, small round ears, four stubby legs
+ending in dark paws, a darker dithered saddle along the back, salmon-brown fur, and one
+black line around the lot. Fifteen animations - idle, walk, run, turn (side to back to
+side), jump, hurt, sit, lie down, sleep, eat, graze, dig, happy, pray, bite - every frame
+of which is laid out in `sheets/wombat.png`. Feed one and it leaves an **offering**; pet it
+to hurry that along. Happy wombats leave blessed ones.
 
 Buy a **nest** and the pair tool unlocks. Pair two content adults and a joey arrives,
 growing baby to juvenile to adult. Traits (gut, calm, luck) are inherited from both
@@ -158,7 +165,10 @@ timed blessing. Leave with the money before it comes down.
   pre-rendered dithered brushes; weeds, bugs, crops and blades at float positions;
   coverage measured by downsampling the paint layer.
 - `js/sprites.js` - one routine draws every wombat. Age is a coordinate scale about the
-  feet, pelts are palette swaps, poses are computed curves. Also gods and cupids.
+  feet, pelts are palette swaps, poses are computed curves. Also the cultist, gods, cupids,
+  ants, crows, owls and the mascot.
+- `sheet.html` - open it to see every character, every pose, every frame, labelled; the
+  PNGs in `sheets/` are exported from it.
 - `js/props.js` - dead and living trees, fallen logs, ruins, the carved stone altar, the
   store, the truck, crops, and the Tree of Life generator, which returns the artwork
   together with the seat of every fruit.

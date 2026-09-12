@@ -1,0 +1,28 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Wombat Gods sprite sheets</title>
+<style>body{margin:0;background:#5a5450;font:11px monospace}canvas{image-rendering:pixelated;display:block}</style></head><body>
+<canvas id="w"></canvas><canvas id="c"></canvas>
+<script src="js/util.js"></script><script src="js/art.js"></script><script src="js/data.js"></script>
+<script src="js/icons.js"></script><script src="js/sprites.js"></script>
+<script>
+// Renders both characters, every pose, every frame, labelled - the sheets the
+// game draws from. Open this file to see them; sheets/*.png are exported from it.
+const SC = 3, SHEET_BG = '#5a5450', LABEL = '#d8cdb8';
+function sheet(id, rows, cellW, cellH, draw) {
+  const cv = document.getElementById(id);
+  const cols = Math.max(...rows.map((r) => r.frames));
+  cv.width = 40 + cols * cellW; cv.height = rows.length * (cellH + 28) + 20;
+  const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = SHEET_BG; g.fillRect(0, 0, cv.width, cv.height);
+  rows.forEach((r, ri) => {
+    const y = 20 + ri * (cellH + 28);
+    g.font = 'bold 13px monospace'; g.fillStyle = LABEL; g.fillText(r.label, 20, y + 10);
+    for (let f = 0; f < r.frames; f++) draw(g, r.pose, f, 20 + f * cellW + cellW / 2, y + 22 + cellH);
+  });
+  return cv;
+}
+const WROWS = [['IDLE','idle'],['WALK','walk'],['RUN','run'],['TURN (SIDE - BACK - SIDE)','turn'],['JUMP','jump'],['HURT','hurt'],['SIT','sit'],['LIE DOWN','lie'],['SLEEP','sleep'],['EAT','eat'],['DIG','dig'],['HAPPY','happy'],['PRAY','pray']]
+  .map(([label, pose]) => ({ label, pose, frames: Sprites.POSES[pose] }));
+sheet('w', WROWS, 48 * SC, 44 * SC, (g, pose, f, x, y) => Sprites.blit(g, x, y - 6, pose, f, 'brown', 1, 'adult', SC));
+const CROWS = Object.keys(Sprites.CULT_POSES).map((pose) => ({ label: pose.toUpperCase(), pose, frames: Sprites.CULT_POSES[pose] }));
+sheet('c', CROWS, 40 * SC + 16, 56 * SC, (g, pose, f, x, y) => { const img = Sprites.cultist(f, pose); g.drawImage(img, Math.round(x - img.width * SC / 2), Math.round(y - img.height * SC), img.width * SC, img.height * SC); });
+</script></body></html>
