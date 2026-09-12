@@ -194,30 +194,45 @@ const Guide = (() => {
     const by = Math.max(24 + H, cult.y - 78);
     // by is the bottom of the bubble; the frame is drawn from by - H
     const praise = bubble.kind === 'praise';
-    const OL = '#17120e', CR0 = praise ? '#fdf0c4' : '#f4e6c0', CR1 = '#fdf6e0';
-    const G0 = praise ? '#7d5510' : '#29431c', G2 = praise ? '#efc245' : '#6ea83e', G3 = praise ? '#ffe497' : '#97cd60';
+    const OL = '#1c1008';
+    const PG1 = '#a5825a', PG2 = praise ? '#dcc38e' : '#c2a176', PG3 = praise ? '#f0dcae' : '#d8bd92';
+    const WD0 = '#2a180c', WD1 = praise ? '#7a5210' : '#4a2c1a', WD2 = praise ? '#b8801c' : '#6b4526', WD3 = praise ? '#e0a82e' : '#8a5c33';
+    const TL1 = '#2f7a90', TL2 = '#4fa6be', TL3 = '#8fd4e4';
     g.save();
     g.translate(bx, by); g.scale(scale, scale); g.translate(-bx, -by);
     const X = Math.round(bx - W / 2), Y = Math.round(by - H);
+    g.fillStyle = 'rgba(0,0,0,0.4)'; g.fillRect(X + 3, Y + 5, W, H);
     g.fillStyle = OL; g.fillRect(X - 3, Y - 3, W + 6, H + 6);
-    g.fillStyle = G0; g.fillRect(X - 1, Y - 1, W + 2, H + 2);
-    g.fillStyle = G2; g.fillRect(X, Y, W, H);
-    g.fillStyle = G3; g.fillRect(X + 1, Y + 1, W - 2, 2); g.fillRect(X + 1, Y + 1, 2, H - 2);
-    g.fillStyle = CR0; g.fillRect(X + 4, Y + 4, W - 8, H - 8);
-    g.fillStyle = CR1; g.fillRect(X + 4, Y + 4, W - 8, 2);
-    g.fillStyle = '#efc245';                                     // the four gold studs
-    g.fillRect(X, Y, 4, 4); g.fillRect(X + W - 4, Y, 4, 4); g.fillRect(X, Y + H - 4, 4, 4); g.fillRect(X + W - 4, Y + H - 4, 4, 4);
-    const tx = U.clamp(cult.x + 6, X + 16, X + W - 16);          // the tail still points at her
+    g.fillStyle = WD1; g.fillRect(X, Y, W, H);                       // the cover
+    g.fillStyle = WD3; g.fillRect(X + 1, Y + 1, W - 2, 2);
+    g.fillStyle = WD0; g.fillRect(X + 1, Y + H - 3, W - 2, 2);
+    g.fillStyle = WD2; g.fillRect(X + 3, Y + 3, W - 6, H - 6);
+    g.fillStyle = PG2; g.fillRect(X + 5, Y + 5, W - 10, H - 10);     // the page
+    g.fillStyle = PG3; g.fillRect(X + 5, Y + 5, W - 10, 2);
+    g.fillStyle = PG1; g.fillRect(X + 5, Y + H - 8, W - 10, 3);
+    for (let i = 0; i < W - 10; i += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(X + 5 + i, Y + 7, 2, H - 14); }
+    // teal brackets at the corners
+    const put = (x, y, bw, bh) => {
+      g.fillStyle = OL; g.fillRect(x - 1, y - 1, bw + 2, bh + 2);
+      g.fillStyle = TL1; g.fillRect(x, y, bw, bh);
+      g.fillStyle = TL2; g.fillRect(x, y, bw, Math.max(1, Math.round(bh * 0.62)));
+      g.fillStyle = TL3; g.fillRect(x, y, bw, 1);
+    };
+    for (const sx of [0, 1]) for (const sy of [0, 1]) {
+      put(sx ? X + W - 11 : X, sy ? Y + H - 4 : Y, 11, 4);
+      put(sx ? X + W - 4 : X, sy ? Y + H - 11 : Y, 4, 11);
+    }
+    const tx = U.clamp(cult.x + 6, X + 16, X + W - 16);              // the tail still points at her
     g.fillStyle = OL; g.beginPath(); g.moveTo(tx - 11, Y + H - 1); g.lineTo(tx - 2, Y + H + 13); g.lineTo(tx + 5, Y + H - 1); g.fill();
-    g.fillStyle = G2; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 9); g.lineTo(tx + 2, Y + H - 2); g.fill();
-    g.fillStyle = CR0; g.fillRect(X + 4, Y + H - 6, W - 8, 2);
+    g.fillStyle = WD1; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 9); g.lineTo(tx + 2, Y + H - 2); g.fill();
+    g.fillStyle = PG2; g.fillRect(X + 5, Y + H - 7, W - 10, 2);
     let acc = 0;
     lines.forEach((l, i) => {
       const part = shown.slice(acc, acc + l.length);
       acc += l.length + 1;
-      FX.pixelText(g, part, X + 11, Y + 10 + i * 13, { color: '#3a2612', size: 10, align: 'left', ink: false });
+      FX.pixelText(g, part, X + 12, Y + 11 + i * 13, { color: '#33200f', size: 10, align: 'left', ink: false });
     });
-    if (shown.length < full.length && Math.floor(bubble.life * 6) % 2) { g.fillStyle = '#3a2612'; g.fillRect(X + W - 12, Y + H - 12, 4, 4); }
+    if (shown.length < full.length && Math.floor(bubble.life * 6) % 2) { g.fillStyle = '#33200f'; g.fillRect(X + W - 13, Y + H - 13, 4, 4); }
     g.restore();
   }
 

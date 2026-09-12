@@ -26,11 +26,13 @@ const Knowledge = (() => {
     { name: 'RITE',  col: '#9a6fd6', dark: '#3a2260', fruit: ['#9a6fd6', '#d6bcf4'], leaf: ['#1d4426', '#316a36', '#4b9048', '#7cb968'] },
   ];
   // palette of the interface, the same one the panels use
-  const OL = '#17120e', CR0 = '#f4e6c0', CR1 = '#fdf6e0', CR2 = '#c9ac78';
-  const GR0 = '#29431c', GR1 = '#4c7a2c', GR2 = '#6ea83e', GR3 = '#97cd60';
-  const GD0 = '#7d5510', GD1 = '#c1912a', GD2 = '#efc245', GD3 = '#ffe497';
-  const WD0 = '#34200f', WD1 = '#6b4423', WD2 = '#99642f', WD3 = '#c58f47', WD4 = '#e9bd78';
-  const INK = '#3a2612', INK2 = '#6a5230';
+  const OL = '#1c1008';
+  const PG0 = '#7d5c3a', PG1 = '#a5825a', PG2 = '#c2a176', PG3 = '#d8bd92', PG4 = '#eddcb6';
+  const WD0 = '#2a180c', WD1 = '#4a2c1a', WD2 = '#6b4526', WD3 = '#8a5c33', WD4 = '#ab7a4a';
+  const GD0 = '#7a5210', GD1 = '#b8801c', GD2 = '#e0a82e', GD3 = '#f2cf62', GD4 = '#ffeaa8';
+  const TL0 = '#173c4a', TL1 = '#2f7a90', TL2 = '#4fa6be', TL3 = '#8fd4e4';
+  const AM1 = '#a35418', AM2 = '#cf7a2a', AM3 = '#e8a04a';
+  const INK = '#33200f', INK2 = '#5e422a';
 
   // ---- state --------------------------------------------------------------
   const planted = () => !!G.fruits.sprout;
@@ -105,9 +107,9 @@ const Knowledge = (() => {
     lookAt(BASE, 470, 0.45);
     Audio.play('bless');
     UI.toast('The seed takes. Three branches open.', 'good');
-    FX.sparkle(VW / 2, VH / 2, 26, GD3);
+    FX.sparkle(VW / 2, VH / 2, 26, GD4);
     FX.confettiBurst(VW / 2, VH * 0.6, 40);
-    for (let i = 0; i < 24; i++) crumbs.push({ x: SEED.x, y: SEED.y, vx: U.rand(-70, 70), vy: U.rand(-130, -30), t: 0, c: U.pick([GR3, GD2, '#9ad86a']) });
+    for (let i = 0; i < 24; i++) crumbs.push({ x: SEED.x, y: SEED.y, vx: U.rand(-70, 70), vy: U.rand(-130, -30), t: 0, c: U.pick([TL3, GD2, '#9ad86a']) });
     UI.refreshAll(); Main.save();
   }
   function buy(f) {
@@ -126,7 +128,7 @@ const Knowledge = (() => {
     for (let i = 0; i < 18; i++) crumbs.push({ x: a.x, y: a.y, vx: U.rand(-60, 60), vy: U.rand(-120, -20), t: 0, c: U.pick(B.leaf) });
     Audio.play('bless');
     UI.toast(f.name, 'good');
-    FX.sparkle(VW / 2, VH / 2, 16, GD3);
+    FX.sparkle(VW / 2, VH / 2, 16, GD4);
     UI.refreshAll(); Main.save();
   }
 
@@ -186,23 +188,25 @@ const Knowledge = (() => {
   // are standing in, drawn closer and with more care.
   function buildGarden() {
     const { c, g } = Art.cv(WW, WH);
+    // late afternoon: violet at the top, gold along the horizon
     const sky = g.createLinearGradient(0, 0, 0, 700);
-    sky.addColorStop(0, '#5fb0d6'); sky.addColorStop(0.4, '#93d2e4'); sky.addColorStop(0.78, '#d6edc8'); sky.addColorStop(1, '#f2e7b8');
+    sky.addColorStop(0, '#53306f'); sky.addColorStop(0.28, '#7a4d94');
+    sky.addColorStop(0.55, '#c07a8a'); sky.addColorStop(0.78, '#e8a85e'); sky.addColorStop(1, '#f5d58a');
     g.fillStyle = sky; g.fillRect(0, 0, WW, 700);
-    Art.ell(g, 1216, 150, 56, 56, 'rgba(255,240,180,0.17)');
-    Art.ell(g, 1216, 150, 38, 38, 'rgba(255,244,200,0.4)');
-    Art.ell(g, 1216, 150, 24, 24, '#fff6cf');
+    for (let r = 5; r >= 1; r--) Art.ell(g, 1216, 210, 26 + r * 16, 26 + r * 16, `rgba(255,214,140,${(0.06 * r / 3).toFixed(3)})`);
+    Art.ell(g, 1216, 210, 34, 34, 'rgba(255,236,180,0.5)');
+    Art.ell(g, 1216, 210, 23, 23, '#fff3cd');
     const rnd = Art.rng(4242);
     for (let i = 0; i < 11; i++) {
       const cx = 40 + i * 142 + rnd() * 50, cy = 70 + rnd() * 240, s = 0.7 + rnd() * 0.9;
       const puffs = [[-2, 2, 1], [-1, 1, 1.15], [0, 0, 1.3], [1, 1, 1.1], [2, 2, 0.85]];
-      for (const [k, d, w] of puffs) Art.ell(g, cx + k * 22 * s, cy + d * 5 * s + 5, 22 * s * w, 13 * s * w, 'rgba(180,210,226,0.8)');
+      for (const [k, d, w] of puffs) Art.ell(g, cx + k * 22 * s, cy + d * 5 * s + 5, 22 * s * w, 13 * s * w, 'rgba(96,58,110,0.55)');
       for (const [k, d, w] of puffs) {
-        Art.ell(g, cx + k * 22 * s, cy + d * 5 * s, 21 * s * w, 13 * s * w, '#f4fcff');
-        Art.ell(g, cx + k * 22 * s - 5 * s, cy + d * 5 * s - 5 * s, 12 * s * w, 7 * s * w, '#ffffff');
+        Art.ell(g, cx + k * 22 * s, cy + d * 5 * s, 21 * s * w, 13 * s * w, '#d9a2a8');
+        Art.ell(g, cx + k * 22 * s - 5 * s, cy + d * 5 * s - 5 * s, 12 * s * w, 7 * s * w, '#f7d9ad');
       }
     }
-    for (const [hy, col, lit] of [[560, '#84b46e', '#9dc983'], [596, '#6d9e58', '#84b46e']]) {
+    for (const [hy, col, lit] of [[560, '#6a7f66', '#8a9a72'], [596, '#5c7a52', '#77956a']]) {
       for (let x = -60; x < WW + 60; x += 108) { const r = 92 + rnd() * 40; Art.ell(g, x + rnd() * 50, hy + 26, r, 46, col); Art.ell(g, x + rnd() * 50 - 14, hy + 14, r * 0.5, 18, lit); }
       g.fillStyle = col; g.fillRect(0, hy + 22, WW, 60);
     }
@@ -211,19 +215,19 @@ const Knowledge = (() => {
       const x = -20 + i * 72 + rnd() * 28, y = 636 - rnd() * 16, s = 0.85 + rnd() * 0.55;
       Art.limb(g, x, y + 22, x - 2, y - 8, 9, 6, '#4a3420');
       Art.limb(g, x - 2, y + 20, x - 4, y - 6, 3.4, 2.4, '#7d5f42');
-      Art.ell(g, x, y - 10, 32 * s, 26 * s, '#26501f');
-      Art.ell(g, x - 4, y - 15, 27 * s, 22 * s, '#3d7530');
-      Art.ell(g, x - 9, y - 21, 16 * s, 12 * s, '#63a446');
-      Art.ell(g, x - 13, y - 25, 8 * s, 6 * s, '#8ec95f');
-      Art.speckle(g, x - 5, y - 17, 20 * s, 14 * s, '#8ec95f', 26, i * 31 + 7);
-      Art.speckle(g, x + 5, y - 3, 20 * s, 12 * s, '#1c3d18', 18, i * 17 + 3);
+      Art.ell(g, x, y - 10, 32 * s, 26 * s, '#1f3f24');
+      Art.ell(g, x - 4, y - 15, 27 * s, 22 * s, '#356037');
+      Art.ell(g, x - 9, y - 21, 16 * s, 12 * s, '#57874a');
+      Art.ell(g, x - 13, y - 25, 8 * s, 6 * s, '#8fae5e');
+      Art.speckle(g, x - 5, y - 17, 20 * s, 14 * s, '#a8b968', 26, i * 31 + 7);
+      Art.speckle(g, x + 5, y - 3, 20 * s, 12 * s, '#182e1c', 18, i * 17 + 3);
     }
     // the garden floor
-    g.fillStyle = '#4d8a37'; g.fillRect(0, 650, WW, WH - 650);
+    g.fillStyle = '#44703a'; g.fillRect(0, 650, WW, WH - 650);
     for (let i = 0; i < 6200; i++) {
       const x = rnd() * WW, y = 650 + rnd() * (WH - 650);
       const k = (y - 650) / (WH - 650);
-      Art.rect(g, x, y, 2, 2, rnd() < 0.5 - k * 0.25 ? '#66a845' : rnd() < 0.5 ? '#3f7a2c' : '#82c35b');
+      Art.rect(g, x, y, 2, 2, rnd() < 0.5 - k * 0.25 ? '#5d8f45' : rnd() < 0.5 ? '#33582c' : '#84a95a');
     }
     // tilled rows running away behind the plot, then the plot itself
     for (let r = 0; r < 3; r++) {
@@ -256,70 +260,93 @@ const Knowledge = (() => {
       for (let k = -2; k <= 2; k++) Art.limb(g, x + k * 2, y, x + k * 4, y - 8 - Math.abs(k), 2, 1, k % 2 ? '#3f7a2c' : '#66a845');
     }
     // a picket fence along the very front
-    for (let x = 6; x < WW; x += 30) {
-      Art.poly(g, [[x, 846], [x + 15, 846], [x + 15, 886], [x + 7.5, 896], [x, 886]], '#e3cc9b');
-      Art.rect(g, x, 846, 5, 46, '#f6e7c4');
-      Art.rect(g, x + 11, 846, 4, 46, '#c0a577');
-      Art.rect(g, x, 846, 15, 2, '#fff6e0');
+    for (let x = 6; x < WW; x += 30) {                      // a dark wood fence, like the panels
+      Art.poly(g, [[x, 846], [x + 15, 846], [x + 15, 886], [x + 7.5, 896], [x, 886]], '#6b4526');
+      Art.rect(g, x, 846, 5, 46, '#8a5c33');
+      Art.rect(g, x + 11, 846, 4, 46, '#3d2413');
+      Art.rect(g, x, 846, 15, 2, '#ab7a4a');
     }
-    Art.rect(g, 0, 856, WW, 7, '#c0a577'); Art.rect(g, 0, 856, WW, 2, '#f6e7c4');
+    Art.rect(g, 0, 856, WW, 7, '#4a2c1a'); Art.rect(g, 0, 856, WW, 2, '#8a5c33');
     return c;
   }
 
   // ---- interface pieces, the same recipe as the panels --------------------
-  function frame9(g, X, Y, w, h, cream) {
+  // A page: parchment inside a dark wood cover, with teal brackets at the
+  // corners. The same recipe as every panel in the interface.
+  function frame9(g, X, Y, w, h, page) {
     X = Math.round(X); Y = Math.round(Y); w = Math.round(w); h = Math.round(h);
-    g.fillStyle = 'rgba(0,0,0,0.4)'; g.fillRect(X + 4, Y + 6, w, h);
+    g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillRect(X + 4, Y + 7, w, h);
     g.fillStyle = OL; g.fillRect(X - 3, Y - 3, w + 6, h + 6);
-    g.fillStyle = GR0; g.fillRect(X - 1, Y - 1, w + 2, h + 2);
-    g.fillStyle = GR2; g.fillRect(X, Y, w, h);
-    g.fillStyle = GR3; g.fillRect(X + 1, Y + 1, w - 2, 2); g.fillRect(X + 1, Y + 1, 2, h - 2);
-    g.fillStyle = cream || CR0; g.fillRect(X + 5, Y + 5, w - 10, h - 10);
-    g.fillStyle = CR1; g.fillRect(X + 5, Y + 5, w - 10, 2);
-    g.fillStyle = GD2;                                  // the four gold studs
-    g.fillRect(X, Y, 5, 5); g.fillRect(X + w - 5, Y, 5, 5);
-    g.fillRect(X, Y + h - 5, 5, 5); g.fillRect(X + w - 5, Y + h - 5, 5, 5);
-    g.fillStyle = GD3; g.fillRect(X, Y, 5, 2); g.fillRect(X + w - 5, Y, 5, 2);
+    g.fillStyle = WD1; g.fillRect(X, Y, w, h);
+    g.fillStyle = WD3; g.fillRect(X + 1, Y + 1, w - 2, 2);
+    g.fillStyle = WD0; g.fillRect(X + 1, Y + h - 3, w - 2, 2);
+    g.fillStyle = WD2; g.fillRect(X + 4, Y + 4, w - 8, h - 8);
+    g.fillStyle = page || PG2; g.fillRect(X + 6, Y + 6, w - 12, h - 12);
+    g.fillStyle = PG3; g.fillRect(X + 6, Y + 6, w - 12, 2);
+    g.fillStyle = PG1; g.fillRect(X + 6, Y + h - 9, w - 12, 3);
+    for (let i = 0; i < w - 12; i += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(X + 6 + i, Y + 8, 2, h - 17); }
+    bracket(g, X, Y, w, h);
+  }
+  // the four teal corner brackets
+  function bracket(g, X, Y, w, h, L, T) {
+    L = L || 13; T = T || 5;
+    const put = (x, y, bw, bh) => {
+      g.fillStyle = OL; g.fillRect(x - 1, y - 1, bw + 2, bh + 2);
+      g.fillStyle = TL1; g.fillRect(x, y, bw, bh);
+      g.fillStyle = TL2; g.fillRect(x, y, bw, Math.max(1, Math.round(bh * 0.62)));
+      g.fillStyle = TL3; g.fillRect(x, y, bw, 1);
+    };
+    for (const sx of [0, 1]) for (const sy of [0, 1]) {
+      const bx = sx ? X + w - L : X, by = sy ? Y + h - T : Y;
+      put(bx, by, L, T);
+      put(sx ? X + w - T : X, sy ? Y + h - L : Y, T, L);
+    }
   }
   function slot(g, X, Y, s) {
     X = Math.round(X); Y = Math.round(Y);
     g.fillStyle = OL; g.fillRect(X - 3, Y - 3, s + 6, s + 6);
-    g.fillStyle = '#533722'; g.fillRect(X, Y, s, s);
-    g.fillStyle = '#6d4a2b'; g.fillRect(X, Y, s, 2);
-    g.fillStyle = '#3f2917'; g.fillRect(X, Y + s - 3, s, 3);
-    g.fillStyle = GD2;
-    g.fillRect(X, Y, 4, 4); g.fillRect(X + s - 4, Y, 4, 4);
-    g.fillRect(X, Y + s - 4, 4, 4); g.fillRect(X + s - 4, Y + s - 4, 4, 4);
+    g.fillStyle = '#442c18'; g.fillRect(X, Y, s, s);
+    g.fillStyle = '#5d3d22'; g.fillRect(X, Y, s, Math.round(s * 0.5));
+    g.fillStyle = '#6b4728'; g.fillRect(X, Y, s, 2);
+    g.fillStyle = '#2f1d0f'; g.fillRect(X, Y + s - 3, s, 3);
+    for (const [cx, cy] of [[X, Y], [X + s - 4, Y], [X, Y + s - 4], [X + s - 4, Y + s - 4]]) {
+      g.fillStyle = GD1; g.fillRect(cx, cy, 4, 4);
+      g.fillStyle = GD3; g.fillRect(cx, cy, 4, 2);
+    }
   }
   function goldButton(g, X, Y, w, h, label, on, tone) {
     X = Math.round(X); Y = Math.round(Y);
-    const top = tone === 'green' ? GR3 : tone === 'dead' ? '#b9ad96' : GD3;
-    const mid = tone === 'green' ? GR2 : tone === 'dead' ? '#9a8e78' : GD2;
-    const bot = tone === 'green' ? GR1 : tone === 'dead' ? '#7a6f5c' : GD1;
-    const foot = tone === 'green' ? GR0 : tone === 'dead' ? '#4f4737' : GD0;
-    const d = on ? 2 : 0;
+    const T = tone === 'green' ? ['#a8d878', '#6ea83e', '#44762a', '#2a4d18', '#1d3a10']
+      : tone === 'dead' ? ['#a89680', '#8a7862', '#6a5b48', '#40362a', '#453a2c']
+      : tone === 'amber' ? [AM3, AM2, AM1, '#6d320e', '#fff2e0']
+      : [GD3, GD2, GD1, GD0, '#3d2606'];
+    const d = on ? 3 : 0;
     g.fillStyle = OL; g.fillRect(X - 3, Y - 3 + d, w + 6, h + 6 + (5 - d));
-    g.fillStyle = foot; g.fillRect(X, Y + h + d, w, 5 - d);
-    g.fillStyle = bot; g.fillRect(X, Y + d, w, h);
-    g.fillStyle = mid; g.fillRect(X, Y + d, w, Math.round(h * 0.62));
-    g.fillStyle = top; g.fillRect(X, Y + d, w, Math.round(h * 0.26));
-    g.fillStyle = 'rgba(255,244,200,0.5)'; g.fillRect(X + 2, Y + 2 + d, w - 4, 1);
-    if (label) FX.pixelText(g, label, X + w / 2, Y + d + Math.round(h / 2) - 5, { color: tone === 'dead' ? '#4d4638' : '#3a2606', size: 10, ink: false });
+    g.fillStyle = T[3]; g.fillRect(X, Y + h + d, w, 5 - d);
+    g.fillStyle = T[2]; g.fillRect(X, Y + d, w, h);
+    g.fillStyle = T[1]; g.fillRect(X, Y + d, w, Math.round(h * 0.64));
+    g.fillStyle = T[0]; g.fillRect(X, Y + d, w, Math.round(h * 0.26));
+    g.fillStyle = 'rgba(255,246,210,0.55)'; g.fillRect(X + 2, Y + 2 + d, w - 4, 1);
+    g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(X + 2, Y + h - 3 + d, w - 4, 1);
+    if (label) FX.pixelText(g, label, X + w / 2, Y + d + Math.round(h / 2) - 5, { color: T[4], size: 10, ink: false });
   }
+  // a wooden plank capped in teal, for every heading
   function banner(g, X, Y, w, h, label) {
     X = Math.round(X); Y = Math.round(Y);
+    g.fillStyle = 'rgba(0,0,0,0.4)'; g.fillRect(X + 3, Y + 6, w, h);
     g.fillStyle = OL; g.fillRect(X - 3, Y - 3, w + 6, h + 6);
-    g.fillStyle = WD1; g.fillRect(X, Y, w, h);
-    g.fillStyle = WD2; g.fillRect(X, Y, w, Math.round(h * 0.76));
-    g.fillStyle = WD3; g.fillRect(X, Y, w, Math.round(h * 0.4));
-    g.fillStyle = WD4; g.fillRect(X, Y, w, Math.round(h * 0.18));
-    for (const bx of [X - 10, X + w - 6]) {            // the blue end caps
-      g.fillStyle = OL; g.fillRect(bx - 3, Y - 7, 22, h + 14);
-      g.fillStyle = '#2b5a92'; g.fillRect(bx, Y - 4, 16, h + 8);
-      g.fillStyle = '#4d8fd0'; g.fillRect(bx, Y - 4, 16, Math.round((h + 8) * 0.46));
-      g.fillStyle = '#8fc6f2'; g.fillRect(bx, Y - 4, 16, 3);
+    g.fillStyle = WD0; g.fillRect(X, Y, w, h);
+    g.fillStyle = WD1; g.fillRect(X, Y, w, Math.round(h * 0.84));
+    g.fillStyle = WD2; g.fillRect(X, Y, w, Math.round(h * 0.52));
+    g.fillStyle = WD3; g.fillRect(X, Y, w, Math.round(h * 0.17));
+    for (let i = 2; i < w - 2; i += 11) { g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(X + i, Y + 2, 2, h - 4); }
+    for (const bx of [X - 11, X + w - 6]) {                // the teal end caps
+      g.fillStyle = OL; g.fillRect(bx - 3, Y - 8, 23, h + 16);
+      g.fillStyle = TL1; g.fillRect(bx, Y - 5, 17, h + 10);
+      g.fillStyle = TL2; g.fillRect(bx, Y - 5, 17, Math.round((h + 10) * 0.5));
+      g.fillStyle = TL3; g.fillRect(bx, Y - 5, 17, 3);
     }
-    if (label) FX.pixelText(g, label, X + w / 2, Y + Math.round(h / 2) - 6, { color: '#fff3d2', size: 11, ink: 2, inkColor: 'rgba(0,0,0,0.55)' });
+    if (label) FX.pixelText(g, label, X + w / 2, Y + Math.round(h / 2) - 6, { color: '#f6e4bb', size: 11, ink: 2, inkColor: 'rgba(0,0,0,0.6)' });
   }
 
   // ---- the tree ------------------------------------------------------------
@@ -454,7 +481,7 @@ const Knowledge = (() => {
     Art.ell(g, SEED.x - 11, y - 32, 3.4, 2, '#c2ed8f');
     for (let i = 0; i < 9; i++) {                          // golden motes rising off it
       const a = t * 0.8 + i * 0.7;
-      Art.rect(g, SEED.x + Math.cos(a) * 32, y - 22 - ((t * 26 + i * 11) % 62), 3, 3, i % 2 ? GD3 : GD2);
+      Art.rect(g, SEED.x + Math.cos(a) * 32, y - 22 - ((t * 26 + i * 11) % 62), 3, 3, i % 2 ? GD4 : GD2);
     }
     g.globalAlpha = 1;
   }
@@ -480,6 +507,13 @@ const Knowledge = (() => {
     else FRUITS.forEach((f, i) => drawNode(g, f, i, t));
     for (const c of crumbs) { g.fillStyle = c.c; g.fillRect(Math.round(c.x), Math.round(c.y), 3, 3); }
     g.restore();
+    g.save();                                              // the same grade the grove wears
+    g.globalCompositeOperation = 'soft-light';
+    g.fillStyle = '#7a4d94'; g.globalAlpha = 0.22; g.fillRect(0, 0, VW, CY * 2);
+    g.restore();
+    const vg = g.createRadialGradient(VW / 2, CY, VH * 0.38, VW / 2, CY, VH * 1.05);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(28,14,40,0.5)');
+    g.fillStyle = vg; g.fillRect(0, 0, VW, CY * 2);
     detail(g, t);
     FX.drawParticles(g, 0);
     FX.drawConfetti(g);
@@ -518,11 +552,11 @@ const Knowledge = (() => {
       g.fillRect(X - 9, Y - 9, NW + 18, NH + 18);
     }
     g.globalAlpha = dim ? 0.82 : 1;
-    frame9(g, X, Y, NW, NH, dim ? '#d9cfb2' : CR0);
-    if (hot) { g.fillStyle = GD2; g.fillRect(X - 3, Y - 3, NW + 6, 3); g.fillRect(X - 3, Y + NH, NW + 6, 3); g.fillRect(X - 3, Y - 3, 3, NH + 6); g.fillRect(X + NW, Y - 3, 3, NH + 6); }
+    frame9(g, X, Y, NW, NH, dim ? '#a89273' : PG2);
+    if (hot) { g.fillStyle = GD3; g.fillRect(X - 3, Y - 3, NW + 6, 3); g.fillRect(X - 3, Y + NH, NW + 6, 3); g.fillRect(X - 3, Y - 3, 3, NH + 6); g.fillRect(X + NW, Y - 3, 3, NH + 6); }
     // a coloured tab down the left, so you can tell the branches apart
-    g.fillStyle = B.col; g.fillRect(X + 5, Y + 5, 5, NH - 10);
-    g.fillStyle = B.dark; g.fillRect(X + 5, Y + NH - 8, 5, 3);
+    g.fillStyle = B.col; g.fillRect(X + 6, Y + 6, 5, NH - 12);
+    g.fillStyle = B.dark; g.fillRect(X + 6, Y + NH - 9, 5, 3);
     // the icon in its inventory slot
     const S = 44, ix = X + 16, iy = Y + (NH - S) / 2;
     slot(g, ix, iy, S);
@@ -551,10 +585,12 @@ const Knowledge = (() => {
   function detail(g, t) {
     const H = CARD, Y = VH - H;
     g.fillStyle = OL; g.fillRect(0, Y - 4, VW, H + 4);
-    g.fillStyle = CR0; g.fillRect(0, Y, VW, H);
-    g.fillStyle = CR1; g.fillRect(0, Y, VW, 3);
-    g.fillStyle = GR2; g.fillRect(0, Y - 4, VW, 4);
-    g.fillStyle = GR3; g.fillRect(0, Y - 4, VW, 1);
+    g.fillStyle = PG2; g.fillRect(0, Y, VW, H);
+    g.fillStyle = PG3; g.fillRect(0, Y, VW, 3);
+    for (let x = 0; x < VW; x += 7) { g.fillStyle = 'rgba(125,92,58,0.09)'; g.fillRect(x, Y + 4, 2, H - 6); }
+    g.fillStyle = WD1; g.fillRect(0, Y - 7, VW, 7);
+    g.fillStyle = WD3; g.fillRect(0, Y - 7, VW, 2);
+    g.fillStyle = WD0; g.fillRect(0, Y - 2, VW, 2);
 
     if (!planted()) {
       slot(g, 16, Y + 18, 52);
@@ -562,7 +598,7 @@ const Knowledge = (() => {
       FX.pixelText(g, 'THE FIRST SEED', 84, Y + 16, { color: INK, size: 11, align: 'left', ink: false });
       FX.pixelText(g, 'Plant it and the tree forks into three branches.', 84, Y + 36, { color: INK2, size: 10, align: 'left', ink: false });
       FX.pixelText(g, 'Soil, Beast and Rite. The first one costs nothing.', 84, Y + 52, { color: INK2, size: 10, align: 'left', ink: false });
-      goldButton(g, LEARN.x, LEARN.y, LEARN.w, LEARN.h, 'PLANT  FREE', learnHot, 'green');
+      goldButton(g, LEARN.x, LEARN.y, LEARN.w, LEARN.h, 'PLANT  FREE', learnHot, 'gold');
       return;
     }
     const f = sel >= 0 ? FRUITS[sel] : null;
@@ -582,7 +618,7 @@ const Knowledge = (() => {
 
     const ok = st === 'ready';
     const label = st === 'eaten' ? 'GROWN' : st === 'locked' ? 'LOCKED' : st === 'unripe' ? 'NOT RIPE' : st === 'costly' ? 'TOO DEAR' : 'GROW IT';
-    goldButton(g, LEARN.x, LEARN.y, LEARN.w, LEARN.h, label, ok && learnHot, ok ? 'green' : 'dead');
+    goldButton(g, LEARN.x, LEARN.y, LEARN.w, LEARN.h, label, ok && learnHot, ok ? 'gold' : 'dead');
     if (ok) {
       Icons.blit(g, 'wdollar', LEARN.x - 46, LEARN.y + 8, 1.1);
       FX.pixelText(g, String(f.cost), LEARN.x - 28, LEARN.y + 11, { color: '#7a5a12', size: 11, align: 'left', ink: false });

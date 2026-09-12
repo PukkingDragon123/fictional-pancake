@@ -746,12 +746,21 @@ const Grove = (() => {
     }
     g.restore();
 
-    // a cold wash while the wood is still dead; it lifts as the grove comes back
-    if (f < 0.95) { g.fillStyle = `rgba(26,34,58,${(0.13 * (1 - f)).toFixed(3)})`; g.fillRect(0, 0, VW, VH); }
-    // the whole grove sits inside a soft dark frame
+    // The grade: violet in the shadows, warm gold in the light. One pass, and
+    // it is what ties the wood to the rest of the game's colour.
+    g.save();
+    g.globalCompositeOperation = 'soft-light';
+    g.fillStyle = '#7a4d94'; g.globalAlpha = 0.34 - f * 0.12; g.fillRect(0, 0, VW, VH);
+    const warm = g.createRadialGradient(VW * 0.3, VH * 0.14, 10, VW * 0.3, VH * 0.14, VH * 1.1);
+    warm.addColorStop(0, 'rgba(255,226,150,0.5)'); warm.addColorStop(1, 'rgba(255,226,150,0)');
+    g.globalAlpha = 0.5 + f * 0.2; g.fillStyle = warm; g.fillRect(0, 0, VW, VH);
+    g.restore();
+    if (f < 0.95) { g.fillStyle = `rgba(48,30,74,${(0.15 * (1 - f)).toFixed(3)})`; g.fillRect(0, 0, VW, VH); }
+    // the whole grove sits inside a soft violet frame
     const vg = g.createRadialGradient(VW / 2, VH * 0.52, VH * 0.4, VW / 2, VH * 0.52, VH * 1.02);
     vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, `rgba(8,7,14,${(0.5 - f * 0.2).toFixed(2)})`);
+    vg.addColorStop(0.62, `rgba(36,18,48,${(0.2 - f * 0.08).toFixed(2)})`);
+    vg.addColorStop(1, `rgba(16,8,26,${(0.62 - f * 0.24).toFixed(2)})`);
     g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
     edgeArrows(g);
   }

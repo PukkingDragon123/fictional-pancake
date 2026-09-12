@@ -236,125 +236,194 @@ const Sprites = (() => {
   }
   function furOf(pelt) { return typeof pelt === 'string' ? (FUR_BY_KEY[pelt] || FUR[0]) : FUR[pelt % FUR.length]; }
 
-  // ---- the cultist: hooded robe, gold hem, a black void where a face goes --
+  // ---- the cultist: a tall hooded human, six and a half heads high ---------
+  // Human proportions, not a cone: narrow shoulders, a long straight robe with
+  // a slight flare, arms that hang and swing, bare hands at the cuffs, and a
+  // face you can half see in the shadow of the hood.
   const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 3 };
+  const CW = 40, CH = 66, CX = 20, CGY = 63;
   function cultist(frame, pose = 'idle') {
     const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
     const key = `cult:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
-    const { c, g } = Art.cv(40, 56);
-    const R0 = '#100c16', R1 = '#231d2c', R2 = '#352e41', R3 = '#4b4359', R4 = '#655b78';
-    const GOLD = '#c9a35a', GOLD2 = '#ead08a', VOID = '#07060a', WINE = '#5c2a3a';
+    const { c, g } = Art.cv(CW, CH);
+    // a deep violet-brown habit, gold trim, one teal clasp
+    const R0 = '#140d1c', R1 = '#241730', R2 = '#372447', R3 = '#4d3660', R4 = '#6a4d82';
+    const GOLD = '#c1912a', GOLD2 = '#f2cf62', TEAL = '#4fa6be', TEAL2 = '#8fd4e4';
+    const VOID = '#0b0710', WINE = '#5c2a3a';
+    const SK0 = '#7a5344', SK1 = '#a8735c', SK2 = '#d0a186', SK3 = '#e8c4a6';
     const S = Math.sin(t * TAU);
-    let bob = 0, lean = 0, flare = 0, hemUp = 0, sleeveL = 0, sleeveR = 0, view = 'front', sit = 0, lie = 0, hurt = 0, staff = 0, spark = 0;
+    let bob = 0, lean = 0, flare = 0, hemUp = 0, armL = 0, armR = 0, view = 'front';
+    let sit = 0, lie = 0, hurt = 0, staff = 0, spark = 0, stride = 0, clasp = 1;
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 1, 0, 0][f]; sleeveL = S * 0.6; sleeveR = -S * 0.6; break;
-      case 'walk': lean = 1.5; flare = Math.abs(S) * 2; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.2; sleeveL = S * 2; sleeveR = -S * 2; break;
-      case 'run': lean = 4; flare = 3 + Math.abs(S) * 2.5; hemUp = 3; bob = -Math.abs(Math.sin(t * TAU * 2)) * 2; sleeveL = S * 3 - 2; sleeveR = -S * 3 - 2; break;
+      case 'idle': bob = [0, 0, 1, 1, 0, 0][f]; armL = S * 0.5; armR = -S * 0.5; break;
+      case 'walk': lean = 1.2; stride = S; flare = Math.abs(S) * 2; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.2;
+        armL = -S * 3; armR = S * 3; clasp = 0; break;
+      case 'run': lean = 4.5; stride = S * 1.7; flare = 3 + Math.abs(S) * 2.5; hemUp = 5;
+        bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.4; armL = -S * 5 - 2; armR = S * 5 - 2; clasp = 0; break;
       case 'turn': view = ['front', 'quarter', 'back', 'back', 'quarter', 'front'][f]; break;
-      case 'jump': bob = [1, -8, -13, -8, 1][f]; hemUp = [0, 3, 5, 3, 0][f]; flare = [0, 2, 3, 2, 0][f]; sleeveL = sleeveR = [0, -4, -6, -4, 0][f]; break;
-      case 'cast': staff = Math.min(1, f / 2); spark = f >= 3 ? f - 2 : 0; sleeveL = -1 - staff * 3; sleeveR = -6 - staff * 8; bob = f >= 3 ? -1 : 0; break;
-      case 'hurt': hurt = [1, 0.6, 0.2][f]; lean = -3 * hurt; bob = hurt * 1.5; break;
-      case 'sit': sit = 1; bob = [0, 0.5, 0][f]; break;
+      case 'jump': bob = [1, -9, -15, -9, 1][f]; hemUp = [0, 4, 7, 4, 0][f]; flare = [0, 2, 3, 2, 0][f];
+        armL = armR = [0, -6, -9, -6, 0][f]; clasp = 0; break;
+      case 'cast': staff = Math.min(1, f / 2); spark = f >= 3 ? f - 2 : 0;
+        armL = -2 - staff * 2; armR = -7 - staff * 9; bob = f >= 3 ? -1 : 0; clasp = 0; break;
+      case 'hurt': hurt = [1, 0.6, 0.2][f]; lean = -3.5 * hurt; bob = hurt * 1.8; clasp = 0; break;
+      case 'sit': sit = 1; bob = [0, 0.5, 0][f]; clasp = 1; break;
       case 'sleep': lie = 1; break;
     }
-    const y0 = 4 + bob;
     g.save();
-    if (lean) { g.translate(20, 52); g.transform(1, 0, lean * 0.06, 1, 0, 0); g.translate(-20, -52); }
+    if (lean) { g.translate(CX, CGY); g.transform(1, 0, lean * 0.05, 1, 0, 0); g.translate(-CX, -CGY); }
 
-    if (lie) {                                                    // a puddle of robe, hood at the left
-      Art.ell(g, 22, 47, 15, 5, R1); Art.ell(g, 22, 46, 13, 4, R2); Art.ell(g, 20, 44.5, 8, 2.5, R3);
-      for (let i = 0; i < 6; i++) Art.rect(g, 10 + i * 4.4, 50, 2.6, 2, GOLD);
-      Art.ell(g, 9, 44, 7, 6, R2); Art.ell(g, 9, 43, 6, 5, R1); Art.ell(g, 8, 45, 3.6, 3.4, VOID);
-      Art.rect(g, 6, 45, 1.6, 0.8, GOLD2); Art.rect(g, 9, 45, 1.6, 0.8, GOLD2);
-      Art.ell(g, 9, 39, 3, 2, R3);
-      const zx = 20 + f * 2, zy = 30 - f * 4;
-      Art.rect(g, zx, zy, 4, 1, GOLD2); Art.rect(g, zx + 2, zy + 1, 1, 1, GOLD2); Art.rect(g, zx + 1, zy + 2, 1, 1, GOLD2); Art.rect(g, zx, zy + 3, 4, 1, GOLD2);
+    if (lie) {                                        // curled on her side, hood to the left
+      Art.ell(g, 24, 56, 15, 5.5, R1); Art.ell(g, 24, 55, 13.5, 4.6, R2); Art.ell(g, 22, 53.5, 8, 3, R3);
+      for (let i = 0; i < 6; i++) Art.rect(g, 12 + i * 4.6, 59, 2.6, 2, GOLD);
+      Art.ell(g, 10, 53, 7.5, 6.4, R2); Art.ell(g, 10, 52, 6.4, 5.4, R1); Art.ell(g, 9, 54, 3.8, 3.6, VOID);
+      Art.rect(g, 7, 54, 1.8, 1, GOLD2); Art.rect(g, 10.2, 54, 1.8, 1, GOLD2);
+      Art.ell(g, 10, 48, 3.2, 2.2, R3);
+      Art.ell(g, 17, 57.5, 2.6, 1.8, SK2);                                  // a hand tucked under
+      const zx = 22 + f * 2, zy = 40 - f * 4;
+      Art.rect(g, zx, zy, 4, 1, GOLD2); Art.rect(g, zx + 2, zy + 1, 1, 1, GOLD2);
+      Art.rect(g, zx + 1, zy + 2, 1, 1, GOLD2); Art.rect(g, zx, zy + 3, 4, 1, GOLD2);
       g.restore(); Art.outline(c, '#0a0810', 1); cache.set(key, c); return c;
     }
 
-    const skirtTop = sit ? 34 : 24 + y0, hem = 52 - hemUp;
-    const half = (sit ? 16 : 12.5) + flare;
-    // the robe: a bell from the shoulders to the ground, cut with folds
-    Art.poly(g, [[20 - 7, skirtTop], [20 + 7, skirtTop], [20 + half, hem], [20 - half, hem]], R2);
-    Art.poly(g, [[20 - 7, skirtTop], [20 - 1, skirtTop], [20 - half * 0.35, hem], [20 - half, hem]], R3);   // the lit fold
-    Art.poly(g, [[20 + 2, skirtTop], [20 + 7, skirtTop], [20 + half, hem], [20 + half * 0.5, hem]], R1);   // the shadow fold
-    for (let i = -2; i <= 2; i++) Art.rect(g, 20 + i * 3.2 + S * 0.4, skirtTop + 6, 1, hem - skirtTop - 8, i % 2 ? R0 : R4);
-    Art.poly(g, [[20 - 6.6, skirtTop + 1], [20 - 5, skirtTop + 1], [20 - half * 0.82, hem], [20 - half * 0.96, hem]], R4);   // rim light down the left
-    Art.rect(g, 20 - half, hem - 3, half * 2, 3, R0);
-    for (let i = 0; i <= half; i += 3.3) { Art.rect(g, 20 - half + i, hem - 4, 2, 2.4, GOLD); Art.rect(g, 20 - half + i + 1, hem - 2, 1.4, 2, GOLD2); }   // the gold points of the hem
-    if (view !== 'back') Art.poly(g, [[18, hem - 7], [22, hem - 7], [23.5, hem], [16.5, hem]], WINE);   // the under-robe showing
-    // torso and shoulders
-    if (!sit) { Art.rect(g, 13, 20 + y0, 14, 8, R2); Art.rect(g, 13, 20 + y0, 5, 8, R3); }
-    Art.ell(g, 20, 21 + y0, 10, 4, R2); Art.ell(g, 16, 20 + y0, 5, 2.4, R3);
-    // the mantle: a short rounded cape over the shoulders
-    const my = (sit ? 22 : 18) + y0;
-    Art.ell(g, 20, my + 3.2, 10.6, 6.6, R0);
-    Art.ell(g, 20, my + 2.4, 10, 6, R2);
-    Art.ell(g, 16.6, my + 1.4, 5.4, 4.2, R4);
-    Art.ell(g, 24.4, my + 3, 4.4, 3.6, R1);
-    Art.ellBand(g, 20, my + 2.8, 10.4, 6.6, GOLD, 0.86, 1);
-    // sleeves hanging from under the mantle, cuffs trimmed in gold
-    const armY = (sit ? 30 : 24 + y0);
-    const reach = pose === 'cast' || pose === 'jump' || pose === 'run' ? 3.4 : 1.4;
-    for (const [sx, dx, sw, body, lit] of [[13.6, sleeveL, -1, R3, R4], [26.4, sleeveR, 1, R2, R3]]) {
-      const ex = sx + sw * reach + dx * 0.5, ey = armY + 12 + dx;
-      Art.limb(g, sx, armY - 1, ex, ey, 7.6, 6.2, R0);
-      Art.limb(g, sx, armY - 1, ex, ey, 6, 4.8, body);
-      Art.limb(g, sx - sw * 1.4, armY, ex - sw * 1.4, ey - 1, 2, 1.6, lit);
-      Art.rect(g, ex - 2.2, ey - 1, 4.4, 1.6, GOLD);
-      Art.rect(g, ex - 2.2, ey - 1, 4.4, 0.7, GOLD2);
-    }
-    // a cord knot with one tassel, tucked under the left sleeve
-    if (!sit) {
-      Art.ell(g, 20 - 5.4, skirtTop + 11, 1.8, 1.8, GOLD2);
-      Art.rect(g, 20 - 6, skirtTop + 12, 1.2, 4.6 + S * 0.6, GOLD);
-      Art.rect(g, 20 - 6.2, skirtTop + 16 + S * 0.6, 1.6, 1.6, GOLD2);
-    }
-    // an amulet hanging at the throat of the cape
-    if (view !== 'back') {
-      Art.rect(g, 19.5, my - 2.5, 1, 3, GOLD);
-      Art.ell(g, 20, my + 2, 2.6, 2.6, GOLD);
-      Art.ell(g, 20, my + 2, 1.6, 1.6, WINE);
-      Art.rect(g, 19.2, my + 0.8, 1, 1, GOLD2);
-    }
-    // the hood: tall, narrow, sharply pointed, with nothing inside it
-    const hy = (sit ? 12 : 4) + y0;
-    Art.poly(g, [[20.5, hy - 7], [29, hy + 13], [11, hy + 13]], R1);       // the point, thrown back
-    Art.poly(g, [[20.5, hy - 7], [24, hy + 4], [18, hy + 4]], R2);
-    Art.ell(g, 20, hy + 12, 9.5, 9, R2);
-    Art.ell(g, 15.6, hy + 9, 4.6, 5.6, R3);                                 // sun on the crown
-    Art.ell(g, 25, hy + 13, 4.6, 5.6, R1);
-    Art.rect(g, 11, hy + 6, 1.4, 6, R3);                                    // rim light down the left
-    if (view === 'back') {
-      Art.ell(g, 20, hy + 13, 7, 7, R1);                                    // just cloth from behind
-      Art.rect(g, 16.5, hy + 8, 7, 1.2, GOLD);
-    } else {
-      const vx = view === 'quarter' ? 22 : 20;
-      Art.ell(g, vx, hy + 13, 5.6, 6.8, VOID);                              // the void where a face goes
-      Art.ellBand(g, vx, hy + 13, 6.6, 7.8, GOLD, 0, 1);                    // gold edge of the opening
-      Art.ell(g, vx, hy + 13, 5.6, 6.8, VOID);
-      // two eyes burning in the dark, with a soft glow around each
-      const ey = hy + 12 + (hurt > 0 ? -1 : 0);
-      if (pose === 'hurt') { Art.rect(g, vx - 3.6, ey, 2.8, 1.2, GOLD2); Art.rect(g, vx + 1, ey, 2.8, 1.2, GOLD2); }
-      else {
-        Art.ell(g, vx - 2.3, ey + 0.7, 2.6, 2.4, 'rgba(255,226,120,0.22)');
-        Art.ell(g, vx + 2.5, ey + 0.7, 2.6, 2.4, 'rgba(255,226,120,0.22)');
-        Art.rect(g, vx - 3.6, ey - 0.4, 2.8, 2.8, 'rgba(255,232,150,0.45)'); Art.rect(g, vx + 1.1, ey - 0.4, 2.8, 2.8, 'rgba(255,232,150,0.45)');
-        Art.rect(g, vx - 3.2, ey, 2, 2, '#fff8d8'); Art.rect(g, vx + 1.5, ey, 2, 2, '#fff8d8');
-        Art.rect(g, vx - 3.2, ey, 2, 0.8, '#ffffff'); Art.rect(g, vx + 1.5, ey, 2, 0.8, '#ffffff');
-        if (f === 4 && pose === 'idle') { Art.rect(g, vx - 3.6, ey - 0.4, 8, 2.6, VOID); }
+    // ---- the skeleton this figure is built on ------------------------------
+    const y0 = bob;
+    const headTop = (sit ? 16 : 4) + y0;        // crown of the hood
+    const chin = headTop + 14;                  // where the head ends
+    const shoulder = chin + 3;                  // y of the shoulder line
+    const waist = shoulder + 15;
+    const hip = shoulder + 20;
+    const hem = (sit ? 62 : CGY) - hemUp;
+    const shW = sit ? 8 : 7;                    // half-width at the shoulders
+    const hipW = sit ? 11 : 6.6;
+    const hemW = (sit ? 14 : 10.4) + flare;
+
+    // ---- boots, when the hem lifts off them --------------------------------
+    if (hemUp > 1 || stride) {
+      for (const s of [-1, 1]) {
+        const sx = CX + s * 3.6 + stride * s * 3.4;
+        Art.rect(g, sx - 2.6, hem - 5, 5.2, 6, '#2a1b18');
+        Art.rect(g, sx - 3.4, CGY - 3.2, 7, 3.4, '#1c110f');
+        Art.rect(g, sx - 2.6, hem - 5, 5.2, 1.4, '#4a3128');
       }
     }
-    // casting: a staff crowned with a cross, and sparks
+    // ---- the robe: shoulders to the floor, a slight A, cut with folds -------
+    const robe = (x0, x1, col) => Art.poly(g, [
+      [CX + x0 * shW, shoulder], [CX + x1 * shW, shoulder],
+      [CX + x1 * hemW, hem], [CX + x0 * hemW, hem]], col);
+    robe(-1, 1, R2);
+    robe(-1, -0.42, R3);                                       // lit side
+    robe(0.46, 1, R1);                                         // shadow side
+    robe(-1, -0.82, R4);                                       // rim light down the left edge
+    for (let i = -2; i <= 2; i++) {                            // vertical folds
+      const k = i / 2.6;
+      Art.poly(g, [
+        [CX + k * shW + S * 0.4, waist], [CX + k * shW + 1.2 + S * 0.4, waist],
+        [CX + k * hemW + 1.2, hem], [CX + k * hemW, hem]], i % 2 ? R0 : R4);
+    }
+    Art.rect(g, CX - hemW, hem - 3, hemW * 2, 3, R0);          // the hem itself
+    Art.rect(g, CX - hemW, hem - 4.4, hemW * 2, 1.8, GOLD);   // one gold band
+    Art.rect(g, CX - hemW, hem - 4.4, hemW * 2, 0.8, GOLD2);
+    for (let i = 2; i < hemW * 2 - 1; i += 4.6) Art.rect(g, CX - hemW + i, hem - 2.6, 1.8, 1.6, GOLD);
+
+    // ---- torso -------------------------------------------------------------
+    Art.poly(g, [[CX - shW, shoulder], [CX + shW, shoulder], [CX + hipW, hip], [CX - hipW, hip]], R2);
+    Art.poly(g, [[CX - shW, shoulder], [CX - shW * 0.34, shoulder], [CX - hipW * 0.3, hip], [CX - hipW, hip]], R3);
+    Art.rect(g, CX - shW, shoulder, 1.6, hip - shoulder, R4);
+
+    // ---- arms: upper arm, forearm, and a bare hand at the cuff -------------
+    if (!sit || clasp) {
+      for (const [s, sw] of [[-1, armL], [1, armR]]) {
+        const sxp = CX + s * (shW - 1.2), syp = shoulder + 2;
+        const inward = clasp ? 2.6 : 0;
+        const ex = CX + s * (hipW - 0.6 - inward) + s * 0.6, ey = waist + 6 + sw;
+        const mx = CX + s * (shW + 1.8), myy = (syp + ey) / 2 + 1;
+        Art.limb(g, sxp, syp, mx, myy, 6.4, 5.4, R0);            // ink under the sleeve
+        Art.limb(g, mx, myy, ex, ey, 5.4, 4.4, R0);
+        Art.limb(g, sxp, syp, mx, myy, 4.8, 4, s < 0 ? R4 : R3);
+        Art.limb(g, mx, myy, ex, ey, 4, 3.4, s < 0 ? R4 : R3);
+        Art.limb(g, sxp + s * 1.6, syp, mx + s * 1.6, myy, 1.3, 1.1, R0);   // the shadowed inner edge
+        Art.limb(g, sxp - s * 1.3, syp, mx - s * 1.3, myy, 1.4, 1.2, s < 0 ? '#8a6aa4' : R4);
+        Art.rect(g, ex - 1.9, ey - 0.8, 3.8, 1.5, GOLD);         // the cuff
+        Art.rect(g, ex - 1.9, ey - 0.8, 3.8, 0.7, GOLD2);
+        Art.ell(g, ex, ey + 2.4, 1.9, 2.2, SK1);                 // the hand
+        Art.ell(g, ex - 0.3, ey + 2, 1.5, 1.8, SK2);
+        Art.ell(g, ex - 0.7, ey + 1.5, 0.8, 0.8, SK3);
+      }
+    }
+    // a rope cord knotted at the waist, worn over the sleeves
+    Art.rect(g, CX - hipW - 1, waist, hipW * 2 + 2, 1.8, GOLD);
+    Art.rect(g, CX - hipW - 1, waist, hipW * 2 + 2, 0.8, GOLD2);
+    Art.rect(g, CX - hipW - 1, waist + 1.8, hipW * 2 + 2, 0.6, '#7a5210');
+    Art.ell(g, CX - 0.6, waist + 1, 2.2, 2, GOLD);
+    Art.ell(g, CX - 1, waist + 0.6, 1.2, 1.1, GOLD2);
+    for (const [tx, tl] of [[-2.2, 5.4], [0.8, 4.2]]) {
+      Art.rect(g, CX + tx, waist + 2.4, 1.3, tl + S * 0.6, GOLD);
+      Art.rect(g, CX + tx - 0.2, waist + 2.4 + tl + S * 0.6, 1.7, 1.6, GOLD2);
+    }
+
+    // ---- a short shoulder cape --------------------------------------------
+    const my = shoulder - 1;
+    Art.ell(g, CX, my + 4, shW + 2, 6, R0);
+    Art.ell(g, CX, my + 3.2, shW + 1.4, 5.4, R2);
+    Art.ell(g, CX - 3.2, my + 2, shW * 0.56, 3.8, R4);
+    Art.ell(g, CX + 3.6, my + 3.6, shW * 0.46, 3.2, R1);
+    Art.ellBand(g, CX, my + 3.6, shW + 1.8, 6, GOLD, 0.86, 1);
+    if (view !== 'back') {                                       // a teal clasp and amulet
+      Art.ell(g, CX, my + 1, 2.4, 2, TEAL);
+      Art.ell(g, CX - 0.4, my + 0.6, 1.2, 1, TEAL2);
+      Art.rect(g, CX - 0.5, my + 3, 1, 3.4, GOLD);
+      Art.ell(g, CX, my + 7.4, 2.6, 2.6, GOLD);
+      Art.ell(g, CX, my + 7.4, 1.5, 1.5, WINE);
+      Art.rect(g, CX - 1.2, my + 6.4, 1, 1, GOLD2);
+    }
+
+    // ---- the hood, and the face inside it ----------------------------------
+    const hx = view === 'quarter' ? CX + 1.6 : CX;
+    const faceY = headTop + 8;
+    Art.poly(g, [[CX + 0.4, headTop - 0.5], [CX + 6.8, headTop + 9], [CX - 6, headTop + 9]], R1);   // the peak
+    Art.poly(g, [[CX + 0.4, headTop - 0.5], [CX + 2.8, headTop + 5.5], [CX - 2, headTop + 5.5]], R2);
+    Art.ell(g, CX, headTop + 8, 6.8, 7, R2);                     // the cowl
+    Art.ell(g, CX - 3, headTop + 6, 3.4, 4.2, R3);
+    Art.ell(g, CX + 3.6, headTop + 9, 3.2, 4, R1);
+    Art.rect(g, CX - 6.6, headTop + 5, 1.2, 4.6, R4);            // rim light
+    Art.poly(g, [[CX - 6.4, headTop + 12], [CX + 6.4, headTop + 12], [CX + 5, chin + 1], [CX - 5, chin + 1]], R1);
+    if (view === 'back') {
+      Art.ell(g, CX, headTop + 11, 6.4, 6.4, R1);
+      Art.rect(g, CX - 3.4, headTop + 7, 7, 1.2, GOLD);
+    } else {
+      Art.ell(g, hx, faceY + 1, 4.2, 5.2, VOID);                 // the shadow of the hood
+      Art.ellBand(g, hx, faceY + 1, 4.9, 5.9, GOLD, 0, 1);       // gold edge of the opening
+      Art.ell(g, hx, faceY + 1, 4.2, 5.2, VOID);
+      // a human face, mostly in shadow: cheek, nose, jaw, mouth
+      Art.ell(g, hx, faceY + 3, 3, 3, SK0);
+      Art.ell(g, hx - 0.4, faceY + 3.1, 2.5, 2.6, SK1);
+      Art.ell(g, hx - 0.9, faceY + 2.8, 1.5, 1.5, SK2);
+      Art.rect(g, hx - 0.5, faceY + 1.9, 1.2, 1.7, SK2);         // the bridge of the nose
+      Art.rect(g, hx - 1, faceY + 4.1, 2.4, 0.8, SK0);           // the mouth
+      const ey = faceY + (hurt > 0 ? -0.4 : 0.4);
+      if (pose === 'hurt') { Art.rect(g, hx - 3.4, ey, 2.6, 1.2, GOLD2); Art.rect(g, hx + 1, ey, 2.6, 1.2, GOLD2); }
+      else {
+        Art.ell(g, hx - 1.7, ey + 0.5, 2.1, 1.8, 'rgba(255,226,120,0.2)');
+        Art.ell(g, hx + 1.9, ey + 0.5, 2.1, 1.8, 'rgba(255,226,120,0.2)');
+        Art.rect(g, hx - 2.8, ey - 0.3, 2.2, 2.2, 'rgba(255,232,150,0.42)');
+        Art.rect(g, hx + 0.8, ey - 0.3, 2.2, 2.2, 'rgba(255,232,150,0.42)');
+        Art.rect(g, hx - 2.5, ey, 1.6, 1.6, '#fff8d8'); Art.rect(g, hx + 1.1, ey, 1.6, 1.6, '#fff8d8');
+        Art.rect(g, hx - 2.5, ey, 1.6, 0.7, '#ffffff'); Art.rect(g, hx + 1.1, ey, 1.6, 0.7, '#ffffff');
+        if (f === 4 && pose === 'idle') Art.rect(g, hx - 2.8, ey - 0.3, 6, 2.2, VOID);
+      }
+    }
+
+    // ---- casting: a staff crowned with a cross, and sparks ------------------
     if (staff > 0) {
-      const sx = 32 + sleeveR * 0.5 + 2, top = armY + 12 + sleeveR - 30 + (1 - staff) * 6;
-      Art.rect(g, sx, top, 1.6, 40 - top, '#6a4a2a');
-      Art.rect(g, sx - 2, top - 6, 5.6, 1.6, GOLD); Art.rect(g, sx, top - 9, 1.6, 8, GOLD);
-      Art.ell(g, sx + 0.8, top - 9, 1.8, 1.8, GOLD2);
+      const sx = CX + hipW + 3, top = waist - 22 + (1 - staff) * 6;
+      Art.rect(g, sx, top, 2, hem - 2 - top, '#6a4a2a');
+      Art.rect(g, sx, top, 0.8, hem - 2 - top, '#96703f');
+      Art.rect(g, sx - 2.4, top - 6, 6.6, 2, GOLD); Art.rect(g, sx, top - 10, 2, 9, GOLD);
+      Art.ell(g, sx + 1, top - 10, 2.2, 2.2, GOLD2);
       for (let i = 0; i < spark * 4; i++) {
-        const a = i * 1.7 + f, r = 6 + spark * 3;
-        Art.rect(g, sx + 0.8 + Math.cos(a) * r, top - 6 + Math.sin(a) * r * 0.7, 1.4, 1.4, i % 2 ? GOLD2 : PAL.cream);
+        const a = i * 1.7 + f, r = 7 + spark * 3.4;
+        Art.rect(g, sx + 1 + Math.cos(a) * r, top - 6 + Math.sin(a) * r * 0.7, 1.6, 1.6, i % 2 ? GOLD2 : TEAL2);
       }
     }
     g.restore();
