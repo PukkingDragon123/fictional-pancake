@@ -1590,9 +1590,9 @@ const Sprites = (() => {
     let sit = 0, lie = 0, hurt = 0, staff = 0, spark = 0, stride = 0, clasp = 1;
     switch (pose) {
       case 'idle': bob = [0, 0, 1, 1, 0, 0][f]; armL = S * 0.5; armR = -S * 0.5; break;
-      case 'walk': lean = 1.2; stride = S; flare = Math.abs(S) * 2; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.2;
-        armL = -S * 3; armR = S * 3; clasp = 0; break;
-      case 'run': lean = 4.5; stride = S * 1.7; flare = 3 + Math.abs(S) * 2.5; hemUp = 5;
+      case 'walk': stride = S; flare = Math.abs(S) * 2.4; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.5;
+        armL = -S * 3.2; armR = S * 3.2; clasp = 0; break;
+      case 'run': lean = 1.6; stride = S * 1.7; flare = 3 + Math.abs(S) * 2.5; hemUp = 5;
         bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.4; armL = -S * 5 - 2; armR = S * 5 - 2; clasp = 0; break;
       case 'turn': view = ['front', 'quarter', 'back', 'back', 'quarter', 'front'][f]; break;
       case 'jump': bob = [1, -9, -15, -9, 1][f]; hemUp = [0, 4, 7, 4, 0][f]; flare = [0, 2, 3, 2, 0][f];
@@ -5760,13 +5760,14 @@ const Knowledge = (() => {
   const GROUND = 780, BASE = 750, FORK = 630;
   const COLX = [450, 750, 1050];                 // one column per branch
   const ROWY = [560, 468, 376, 284];             // one row per rank
-  const NW = 176, NH = 80;
+  const NW = 194, NH = 98;      // the card, shown only for the one you click
+  const MED = 54;               // the fruit as it hangs on the branch
   const ZMIN = 0.34, ZMAX = 1.8;
   const CARD = 88, TOP = 42;
   const HH = (VH - CARD - TOP) / 2;      // half the height of the window onto the garden
   const CY = TOP + HH;
-  const cam = { x: BASE, y: 512, z: 0.43, tx: BASE, ty: 512, tz: 0.43 };
-  let hover = -1, sel = -1, learnHot = false, seedHot = false, zoomHot = '';
+  const cam = { x: BASE, y: 516, z: 0.435, tx: BASE, ty: 516, tz: 0.435 };
+  let hover = -1, sel = -1, learnHot = false, seedHot = false, zoomHot = '', openT = 1;
   const grow = { t: 0, of: null, kind: '' };     // the growing animation
   const petals = [], flies = [], crumbs = [];
   let garden = null;
@@ -5800,12 +5801,16 @@ const Knowledge = (() => {
   }
   function ripeCount() { return planted() ? FRUITS.filter((f) => state(f) === 'ready').length : 1; }
 
-  function nodeAt(f) { return { x: COLX[f.root], y: ROWY[f.i] }; }
+  // the fruit sits on the bough, not in a straight column above the trunk
+  function nodeAt(f) {
+    const sway = (f.root - 1) * f.i * 13 + (f.root === 1 ? (f.i % 2 ? 20 : -20) : 0);
+    return { x: COLX[f.root] + sway, y: ROWY[f.i] };
+  }
   const SEED = { x: BASE, y: GROUND - 30 };
   // The spine of a branch: the fork, then each rank, bowing outward as it climbs.
   function spine(b) {
     const pts = [{ x: BASE, y: FORK }];
-    for (let i = 0; i < 4; i++) pts.push({ x: COLX[b] + (b - 1) * i * 9, y: ROWY[i] });
+    for (let i = 0; i < 4; i++) pts.push(nodeAt({ root: b, i }));
     return pts;
   }
 
@@ -5815,7 +5820,7 @@ const Knowledge = (() => {
   function clampCam() {
     const hw = VW / 2 / cam.tz, hh = HH / cam.tz;
     cam.tx = hw * 2 > WW ? WW / 2 : U.clamp(cam.tx, hw, WW - hw);
-    const top = 200, bot = GROUND + 50;
+    const top = 210, bot = GROUND + 40;
     const lo = top + hh - 70, hi = bot - hh + 70;
     cam.ty = lo > hi ? (top + bot) / 2 : U.clamp(cam.ty, lo, hi);
   }
@@ -5841,9 +5846,9 @@ const Knowledge = (() => {
     if (!planted()) { sel = -1; lookAt(BASE, GROUND - 110, 0.8); }
     else {
       const t = FRUITS.find((f) => state(f) === 'ready') || FRUITS.find((f) => !owned(f)) || FRUITS[0];
-      sel = FRUITS.indexOf(t);
+      sel = FRUITS.indexOf(t); openT = 0;
       const a = nodeAt(FRUITS[sel]);
-      lookAt(U.lerp(BASE, a.x, 0.5), U.lerp(GROUND - 170, a.y, 0.6), 0.43);
+      lookAt(U.lerp(BASE, a.x, 0.45), U.lerp(GROUND - 150, a.y, 0.55), 0.435);
     }
     cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz;
     Audio.setMode('pen');
@@ -5854,8 +5859,8 @@ const Knowledge = (() => {
     if (planted() || grow.t > 0) return;
     G.fruits.sprout = true;
     grow.t = 2.2; grow.of = null; grow.kind = 'sprout';
-    sel = 0;                                   // the first Soil fruit is what you look at next
-    lookAt(BASE, 512, 0.43);
+    sel = 0; openT = 0;                        // the first Soil fruit is what you look at next
+    lookAt(BASE, 516, 0.435);
     Audio.play('bless');
     UI.toast('The seed takes. Three branches open.', 'good');
     FX.sparkle(VW / 2, VH / 2, 26, GD4);
@@ -5889,6 +5894,7 @@ const Knowledge = (() => {
     cam.y = U.lerp(cam.y, cam.ty, 1 - Math.pow(0.0015, dt));
     cam.z = U.lerp(cam.z, cam.tz, 1 - Math.pow(0.0015, dt));
     if (grow.t > 0) grow.t = Math.max(0, grow.t - dt);
+    openT = Math.min(1, openT + dt * 7);
     for (let i = crumbs.length - 1; i >= 0; i--) {
       const c = crumbs[i];
       c.t += dt; c.vy += 210 * dt; c.x += c.vx * dt; c.y += c.vy * dt;
@@ -5908,9 +5914,13 @@ const Knowledge = (() => {
     if (py < TOP) return -1;                             // the bar across the top owns its strip
     const wx = wxOf(px), wy = wyOf(py);
     if (!planted()) return Math.hypot(wx - SEED.x, (wy - SEED.y) * 0.8) < 60 ? -2 : -1;
+    if (sel >= 0) {                                      // the open card takes its own area first
+      const a = nodeAt(FRUITS[sel]);
+      if (Math.abs(wx - a.x) < NW / 2 && wy > a.y - MED / 2 - 8 && wy < a.y - MED / 2 - 8 + NH) return sel;
+    }
     for (let i = 0; i < FRUITS.length; i++) {
       const a = nodeAt(FRUITS[i]);
-      if (Math.abs(wx - a.x) < NW / 2 && Math.abs(wy - a.y) < NH / 2) return i;
+      if (Math.abs(wx - a.x) < MED / 2 + 5 && Math.abs(wy - a.y) < MED / 2 + 5) return i;
     }
     return -1;
   }
@@ -5927,15 +5937,15 @@ const Knowledge = (() => {
     if (z) {
       if (z === 'in') zoomBy(1.3);
       else if (z === 'out') zoomBy(1 / 1.3);
-      else { lookAt(BASE, 512, 0.43); cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz; }
+      else { lookAt(BASE, 516, 0.435); cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz; }
       Audio.play('click'); return;
     }
     if (overLearn(px, py)) { if (!planted()) plant(); else buy(FRUITS[sel]); return; }
     const i = indexAt(px, py);
     if (i === -2) { plant(); return; }
-    if (i < 0) return;
+    if (i < 0) { if (sel >= 0) { sel = -1; openT = 0; Audio.play('click'); } return; }
     if (i === sel) buy(FRUITS[i]);
-    else { sel = i; Audio.play('click'); }
+    else { sel = i; openT = 0; Audio.play('click'); }
   }
   function hoverAt(px, py) {
     zoomHot = zoomAt2(px, py);
@@ -6223,9 +6233,9 @@ const Knowledge = (() => {
         const f = FRUITS.find((x) => x.root === e.b && x.i === i);
         const n = e.path[i + 1];
         const pop = (grow.kind === 'fruit' && grow.of === f) ? 1 + Math.sin(U.clamp(1 - grow.t / 1.3, 0, 1) * Math.PI) * 0.32 : 1;
-        puff(g, n.x + (e.b - 1) * 14, n.y - 14, 152 * pop, L, e.b * 71 + i * 13 + 5, F);
+        puff(g, n.x + (e.b - 1) * 26, n.y - 6, 126 * pop, L, e.b * 71 + i * 13 + 5, F);
       }
-      if (e.reach >= 4) puff(g, e.path[4].x + (e.b - 1) * 24, e.path[4].y - 96, 130, L, e.b * 97 + 3, F);
+      if (e.reach >= 4) puff(g, e.path[4].x + (e.b - 1) * 30, e.path[4].y - 84, 112, L, e.b * 97 + 3, F);
       // a slimmer pass of bark over the leaves, so the branch still reads
       for (let i = 0; i < e.reach; i++) {
         const bend = (e.b - 1) * (i === 0 ? 62 : 20) + (e.b === 1 ? (i % 2 ? 30 : -30) : 0);
@@ -6299,7 +6309,7 @@ const Knowledge = (() => {
     }
     for (const p of petals) { g.fillStyle = p.c; g.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); }
     if (!planted()) drawSeedCallout(g, t);
-    else FRUITS.forEach((f, i) => drawNode(g, f, i, t));
+    else { FRUITS.forEach((f, i) => drawNode(g, f, i, t)); drawCard(g, t); }
     for (const c of crumbs) { g.fillStyle = c.c; g.fillRect(Math.round(c.x), Math.round(c.y), 3, 3); }
     g.restore();
     g.save();                                              // the same grade the grove wears
@@ -6336,56 +6346,113 @@ const Knowledge = (() => {
     }
   }
 
+  // On the branch a skill is just its fruit in a little frame. Click one and
+  // its card opens above it; click the ground and the card closes again.
   function drawNode(g, f, i, t) {
     const a = nodeAt(f), st = state(f);
     const B = BRANCH[f.root];
-    const hot = hover === i || sel === i;
     const pulse = 0.5 + 0.5 * Math.sin(t * 3 + i);
-    const X = Math.round(a.x - NW / 2), Y = Math.round(a.y - NH / 2);
     const dim = st === 'locked' || st === 'unripe';
-    if (st === 'ready') {
-      g.fillStyle = `rgba(245,205,92,${(0.12 + pulse * 0.2).toFixed(2)})`;
-      g.fillRect(X - 9, Y - 9, NW + 18, NH + 18);
+    const hot = hover === i;
+    const grown = st === 'eaten';
+    const lift = hot ? 2 : 0;
+    const mx = Math.round(a.x - MED / 2), my = Math.round(a.y - MED / 2) - lift;
+
+    if (st === 'ready') {                                 // a halo you can see from across the tree
+      g.fillStyle = `rgba(245,205,92,${(0.14 + pulse * 0.22).toFixed(2)})`;
+      g.fillRect(mx - 9, my - 9, MED + 18, MED + 18);
     }
-    g.globalAlpha = dim ? 0.82 : 1;
-    frame9(g, X, Y, NW, NH, dim ? '#a89273' : PG2);
-    if (hot) {
-      g.fillStyle = sel === i ? GD3 : GD2;
-      g.fillRect(X - 5, Y - 5, NW + 10, 4); g.fillRect(X - 5, Y + NH + 1, NW + 10, 4);
-      g.fillRect(X - 5, Y - 5, 4, NH + 10); g.fillRect(X + NW + 1, Y - 5, 4, NH + 10);
-      if (sel === i) {                                     // a marker above the one you are reading
-        const bob = Math.round(Math.sin(t * 4) * 2);
-        g.fillStyle = OL; g.fillRect(X + NW / 2 - 8, Y - 21 + bob, 16, 12);
-        g.fillStyle = GD2; g.fillRect(X + NW / 2 - 6, Y - 19 + bob, 12, 8);
-        g.fillStyle = GD4; g.fillRect(X + NW / 2 - 6, Y - 19 + bob, 12, 3);
-        g.fillStyle = OL; g.fillRect(X + NW / 2 - 4, Y - 9 + bob, 8, 4); g.fillRect(X + NW / 2 - 2, Y - 5 + bob, 4, 3);
+    // the stem it hangs from
+    g.fillStyle = '#241a0f'; g.fillRect(Math.round(a.x) - 3, my - 9, 6, 10);
+    g.fillStyle = grown ? '#7d5f42' : '#5a442c'; g.fillRect(Math.round(a.x) - 2, my - 9, 4, 9);
+
+    g.globalAlpha = dim ? 0.78 : 1;
+    // the frame: wood for a fruit still to come, gold once it is grown
+    g.fillStyle = OL; g.fillRect(mx - 4, my - 4, MED + 8, MED + 8);
+    g.fillStyle = grown ? GD1 : WD1; g.fillRect(mx - 2, my - 2, MED + 4, MED + 4);
+    g.fillStyle = grown ? GD3 : WD3; g.fillRect(mx - 2, my - 2, MED + 4, 2);
+    g.fillStyle = grown ? GD0 : WD0; g.fillRect(mx - 2, my + MED, MED + 4, 2);
+    slot(g, mx, my, MED);
+    g.globalAlpha = dim ? 0.4 : 1;
+    Icons.blit(g, f.icon, mx + 6, my + 6, 2.6);
+    g.globalAlpha = dim ? 0.78 : 1;
+    // the branch's colour, as a bar along the foot
+    g.fillStyle = B.col; g.fillRect(mx + 4, my + MED - 5, MED - 8, 3);
+    // one badge in the corner says where it stands
+    const bx = mx + MED - 13, by = my + MED - 13;
+    if (grown) {
+      g.fillStyle = OL; g.fillRect(bx - 3, by - 3, 20, 20);
+      g.fillStyle = '#3f6b1c'; g.fillRect(bx - 1, by - 1, 16, 16);
+      Icons.blit(g, 'check', bx - 1, by - 1, 1);
+    } else if (st === 'locked') {
+      g.fillStyle = OL; g.fillRect(bx - 3, by - 3, 20, 20);
+      g.fillStyle = '#4a3218'; g.fillRect(bx - 1, by - 1, 16, 16);
+      Icons.blit(g, 'lock', bx, by, 0.9);
+    } else if (st === 'unripe') {
+      g.fillStyle = OL; g.fillRect(mx + 2, my + MED - 12, MED - 4, 10);
+      FX.pixelText(g, `${Math.round(f.at * 100)}%`, mx + MED / 2, my + MED - 12, { color: '#c2a176', size: 11, ink: false });
+    } else {
+      g.fillStyle = OL; g.fillRect(mx + 2, my + MED - 12, MED - 4, 10);
+      FX.pixelText(g, String(f.cost), mx + MED / 2, my + MED - 12, { color: st === 'costly' ? '#e0705a' : GD3, size: 11, ink: false });
+    }
+    g.globalAlpha = 1;
+    if (hot && sel !== i) {                               // a name tag while the pointer is over it
+      const w = Math.max(52, f.name.length * 7 + 12);
+      g.fillStyle = 'rgba(20,12,8,0.86)'; g.fillRect(Math.round(a.x - w / 2), my + MED + 6, w, 16);
+      g.fillStyle = B.col; g.fillRect(Math.round(a.x - w / 2), my + MED + 6, w, 2);
+      FX.pixelText(g, f.name.toUpperCase(), a.x, my + MED + 8, { color: '#efdcb4', size: 12, ink: false });
+    }
+  }
+
+  // the card, drawn last so it sits over its neighbours
+  function drawCard(g, t) {
+    if (sel < 0) return;
+    const f = FRUITS[sel], a = nodeAt(f), st = state(f), B = BRANCH[f.root];
+    const k = U.easeOut(openT);
+    const W2 = Math.round(NW * k), H2 = Math.round(NH * k);
+    const X = Math.round(a.x - W2 / 2), Y = Math.round(a.y - MED / 2 - 8 - H2 + NH * (1 - k) * 0.5);
+    if (k < 0.35) return;
+    g.save(); g.globalAlpha = Math.min(1, k * 1.6);
+    frame9(g, X, Y, W2, H2, PG2);
+    // the gold edge that says this is the open one
+    g.fillStyle = GD3;
+    g.fillRect(X - 5, Y - 5, W2 + 10, 3); g.fillRect(X - 5, Y + H2 + 2, W2 + 10, 3);
+    g.fillRect(X - 5, Y - 5, 3, H2 + 10); g.fillRect(X + W2 + 2, Y - 5, 3, H2 + 10);
+    // a foot pointing down at the fruit
+    g.fillStyle = OL; g.fillRect(Math.round(a.x) - 6, Y + H2 + 2, 12, 8);
+    g.fillStyle = WD2; g.fillRect(Math.round(a.x) - 4, Y + H2 + 2, 8, 6);
+    if (k > 0.92) {
+      g.fillStyle = B.col; g.fillRect(X + 8, Y + 8, 5, H2 - 16);
+      g.fillStyle = B.dark; g.fillRect(X + 8, Y + H2 - 11, 5, 3);
+      const tx = X + 21;
+      FX.pixelText(g, f.name.toUpperCase(), tx, Y + 9, { color: INK, size: 15, align: 'left', ink: false });
+      FX.pixelText(g, `${B.name} / RANK ${f.i + 1} OF 4`, tx, Y + 28, { color: '#6b3d12', size: 11, align: 'left', ink: false });
+      // the effect, wrapped to the card
+      g.save(); g.font = '600 11px "Fredoka", sans-serif';
+      const room = W2 - 34, words = f.desc.split(' '), lines = [];
+      let ln = '';
+      for (const w of words) {
+        const test = ln ? ln + ' ' + w : w;
+        if (g.measureText(test).width > room && ln) { lines.push(ln); ln = w; } else ln = test;
+      }
+      if (ln) lines.push(ln);
+      g.restore();
+      lines.slice(0, 2).forEach((l, li) => FX.pixelText(g, l, tx, Y + 44 + li * 14, { color: INK2, size: 11, align: 'left', ink: false }));
+      // the foot of the card: what it costs, or why you cannot have it
+      const ok = st === 'ready';
+      const label = st === 'eaten' ? 'GROWN' : st === 'locked' ? 'GROW THE RANK BELOW FIRST'
+        : st === 'unripe' ? `RIPENS AT ${Math.round(f.at * 100)}% FOREST` : st === 'costly' ? 'NOT ENOUGH COIN' : 'CLICK AGAIN TO GROW IT';
+      const col = st === 'eaten' ? '#3f6b1c' : ok ? '#8a5410' : '#9a2a1a';
+      g.fillStyle = 'rgba(125,92,58,0.3)'; g.fillRect(X + 16, Y + 74, W2 - 32, 1);
+      if (st === 'ready' || st === 'costly') {
+        Icons.blit(g, 'wdollar', tx - 2, Y + 78, 1.1);
+        FX.pixelText(g, String(f.cost), tx + 20, Y + 80, { color: ok ? '#8a5410' : '#9a2a1a', size: 13, align: 'left', ink: false });
+        FX.pixelText(g, label, X + W2 - 14, Y + 81, { color: col, size: 11, align: 'right', ink: false });
+      } else {
+        FX.pixelText(g, label, tx, Y + 80, { color: col, size: 11, align: 'left', ink: false });
       }
     }
-    // a coloured tab down the left, so you can tell the branches apart
-    g.fillStyle = B.col; g.fillRect(X + 6, Y + 6, 5, NH - 12);
-    g.fillStyle = B.dark; g.fillRect(X + 6, Y + NH - 9, 5, 3);
-    // the icon in its inventory slot
-    const S = 50, ix = X + 17, iy = Y + (NH - S) / 2;
-    slot(g, ix, iy, S);
-    g.globalAlpha = dim ? 0.45 : 1;
-    Icons.blit(g, f.icon, ix + 5, iy + 5, 2.5);
-    g.globalAlpha = dim ? 0.82 : 1;
-    const tx = ix + S + 13;
-    FX.pixelText(g, f.name.toUpperCase(), tx, Y + 13, { color: INK, size: 12, align: 'left', ink: false });
-    if (st === 'eaten') {
-      FX.pixelText(g, 'GROWN', tx, Y + 31, { color: '#3f6b1c', size: 12, align: 'left', ink: false });
-      Icons.blit(g, 'check', X + NW - 27, Y + NH - 28, 1.2);
-    } else if (st === 'locked') {
-      Icons.blit(g, 'lock', tx - 1, Y + 28, 1);
-      FX.pixelText(g, 'LOCKED', tx + 20, Y + 31, { color: INK2, size: 12, align: 'left', ink: false });
-    } else if (st === 'unripe') {
-      FX.pixelText(g, `FOREST ${Math.round(f.at * 100)}%`, tx, Y + 31, { color: '#8a5410', size: 12, align: 'left', ink: false });
-    } else {
-      Icons.blit(g, 'wdollar', tx - 2, Y + 26, 1.2);
-      FX.pixelText(g, String(f.cost), tx + 21, Y + 31, { color: st === 'costly' ? '#9a2a1a' : '#8a5410', size: 13, align: 'left', ink: false });
-    }
-    FX.pixelText(g, `${B.name}  ${f.i + 1}/4`, tx, Y + 52, { color: INK2, size: 10, align: 'left', ink: false });
-    g.globalAlpha = 1;
+    g.restore();
   }
 
   // ---- the header: what this place is, and how far along you are ----------
@@ -6484,6 +6551,8 @@ const Knowledge = (() => {
   return {
     init(g) { G = g; }, enter, update, render, click, hover: hoverAt, scroll, state, ripeCount, buy, plant, planted,
     pan, zoomBy, lookAt,
+    get selected() { return sel; },
+    screenOf(f) { const a = nodeAt(f); return { x: (a.x - cam.x) * cam.z + VW / 2, y: (a.y - cam.y) * cam.z + CY }; },
     get busy() { return grow.t > 0; },
   };
 })();

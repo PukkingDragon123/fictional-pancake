@@ -265,9 +265,9 @@ const Sprites = (() => {
     let sit = 0, lie = 0, hurt = 0, staff = 0, spark = 0, stride = 0, clasp = 1;
     switch (pose) {
       case 'idle': bob = [0, 0, 1, 1, 0, 0][f]; armL = S * 0.5; armR = -S * 0.5; break;
-      case 'walk': lean = 1.2; stride = S; flare = Math.abs(S) * 2; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.2;
-        armL = -S * 3; armR = S * 3; clasp = 0; break;
-      case 'run': lean = 4.5; stride = S * 1.7; flare = 3 + Math.abs(S) * 2.5; hemUp = 5;
+      case 'walk': stride = S; flare = Math.abs(S) * 2.4; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.5;
+        armL = -S * 3.2; armR = S * 3.2; clasp = 0; break;
+      case 'run': lean = 1.6; stride = S * 1.7; flare = 3 + Math.abs(S) * 2.5; hemUp = 5;
         bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.4; armL = -S * 5 - 2; armR = S * 5 - 2; clasp = 0; break;
       case 'turn': view = ['front', 'quarter', 'back', 'back', 'quarter', 'front'][f]; break;
       case 'jump': bob = [1, -9, -15, -9, 1][f]; hemUp = [0, 4, 7, 4, 0][f]; flare = [0, 2, 3, 2, 0][f];
