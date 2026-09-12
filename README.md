@@ -24,7 +24,13 @@ stitched loops over slate pockets, the flyout is a canvas pouch, and every panel
 in a spiral notebook. Every surface follows the same rule the good pixel-art farms use:
 one thick black line around it, a light bevel on the upper left, a dark one on the lower
 right, and a warm fill. Nothing is rounded. Buttons squash when pressed, the money tag
-bumps when coins land, ticks pop onto the list. The tools are:
+bumps when coins land, ticks pop onto the list.
+
+There is no tool bar. Right-click anywhere (or press Tab) and the tools ring the cursor
+on wooden spokes - pick one and the wheel is gone, the tool riding beside your pointer.
+Food and seed open a second ring of what you have. A badge in the corner shows what is in
+hand and opens the wheel for touch. The tools themselves are drawn the way the farm games
+draw them: wooden handle, steel head, held on the diagonal, black line around. They are:
 
 - **Hand** drags poop cubes to the truck, pets wombats, harvests, and opens the store,
   the signpost map and the Tree of Life seed.
@@ -55,11 +61,13 @@ swing wider, and the sickle hits harder.
 
 ## The cultist
 
-A hooded figure in a charcoal robe - gold hem, gold cuffs, a gold cross on the chest, and
-nothing but black inside the hood - follows you around the grove, walks or runs to whatever
-needs doing, raises a staff and casts when you finish a step, and sits down if you dawdle.
-Nine animations (idle, walk, run, turn, jump, cast, hurt, sit, sleep), all on
-`sheets/cultist.png`. She keeps a pocket notebook, and Her notebook sits in the corner of the
+A hooded figure in a charcoal robe - gold hem, gold cuffs, a gold cross on the chest, two
+bright eyes burning in the dark of the hood - follows you around the grove and walks or
+runs to whatever needs doing. She gives orders in a paper speech bubble, typed out a letter
+at a time; click her and she repeats herself. Finish an order and she jumps for joy in a
+burst of confetti and hearts, praises you, and throws a handful of coins that arc into your
+purse. Nine animations (idle, walk, run, turn, jump, cast, hurt, sit, sleep), all on
+`sheets/cultist.png`. Twelve orders, from the first weed to the first god. Her notebook sits in the corner of the
 screen: the step you are on, a sketch of the tool, a line of advice, and the steps behind
 it struck through and ticked in red. Twelve of them, from cutting the first weed to
 calling the first god. Fold it shut with the minus if you would rather work it out.
@@ -81,8 +89,8 @@ the aisles, click a product into the basket, and pay at the counter.
 
 ## Wombats
 
-Drawn to a sprite sheet: a fat rounded loaf of a body, the head a rounded bump on the
-front carrying a big dark nose block and two dot eyes, small round ears, four stubby legs
+Drawn to a sprite sheet: a brick of a loaf with the corners knocked off, the head a squared
+bump on the front carrying a big dark nose block and two dot eyes, small round ears, four stubby legs
 ending in dark paws, a darker dithered saddle along the back, salmon-brown fur, and one
 black line around the lot. Fifteen animations - idle, walk, run, turn (side to back to
 side), jump, hurt, sit, lie down, sleep, eat, graze, dig, happy, pray, bite - every frame

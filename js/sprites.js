@@ -183,17 +183,21 @@ const Sprites = (() => {
         }
       }
     }
-    // body: a loaf with a fatter rump
-    E(20, by, bw, bh, fur.base);
-    R(9, by - bh + 2, 22 * (1 + sq * 0.4), bh * 2 - 4, fur.base);
-    E(9.5, by + 0.8 - p.rear * 0.4, 5.5, bh * 0.85, fur.base);
-    E(20, by + bh * 0.55, bw * 0.75, bh * 0.4, fur.light);         // belly
+    // body: a brick of a loaf with the corners knocked off, not a ball
+    const slab = (x, y, w, h, col) => { R(x + 2, y, w - 4, h, col); R(x + 1, y + 1, w - 2, h - 2, col); R(x, y + 2, w, h - 4, col); };
+    const bx0 = 20 - bw, bw2 = bw * 2, by0 = by - bh, bh2 = bh * 2;
+    slab(bx0, by0 - p.rear * 0.5, bw2, bh2, fur.base);
+    slab(bx0 - 1, by0 + 1, 8, bh2 - 1, fur.base);                   // the rump
+    R(bx0 + 3, by0 + bh2 - 4, bw2 - 6, 3, fur.light);              // belly band
+    R(bx0 + 2, by0, bw2 - 4, 1.2, fur.light);                      // sun along the back
     saddle(18, by - bh * 0.35, 10, bh * 0.55);
-    R(7, by - 1, 1.6, 3, fur.mid);                                // the tail nub
-    // head: a rounded bump on the front, rising above the back
+    R(bx0 - 2, by - 1, 1.6, 3, fur.mid);                          // the tail nub
+    // head: a squared bump on the front, rising above the back
     const hx = 30 + p.headFwd, hy = 13 + bob + p.headDip + p.front * 0.6;
-    E(hx, hy, 8.5 * HK, 7.5 * HK, fur.base);
-    E(hx + 1.5, hy + 2.5, 5.5 * HK, 4.2 * HK, fur.light);         // cheek
+    const hw = 8.5 * HK, hh = 7.5 * HK;
+    slab(hx - hw, hy - hh, hw * 2, hh * 2, fur.base);
+    R(hx - hw + 2, hy - hh, hw * 2 - 4, 1.2, fur.light);
+    R(hx - 2.5, hy + 0.5, 6.5 * HK, 4.5 * HK, fur.light);          // cheek
     Art.speckle(g, X(hx - 2), Y(hy - 3), 5 * K, 2.5 * K, fur.mid, 6, 3);
     ears(hx - 5, hx + 3, hy - 7.2 * HK, p.ear);
     eye(hx - 1.5, hy - 2.2, p.blink);
@@ -262,6 +266,7 @@ const Sprites = (() => {
       Art.ell(g, 22, 47, 15, 5, R1); Art.ell(g, 22, 46, 13, 4, R2); Art.ell(g, 20, 44.5, 8, 2.5, R3);
       for (let i = 0; i < 6; i++) Art.rect(g, 10 + i * 4.4, 50, 2.6, 2, GOLD);
       Art.ell(g, 9, 44, 7, 6, R2); Art.ell(g, 9, 43, 6, 5, R1); Art.ell(g, 8, 45, 3.6, 3.4, VOID);
+      Art.rect(g, 6, 45, 1.6, 0.8, GOLD2); Art.rect(g, 9, 45, 1.6, 0.8, GOLD2);
       Art.ell(g, 9, 39, 3, 2, R3);
       const zx = 20 + f * 2, zy = 30 - f * 4;
       Art.rect(g, zx, zy, 4, 1, GOLD2); Art.rect(g, zx + 2, zy + 1, 1, 1, GOLD2); Art.rect(g, zx + 1, zy + 2, 1, 1, GOLD2); Art.rect(g, zx, zy + 3, 4, 1, GOLD2);
@@ -306,7 +311,14 @@ const Sprites = (() => {
       Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);                   // the void
       Art.ellBand(g, vx, hy + 13, 6.4, 7.4, GOLD, 0, 1);         // gold edge of the opening
       Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);
-      if (hurt > 0) { Art.rect(g, vx - 3, hy + 11, 2, 1, GOLD2); Art.rect(g, vx + 1, hy + 11, 2, 1, GOLD2); }
+      // two bright eyes burning in the dark
+      const ey = hy + 12 + (hurt > 0 ? -1 : 0);
+      if (pose === 'hurt') { Art.rect(g, vx - 3.4, ey, 2.4, 1.2, GOLD2); Art.rect(g, vx + 1, ey, 2.4, 1.2, GOLD2); }
+      else {
+        Art.rect(g, vx - 3.6, ey - 0.6, 2.6, 2.6, 'rgba(255,230,140,0.35)'); Art.rect(g, vx + 1, ey - 0.6, 2.6, 2.6, 'rgba(255,230,140,0.35)');
+        Art.rect(g, vx - 3, ey, 1.6, 1.6, '#fff4c0'); Art.rect(g, vx + 1.6, ey, 1.6, 1.6, '#fff4c0');
+        if (f === 4 && pose === 'idle') { Art.rect(g, vx - 3, ey + 0.4, 1.6, 0.8, '#fff4c0'); Art.rect(g, vx + 1.6, ey + 0.4, 1.6, 0.8, '#fff4c0'); Art.rect(g, vx - 3, ey, 4.2, 0.4, VOID); }
+      }
     }
     // casting: a staff crowned with a cross, and sparks
     if (staff > 0) {

@@ -204,6 +204,7 @@ const Grove = (() => {
     for (let i = coins.length - 1; i >= 0; i--) {
       const c = coins[i];
       c.t += dt;
+      if (c.t < 0) continue;
       if (c.t < 0.7) {                              // pop out and bounce once
         c.vy += 420 * dt; c.x += c.vx * dt; c.z += c.vy * dt;
         if (c.z > 0) { c.z = 0; c.vy = -c.vy * 0.4; c.vx *= 0.6; }
@@ -396,6 +397,11 @@ const Grove = (() => {
     FX.burst(TRUCK.x - 20, TRUCK.y - 26, 8, { color: [OFFERINGS[d.type].color, PAL.cream], speed: 70, gravity: 120, life: 0.4, size: 2 });
     FX.float(TRUCK.x - 20, TRUCK.y - 40, '+1', { color: PAL.gold4, size: 8 });
     UI.refreshHUD();
+  }
+  // A handful of coins tossed from wherever the cultist is standing.
+  function reward(x, y, n) {
+    for (let i = 0; i < n; i++) coins.push({ x: x + U.rand(-6, 6), y, vx: U.rand(-60, 60), vy: U.rand(-190, -110), z: 0, t: -i * 0.04, n: 1 });
+    Audio.play('cash');
   }
   function callTruck() {
     if (TRUCK.parked) { TRUCK.parked = false; TRUCK.t = 0.01; Audio.play('whoosh'); return; }
@@ -733,7 +739,10 @@ const Grove = (() => {
     for (const w of G.wombats) pips(g, w);
     if (G.pointer.on && !arrival) {
       const t = TOOL_BY_KEY[G.tool];
-      if (t && t.radius > 0) World.drawCursor(g, G.pointer.x, G.pointer.y, World.brushRadius(t.radius), toolTint(G.tool));
+      const tier = TIERS[G.tool] ? tierOf(G, G.tool) : null;
+      if (t && t.radius > 0) World.drawCursor(g, G.pointer.x, G.pointer.y, World.brushRadius(tier ? tier.radius : t.radius), toolTint(G.tool));
+      // the tool in hand rides beside the cursor
+      if (t) Icons.blit(g, t.icon, G.pointer.x + 10, G.pointer.y + 8, 1.25);
     }
     g.restore();
 
@@ -944,7 +953,7 @@ const Grove = (() => {
 
   return {
     init, update, render, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
-    capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects,
+    capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, GROUND, WALK, W, H, VW,
   };

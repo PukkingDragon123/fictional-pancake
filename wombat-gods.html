@@ -45,7 +45,7 @@ img.ico.xl { width: 40px; height: 40px; }
   --inkpen: #3c2a18; --pen: #4a3a6a; --rust: #a9502c;
 }
 
-.bev, #money, .rbtn, .mbtn, #dock, #flyout, .tool, .chip, .act, .wbtn, .buy, .x, .panel, #tip, .toast, #checklist, #notebook, .nbtab, .card, .readout .line, .goals div, .gcard, #rite-tray {
+.bev, #money, .rbtn, .mbtn, .spoke, .hub, .act, .wbtn, .buy, .x, .panel, #tip, .toast, #checklist, .card, .readout .line, .goals div, .gcard, #rite-tray {
   border: 3px solid var(--ol) !important;
   box-shadow: inset 2px 2px 0 rgba(255,236,190,0.55), inset -2px -2px 0 rgba(60,30,10,0.45), 3px 3px 0 rgba(0,0,0,0.55) !important;
 }
@@ -67,7 +67,7 @@ img.ico.xl { width: 40px; height: 40px; }
 #money::before {
   content: ''; position: absolute; inset: 3px; border: 1px dashed var(--stitch); opacity: 0.55;
 }
-#money, .rbtn, .mbtn, #dock, #flyout, .tool, .chip, .act, .wbtn, .buy, .x {
+#money, .rbtn, .mbtn, .spoke, .hub, .act, .wbtn, .buy, .x {
   clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
 }
 #money b { font-weight: normal; color: #ffe9a8; font-size: 12px; text-shadow: 0 2px 0 rgba(0,0,0,0.45); }
@@ -110,43 +110,7 @@ img.ico.xl { width: 40px; height: 40px; }
 .task img.ico { filter: saturate(0.75) contrast(1.05); }
 
 /* the cultist's notebook */
-#notebook {
-  position: absolute; left: 12px; bottom: 54px; z-index: 7; width: 194px;
-  padding: 10px 11px 13px 20px; color: var(--inkpen); overflow: hidden;
-  pointer-events: none;                     /* the paper never eats a click meant for the grove */
-  background:
-    repeating-linear-gradient(180deg, rgba(120,140,180,0.2) 0 1px, rgba(0,0,0,0) 1px 13px),
-    linear-gradient(170deg, #f6ecd4, #e7d8b4);
-  border: 1px solid #bda98a; border-left: 3px solid #9c8158;
-  box-shadow: 3px 4px 0 rgba(0,0,0,0.45); transform: rotate(-0.8deg);
-}
-#notebook::after { content: ''; position: absolute; left: 13px; top: 0; bottom: 0; width: 1px; background: rgba(170,80,60,0.5); }
-#notebook .rings { position: absolute; left: 2px; top: 8px; bottom: 8px; width: 8px;
-  background: repeating-linear-gradient(180deg, #9aa0aa 0 3px, transparent 3px 13px); }
-#notebook button { pointer-events: auto; }
-#notebook .nbshut { position: absolute; right: 4px; top: 2px; background: none; border: none; color: #8a7550; font-size: 12px; padding: 0 4px; }
-#notebook .nbhead { display: flex; align-items: center; gap: 5px; font-size: 7px; color: #8a7550; margin-bottom: 5px; }
-#notebook .nbdone { display: flex; align-items: center; gap: 5px; font-size: 7px; opacity: 0.5; padding: 2px 0; line-height: 1.4; text-decoration: line-through; }
-#notebook .nbnow { position: relative; margin-top: 6px; padding-left: 14px; padding-top: 2px; display: grid; grid-template-columns: 1fr 34px; gap: 2px 6px; align-items: start; overflow: hidden; }
-#notebook .nbnow .box, #notebook .nbdone .box { position: relative; width: 8px; height: 8px; border: 1px solid var(--inkpen); flex: none; }
-#notebook .nbnow .box { position: absolute; left: 0; top: 3px; }
-#notebook .nbdone .box i, #notebook .nbnow .box i { position: absolute; left: 0; top: -4px; width: 10px; height: 10px;
-  background: linear-gradient(45deg, transparent 44%, var(--rust) 44% 62%, transparent 62%),
-              linear-gradient(-45deg, transparent 44%, var(--rust) 44% 62%, transparent 62%); }
-#notebook .nbnow .pic { grid-column: 2; grid-row: 1 / 3; padding: 3px; background: rgba(255,255,255,0.45); border: 1px dashed #b09a70; }
-#notebook .nbnow .pic img { width: 22px; height: 22px; }
-#notebook h5 { grid-column: 1; }
-#notebook p { grid-column: 1 / 3; }
-#notebook h5 { margin: 0; font-size: 8px; line-height: 1.5; letter-spacing: 0.3px; }
-#notebook p { margin: 2px 0 0; font-size: 7px; line-height: 1.85; color: #5c4a30; }
-#notebook .nbnow.flash { animation: nbflash 0.9s ease-out; }
-#notebook:not(.shut) { animation: settle 0.3s ease-out; }
 @keyframes nbflash { from { background: rgba(233,190,90,0.6); } to { background: transparent; } }
-#notebook.shut { width: auto; padding: 0; background: none; border: none; box-shadow: none; }
-#notebook.shut::after, #notebook.shut .rings { display: none; }
-.nbtab { display: flex; align-items: center; gap: 4px; padding: 6px 9px; color: var(--inkpen); font-size: 7px;
-  background: linear-gradient(170deg, #f6ecd4, #e0d0ac); border: 1px solid #bda98a; border-left: 3px solid #9c8158;
-  box-shadow: 2px 3px 0 rgba(0,0,0,0.4); }
 
 /* side buttons: little wooden signs */
 #side { position: absolute; right: 14px; bottom: 86px; z-index: 6; display: flex; flex-direction: column; gap: 6px; }
@@ -170,73 +134,9 @@ img.ico.xl { width: 40px; height: 40px; }
 }
 .mbtn:hover { opacity: 1; filter: brightness(1.15); }
 
-/* the tool belt */
-#dock {
-  position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 6;
-  display: flex; gap: 7px; padding: 9px 14px 11px;
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.07) 0 3px, rgba(0,0,0,0) 3px 11px),
-    linear-gradient(180deg, var(--wood) 0%, var(--wood2) 100%);
-}
-#dock::before, #dock::after {
-  content: ''; position: absolute; top: 6px; bottom: 6px; width: 0;
-  border-left: 2px dashed var(--stitch); opacity: 0.5;
-}
-#dock::before { left: 6px; } #dock::after { right: 6px; }
-.tool {
-  position: relative; width: 44px; height: 46px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #8a5f2e, #5c3d18);
-  transition: transform 0.08s;
-}
-.tool:active { transform: scale(0.9) translateY(2px); }
-.tool::before {                      /* a slate plate so the tool reads against the leather */
-  content: ''; position: absolute; left: 4px; right: 4px; top: 4px; bottom: 9px;
-  background: linear-gradient(180deg, #4a4356, #2b2634);
-  box-shadow: inset 0 1px 0 rgba(190,180,210,0.3), inset 0 -2px 0 rgba(0,0,0,0.4);
-}
-.tool::after {                       /* the leather loop across the foot of the pocket */
-  content: ''; position: absolute; left: -3px; right: -3px; bottom: 2px; height: 6px;
-  background: linear-gradient(180deg, #8a6134, var(--leatherD));
-  border-top: 1px solid rgba(255,222,170,0.3); border-bottom: 1px solid rgba(0,0,0,0.55);
-}
-.tool:hover { transform: translateY(-4px); }
-.tool.on { background: linear-gradient(180deg, #f0c24a, #b8811c); transform: translateY(-5px); animation: boing 0.4s ease-out; }
-.tool.on::before { background: linear-gradient(180deg, #6a5f7e, #3a3348); box-shadow: inset 0 1px 0 rgba(230,220,255,0.4); }
-.tool.locked { opacity: 0.35; cursor: not-allowed; }
-.tool img.ico { width: 28px; height: 28px; position: relative; z-index: 1; margin-bottom: 5px; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.55)) brightness(1.12); }
-.tool .k { position: absolute; left: 3px; top: 2px; font-size: 7px; color: rgba(240,220,180,0.4); z-index: 2; }
-.tool.on .k { color: rgba(30,20,10,0.55); }
-.tool .lk, .chip .lk { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-58%); z-index: 3; padding: 2px;
-  background: rgba(12,9,16,0.72); filter: drop-shadow(0 1px 0 #000); }
-.tool .lk img, .chip .lk img { width: 16px; height: 16px; }
-.tool.locked { filter: grayscale(0.9) brightness(0.62); }
-.tool.locked::before { background: linear-gradient(180deg, #33303a, #211e28); }
-.tool .more { position: absolute; right: 3px; top: 3px; width: 0; height: 0; border: 3px solid transparent; border-top-color: var(--stitch); z-index: 2; }
+/* the tool belt */ #dock::after { right: 6px; }
 
 /* the flyout: a canvas pouch flipped open above the belt */
-#flyout {
-  position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); z-index: 6;
-  display: flex; gap: 5px; padding: 8px 10px 9px; max-width: 92%; flex-wrap: wrap; justify-content: center;
-  background: linear-gradient(180deg, #a88a5c 0%, #8a6e45 100%);
-  border: 2px solid #4a3a22;
-  box-shadow: inset 0 2px 0 rgba(255,240,200,0.2), 0 4px 0 rgba(0,0,0,0.4);
-}
-#flyout::before {
-  content: ''; position: absolute; left: 8px; right: 8px; top: 3px; height: 0; border-top: 2px dashed rgba(240,220,170,0.5);
-}
-.chip {
-  position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #3a2a1c, #241a10); border: 2px solid #1a1109;
-}
-.chip:hover { filter: brightness(1.3); }
-.chip.on { background: linear-gradient(180deg, #7fa84a, #4a6f28); animation: boing 0.35s ease-out; transform: translateY(-5px); }
-.chip:active { transform: scale(0.9); }
-.chip.out { opacity: 0.35; }
-.chip img.ico { width: 22px; height: 22px; filter: brightness(1.1); }
-.chip .n { position: absolute; right: -1px; bottom: -2px; font-size: 7px; padding: 0 2px; color: #f6ecd4;
-  background: #241a10; border: 1px solid #0f0a06; font-variant-numeric: tabular-nums; }
-.chip .n em { color: #d8a52f; font-style: normal; }
-.chip .k { position: absolute; left: 1px; top: 0; font-size: 6px; color: rgba(240,220,180,0.45); }
 .strip { display: flex; gap: 4px; flex-wrap: wrap; }
 .strip .empty { font-size: 8px; color: var(--st4); }
 
@@ -393,6 +293,52 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
   .chip { width: 30px; height: 30px; } .chip img.ico { width: 18px; height: 18px; }
   #checklist { width: 108px; }
 }
+
+/* ---- the tool wheel ------------------------------------------------------- */
+#wheel { position: absolute; z-index: 9; width: 0; height: 0; }
+.spoke {
+  position: absolute; width: 50px; height: 50px; margin: -25px 0 0 -25px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #8a5f2e, #5c3d18);
+  animation: spoke-in 0.18s ease-out both;
+}
+@keyframes spoke-in { from { transform: scale(0.2); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } to { transform: scale(1); } }
+.spoke:hover { transform: scale(1.12); filter: brightness(1.15); }
+.spoke:active { transform: scale(0.92); }
+.spoke.on { background: linear-gradient(180deg, #f0c24a, #b8811c); }
+.spoke.locked { filter: grayscale(0.9) brightness(0.6); }
+.spoke.out { opacity: 0.45; }
+.spoke img.ico { width: 34px; height: 34px; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.55)); }
+.spoke .n { position: absolute; right: 1px; bottom: 1px; font-size: 8px; padding: 1px 3px; color: #f6ecd4; background: #241a10; border: 1px solid #0a0810; }
+.spoke .lk { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-55%); padding: 2px; background: rgba(12,9,16,0.75); }
+.spoke .lk img { width: 18px; height: 18px; }
+.hub {
+  position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 40% 35%, #f0cf86, #a86f2c 70%);
+}
+.hub img.ico { width: 30px; height: 30px; }
+
+/* ---- bigger, simpler ------------------------------------------------------ */
+#money { padding: 9px 16px 10px 12px; gap: 9px; }
+#money b { font-size: 16px; }
+#money img.ico { width: 26px; height: 26px; }
+#checklist { width: 176px; padding: 14px 12px 16px; }
+#checklist h4 { font-size: 11px; }
+.task { font-size: 9px; gap: 7px; padding: 4px 0; }
+.task .box { width: 12px; height: 12px; }
+.task .box i { width: 14px; height: 14px; top: -5px; }
+.task img.ico { width: 22px; height: 22px; }
+.task b { min-width: 44px; font-size: 10px; }
+.task b small { font-size: 7px; color: #8a7550; }
+.task .bar { height: 6px; }
+#side { bottom: 14px; right: 14px; gap: 8px; }
+.rbtn { padding: 9px 11px; }
+.rbtn img.ico { width: 28px; height: 28px; }
+.rbtn.big img.ico { width: 34px; height: 34px; }
+#mini { gap: 7px; }
+.mbtn { padding: 8px 9px; }
+.mbtn img.ico { width: 20px; height: 20px; }
 </style>
 
 <div id="app">
@@ -406,12 +352,10 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
 
     <div id="side">
       <button class="rbtn" id="b-truck" hidden><img class="ico" data-ico="truck" alt=""></button>
+      <button class="rbtn big" id="b-tool" hidden><img class="ico" data-ico="t_sickle" alt=""></button>
     </div>
 
-    <div id="flyout" hidden></div>
-    <div id="dock"></div>
-
-    <div id="notebook" hidden></div>
+    <div id="wheel" hidden></div>
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
@@ -1109,17 +1053,21 @@ const Sprites = (() => {
         }
       }
     }
-    // body: a loaf with a fatter rump
-    E(20, by, bw, bh, fur.base);
-    R(9, by - bh + 2, 22 * (1 + sq * 0.4), bh * 2 - 4, fur.base);
-    E(9.5, by + 0.8 - p.rear * 0.4, 5.5, bh * 0.85, fur.base);
-    E(20, by + bh * 0.55, bw * 0.75, bh * 0.4, fur.light);         // belly
+    // body: a brick of a loaf with the corners knocked off, not a ball
+    const slab = (x, y, w, h, col) => { R(x + 2, y, w - 4, h, col); R(x + 1, y + 1, w - 2, h - 2, col); R(x, y + 2, w, h - 4, col); };
+    const bx0 = 20 - bw, bw2 = bw * 2, by0 = by - bh, bh2 = bh * 2;
+    slab(bx0, by0 - p.rear * 0.5, bw2, bh2, fur.base);
+    slab(bx0 - 1, by0 + 1, 8, bh2 - 1, fur.base);                   // the rump
+    R(bx0 + 3, by0 + bh2 - 4, bw2 - 6, 3, fur.light);              // belly band
+    R(bx0 + 2, by0, bw2 - 4, 1.2, fur.light);                      // sun along the back
     saddle(18, by - bh * 0.35, 10, bh * 0.55);
-    R(7, by - 1, 1.6, 3, fur.mid);                                // the tail nub
-    // head: a rounded bump on the front, rising above the back
+    R(bx0 - 2, by - 1, 1.6, 3, fur.mid);                          // the tail nub
+    // head: a squared bump on the front, rising above the back
     const hx = 30 + p.headFwd, hy = 13 + bob + p.headDip + p.front * 0.6;
-    E(hx, hy, 8.5 * HK, 7.5 * HK, fur.base);
-    E(hx + 1.5, hy + 2.5, 5.5 * HK, 4.2 * HK, fur.light);         // cheek
+    const hw = 8.5 * HK, hh = 7.5 * HK;
+    slab(hx - hw, hy - hh, hw * 2, hh * 2, fur.base);
+    R(hx - hw + 2, hy - hh, hw * 2 - 4, 1.2, fur.light);
+    R(hx - 2.5, hy + 0.5, 6.5 * HK, 4.5 * HK, fur.light);          // cheek
     Art.speckle(g, X(hx - 2), Y(hy - 3), 5 * K, 2.5 * K, fur.mid, 6, 3);
     ears(hx - 5, hx + 3, hy - 7.2 * HK, p.ear);
     eye(hx - 1.5, hy - 2.2, p.blink);
@@ -1188,6 +1136,7 @@ const Sprites = (() => {
       Art.ell(g, 22, 47, 15, 5, R1); Art.ell(g, 22, 46, 13, 4, R2); Art.ell(g, 20, 44.5, 8, 2.5, R3);
       for (let i = 0; i < 6; i++) Art.rect(g, 10 + i * 4.4, 50, 2.6, 2, GOLD);
       Art.ell(g, 9, 44, 7, 6, R2); Art.ell(g, 9, 43, 6, 5, R1); Art.ell(g, 8, 45, 3.6, 3.4, VOID);
+      Art.rect(g, 6, 45, 1.6, 0.8, GOLD2); Art.rect(g, 9, 45, 1.6, 0.8, GOLD2);
       Art.ell(g, 9, 39, 3, 2, R3);
       const zx = 20 + f * 2, zy = 30 - f * 4;
       Art.rect(g, zx, zy, 4, 1, GOLD2); Art.rect(g, zx + 2, zy + 1, 1, 1, GOLD2); Art.rect(g, zx + 1, zy + 2, 1, 1, GOLD2); Art.rect(g, zx, zy + 3, 4, 1, GOLD2);
@@ -1232,7 +1181,14 @@ const Sprites = (() => {
       Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);                   // the void
       Art.ellBand(g, vx, hy + 13, 6.4, 7.4, GOLD, 0, 1);         // gold edge of the opening
       Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);
-      if (hurt > 0) { Art.rect(g, vx - 3, hy + 11, 2, 1, GOLD2); Art.rect(g, vx + 1, hy + 11, 2, 1, GOLD2); }
+      // two bright eyes burning in the dark
+      const ey = hy + 12 + (hurt > 0 ? -1 : 0);
+      if (pose === 'hurt') { Art.rect(g, vx - 3.4, ey, 2.4, 1.2, GOLD2); Art.rect(g, vx + 1, ey, 2.4, 1.2, GOLD2); }
+      else {
+        Art.rect(g, vx - 3.6, ey - 0.6, 2.6, 2.6, 'rgba(255,230,140,0.35)'); Art.rect(g, vx + 1, ey - 0.6, 2.6, 2.6, 'rgba(255,230,140,0.35)');
+        Art.rect(g, vx - 3, ey, 1.6, 1.6, '#fff4c0'); Art.rect(g, vx + 1.6, ey, 1.6, 1.6, '#fff4c0');
+        if (f === 4 && pose === 'idle') { Art.rect(g, vx - 3, ey + 0.4, 1.6, 0.8, '#fff4c0'); Art.rect(g, vx + 1.6, ey + 0.4, 1.6, 0.8, '#fff4c0'); Art.rect(g, vx - 3, ey, 4.2, 0.4, VOID); }
+      }
     }
     // casting: a staff crowned with a cross, and sparks
     if (staff > 0) {
@@ -2259,25 +2215,18 @@ const Icons = (() => {
     grove: (d) => { d.R(7, 9, 2, 6, K1); d.E(8, 6, 6, 5, M1); d.E(7, 5, 4, 3.4, M2); d.E(6, 4, 2, 2, M4); d.R(2, 13, 12, 2, M2); },
     tree: (d) => { d.R(7, 2, 2, 5, K1); d.L(8, 7, 3, 14, K2, 2); d.L(8, 7, 13, 14, K2, 2); d.L(8, 7, 8, 15, K2, 2); d.E(4, 12, 2, 2, D3); d.E(12, 12, 2, 2, G3); d.E(8, 14, 2, 2, R2); },
     shrine: (d) => { d.R(1, 12, 14, 3, S1); d.R(3, 9, 10, 3, S2); d.R(4, 6, 8, 3, S3); d.R(1, 3, 3, 9, S2); d.R(12, 3, 3, 9, S2); d.E(2.5, 2, 2, 2, G3); d.E(13.5, 2, 2, 2, G3); d.R(6, 3, 4, 2, D3); },
-    // --- tools ---
-    t_drag: (d) => { cube(d, E2, 2, 2, 7, 7); d.E(9, 11, 4.2, 3.6, K3); d.E(6.2, 7.4, 1.7, 2.2, K3); d.E(8.6, 6.4, 1.7, 2.4, K3); d.E(11, 6.8, 1.7, 2.3, K3); d.E(13, 9, 1.6, 2, K3); d.E(9, 11, 2.2, 1.6, PAL.bark1); d.R(3, 3, 2, 1, M3); },
-    t_food: (d) => { d.E(8, 11, 6.5, 3.6, K2); d.E(8, 10, 6, 3, K3); d.E(8, 9.4, 5.2, 2.4, PAL.bark1); d.E(5.6, 8, 2.4, 2, M2); d.E(8.4, 7.2, 2.6, 2.2, M3); d.E(11, 8.2, 2.2, 1.8, M4); d.E(8.4, 6.6, 1, 0.9, G3); d.R(1, 13, 14, 2, K1); },
-    t_farm: (d) => { d.L(2, 14, 9, 5, K2, 2); d.R(8, 2, 6, 3, S3); d.R(11, 2, 3, 5, S3); d.R(8, 2, 6, 1, S4); d.R(1, 12, 14, 4, E2); d.R(1, 12, 14, 1, E3); d.R(4, 9, 1, 3, M2); d.E(4.5, 8, 1.8, 1.2, M3); },
-    t_destroy: (d) => { d.R(4, 7, 9, 6, K2); d.R(4, 7, 9, 1, K3); d.R(8, 7, 1, 6, K1); d.E(2.4, 12, 2, 1.6, PAL.bark0); d.E(4.6, 13, 1.4, 1.2, I); d.R(1, 11, 1, 1, I); d.L(1, 13, 3, 11, I, 1); d.R(1, 14, 14, 1, E3); },
-    map: (d) => { d.R(1, 3, 14, 11, PAL.parch1); d.R(1, 3, 14, 1, PAL.parch0); d.R(5, 3, 1, 11, PAL.parch0); d.R(10, 3, 1, 11, PAL.parch0); d.L(2, 11, 6, 7, M2, 1); d.L(6, 7, 10, 9, M2, 1); d.E(12, 6, 2, 1.4, W2); d.L(10, 10, 13, 13, R2, 2); d.L(13, 10, 10, 13, R2, 2); },
-    basket: (d) => { d.E(8, 6, 5.5, 1.6, K3); d.R(2, 6, 12, 8, K2); for (let i = 0; i < 5; i++) d.R(3 + i * 2.4, 6, 1, 8, K3); d.R(2, 9, 12, 1, K1); d.R(2, 13, 12, 2, K1); d.L(4, 6, 8, 2, K3, 1); d.L(12, 6, 8, 2, K3, 1); },
-    check: (d) => { d.L(2, 8, 6, 13, M4, 3); d.L(6, 13, 14, 3, M4, 3); },
-    truck: (d) => { d.R(1, 5, 9, 6, R1); d.R(1, 5, 9, 1, R2); d.R(10, 7, 4, 4, S2); d.R(10.5, 7.6, 2.6, 2, Y3); d.E(4, 13, 2.2, 2.2, I); d.E(4, 13, 1, 1, S3); d.E(12, 13, 2.2, 2.2, I); d.E(12, 13, 1, 1, S3); d.R(1, 11, 13, 1, PAL.stone0); },
-    back: (d) => { d.L(2, 8, 8, 2, C, 3); d.L(2, 8, 8, 14, C, 3); d.R(2, 7, 12, 2, C); },
-    ant: (d) => { d.E(4, 9, 2.4, 2, I); d.E(8, 9, 1.8, 1.6, I); d.E(12, 9, 3, 2.4, I); d.R(3.4, 8, 1, 1, C); d.L(2, 7, 0.6, 4, I, 1); d.L(3, 7, 3, 4, I, 1); for (const s of [-1, 1]) { d.L(8, 10, 6, 13, I, 1); d.L(9, 10, 11, 13, I, 1); } d.R(10, 4, 6, 4, K2); },
-    mascot: (d) => { d.E(8, 6, 5.5, 5.5, R2); d.E(8, 6, 4, 4, PAL.parch1); d.E(8, 6, 2.4, 2.4, K3); d.R(7, 7, 1, 1, I); d.R(9, 7, 1, 1, I); d.R(7, 11, 2, 5, PAL.parch0); },
+    // --- tools: wooden handles, steel heads, held on the diagonal ---
+    t_drag: (d) => { d.E(8.5, 10.5, 4.6, 4, K3); d.E(4.4, 6.4, 1.8, 2.4, K3); d.E(7, 5, 1.8, 2.6, K3); d.E(9.8, 5.2, 1.8, 2.6, K3); d.E(12.6, 7.2, 1.8, 2.4, K3); d.E(8.5, 11, 2.4, 1.8, '#c98a6c'); d.R(4, 12, 9, 1.4, K2); },
+    t_food: (d) => { d.E(8, 11.5, 6.6, 3.2, '#a86f2c'); d.E(8, 10.4, 6, 2.6, '#c98b3f'); d.E(8, 9.6, 5, 1.8, '#5c3d18'); d.E(5.6, 7.6, 2.6, 2.2, M2); d.E(8.6, 6.6, 2.8, 2.4, M3); d.E(11, 7.8, 2.2, 1.9, M4); d.E(8.6, 5.9, 1, 0.9, G3); d.E(5.8, 6.8, 1, 0.8, M4); },
+    t_sickle: (d) => { d.L(2, 14, 6, 10, K2, 3); d.L(3, 14, 6, 11, K3, 1); d.R(5, 9, 3, 3, G1); for (let i = 0; i < 8; i++) { const a = -1.2 + i * 0.36; d.R(9 + Math.cos(a) * 5, 8 + Math.sin(a) * 5, 2.4, 2.4, S3); d.R(9.4 + Math.cos(a) * 3.4, 8.4 + Math.sin(a) * 3.4, 1.2, 1.2, S4); } d.R(12, 2, 2, 2, C); },
+    t_destroy: (d) => { d.R(3, 6, 10, 7, K2); d.R(3, 6, 10, 2, K3); d.R(7.4, 6, 1.4, 7, K1); d.R(3, 12, 10, 1, K1); d.E(2, 11, 2, 1.6, '#2a1c22'); d.E(4.4, 12.6, 1.6, 1.3, '#2a1c22'); d.R(1, 10, 1, 1, I); d.R(1.4, 8.6, 1, 1.4, I); d.L(0.6, 12, 2.4, 10, I, 1); d.R(1, 14, 14, 1.2, E3); },
+    t_pair: (d) => { d.E(5, 8, 3.6, 3.6, R2); d.E(11, 8, 3.6, 3.6, R3); d.E(4.4, 7, 1.2, 1.2, C); d.E(10.4, 7, 1.2, 1.2, C); d.R(7, 7, 2, 2, R3); d.R(3, 12.4, 10, 1.2, K2); },
+    t_hoe: (d) => { d.L(2, 14, 10, 6, K2, 3); d.L(3, 14, 10, 7, K3, 1); d.R(8, 4, 6, 3, S3); d.R(12, 4, 2, 7, S3); d.R(8, 4, 6, 1.2, S4); d.R(12, 4, 1, 7, S4); d.R(9, 6, 4, 1, S2); },
+    t_seed: (d) => { d.R(4, 4, 8, 10, PAL.parch0); d.R(4, 4, 8, 3, M3); d.R(4, 4, 8, 1, M4); d.R(5, 8, 6, 4, '#3a2c22'); d.E(8, 10, 2, 1.6, K3); d.E(7, 9.4, 0.8, 0.8, M4); d.R(4, 13, 8, 1, PAL.boneD); for (let i = 0; i < 4; i++) d.R(4 + i * 2, 3, 1, 1, PAL.parch0); },
+    t_moss: (d) => { d.R(2, 12, 12, 3, E2); d.R(2, 12, 12, 1, E3); for (let i = 0; i < 6; i++) { const x = 3 + i * 2; d.R(x, 6 + (i % 2), 1, 6, M2); d.R(x + 1, 4 + (i % 3), 1, 6, M3); d.R(x, 4 + (i % 3), 1, 1, M4); } },
+    t_water: (d) => { d.R(3, 7, 8, 7, '#5f7fa8'); d.R(3, 7, 8, 1.4, '#8fb0d8'); d.R(3, 12.6, 8, 1.4, '#3a5474'); d.L(11, 8, 15, 4, '#5f7fa8', 2); d.R(13, 3, 3, 2, '#8fb0d8'); d.R(4, 4, 5, 3, '#5f7fa8'); d.R(4, 4, 5, 1, '#8fb0d8'); for (let i = 0; i < 3; i++) d.R(14 + (i % 2), 6 + i * 2, 1, 1.6, W3); },
+    t_farm: (d) => { d.L(2, 14, 8, 8, K2, 3); d.R(6, 5, 6, 3, S3); d.R(10, 5, 2, 6, S3); d.R(6, 5, 6, 1, S4); d.R(1, 12, 14, 3, E2); d.R(1, 12, 14, 1, E3); d.R(12, 8, 1, 4, M2); d.E(12.5, 7, 1.8, 1.2, M3); },
     t_hand: (d) => { d.E(8, 11, 4, 3.4, K3); d.E(4.6, 6, 1.7, 2, K3); d.E(7, 5, 1.7, 2, K3); d.E(9.6, 5, 1.7, 2, K3); d.E(12, 7, 1.7, 2, K3); d.E(8, 11, 2, 1.4, R3); },
-    t_sickle: (d) => { d.L(3, 14, 8, 9, K2, 2); for (let i = 0; i < 7; i++) { const a = -0.4 + i * 0.42; d.R(8 + Math.cos(a) * 6, 8 + Math.sin(a) * 6, 2, 2, S4); } d.E(11, 4, 2, 2, C); },
-    t_hoe: (d) => { d.L(3, 14, 11, 5, K2, 2); d.R(9, 2, 6, 3, S3); d.R(12, 2, 3, 6, S3); d.R(9, 2, 6, 1, S4); },
-    t_moss: (d) => { d.R(1, 11, 14, 4, E2); for (let i = 0; i < 6; i++) { const x = 2 + i * 2.4; d.R(x, 6 + (i % 2), 1, 6, M2); d.R(x + 1, 4 + (i % 3), 1, 5, M3); } d.E(12, 4, 2, 1.6, M4); },
-    t_seed: (d) => { d.E(8, 10, 6, 5, PAL.parch0); d.R(2, 5, 12, 3, K2); d.E(6, 10, 1.6, 2, K3); d.E(9.6, 11, 1.6, 2, K3); d.E(8, 8, 1.4, 1.8, K1); d.R(2, 5, 12, 1, K3); },
-    t_water: (d) => { d.R(3, 7, 8, 7, S3); d.R(3, 7, 8, 1, S4); d.R(11, 6, 4, 2, S3); d.L(11, 8, 15, 5, S3, 2); d.R(4, 4, 5, 3, S2); for (let i = 0; i < 3; i++) d.R(14 + (i % 2), 8 + i * 2, 1, 2, W2); },
-    t_pair: (d) => { d.E(5, 8, 3.4, 3.4, R2); d.E(11, 8, 3.4, 3.4, R3); d.E(5, 7, 1.2, 1.2, C); d.R(7, 7, 2, 2, R3); d.R(4, 12, 8, 1, K2); },
     // --- crops ---
     c_ashgrass: (d) => { for (let i = 0; i < 5; i++) { const x = 3 + i * 2.4; d.R(x, 6 + (i % 2) * 2, 1, 8, M2); d.R(x, 5 + (i % 2) * 2, 1, 2, M4); } d.R(1, 13, 14, 2, E2); },
     c_sunroot: (d) => { d.R(7, 8, 2, 6, M1); d.E(8, 6, 4.5, 4.5, G2); d.E(6.5, 4.5, 2, 1.8, G4); d.R(3, 9, 3, 1, M2); d.R(10, 10, 3, 1, M2); d.R(1, 13, 14, 2, E2); },
@@ -2362,6 +2311,7 @@ const Icons = (() => {
       E: (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col),
       L: (x0, y0, x1, y1, col, t) => Art.line(g, x0, y0, x1, y1, col, t || 1),
     });
+    Art.outline(c, '#0a0810', 1);           // the same black line as everything else
     return c;
   }
   function canvas(name) {
@@ -3922,6 +3872,7 @@ const Grove = (() => {
     for (let i = coins.length - 1; i >= 0; i--) {
       const c = coins[i];
       c.t += dt;
+      if (c.t < 0) continue;
       if (c.t < 0.7) {                              // pop out and bounce once
         c.vy += 420 * dt; c.x += c.vx * dt; c.z += c.vy * dt;
         if (c.z > 0) { c.z = 0; c.vy = -c.vy * 0.4; c.vx *= 0.6; }
@@ -4114,6 +4065,11 @@ const Grove = (() => {
     FX.burst(TRUCK.x - 20, TRUCK.y - 26, 8, { color: [OFFERINGS[d.type].color, PAL.cream], speed: 70, gravity: 120, life: 0.4, size: 2 });
     FX.float(TRUCK.x - 20, TRUCK.y - 40, '+1', { color: PAL.gold4, size: 8 });
     UI.refreshHUD();
+  }
+  // A handful of coins tossed from wherever the cultist is standing.
+  function reward(x, y, n) {
+    for (let i = 0; i < n; i++) coins.push({ x: x + U.rand(-6, 6), y, vx: U.rand(-60, 60), vy: U.rand(-190, -110), z: 0, t: -i * 0.04, n: 1 });
+    Audio.play('cash');
   }
   function callTruck() {
     if (TRUCK.parked) { TRUCK.parked = false; TRUCK.t = 0.01; Audio.play('whoosh'); return; }
@@ -4451,7 +4407,10 @@ const Grove = (() => {
     for (const w of G.wombats) pips(g, w);
     if (G.pointer.on && !arrival) {
       const t = TOOL_BY_KEY[G.tool];
-      if (t && t.radius > 0) World.drawCursor(g, G.pointer.x, G.pointer.y, World.brushRadius(t.radius), toolTint(G.tool));
+      const tier = TIERS[G.tool] ? tierOf(G, G.tool) : null;
+      if (t && t.radius > 0) World.drawCursor(g, G.pointer.x, G.pointer.y, World.brushRadius(tier ? tier.radius : t.radius), toolTint(G.tool));
+      // the tool in hand rides beside the cursor
+      if (t) Icons.blit(g, t.icon, G.pointer.x + 10, G.pointer.y + 8, 1.25);
     }
     g.restore();
 
@@ -4662,7 +4621,7 @@ const Grove = (() => {
 
   return {
     init, update, render, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
-    capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects,
+    capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, GROUND, WALK, W, H, VW,
   };
@@ -6237,72 +6196,75 @@ const Shop = (() => {
 // ---- The cultist: a robed wombat who writes the tutorial in her notebook --
 const Guide = (() => {
   let G = null;
-  const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0 };
+  const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0, happyT: 0 };
   let flash = 0, hidden = false;
+  // the speech bubble: what she is saying, how much of it has been typed, how long it stays
+  const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
+  const REWARD = [12, 18, 24, 0, 20, 20, 24, 30, 30, 30, 36, 60];
 
   // Each step is a line in the notebook and a place for her to stand.
   const STEPS = [
     {
-      key: 'weeds', icon: 't_sickle', title: 'Cut the weeds',
+      key: 'weeds', say: 'Cut the weeds inside my rope. Big ones take a few swings.', praise: 'Clean cut! Take these.', icon: 't_sickle', title: 'Cut the weeds',
       note: 'Take the sickle and drag across them. Just inside the rope will do; big ones take a few swings.',
       at: () => ZONE.x - 120, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
-      key: 'junk', icon: 't_destroy', title: 'Send for the ants',
+      key: 'junk', say: 'Those wrecks are not ours to lift. Send for the ants.', praise: 'The ants thank you. So do I.', icon: 't_destroy', title: 'Send for the ants',
       note: 'Logs and ruins are not ours to lift. The ants carry them, for a fee.',
       at: () => { const o = Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)); return o ? o.x : ZONE.x; },
       done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
-      key: 'grass', icon: 't_moss', title: 'Sow the grass',
+      key: 'grass', say: 'Farm tool, then grass, inside the rope. Water it or it sulks.', praise: 'Green again. Here.', icon: 't_moss', title: 'Sow the grass',
       note: 'Farm, then grass, inside the rope. Sprouts need time and a drink before they take.',
       at: () => ZONE.x, done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
-      key: 'arrive', icon: 'wombat', title: 'Wait for her',
+      key: 'arrive', say: 'Hush now. A clean grove calls one of them.', praise: 'She came! I knew it.', icon: 'wombat', title: 'Wait for her',
       note: 'A clean grove calls a wombat. One always comes.',
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
-      key: 'sow', icon: 't_hoe', title: 'Break a bed and sow it',
+      key: 'sow', say: 'Hoe a bed and drop seed on the bare soil.', praise: 'Sown. Good hands.', icon: 't_hoe', title: 'Break a bed and sow it',
       note: 'Hoe a patch, then seed on the bare soil.',
       at: () => 380, done: () => World.crops.length > 0,
     },
     {
-      key: 'pick', icon: 't_water', title: 'Water, then pick',
+      key: 'pick', say: 'Water it. When it glows, pick it with the hand.', praise: 'A harvest! Take your cut.', icon: 't_water', title: 'Water, then pick',
       note: 'Thirsty crops sulk. When one glows, click it with the hand.',
       at: () => { const c = World.crops[0]; return c ? c.x : 380; },
       done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
     },
     {
-      key: 'feed', icon: 't_food', title: 'Feed her',
+      key: 'feed', say: 'Food tool, pick what you grew, click the wombat.', praise: 'Fed and content. Well done.', icon: 't_food', title: 'Feed her',
       note: 'Food tool, pick what you grew, then click the wombat.',
       at: (g) => (g.wombats[0] ? g.wombats[0].x : 340),
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', icon: 'truck', title: 'Load the cubes',
+      key: 'load', say: 'What she leaves is holy. Drag it to the truck.', praise: 'Loaded. The gods will notice.', icon: 'truck', title: 'Load the cubes',
       note: 'What she leaves is an offering. Drag it to the truck, or call the truck over.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
       done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
     },
     {
-      key: 'tree', icon: 'tree', title: 'Wake the seed',
+      key: 'tree', say: 'The seed in the middle - click it. It is the Tree of Life.', praise: 'You have seen it. Good.', icon: 'tree', title: 'Wake the seed',
       note: 'The seed in the middle of the plot is the Tree of Life. Click it.',
       at: () => Grove.SEED.x, done: (g) => !!(g.visited && g.visited.tree),
     },
     {
-      key: 'map', icon: 'map', title: 'Read the signpost',
+      key: 'map', say: 'Read the signpost. Everything else is out there.', praise: 'Now you know the way.', icon: 'map', title: 'Read the signpost',
       note: 'It shows the mart, the ritual site, and the fog over the rest.',
       at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.map),
     },
     {
-      key: 'mart', icon: 'shop', title: 'Walk the mart',
+      key: 'mart', say: 'Walk the mart. Basket first, counter after.', praise: 'A fair trade.', icon: 'shop', title: 'Walk the mart',
       note: 'Seed, stock and stone. Basket first, counter after.',
       at: () => Grove.POST.x, done: (g) => !!(g.visited && g.visited.shop),
     },
     {
-      key: 'god', icon: 'shrine', title: 'Call one of them',
+      key: 'god', say: 'Stack what she leaves at the ritual site. Call one down.', praise: 'They answered! I am so proud.', icon: 'shrine', title: 'Call one of them',
       note: 'Stack what she leaves at the ritual site. They do answer.',
       at: () => Grove.POST.x, done: (g) => Object.keys(g.summoned).length > 0,
     },
@@ -6317,13 +6279,27 @@ const Guide = (() => {
   const finished = () => G.step >= STEPS.length;
   const step = () => (finished() ? null : STEPS[G.step]);
 
+  function say(text, kind = 'order') { bubble.text = text; bubble.shown = 0; bubble.life = kind === 'order' ? 9 : 4.5; bubble.pop = 1; bubble.kind = kind; }
+  function poke() {                          // click her and she repeats the order
+    const s = step(); if (!s) return;
+    say(s.say); cult.still = 0; cult.pose = 'idle';
+    FX.burst(cult.x, cult.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
+    Audio.play('squeak');
+  }
+  function hit(x, y) { return !finished() && !hidden && Math.abs(x - cult.x) < 18 && y > cult.y - 66 && y < cult.y + 6; }
   function check() {
     const s = step();
     if (!s) return;
     if (!s.done(G)) return;
+    const reward = REWARD[G.step] || 0;
     G.step++;
+    say(s.praise + (reward ? ` +${reward}` : ''), 'praise');
+    cult.happyT = 2.2;
+    FX.confettiBurst(cult.x, cult.y - 50, 18);
+    FX.hearts(cult.x, cult.y - 56, 5);
+    if (reward) Grove.reward(cult.x, cult.y - 30, reward);
     flash = 1.6;
-    cult.pose = 'cast'; cult.castT = 1.6; cult.t = 0; cult.still = 0;
+    cult.pose = 'jump'; cult.castT = 0; cult.t = 0; cult.still = 0;
     Audio.play('chime');
     FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
     UI.refreshAll();           // a finished step can hand over a new tool
@@ -6332,17 +6308,23 @@ const Guide = (() => {
     if (finished()) UI.toast('the notebook is full', 'good');
   }
 
+  let lastStep = -1, sayT = 0;
   function update(dt) {
     if (flash > 0) flash -= dt;
     cult.t += dt;
-    if (cult.hop > 0) cult.hop = Math.max(0, cult.hop - dt * 1.6);
+    // a new order gets spoken once she is roughly in place
     const s = step();
+    if (s && G.step !== lastStep) { sayT += dt; if (sayT > 1.2 || lastStep === -1) { lastStep = G.step; sayT = 0; if (!bubble.life) say(s.say); } }
+    if (bubble.life > 0) { bubble.life -= dt; bubble.shown += dt * 28; bubble.pop = Math.max(0, bubble.pop - dt * 3); }
+    if (cult.happyT > 0) { cult.happyT -= dt; }
+    if (cult.hop > 0) cult.hop = Math.max(0, cult.hop - dt * 1.6);
     if (s) {
       const want = U.clamp(s.at(G), 60, Grove.W - 60);
       cult.tx = want + 46;
     }
     const dx = cult.tx - cult.x;
-    if (cult.castT > 0) { cult.castT -= dt; if (cult.castT <= 0) cult.pose = 'idle'; }
+    if (cult.happyT > 0) { cult.pose = 'jump'; if (Math.random() < dt * 6) FX.sparkle(cult.x + U.rand(-16, 16), cult.y - U.rand(20, 60), 1, PAL.gold3); }
+    else if (cult.castT > 0) { cult.castT -= dt; if (cult.castT <= 0) cult.pose = 'idle'; }
     else if (Math.abs(dx) > 3) {
       cult.dir = dx > 0 ? 1 : -1;
       cult.x += U.clamp(dx, -52 * dt, 52 * dt);
@@ -6357,7 +6339,7 @@ const Guide = (() => {
   // She stands in the grove and points at whatever the step is about.
   function draw(g) {
     if (finished() || hidden) return;
-    const rate = { walk: 8, run: 12, cast: 5, sit: 2, idle: 3 }[cult.pose] || 4;
+    const rate = { walk: 8, run: 12, cast: 5, sit: 2, idle: 3, jump: 9 }[cult.pose] || 4;
     const img = Sprites.cultist(Math.floor(cult.t * rate), cult.pose);
     const lift = 0;
     const sc = 1.4;
@@ -6372,6 +6354,7 @@ const Guide = (() => {
     gr.addColorStop(0, `rgba(185,142,240,${(0.14 + p * 0.1).toFixed(2)})`);
     gr.addColorStop(1, 'rgba(185,142,240,0)');
     g.fillStyle = gr; g.fillRect(cult.x - 48, cult.y - 72, 96, 96);
+    drawBubble(g);
     const s = step();
     if (s && cult.pose !== 'walk' && cult.pose !== 'run') {
       const tx = U.clamp(s.at(G), 40, Grove.W - 40);
@@ -6387,6 +6370,37 @@ const Guide = (() => {
     }
   }
 
+  // A paper speech bubble with a tail, hard corners, typed out a letter at a time.
+  function drawBubble(g) {
+    if (bubble.life <= 0 || !bubble.text) return;
+    const full = bubble.text;
+    const shown = full.slice(0, Math.min(full.length, Math.floor(bubble.shown)));
+    const words = full.split(' '), lines = [];
+    let line = '';
+    for (const w of words) { if ((line + w).length > 24) { lines.push(line.trim()); line = ''; } line += w + ' '; }
+    lines.push(line.trim());
+    const W = Math.max(60, Math.min(24, Math.max(...lines.map((l) => l.length))) * 7 + 18), H = lines.length * 11 + 12;
+    const scale = 1 + Math.sin(bubble.pop * Math.PI) * 0.18;
+    const bx = cult.x + 6, by = cult.y - 74 - H;
+    g.save();
+    g.translate(bx, by + H); g.scale(scale, scale); g.translate(-bx, -(by + H));
+    const paper = bubble.kind === 'praise' ? '#f6e7b8' : '#f6efdc';
+    g.fillStyle = '#0a0810'; g.fillRect(bx - W / 2 - 3, by - 3, W + 6, H + 6);
+    g.fillStyle = paper; g.fillRect(bx - W / 2, by, W, H);
+    g.fillStyle = bubble.kind === 'praise' ? '#e3c170' : '#e0d6b4'; g.fillRect(bx - W / 2, by + H - 3, W, 3);
+    g.fillStyle = '#0a0810'; g.fillRect(bx - W / 2 - 3, by - 3, 3, 3); g.fillRect(bx + W / 2, by - 3, 3, 3);   // knocked corners
+    g.fillStyle = '#0a0810'; g.beginPath(); g.moveTo(bx - 10, by + H + 2); g.lineTo(bx - 2, by + H + 12); g.lineTo(bx + 4, by + H + 2); g.fill();
+    g.fillStyle = paper; g.beginPath(); g.moveTo(bx - 7, by + H); g.lineTo(bx - 2, by + H + 8); g.lineTo(bx + 1, by + H); g.fill();
+    let acc = 0;
+    lines.forEach((l, i) => {
+      const part = shown.slice(acc, acc + l.length);
+      acc += l.length + 1;
+      FX.pixelText(g, part, bx - W / 2 + 9, by + 7 + i * 11, { color: '#2a1a12', size: 7, align: 'left', ink: false });
+    });
+    if (shown.length < full.length) { g.fillStyle = '#2a1a12'; g.fillRect(bx + W / 2 - 8, by + H - 7, 3, 3); }
+    g.restore();
+  }
+
   function state() {
     return {
       i: G.step, total: STEPS.length, steps: STEPS,
@@ -6394,7 +6408,7 @@ const Guide = (() => {
     };
   }
   function toggle() { hidden = !hidden; UI.refreshNotebook(); }
-  return { init, update, draw, state, toggle, check, get cult() { return cult; }, STEPS };
+  return { init, update, draw, state, toggle, check, poke, hit, say, get cult() { return cult; }, STEPS };
 })();
 </script>
 
@@ -7088,7 +7102,6 @@ const UI = (() => {
   let G = null;
   const $ = (id) => document.getElementById(id);
   const ic = (n, cls = '') => Icons.img(n, cls);
-  let flyout = null;                       // 'farm' | 'food' | 'seed' | null
 
   function toast(msg, kind = '') {
     const t = document.createElement('div');
@@ -7123,137 +7136,89 @@ const UI = (() => {
       const p = U.clamp(t.at / t.need, 0, 1);
       return `<div class="task ${t.done ? 'done' : ''}" data-k="${t.key}">
         <span class="box">${t.done ? '<i></i>' : ''}</span>
-        ${ic(t.icon, 'sm')}
+        ${ic(t.icon)}
         <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
-        <b>${Math.max(0, Math.round(t.at))}/${t.need}</b></div>`;
+        <b>${Math.max(0, Math.round(t.at))}<small>/${t.need}</small></b></div>`;
     }).join('') + '<div class="tear"></div>';
   }
 
-  // ---- the cultist's notebook --------------------------------------------
-  function refreshNotebook() {
-    const box = $('notebook');
-    if (!G || G.mode !== 'grove') { box.hidden = true; return; }
-    const st = Guide.state();
-    if (st.done) { box.hidden = true; return; }
-    box.hidden = false;
-    if (st.hidden) {
-      box.className = 'shut';
-      box.innerHTML = `<button class="nbtab">${ic('leaf', 'sm')}<span>${st.i}/${st.total}</span></button>`;
-      box.querySelector('.nbtab').onclick = () => Guide.toggle();
-      return;
-    }
-    box.className = '';
-    const past = st.steps.slice(Math.max(0, st.i - 2), st.i);
-    box.innerHTML = `
-      <div class="rings"></div>
-      <button class="nbshut">&minus;</button>
-      <div class="nbhead">${ic('eye', 'sm')}<span>${st.i + 1} of ${st.total}</span></div>
-      ${past.map((p) => `<div class="nbdone"><span class="box"><i></i></span>${p.title}</div>`).join('')}
-      <div class="nbnow ${st.flash ? 'flash' : ''}">
-        <span class="box"></span>
-        <div class="pic">${ic(st.step.icon, 'lg')}</div>
-        <h5>${st.step.title}</h5>
-        <p>${st.step.note}</p>
-      </div>`;
-    box.querySelector('.nbshut').onclick = () => Guide.toggle();
-  }
+  function refreshNotebook() { }           // the cultist speaks for herself now
 
-  // ---- dock ---------------------------------------------------------------
-  function refreshTray() {
-    const dock = $('dock');
-    dock.hidden = G.mode !== 'grove';
-    if (G.mode !== 'grove') { $('flyout').hidden = true; return; }
-    dock.innerHTML = '';
-    TOOLS.forEach((t, i) => {
-      const locked = !unlocked(G, t.key);
-      const active = G.tool === t.key || (t.sub && t.sub.includes(G.tool));
-      const shown = t.sub && t.sub.includes(G.tool) ? TOOL_BY_KEY[G.tool] : t;
-      const el = document.createElement('button');
-      el.className = 'tool' + (active ? ' on' : '') + (locked ? ' locked' : '');
-      el.innerHTML = `${ic(shown.icon)}<span class="k">${i + 1}</span>${t.sub ? '<span class="more"></span>' : ''}${locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
-      el.onclick = () => pickTool(t, locked);
-      const rank = TIERS[shown.key] ? `<br><span class="dim">${tierOf(G, shown.key).name}</span>` : '';
-      el.onmouseenter = (e) => showTip(e, locked ? `<b>${shown.name}</b><br><span class="warn">${GATE_WHY[t.key] || 'not yet'}</span>` : `<b>${shown.name}</b>${rank}<br>${shown.desc}`);
-      el.onmouseleave = hideTip;
-      dock.appendChild(el);
-    });
-    renderFlyout();
-  }
-  function pickTool(t, locked) {
-    if (locked) { Audio.play('error'); toast(GATE_WHY[t.key] || 'not yet', 'bad'); return; }
+  // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
+  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair'];
+  let wheelRing = 'tools', wheelAt = { x: 320, y: 180 };
+  function frameScale() { return $('frame').clientWidth / 640; }
+  function openWheel(sx, sy, ring = 'tools') {
+    if (G.mode !== 'grove') return;
+    wheelAt = { x: U.clamp(sx, 84, 556), y: U.clamp(sy, 70, 300) };
+    wheelRing = ring;
+    renderWheel();
     Audio.play('click');
-    Grove.clearPair();
-    if (t.sub) {
-      flyout = flyout === 'farm' ? null : 'farm';
-      if (!t.sub.includes(G.tool)) G.tool = t.sub[0];
+  }
+  function closeWheel() { $('wheel').hidden = true; }
+  function wheelOpen() { return !$('wheel').hidden; }
+  function renderWheel() {
+    const w = $('wheel');
+    const k = frameScale();
+    w.hidden = false;
+    w.style.left = (wheelAt.x * k) + 'px'; w.style.top = (wheelAt.y * k) + 'px';
+    w.innerHTML = '';
+    let items;
+    if (wheelRing === 'tools') {
+      items = WHEEL_TOOLS.map((key) => {
+        const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
+        return { icon: t.icon, on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}`,
+          act: () => {
+            if (lk) { Audio.play('error'); toast(GATE_WHY[key] || 'not yet', 'bad'); return; }
+            G.tool = key; Grove.clearPair(); Audio.play('click');
+            if (key === 'food') { wheelRing = 'food'; renderWheel(); return; }
+            if (key === 'seed') { wheelRing = 'seed'; renderWheel(); return; }
+            closeWheel(); refreshHUD();
+          } };
+      });
     } else {
-      G.tool = t.key;
-      flyout = t.key === 'food' ? 'food' : null;
+      const food = wheelRing === 'food';
+      items = CROPS.map((c) => {
+        const n = (food ? G.food : G.seeds)[c.key] || 0;
+        const on = food ? G.selFood === c.key : G.selSeed === c.key;
+        return { icon: c.icon, on, n, out: n === 0, tip: `<b>${c.name}</b><br>${n} ${food ? 'to feed' : 'seed'}`,
+          act: () => {
+            if (!n) { Audio.play('error'); toast(food ? 'grow it first' : 'buy seed at the mart', 'bad'); return; }
+            if (food) G.selFood = c.key; else G.selSeed = c.key;
+            Audio.play('click'); closeWheel(); refreshHUD();
+          } };
+      });
+      if (food) items.unshift({ icon: 't_hand', on: !G.selFood, tip: '<b>Pet</b><br>hurries digestion', act: () => { G.selFood = null; Audio.play('click'); closeWheel(); refreshHUD(); } });
+      items.push({ icon: 'back', tip: '<b>Back</b>', act: () => { wheelRing = 'tools'; renderWheel(); } });
     }
-    refreshTray();
+    const R = items.length > 8 ? 74 : 62;
+    items.forEach((it, idx) => {
+      const a = -Math.PI / 2 + (idx / items.length) * TAU;
+      const el = document.createElement('button');
+      el.className = 'spoke' + (it.on ? ' on' : '') + (it.locked ? ' locked' : '') + (it.out ? ' out' : '');
+      el.style.left = Math.round(Math.cos(a) * R) + 'px'; el.style.top = Math.round(Math.sin(a) * R) + 'px';
+      el.style.animationDelay = (idx * 22) + 'ms';
+      el.innerHTML = `${ic(it.icon)}${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
+      el.onclick = (e) => { e.stopPropagation(); it.act(); };
+      el.onmouseenter = (e) => showTip(e, it.tip);
+      el.onmouseleave = hideTip;
+      w.appendChild(el);
+    });
+    const hub = document.createElement('div');
+    hub.className = 'hub';
+    hub.innerHTML = ic(wheelRing === 'tools' ? TOOL_BY_KEY[G.tool].icon : wheelRing === 'food' ? 't_food' : 't_seed', 'lg');
+    hub.onclick = (e) => { e.stopPropagation(); closeWheel(); };
+    w.appendChild(hub);
   }
-  function renderFlyout() {
-    const box = $('flyout');
-    if (!flyout || G.mode !== 'grove') { box.hidden = true; return; }
-    box.hidden = false;
-    box.innerHTML = '';
-    if (flyout === 'farm') {
-      for (const k of FARM_KEYS) {
-        const t = TOOL_BY_KEY[k];
-        const lk = !unlocked(G, k);
-        const el = chip(t.icon, G.tool === k, k === 'seed' ? String(G.seeds[G.selSeed] || 0) : '', lk);
-        if (lk) el.innerHTML += `<span class="lk">${ic('lock', 'sm')}</span>`;
-        el.onclick = () => {
-          if (lk) { Audio.play('error'); toast(GATE_WHY[k] || 'not yet', 'bad'); return; }
-          G.tool = k; flyout = k === 'seed' ? 'seed' : 'farm'; Audio.play('click'); refreshTray();
-        };
-        el.onmouseenter = (e) => showTip(e, lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[k]}</span>` : `<b>${t.name}</b><br>${t.desc}`);
-        el.onmouseleave = hideTip;
-        box.appendChild(el);
-      }
-    } else if (flyout === 'seed') {
-      back(box, 'farm');
-      for (const c of CROPS) {
-        const n = G.seeds[c.key] || 0;
-        const el = chip(c.icon, G.selSeed === c.key, String(n), n === 0);
-        el.onclick = () => {
-          if (!n) { Audio.play('error'); toast('buy seed at the store', 'bad'); return; }
-          G.selSeed = c.key; Audio.play('click'); refreshTray();
-        };
-        el.onmouseenter = (e) => showTip(e, `<b>${c.name}</b><br>${ic(OFFERINGS[c.offering].icon, 'sm')} ${OFFERINGS[c.offering].name}<br>${c.grow}s to ripen`);
-        el.onmouseleave = hideTip;
-        box.appendChild(el);
-      }
-    } else if (flyout === 'food') {
-      const paw = chip('t_hand', !G.selFood, '');
-      paw.onclick = () => { G.selFood = null; Audio.play('click'); refreshTray(); };
-      paw.onmouseenter = (e) => showTip(e, '<b>Pet</b><br>hurries digestion');
-      paw.onmouseleave = hideTip;
-      box.appendChild(paw);
-      for (const c of CROPS) {
-        const n = G.food[c.key] || 0;
-        const el = chip(c.icon, G.selFood === c.key, String(n), n === 0);
-        el.onclick = () => {
-          if (!n) { Audio.play('error'); toast('grow it first', 'bad'); return; }
-          G.selFood = c.key; Audio.play('click'); refreshTray();
-        };
-        el.onmouseenter = (e) => showTip(e, `<b>${c.name}</b><br>${ic(OFFERINGS[c.offering].icon, 'sm')} ${OFFERINGS[c.offering].name}<br>+${c.hap} cheer`);
-        el.onmouseleave = hideTip;
-        box.appendChild(el);
-      }
-    }
+  // the badge in the corner shows the tool in hand and opens the wheel for touch
+  function refreshTray() {
+    const b = $('b-tool');
+    b.hidden = G.mode !== 'grove';
+    const t = TOOL_BY_KEY[G.tool] || TOOLS[0];
+    b.firstElementChild.src = Icons.url(t.icon);
+    if (wheelOpen()) renderWheel();
   }
-  function chip(icon, on, n, out) {
-    const el = document.createElement('button');
-    el.className = 'chip' + (on ? ' on' : '') + (out ? ' out' : '');
-    el.innerHTML = `${ic(icon)}${n ? `<span class="n">${n}</span>` : ''}`;
-    return el;
-  }
-  function back(box, to) {
-    const el = chip('back', false, '');
-    el.onclick = () => { flyout = to; Audio.play('click'); refreshTray(); };
-    box.appendChild(el);
-  }
+  function pickTool() { }
 
   // ---- shrine -------------------------------------------------------------
   function refreshRitual() {
@@ -7470,7 +7435,7 @@ const UI = (() => {
   }
 
   function hideAll() {
-    $('dock').hidden = true; $('flyout').hidden = true; $('checklist').hidden = true; $('notebook').hidden = true;
+    closeWheel(); $('checklist').hidden = true; $('b-tool').hidden = true;
     $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true;
     $('b-truck').hidden = true; $('b-back').hidden = true;
   }
@@ -7482,6 +7447,7 @@ const UI = (() => {
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-truck').onclick = () => { Grove.callTruck(); refreshHUD(); };
+    $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(560, 250); };
     $('b-help').onclick = () => openPanel('panel-help');
     $('b-sound').onclick = () => {
       const m = Audio.toggleMute(); G.muted = m;
@@ -7507,11 +7473,10 @@ const UI = (() => {
     $('b-music').textContent = G.musicOff ? 'muted' : 'music';
   }
   function setMode(mode) {
-    flyout = null;
     $('ov-shrine').hidden = mode !== 'shrine';
     $('ov-rite').hidden = mode !== 'rite';
     $('ov-shop').hidden = mode !== 'shop';
-    $('dock').hidden = mode !== 'grove';
+    closeWheel();
     refreshTray(); refreshHUD();
     if (mode === 'shrine') refreshRitual();
     if (mode === 'rite') refreshRiteCard();
@@ -7520,7 +7485,7 @@ const UI = (() => {
   function anyPanel() { return PANELS.some((id) => !$(id).hidden) || !$('modal').hidden; }
 
   return {
-    init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, refreshRitual, refreshKnow,
+    init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
     showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel,
@@ -7633,10 +7598,13 @@ const Main = (() => {
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel() || G.paused) return;
       const p = pos(e);
+      if (e.button === 2) { if (G.mode === 'grove') UI.openWheel(p.x, p.y); return; }
+      if (UI.wheelOpen()) { UI.closeWheel(); return; }
       down = true; lastP = null; downP = p; moved = 0; panning = false;
       screenP = p;
       if (G.mode === 'grove') {
         const w = world(p);
+        if (Guide.hit(w.x, w.y)) { Guide.poke(); down = false; return; }
         const consumed = Grove.press(w.x, w.y, true);
         if (consumed) lastP = w;
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
@@ -7680,6 +7648,7 @@ const Main = (() => {
     window.addEventListener('pointerup', (e) => release(e));
     window.addEventListener('pointercancel', () => { down = false; lastP = null; downP = null; });
     canvas.addEventListener('pointerleave', () => { G.pointer.on = false; UI.hideTip(); });
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     canvas.addEventListener('wheel', (e) => {
       if (G.mode === 'grove') { e.preventDefault(); Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8); }
       else if (G.mode === 'tree') { e.preventDefault(); const p = pos(e); Knowledge.scroll(e.deltaY, p.x, p.y); }
@@ -7691,7 +7660,8 @@ const Main = (() => {
       Audio.init();
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel()) return;
-      if (e.key === 'Escape' || e.key === 'Backspace') { if (G.mode !== 'grove') { back(); e.preventDefault(); } return; }
+      if (e.key === 'Tab' || e.key === ' ') { if (G.mode === 'grove') { e.preventDefault(); if (UI.wheelOpen()) UI.closeWheel(); else UI.openWheel(screenP.x, screenP.y); } return; }
+      if (e.key === 'Escape' || e.key === 'Backspace') { if (UI.wheelOpen()) { UI.closeWheel(); return; } if (G.mode !== 'grove') { back(); e.preventDefault(); } return; }
       if (e.key === 'm' || e.key === 'M') { if (G.mode === 'grove') setMode('map'); return; }
       if (e.key === 'h' || e.key === 'H') { UI.openPanel('panel-help'); return; }
       if (G.mode === 'rite') {

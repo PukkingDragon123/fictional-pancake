@@ -101,10 +101,13 @@ const Main = (() => {
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel() || G.paused) return;
       const p = pos(e);
+      if (e.button === 2) { if (G.mode === 'grove') UI.openWheel(p.x, p.y); return; }
+      if (UI.wheelOpen()) { UI.closeWheel(); return; }
       down = true; lastP = null; downP = p; moved = 0; panning = false;
       screenP = p;
       if (G.mode === 'grove') {
         const w = world(p);
+        if (Guide.hit(w.x, w.y)) { Guide.poke(); down = false; return; }
         const consumed = Grove.press(w.x, w.y, true);
         if (consumed) lastP = w;
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
@@ -148,6 +151,7 @@ const Main = (() => {
     window.addEventListener('pointerup', (e) => release(e));
     window.addEventListener('pointercancel', () => { down = false; lastP = null; downP = null; });
     canvas.addEventListener('pointerleave', () => { G.pointer.on = false; UI.hideTip(); });
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     canvas.addEventListener('wheel', (e) => {
       if (G.mode === 'grove') { e.preventDefault(); Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8); }
       else if (G.mode === 'tree') { e.preventDefault(); const p = pos(e); Knowledge.scroll(e.deltaY, p.x, p.y); }
@@ -159,7 +163,8 @@ const Main = (() => {
       Audio.init();
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel()) return;
-      if (e.key === 'Escape' || e.key === 'Backspace') { if (G.mode !== 'grove') { back(); e.preventDefault(); } return; }
+      if (e.key === 'Tab' || e.key === ' ') { if (G.mode === 'grove') { e.preventDefault(); if (UI.wheelOpen()) UI.closeWheel(); else UI.openWheel(screenP.x, screenP.y); } return; }
+      if (e.key === 'Escape' || e.key === 'Backspace') { if (UI.wheelOpen()) { UI.closeWheel(); return; } if (G.mode !== 'grove') { back(); e.preventDefault(); } return; }
       if (e.key === 'm' || e.key === 'M') { if (G.mode === 'grove') setMode('map'); return; }
       if (e.key === 'h' || e.key === 'H') { UI.openPanel('panel-help'); return; }
       if (G.mode === 'rite') {

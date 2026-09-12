@@ -3,7 +3,6 @@ const UI = (() => {
   let G = null;
   const $ = (id) => document.getElementById(id);
   const ic = (n, cls = '') => Icons.img(n, cls);
-  let flyout = null;                       // 'farm' | 'food' | 'seed' | null
 
   function toast(msg, kind = '') {
     const t = document.createElement('div');
@@ -38,137 +37,89 @@ const UI = (() => {
       const p = U.clamp(t.at / t.need, 0, 1);
       return `<div class="task ${t.done ? 'done' : ''}" data-k="${t.key}">
         <span class="box">${t.done ? '<i></i>' : ''}</span>
-        ${ic(t.icon, 'sm')}
+        ${ic(t.icon)}
         <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
-        <b>${Math.max(0, Math.round(t.at))}/${t.need}</b></div>`;
+        <b>${Math.max(0, Math.round(t.at))}<small>/${t.need}</small></b></div>`;
     }).join('') + '<div class="tear"></div>';
   }
 
-  // ---- the cultist's notebook --------------------------------------------
-  function refreshNotebook() {
-    const box = $('notebook');
-    if (!G || G.mode !== 'grove') { box.hidden = true; return; }
-    const st = Guide.state();
-    if (st.done) { box.hidden = true; return; }
-    box.hidden = false;
-    if (st.hidden) {
-      box.className = 'shut';
-      box.innerHTML = `<button class="nbtab">${ic('leaf', 'sm')}<span>${st.i}/${st.total}</span></button>`;
-      box.querySelector('.nbtab').onclick = () => Guide.toggle();
-      return;
-    }
-    box.className = '';
-    const past = st.steps.slice(Math.max(0, st.i - 2), st.i);
-    box.innerHTML = `
-      <div class="rings"></div>
-      <button class="nbshut">&minus;</button>
-      <div class="nbhead">${ic('eye', 'sm')}<span>${st.i + 1} of ${st.total}</span></div>
-      ${past.map((p) => `<div class="nbdone"><span class="box"><i></i></span>${p.title}</div>`).join('')}
-      <div class="nbnow ${st.flash ? 'flash' : ''}">
-        <span class="box"></span>
-        <div class="pic">${ic(st.step.icon, 'lg')}</div>
-        <h5>${st.step.title}</h5>
-        <p>${st.step.note}</p>
-      </div>`;
-    box.querySelector('.nbshut').onclick = () => Guide.toggle();
-  }
+  function refreshNotebook() { }           // the cultist speaks for herself now
 
-  // ---- dock ---------------------------------------------------------------
-  function refreshTray() {
-    const dock = $('dock');
-    dock.hidden = G.mode !== 'grove';
-    if (G.mode !== 'grove') { $('flyout').hidden = true; return; }
-    dock.innerHTML = '';
-    TOOLS.forEach((t, i) => {
-      const locked = !unlocked(G, t.key);
-      const active = G.tool === t.key || (t.sub && t.sub.includes(G.tool));
-      const shown = t.sub && t.sub.includes(G.tool) ? TOOL_BY_KEY[G.tool] : t;
-      const el = document.createElement('button');
-      el.className = 'tool' + (active ? ' on' : '') + (locked ? ' locked' : '');
-      el.innerHTML = `${ic(shown.icon)}<span class="k">${i + 1}</span>${t.sub ? '<span class="more"></span>' : ''}${locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
-      el.onclick = () => pickTool(t, locked);
-      const rank = TIERS[shown.key] ? `<br><span class="dim">${tierOf(G, shown.key).name}</span>` : '';
-      el.onmouseenter = (e) => showTip(e, locked ? `<b>${shown.name}</b><br><span class="warn">${GATE_WHY[t.key] || 'not yet'}</span>` : `<b>${shown.name}</b>${rank}<br>${shown.desc}`);
-      el.onmouseleave = hideTip;
-      dock.appendChild(el);
-    });
-    renderFlyout();
-  }
-  function pickTool(t, locked) {
-    if (locked) { Audio.play('error'); toast(GATE_WHY[t.key] || 'not yet', 'bad'); return; }
+  // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
+  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair'];
+  let wheelRing = 'tools', wheelAt = { x: 320, y: 180 };
+  function frameScale() { return $('frame').clientWidth / 640; }
+  function openWheel(sx, sy, ring = 'tools') {
+    if (G.mode !== 'grove') return;
+    wheelAt = { x: U.clamp(sx, 84, 556), y: U.clamp(sy, 70, 300) };
+    wheelRing = ring;
+    renderWheel();
     Audio.play('click');
-    Grove.clearPair();
-    if (t.sub) {
-      flyout = flyout === 'farm' ? null : 'farm';
-      if (!t.sub.includes(G.tool)) G.tool = t.sub[0];
+  }
+  function closeWheel() { $('wheel').hidden = true; }
+  function wheelOpen() { return !$('wheel').hidden; }
+  function renderWheel() {
+    const w = $('wheel');
+    const k = frameScale();
+    w.hidden = false;
+    w.style.left = (wheelAt.x * k) + 'px'; w.style.top = (wheelAt.y * k) + 'px';
+    w.innerHTML = '';
+    let items;
+    if (wheelRing === 'tools') {
+      items = WHEEL_TOOLS.map((key) => {
+        const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
+        return { icon: t.icon, on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}`,
+          act: () => {
+            if (lk) { Audio.play('error'); toast(GATE_WHY[key] || 'not yet', 'bad'); return; }
+            G.tool = key; Grove.clearPair(); Audio.play('click');
+            if (key === 'food') { wheelRing = 'food'; renderWheel(); return; }
+            if (key === 'seed') { wheelRing = 'seed'; renderWheel(); return; }
+            closeWheel(); refreshHUD();
+          } };
+      });
     } else {
-      G.tool = t.key;
-      flyout = t.key === 'food' ? 'food' : null;
+      const food = wheelRing === 'food';
+      items = CROPS.map((c) => {
+        const n = (food ? G.food : G.seeds)[c.key] || 0;
+        const on = food ? G.selFood === c.key : G.selSeed === c.key;
+        return { icon: c.icon, on, n, out: n === 0, tip: `<b>${c.name}</b><br>${n} ${food ? 'to feed' : 'seed'}`,
+          act: () => {
+            if (!n) { Audio.play('error'); toast(food ? 'grow it first' : 'buy seed at the mart', 'bad'); return; }
+            if (food) G.selFood = c.key; else G.selSeed = c.key;
+            Audio.play('click'); closeWheel(); refreshHUD();
+          } };
+      });
+      if (food) items.unshift({ icon: 't_hand', on: !G.selFood, tip: '<b>Pet</b><br>hurries digestion', act: () => { G.selFood = null; Audio.play('click'); closeWheel(); refreshHUD(); } });
+      items.push({ icon: 'back', tip: '<b>Back</b>', act: () => { wheelRing = 'tools'; renderWheel(); } });
     }
-    refreshTray();
+    const R = items.length > 8 ? 74 : 62;
+    items.forEach((it, idx) => {
+      const a = -Math.PI / 2 + (idx / items.length) * TAU;
+      const el = document.createElement('button');
+      el.className = 'spoke' + (it.on ? ' on' : '') + (it.locked ? ' locked' : '') + (it.out ? ' out' : '');
+      el.style.left = Math.round(Math.cos(a) * R) + 'px'; el.style.top = Math.round(Math.sin(a) * R) + 'px';
+      el.style.animationDelay = (idx * 22) + 'ms';
+      el.innerHTML = `${ic(it.icon)}${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
+      el.onclick = (e) => { e.stopPropagation(); it.act(); };
+      el.onmouseenter = (e) => showTip(e, it.tip);
+      el.onmouseleave = hideTip;
+      w.appendChild(el);
+    });
+    const hub = document.createElement('div');
+    hub.className = 'hub';
+    hub.innerHTML = ic(wheelRing === 'tools' ? TOOL_BY_KEY[G.tool].icon : wheelRing === 'food' ? 't_food' : 't_seed', 'lg');
+    hub.onclick = (e) => { e.stopPropagation(); closeWheel(); };
+    w.appendChild(hub);
   }
-  function renderFlyout() {
-    const box = $('flyout');
-    if (!flyout || G.mode !== 'grove') { box.hidden = true; return; }
-    box.hidden = false;
-    box.innerHTML = '';
-    if (flyout === 'farm') {
-      for (const k of FARM_KEYS) {
-        const t = TOOL_BY_KEY[k];
-        const lk = !unlocked(G, k);
-        const el = chip(t.icon, G.tool === k, k === 'seed' ? String(G.seeds[G.selSeed] || 0) : '', lk);
-        if (lk) el.innerHTML += `<span class="lk">${ic('lock', 'sm')}</span>`;
-        el.onclick = () => {
-          if (lk) { Audio.play('error'); toast(GATE_WHY[k] || 'not yet', 'bad'); return; }
-          G.tool = k; flyout = k === 'seed' ? 'seed' : 'farm'; Audio.play('click'); refreshTray();
-        };
-        el.onmouseenter = (e) => showTip(e, lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[k]}</span>` : `<b>${t.name}</b><br>${t.desc}`);
-        el.onmouseleave = hideTip;
-        box.appendChild(el);
-      }
-    } else if (flyout === 'seed') {
-      back(box, 'farm');
-      for (const c of CROPS) {
-        const n = G.seeds[c.key] || 0;
-        const el = chip(c.icon, G.selSeed === c.key, String(n), n === 0);
-        el.onclick = () => {
-          if (!n) { Audio.play('error'); toast('buy seed at the store', 'bad'); return; }
-          G.selSeed = c.key; Audio.play('click'); refreshTray();
-        };
-        el.onmouseenter = (e) => showTip(e, `<b>${c.name}</b><br>${ic(OFFERINGS[c.offering].icon, 'sm')} ${OFFERINGS[c.offering].name}<br>${c.grow}s to ripen`);
-        el.onmouseleave = hideTip;
-        box.appendChild(el);
-      }
-    } else if (flyout === 'food') {
-      const paw = chip('t_hand', !G.selFood, '');
-      paw.onclick = () => { G.selFood = null; Audio.play('click'); refreshTray(); };
-      paw.onmouseenter = (e) => showTip(e, '<b>Pet</b><br>hurries digestion');
-      paw.onmouseleave = hideTip;
-      box.appendChild(paw);
-      for (const c of CROPS) {
-        const n = G.food[c.key] || 0;
-        const el = chip(c.icon, G.selFood === c.key, String(n), n === 0);
-        el.onclick = () => {
-          if (!n) { Audio.play('error'); toast('grow it first', 'bad'); return; }
-          G.selFood = c.key; Audio.play('click'); refreshTray();
-        };
-        el.onmouseenter = (e) => showTip(e, `<b>${c.name}</b><br>${ic(OFFERINGS[c.offering].icon, 'sm')} ${OFFERINGS[c.offering].name}<br>+${c.hap} cheer`);
-        el.onmouseleave = hideTip;
-        box.appendChild(el);
-      }
-    }
+  // the badge in the corner shows the tool in hand and opens the wheel for touch
+  function refreshTray() {
+    const b = $('b-tool');
+    b.hidden = G.mode !== 'grove';
+    const t = TOOL_BY_KEY[G.tool] || TOOLS[0];
+    b.firstElementChild.src = Icons.url(t.icon);
+    if (wheelOpen()) renderWheel();
   }
-  function chip(icon, on, n, out) {
-    const el = document.createElement('button');
-    el.className = 'chip' + (on ? ' on' : '') + (out ? ' out' : '');
-    el.innerHTML = `${ic(icon)}${n ? `<span class="n">${n}</span>` : ''}`;
-    return el;
-  }
-  function back(box, to) {
-    const el = chip('back', false, '');
-    el.onclick = () => { flyout = to; Audio.play('click'); refreshTray(); };
-    box.appendChild(el);
-  }
+  function pickTool() { }
 
   // ---- shrine -------------------------------------------------------------
   function refreshRitual() {
@@ -385,7 +336,7 @@ const UI = (() => {
   }
 
   function hideAll() {
-    $('dock').hidden = true; $('flyout').hidden = true; $('checklist').hidden = true; $('notebook').hidden = true;
+    closeWheel(); $('checklist').hidden = true; $('b-tool').hidden = true;
     $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true;
     $('b-truck').hidden = true; $('b-back').hidden = true;
   }
@@ -397,6 +348,7 @@ const UI = (() => {
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-truck').onclick = () => { Grove.callTruck(); refreshHUD(); };
+    $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(560, 250); };
     $('b-help').onclick = () => openPanel('panel-help');
     $('b-sound').onclick = () => {
       const m = Audio.toggleMute(); G.muted = m;
@@ -422,11 +374,10 @@ const UI = (() => {
     $('b-music').textContent = G.musicOff ? 'muted' : 'music';
   }
   function setMode(mode) {
-    flyout = null;
     $('ov-shrine').hidden = mode !== 'shrine';
     $('ov-rite').hidden = mode !== 'rite';
     $('ov-shop').hidden = mode !== 'shop';
-    $('dock').hidden = mode !== 'grove';
+    closeWheel();
     refreshTray(); refreshHUD();
     if (mode === 'shrine') refreshRitual();
     if (mode === 'rite') refreshRiteCard();
@@ -435,7 +386,7 @@ const UI = (() => {
   function anyPanel() { return PANELS.some((id) => !$(id).hidden) || !$('modal').hidden; }
 
   return {
-    init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, refreshRitual, refreshKnow,
+    init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
     showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel,
