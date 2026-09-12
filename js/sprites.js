@@ -243,7 +243,7 @@ const Sprites = (() => {
     const key = `cult:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(40, 56);
-    const R0 = '#141018', R1 = '#1f1a25', R2 = '#2c2632', R3 = '#3d3646';
+    const R0 = '#100c16', R1 = '#231d2c', R2 = '#352e41', R3 = '#4b4359', R4 = '#655b78';
     const GOLD = '#c9a35a', GOLD2 = '#ead08a', VOID = '#07060a', WINE = '#5c2a3a';
     const S = Math.sin(t * TAU);
     let bob = 0, lean = 0, flare = 0, hemUp = 0, sleeveL = 0, sleeveR = 0, view = 'front', sit = 0, lie = 0, hurt = 0, staff = 0, spark = 0;
@@ -274,50 +274,76 @@ const Sprites = (() => {
     }
 
     const skirtTop = sit ? 34 : 24 + y0, hem = 52 - hemUp;
-    const half = (sit ? 15 : 10) + flare;
-    // the robe, a bell from the shoulders to the ground
+    const half = (sit ? 16 : 12.5) + flare;
+    // the robe: a bell from the shoulders to the ground, cut with folds
     Art.poly(g, [[20 - 7, skirtTop], [20 + 7, skirtTop], [20 + half, hem], [20 - half, hem]], R2);
     Art.poly(g, [[20 - 7, skirtTop], [20 - 1, skirtTop], [20 - half * 0.35, hem], [20 - half, hem]], R3);   // the lit fold
     Art.poly(g, [[20 + 2, skirtTop], [20 + 7, skirtTop], [20 + half, hem], [20 + half * 0.5, hem]], R1);   // the shadow fold
-    for (let i = -2; i <= 2; i++) Art.rect(g, 20 + i * 3.2 + S * 0.4, skirtTop + 6, 1, hem - skirtTop - 8, i % 2 ? R1 : R3);
+    for (let i = -2; i <= 2; i++) Art.rect(g, 20 + i * 3.2 + S * 0.4, skirtTop + 6, 1, hem - skirtTop - 8, i % 2 ? R0 : R4);
+    Art.poly(g, [[20 - 6.6, skirtTop + 1], [20 - 5, skirtTop + 1], [20 - half * 0.82, hem], [20 - half * 0.96, hem]], R4);   // rim light down the left
     Art.rect(g, 20 - half, hem - 3, half * 2, 3, R0);
     for (let i = 0; i <= half; i += 3.3) { Art.rect(g, 20 - half + i, hem - 4, 2, 2.4, GOLD); Art.rect(g, 20 - half + i + 1, hem - 2, 1.4, 2, GOLD2); }   // the gold points of the hem
     if (view !== 'back') Art.poly(g, [[18, hem - 7], [22, hem - 7], [23.5, hem], [16.5, hem]], WINE);   // the under-robe showing
     // torso and shoulders
     if (!sit) { Art.rect(g, 13, 20 + y0, 14, 8, R2); Art.rect(g, 13, 20 + y0, 5, 8, R3); }
     Art.ell(g, 20, 21 + y0, 10, 4, R2); Art.ell(g, 16, 20 + y0, 5, 2.4, R3);
-    // sleeves hanging from the shoulders, cuffs trimmed in gold; hands never show
+    // the mantle: a short rounded cape over the shoulders
+    const my = (sit ? 22 : 18) + y0;
+    Art.ell(g, 20, my + 3.2, 10.6, 6.6, R0);
+    Art.ell(g, 20, my + 2.4, 10, 6, R2);
+    Art.ell(g, 16.6, my + 1.4, 5.4, 4.2, R4);
+    Art.ell(g, 24.4, my + 3, 4.4, 3.6, R1);
+    Art.ellBand(g, 20, my + 2.8, 10.4, 6.6, GOLD, 0.86, 1);
+    // sleeves hanging from under the mantle, cuffs trimmed in gold
     const armY = (sit ? 30 : 24 + y0);
-    Art.limb(g, 13, armY, 8 + sleeveL * 0.5, armY + 14 + sleeveL, 6, 5, R1);
-    Art.limb(g, 27, armY, 32 + sleeveR * 0.5, armY + 14 + sleeveR, 6, 5, R2);
-    Art.rect(g, 6 + sleeveL * 0.5, armY + 13 + sleeveL, 5, 1.6, GOLD);
-    Art.rect(g, 29.5 + sleeveR * 0.5, armY + 13 + sleeveR, 5, 1.6, GOLD);
-    // the emblem on the chest: a cross with a ring
-    if (view !== 'back' && !sit) {
-      Art.rect(g, 19.4, 24 + y0, 1.6, 9, GOLD); Art.rect(g, 17, 27 + y0, 6.4, 1.6, GOLD);
-      Art.ell(g, 20.2, 24.5 + y0, 1.6, 1.6, GOLD2); Art.rect(g, 19.4, 24 + y0, 1.6, 2, GOLD2);
+    const reach = pose === 'cast' || pose === 'jump' || pose === 'run' ? 3.4 : 1.4;
+    for (const [sx, dx, sw, body, lit] of [[13.6, sleeveL, -1, R3, R4], [26.4, sleeveR, 1, R2, R3]]) {
+      const ex = sx + sw * reach + dx * 0.5, ey = armY + 12 + dx;
+      Art.limb(g, sx, armY - 1, ex, ey, 7.6, 6.2, R0);
+      Art.limb(g, sx, armY - 1, ex, ey, 6, 4.8, body);
+      Art.limb(g, sx - sw * 1.4, armY, ex - sw * 1.4, ey - 1, 2, 1.6, lit);
+      Art.rect(g, ex - 2.2, ey - 1, 4.4, 1.6, GOLD);
+      Art.rect(g, ex - 2.2, ey - 1, 4.4, 0.7, GOLD2);
     }
-    // the hood: tall, pointed, with nothing inside it
+    // a cord knot with one tassel, tucked under the left sleeve
+    if (!sit) {
+      Art.ell(g, 20 - 5.4, skirtTop + 11, 1.8, 1.8, GOLD2);
+      Art.rect(g, 20 - 6, skirtTop + 12, 1.2, 4.6 + S * 0.6, GOLD);
+      Art.rect(g, 20 - 6.2, skirtTop + 16 + S * 0.6, 1.6, 1.6, GOLD2);
+    }
+    // an amulet hanging at the throat of the cape
+    if (view !== 'back') {
+      Art.rect(g, 19.5, my - 2.5, 1, 3, GOLD);
+      Art.ell(g, 20, my + 2, 2.6, 2.6, GOLD);
+      Art.ell(g, 20, my + 2, 1.6, 1.6, WINE);
+      Art.rect(g, 19.2, my + 0.8, 1, 1, GOLD2);
+    }
+    // the hood: tall, narrow, sharply pointed, with nothing inside it
     const hy = (sit ? 12 : 4) + y0;
-    Art.poly(g, [[20, hy - 3], [30, hy + 12], [10, hy + 12]], R2);
-    Art.ell(g, 20, hy + 12, 10, 9, R2);
-    Art.ell(g, 16, hy + 9, 5, 6, R3);
-    Art.ell(g, 25, hy + 13, 5, 6, R1);
-    Art.poly(g, [[20, hy - 3], [23, hy + 5], [17, hy + 5]], R3);
+    Art.poly(g, [[20.5, hy - 7], [29, hy + 13], [11, hy + 13]], R1);       // the point, thrown back
+    Art.poly(g, [[20.5, hy - 7], [24, hy + 4], [18, hy + 4]], R2);
+    Art.ell(g, 20, hy + 12, 9.5, 9, R2);
+    Art.ell(g, 15.6, hy + 9, 4.6, 5.6, R3);                                 // sun on the crown
+    Art.ell(g, 25, hy + 13, 4.6, 5.6, R1);
+    Art.rect(g, 11, hy + 6, 1.4, 6, R3);                                    // rim light down the left
     if (view === 'back') {
-      Art.ell(g, 20, hy + 13, 7, 7, R1);                         // just cloth from behind
+      Art.ell(g, 20, hy + 13, 7, 7, R1);                                    // just cloth from behind
+      Art.rect(g, 16.5, hy + 8, 7, 1.2, GOLD);
     } else {
       const vx = view === 'quarter' ? 22 : 20;
-      Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);                   // the void
-      Art.ellBand(g, vx, hy + 13, 6.4, 7.4, GOLD, 0, 1);         // gold edge of the opening
-      Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);
-      // two bright eyes burning in the dark
+      Art.ell(g, vx, hy + 13, 5.6, 6.8, VOID);                              // the void where a face goes
+      Art.ellBand(g, vx, hy + 13, 6.6, 7.8, GOLD, 0, 1);                    // gold edge of the opening
+      Art.ell(g, vx, hy + 13, 5.6, 6.8, VOID);
+      // two eyes burning in the dark, with a soft glow around each
       const ey = hy + 12 + (hurt > 0 ? -1 : 0);
-      if (pose === 'hurt') { Art.rect(g, vx - 3.4, ey, 2.4, 1.2, GOLD2); Art.rect(g, vx + 1, ey, 2.4, 1.2, GOLD2); }
+      if (pose === 'hurt') { Art.rect(g, vx - 3.6, ey, 2.8, 1.2, GOLD2); Art.rect(g, vx + 1, ey, 2.8, 1.2, GOLD2); }
       else {
-        Art.rect(g, vx - 3.6, ey - 0.6, 2.6, 2.6, 'rgba(255,230,140,0.35)'); Art.rect(g, vx + 1, ey - 0.6, 2.6, 2.6, 'rgba(255,230,140,0.35)');
-        Art.rect(g, vx - 3, ey, 1.6, 1.6, '#fff4c0'); Art.rect(g, vx + 1.6, ey, 1.6, 1.6, '#fff4c0');
-        if (f === 4 && pose === 'idle') { Art.rect(g, vx - 3, ey + 0.4, 1.6, 0.8, '#fff4c0'); Art.rect(g, vx + 1.6, ey + 0.4, 1.6, 0.8, '#fff4c0'); Art.rect(g, vx - 3, ey, 4.2, 0.4, VOID); }
+        Art.ell(g, vx - 2.3, ey + 0.7, 2.6, 2.4, 'rgba(255,226,120,0.22)');
+        Art.ell(g, vx + 2.5, ey + 0.7, 2.6, 2.4, 'rgba(255,226,120,0.22)');
+        Art.rect(g, vx - 3.6, ey - 0.4, 2.8, 2.8, 'rgba(255,232,150,0.45)'); Art.rect(g, vx + 1.1, ey - 0.4, 2.8, 2.8, 'rgba(255,232,150,0.45)');
+        Art.rect(g, vx - 3.2, ey, 2, 2, '#fff8d8'); Art.rect(g, vx + 1.5, ey, 2, 2, '#fff8d8');
+        Art.rect(g, vx - 3.2, ey, 2, 0.8, '#ffffff'); Art.rect(g, vx + 1.5, ey, 2, 0.8, '#ffffff');
+        if (f === 4 && pose === 'idle') { Art.rect(g, vx - 3.6, ey - 0.4, 8, 2.6, VOID); }
       }
     }
     // casting: a staff crowned with a cross, and sparks

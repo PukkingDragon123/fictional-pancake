@@ -7,338 +7,345 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 
 <style>
-/* Wombat Gods - dark grove, carved stone, gold leaf. One committed theme. */
+/* Wombat Gods - the interface is cloned from a pixel farm-game UI kit:
+   cream panels inside a green frame, wooden banner headings with blue caps,
+   gold-cornered inventory slots, and chunky gold buttons that press down. */
 :root {
-  --ink: #120e14; --ink2: #241d2a;
-  --st0: #1c1a24; --st1: #2c2836; --st2: #443e52; --st3: #625a72; --st4: #8b849c;
-  --bark0: #2a1d15; --bark1: #412e20; --bark2: #5d4430; --bark3: #7d5f42;
-  --g1: #a97c1e; --g2: #d8a52f; --g3: #f5cd5c; --g4: #ffeeb0;
-  --m2: #436f2f; --m3: #5d9440; --m4: #84bb59;
-  --d2: #563391; --d3: #8354c9; --d4: #b98ef0; --d5: #e6d6ff;
-  --red: #b8412c; --redL: #e0705a;
-  --cy3: #79dced;
-  --parch: #d8c69c; --parch1: #efdcb4; --cream: #fdf3dc;
-  --f: "Press Start 2P", "Courier New", monospace;
+  /* the one black line that goes around everything */
+  --ol: #17120e;
+  /* green frame */
+  --gr0: #29431c; --gr1: #4c7a2c; --gr2: #6ea83e; --gr3: #97cd60;
+  /* cream paper */
+  --cr0: #f4e6c0; --cr1: #fdf6e0; --cr2: #ddc79a; --cr3: #b9a274;
+  /* wood */
+  --wd0: #34200f; --wd1: #6b4423; --wd2: #99642f; --wd3: #c58f47; --wd4: #e9bd78;
+  /* gold */
+  --gd0: #7d5510; --gd1: #c1912a; --gd2: #efc245; --gd3: #ffe497;
+  /* blue caps + water */
+  --bl0: #17304f; --bl1: #2b5a92; --bl2: #4d8fd0; --bl3: #8fc6f2;
+  /* accents */
+  --red0: #6d2418; --red1: #b8412c; --red2: #e0705a;
+  --ink: #3a2612; --ink2: #6a5230;
+  --d2: #563391; --d3: #8354c9; --d4: #b98ef0;
+  --m3: #5d9440; --m4: #84bb59;
+  --st3: #625a72; --st4: #8b849c;
+  --cream: #fdf6e0; --parch: #ddc79a;
+  --f: "Silkscreen", "Press Start 2P", monospace;
+  --ft: "Press Start 2P", "Silkscreen", monospace;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { margin: 0; height: 100%; background: #07050b; color: var(--cream); overflow: hidden; font-family: var(--f); font-size: 10px; }
-button { font-family: var(--f); cursor: pointer; color: var(--cream); font-size: 9px; }
-img.ico { width: 20px; height: 20px; image-rendering: pixelated; display: block; }
-img.ico.sm { width: 15px; height: 15px; }
-img.ico.lg { width: 28px; height: 28px; }
-img.ico.xl { width: 40px; height: 40px; }
-.dim { color: var(--st4); } .good { color: var(--m4); } .warn { color: var(--redL); }
+html, body { margin: 0; height: 100%; background: #0a0a10; color: var(--ink); overflow: hidden; font-family: var(--f); font-size: 14px; }
+button { font-family: var(--f); cursor: pointer; color: var(--cream); font-size: 13px; }
+img.ico { width: 26px; height: 26px; image-rendering: pixelated; display: block; }
+img.ico.sm { width: 18px; height: 18px; }
+img.ico.lg { width: 34px; height: 34px; }
+img.ico.xl { width: 48px; height: 48px; }
+.dim { color: var(--ink2); } .good { color: #2f6b1f; } .warn { color: #9a2a1a; }
 #app { display: flex; height: 100vh; width: 100vw; }
-
-#stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: #07050b; overflow: hidden; }
-#frame { position: relative; line-height: 0; box-shadow: 0 0 0 3px var(--ink), 0 0 60px rgba(0,0,0,0.8); }
+#stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: #0a0a10; overflow: hidden; }
+#frame { position: relative; line-height: 0; box-shadow: 0 0 0 4px var(--ol), 0 0 70px rgba(0,0,0,0.85); }
 #game { image-rendering: pixelated; display: block; cursor: crosshair; touch-action: none; width: 100%; height: 100%; }
 
-/* ---- Everything the player touches is a thing, not a widget: a leather
-   pouch, a paper pinned to the fence, a tool belt, a pocket notebook. ---- */
-:root {
-  --ol: #14100c;                      /* the one black line around everything */
-  --wood: #c98b3f; --wood2: #a86f2c; --woodL: #f0cf86; --woodD: #6d4418;
-  --paper: #f0e3c2; --paper2: #e3d2ab; --paperD: #c9b489; --line: #b9a882;
-  --leather: #6b4526; --leather2: #85582f; --leatherD: #4a2e17; --stitch: #d8bb85;
-  --inkpen: #3c2a18; --pen: #4a3a6a; --rust: #a9502c;
-}
+/* Three recipes, reused everywhere:
+   FRAME   cream field, green border, black line, gold studs in the corners
+           (the panel, the to-do card, the tooltip, the modal, the toast)
+   BUTTON  gold and chunky, and it travels 4px when you press it
+   SLOT    a brown inventory cell with gold corners (the chips and the ring) */
 
-.bev, #money, .rbtn, .mbtn, .spoke, .hub, .act, .wbtn, .buy, .x, .panel, #tip, .toast, #checklist, .card, .readout .line, .goals div, .gcard, #rite-tray {
-  border: 3px solid var(--ol) !important;
-  box-shadow: inset 2px 2px 0 rgba(255,236,190,0.55), inset -2px -2px 0 rgba(60,30,10,0.45), 3px 3px 0 rgba(0,0,0,0.55) !important;
+/* 2. BUTTON - gold, chunky, and it actually travels when you press it */
+.btn, .act, .wbtn, .buy, .x, .rbtn, .mbtn, .spoke, .hub {
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 14px; color: #3a2606; font-family: var(--f);
+  background: linear-gradient(180deg, var(--gd3) 0 24%, var(--gd2) 24% 62%, var(--gd1) 62% 100%);
+  border: 3px solid var(--ol);
+  box-shadow: inset 0 0 0 2px rgba(255,240,190,0.55), 0 5px 0 0 var(--gd0), 0 5px 0 3px var(--ol);
+  transition: transform 0.04s;
 }
-@keyframes bump { 0% { transform: rotate(-1.5deg) scale(1); } 35% { transform: rotate(-1.5deg) scale(1.22, 0.86); } 65% { transform: rotate(-1.5deg) scale(0.92, 1.1); } 100% { transform: rotate(-1.5deg) scale(1); } }
-@keyframes boing { 0% { transform: translateY(-5px) scale(1); } 40% { transform: translateY(-9px) scale(1.14, 0.88); } 70% { transform: translateY(-4px) scale(0.94, 1.08); } 100% { transform: translateY(-5px) scale(1); } }
+.btn:hover, .act:hover:not(:disabled), .wbtn:hover, .buy:hover:not(:disabled), .rbtn:hover, .mbtn:hover, .spoke:hover {
+  background: linear-gradient(180deg, #fff0c0 0 24%, #ffd25e 24% 62%, #d4a230 62% 100%);
+}
+.btn:active, .act:active:not(:disabled), .wbtn:active, .buy:active:not(:disabled), .x:active, .rbtn:active, .mbtn:active, .spoke:active {
+  transform: translateY(4px);
+  box-shadow: inset 0 0 0 2px rgba(255,240,190,0.55), 0 1px 0 0 var(--gd0), 0 1px 0 3px var(--ol);
+}
+/* the green variant, for anything that says yes */
+.act.go, .brow2 .act { background: linear-gradient(180deg, var(--gr3) 0 24%, var(--gr2) 24% 62%, var(--gr1) 62% 100%); color: #17300c;
+  box-shadow: inset 0 0 0 2px rgba(230,255,200,0.5), 0 5px 0 0 var(--gr0), 0 5px 0 3px var(--ol); }
+/* the red variant, for anything that closes or removes */
+.x, .bx { background: linear-gradient(180deg, #e88a72 0 24%, var(--red1) 24% 62%, var(--red0) 62% 100%); color: #fff0e8; padding: 6px 8px;
+  box-shadow: inset 0 0 0 2px rgba(255,210,190,0.4), 0 4px 0 0 #4a170e, 0 4px 0 3px var(--ol); }
+/* greyed out, and it wins over every colour variant above */
+.btn:disabled, .act:disabled, .act.go:disabled, .buy:disabled, .rbtn:disabled {
+  background: linear-gradient(180deg, #b9ad96 0 24%, #9a8e78 24% 62%, #7a6f5c 62% 100%) !important;
+  color: #4d4638; cursor: not-allowed;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2), 0 5px 0 0 #4f4737, 0 5px 0 3px var(--ol) !important;
+}
+.act:disabled img.ico, .buy:disabled img.ico { filter: grayscale(0.85) brightness(0.8); }
+
+@keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.2, 0.86); } 65% { transform: scale(0.93, 1.09); } 100% { transform: scale(1); } }
 @keyframes tick { 0% { transform: scale(0); } 60% { transform: scale(1.5); } 100% { transform: scale(1); } }
-@keyframes settle { 0% { transform: rotate(-0.8deg) scale(0.6); opacity: 0; } 60% { transform: rotate(-0.8deg) scale(1.08); opacity: 1; } 100% { transform: rotate(-0.8deg) scale(1); } }
+@keyframes pop { from { transform: translate(-50%,-50%) scale(0.88); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
+@keyframes pop2 { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes slide { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 
-/* money: a leather coin tag on a thong */
+/* ---- the purse ----------------------------------------------------------- */
 #money {
-  position: absolute; left: 12px; top: 12px; z-index: 6;
-  display: flex; align-items: center; gap: 7px; padding: 7px 12px 8px 9px;
-  background: linear-gradient(180deg, var(--leather2), var(--leather));
-  border: 2px solid var(--leatherD);
-  box-shadow: inset 0 1px 0 rgba(255,222,170,0.3), inset 0 -3px 0 rgba(0,0,0,0.25), 2px 3px 0 rgba(0,0,0,0.45);
-  transform: rotate(-1.5deg);
+  position: absolute; left: 14px; top: 14px; z-index: 6;
+  display: flex; align-items: center; gap: 8px; padding: 7px 16px 7px 10px;
   font-variant-numeric: tabular-nums; pointer-events: none;
+  background: linear-gradient(180deg, var(--wd4) 0 18%, var(--wd3) 18% 44%, var(--wd2) 44% 100%);
+  border: 3px solid var(--ol);
+  box-shadow: inset 0 0 0 2px rgba(255,228,170,0.35), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
 }
-#money::before {
-  content: ''; position: absolute; inset: 3px; border: 1px dashed var(--stitch); opacity: 0.55;
-}
-#money, .rbtn, .mbtn, .spoke, .hub, .act, .wbtn, .buy, .x {
-  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
-}
-#money b { font-weight: normal; color: #ffe9a8; font-size: 12px; text-shadow: 0 2px 0 rgba(0,0,0,0.45); }
+#money b { font-weight: normal; color: #fff3cf; font-family: var(--ft); font-size: 15px; text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
+#money img.ico { width: 30px; height: 30px; }
 #money.bump { animation: bump 0.32s ease-out; }
-#money img.ico { filter: drop-shadow(0 1px 0 #000); }
 
-/* the clean-up list: a paper pinned up, taped at the corner, torn at the foot */
+/* ---- the to-do card ------------------------------------------------------ */
 #checklist {
-  position: absolute; right: 14px; top: 14px; z-index: 6; width: 158px;
-  padding: 12px 10px 14px; pointer-events: none;
-  background:
-    repeating-linear-gradient(180deg, rgba(185,168,130,0.22) 0 1px, rgba(0,0,0,0) 1px 15px),
-    linear-gradient(160deg, #f2e5c4 0%, #ddc99d 100%);
-  transform: rotate(1.4deg);
+  position: absolute; right: 18px; top: 30px; z-index: 6; width: 204px;
+  padding: 14px 12px 12px; pointer-events: none;
+  background: var(--cr0); border: 4px solid var(--gr2);
+  box-shadow: inset 0 0 0 2px var(--gr3), inset 0 0 0 6px var(--cr1), 0 0 0 4px var(--gr0), 0 0 0 7px var(--ol), 0 7px 0 5px rgba(0,0,0,0.42);
 }
-#checklist .tape {
-  position: absolute; left: 50%; top: -9px; width: 52px; height: 17px; margin-left: -26px;
-  background: rgba(214,196,146,0.85); border-left: 1px solid rgba(255,255,255,0.4); border-right: 1px solid rgba(0,0,0,0.1);
-  transform: rotate(-3deg); box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+#checklist h4 {
+  margin: -22px -4px 12px; padding: 9px 20px 7px; text-align: center; line-height: 1;
+  color: #fff3d2; font-family: var(--ft); font-size: 11px; letter-spacing: 1px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.55);
+  background: linear-gradient(180deg, var(--wd4) 0 18%, var(--wd3) 18% 40%, var(--wd2) 40% 76%, var(--wd1) 76% 100%);
+  border: 3px solid var(--ol); box-shadow: 0 3px 0 0 var(--wd0), 0 3px 0 3px var(--ol);
 }
-#checklist .tear {
-  position: absolute; left: 0; right: 0; bottom: -6px; height: 7px;
-  background: repeating-linear-gradient(90deg, var(--paper2) 0 5px, transparent 5px 6px, var(--paper2) 6px 9px, transparent 9px 11px);
-}
-#checklist h4 { margin: 0 0 7px; font-size: 9px; color: var(--inkpen); letter-spacing: 2px; border-bottom: 2px solid var(--line); padding-bottom: 4px; }
-.task {
-  display: flex; align-items: center; gap: 5px; padding: 3px 0;
-  font-size: 7px; color: var(--inkpen); font-variant-numeric: tabular-nums;
-}
-.task .box { position: relative; width: 9px; height: 9px; border: 1px solid var(--inkpen); flex: none; background: rgba(255,255,255,0.35); }
-.task .box i { position: absolute; left: 0; top: -4px; width: 11px; height: 11px;
-  background: linear-gradient(45deg, transparent 44%, var(--rust) 44% 60%, transparent 60%),
-              linear-gradient(-45deg, transparent 44%, var(--rust) 44% 60%, transparent 60%); }
-.task.done { opacity: 0.6; }
+.task { display: flex; align-items: center; gap: 7px; padding: 5px 2px; font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.task .box { position: relative; width: 14px; height: 14px; flex: none; background: var(--cr1); border: 2px solid var(--ink); }
+.task .box i { position: absolute; left: -1px; top: -6px; width: 16px; height: 16px;
+  background: linear-gradient(45deg, transparent 44%, var(--gr1) 44% 62%, transparent 62%),
+              linear-gradient(-45deg, transparent 44%, var(--gr1) 44% 62%, transparent 62%); }
+.task.done { opacity: 0.55; }
 .task.done .box i { animation: tick 0.35s ease-out; transform-origin: center; }
 .task.done b { text-decoration: line-through; }
-.task b { font-weight: normal; min-width: 34px; text-align: right; }
-.task .bar { flex: 1; height: 4px; background: rgba(90,70,40,0.2); border: 1px solid rgba(90,70,40,0.35); }
-.task .bar i { display: block; height: 100%; background: var(--rust); }
-.task img.ico { filter: saturate(0.75) contrast(1.05); }
+.task img.ico { width: 24px; height: 24px; }
+.task b { font-weight: normal; min-width: 46px; text-align: right; font-size: 13px; }
+.task b small { font-size: 11px; color: var(--ink2); }
+.task .bar { flex: 1; height: 9px; background: #5a4326; border: 2px solid var(--ol); box-shadow: inset 0 1px 0 rgba(0,0,0,0.4); }
+.task .bar i { display: block; height: 100%; background: linear-gradient(180deg, var(--gr3) 0 40%, var(--gr1) 40% 100%); }
 
-/* the cultist's notebook */
-@keyframes nbflash { from { background: rgba(233,190,90,0.6); } to { background: transparent; } }
-
-/* side buttons: little wooden signs */
-#side { position: absolute; right: 14px; bottom: 86px; z-index: 6; display: flex; flex-direction: column; gap: 6px; }
-.rbtn {
-  display: flex; align-items: center; gap: 5px; padding: 8px 10px;
-  background: linear-gradient(180deg, var(--leather2), var(--leather));
-  border: 2px solid var(--leatherD);
-  box-shadow: inset 0 1px 0 rgba(255,222,170,0.25), 2px 3px 0 rgba(0,0,0,0.4);
-}
-.rbtn:hover { filter: brightness(1.12); }
-.rbtn:active { transform: scale(0.92) translateY(2px); }
-.rbtn.on { background: linear-gradient(180deg, #d8a52f, #a97c1e); }
+/* ---- corner buttons ------------------------------------------------------ */
+#side { position: absolute; right: 16px; bottom: 16px; z-index: 6; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+.rbtn { padding: 8px 10px; }
+.rbtn img.ico { width: 30px; height: 30px; }
 .rbtn.big { padding: 10px 12px; }
-.rbtn.full { background: linear-gradient(180deg, #6f9a44, #4a6f2c); }
-.rbtn b { font-weight: normal; font-size: 11px; color: #ffe9a8; }
-
-#mini { position: absolute; left: 12px; bottom: 12px; z-index: 6; display: flex; gap: 5px; }
-.mbtn {
-  display: flex; align-items: center; justify-content: center; padding: 6px 7px;
-  background: linear-gradient(180deg, #7a5a3a, #563a22); border: 2px solid var(--leatherD); box-shadow: 1px 2px 0 rgba(0,0,0,0.4); opacity: 0.9;
-}
-.mbtn:hover { opacity: 1; filter: brightness(1.15); }
-
-/* the tool belt */ #dock::after { right: 6px; }
-
-/* the flyout: a canvas pouch flipped open above the belt */
-.strip { display: flex; gap: 4px; flex-wrap: wrap; }
-.strip .empty { font-size: 8px; color: var(--st4); }
+.rbtn.big img.ico { width: 38px; height: 38px; }
+.rbtn.on, .rbtn.full { background: linear-gradient(180deg, var(--gr3) 0 24%, var(--gr2) 24% 62%, var(--gr1) 62% 100%);
+  box-shadow: inset 0 0 0 2px rgba(230,255,200,0.5), 0 5px 0 0 var(--gr0), 0 5px 0 3px var(--ol); }
+.rbtn b { font-weight: normal; font-size: 14px; color: #3a2606; font-family: var(--ft); }
+#mini { position: absolute; left: 14px; bottom: 14px; z-index: 6; display: flex; gap: 8px; }
+.mbtn { padding: 7px 9px; }
+.mbtn img.ico { width: 22px; height: 22px; }
 
 /* ---- tooltip ------------------------------------------------------------- */
 #tip {
-  position: absolute; pointer-events: none; z-index: 20; max-width: 240px; line-height: 1.7;
-  background: var(--parch1); color: var(--ink); border: 3px solid var(--ink);
-  box-shadow: 0 0 0 2px var(--bark2), 3px 3px 0 rgba(0,0,0,0.45);
-  padding: 6px 8px; font-size: 8px;
+  position: absolute; pointer-events: none; z-index: 20; max-width: 280px; line-height: 1.6;
+  background: var(--cr0); color: var(--ink); padding: 8px 10px; font-size: 13px;
+  border: 3px solid var(--gr2);
+  box-shadow: inset 0 0 0 2px var(--cr1), 0 0 0 3px var(--gr0), 0 0 0 5px var(--ol), 4px 5px 0 rgba(0,0,0,0.45);
 }
-#tip b { color: var(--bark0); }
-#tip img { display: inline-block; vertical-align: -3px; }
-#tip .good { color: #2f6b1f; } #tip .warn { color: #9a2a1a; } #tip .dim { color: #6a5a48; }
+#tip b { color: #6b3d12; font-family: var(--ft); font-size: 11px; }
+#tip img { display: inline-block; vertical-align: -4px; }
 
 /* ---- overlays ------------------------------------------------------------ */
 .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
 .overlay button, .overlay .godlist, .overlay .strip, .overlay .card { pointer-events: auto; }
 .card {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 16px 22px;
-  background: linear-gradient(180deg, rgba(36,29,42,0.95), rgba(18,14,20,0.95));
-  border: 3px solid var(--ink); box-shadow: 0 0 0 3px var(--st2), 0 12px 40px rgba(0,0,0,0.7);
+  display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 22px 28px;
+  background: var(--cr0); border: 4px solid var(--gr2);
+  box-shadow: inset 0 0 0 2px var(--gr3), inset 0 0 0 6px var(--cr1), 0 0 0 4px var(--gr0), 0 0 0 7px var(--ol), 0 8px 0 5px rgba(0,0,0,0.45);
 }
-.bigrow { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--g3); }
-.act {
-  display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 15px;
-  background: linear-gradient(180deg, #7a52c2, #4a2a86); border: 1px solid #2a1650;
-  box-shadow: inset 0 1px 0 rgba(255,230,255,0.25), 2px 3px 0 rgba(0,0,0,0.4);
-}
-.act:hover:not(:disabled) { filter: brightness(1.15); }
-.act:active:not(:disabled) { transform: scale(0.92) translateY(2px); }
-.act:disabled { background: var(--st2); filter: grayscale(0.6); cursor: not-allowed; opacity: 0.65; }
-.act.big { padding: 12px 24px; }
-.act.small { padding: 6px 8px; }
-.wbtn { display: flex; align-items: center; gap: 5px; padding: 6px 10px; color: #f6ecd4;
-  background: linear-gradient(180deg, #7a5a3a, #563a22); border: 1px solid #34200f; box-shadow: 1px 2px 0 rgba(0,0,0,0.35); }
-.wbtn:hover { filter: brightness(1.15); }
-.keys { display: flex; gap: 5px; }
-kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width: 3px; padding: 2px 4px; font-size: 7px; color: var(--cream); }
+.bigrow { display: flex; gap: 10px; align-items: center; font-family: var(--ft); font-size: 15px; color: #6b3d12; }
+.act.big { padding: 13px 26px; }
+.act.small { padding: 7px 9px; }
+.keys { display: flex; gap: 6px; }
+kbd { background: var(--cr1); border: 3px solid var(--ol); border-bottom-width: 5px; padding: 4px 7px; font-size: 13px; color: var(--ink); font-family: var(--f); }
 
-#ov-shrine .godlist { position: absolute; right: 8px; top: 8px; bottom: 62px; width: 132px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-.gcard { display: flex; align-items: center; gap: 4px; padding: 4px; background: rgba(18,14,20,0.86); border: 2px solid var(--ink); border-left: 4px solid var(--st3); cursor: pointer; }
-.gcard.ready { border-left-color: var(--d3); background: rgba(60,36,110,0.75); }
-.gcard.done { opacity: 0.42; border-left-color: var(--m3); }
-.gcard .need { display: flex; flex-wrap: wrap; gap: 2px; flex: 1; }
-.gcard .need span { display: flex; align-items: center; gap: 1px; font-size: 8px; }
-.gcard .need span.ok { color: var(--m4); } .gcard .need span.no { color: var(--redL); }
-.gcard .need img { width: 13px; height: 13px; image-rendering: pixelated; }
-#offer-slots { position: absolute; left: 8px; bottom: 52px; max-width: 60%; }
-#b-summon { position: absolute; right: 8px; bottom: 8px; }
-#b-unstage { position: absolute; left: 8px; bottom: 8px; }
-#rite-tray { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); padding: 4px; background: rgba(14,11,20,0.8); border: 2px solid var(--ink); }
-#rite-slots { display: flex; gap: 4px; }
-#b-basket { position: absolute; right: 10px; bottom: 10px; }
+#ov-shrine .godlist { position: absolute; right: 10px; top: 10px; bottom: 74px; width: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
+.gcard { display: flex; align-items: center; gap: 6px; padding: 5px 6px; cursor: pointer; color: var(--ink);
+  background: var(--cr0); border: 3px solid var(--ol); border-left: 6px solid var(--wd2);
+  box-shadow: inset 0 0 0 2px var(--cr1), 0 3px 0 rgba(0,0,0,0.4); }
+.gcard.ready { border-left-color: var(--gd2); }
+.gcard.done { opacity: 0.5; border-left-color: var(--gr2); }
+.gcard .need { display: flex; flex-wrap: wrap; gap: 3px; flex: 1; }
+.gcard .need span { display: flex; align-items: center; gap: 2px; font-size: 12px; }
+.gcard .need span.ok { color: #2f6b1f; } .gcard .need span.no { color: #9a2a1a; }
+.gcard .need img { width: 17px; height: 17px; image-rendering: pixelated; }
+#offer-slots { position: absolute; left: 10px; bottom: 66px; max-width: 62%; }
+#b-summon { position: absolute; right: 10px; bottom: 10px; }
+#b-unstage { position: absolute; left: 10px; bottom: 10px; }
+#rite-tray { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 7px;
+  background: linear-gradient(180deg, var(--wd2), var(--wd1)); border: 3px solid var(--ol);
+  box-shadow: inset 0 2px 0 rgba(255,214,156,0.25), 0 4px 0 rgba(0,0,0,0.45); }
+#rite-slots { display: flex; gap: 6px; }
+#b-basket { position: absolute; right: 12px; bottom: 12px; }
 
-.readout { position: absolute; left: 8px; top: 42px; display: flex; flex-direction: column; gap: 4px; }
-.readout .line { display: flex; align-items: center; gap: 6px; padding: 3px 7px; min-width: 84px; font-variant-numeric: tabular-nums;
-  background: rgba(18,14,20,0.85); border: 2px solid var(--ink); border-left: 3px solid var(--st3); }
-.readout .line img { width: 15px; height: 15px; image-rendering: pixelated; }
+/* the hotbar chips are inventory slots */
+.strip { display: flex; gap: 6px; flex-wrap: wrap; }
+.strip .empty { font-size: 12px; color: var(--cr2); }
+.chip { position: relative; width: 50px; height: 50px; flex: none; display: flex; align-items: center; justify-content: center; padding: 0;
+  background: linear-gradient(160deg, #6d4a2b 0%, #533722 55%, #3f2917 100%); border: 3px solid var(--ol);
+  box-shadow: inset 0 2px 0 rgba(255,214,156,0.22), inset 0 -3px 0 rgba(0,0,0,0.4); }
+.chip::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(var(--gd2), var(--gd1)) 0 0 / 6px 6px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 100% 0 / 6px 6px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 0 100% / 6px 6px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 100% 100% / 6px 6px no-repeat; }
+.chip.on { box-shadow: inset 0 0 0 3px var(--gd2), inset 0 2px 0 rgba(255,214,156,0.22); }
+.chip img.ico { width: 32px; height: 32px; }
+.chip .n { position: absolute; right: 2px; bottom: 1px; font-size: 12px; color: #fff3cf; text-shadow: 0 2px 0 #000; }
+.chip .n em { font-style: normal; color: var(--gd3); }
+.chip .k { position: absolute; left: 2px; top: 1px; font-size: 11px; color: var(--gd3); text-shadow: 0 2px 0 #000; }
+
+.readout { position: absolute; left: 10px; top: 56px; display: flex; flex-direction: column; gap: 5px; }
+.readout .line { display: flex; align-items: center; gap: 7px; padding: 4px 9px; min-width: 104px; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink);
+  background: var(--cr0); border: 3px solid var(--ol); border-left: 6px solid var(--wd2); box-shadow: inset 0 0 0 2px var(--cr1); }
+.readout .line img { width: 18px; height: 18px; image-rendering: pixelated; }
 #r-lives { gap: 3px; }
-#r-lives img { width: 13px; height: 13px; image-rendering: pixelated; }
-.goals { display: flex; flex-direction: column; gap: 3px; }
-.goals div { display: flex; align-items: center; gap: 5px; padding: 3px 6px; font-size: 8px;
-  background: rgba(18,14,20,0.85); border: 2px solid var(--ink); border-left: 3px solid var(--cy3); }
-.goals div.done { border-left-color: var(--m4); color: var(--m4); }
-.boons { display: flex; gap: 3px; flex-wrap: wrap; max-width: 108px; }
-.boons img { width: 22px; height: 22px; image-rendering: pixelated; background: rgba(60,36,110,0.7); border: 2px solid var(--ink); padding: 1px; }
-#b-cash { margin-top: 3px; background: linear-gradient(180deg, var(--g2), var(--g1)); }
+#r-lives img { width: 16px; height: 16px; image-rendering: pixelated; }
+.goals { display: flex; flex-direction: column; gap: 4px; }
+.goals div { display: flex; align-items: center; gap: 6px; padding: 4px 8px; font-size: 12px; color: var(--ink);
+  background: var(--cr0); border: 3px solid var(--ol); border-left: 6px solid var(--bl2); box-shadow: inset 0 0 0 2px var(--cr1); }
+.goals div.done { border-left-color: var(--gr2); color: #2f6b1f; }
+.boons { display: flex; gap: 4px; flex-wrap: wrap; max-width: 128px; }
+.boons img { width: 26px; height: 26px; image-rendering: pixelated; padding: 2px;
+  background: linear-gradient(160deg, #6d4a2b, #3f2917); border: 3px solid var(--ol); }
 
 /* ---- panels -------------------------------------------------------------- */
 .panel {
-  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-0.4deg); z-index: 30;
-  width: min(700px, 94vw); max-height: 84vh; display: flex; flex-direction: column;
-  padding-left: 16px; color: var(--inkpen);
-  background:
-    repeating-linear-gradient(180deg, rgba(120,140,180,0.18) 0 1px, rgba(0,0,0,0) 1px 16px),
-    linear-gradient(170deg, #f6ecd4, #e3d2ab);
-  border: 1px solid #b7a37f; border-left: 4px solid #9c8158;
-  box-shadow: 6px 8px 0 rgba(0,0,0,0.5); animation: pop 0.15s ease-out;
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 30;
+  width: min(760px, 94vw); max-height: 86vh; display: flex; flex-direction: column;
+  padding: 0 0 14px; color: var(--ink); animation: pop 0.15s ease-out;
+  background: var(--cr0); border: 4px solid var(--gr2);
+  box-shadow: inset 0 0 0 2px var(--gr3), inset 0 0 0 6px var(--cr1), 0 0 0 4px var(--gr0), 0 0 0 7px var(--ol), 0 10px 0 6px rgba(0,0,0,0.5);
 }
-.panel::before { content: ''; position: absolute; left: 4px; top: 10px; bottom: 10px; width: 8px;
-  background: repeating-linear-gradient(180deg, #9aa0aa 0 3px, transparent 3px 14px); }
-.panel::after { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 1px; background: rgba(170,80,60,0.45); }
-@keyframes pop { from { transform: translate(-50%,-50%) rotate(-0.4deg) scale(0.9); opacity: 0; } to { transform: translate(-50%,-50%) rotate(-0.4deg) scale(1); opacity: 1; } }
-.phead { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 2px solid #b7a37f;
-  color: var(--inkpen); background: rgba(255,255,255,0.18); }
-.ptitle { font-size: 10px; flex: 1; }
-.x { background: linear-gradient(180deg, #c55a3a, #9a3f22); border: 1px solid #5a2312; padding: 4px 6px; margin-left: auto; box-shadow: 1px 2px 0 rgba(0,0,0,0.35); }
-.pbody { overflow-y: auto; padding: 10px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
-.item { display: grid; grid-template-columns: 40px 1fr; gap: 4px 9px; padding: 8px; align-items: center;
-  background: rgba(255,252,240,0.55); border: 1px dashed #a8906a; box-shadow: 2px 2px 0 rgba(65,46,32,0.18); }
-.item.have { border-color: var(--m2); }
-.item .pic { grid-row: 1 / 3; }
+.phead {
+  position: relative; display: flex; align-items: center; gap: 10px;
+  margin: -20px 26px 12px; padding: 10px 22px 10px 18px;
+  color: #fff3d2; font-family: var(--ft); font-size: 12px; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(0,0,0,0.55);
+  background: linear-gradient(180deg, var(--wd4) 0 18%, var(--wd3) 18% 40%, var(--wd2) 40% 76%, var(--wd1) 76% 100%);
+  border: 3px solid var(--ol); box-shadow: 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
+}
+.phead::before, .phead::after {
+  content: ''; position: absolute; top: -7px; bottom: -7px; width: 16px;
+  background: linear-gradient(180deg, var(--bl3) 0 18%, var(--bl2) 18% 46%, var(--bl1) 46% 100%); border: 3px solid var(--ol);
+}
+.phead::before { left: -10px; } .phead::after { right: -10px; }
+.ptitle { flex: 1; }
+.phead .x { margin-left: auto; z-index: 1; }
+.pbody { overflow-y: auto; padding: 4px 16px 2px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); gap: 10px; }
+.item { display: grid; grid-template-columns: 58px 1fr; gap: 5px 11px; padding: 10px; align-items: center;
+  background: var(--cr1); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--cr0), 0 4px 0 rgba(0,0,0,0.35); }
+.item.have { box-shadow: inset 0 0 0 2px var(--gr3), 0 4px 0 rgba(0,0,0,0.35); }
+.item .pic { grid-row: 1 / 3; position: relative; width: 54px; height: 54px; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, #6d4a2b 0%, #533722 55%, #3f2917 100%); border: 3px solid var(--ol);
+  box-shadow: inset 0 2px 0 rgba(255,214,156,0.22), inset 0 -3px 0 rgba(0,0,0,0.4); }
+.item .pic::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(var(--gd2), var(--gd1)) 0 0 / 6px 6px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 100% 0 / 6px 6px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 0 100% / 6px 6px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 100% 100% / 6px 6px no-repeat; }
 .item .pic img { width: 40px; height: 40px; image-rendering: pixelated; }
-.item h3 { grid-column: 2; margin: 0; font-size: 9px; display: flex; gap: 6px; align-items: baseline; color: var(--bark0); }
-.item h3 .lv { font-size: 8px; color: var(--g1); }
-.item p { grid-column: 2; margin: 0; font-size: 8px; line-height: 1.7; color: #5a4530; }
-.item .act2 { grid-column: 1 / 3; display: flex; gap: 5px; justify-content: flex-end; align-items: center; margin-top: 3px; }
-.buy { display: flex; gap: 4px; align-items: center; padding: 5px 9px; color: #3a2a14; font-variant-numeric: tabular-nums;
-  background: linear-gradient(180deg, #f0cd6a, #cfa33a); border: 1px solid #7a5a14; box-shadow: 1px 2px 0 rgba(0,0,0,0.3); }
-.buy img { width: 13px; height: 13px; image-rendering: pixelated; }
-.buy:hover:not(:disabled) { filter: brightness(1.1); }
-.buy:active:not(:disabled) { transform: scale(0.92) translateY(1px); }
-.buy:disabled { background: var(--bark3); color: var(--bark1); cursor: not-allowed; }
+.item h3 { grid-column: 2; margin: 0; font-family: var(--ft); font-size: 10px; display: flex; gap: 8px; align-items: baseline; color: #6b3d12; }
+.item h3 .lv { font-family: var(--f); font-size: 13px; color: var(--gd0); }
+.item p { grid-column: 2; margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink2); }
+.item .act2 { grid-column: 1 / 3; display: flex; gap: 6px; justify-content: flex-end; align-items: center; margin-top: 6px; }
+.buy { padding: 7px 11px; font-variant-numeric: tabular-nums; font-size: 13px; }
+.buy img { width: 17px; height: 17px; image-rendering: pixelated; }
+.wbtn { padding: 8px 12px; font-size: 13px; }
 
 /* basket */
-.blist { display: flex; flex-direction: column; gap: 4px; }
-.brow { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 8px; color: var(--inkpen);
-  background: rgba(255,252,240,0.5); border-bottom: 1px dashed #b7a37f; }
+.blist { display: flex; flex-direction: column; gap: 6px; }
+.brow { display: flex; align-items: center; gap: 10px; padding: 7px 9px; font-size: 13px; color: var(--ink);
+  background: var(--cr1); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--cr0); }
 .brow img.ico { image-rendering: pixelated; }
 .brow .bn { flex: 1; }
-.brow .bq { color: var(--g1); }
-.brow .bp { display: flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
-.bx { background: var(--red); border: 2px solid var(--ink); padding: 2px 3px; }
-.btotal { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px; color: #3a2a14;
-  background: rgba(255,252,240,0.6); border: 1px dashed #a8906a; border-top: 2px solid #a8906a; }
-.btotal b { font-size: 13px; color: #8a5a12; font-weight: normal; font-variant-numeric: tabular-nums; }
-.btotal .dim { margin-left: auto; font-size: 8px; color: #7a6a4a; }
-.brow2 { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
-.brow2 .act { background: linear-gradient(180deg, var(--m3), var(--m2)); }
-.empty2 { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px; color: #6a5a48; }
+.brow .bq { color: var(--gd0); }
+.brow .bp { display: flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
+.btotal { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 12px; color: var(--ink);
+  background: var(--cr1); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--cr0); }
+.btotal b { font-family: var(--ft); font-size: 14px; color: #8a5a12; font-weight: normal; font-variant-numeric: tabular-nums; }
+.btotal .dim { margin-left: auto; font-size: 12px; }
+.brow2 { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+.empty2 { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px; color: var(--ink2); }
 .empty2 img { image-rendering: pixelated; }
-.empty2 p { margin: 0; font-size: 8px; }
+.empty2 p { margin: 0; font-size: 13px; }
 
-.help ol { padding-left: 18px; font-size: 8px; line-height: 2.1; }
-.help .row { display: flex; gap: 6px; margin-top: 10px; }
+.help ol { padding-left: 22px; font-size: 13px; line-height: 1.9; color: var(--ink); }
+.help li { margin-bottom: 5px; }
+.help .row { display: flex; gap: 8px; margin-top: 12px; }
 
-.modal { position: fixed; inset: 0; background: rgba(8,6,12,0.76); z-index: 40; display: flex; align-items: center; justify-content: center; }
-.mcard { width: min(620px, 92vw); padding: 18px; text-align: center; color: var(--cream);
-  background: linear-gradient(180deg, rgba(43,33,58,0.97), rgba(18,14,20,0.97));
-  border: 3px solid var(--ink); box-shadow: 0 0 0 4px var(--st2), 0 16px 48px rgba(0,0,0,0.8); animation: pop2 0.15s ease-out; }
-@keyframes pop2 { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.mcard h2 { margin: 0 0 6px; font-size: 14px; }
-.mcard p { font-size: 8px; line-height: 1.9; color: var(--parch); margin: 0 0 10px; }
+.modal { position: fixed; inset: 0; background: rgba(8,6,12,0.78); z-index: 40; display: flex; align-items: center; justify-content: center; }
+.mcard { width: min(640px, 92vw); padding: 24px; text-align: center; color: var(--ink); animation: pop2 0.15s ease-out;
+  background: var(--cr0); border: 4px solid var(--gr2);
+  box-shadow: inset 0 0 0 2px var(--gr3), inset 0 0 0 6px var(--cr1), 0 0 0 4px var(--gr0), 0 0 0 7px var(--ol), 0 10px 0 6px rgba(0,0,0,0.55); }
+.mcard h2 { margin: 0 0 10px; font-family: var(--ft); font-size: 16px; }
+.mcard p { font-size: 13px; line-height: 1.7; color: var(--ink2); margin: 0 0 12px; }
 .mcard .act { margin: 0 auto; }
-.mrow { display: flex; gap: 14px; align-items: center; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
-.mrow .cell { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 9px; }
-.mrow .cell img { width: 34px; height: 34px; image-rendering: pixelated; }
-.mrow .cell span { color: var(--g3); }
-.sum { display: grid; grid-template-columns: auto auto; gap: 4px 20px; justify-content: center; font-size: 9px; margin: 10px 0; }
-.sum .v { color: var(--g3); text-align: right; font-variant-numeric: tabular-nums; }
+.mrow { display: flex; gap: 18px; align-items: center; justify-content: center; margin: 14px 0; flex-wrap: wrap; }
+.mrow .cell { display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 13px; }
+.mrow .cell img { width: 44px; height: 44px; image-rendering: pixelated; }
+.mrow .cell span { color: #6b3d12; }
+.sum { display: grid; grid-template-columns: auto auto; gap: 6px 24px; justify-content: center; font-size: 14px; margin: 14px 0; }
+.sum .v { color: #8a5a12; text-align: right; font-variant-numeric: tabular-nums; }
 
-#toasts { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; z-index: 50; pointer-events: none; }
-.toast { padding: 7px 11px; font-size: 8px; color: var(--inkpen); max-width: 300px; line-height: 1.7;
-  background: linear-gradient(170deg, #f6ecd4, #e3d2ab); border: 1px solid #b7a37f; border-left: 4px solid #9c8158;
-  box-shadow: 2px 3px 0 rgba(0,0,0,0.45); transform: rotate(-0.6deg); animation: slide 0.2s ease-out; }
-.toast.good { border-left-color: #5d8f3a; }
-.toast.bad { border-left-color: #b8412c; }
-@keyframes slide { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
-@media (max-width: 700px) {
-  .tool { width: 34px; height: 34px; } .tool img.ico { width: 20px; height: 20px; }
-  .chip { width: 30px; height: 30px; } .chip img.ico { width: 18px; height: 18px; }
-  #checklist { width: 108px; }
-}
+#toasts { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 50; pointer-events: none; }
+.toast { padding: 9px 14px; font-size: 13px; color: var(--ink); max-width: 340px; line-height: 1.6; animation: slide 0.2s ease-out;
+  background: var(--cr0); border: 3px solid var(--gr2);
+  box-shadow: inset 0 0 0 2px var(--cr1), 0 0 0 3px var(--gr0), 0 0 0 5px var(--ol), 0 5px 0 rgba(0,0,0,0.45); }
+.toast.good { border-color: var(--gr3); }
+.toast.bad { border-color: var(--red2); box-shadow: inset 0 0 0 2px var(--cr1), 0 0 0 3px var(--red0), 0 0 0 5px var(--ol), 0 5px 0 rgba(0,0,0,0.45); }
 
-/* ---- the tool wheel ------------------------------------------------------- */
+/* ---- the tool ring ------------------------------------------------------- */
 #wheel { position: absolute; z-index: 9; width: 0; height: 0; }
 .spoke {
-  position: absolute; width: 50px; height: 50px; margin: -25px 0 0 -25px;
-  display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #8a5f2e, #5c3d18);
-  animation: spoke-in 0.18s ease-out both;
+  position: absolute; width: 56px; height: 56px; margin: -28px 0 0 -28px; padding: 0;
+  animation: spoke-in 0.16s ease-out both;
+  background: linear-gradient(160deg, #7b5531 0%, #5a3c24 55%, #43291a 100%);
+  box-shadow: inset 0 2px 0 rgba(255,214,156,0.24), inset 0 -3px 0 rgba(0,0,0,0.4), 0 5px 0 0 #2a1a10, 0 5px 0 3px var(--ol);
+}
+.spoke::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(var(--gd2), var(--gd1)) 0 0 / 7px 7px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 100% 0 / 7px 7px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 0 100% / 7px 7px no-repeat,
+    linear-gradient(var(--gd2), var(--gd1)) 100% 100% / 7px 7px no-repeat;
 }
 @keyframes spoke-in { from { transform: scale(0.2); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } to { transform: scale(1); } }
-.spoke:hover { transform: scale(1.12); filter: brightness(1.15); }
-.spoke:active { transform: scale(0.92); }
-.spoke.on { background: linear-gradient(180deg, #f0c24a, #b8811c); }
-.spoke.locked { filter: grayscale(0.9) brightness(0.6); }
-.spoke.out { opacity: 0.45; }
-.spoke img.ico { width: 34px; height: 34px; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.55)); }
-.spoke .n { position: absolute; right: 1px; bottom: 1px; font-size: 8px; padding: 1px 3px; color: #f6ecd4; background: #241a10; border: 1px solid #0a0810; }
-.spoke .lk { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-55%); padding: 2px; background: rgba(12,9,16,0.75); }
-.spoke .lk img { width: 18px; height: 18px; }
+.spoke:hover { background: linear-gradient(160deg, #96693c 0%, #6d4a2c 55%, #50331f 100%); }
+.spoke.on { box-shadow: inset 0 0 0 3px var(--gd2), inset 0 2px 0 rgba(255,214,156,0.24), 0 5px 0 0 #2a1a10, 0 5px 0 3px var(--ol); }
+.spoke.locked { filter: grayscale(0.55) brightness(0.8); }
+.spoke.locked img.ico { opacity: 0.45; }
+.spoke.out { opacity: 0.5; }
+.spoke img.ico { width: 38px; height: 38px; }
+.spoke .n { position: absolute; right: 3px; bottom: 1px; font-size: 12px; color: #fff3cf; text-shadow: 0 2px 0 #000; }
+.spoke .lk { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-52%); padding: 3px;
+  background: linear-gradient(180deg, #e88a72 0 24%, #b8412c 24% 62%, #6d2418 62% 100%); border: 3px solid var(--ol); }
+.spoke .lk img { width: 22px; height: 22px; }
 .hub {
-  position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px;
-  display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(circle at 40% 35%, #f0cf86, #a86f2c 70%);
+  position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; padding: 0;
+  background: linear-gradient(180deg, var(--gd3) 0 24%, var(--gd2) 24% 62%, var(--gd1) 62% 100%);
 }
-.hub img.ico { width: 30px; height: 30px; }
+.hub img.ico { width: 32px; height: 32px; }
 
-/* ---- bigger, simpler ------------------------------------------------------ */
-#money { padding: 9px 16px 10px 12px; gap: 9px; }
-#money b { font-size: 16px; }
-#money img.ico { width: 26px; height: 26px; }
-#checklist { width: 176px; padding: 14px 12px 16px; }
-#checklist h4 { font-size: 11px; }
-.task { font-size: 9px; gap: 7px; padding: 4px 0; }
-.task .box { width: 12px; height: 12px; }
-.task .box i { width: 14px; height: 14px; top: -5px; }
-.task img.ico { width: 22px; height: 22px; }
-.task b { min-width: 44px; font-size: 10px; }
-.task b small { font-size: 7px; color: #8a7550; }
-.task .bar { height: 6px; }
-#side { bottom: 14px; right: 14px; gap: 8px; }
-.rbtn { padding: 9px 11px; }
-.rbtn img.ico { width: 28px; height: 28px; }
-.rbtn.big img.ico { width: 34px; height: 34px; }
-#mini { gap: 7px; }
-.mbtn { padding: 8px 9px; }
-.mbtn img.ico { width: 20px; height: 20px; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+@media (max-width: 760px) {
+  #checklist { width: 156px; }
+  .spoke { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+  .spoke img.ico { width: 30px; height: 30px; }
+  .chip { width: 42px; height: 42px; } .chip img.ico { width: 26px; height: 26px; }
+}
 </style>
 
 <div id="app">
@@ -366,7 +373,7 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
     <div id="ov-shrine" class="overlay" hidden>
       <div id="gods" class="godlist"></div>
       <div id="offer-slots" class="strip"></div>
-      <button id="b-summon" class="act" disabled><img class="ico" data-ico="eye" alt=""></button>
+      <button id="b-summon" class="act go" disabled><img class="ico" data-ico="eye" alt=""><span>SUMMON</span></button>
       <button id="b-unstage" class="act small" title="Take back"><img class="ico" data-ico="close" alt=""></button>
     </div>
 
@@ -374,7 +381,7 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
       <div id="rite-card" class="card">
         <img class="ico xl" data-ico="shrine" alt="">
         <div class="bigrow"><img class="ico" data-ico="offering" alt=""><b id="rite-n">0</b></div>
-        <button id="b-start" class="act big"><img class="ico lg" data-ico="u_seats" alt=""></button>
+        <button id="b-start" class="act big go"><img class="ico lg" data-ico="u_seats" alt=""><span>BEGIN</span></button>
         <div class="keys"><kbd>Space</kbd><kbd>1-9</kbd><kbd>R</kbd><kbd>C</kbd></div>
       </div>
       <div id="rite-read" class="readout" hidden>
@@ -384,7 +391,7 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
         <div class="line" id="r-lives"></div>
         <div id="r-goals" class="goals"></div>
         <div id="r-boons" class="boons"></div>
-        <button id="b-cash" class="act"><img class="ico" data-ico="wdollar" alt=""></button>
+        <button id="b-cash" class="act go"><img class="ico" data-ico="wdollar" alt=""><span>CASH OUT</span></button>
       </div>
       <div id="rite-tray" class="strip" hidden><div id="rite-slots"></div></div>
     </div>
@@ -396,28 +403,28 @@ kbd { background: var(--st2); border: 2px solid var(--ink); border-bottom-width:
   </main>
 
   <div id="panel-basket" class="panel" hidden>
-    <div class="phead"><img class="ico" data-ico="basket" alt=""><span class="ptitle">Basket</span><button class="x" data-close="panel-basket"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="phead"><img class="ico" data-ico="basket" alt=""><span class="ptitle">BASKET</span><button class="x" data-close="panel-basket"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody" id="basket-body"></div>
   </div>
 
   <div id="panel-pawn" class="panel" hidden>
-    <div class="phead"><img class="ico" data-ico="wdollar" alt=""><span class="ptitle">Sell</span><button class="x" data-close="panel-pawn"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="phead"><img class="ico" data-ico="wdollar" alt=""><span class="ptitle">SELL</span><button class="x" data-close="panel-pawn"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody" id="pawn-body"></div>
   </div>
 
   <div id="panel-help" class="panel" hidden>
-    <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">The Rite of the Grove</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>The grove is wider than the window. Drag bare ground, roll the wheel, or press the arrow keys to pan the camera.</li>
-        <li>Cut the weeds, have the ants haul off the wrecks, then sow grass by dragging. Finish the list and a wombat walks in.</li>
+        <li>Right-click (or press Tab) and your tools ring the cursor; pick one and it rides beside the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
+        <li>The hooded one tells you what to do next in a speech bubble; click her to hear it again. Finish an order and she pays you in coin.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
         <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck, or call the truck to you.</li>
-        <li>Click the seed in the middle of the plot for the Tree of Life. Drag to look around, scroll to zoom.</li>
+        <li>Click the seed in the middle of the plot to stand in your garden. Click the seed again there and the first skill goes in free: the seed splits, a trunk climbs and forks into three branches. Buy a fruit and the tree grows to carry it. Drag to look around, scroll to zoom.</li>
         <li>Click the signpost for the map. Wombat Mart sells seed and stock, the Ritual Site calls the gods, the Great Stack pays for a tall pile of offerings.</li>
         <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the counter.</li>
       </ol>
-      <div class="row"><button class="wbtn" id="b-music">music</button><button class="wbtn" id="b-reset">reset</button></div>
+      <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
   </div>
 
@@ -1113,7 +1120,7 @@ const Sprites = (() => {
     const key = `cult:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(40, 56);
-    const R0 = '#141018', R1 = '#1f1a25', R2 = '#2c2632', R3 = '#3d3646';
+    const R0 = '#100c16', R1 = '#231d2c', R2 = '#352e41', R3 = '#4b4359', R4 = '#655b78';
     const GOLD = '#c9a35a', GOLD2 = '#ead08a', VOID = '#07060a', WINE = '#5c2a3a';
     const S = Math.sin(t * TAU);
     let bob = 0, lean = 0, flare = 0, hemUp = 0, sleeveL = 0, sleeveR = 0, view = 'front', sit = 0, lie = 0, hurt = 0, staff = 0, spark = 0;
@@ -1144,50 +1151,76 @@ const Sprites = (() => {
     }
 
     const skirtTop = sit ? 34 : 24 + y0, hem = 52 - hemUp;
-    const half = (sit ? 15 : 10) + flare;
-    // the robe, a bell from the shoulders to the ground
+    const half = (sit ? 16 : 12.5) + flare;
+    // the robe: a bell from the shoulders to the ground, cut with folds
     Art.poly(g, [[20 - 7, skirtTop], [20 + 7, skirtTop], [20 + half, hem], [20 - half, hem]], R2);
     Art.poly(g, [[20 - 7, skirtTop], [20 - 1, skirtTop], [20 - half * 0.35, hem], [20 - half, hem]], R3);   // the lit fold
     Art.poly(g, [[20 + 2, skirtTop], [20 + 7, skirtTop], [20 + half, hem], [20 + half * 0.5, hem]], R1);   // the shadow fold
-    for (let i = -2; i <= 2; i++) Art.rect(g, 20 + i * 3.2 + S * 0.4, skirtTop + 6, 1, hem - skirtTop - 8, i % 2 ? R1 : R3);
+    for (let i = -2; i <= 2; i++) Art.rect(g, 20 + i * 3.2 + S * 0.4, skirtTop + 6, 1, hem - skirtTop - 8, i % 2 ? R0 : R4);
+    Art.poly(g, [[20 - 6.6, skirtTop + 1], [20 - 5, skirtTop + 1], [20 - half * 0.82, hem], [20 - half * 0.96, hem]], R4);   // rim light down the left
     Art.rect(g, 20 - half, hem - 3, half * 2, 3, R0);
     for (let i = 0; i <= half; i += 3.3) { Art.rect(g, 20 - half + i, hem - 4, 2, 2.4, GOLD); Art.rect(g, 20 - half + i + 1, hem - 2, 1.4, 2, GOLD2); }   // the gold points of the hem
     if (view !== 'back') Art.poly(g, [[18, hem - 7], [22, hem - 7], [23.5, hem], [16.5, hem]], WINE);   // the under-robe showing
     // torso and shoulders
     if (!sit) { Art.rect(g, 13, 20 + y0, 14, 8, R2); Art.rect(g, 13, 20 + y0, 5, 8, R3); }
     Art.ell(g, 20, 21 + y0, 10, 4, R2); Art.ell(g, 16, 20 + y0, 5, 2.4, R3);
-    // sleeves hanging from the shoulders, cuffs trimmed in gold; hands never show
+    // the mantle: a short rounded cape over the shoulders
+    const my = (sit ? 22 : 18) + y0;
+    Art.ell(g, 20, my + 3.2, 10.6, 6.6, R0);
+    Art.ell(g, 20, my + 2.4, 10, 6, R2);
+    Art.ell(g, 16.6, my + 1.4, 5.4, 4.2, R4);
+    Art.ell(g, 24.4, my + 3, 4.4, 3.6, R1);
+    Art.ellBand(g, 20, my + 2.8, 10.4, 6.6, GOLD, 0.86, 1);
+    // sleeves hanging from under the mantle, cuffs trimmed in gold
     const armY = (sit ? 30 : 24 + y0);
-    Art.limb(g, 13, armY, 8 + sleeveL * 0.5, armY + 14 + sleeveL, 6, 5, R1);
-    Art.limb(g, 27, armY, 32 + sleeveR * 0.5, armY + 14 + sleeveR, 6, 5, R2);
-    Art.rect(g, 6 + sleeveL * 0.5, armY + 13 + sleeveL, 5, 1.6, GOLD);
-    Art.rect(g, 29.5 + sleeveR * 0.5, armY + 13 + sleeveR, 5, 1.6, GOLD);
-    // the emblem on the chest: a cross with a ring
-    if (view !== 'back' && !sit) {
-      Art.rect(g, 19.4, 24 + y0, 1.6, 9, GOLD); Art.rect(g, 17, 27 + y0, 6.4, 1.6, GOLD);
-      Art.ell(g, 20.2, 24.5 + y0, 1.6, 1.6, GOLD2); Art.rect(g, 19.4, 24 + y0, 1.6, 2, GOLD2);
+    const reach = pose === 'cast' || pose === 'jump' || pose === 'run' ? 3.4 : 1.4;
+    for (const [sx, dx, sw, body, lit] of [[13.6, sleeveL, -1, R3, R4], [26.4, sleeveR, 1, R2, R3]]) {
+      const ex = sx + sw * reach + dx * 0.5, ey = armY + 12 + dx;
+      Art.limb(g, sx, armY - 1, ex, ey, 7.6, 6.2, R0);
+      Art.limb(g, sx, armY - 1, ex, ey, 6, 4.8, body);
+      Art.limb(g, sx - sw * 1.4, armY, ex - sw * 1.4, ey - 1, 2, 1.6, lit);
+      Art.rect(g, ex - 2.2, ey - 1, 4.4, 1.6, GOLD);
+      Art.rect(g, ex - 2.2, ey - 1, 4.4, 0.7, GOLD2);
     }
-    // the hood: tall, pointed, with nothing inside it
+    // a cord knot with one tassel, tucked under the left sleeve
+    if (!sit) {
+      Art.ell(g, 20 - 5.4, skirtTop + 11, 1.8, 1.8, GOLD2);
+      Art.rect(g, 20 - 6, skirtTop + 12, 1.2, 4.6 + S * 0.6, GOLD);
+      Art.rect(g, 20 - 6.2, skirtTop + 16 + S * 0.6, 1.6, 1.6, GOLD2);
+    }
+    // an amulet hanging at the throat of the cape
+    if (view !== 'back') {
+      Art.rect(g, 19.5, my - 2.5, 1, 3, GOLD);
+      Art.ell(g, 20, my + 2, 2.6, 2.6, GOLD);
+      Art.ell(g, 20, my + 2, 1.6, 1.6, WINE);
+      Art.rect(g, 19.2, my + 0.8, 1, 1, GOLD2);
+    }
+    // the hood: tall, narrow, sharply pointed, with nothing inside it
     const hy = (sit ? 12 : 4) + y0;
-    Art.poly(g, [[20, hy - 3], [30, hy + 12], [10, hy + 12]], R2);
-    Art.ell(g, 20, hy + 12, 10, 9, R2);
-    Art.ell(g, 16, hy + 9, 5, 6, R3);
-    Art.ell(g, 25, hy + 13, 5, 6, R1);
-    Art.poly(g, [[20, hy - 3], [23, hy + 5], [17, hy + 5]], R3);
+    Art.poly(g, [[20.5, hy - 7], [29, hy + 13], [11, hy + 13]], R1);       // the point, thrown back
+    Art.poly(g, [[20.5, hy - 7], [24, hy + 4], [18, hy + 4]], R2);
+    Art.ell(g, 20, hy + 12, 9.5, 9, R2);
+    Art.ell(g, 15.6, hy + 9, 4.6, 5.6, R3);                                 // sun on the crown
+    Art.ell(g, 25, hy + 13, 4.6, 5.6, R1);
+    Art.rect(g, 11, hy + 6, 1.4, 6, R3);                                    // rim light down the left
     if (view === 'back') {
-      Art.ell(g, 20, hy + 13, 7, 7, R1);                         // just cloth from behind
+      Art.ell(g, 20, hy + 13, 7, 7, R1);                                    // just cloth from behind
+      Art.rect(g, 16.5, hy + 8, 7, 1.2, GOLD);
     } else {
       const vx = view === 'quarter' ? 22 : 20;
-      Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);                   // the void
-      Art.ellBand(g, vx, hy + 13, 6.4, 7.4, GOLD, 0, 1);         // gold edge of the opening
-      Art.ell(g, vx, hy + 13, 5.5, 6.5, VOID);
-      // two bright eyes burning in the dark
+      Art.ell(g, vx, hy + 13, 5.6, 6.8, VOID);                              // the void where a face goes
+      Art.ellBand(g, vx, hy + 13, 6.6, 7.8, GOLD, 0, 1);                    // gold edge of the opening
+      Art.ell(g, vx, hy + 13, 5.6, 6.8, VOID);
+      // two eyes burning in the dark, with a soft glow around each
       const ey = hy + 12 + (hurt > 0 ? -1 : 0);
-      if (pose === 'hurt') { Art.rect(g, vx - 3.4, ey, 2.4, 1.2, GOLD2); Art.rect(g, vx + 1, ey, 2.4, 1.2, GOLD2); }
+      if (pose === 'hurt') { Art.rect(g, vx - 3.6, ey, 2.8, 1.2, GOLD2); Art.rect(g, vx + 1, ey, 2.8, 1.2, GOLD2); }
       else {
-        Art.rect(g, vx - 3.6, ey - 0.6, 2.6, 2.6, 'rgba(255,230,140,0.35)'); Art.rect(g, vx + 1, ey - 0.6, 2.6, 2.6, 'rgba(255,230,140,0.35)');
-        Art.rect(g, vx - 3, ey, 1.6, 1.6, '#fff4c0'); Art.rect(g, vx + 1.6, ey, 1.6, 1.6, '#fff4c0');
-        if (f === 4 && pose === 'idle') { Art.rect(g, vx - 3, ey + 0.4, 1.6, 0.8, '#fff4c0'); Art.rect(g, vx + 1.6, ey + 0.4, 1.6, 0.8, '#fff4c0'); Art.rect(g, vx - 3, ey, 4.2, 0.4, VOID); }
+        Art.ell(g, vx - 2.3, ey + 0.7, 2.6, 2.4, 'rgba(255,226,120,0.22)');
+        Art.ell(g, vx + 2.5, ey + 0.7, 2.6, 2.4, 'rgba(255,226,120,0.22)');
+        Art.rect(g, vx - 3.6, ey - 0.4, 2.8, 2.8, 'rgba(255,232,150,0.45)'); Art.rect(g, vx + 1.1, ey - 0.4, 2.8, 2.8, 'rgba(255,232,150,0.45)');
+        Art.rect(g, vx - 3.2, ey, 2, 2, '#fff8d8'); Art.rect(g, vx + 1.5, ey, 2, 2, '#fff8d8');
+        Art.rect(g, vx - 3.2, ey, 2, 0.8, '#ffffff'); Art.rect(g, vx + 1.5, ey, 2, 0.8, '#ffffff');
+        if (f === 4 && pose === 'idle') { Art.rect(g, vx - 3.6, ey - 0.4, 8, 2.6, VOID); }
       }
     }
     // casting: a staff crowned with a cross, and sparks
@@ -1555,8 +1588,8 @@ const Props = (() => {
     if (c) return c;
     const o = Art.cv(w, h);
     draw(o.g, w, h);
-    Art.texture(o.c, 0.14);
-    Art.topLight(o.c, 'rgba(255,242,208,0.26)', 2);
+    // No dither pass: the grain read as a filter smeared over the whole scene.
+    Art.topLight(o.c, 'rgba(255,244,214,0.3)', 2);
     Art.underShade(o.c, 'rgba(18,12,24,0.3)', 2);
     Art.outline(o.c, '#0a0810', 1);                 // everything wears the same black line
     cache.set(key, o.c);
@@ -2198,6 +2231,36 @@ const Icons = (() => {
   }
   function pot(d, col) { d.E(8, 11, 5.5, 4.5, col); d.E(7, 10, 3, 2.4, U.shade(col, 0.3)); }
 
+  // ---- helpers for the 24px tool icons ------------------------------------
+  // A tapered crescent: the shape a sickle, a can handle and a horn all need.
+  function crescent(d, cx, cy, R, a0, a1, w0, w1, col) {
+    const N = 22, out = [], inn = [];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, a = U.lerp(a0, a1, t), w = U.lerp(w0, w1, t);
+      out.push([cx + Math.cos(a) * R, cy + Math.sin(a) * R]);
+      inn.push([cx + Math.cos(a) * (R - w), cy + Math.sin(a) * (R - w)]);
+    }
+    d.P(out.concat(inn.reverse()), col);
+  }
+  // A wooden shaft: body, sunlit edge, shadowed edge, and a whipping at the neck.
+  function shaft(d, x0, y0, x1, y1, w, bind) {
+    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+    d.LB(x0, y0, x1, y1, w, w * 0.8, '#7c5128');
+    d.LB(x0 - nx * w * 0.3, y0 - ny * w * 0.3, x1 - nx * w * 0.26, y1 - ny * w * 0.26, w * 0.34, w * 0.28, '#b9813f');
+    d.LB(x0 + nx * w * 0.34, y0 + ny * w * 0.34, x1 + nx * w * 0.3, y1 + ny * w * 0.3, w * 0.3, w * 0.24, '#4e2f13');
+    if (bind !== false) {
+      const bx = U.lerp(x0, x1, 0.78), by = U.lerp(y0, y1, 0.78);
+      d.LB(bx - nx * w, by - ny * w, bx + nx * w, by + ny * w, w * 0.75, w * 0.75, '#c9962c');
+      d.LB(bx - nx * w, by - ny * w - 0.6, bx + nx * w, by + ny * w - 0.6, w * 0.3, w * 0.3, '#f5d574');
+    }
+  }
+  // Steel with one sun: body, lit face along the top, a cold shadow below.
+  function steel(d, pts, lit, dark) {
+    d.P(pts, '#7e8798');
+    if (lit) d.P(lit, '#c3ccd9');
+    if (dark) d.P(dark, '#4a5162');
+  }
+
   const DEF = {
     // --- currency and counters ---
     wdollar: (d) => { d.E(8, 9, 6.5, 6.5, G1); d.E(8, 8, 6, 6, G2); d.E(7, 7, 3, 2.6, G4); d.R(6, 4, 1, 9, G1); d.R(9, 4, 1, 9, G1); d.R(5, 6, 6, 1, G1); d.R(5, 10, 6, 1, G1); },
@@ -2215,18 +2278,180 @@ const Icons = (() => {
     grove: (d) => { d.R(7, 9, 2, 6, K1); d.E(8, 6, 6, 5, M1); d.E(7, 5, 4, 3.4, M2); d.E(6, 4, 2, 2, M4); d.R(2, 13, 12, 2, M2); },
     tree: (d) => { d.R(7, 2, 2, 5, K1); d.L(8, 7, 3, 14, K2, 2); d.L(8, 7, 13, 14, K2, 2); d.L(8, 7, 8, 15, K2, 2); d.E(4, 12, 2, 2, D3); d.E(12, 12, 2, 2, G3); d.E(8, 14, 2, 2, R2); },
     shrine: (d) => { d.R(1, 12, 14, 3, S1); d.R(3, 9, 10, 3, S2); d.R(4, 6, 8, 3, S3); d.R(1, 3, 3, 9, S2); d.R(12, 3, 3, 9, S2); d.E(2.5, 2, 2, 2, G3); d.E(13.5, 2, 2, 2, G3); d.R(6, 3, 4, 2, D3); },
-    // --- tools: wooden handles, steel heads, held on the diagonal ---
-    t_drag: (d) => { d.E(8.5, 10.5, 4.6, 4, K3); d.E(4.4, 6.4, 1.8, 2.4, K3); d.E(7, 5, 1.8, 2.6, K3); d.E(9.8, 5.2, 1.8, 2.6, K3); d.E(12.6, 7.2, 1.8, 2.4, K3); d.E(8.5, 11, 2.4, 1.8, '#c98a6c'); d.R(4, 12, 9, 1.4, K2); },
-    t_food: (d) => { d.E(8, 11.5, 6.6, 3.2, '#a86f2c'); d.E(8, 10.4, 6, 2.6, '#c98b3f'); d.E(8, 9.6, 5, 1.8, '#5c3d18'); d.E(5.6, 7.6, 2.6, 2.2, M2); d.E(8.6, 6.6, 2.8, 2.4, M3); d.E(11, 7.8, 2.2, 1.9, M4); d.E(8.6, 5.9, 1, 0.9, G3); d.E(5.8, 6.8, 1, 0.8, M4); },
-    t_sickle: (d) => { d.L(2, 14, 6, 10, K2, 3); d.L(3, 14, 6, 11, K3, 1); d.R(5, 9, 3, 3, G1); for (let i = 0; i < 8; i++) { const a = -1.2 + i * 0.36; d.R(9 + Math.cos(a) * 5, 8 + Math.sin(a) * 5, 2.4, 2.4, S3); d.R(9.4 + Math.cos(a) * 3.4, 8.4 + Math.sin(a) * 3.4, 1.2, 1.2, S4); } d.R(12, 2, 2, 2, C); },
-    t_destroy: (d) => { d.R(3, 6, 10, 7, K2); d.R(3, 6, 10, 2, K3); d.R(7.4, 6, 1.4, 7, K1); d.R(3, 12, 10, 1, K1); d.E(2, 11, 2, 1.6, '#2a1c22'); d.E(4.4, 12.6, 1.6, 1.3, '#2a1c22'); d.R(1, 10, 1, 1, I); d.R(1.4, 8.6, 1, 1.4, I); d.L(0.6, 12, 2.4, 10, I, 1); d.R(1, 14, 14, 1.2, E3); },
-    t_pair: (d) => { d.E(5, 8, 3.6, 3.6, R2); d.E(11, 8, 3.6, 3.6, R3); d.E(4.4, 7, 1.2, 1.2, C); d.E(10.4, 7, 1.2, 1.2, C); d.R(7, 7, 2, 2, R3); d.R(3, 12.4, 10, 1.2, K2); },
-    t_hoe: (d) => { d.L(2, 14, 10, 6, K2, 3); d.L(3, 14, 10, 7, K3, 1); d.R(8, 4, 6, 3, S3); d.R(12, 4, 2, 7, S3); d.R(8, 4, 6, 1.2, S4); d.R(12, 4, 1, 7, S4); d.R(9, 6, 4, 1, S2); },
-    t_seed: (d) => { d.R(4, 4, 8, 10, PAL.parch0); d.R(4, 4, 8, 3, M3); d.R(4, 4, 8, 1, M4); d.R(5, 8, 6, 4, '#3a2c22'); d.E(8, 10, 2, 1.6, K3); d.E(7, 9.4, 0.8, 0.8, M4); d.R(4, 13, 8, 1, PAL.boneD); for (let i = 0; i < 4; i++) d.R(4 + i * 2, 3, 1, 1, PAL.parch0); },
-    t_moss: (d) => { d.R(2, 12, 12, 3, E2); d.R(2, 12, 12, 1, E3); for (let i = 0; i < 6; i++) { const x = 3 + i * 2; d.R(x, 6 + (i % 2), 1, 6, M2); d.R(x + 1, 4 + (i % 3), 1, 6, M3); d.R(x, 4 + (i % 3), 1, 1, M4); } },
-    t_water: (d) => { d.R(3, 7, 8, 7, '#5f7fa8'); d.R(3, 7, 8, 1.4, '#8fb0d8'); d.R(3, 12.6, 8, 1.4, '#3a5474'); d.L(11, 8, 15, 4, '#5f7fa8', 2); d.R(13, 3, 3, 2, '#8fb0d8'); d.R(4, 4, 5, 3, '#5f7fa8'); d.R(4, 4, 5, 1, '#8fb0d8'); for (let i = 0; i < 3; i++) d.R(14 + (i % 2), 6 + i * 2, 1, 1.6, W3); },
-    t_farm: (d) => { d.L(2, 14, 8, 8, K2, 3); d.R(6, 5, 6, 3, S3); d.R(10, 5, 2, 6, S3); d.R(6, 5, 6, 1, S4); d.R(1, 12, 14, 3, E2); d.R(1, 12, 14, 1, E3); d.R(12, 8, 1, 4, M2); d.E(12.5, 7, 1.8, 1.2, M3); },
-    t_hand: (d) => { d.E(8, 11, 4, 3.4, K3); d.E(4.6, 6, 1.7, 2, K3); d.E(7, 5, 1.7, 2, K3); d.E(9.6, 5, 1.7, 2, K3); d.E(12, 7, 1.7, 2, K3); d.E(8, 11, 2, 1.4, R3); },
+    // --- arrows, ticks and carriers (these were missing and drew blanks) ---
+    back: { res: 24, draw: (d) => {
+      d.P([[3.0, 12.0], [11.0, 4.0], [11.0, 9.0], [21.0, 9.0], [21.0, 15.0], [11.0, 15.0], [11.0, 20.0]], '#f4e6c0');
+      d.P([[4.6, 12.0], [11.0, 5.6], [11.0, 8.0], [10.0, 9.0], [10.0, 11.2], [20.0, 11.2], [20.0, 9.9], [21.0, 9.0], [21.0, 11.2]], '#fdf6e0');
+      d.P([[11.0, 15.0], [11.0, 20.0], [4.4, 13.4], [6.2, 13.4]], '#c1a173');
+    } },
+    check: { res: 24, draw: (d) => {
+      d.P([[3.0, 12.4], [8.0, 10.0], [10.4, 15.0], [18.4, 3.4], [22.0, 6.6], [11.2, 21.0]], '#4c7a2c');
+      d.P([[4.2, 12.2], [7.8, 10.6], [10.6, 16.0], [18.4, 4.6], [20.6, 6.2], [11.0, 19.0]], '#97cd60');
+      d.P([[5.4, 12.2], [7.6, 11.2], [10.8, 17.0], [18.4, 5.8], [19.4, 6.4], [11.0, 18.0]], '#d0f09a');
+    } },
+    truck: { res: 24, draw: (d) => {
+      d.R(1.4, 7.0, 12.6, 10.0, '#b8412c'); d.R(1.4, 7.0, 12.6, 2.0, '#e0705a'); d.R(1.4, 14.4, 12.6, 2.6, '#6d2418');
+      d.R(3.0, 9.6, 9.4, 4.2, '#f4e6c0'); d.R(3.0, 9.6, 9.4, 1.2, '#fdf6e0');
+      d.P([[14.0, 10.0], [19.0, 10.0], [22.4, 13.4], [22.4, 17.0], [14.0, 17.0]], '#8a3122');
+      d.P([[14.6, 10.8], [18.6, 10.8], [21.2, 13.4], [14.6, 13.4]], '#8fc6f2');
+      d.R(1.0, 16.6, 21.8, 1.6, '#34200f');
+      d.E(6.4, 19.4, 2.9, 2.9, '#2a2530'); d.E(6.4, 19.4, 1.2, 1.2, '#8b849c');
+      d.E(17.6, 19.4, 2.9, 2.9, '#2a2530'); d.E(17.6, 19.4, 1.2, 1.2, '#8b849c');
+    } },
+    basket: { res: 24, draw: (d) => {
+      crescent(d, 12.0, 9.6, 5.8, -0.25, -2.9, 1.8, 1.8, '#7c5128');
+      crescent(d, 12.0, 9.6, 5.8, -0.4, -2.75, 0.8, 0.8, '#c58f47');
+      d.P([[2.2, 9.4], [21.8, 9.4], [19.2, 21.0], [4.8, 21.0]], '#99642f');
+      d.P([[2.2, 9.4], [7.0, 9.4], [6.2, 21.0], [4.8, 21.0]], '#c58f47');
+      d.P([[17.6, 9.4], [21.8, 9.4], [19.2, 21.0], [17.8, 21.0]], '#6b4423');
+      d.R(1.6, 8.2, 20.8, 2.4, '#c58f47'); d.R(1.6, 8.2, 20.8, 0.9, '#e9bd78');
+      for (let i = 1; i < 5; i++) d.P([[2.4 + i * 3.9, 11.0], [3.6 + i * 3.9, 11.0], [3.1 + i * 3.9, 20.6], [2.1 + i * 3.9, 20.6]], '#6b4423');
+      d.R(2.8, 14.4, 18.4, 1.4, '#6b4423');
+    } },
+    map: { res: 24, draw: (d) => {
+      d.P([[1.6, 4.6], [8.4, 2.6], [15.6, 5.4], [22.4, 3.0], [22.4, 19.4], [15.6, 21.4], [8.4, 18.6], [1.6, 21.0]], '#f4e6c0');
+      d.P([[1.6, 4.6], [8.4, 2.6], [8.4, 18.6], [1.6, 21.0]], '#fdf6e0');
+      d.P([[15.6, 5.4], [22.4, 3.0], [22.4, 19.4], [15.6, 21.4]], '#ddc79a');
+      d.L(8.4, 2.6, 8.4, 18.6, '#c1a173', 1); d.L(15.6, 5.4, 15.6, 21.4, '#c1a173', 1);
+      d.E(6.0, 9.0, 2.6, 1.8, '#4d8fd0'); d.E(18.4, 14.0, 3.0, 2.0, '#4c7a2c');
+      for (let i = 0; i < 6; i++) d.R(4.6 + i * 2.6, 13.4 + (i % 2) * 1.6, 1.4, 1.4, '#b8412c');
+      d.P([[17.0, 6.2], [19.4, 6.2], [18.2, 10.2]], '#b8412c'); d.E(18.2, 6.2, 1.6, 1.4, '#e0705a');
+    } },
+    // --- tools ---------------------------------------------------------
+    // Drawn at 24px so a head reads as a head: wood grain, a steel bevel, one
+    // sun from the upper left, and the same black line around all of it.
+    t_sickle: { res: 24, draw: (d) => {
+      shaft(d, 4.5, 21, 14.2, 11.5, 4.4);
+      crescent(d, 10.5, 13.6, 6.6, -0.42, -3.45, 3.0, 1.0, '#6d7585');      // blade body
+      crescent(d, 10.5, 13.6, 6.6, -0.42, -3.45, 1.5, 0.5, '#c9d3e0');      // sun along the back
+      crescent(d, 10.5, 13.6, 4.0, -0.5, -3.4, 0.9, 0.5, '#f2f6ff');        // the cutting edge
+      d.P([[13.4, 12.6], [16.4, 10.2], [17.4, 12.0], [14.4, 14.2]], '#c9962c');
+      d.P([[13.6, 12.0], [16.4, 9.9], [16.9, 10.8], [14.1, 12.9]], '#f5d574');
+      d.R(4.0, 19.6, 2.4, 2.6, '#4e2f13');
+    } },
+    t_hoe: { res: 24, draw: (d) => {
+      shaft(d, 4.2, 21.4, 15.4, 6.2, 4.2);
+      d.P([[13.6, 4.2], [17.0, 6.0], [15.0, 9.4], [11.8, 7.6]], '#c9962c');        // the neck collar
+      d.P([[13.8, 4.4], [16.4, 5.8], [15.6, 7.2], [13.0, 5.8]], '#f5d574');
+      steel(d, [[12.2, 7.4], [15.6, 9.2], [21.2, 15.8], [17.0, 18.4]],             // the blade, swept down
+               [[12.2, 7.4], [15.6, 9.2], [19.4, 13.6], [15.8, 11.8]],
+               [[16.6, 13.2], [19.6, 14.0], [21.2, 15.8], [17.0, 18.4]]);
+      d.P([[17.8, 15.2], [21.4, 15.6], [21.2, 17.2], [17.6, 17.4]], '#eef3fb');    // the bright edge
+      d.R(12.6, 8.0, 1.2, 2.4, '#3c4252');
+    } },
+    t_water: { res: 24, draw: (d) => {
+      d.P([[4.0, 9.5], [16.0, 9.5], [15.0, 20.5], [5.0, 20.5]], '#3f6f9e');      // can body
+      d.P([[4.6, 9.5], [8.4, 9.5], [7.8, 20.5], [5.0, 20.5]], '#63a0cf');
+      d.P([[12.6, 9.5], [16.0, 9.5], [15.0, 20.5], [12.2, 20.5]], '#2c5176');
+      d.R(3.2, 7.6, 13.6, 2.6, '#79b6e2'); d.R(3.2, 7.6, 13.6, 1.0, '#a9dcff');
+      d.R(4.4, 16.4, 11.2, 1.4, '#c9962c');
+      crescent(d, 10.0, 7.6, 6.4, -0.5, -2.64, 2.0, 2.0, '#3f6f9e');             // carry handle
+      crescent(d, 10.0, 7.6, 6.4, -0.6, -2.5, 0.9, 0.9, '#9ccdf2');
+      d.P([[15.4, 11.0], [21.4, 5.6], [23.0, 7.6], [16.4, 13.4]], '#4d84b6');    // spout
+      d.P([[15.6, 11.0], [21.4, 5.8], [22.0, 6.6], [16.1, 11.8]], '#8dc4ea');
+      d.P([[20.2, 4.2], [23.6, 4.2], [23.6, 8.0], [20.6, 8.0]], '#79b6e2');      // rose
+      for (let i = 0; i < 4; i++) d.R(20.8 + (i % 2) * 1.4, 4.8 + i * 0.8, 0.9, 0.9, '#1f3a55');
+      d.R(19.0, 11.0, 1.2, 2.0, '#9fe2ee'); d.R(21.2, 13.4, 1.2, 1.6, '#9fe2ee'); d.R(17.4, 14.6, 1.0, 1.4, '#9fe2ee');
+    } },
+    t_seed: { res: 24, draw: (d) => {
+      d.R(4.6, 3.4, 14.8, 17.6, '#efdcb4');                                       // paper packet
+      d.R(4.6, 3.4, 14.8, 4.0, '#5d9440'); d.R(4.6, 3.4, 14.8, 1.4, '#84bb59');
+      for (let i = 0; i < 7; i++) d.R(5.0 + i * 2.1, 2.4, 1.2, 1.2, '#efdcb4');   // torn top
+      d.R(6.2, 9.0, 11.6, 8.2, '#3a2c22');
+      d.R(11.2, 12.0, 1.6, 5.0, '#436f2f');                                       // the sprout in the window
+      d.E(9.6, 11.4, 2.8, 1.7, '#5d9440'); d.E(14.2, 12.2, 2.6, 1.6, '#84bb59');
+      d.E(9.6, 11.0, 1.4, 0.8, '#b3dd86');
+      d.R(6.2, 18.2, 11.6, 1.6, '#c9b489');
+      d.E(8.0, 20.2, 1.5, 1.1, '#7d5f42'); d.E(11.6, 20.6, 1.5, 1.1, '#5d4430'); d.E(15.2, 20.2, 1.5, 1.1, '#7d5f42');
+    } },
+    t_moss: { res: 24, draw: (d) => {
+      d.R(2.0, 14.4, 20.0, 6.6, '#553d27'); d.R(2.0, 14.4, 20.0, 1.6, '#75573a');
+      d.R(2.0, 19.6, 20.0, 1.4, '#241810');
+      for (let i = 0; i < 9; i++) { const x = 2.6 + i * 2.2; d.R(x, 14.4, 1.9, 2.0, i % 2 ? '#436f2f' : '#5d9440'); }
+      for (let i = 0; i < 8; i++) { const x = 3.4 + i * 2.4, h = 5 + (i % 3) * 2.4;
+        d.R(x, 14.6 - h, 1.7, h, i % 2 ? '#436f2f' : '#5d9440'); d.R(x, 14.6 - h, 1.7, 1.6, '#84bb59'); }
+      d.E(6.4, 8.0, 1.5, 1.1, '#b3dd86'); d.E(17.0, 9.4, 1.4, 1.0, '#b3dd86');
+    } },
+    t_destroy: { res: 24, draw: (d) => {
+      shaft(d, 5.0, 21.4, 14.0, 8.6, 4.4);
+      steel(d, [[9.6, 4.0], [20.4, 7.6], [18.8, 12.6], [8.0, 9.0]],
+               [[9.6, 4.0], [20.4, 7.6], [19.8, 9.4], [9.0, 5.8]],
+               [[8.5, 7.4], [19.3, 11.0], [18.8, 12.6], [8.0, 9.0]]);
+      d.P([[18.0, 6.8], [20.9, 7.8], [19.3, 12.9], [16.4, 11.9]], '#5a6273');
+      d.R(11.0, 6.2, 1.4, 4.4, '#3c4252');
+      d.R(17.0, 2.0, 1.4, 2.2, '#f5d574'); d.R(20.6, 3.6, 2.2, 1.4, '#f5d574');
+    } },
+    t_drag: { res: 24, draw: (d) => {
+      const glove = (grab) => {
+        const tips = grab ? [8.4, 9.6, 9.0, 7.8] : [6.2, 7.8, 7.2, 5.8];
+        for (let i = 0; i < 4; i++) {
+          const x = 7.2 + i * 2.9, h = tips[i];
+          d.P([[x - 0.5, 15.4 - h], [x + 2.5, 15.4 - h], [x + 2.5, 16.2], [x - 0.5, 16.2]], '#c9a97a');   // the seam
+          d.P([[x, 15.4 - h], [x + 2.1, 15.4 - h], [x + 2.1, 16.2], [x, 16.2]], '#efdcb4');
+          d.E(x + 1.05, 15.5 - h, 1.05, 1.15, '#efdcb4');
+          d.E(x + 0.7, 15.9 - h, 0.6, 0.6, '#fdf6e0');
+          d.R(x, 12.6 - h * 0.12, 2.1, 0.8, '#c9a97a');
+        }
+        d.P([[6.4, 13.8], [3.2, 16.8], [5.0, 18.8], [8.0, 16.4]], '#c9a97a');
+        d.P([[6.6, 14.4], [4.2, 16.9], [5.4, 18.2], [7.8, 16.2]], '#efdcb4');
+        d.E(11.9, 16.0, 5.6, 4.6, '#efdcb4');
+        d.E(14.2, 17.0, 3.4, 3.4, '#d8c398');
+        d.E(10.6, 14.6, 3.6, 2.2, '#fdf6e0');
+      };
+      glove(true);
+      d.R(6.4, 19.4, 11.4, 2.8, '#3f6f9e'); d.R(6.4, 19.4, 11.4, 1.1, '#79b6e2');
+      d.R(6.4, 21.4, 11.4, 0.9, '#2c5176');
+      d.R(19.4, 4.4, 1.6, 1.6, '#ffeeb0'); d.R(4.0, 6.0, 1.4, 1.4, '#ffeeb0');
+    } },
+    t_hand: { res: 24, draw: (d) => {
+      const tips = [7.4, 9.0, 8.4, 6.8];
+      for (let i = 0; i < 4; i++) {
+        const x = 7.2 + i * 2.9, h = tips[i];
+        d.P([[x - 0.5, 15.0 - h], [x + 2.5, 15.0 - h], [x + 2.5, 15.8], [x - 0.5, 15.8]], '#d3a98c');
+        d.P([[x, 15.0 - h], [x + 2.1, 15.0 - h], [x + 2.1, 15.8], [x, 15.8]], '#efdcb4');
+        d.E(x + 1.05, 15.1 - h, 1.05, 1.15, '#efdcb4');
+        d.E(x + 0.7, 15.5 - h, 0.6, 0.6, '#fdf6e0');
+      }
+      d.P([[6.4, 13.6], [3.2, 16.6], [5.0, 18.6], [8.0, 16.2]], '#d3a98c');
+      d.P([[6.6, 14.2], [4.2, 16.7], [5.4, 18.0], [7.8, 16.0]], '#efdcb4');
+      d.E(11.9, 16.0, 5.6, 4.8, '#efdcb4');
+      d.E(14.2, 17.2, 3.4, 3.4, '#d8c398');
+      d.E(10.4, 14.4, 3.4, 2.1, '#fdf6e0');
+      d.E(12.2, 18.0, 2.6, 1.6, '#e8a8a0');
+    } },
+    t_food: { res: 24, draw: (d) => {
+      d.E(12.0, 15.4, 9.0, 4.6, '#8a5a2e');                                        // wooden bowl
+      d.P([[3.0, 15.0], [21.0, 15.0], [18.4, 20.8], [5.6, 20.8]], '#8a5a2e');
+      d.P([[3.0, 15.0], [8.2, 15.0], [6.6, 20.8], [5.6, 20.8]], '#c08a45');
+      d.P([[16.6, 15.0], [21.0, 15.0], [18.4, 20.8], [16.0, 20.8]], '#5a3616');
+      d.E(12.0, 14.6, 8.6, 3.4, '#4e2f13');
+      d.E(8.4, 12.4, 3.4, 2.8, '#436f2f'); d.E(12.4, 11.2, 3.6, 3.0, '#5d9440'); d.E(16.0, 12.8, 3.0, 2.5, '#84bb59');
+      d.E(11.8, 10.2, 1.5, 1.1, '#b3dd86'); d.E(8.0, 11.6, 1.3, 1.0, '#5d9440');
+      d.E(14.6, 13.4, 1.6, 1.3, '#d8a52f'); d.E(9.8, 13.8, 1.4, 1.2, '#b8412c');
+      d.R(3.4, 17.4, 17.2, 1.2, '#c9962c');
+    } },
+    t_pair: { res: 24, draw: (d) => {
+      const heart = (cx, cy, r, col, lit) => {
+        d.E(cx - r * 0.55, cy - r * 0.35, r * 0.68, r * 0.68, col);
+        d.E(cx + r * 0.55, cy - r * 0.35, r * 0.68, r * 0.68, col);
+        d.P([[cx - r, cy - r * 0.15], [cx + r, cy - r * 0.15], [cx, cy + r]], col);
+        d.E(cx - r * 0.62, cy - r * 0.6, r * 0.26, r * 0.22, lit);
+      };
+      heart(7.6, 10.2, 5.4, '#b8412c', '#e0705a');
+      heart(15.8, 12.4, 6.2, '#e0705a', '#ffb0a0');
+      d.R(3.0, 19.2, 18.0, 2.0, '#c9962c'); d.R(3.0, 19.2, 18.0, 0.8, '#f5d574');
+      d.R(6.0, 3.0, 1.4, 1.4, '#ffeeb0'); d.R(19.0, 6.0, 1.4, 1.4, '#ffeeb0');
+    } },
+    t_farm: { res: 24, draw: (d) => {
+      d.R(1.6, 16.0, 20.8, 5.4, '#553d27'); d.R(1.6, 16.0, 20.8, 1.4, '#75573a');
+      for (let i = 0; i < 5; i++) d.R(2.6 + i * 4.2, 17.8, 2.6, 1.2, '#241810');
+      shaft(d, 4.0, 20.0, 12.0, 8.4, 3.4, false);
+      steel(d, [[10.4, 7.2], [16.2, 9.0], [15.2, 13.0], [9.4, 11.0]],
+               [[10.4, 7.2], [16.2, 9.0], [15.8, 10.2], [10.0, 8.4]], null);
+      d.R(16.6, 10.0, 1.8, 7.4, '#436f2f');
+      d.E(14.6, 9.4, 3.0, 2.0, '#5d9440'); d.E(19.6, 11.0, 2.8, 1.9, '#84bb59');
+      d.E(14.2, 8.8, 1.3, 0.8, '#b3dd86');
+    } },
     // --- crops ---
     c_ashgrass: (d) => { for (let i = 0; i < 5; i++) { const x = 3 + i * 2.4; d.R(x, 6 + (i % 2) * 2, 1, 8, M2); d.R(x, 5 + (i % 2) * 2, 1, 2, M4); } d.R(1, 13, 14, 2, E2); },
     c_sunroot: (d) => { d.R(7, 8, 2, 6, M1); d.E(8, 6, 4.5, 4.5, G2); d.E(6.5, 4.5, 2, 1.8, G4); d.R(3, 9, 3, 1, M2); d.R(10, 10, 3, 1, M2); d.R(1, 13, 14, 2, E2); },
@@ -2302,14 +2527,18 @@ const Icons = (() => {
   };
 
   function build(name) {
-    const fn = DEF[name];
-    if (!fn) return null;
-    const { c, g } = Art.cv(SZ, SZ);
+    const def = DEF[name];
+    if (!def) return null;
+    const fn = typeof def === 'function' ? def : def.draw;
+    const res = typeof def === 'function' ? SZ : (def.res || SZ);
+    const { c, g } = Art.cv(res, res);
     fn({
       g,
       R: (x, y, w, h, col) => Art.rect(g, x, y, w, h, col),
       E: (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col),
       L: (x0, y0, x1, y1, col, t) => Art.line(g, x0, y0, x1, y1, col, t || 1),
+      P: (pts, col) => Art.poly(g, pts, col),
+      LB: (x0, y0, x1, y1, w0, w1, col) => Art.limb(g, x0, y0, x1, y1, w0, w1, col),
     });
     Art.outline(c, '#0a0810', 1);           // the same black line as everything else
     return c;
@@ -2324,14 +2553,15 @@ const Icons = (() => {
     if (u !== undefined) return u;
     const c = canvas(name);
     if (!c) { urls.set(name, ''); return ''; }
-    const { c: big, g } = Art.cv(SZ * 2, SZ * 2);
+    const { c: big, g } = Art.cv(c.width * 2, c.height * 2);
     g.imageSmoothingEnabled = false;
-    g.drawImage(c, 0, 0, SZ * 2, SZ * 2);
+    g.drawImage(c, 0, 0, c.width * 2, c.height * 2);
     u = big.toDataURL();
     urls.set(name, u);
     return u;
   }
   function img(name, cls = '', extra = '') { return `<img class="ico ${cls}" src="${url(name)}" alt="" ${extra}>`; }
+  // `scale` is measured against the 16px grid so callers keep their sizes.
   function blit(g, name, x, y, scale = 1) {
     const c = canvas(name);
     if (c) g.drawImage(c, Math.round(x), Math.round(y), SZ * scale, SZ * scale);
@@ -3158,21 +3388,23 @@ const FX = (() => {
   }
   function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; rings.length = 0; bolts.length = 0; tendrils.length = 0; }
 
-  // Small pixel text with an ink halo, for signs and map labels.
+  // Small pixel text. A hard 1-2px drop shadow, never a soft stroke halo:
+  // strokeText with a round join smears a blob around every glyph.
   function pixelText(g, text, x, y, o = {}) {
     const size = o.size && o.size > 3 ? o.size : (o.size || 1) * 7;
     g.save();
-    g.font = `${size}px "Press Start 2P", monospace`;
+    g.font = `${size}px ${o.font || '"Silkscreen", "Press Start 2P", monospace'}`;
     g.textAlign = o.align || 'center';
     g.textBaseline = o.baseline || 'top';
+    const X = Math.round(x), Y = Math.round(y);
     if (o.ink !== false) {
-      g.lineWidth = o.ink === true || o.ink === undefined ? 3 : o.ink;
-      g.strokeStyle = o.inkColor || 'rgba(18,14,20,0.9)';
-      g.lineJoin = 'round';
-      g.strokeText(text, Math.round(x), Math.round(y));
+      const d = o.ink === true || o.ink === undefined ? 2 : Math.max(1, Math.min(2, o.ink - 1));
+      g.fillStyle = o.inkColor || 'rgba(14,10,18,0.92)';
+      if (o.ink === 'ring') { for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) if (dx || dy) g.fillText(text, X + dx, Y + dy); }
+      else g.fillText(text, X + d, Y + d);
     }
     g.fillStyle = o.color || PAL.cream;
-    g.fillText(text, Math.round(x), Math.round(y));
+    g.fillText(text, X, Y);
     g.restore();
   }
 
@@ -4972,57 +5204,72 @@ const Ritual = (() => {
 
 <script>
 // ===== js/knowledge.js =====
-// ---- The Tree of Life: a proper skill tree, branches, plaques and all -----
-// Three branches of four ranks. A rank only opens once the one below it is
-// eaten, and only once the forest has come back far enough to ripen it.
+// ---- The Tree of Life ------------------------------------------------------
+// This is your garden, seen close up. In the middle of the bed sits the seed
+// the grove came with. Click it and the first skill goes in for nothing; the
+// seed splits, a trunk climbs, and the trunk forks into three branches. Every
+// skill you buy after that is a fruit further out along a branch, and the tree
+// visibly grows to carry it.
 const Knowledge = (() => {
   let G = null;
   const VW = 640, VH = 360;
-  const WW = 760, WH = 620;
-  const COLX = [150, 380, 610];
-  const ROWY = [470, 362, 254, 146];
-  const NW = 128, NH = 74;                 // a node plaque
-  const ZMIN = 0.5, ZMAX = 1.8;
-  const CARD = 76, CY = (VH - CARD) / 2;      // the tree lives above the detail card
-  const cam = { x: WW / 2, y: 288, z: 0.62, tx: WW / 2, ty: 288, tz: 0.62 };
-  let tree = null, hover = -1, sel = -1, learnHot = false;
-  const eating = { on: false, t: 0, fruit: null, x: 0, y: 0, dir: 1, bites: 0, phase: 'climb' };
-  const motes = [], crumbs = [];
-  const BRANCH = [
-    { name: 'SOIL', col: '#5d9440', dark: '#2f4f24' },
-    { name: 'BEAST', col: '#c4623f', dark: '#6b2f1c' },
-    { name: 'RITE', col: '#8354c9', dark: '#412266' },
-  ];
+  const WW = 1500, WH = 900;
+  const GROUND = 780, BASE = 750, FORK = 630;
+  const COLX = [450, 750, 1050];                 // one column per branch
+  const ROWY = [552, 440, 328, 216];             // one row per rank
+  const NW = 170, NH = 72;
+  const ZMIN = 0.34, ZMAX = 1.8;
+  const CARD = 88, CY = (VH - CARD) / 2;
+  const cam = { x: BASE, y: 480, z: 0.45, tx: BASE, ty: 480, tz: 0.45 };
+  let hover = -1, sel = -1, learnHot = false, seedHot = false;
+  const grow = { t: 0, of: null, kind: '' };     // the growing animation
+  const petals = [], flies = [], crumbs = [];
+  let garden = null;
 
-  function ensure() {
-    if (!tree) {
-      tree = Props.buildLifeTree(360, 500, 707);
-      for (let i = 0; i < 40; i++) motes.push({ x: Math.random() * WW, y: Math.random() * WH, ph: Math.random() * TAU, s: Math.random() < 0.4 ? 2 : 1 });
-    }
-    return tree;
-  }
-  const nodeAt = (f) => ({ x: COLX[f.root], y: ROWY[f.i] });
+  const BRANCH = [
+    { name: 'SOIL',  col: '#6ea83e', dark: '#29431c', fruit: ['#c9e06a', '#f2ffb0'], leaf: ['#245018', '#3d7a2a', '#5ba23c', '#8ccb5e'] },
+    { name: 'BEAST', col: '#d4813a', dark: '#5a2c10', fruit: ['#d4813a', '#f7c07a'], leaf: ['#1f4a1c', '#376f2c', '#54963d', '#84c05c'] },
+    { name: 'RITE',  col: '#9a6fd6', dark: '#3a2260', fruit: ['#9a6fd6', '#d6bcf4'], leaf: ['#1d4426', '#316a36', '#4b9048', '#7cb968'] },
+  ];
+  // palette of the interface, the same one the panels use
+  const OL = '#17120e', CR0 = '#f4e6c0', CR1 = '#fdf6e0', CR2 = '#c9ac78';
+  const GR0 = '#29431c', GR1 = '#4c7a2c', GR2 = '#6ea83e', GR3 = '#97cd60';
+  const GD0 = '#7d5510', GD1 = '#c1912a', GD2 = '#efc245', GD3 = '#ffe497';
+  const WD0 = '#34200f', WD1 = '#6b4423', WD2 = '#99642f', WD3 = '#c58f47', WD4 = '#e9bd78';
+  const INK = '#3a2612', INK2 = '#6a5230';
+
+  // ---- state --------------------------------------------------------------
+  const planted = () => !!G.fruits.sprout;
   const owned = (f) => !!G.fruits[f.key];
   const prereq = (f) => (f.i === 0 ? null : FRUITS.find((x) => x.root === f.root && x.i === f.i - 1));
+  const learnedIn = (b) => FRUITS.filter((f) => f.root === b && owned(f)).length;
   function state(f) {
     if (owned(f)) return 'eaten';
+    if (!planted()) return 'unplanted';
     const p = prereq(f);
     if (p && !owned(p)) return 'locked';
     if (World.fraction() < f.at) return 'unripe';
     return G.wd >= f.cost ? 'ready' : 'costly';
   }
-  function ripeCount() { return FRUITS.filter((f) => state(f) === 'ready').length; }
+  function ripeCount() { return planted() ? FRUITS.filter((f) => state(f) === 'ready').length : 1; }
+
+  function nodeAt(f) { return { x: COLX[f.root], y: ROWY[f.i] }; }
+  const SEED = { x: BASE, y: GROUND - 30 };
+  // The spine of a branch: the fork, then each rank, bowing outward as it climbs.
+  function spine(b) {
+    const pts = [{ x: BASE, y: FORK }];
+    for (let i = 0; i < 4; i++) pts.push({ x: COLX[b] + (b - 1) * i * 9, y: ROWY[i] });
+    return pts;
+  }
 
   // ---- camera -------------------------------------------------------------
-  const sx = (x) => (x - cam.x) * cam.z + VW / 2;
-  const sy = (y) => (y - cam.y) * cam.z + CY;
   const wxOf = (s) => (s - VW / 2) / cam.z + cam.x;
   const wyOf = (s) => (s - CY) / cam.z + cam.y;
   function clampCam() {
     const hw = VW / 2 / cam.tz, hh = CY / cam.tz;
-    const top = 96, bot = 530;                  // where the tree actually starts and ends
     cam.tx = hw * 2 > WW ? WW / 2 : U.clamp(cam.tx, hw, WW - hw);
-    const lo = top + hh - 40, hi = bot - hh + 40;
+    const top = 120, bot = GROUND + 60;
+    const lo = top + hh - 70, hi = bot - hh + 70;
     cam.ty = lo > hi ? (top + bot) / 2 : U.clamp(cam.ty, lo, hi);
   }
   function zoomAt(mult, px, py) {
@@ -5035,182 +5282,434 @@ const Knowledge = (() => {
   function pan(dx, dy) { cam.tx -= dx / cam.z; cam.ty -= dy / cam.z; clampCam(); cam.x = cam.tx; cam.y = cam.ty; }
   function lookAt(x, y, z) { if (z) cam.tz = U.clamp(z, ZMIN, ZMAX); cam.tx = x; cam.ty = y; clampCam(); }
 
+  function ensure() {
+    if (garden) return;
+    garden = buildGarden();
+    for (let i = 0; i < 26; i++) petals.push({ x: Math.random() * WW, y: Math.random() * WH, ph: Math.random() * TAU, sp: U.rand(8, 22), s: Math.random() < 0.4 ? 3 : 2, c: U.pick(['#ffd9e6', '#fff0b8', '#d8f0a8']) });
+    for (let i = 0; i < 7; i++) flies.push({ x: U.rand(120, 780), y: U.rand(300, 500), ph: Math.random() * TAU, sp: U.rand(0.5, 1.1), c: U.pick(['#ffd23f', '#ff8fb0', '#8fc6f2']) });
+  }
+
   function enter() {
     ensure();
-    const t = FRUITS.find((f) => state(f) === 'ready') || FRUITS.find((f) => !owned(f)) || FRUITS[0];
-    sel = FRUITS.indexOf(t);
-    const a = nodeAt(t);
-    cam.z = cam.tz = 0.62;
-    lookAt(WW / 2, 288, 0.62); cam.x = cam.tx; cam.y = cam.ty;
+    if (!planted()) { sel = -1; lookAt(BASE, GROUND - 110, 0.8); }
+    else {
+      const t = FRUITS.find((f) => state(f) === 'ready') || FRUITS.find((f) => !owned(f)) || FRUITS[0];
+      sel = FRUITS.indexOf(t);
+      const a = nodeAt(FRUITS[sel]);
+      lookAt(U.lerp(BASE, a.x, 0.5), U.lerp(GROUND - 160, a.y, 0.6), 0.45);
+    }
+    cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz;
     Audio.setMode('pen');
   }
 
-  // ---- learning -----------------------------------------------------------
+  // ---- planting and learning ---------------------------------------------
+  function plant() {
+    if (planted() || grow.t > 0) return;
+    G.fruits.sprout = true;
+    grow.t = 2.2; grow.of = null; grow.kind = 'sprout';
+    sel = 0;                                   // the first Soil fruit is what you look at next
+    lookAt(BASE, 470, 0.45);
+    Audio.play('bless');
+    UI.toast('The seed takes. Three branches open.', 'good');
+    FX.sparkle(VW / 2, VH / 2, 26, GD3);
+    FX.confettiBurst(VW / 2, VH * 0.6, 40);
+    for (let i = 0; i < 24; i++) crumbs.push({ x: SEED.x, y: SEED.y, vx: U.rand(-70, 70), vy: U.rand(-130, -30), t: 0, c: U.pick([GR3, GD2, '#9ad86a']) });
+    UI.refreshAll(); Main.save();
+  }
   function buy(f) {
+    if (grow.t > 0) return;
     const st = state(f);
-    if (st === 'eaten' || eating.on) return;
-    if (st === 'locked') { Audio.play('error'); UI.toast('eat the one below first', 'bad'); return; }
+    if (st === 'eaten') return;
+    if (st === 'unplanted') { Audio.play('error'); UI.toast('plant the seed first', 'bad'); return; }
+    if (st === 'locked') { Audio.play('error'); UI.toast('grow the one below it first', 'bad'); return; }
     if (st === 'unripe') { Audio.play('error'); UI.toast(`ripens at ${Math.round(f.at * 100)}% forest`, 'bad'); return; }
     if (st === 'costly') { Audio.play('error'); UI.toast('not enough', 'bad'); return; }
     G.wd -= f.cost;
+    G.fruits[f.key] = true;
+    grow.t = 1.3; grow.of = f; grow.kind = 'fruit';
     const a = nodeAt(f);
-    eating.on = true; eating.t = 0; eating.fruit = f; eating.bites = 0; eating.phase = 'climb';
-    eating.dir = 1; eating.x = a.x - 90; eating.y = a.y + NH / 2 + 14;
-    lookAt(a.x, a.y, Math.max(cam.tz, 1));
-    Audio.play('click');
-    UI.refreshAll();
+    const B = BRANCH[f.root];
+    for (let i = 0; i < 18; i++) crumbs.push({ x: a.x, y: a.y, vx: U.rand(-60, 60), vy: U.rand(-120, -20), t: 0, c: U.pick(B.leaf) });
+    Audio.play('bless');
+    UI.toast(f.name, 'good');
+    FX.sparkle(VW / 2, VH / 2, 16, GD3);
+    UI.refreshAll(); Main.save();
   }
 
   function update(dt) {
+    ensure();
     cam.x = U.lerp(cam.x, cam.tx, 1 - Math.pow(0.0015, dt));
     cam.y = U.lerp(cam.y, cam.ty, 1 - Math.pow(0.0015, dt));
     cam.z = U.lerp(cam.z, cam.tz, 1 - Math.pow(0.0015, dt));
+    if (grow.t > 0) grow.t = Math.max(0, grow.t - dt);
     for (let i = crumbs.length - 1; i >= 0; i--) {
       const c = crumbs[i];
-      c.t += dt; c.vy += 220 * dt; c.x += c.vx * dt; c.y += c.vy * dt;
-      if (c.t > 1.4) crumbs.splice(i, 1);
+      c.t += dt; c.vy += 210 * dt; c.x += c.vx * dt; c.y += c.vy * dt;
+      if (c.t > 1.5) crumbs.splice(i, 1);
     }
-    if (!eating.on) return;
-    const e = eating, a = nodeAt(e.fruit);
-    e.t += dt;
-    if (e.phase === 'climb') {
-      const k = U.easeInOut(Math.min(1, e.t / 1.2));
-      e.x = U.lerp(a.x - 90, a.x - 26, k);
-      e.y = a.y + NH / 2 + 14;
-      if (e.t >= 1.2) { e.phase = 'bite'; e.t = 0; }
-    } else if (e.phase === 'bite') {
-      const per = 0.4;
-      if (e.t > per * (e.bites + 1) && e.bites < 3) {
-        e.bites++;
-        Audio.play('munch');
-        for (let i = 0; i < 6; i++) crumbs.push({ x: a.x, y: a.y, vx: U.rand(-30, 30), vy: U.rand(-50, -10), t: 0, c: BRANCH[e.fruit.root].col });
-      }
-      if (e.bites >= 3 && e.t > per * 3 + 0.3) {
-        G.fruits[e.fruit.key] = true;
-        FX.sparkle(VW / 2, VH / 2, 18, PAL.gold3);
-        Audio.play('bless');
-        UI.toast(e.fruit.name, 'good');
-        e.phase = 'down'; e.t = 0;
-      }
-    } else {
-      const k = U.easeIn(Math.min(1, e.t / 0.9));
-      e.x = U.lerp(a.x - 26, a.x - 110, k);
-      if (e.t >= 0.9) { e.on = false; e.fruit = null; UI.refreshAll(); Main.save(); }
+    for (const p of petals) {
+      p.x += (p.sp + Math.sin(p.ph + G.time) * 6) * dt;
+      p.y += (10 + Math.cos(p.ph * 1.7 + G.time) * 8) * dt;
+      if (p.x > WW + 10) p.x = -10;
+      if (p.y > WH) { p.y = -8; p.x = Math.random() * WW; }
     }
+    for (const b of flies) { b.ph += dt * b.sp; }
   }
 
   // ---- input --------------------------------------------------------------
   function indexAt(px, py) {
     const wx = wxOf(px), wy = wyOf(py);
+    if (!planted()) return Math.hypot(wx - SEED.x, (wy - SEED.y) * 0.8) < 60 ? -2 : -1;
     for (let i = 0; i < FRUITS.length; i++) {
       const a = nodeAt(FRUITS[i]);
       if (Math.abs(wx - a.x) < NW / 2 && Math.abs(wy - a.y) < NH / 2) return i;
     }
     return -1;
   }
-  const LEARN = { x: VW - 132, y: VH - 42, w: 118, h: 30 };
+  const LEARN = { x: VW - 150, y: VH - 50, w: 134, h: 34 };
   function overLearn(px, py) {
-    return sel >= 0 && px > LEARN.x && px < LEARN.x + LEARN.w && py > LEARN.y && py < LEARN.y + LEARN.h;
+    return px > LEARN.x && px < LEARN.x + LEARN.w && py > LEARN.y && py < LEARN.y + LEARN.h && (sel >= 0 || !planted());
   }
   function click(px, py) {
-    if (overLearn(px, py)) { buy(FRUITS[sel]); return; }
+    if (overLearn(px, py)) { if (!planted()) plant(); else buy(FRUITS[sel]); return; }
     const i = indexAt(px, py);
+    if (i === -2) { plant(); return; }
     if (i < 0) return;
     if (i === sel) buy(FRUITS[i]);
     else { sel = i; Audio.play('click'); }
   }
   function hoverAt(px, py) {
-    hover = indexAt(px, py);
+    const i = indexAt(px, py);
+    hover = i >= 0 ? i : -1;
+    seedHot = i === -2;
     learnHot = overLearn(px, py);
-    return null;                                    // the tree carries its own detail card
+    return null;
   }
   function scroll(dy, px, py) { zoomAt(dy < 0 ? 1.14 : 1 / 1.14, px ?? VW / 2, py ?? VH / 2); }
 
-  // ---- drawing ------------------------------------------------------------
-  // square plaques, hard corners, light from the upper left
-  function plaque(g, x, y, w, h, face, edge, lit) {
-    const X = Math.round(x - w / 2), Y = Math.round(y - h / 2);
-    g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillRect(X + 3, Y + 4, w, h);
-    g.fillStyle = edge; g.fillRect(X, Y, w, h);
-    g.fillStyle = face; g.fillRect(X + 2, Y + 2, w - 4, h - 4);
-    g.fillStyle = lit; g.fillRect(X + 2, Y + 2, w - 4, 2);
-    g.fillStyle = lit; g.fillRect(X + 2, Y + 2, 2, h - 4);
-    g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(X + 2, Y + h - 4, w - 4, 2); g.fillRect(X + w - 4, Y + 2, 2, h - 4);
-    g.fillStyle = edge;                                    // notched corners
-    g.fillRect(X, Y, 3, 3); g.fillRect(X + w - 3, Y, 3, 3);
-    g.fillRect(X, Y + h - 3, 3, 3); g.fillRect(X + w - 3, Y + h - 3, 3, 3);
+  // ---- the garden behind it all -------------------------------------------
+  // Painted once: sky, hills, hedge, beds, fence, flowers. It is the grove you
+  // are standing in, drawn closer and with more care.
+  function buildGarden() {
+    const { c, g } = Art.cv(WW, WH);
+    const sky = g.createLinearGradient(0, 0, 0, 700);
+    sky.addColorStop(0, '#5fb0d6'); sky.addColorStop(0.4, '#93d2e4'); sky.addColorStop(0.78, '#d6edc8'); sky.addColorStop(1, '#f2e7b8');
+    g.fillStyle = sky; g.fillRect(0, 0, WW, 700);
+    Art.ell(g, 1216, 150, 56, 56, 'rgba(255,240,180,0.17)');
+    Art.ell(g, 1216, 150, 38, 38, 'rgba(255,244,200,0.4)');
+    Art.ell(g, 1216, 150, 24, 24, '#fff6cf');
+    const rnd = Art.rng(4242);
+    for (let i = 0; i < 11; i++) {
+      const cx = 40 + i * 142 + rnd() * 50, cy = 70 + rnd() * 240, s = 0.7 + rnd() * 0.9;
+      const puffs = [[-2, 2, 1], [-1, 1, 1.15], [0, 0, 1.3], [1, 1, 1.1], [2, 2, 0.85]];
+      for (const [k, d, w] of puffs) Art.ell(g, cx + k * 22 * s, cy + d * 5 * s + 5, 22 * s * w, 13 * s * w, 'rgba(180,210,226,0.8)');
+      for (const [k, d, w] of puffs) {
+        Art.ell(g, cx + k * 22 * s, cy + d * 5 * s, 21 * s * w, 13 * s * w, '#f4fcff');
+        Art.ell(g, cx + k * 22 * s - 5 * s, cy + d * 5 * s - 5 * s, 12 * s * w, 7 * s * w, '#ffffff');
+      }
+    }
+    for (const [hy, col, lit] of [[560, '#84b46e', '#9dc983'], [596, '#6d9e58', '#84b46e']]) {
+      for (let x = -60; x < WW + 60; x += 108) { const r = 92 + rnd() * 40; Art.ell(g, x + rnd() * 50, hy + 26, r, 46, col); Art.ell(g, x + rnd() * 50 - 14, hy + 14, r * 0.5, 18, lit); }
+      g.fillStyle = col; g.fillRect(0, hy + 22, WW, 60);
+    }
+    // a hedge of round trees along the back, each with its own trunk and sun
+    for (let i = 0; i < 22; i++) {
+      const x = -20 + i * 72 + rnd() * 28, y = 636 - rnd() * 16, s = 0.85 + rnd() * 0.55;
+      Art.limb(g, x, y + 22, x - 2, y - 8, 9, 6, '#4a3420');
+      Art.limb(g, x - 2, y + 20, x - 4, y - 6, 3.4, 2.4, '#7d5f42');
+      Art.ell(g, x, y - 10, 32 * s, 26 * s, '#26501f');
+      Art.ell(g, x - 4, y - 15, 27 * s, 22 * s, '#3d7530');
+      Art.ell(g, x - 9, y - 21, 16 * s, 12 * s, '#63a446');
+      Art.ell(g, x - 13, y - 25, 8 * s, 6 * s, '#8ec95f');
+      Art.speckle(g, x - 5, y - 17, 20 * s, 14 * s, '#8ec95f', 26, i * 31 + 7);
+      Art.speckle(g, x + 5, y - 3, 20 * s, 12 * s, '#1c3d18', 18, i * 17 + 3);
+    }
+    // the garden floor
+    g.fillStyle = '#4d8a37'; g.fillRect(0, 650, WW, WH - 650);
+    for (let i = 0; i < 6200; i++) {
+      const x = rnd() * WW, y = 650 + rnd() * (WH - 650);
+      const k = (y - 650) / (WH - 650);
+      Art.rect(g, x, y, 2, 2, rnd() < 0.5 - k * 0.25 ? '#66a845' : rnd() < 0.5 ? '#3f7a2c' : '#82c35b');
+    }
+    // tilled rows running away behind the plot, then the plot itself
+    for (let r = 0; r < 3; r++) {
+      const y = 700 + r * 28, w = 400 + r * 92;
+      Art.ell(g, BASE, y + 6, w / 2, 15, '#4a3018');
+      Art.ell(g, BASE, y + 1, w / 2 - 6, 13, '#7a5530');
+      Art.ell(g, BASE, y - 4, w / 2 - 26, 7, '#a3763f');
+      for (let i = 0; i < 70; i++) Art.rect(g, BASE - w / 2 + rnd() * w, y - 6 + rnd() * 16, 2, 2, '#3d2814');
+      for (let i = 0; i < 14; i++) { const gx = BASE - w / 2 + rnd() * w; for (let k = -1; k <= 1; k++) Art.limb(g, gx + k * 2, y - 6, gx + k * 4, y - 14, 2, 1, '#4d8a37'); }
+    }
+    Art.ell(g, BASE, GROUND + 10, 150, 26, '#5a3c20');
+    Art.ell(g, BASE, GROUND + 5, 147, 25, '#6b4a28');
+    Art.ell(g, BASE, GROUND - 2, 138, 22, '#8a6134');
+    Art.ell(g, BASE - 10, GROUND - 9, 104, 14, '#a3763f');
+    Art.ell(g, BASE - 26, GROUND - 13, 58, 7, '#c08a45');
+    Art.speckle(g, BASE, GROUND + 2, 140, 22, '#3d2814', 320, 99);
+    Art.speckle(g, BASE - 14, GROUND - 8, 96, 11, '#c9955a', 110, 13);
+    // flowers and clover through the grass, but not on the plot
+    const FL = [['#f6f6f6', '#ffd23f'], ['#ff8fb0', '#fff0b8'], ['#b394e8', '#fff0b8'], ['#ffd23f', '#c07f32'], ['#8fc6f2', '#fff0b8']];
+    for (let i = 0; i < 190; i++) {
+      const x = rnd() * WW, y = 658 + rnd() * (WH - 700);
+      if (Math.abs(x - BASE) < 190 && y > 662) continue;
+      const [pc, cc] = FL[Math.floor(rnd() * FL.length)];
+      Art.rect(g, x, y, 1, 7, '#3f7a2c');
+      for (let k = 0; k < 5; k++) { const a = (k / 5) * TAU; Art.rect(g, x + Math.cos(a) * 2.4, y - 3 + Math.sin(a) * 2.4, 2, 2, pc); }
+      Art.rect(g, x, y - 3, 1.8, 1.8, cc);
+    }
+    for (let i = 0; i < 80; i++) {                       // tufts of longer grass
+      const x = rnd() * WW, y = 664 + rnd() * (WH - 710);
+      for (let k = -2; k <= 2; k++) Art.limb(g, x + k * 2, y, x + k * 4, y - 8 - Math.abs(k), 2, 1, k % 2 ? '#3f7a2c' : '#66a845');
+    }
+    // a picket fence along the very front
+    for (let x = 6; x < WW; x += 30) {
+      Art.poly(g, [[x, 846], [x + 15, 846], [x + 15, 886], [x + 7.5, 896], [x, 886]], '#e3cc9b');
+      Art.rect(g, x, 846, 5, 46, '#f6e7c4');
+      Art.rect(g, x + 11, 846, 4, 46, '#c0a577');
+      Art.rect(g, x, 846, 15, 2, '#fff6e0');
+    }
+    Art.rect(g, 0, 856, WW, 7, '#c0a577'); Art.rect(g, 0, 856, WW, 2, '#f6e7c4');
+    return c;
   }
 
+  // ---- interface pieces, the same recipe as the panels --------------------
+  function frame9(g, X, Y, w, h, cream) {
+    X = Math.round(X); Y = Math.round(Y); w = Math.round(w); h = Math.round(h);
+    g.fillStyle = 'rgba(0,0,0,0.4)'; g.fillRect(X + 4, Y + 6, w, h);
+    g.fillStyle = OL; g.fillRect(X - 3, Y - 3, w + 6, h + 6);
+    g.fillStyle = GR0; g.fillRect(X - 1, Y - 1, w + 2, h + 2);
+    g.fillStyle = GR2; g.fillRect(X, Y, w, h);
+    g.fillStyle = GR3; g.fillRect(X + 1, Y + 1, w - 2, 2); g.fillRect(X + 1, Y + 1, 2, h - 2);
+    g.fillStyle = cream || CR0; g.fillRect(X + 5, Y + 5, w - 10, h - 10);
+    g.fillStyle = CR1; g.fillRect(X + 5, Y + 5, w - 10, 2);
+    g.fillStyle = GD2;                                  // the four gold studs
+    g.fillRect(X, Y, 5, 5); g.fillRect(X + w - 5, Y, 5, 5);
+    g.fillRect(X, Y + h - 5, 5, 5); g.fillRect(X + w - 5, Y + h - 5, 5, 5);
+    g.fillStyle = GD3; g.fillRect(X, Y, 5, 2); g.fillRect(X + w - 5, Y, 5, 2);
+  }
+  function slot(g, X, Y, s) {
+    X = Math.round(X); Y = Math.round(Y);
+    g.fillStyle = OL; g.fillRect(X - 3, Y - 3, s + 6, s + 6);
+    g.fillStyle = '#533722'; g.fillRect(X, Y, s, s);
+    g.fillStyle = '#6d4a2b'; g.fillRect(X, Y, s, 2);
+    g.fillStyle = '#3f2917'; g.fillRect(X, Y + s - 3, s, 3);
+    g.fillStyle = GD2;
+    g.fillRect(X, Y, 4, 4); g.fillRect(X + s - 4, Y, 4, 4);
+    g.fillRect(X, Y + s - 4, 4, 4); g.fillRect(X + s - 4, Y + s - 4, 4, 4);
+  }
+  function goldButton(g, X, Y, w, h, label, on, tone) {
+    X = Math.round(X); Y = Math.round(Y);
+    const top = tone === 'green' ? GR3 : tone === 'dead' ? '#b9ad96' : GD3;
+    const mid = tone === 'green' ? GR2 : tone === 'dead' ? '#9a8e78' : GD2;
+    const bot = tone === 'green' ? GR1 : tone === 'dead' ? '#7a6f5c' : GD1;
+    const foot = tone === 'green' ? GR0 : tone === 'dead' ? '#4f4737' : GD0;
+    const d = on ? 2 : 0;
+    g.fillStyle = OL; g.fillRect(X - 3, Y - 3 + d, w + 6, h + 6 + (5 - d));
+    g.fillStyle = foot; g.fillRect(X, Y + h + d, w, 5 - d);
+    g.fillStyle = bot; g.fillRect(X, Y + d, w, h);
+    g.fillStyle = mid; g.fillRect(X, Y + d, w, Math.round(h * 0.62));
+    g.fillStyle = top; g.fillRect(X, Y + d, w, Math.round(h * 0.26));
+    g.fillStyle = 'rgba(255,244,200,0.5)'; g.fillRect(X + 2, Y + 2 + d, w - 4, 1);
+    if (label) FX.pixelText(g, label, X + w / 2, Y + d + Math.round(h / 2) - 5, { color: tone === 'dead' ? '#4d4638' : '#3a2606', size: 10, ink: false });
+  }
+  function banner(g, X, Y, w, h, label) {
+    X = Math.round(X); Y = Math.round(Y);
+    g.fillStyle = OL; g.fillRect(X - 3, Y - 3, w + 6, h + 6);
+    g.fillStyle = WD1; g.fillRect(X, Y, w, h);
+    g.fillStyle = WD2; g.fillRect(X, Y, w, Math.round(h * 0.76));
+    g.fillStyle = WD3; g.fillRect(X, Y, w, Math.round(h * 0.4));
+    g.fillStyle = WD4; g.fillRect(X, Y, w, Math.round(h * 0.18));
+    for (const bx of [X - 10, X + w - 6]) {            // the blue end caps
+      g.fillStyle = OL; g.fillRect(bx - 3, Y - 7, 22, h + 14);
+      g.fillStyle = '#2b5a92'; g.fillRect(bx, Y - 4, 16, h + 8);
+      g.fillStyle = '#4d8fd0'; g.fillRect(bx, Y - 4, 16, Math.round((h + 8) * 0.46));
+      g.fillStyle = '#8fc6f2'; g.fillRect(bx, Y - 4, 16, 3);
+    }
+    if (label) FX.pixelText(g, label, X + w / 2, Y + Math.round(h / 2) - 6, { color: '#fff3d2', size: 11, ink: 2, inkColor: 'rgba(0,0,0,0.55)' });
+  }
+
+  // ---- the tree ------------------------------------------------------------
+  // A quadratic sweep between two ranks, so branches bow instead of zig-zag.
+  function bough(g, p0, p1, w0, w1, col, lit, bend) {
+    const mx = (p0.x + p1.x) / 2 + bend, my = (p0.y + p1.y) / 2;
+    const N = 9;
+    let px = p0.x, py = p0.y;
+    for (let i = 1; i <= N; i++) {
+      const t = i / N, u = 1 - t;
+      const x = u * u * p0.x + 2 * u * t * mx + t * t * p1.x;
+      const y = u * u * p0.y + 2 * u * t * my + t * t * p1.y;
+      const wa = U.lerp(w0, w1, (i - 1) / N), wb = U.lerp(w0, w1, t);
+      Art.limb(g, px, py, x, y, wa, wb, col);
+      if (lit) Art.limb(g, px - wa * 0.26, py, x - wb * 0.24, y, wa * 0.3, wb * 0.28, lit);
+      px = x; py = y;
+    }
+    return { x: px, y: py };
+  }
+  // One wide canopy, not a chain of beads: a shadow mass, a body, sun on the
+  // crown, loose leaves at the edge, and the branch's own fruit hanging in it.
+  function puff(g, x, y, r, L, seed, fruit) {
+    const rnd = Art.rng(seed | 0);
+    const lobes = [];
+    for (let i = 0; i < 7; i++) {
+      const a = Math.PI + (i / 6) * Math.PI;
+      lobes.push({ x: x + Math.cos(a) * r * 0.62, y: y + Math.sin(a) * r * 0.4 * 0.9 + r * 0.06, r: r * (0.34 + rnd() * 0.12) });
+    }
+    lobes.push({ x, y, r: r * 0.5 });
+    for (const p of lobes) Art.ell(g, p.x, p.y + r * 0.1, p.r * 1.06, p.r * 0.82, L[0]);
+    for (const p of lobes) Art.ell(g, p.x, p.y, p.r, p.r * 0.78, L[1]);
+    for (const p of lobes) Art.ell(g, p.x - p.r * 0.2, p.y - p.r * 0.2, p.r * 0.7, p.r * 0.5, L[2]);
+    for (const p of lobes) {
+      Art.ell(g, p.x - p.r * 0.34, p.y - p.r * 0.36, p.r * 0.38, p.r * 0.26, L[3]);
+      Art.speckle(g, p.x - p.r * 0.2, p.y - p.r * 0.24, p.r * 0.56, p.r * 0.4, L[3], Math.round(p.r * 0.5), Math.floor(p.x * 7 + p.y));
+      Art.speckle(g, p.x, p.y + p.r * 0.38, p.r * 0.7, p.r * 0.28, L[0], Math.round(p.r * 0.4), Math.floor(p.y * 11 + p.x));
+    }
+    for (let i = 0; i < 14; i++) {                       // leaves shaken loose at the edge
+      const a = Math.PI + rnd() * Math.PI;
+      Art.ell(g, x + Math.cos(a) * r * (0.9 + rnd() * 0.22), y + Math.sin(a) * r * 0.5 * (0.9 + rnd() * 0.3), 4, 3, rnd() < 0.5 ? L[2] : L[1]);
+    }
+    if (fruit) for (let i = 0; i < 9; i++) {             // the branch's fruit
+      const fx = x + (rnd() - 0.5) * r * 1.5, fy = y + (rnd() - 0.2) * r * 0.62;
+      Art.rect(g, fx, fy - 5, 1.4, 5, L[0]);
+      Art.ell(g, fx, fy + 1, 5, 5, fruit[0]);
+      Art.ell(g, fx - 1.6, fy - 0.6, 2, 1.6, fruit[1]);
+    }
+  }
+  function drawTree(g, t) {
+    const wob = Math.sin(t * 0.9) * 2.2;
+    const sprout = grow.kind === 'sprout' ? U.clamp(1 - grow.t / 2.2, 0, 1) : planted() ? 1 : 0;
+    if (sprout > 0) {                                     // roots pushing out of the mound
+      for (let i = -3; i <= 3; i++) {
+        if (!i) continue;
+        Art.limb(g, BASE + i * 7, GROUND - 16, BASE + i * (30 + Math.abs(i) * 10), GROUND + 8, 13, 3, '#4a3420');
+        Art.limb(g, BASE + i * 7, GROUND - 18, BASE + i * (27 + Math.abs(i) * 9), GROUND + 3, 6, 2, '#7d5f42');
+      }
+    }
+    if (!planted() && grow.kind !== 'sprout') { drawSeed(g, t); return; }
+    const learned = FRUITS.filter(owned).length;
+    const w0 = (58 + learned * 3.4) * sprout, w1 = (38 + learned * 2.4) * sprout;
+    const top = U.lerp(GROUND, FORK, U.easeOut(sprout));
+    Art.limb(g, BASE, GROUND, BASE + wob * 0.4, top, w0, w1, '#4a3420');
+    Art.limb(g, BASE - w0 * 0.24, GROUND, BASE - w1 * 0.22 + wob * 0.4, top, w0 * 0.38, w1 * 0.34, '#7d5f42');
+    Art.limb(g, BASE + w0 * 0.3, GROUND, BASE + w1 * 0.28 + wob * 0.4, top, w0 * 0.24, w1 * 0.22, '#2e2013');
+    for (let i = 0; i < 6; i++) {                          // bark ridges
+      const k = 0.12 + i * 0.15, y = U.lerp(GROUND, top, k);
+      Art.rect(g, BASE - 14 + (i % 2) * 22, y, 4, 18 * sprout, '#3a2a18');
+    }
+    Art.ell(g, BASE - 13, U.lerp(GROUND, top, 0.55), 11, 8, '#2e2013');   // a knot
+    Art.ell(g, BASE - 13, U.lerp(GROUND, top, 0.55), 7, 5, '#5a4128');
+    if (sprout < 1) { drawSeed(g, t, 1 - sprout); return; }
+
+    // the bark first, all of it, so the tree reads before the leaves land
+    const ends = [];
+    for (let b = 0; b < 3; b++) {
+      const reach = learnedIn(b);
+      const pts = spine(b);
+      let p = { x: pts[0].x + wob * 0.3, y: pts[0].y };
+      const path = [p];
+      for (let i = 0; i < 4; i++) {
+        const nx = pts[i + 1].x + wob * (0.4 + i * 0.3), ny = pts[i + 1].y;
+        const live = i < reach, next = i === reach;
+        const tw = live ? 36 - i * 5.6 : next ? 17 - i * 2.2 : 6 - i * 0.8;
+        const bend = (b - 1) * (i === 0 ? 62 : 20) + (b === 1 ? (i % 2 ? 30 : -30) : 0);
+        g.globalAlpha = live ? 1 : next ? 0.95 : 0.55;
+        bough(g, p, { x: nx, y: ny }, tw + 4, tw * 0.78 + 4, '#241a0f', null, bend);
+        bough(g, p, { x: nx, y: ny }, tw, tw * 0.78, live ? '#4a3420' : next ? '#5a442c' : '#4a3a2a', live ? '#7d5f42' : next ? '#7d5f42' : '#6a5238', bend);
+        if (!live) for (let k = 0; k < 3; k++) {          // bare twigs, waiting for a fruit
+          const q = (k + 1) / 4, sx2 = U.lerp(p.x, nx, q) + bend * 0.4 * Math.sin(q * Math.PI), sy2 = U.lerp(p.y, ny, q);
+          Art.limb(g, sx2, sy2, sx2 + (k % 2 ? 13 : -13), sy2 - 9, 3, 1, '#4a3a2a');
+        }
+        g.globalAlpha = 1;
+        p = { x: nx, y: ny }; path.push(p);
+      }
+      ends.push({ b, reach, path });
+    }
+    // then the leaves, one broad canopy for every fruit that has come in
+    for (const e of ends) {
+      const L = BRANCH[e.b].leaf, F = BRANCH[e.b].fruit;
+      for (let i = 0; i < e.reach; i++) {
+        const f = FRUITS.find((x) => x.root === e.b && x.i === i);
+        const n = e.path[i + 1];
+        const pop = (grow.kind === 'fruit' && grow.of === f) ? 1 + Math.sin(U.clamp(1 - grow.t / 1.3, 0, 1) * Math.PI) * 0.32 : 1;
+        puff(g, n.x + (e.b - 1) * 14, n.y - 14, 152 * pop, L, e.b * 71 + i * 13 + 5, F);
+      }
+      if (e.reach >= 4) puff(g, e.path[4].x + (e.b - 1) * 24, e.path[4].y - 96, 130, L, e.b * 97 + 3, F);
+      // a slimmer pass of bark over the leaves, so the branch still reads
+      for (let i = 0; i < e.reach; i++) {
+        const bend = (e.b - 1) * (i === 0 ? 62 : 20) + (e.b === 1 ? (i % 2 ? 30 : -30) : 0);
+        const tw = (36 - i * 5.6) * 0.52;
+        bough(g, e.path[i], e.path[i + 1], tw + 4, tw * 0.78 + 4, '#241a0f', null, bend);
+        bough(g, e.path[i], e.path[i + 1], tw, tw * 0.78, '#4a3420', '#7d5f42', bend);
+      }
+    }
+  }
+
+  function drawSeed(g, t, alpha) {
+    const pulse = 0.5 + 0.5 * Math.sin(t * 2.6);
+    g.globalAlpha = alpha ?? 1;
+    const y = SEED.y + Math.sin(t * 1.6) * 3;
+    Art.ell(g, SEED.x, GROUND + 4, 34, 10, 'rgba(40,26,12,0.35)');
+    for (let r = 3; r >= 1; r--) Art.ell(g, SEED.x, y, 22 + r * 11 + pulse * 7, 26 + r * 12 + pulse * 7, `rgba(245,205,92,${(0.05 + pulse * 0.05).toFixed(3)})`);
+    Art.ell(g, SEED.x, y, 22, 28, '#3a2a18');
+    Art.ell(g, SEED.x, y, 20, 26, '#8a6134');
+    Art.ell(g, SEED.x - 4, y - 5, 13, 16, '#c58f47');
+    Art.ell(g, SEED.x - 7, y - 11, 6, 8, '#e9bd78');
+    Art.ell(g, SEED.x + 8, y + 8, 6, 8, '#5a3c20');
+    for (let i = -2; i <= 2; i++) Art.limb(g, SEED.x + i * 3, y + 14, SEED.x + i * 6, y - 16, 2.4, 1.2, '#6b4a2a');
+    Art.rect(g, SEED.x - 2, y - 28, 4, 11, '#3f7a2c');     // the first shoot
+    Art.ell(g, SEED.x - 9, y - 31, 8, 4.4, '#69b845'); Art.ell(g, SEED.x + 9, y - 35, 8, 4.4, '#9ad86a');
+    Art.ell(g, SEED.x - 11, y - 32, 3.4, 2, '#c2ed8f');
+    for (let i = 0; i < 9; i++) {                          // golden motes rising off it
+      const a = t * 0.8 + i * 0.7;
+      Art.rect(g, SEED.x + Math.cos(a) * 32, y - 22 - ((t * 26 + i * 11) % 62), 3, 3, i % 2 ? GD3 : GD2);
+    }
+    g.globalAlpha = 1;
+  }
+
+  // ---- drawing ------------------------------------------------------------
   function render(g) {
     ensure();
     const t = G.time;
-    const sky = g.createLinearGradient(0, 0, 0, VH);
-    sky.addColorStop(0, '#0b0916'); sky.addColorStop(0.6, '#141026'); sky.addColorStop(1, '#1d1630');
-    g.fillStyle = sky; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 70; i++) {
-      const x = (i * 97) % VW, y = (i * 53) % VH;
-      if ((Math.sin(t * 1.4 + i) + 1) > 0.6) { g.fillStyle = i % 6 === 0 ? PAL.gold3 : 'rgba(230,226,255,0.5)'; g.fillRect(x, y, 1, 1); }
-    }
-
+    g.fillStyle = '#9fd6e4'; g.fillRect(0, 0, VW, VH);
     g.save();
     g.translate(VW / 2, CY); g.scale(cam.z, cam.z); g.translate(-cam.x, -cam.y);
-
-    // the tree itself, standing behind the ranks
-    g.globalAlpha = 0.28;
-    g.drawImage(tree.canvas, Math.round(WW / 2 - tree.canvas.width / 2), Math.round(WH - tree.canvas.height + 30));
-    g.globalAlpha = 1;
-    for (const m of motes) {
-      const a = 0.25 + 0.45 * (Math.sin(t * 1.2 + m.ph) * 0.5 + 0.5);
-      g.fillStyle = `rgba(245,205,92,${a.toFixed(2)})`;
-      g.fillRect(Math.round(m.x + Math.sin(t * 0.4 + m.ph) * 14), Math.round(m.y + Math.cos(t * 0.3 + m.ph) * 10), m.s, m.s);
+    g.drawImage(garden, 0, 0);
+    drawTree(g, t);
+    for (const b of flies) {                              // butterflies over the beds
+      const x = b.x + Math.sin(b.ph) * 34, y = b.y + Math.cos(b.ph * 1.6) * 16;
+      const flap = Math.sin(b.ph * 9) * 2.4;
+      Art.rect(g, x - 1, y - 1, 2, 3, '#3a2612');
+      Art.ell(g, x - 3, y - 1 - flap * 0.3, 3, 2 + flap * 0.4, b.c);
+      Art.ell(g, x + 3, y - 1 - flap * 0.3, 3, 2 + flap * 0.4, b.c);
     }
-
-    // branch banners
-    for (let b = 0; b < 3; b++) {
-      const x = COLX[b], y = ROWY[3] - 76;
-      plaque(g, x, y, 150, 34, BRANCH[b].dark, '#0e0b16', U.mix(BRANCH[b].col, '#ffffff', 0.25));
-      FX.pixelText(g, BRANCH[b].name, x, y - 6, { color: '#fdf3dc', size: 12, ink: 3, inkColor: '#0e0b16' });
-    }
-    // limbs between the ranks
-    for (const f of FRUITS) {
-      const p = prereq(f);
-      const a = nodeAt(f);
-      const from = p ? nodeAt(p) : { x: COLX[f.root], y: ROWY[0] + 96 };
-      const on = p ? owned(p) : true;
-      const live = on && owned(f);
-      const col = live ? BRANCH[f.root].col : on ? '#4a4258' : '#2a2536';
-      g.fillStyle = '#0e0b16';
-      g.fillRect(Math.round(a.x - 7), Math.round(a.y + NH / 2), 14, Math.round(from.y - NH / 2 - (a.y + NH / 2)));
-      g.fillStyle = col;
-      g.fillRect(Math.round(a.x - 5), Math.round(a.y + NH / 2), 10, Math.round(from.y - NH / 2 - (a.y + NH / 2)));
-      g.fillStyle = 'rgba(255,255,255,0.18)';
-      g.fillRect(Math.round(a.x - 5), Math.round(a.y + NH / 2), 3, Math.round(from.y - NH / 2 - (a.y + NH / 2)));
-      if (on && !owned(f)) {                       // sap running up an open limb
-        const k = (t * 0.4 + f.i * 0.3) % 1;
-        const yy = U.lerp(from.y - NH / 2, a.y + NH / 2, k);
-        g.fillStyle = PAL.gold3; g.fillRect(Math.round(a.x - 3), Math.round(yy), 6, 5);
-      }
-    }
-    // the trunk stub under the first rank
-    g.fillStyle = '#0e0b16'; g.fillRect(COLX[0] - 7, ROWY[0] + 90, COLX[2] - COLX[0] + 14, 14);
-    g.fillStyle = '#4a3524'; g.fillRect(COLX[0] - 5, ROWY[0] + 92, COLX[2] - COLX[0] + 10, 10);
-    g.fillStyle = 'rgba(255,255,255,0.14)'; g.fillRect(COLX[0] - 5, ROWY[0] + 92, COLX[2] - COLX[0] + 10, 3);
-
-    FRUITS.forEach((f, i) => drawNode(g, f, i, t));
-    for (const c of crumbs) { g.fillStyle = c.c; g.fillRect(Math.round(c.x), Math.round(c.y), 2, 2); }
-    if (eating.on) {
-      const bite = eating.phase === 'bite' ? Math.max(0, Math.sin(eating.t * 7.5)) : 0;
-      const pose = eating.phase === 'bite' ? 'eat' : 'walk';
-      Sprites.blit(g, eating.x, eating.y, pose, Math.floor(t * 9), 'brown', eating.dir, 'adult', 1, bite * 0.18);
-    }
+    for (const p of petals) { g.fillStyle = p.c; g.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); }
+    if (!planted()) drawSeedCallout(g, t);
+    else FRUITS.forEach((f, i) => drawNode(g, f, i, t));
+    for (const c of crumbs) { g.fillStyle = c.c; g.fillRect(Math.round(c.x), Math.round(c.y), 3, 3); }
     g.restore();
-
     detail(g, t);
-    const vg = g.createRadialGradient(VW / 2, VH / 2, VH * 0.4, VW / 2, VH / 2, VH);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(6,4,12,0.7)');
-    g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
     FX.drawParticles(g, 0);
+    FX.drawConfetti(g);
     FX.drawFloaters(g, false);
+  }
+
+  function drawSeedCallout(g, t) {
+    const bob = Math.sin(t * 3) * 3;
+    const pulse = 0.5 + 0.5 * Math.sin(t * 4);
+    // a ring of light around the seed, which is itself the button
+    g.fillStyle = `rgba(255,244,200,${(0.1 + pulse * 0.14 + (seedHot ? 0.16 : 0)).toFixed(2)})`;
+    Art.ell(g, SEED.x, SEED.y, 46 + pulse * 6, 52 + pulse * 6, g.fillStyle);
+    const w = 214, h = 36, X = SEED.x - w / 2, Y = SEED.y - 148 + bob;
+    banner(g, X, Y, w, h, 'PLANT  ME  FREE');
+    g.fillStyle = OL;                                      // the tail of the callout
+    g.fillRect(SEED.x - 5, Y + h + 3, 10, 10); g.fillRect(SEED.x - 3, Y + h + 13, 6, 6);
+    for (let i = 0; i < 3; i++) {                          // an arrow tapping down at it
+      const k = (t * 1.6 + i * 0.33) % 1;
+      g.fillStyle = `rgba(245,205,92,${(0.9 - k).toFixed(2)})`;
+      const ay = SEED.y - 96 + k * 24;
+      g.fillRect(Math.round(SEED.x - 7), Math.round(ay), 14, 5);
+      g.fillRect(Math.round(SEED.x - 4), Math.round(ay + 5), 8, 4);
+      g.fillRect(Math.round(SEED.x - 1), Math.round(ay + 9), 2, 4);
+    }
   }
 
   function drawNode(g, f, i, t) {
@@ -5218,95 +5717,92 @@ const Knowledge = (() => {
     const B = BRANCH[f.root];
     const hot = hover === i || sel === i;
     const pulse = 0.5 + 0.5 * Math.sin(t * 3 + i);
-    let face = '#3a3350', edge = '#0e0b16', lit = '#5d5478';
-    if (st === 'eaten') { face = U.mix(B.dark, B.col, 0.5); lit = U.mix(B.col, '#ffffff', 0.45); }
-    else if (st === 'ready') { face = U.mix('#3d3654', B.dark, 0.7); lit = U.mix(B.col, '#ffffff', 0.3); }
-    else if (st === 'costly') { face = '#3a3350'; lit = '#6a6084'; }
-    else if (st === 'unripe') { face = '#2e2840'; lit = '#4c445f'; }
-    else { face = '#221e2e'; lit = '#3a3346'; }
-    if (st === 'ready') {                       // a halo you can see from across the tree
-      g.fillStyle = `rgba(245,205,92,${(0.1 + pulse * 0.16).toFixed(2)})`;
-      g.fillRect(Math.round(a.x - NW / 2 - 5), Math.round(a.y - NH / 2 - 5), NW + 10, NH + 10);
+    const X = Math.round(a.x - NW / 2), Y = Math.round(a.y - NH / 2);
+    const dim = st === 'locked' || st === 'unripe';
+    if (st === 'ready') {
+      g.fillStyle = `rgba(245,205,92,${(0.12 + pulse * 0.2).toFixed(2)})`;
+      g.fillRect(X - 9, Y - 9, NW + 18, NH + 18);
     }
-    plaque(g, a.x, a.y, NW, NH, face, hot ? '#f5cd5c' : edge, lit);
-    // icon on the left, text to the right: the shape every skill tree uses
-    const ix = a.x - NW / 2 + 10, iy = a.y - 16;
-    g.fillStyle = '#0e0b16'; g.fillRect(ix - 2, iy - 2, 36, 36);
-    g.fillStyle = st === 'eaten' ? U.mix(B.col, '#000000', 0.45) : '#191528';
-    g.fillRect(ix, iy, 32, 32);
-    g.globalAlpha = st === 'locked' ? 0.3 : st === 'unripe' ? 0.55 : 1;
-    Icons.blit(g, f.icon, ix, iy, 2);
-    g.globalAlpha = 1;
-    const tx = ix + 42;
-    FX.pixelText(g, f.name.toUpperCase(), tx, a.y - 22, { color: st === 'locked' ? '#8a82a0' : '#fffaf0', size: 8, align: 'left', ink: 2, inkColor: '#0e0b16' });
+    g.globalAlpha = dim ? 0.82 : 1;
+    frame9(g, X, Y, NW, NH, dim ? '#d9cfb2' : CR0);
+    if (hot) { g.fillStyle = GD2; g.fillRect(X - 3, Y - 3, NW + 6, 3); g.fillRect(X - 3, Y + NH, NW + 6, 3); g.fillRect(X - 3, Y - 3, 3, NH + 6); g.fillRect(X + NW, Y - 3, 3, NH + 6); }
+    // a coloured tab down the left, so you can tell the branches apart
+    g.fillStyle = B.col; g.fillRect(X + 5, Y + 5, 5, NH - 10);
+    g.fillStyle = B.dark; g.fillRect(X + 5, Y + NH - 8, 5, 3);
+    // the icon in its inventory slot
+    const S = 44, ix = X + 16, iy = Y + (NH - S) / 2;
+    slot(g, ix, iy, S);
+    g.globalAlpha = dim ? 0.45 : 1;
+    Icons.blit(g, f.icon, ix + 4, iy + 4, 2.25);
+    g.globalAlpha = dim ? 0.82 : 1;
+    const tx = ix + S + 12;
+    FX.pixelText(g, f.name.toUpperCase(), tx, Y + 12, { color: INK, size: 9, align: 'left', ink: false });
     if (st === 'eaten') {
-      FX.pixelText(g, 'LEARNED', tx, a.y - 6, { color: B.col, size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' });
-      g.fillStyle = B.col;                       // a tick in the corner
-      g.fillRect(a.x + NW / 2 - 16, a.y - NH / 2 + 8, 3, 3);
-      g.fillRect(a.x + NW / 2 - 13, a.y - NH / 2 + 11, 3, 3);
-      g.fillRect(a.x + NW / 2 - 10, a.y - NH / 2 + 8, 3, 3);
-      g.fillRect(a.x + NW / 2 - 7, a.y - NH / 2 + 5, 3, 3);
+      FX.pixelText(g, 'GROWN', tx, Y + 28, { color: '#2f6b1f', size: 10, align: 'left', ink: false });
+      Icons.blit(g, 'check', X + NW - 24, Y + 8, 1);
     } else if (st === 'locked') {
-      Icons.blit(g, 'lock', tx, a.y - 8, 1);
-      FX.pixelText(g, 'LOCKED', tx + 20, a.y - 6, { color: '#8a82a0', size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' });
+      Icons.blit(g, 'lock', tx, Y + 26, 0.9);
+      FX.pixelText(g, 'LOCKED', tx + 18, Y + 28, { color: INK2, size: 10, align: 'left', ink: false });
     } else if (st === 'unripe') {
-      FX.pixelText(g, `FOREST ${Math.round(f.at * 100)}%`, tx, a.y - 6, { color: '#9cc47f', size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' });
+      FX.pixelText(g, `FOREST ${Math.round(f.at * 100)}%`, tx, Y + 28, { color: '#7a5a12', size: 10, align: 'left', ink: false });
     } else {
-      Icons.blit(g, 'wdollar', tx, a.y - 10, 0.9);
-      FX.pixelText(g, String(f.cost), tx + 17, a.y - 6, { color: st === 'costly' ? '#e0705a' : PAL.gold3, size: 8, align: 'left', ink: 2, inkColor: '#0e0b16' });
+      Icons.blit(g, 'wdollar', tx - 2, Y + 24, 1);
+      FX.pixelText(g, String(f.cost), tx + 18, Y + 28, { color: st === 'costly' ? '#9a2a1a' : '#7a5a12', size: 11, align: 'left', ink: false });
     }
-    FX.pixelText(g, `RANK ${f.i + 1}`, tx, a.y + 10, { color: '#8a82a0', size: 6, align: 'left', ink: 2, inkColor: '#0e0b16' });
+    FX.pixelText(g, `${B.name}  ${f.i + 1}/4`, tx, Y + 46, { color: INK2, size: 8, align: 'left', ink: false });
+    g.globalAlpha = 1;
   }
 
-  // The card along the bottom: what the thing does, and the button that buys it.
+  // The card along the bottom: a wooden banner and a cream page under it.
   function detail(g, t) {
-    const f = sel >= 0 ? FRUITS[sel] : null;
     const H = CARD, Y = VH - H;
-    g.fillStyle = '#0e0b16'; g.fillRect(0, Y - 3, VW, H + 3);
-    g.fillStyle = '#1b1728'; g.fillRect(0, Y, VW, H);
-    g.fillStyle = '#2e2840'; g.fillRect(0, Y, VW, 2);
-    for (let x = 0; x < VW; x += 8) { g.fillStyle = 'rgba(255,255,255,0.02)'; g.fillRect(x, Y + 2, 4, H - 2); }
-    if (!f) {
-      FX.pixelText(g, 'PICK A FRUIT', VW / 2, Y + 32, { color: '#6a6280', size: 10 });
+    g.fillStyle = OL; g.fillRect(0, Y - 4, VW, H + 4);
+    g.fillStyle = CR0; g.fillRect(0, Y, VW, H);
+    g.fillStyle = CR1; g.fillRect(0, Y, VW, 3);
+    g.fillStyle = GR2; g.fillRect(0, Y - 4, VW, 4);
+    g.fillStyle = GR3; g.fillRect(0, Y - 4, VW, 1);
+
+    if (!planted()) {
+      slot(g, 16, Y + 18, 52);
+      Icons.blit(g, 't_seed', 20, Y + 22, 2.75);
+      FX.pixelText(g, 'THE FIRST SEED', 84, Y + 16, { color: INK, size: 11, align: 'left', ink: false });
+      FX.pixelText(g, 'Plant it and the tree forks into three branches.', 84, Y + 36, { color: INK2, size: 10, align: 'left', ink: false });
+      FX.pixelText(g, 'Soil, Beast and Rite. The first one costs nothing.', 84, Y + 52, { color: INK2, size: 10, align: 'left', ink: false });
+      goldButton(g, LEARN.x, LEARN.y, LEARN.w, LEARN.h, 'PLANT  FREE', learnHot, 'green');
       return;
     }
-    const B = BRANCH[f.root], st = state(f);
-    g.fillStyle = '#0e0b16'; g.fillRect(12, Y + 12, 52, 52);
-    g.fillStyle = U.mix(B.dark, '#000000', 0.3); g.fillRect(14, Y + 14, 48, 48);
-    g.fillStyle = U.mix(B.col, '#ffffff', 0.25); g.fillRect(14, Y + 14, 48, 2);
-    Icons.blit(g, f.icon, 22, Y + 22, 2);
-    FX.pixelText(g, f.name.toUpperCase(), 76, Y + 12, { color: '#fdf3dc', size: 11, align: 'left', ink: 3, inkColor: '#0e0b16' });
-    FX.pixelText(g, `${BRANCH[f.root].name} - RANK ${f.i + 1}`, 76, Y + 28, { color: B.col, size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' });
-    // wrap the description over two lines
-    const words = f.desc.split(' ');
-    let line = '', lines = [];
-    for (const w of words) {
-      if ((line + w).length > 44) { lines.push(line.trim()); line = ''; }
-      line += w + ' ';
-    }
-    lines.push(line.trim());
-    lines.slice(0, 2).forEach((l, i) => FX.pixelText(g, l, 76, Y + 42 + i * 13, { color: '#d2ccdf', size: 7, align: 'left', ink: 2, inkColor: '#0e0b16' }));
-    // the button
-    const ok = st === 'ready';
-    const face = ok ? (learnHot ? '#7a52c2' : '#5d3aa0') : '#2a2536';
-    plaque(g, LEARN.x + LEARN.w / 2, LEARN.y + LEARN.h / 2, LEARN.w, LEARN.h, face, ok ? '#f5cd5c' : '#0e0b16', ok ? '#a77ee0' : '#3d3550');
-    const label = st === 'eaten' ? 'LEARNED' : st === 'locked' ? 'LOCKED' : st === 'unripe' ? 'NOT RIPE' : st === 'costly' ? 'TOO DEAR' : 'LEARN';
-    FX.pixelText(g, label, LEARN.x + LEARN.w / 2, LEARN.y + 11, { color: ok ? '#fdf3dc' : '#6a6280', size: 9, ink: 3, inkColor: '#0e0b16' });
-    if (!ok && st !== 'eaten') {
-      const why = st === 'locked' ? 'EAT THE RANK BELOW' : st === 'unripe' ? `FOREST ${Math.round(f.at * 100)}%` : `NEED ${f.cost}`;
-      FX.pixelText(g, why, LEARN.x + LEARN.w / 2, LEARN.y - 12, { color: '#8a7f9a', size: 7, ink: 2, inkColor: '#0e0b16' });
-    } else if (ok) {
-      Icons.blit(g, 'wdollar', LEARN.x - 34, LEARN.y + 6, 1);
-      FX.pixelText(g, String(f.cost), LEARN.x - 16, LEARN.y + 9, { color: PAL.gold3, size: 9, align: 'left', ink: 2, inkColor: '#0e0b16' });
-    }
+    const f = sel >= 0 ? FRUITS[sel] : null;
     const learned = FRUITS.filter(owned).length;
-    FX.pixelText(g, `${learned}/${FRUITS.length}`, VW - 12, Y + 12, { color: '#6a6280', size: 8, align: 'right', ink: 2, inkColor: '#0e0b16' });
+    if (!f) { FX.pixelText(g, 'PICK A FRUIT', VW / 2, Y + 36, { color: INK2, size: 12, ink: false }); return; }
+    const B = BRANCH[f.root], st = state(f);
+    slot(g, 16, Y + 18, 52);
+    Icons.blit(g, f.icon, 20, Y + 22, 2.75);
+    FX.pixelText(g, f.name.toUpperCase(), 84, Y + 12, { color: INK, size: 11, align: 'left', ink: false });
+    g.fillStyle = B.col; g.fillRect(84, Y + 30, 4, 12);
+    FX.pixelText(g, `${B.name}  BRANCH ${f.i + 1} OF 4`, 94, Y + 32, { color: '#6b3d12', size: 9, align: 'left', ink: false });
+    const words = f.desc.split(' ');
+    let line = ''; const lines = [];
+    for (const w of words) { if ((line + w).length > 52) { lines.push(line.trim()); line = ''; } line += w + ' '; }
+    lines.push(line.trim());
+    lines.slice(0, 2).forEach((l, i) => FX.pixelText(g, l, 84, Y + 50 + i * 15, { color: INK2, size: 10, align: 'left', ink: false }));
+
+    const ok = st === 'ready';
+    const label = st === 'eaten' ? 'GROWN' : st === 'locked' ? 'LOCKED' : st === 'unripe' ? 'NOT RIPE' : st === 'costly' ? 'TOO DEAR' : 'GROW IT';
+    goldButton(g, LEARN.x, LEARN.y, LEARN.w, LEARN.h, label, ok && learnHot, ok ? 'green' : 'dead');
+    if (ok) {
+      Icons.blit(g, 'wdollar', LEARN.x - 46, LEARN.y + 8, 1.1);
+      FX.pixelText(g, String(f.cost), LEARN.x - 28, LEARN.y + 11, { color: '#7a5a12', size: 11, align: 'left', ink: false });
+    } else if (st !== 'eaten') {
+      const why = st === 'locked' ? 'GROW THE ONE BELOW' : st === 'unripe' ? `FOREST ${Math.round(f.at * 100)}%` : `NEED ${f.cost}`;
+      FX.pixelText(g, why, LEARN.x + LEARN.w / 2, LEARN.y - 16, { color: '#9a2a1a', size: 9, ink: false });
+    }
+    FX.pixelText(g, `${learned}/${FRUITS.length}`, VW - 14, Y + 12, { color: INK2, size: 10, align: 'right', ink: false });
   }
 
   return {
-    init(g) { G = g; }, enter, update, render, click, hover: hoverAt, scroll, state, ripeCount, buy,
+    init(g) { G = g; }, enter, update, render, click, hover: hoverAt, scroll, state, ripeCount, buy, plant, planted,
     pan, zoomBy, lookAt,
-    get busy() { return eating.on; },
+    get busy() { return grow.t > 0; },
   };
 })();
 </script>
@@ -5495,7 +5991,7 @@ const Atlas = (() => {
     g.fillStyle = '#c9ab72'; g.fillRect(cx - w / 2, cy - 9, w, 18);
     g.fillStyle = '#a98a52'; g.fillRect(cx - w / 2, cy + 6, w, 3);
     g.fillStyle = '#7c5f36'; g.fillRect(cx - w / 2 - 6, cy - 11, 6, 22); g.fillRect(cx + w / 2, cy - 11, 6, 22);
-    FX.pixelText(g, text, cx, cy - 3, { color: '#4a3820', size: 1, align: 'center' });
+    FX.pixelText(g, text, cx, cy - 3, { color: '#4a3820', size: 9, align: 'center', ink: false });
   }
 
   function drawPin(g, s, open, hot, bob, t) {
@@ -5522,7 +6018,7 @@ const Atlas = (() => {
       Art.ellBand(g, x, y, 19 + p * 2, 19 + p * 2, 1, PAL.div4);
       g.globalAlpha = 1;
     }
-    FX.pixelText(g, s.name.toUpperCase(), x, y + 20, { color: '#4a3820', size: 1, align: 'center' });
+    FX.pixelText(g, s.name.toUpperCase(), x, y + 20, { color: '#4a3820', size: 9, align: 'center', ink: 2, inkColor: 'rgba(255,246,224,0.85)' });
   }
 
   return { init, enter, update, render, click, hover: hoverAt, get busy() { return !!travel; } };
@@ -6370,34 +6866,49 @@ const Guide = (() => {
     }
   }
 
-  // A paper speech bubble with a tail, hard corners, typed out a letter at a time.
+  // A speech bubble built like the panels: a cream page in a green frame with
+  // gold studs, a tail down to her hood, typed out a letter at a time.
   function drawBubble(g) {
     if (bubble.life <= 0 || !bubble.text) return;
     const full = bubble.text;
     const shown = full.slice(0, Math.min(full.length, Math.floor(bubble.shown)));
     const words = full.split(' '), lines = [];
     let line = '';
-    for (const w of words) { if ((line + w).length > 24) { lines.push(line.trim()); line = ''; } line += w + ' '; }
+    for (const w of words) { if ((line + w).length > 26) { lines.push(line.trim()); line = ''; } line += w + ' '; }
     lines.push(line.trim());
-    const W = Math.max(60, Math.min(24, Math.max(...lines.map((l) => l.length))) * 7 + 18), H = lines.length * 11 + 12;
+    const cols = Math.max(...lines.map((l) => l.length));
+    const W = Math.max(84, cols * 6 + 26), H = lines.length * 13 + 18;
     const scale = 1 + Math.sin(bubble.pop * Math.PI) * 0.18;
-    const bx = cult.x + 6, by = cult.y - 74 - H;
+    const half = W / 2 + 10;
+    const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
+    const bx = lo > hi ? FX.cam.x : U.clamp(cult.x + 6, lo, hi);
+    const by = Math.max(24 + H, cult.y - 78);
+    // by is the bottom of the bubble; the frame is drawn from by - H
+    const praise = bubble.kind === 'praise';
+    const OL = '#17120e', CR0 = praise ? '#fdf0c4' : '#f4e6c0', CR1 = '#fdf6e0';
+    const G0 = praise ? '#7d5510' : '#29431c', G2 = praise ? '#efc245' : '#6ea83e', G3 = praise ? '#ffe497' : '#97cd60';
     g.save();
-    g.translate(bx, by + H); g.scale(scale, scale); g.translate(-bx, -(by + H));
-    const paper = bubble.kind === 'praise' ? '#f6e7b8' : '#f6efdc';
-    g.fillStyle = '#0a0810'; g.fillRect(bx - W / 2 - 3, by - 3, W + 6, H + 6);
-    g.fillStyle = paper; g.fillRect(bx - W / 2, by, W, H);
-    g.fillStyle = bubble.kind === 'praise' ? '#e3c170' : '#e0d6b4'; g.fillRect(bx - W / 2, by + H - 3, W, 3);
-    g.fillStyle = '#0a0810'; g.fillRect(bx - W / 2 - 3, by - 3, 3, 3); g.fillRect(bx + W / 2, by - 3, 3, 3);   // knocked corners
-    g.fillStyle = '#0a0810'; g.beginPath(); g.moveTo(bx - 10, by + H + 2); g.lineTo(bx - 2, by + H + 12); g.lineTo(bx + 4, by + H + 2); g.fill();
-    g.fillStyle = paper; g.beginPath(); g.moveTo(bx - 7, by + H); g.lineTo(bx - 2, by + H + 8); g.lineTo(bx + 1, by + H); g.fill();
+    g.translate(bx, by); g.scale(scale, scale); g.translate(-bx, -by);
+    const X = Math.round(bx - W / 2), Y = Math.round(by - H);
+    g.fillStyle = OL; g.fillRect(X - 3, Y - 3, W + 6, H + 6);
+    g.fillStyle = G0; g.fillRect(X - 1, Y - 1, W + 2, H + 2);
+    g.fillStyle = G2; g.fillRect(X, Y, W, H);
+    g.fillStyle = G3; g.fillRect(X + 1, Y + 1, W - 2, 2); g.fillRect(X + 1, Y + 1, 2, H - 2);
+    g.fillStyle = CR0; g.fillRect(X + 4, Y + 4, W - 8, H - 8);
+    g.fillStyle = CR1; g.fillRect(X + 4, Y + 4, W - 8, 2);
+    g.fillStyle = '#efc245';                                     // the four gold studs
+    g.fillRect(X, Y, 4, 4); g.fillRect(X + W - 4, Y, 4, 4); g.fillRect(X, Y + H - 4, 4, 4); g.fillRect(X + W - 4, Y + H - 4, 4, 4);
+    const tx = U.clamp(cult.x + 6, X + 16, X + W - 16);          // the tail still points at her
+    g.fillStyle = OL; g.beginPath(); g.moveTo(tx - 11, Y + H - 1); g.lineTo(tx - 2, Y + H + 13); g.lineTo(tx + 5, Y + H - 1); g.fill();
+    g.fillStyle = G2; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 9); g.lineTo(tx + 2, Y + H - 2); g.fill();
+    g.fillStyle = CR0; g.fillRect(X + 4, Y + H - 6, W - 8, 2);
     let acc = 0;
     lines.forEach((l, i) => {
       const part = shown.slice(acc, acc + l.length);
       acc += l.length + 1;
-      FX.pixelText(g, part, bx - W / 2 + 9, by + 7 + i * 11, { color: '#2a1a12', size: 7, align: 'left', ink: false });
+      FX.pixelText(g, part, X + 11, Y + 10 + i * 13, { color: '#3a2612', size: 10, align: 'left', ink: false });
     });
-    if (shown.length < full.length) { g.fillStyle = '#2a1a12'; g.fillRect(bx + W / 2 - 8, by + H - 7, 3, 3); }
+    if (shown.length < full.length && Math.floor(bubble.life * 6) % 2) { g.fillStyle = '#3a2612'; g.fillRect(X + W - 12, Y + H - 12, 4, 4); }
     g.restore();
   }
 
@@ -7150,7 +7661,7 @@ const UI = (() => {
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
     if (G.mode !== 'grove') return;
-    wheelAt = { x: U.clamp(sx, 84, 556), y: U.clamp(sy, 70, 300) };
+    wheelAt = { x: U.clamp(sx, 66, 574), y: U.clamp(sy, 60, 292) };
     wheelRing = ring;
     renderWheel();
     Audio.play('click');
@@ -7191,7 +7702,7 @@ const UI = (() => {
       if (food) items.unshift({ icon: 't_hand', on: !G.selFood, tip: '<b>Pet</b><br>hurries digestion', act: () => { G.selFood = null; Audio.play('click'); closeWheel(); refreshHUD(); } });
       items.push({ icon: 'back', tip: '<b>Back</b>', act: () => { wheelRing = 'tools'; renderWheel(); } });
     }
-    const R = items.length > 8 ? 74 : 62;
+    const R = items.length > 8 ? 104 : 86;
     items.forEach((it, idx) => {
       const a = -Math.PI / 2 + (idx / items.length) * TAU;
       const el = document.createElement('button');
@@ -7311,7 +7822,7 @@ const UI = (() => {
   function renderBasket() {
     const rows = Shop.lines();
     let h = '';
-    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>the basket is empty</p></div>`;
+    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>THE BASKET IS EMPTY</p></div>`;
     else {
       h = '<div class="blist">';
       for (const r of rows) {
@@ -7324,9 +7835,9 @@ const UI = (() => {
     const t = Shop.total();
     h += `<div class="btotal">${ic('wdollar')}<b>${U.fmt(t)}</b><span class="dim">of ${U.fmt(G.wd)}</span></div>
       <div class="brow2">
-        <button class="act" id="b-pay" ${!rows.length || t > G.wd ? 'disabled' : ''}>${ic('check')}</button>
-        <button class="wbtn" id="b-clear">${ic('close', 'sm')}</button>
-        <button class="wbtn" id="b-sell">${ic('wdollar', 'sm')} sell</button>
+        <button class="act go" id="b-pay" ${!rows.length || t > G.wd ? 'disabled' : ''}>${ic('check')}<span>PAY</span></button>
+        <button class="wbtn" id="b-clear">${ic('close', 'sm')}CLEAR</button>
+        <button class="wbtn" id="b-sell">${ic('wdollar', 'sm')}SELL</button>
       </div>`;
     $('basket-body').innerHTML = h;
     $('basket-body').querySelectorAll('.bx').forEach((b) => b.onclick = () => { Shop.removeLine(b.dataset.id); renderBasket(); });
@@ -7455,13 +7966,13 @@ const UI = (() => {
       Main.save();
     };
     $('b-basket').onclick = () => openBasket();
-    $('b-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('b-music').textContent = on ? 'music' : 'muted'; Main.save(); };
+    $('b-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('b-music').textContent = on ? 'MUSIC' : 'MUTED'; Main.save(); };
     let armed = 0;
     $('b-reset').onclick = () => {
       const b = $('b-reset');
       if (Date.now() < armed) { Main.reset(); return; }
-      armed = Date.now() + 4000; b.textContent = 'sure?'; Audio.play('alarm');
-      setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'reset'; armed = 0; } }, 4100);
+      armed = Date.now() + 4000; b.textContent = 'SURE?'; Audio.play('alarm');
+      setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'RESET'; armed = 0; } }, 4100);
     };
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
     $('b-summon').onclick = () => Ritual.summon();
@@ -7470,7 +7981,7 @@ const UI = (() => {
     $('b-cash').onclick = () => Tower.cashOut();
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanels(); });
     $('b-sound').firstElementChild.src = Icons.url(G.muted ? 'mute' : 'sound');
-    $('b-music').textContent = G.musicOff ? 'muted' : 'music';
+    $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {
     $('ov-shrine').hidden = mode !== 'shrine';

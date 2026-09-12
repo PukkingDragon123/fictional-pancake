@@ -175,34 +175,49 @@ const Guide = (() => {
     }
   }
 
-  // A paper speech bubble with a tail, hard corners, typed out a letter at a time.
+  // A speech bubble built like the panels: a cream page in a green frame with
+  // gold studs, a tail down to her hood, typed out a letter at a time.
   function drawBubble(g) {
     if (bubble.life <= 0 || !bubble.text) return;
     const full = bubble.text;
     const shown = full.slice(0, Math.min(full.length, Math.floor(bubble.shown)));
     const words = full.split(' '), lines = [];
     let line = '';
-    for (const w of words) { if ((line + w).length > 24) { lines.push(line.trim()); line = ''; } line += w + ' '; }
+    for (const w of words) { if ((line + w).length > 26) { lines.push(line.trim()); line = ''; } line += w + ' '; }
     lines.push(line.trim());
-    const W = Math.max(60, Math.min(24, Math.max(...lines.map((l) => l.length))) * 7 + 18), H = lines.length * 11 + 12;
+    const cols = Math.max(...lines.map((l) => l.length));
+    const W = Math.max(84, cols * 6 + 26), H = lines.length * 13 + 18;
     const scale = 1 + Math.sin(bubble.pop * Math.PI) * 0.18;
-    const bx = cult.x + 6, by = cult.y - 74 - H;
+    const half = W / 2 + 10;
+    const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
+    const bx = lo > hi ? FX.cam.x : U.clamp(cult.x + 6, lo, hi);
+    const by = Math.max(24 + H, cult.y - 78);
+    // by is the bottom of the bubble; the frame is drawn from by - H
+    const praise = bubble.kind === 'praise';
+    const OL = '#17120e', CR0 = praise ? '#fdf0c4' : '#f4e6c0', CR1 = '#fdf6e0';
+    const G0 = praise ? '#7d5510' : '#29431c', G2 = praise ? '#efc245' : '#6ea83e', G3 = praise ? '#ffe497' : '#97cd60';
     g.save();
-    g.translate(bx, by + H); g.scale(scale, scale); g.translate(-bx, -(by + H));
-    const paper = bubble.kind === 'praise' ? '#f6e7b8' : '#f6efdc';
-    g.fillStyle = '#0a0810'; g.fillRect(bx - W / 2 - 3, by - 3, W + 6, H + 6);
-    g.fillStyle = paper; g.fillRect(bx - W / 2, by, W, H);
-    g.fillStyle = bubble.kind === 'praise' ? '#e3c170' : '#e0d6b4'; g.fillRect(bx - W / 2, by + H - 3, W, 3);
-    g.fillStyle = '#0a0810'; g.fillRect(bx - W / 2 - 3, by - 3, 3, 3); g.fillRect(bx + W / 2, by - 3, 3, 3);   // knocked corners
-    g.fillStyle = '#0a0810'; g.beginPath(); g.moveTo(bx - 10, by + H + 2); g.lineTo(bx - 2, by + H + 12); g.lineTo(bx + 4, by + H + 2); g.fill();
-    g.fillStyle = paper; g.beginPath(); g.moveTo(bx - 7, by + H); g.lineTo(bx - 2, by + H + 8); g.lineTo(bx + 1, by + H); g.fill();
+    g.translate(bx, by); g.scale(scale, scale); g.translate(-bx, -by);
+    const X = Math.round(bx - W / 2), Y = Math.round(by - H);
+    g.fillStyle = OL; g.fillRect(X - 3, Y - 3, W + 6, H + 6);
+    g.fillStyle = G0; g.fillRect(X - 1, Y - 1, W + 2, H + 2);
+    g.fillStyle = G2; g.fillRect(X, Y, W, H);
+    g.fillStyle = G3; g.fillRect(X + 1, Y + 1, W - 2, 2); g.fillRect(X + 1, Y + 1, 2, H - 2);
+    g.fillStyle = CR0; g.fillRect(X + 4, Y + 4, W - 8, H - 8);
+    g.fillStyle = CR1; g.fillRect(X + 4, Y + 4, W - 8, 2);
+    g.fillStyle = '#efc245';                                     // the four gold studs
+    g.fillRect(X, Y, 4, 4); g.fillRect(X + W - 4, Y, 4, 4); g.fillRect(X, Y + H - 4, 4, 4); g.fillRect(X + W - 4, Y + H - 4, 4, 4);
+    const tx = U.clamp(cult.x + 6, X + 16, X + W - 16);          // the tail still points at her
+    g.fillStyle = OL; g.beginPath(); g.moveTo(tx - 11, Y + H - 1); g.lineTo(tx - 2, Y + H + 13); g.lineTo(tx + 5, Y + H - 1); g.fill();
+    g.fillStyle = G2; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 9); g.lineTo(tx + 2, Y + H - 2); g.fill();
+    g.fillStyle = CR0; g.fillRect(X + 4, Y + H - 6, W - 8, 2);
     let acc = 0;
     lines.forEach((l, i) => {
       const part = shown.slice(acc, acc + l.length);
       acc += l.length + 1;
-      FX.pixelText(g, part, bx - W / 2 + 9, by + 7 + i * 11, { color: '#2a1a12', size: 7, align: 'left', ink: false });
+      FX.pixelText(g, part, X + 11, Y + 10 + i * 13, { color: '#3a2612', size: 10, align: 'left', ink: false });
     });
-    if (shown.length < full.length) { g.fillStyle = '#2a1a12'; g.fillRect(bx + W / 2 - 8, by + H - 7, 3, 3); }
+    if (shown.length < full.length && Math.floor(bubble.life * 6) % 2) { g.fillStyle = '#3a2612'; g.fillRect(X + W - 12, Y + H - 12, 4, 4); }
     g.restore();
   }
 

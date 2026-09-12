@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><rect width=%2216%22 height=%2216%22 fill=%22%23241610%22/><circle cx=%228%22 cy=%229%22 r=%224%22 fill=%22%238354c9%22/><rect y=%220%22 width=%2216%22 height=%222%22 fill=%22%23d8a52f%22/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -36,7 +36,7 @@
     <div id="ov-shrine" class="overlay" hidden>
       <div id="gods" class="godlist"></div>
       <div id="offer-slots" class="strip"></div>
-      <button id="b-summon" class="act" disabled><img class="ico" data-ico="eye" alt=""></button>
+      <button id="b-summon" class="act go" disabled><img class="ico" data-ico="eye" alt=""><span>SUMMON</span></button>
       <button id="b-unstage" class="act small" title="Take back"><img class="ico" data-ico="close" alt=""></button>
     </div>
 
@@ -44,7 +44,7 @@
       <div id="rite-card" class="card">
         <img class="ico xl" data-ico="shrine" alt="">
         <div class="bigrow"><img class="ico" data-ico="offering" alt=""><b id="rite-n">0</b></div>
-        <button id="b-start" class="act big"><img class="ico lg" data-ico="u_seats" alt=""></button>
+        <button id="b-start" class="act big go"><img class="ico lg" data-ico="u_seats" alt=""><span>BEGIN</span></button>
         <div class="keys"><kbd>Space</kbd><kbd>1-9</kbd><kbd>R</kbd><kbd>C</kbd></div>
       </div>
       <div id="rite-read" class="readout" hidden>
@@ -54,7 +54,7 @@
         <div class="line" id="r-lives"></div>
         <div id="r-goals" class="goals"></div>
         <div id="r-boons" class="boons"></div>
-        <button id="b-cash" class="act"><img class="ico" data-ico="wdollar" alt=""></button>
+        <button id="b-cash" class="act go"><img class="ico" data-ico="wdollar" alt=""><span>CASH OUT</span></button>
       </div>
       <div id="rite-tray" class="strip" hidden><div id="rite-slots"></div></div>
     </div>
@@ -66,28 +66,28 @@
   </main>
 
   <div id="panel-basket" class="panel" hidden>
-    <div class="phead"><img class="ico" data-ico="basket" alt=""><span class="ptitle">Basket</span><button class="x" data-close="panel-basket"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="phead"><img class="ico" data-ico="basket" alt=""><span class="ptitle">BASKET</span><button class="x" data-close="panel-basket"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody" id="basket-body"></div>
   </div>
 
   <div id="panel-pawn" class="panel" hidden>
-    <div class="phead"><img class="ico" data-ico="wdollar" alt=""><span class="ptitle">Sell</span><button class="x" data-close="panel-pawn"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="phead"><img class="ico" data-ico="wdollar" alt=""><span class="ptitle">SELL</span><button class="x" data-close="panel-pawn"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody" id="pawn-body"></div>
   </div>
 
   <div id="panel-help" class="panel" hidden>
-    <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">The Rite of the Grove</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
         <li>Right-click (or press Tab) and your tools ring the cursor; pick one and it rides beside the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
         <li>The hooded one tells you what to do next in a speech bubble; click her to hear it again. Finish an order and she pays you in coin.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
         <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck, or call the truck to you.</li>
-        <li>Click the seed in the middle of the plot for the Tree of Life. Drag to look around, scroll to zoom.</li>
+        <li>Click the seed in the middle of the plot to stand in your garden. Click the seed again there and the first skill goes in free: the seed splits, a trunk climbs and forks into three branches. Buy a fruit and the tree grows to carry it. Drag to look around, scroll to zoom.</li>
         <li>Click the signpost for the map. Wombat Mart sells seed and stock, the Ritual Site calls the gods, the Great Stack pays for a tall pile of offerings.</li>
         <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the counter.</li>
       </ol>
-      <div class="row"><button class="wbtn" id="b-music">music</button><button class="wbtn" id="b-reset">reset</button></div>
+      <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
   </div>
 

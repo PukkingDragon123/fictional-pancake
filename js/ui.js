@@ -51,7 +51,7 @@ const UI = (() => {
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
     if (G.mode !== 'grove') return;
-    wheelAt = { x: U.clamp(sx, 84, 556), y: U.clamp(sy, 70, 300) };
+    wheelAt = { x: U.clamp(sx, 66, 574), y: U.clamp(sy, 60, 292) };
     wheelRing = ring;
     renderWheel();
     Audio.play('click');
@@ -92,7 +92,7 @@ const UI = (() => {
       if (food) items.unshift({ icon: 't_hand', on: !G.selFood, tip: '<b>Pet</b><br>hurries digestion', act: () => { G.selFood = null; Audio.play('click'); closeWheel(); refreshHUD(); } });
       items.push({ icon: 'back', tip: '<b>Back</b>', act: () => { wheelRing = 'tools'; renderWheel(); } });
     }
-    const R = items.length > 8 ? 74 : 62;
+    const R = items.length > 8 ? 104 : 86;
     items.forEach((it, idx) => {
       const a = -Math.PI / 2 + (idx / items.length) * TAU;
       const el = document.createElement('button');
@@ -212,7 +212,7 @@ const UI = (() => {
   function renderBasket() {
     const rows = Shop.lines();
     let h = '';
-    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>the basket is empty</p></div>`;
+    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>THE BASKET IS EMPTY</p></div>`;
     else {
       h = '<div class="blist">';
       for (const r of rows) {
@@ -225,9 +225,9 @@ const UI = (() => {
     const t = Shop.total();
     h += `<div class="btotal">${ic('wdollar')}<b>${U.fmt(t)}</b><span class="dim">of ${U.fmt(G.wd)}</span></div>
       <div class="brow2">
-        <button class="act" id="b-pay" ${!rows.length || t > G.wd ? 'disabled' : ''}>${ic('check')}</button>
-        <button class="wbtn" id="b-clear">${ic('close', 'sm')}</button>
-        <button class="wbtn" id="b-sell">${ic('wdollar', 'sm')} sell</button>
+        <button class="act go" id="b-pay" ${!rows.length || t > G.wd ? 'disabled' : ''}>${ic('check')}<span>PAY</span></button>
+        <button class="wbtn" id="b-clear">${ic('close', 'sm')}CLEAR</button>
+        <button class="wbtn" id="b-sell">${ic('wdollar', 'sm')}SELL</button>
       </div>`;
     $('basket-body').innerHTML = h;
     $('basket-body').querySelectorAll('.bx').forEach((b) => b.onclick = () => { Shop.removeLine(b.dataset.id); renderBasket(); });
@@ -356,13 +356,13 @@ const UI = (() => {
       Main.save();
     };
     $('b-basket').onclick = () => openBasket();
-    $('b-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('b-music').textContent = on ? 'music' : 'muted'; Main.save(); };
+    $('b-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('b-music').textContent = on ? 'MUSIC' : 'MUTED'; Main.save(); };
     let armed = 0;
     $('b-reset').onclick = () => {
       const b = $('b-reset');
       if (Date.now() < armed) { Main.reset(); return; }
-      armed = Date.now() + 4000; b.textContent = 'sure?'; Audio.play('alarm');
-      setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'reset'; armed = 0; } }, 4100);
+      armed = Date.now() + 4000; b.textContent = 'SURE?'; Audio.play('alarm');
+      setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'RESET'; armed = 0; } }, 4100);
     };
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
     $('b-summon').onclick = () => Ritual.summon();
@@ -371,7 +371,7 @@ const UI = (() => {
     $('b-cash').onclick = () => Tower.cashOut();
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanels(); });
     $('b-sound').firstElementChild.src = Icons.url(G.muted ? 'mute' : 'sound');
-    $('b-music').textContent = G.musicOff ? 'muted' : 'music';
+    $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {
     $('ov-shrine').hidden = mode !== 'shrine';

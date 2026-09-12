@@ -8,8 +8,8 @@ const Props = (() => {
     if (c) return c;
     const o = Art.cv(w, h);
     draw(o.g, w, h);
-    Art.texture(o.c, 0.14);
-    Art.topLight(o.c, 'rgba(255,242,208,0.26)', 2);
+    // No dither pass: the grain read as a filter smeared over the whole scene.
+    Art.topLight(o.c, 'rgba(255,244,214,0.3)', 2);
     Art.underShade(o.c, 'rgba(18,12,24,0.3)', 2);
     Art.outline(o.c, '#0a0810', 1);                 // everything wears the same black line
     cache.set(key, o.c);

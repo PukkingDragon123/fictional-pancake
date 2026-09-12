@@ -223,21 +223,23 @@ const FX = (() => {
   }
   function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; rings.length = 0; bolts.length = 0; tendrils.length = 0; }
 
-  // Small pixel text with an ink halo, for signs and map labels.
+  // Small pixel text. A hard 1-2px drop shadow, never a soft stroke halo:
+  // strokeText with a round join smears a blob around every glyph.
   function pixelText(g, text, x, y, o = {}) {
     const size = o.size && o.size > 3 ? o.size : (o.size || 1) * 7;
     g.save();
-    g.font = `${size}px "Press Start 2P", monospace`;
+    g.font = `${size}px ${o.font || '"Silkscreen", "Press Start 2P", monospace'}`;
     g.textAlign = o.align || 'center';
     g.textBaseline = o.baseline || 'top';
+    const X = Math.round(x), Y = Math.round(y);
     if (o.ink !== false) {
-      g.lineWidth = o.ink === true || o.ink === undefined ? 3 : o.ink;
-      g.strokeStyle = o.inkColor || 'rgba(18,14,20,0.9)';
-      g.lineJoin = 'round';
-      g.strokeText(text, Math.round(x), Math.round(y));
+      const d = o.ink === true || o.ink === undefined ? 2 : Math.max(1, Math.min(2, o.ink - 1));
+      g.fillStyle = o.inkColor || 'rgba(14,10,18,0.92)';
+      if (o.ink === 'ring') { for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) if (dx || dy) g.fillText(text, X + dx, Y + dy); }
+      else g.fillText(text, X + d, Y + d);
     }
     g.fillStyle = o.color || PAL.cream;
-    g.fillText(text, Math.round(x), Math.round(y));
+    g.fillText(text, X, Y);
     g.restore();
   }
 

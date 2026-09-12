@@ -180,7 +180,7 @@ const Atlas = (() => {
     g.fillStyle = '#c9ab72'; g.fillRect(cx - w / 2, cy - 9, w, 18);
     g.fillStyle = '#a98a52'; g.fillRect(cx - w / 2, cy + 6, w, 3);
     g.fillStyle = '#7c5f36'; g.fillRect(cx - w / 2 - 6, cy - 11, 6, 22); g.fillRect(cx + w / 2, cy - 11, 6, 22);
-    FX.pixelText(g, text, cx, cy - 3, { color: '#4a3820', size: 1, align: 'center' });
+    FX.pixelText(g, text, cx, cy - 3, { color: '#4a3820', size: 9, align: 'center', ink: false });
   }
 
   function drawPin(g, s, open, hot, bob, t) {
@@ -207,7 +207,7 @@ const Atlas = (() => {
       Art.ellBand(g, x, y, 19 + p * 2, 19 + p * 2, 1, PAL.div4);
       g.globalAlpha = 1;
     }
-    FX.pixelText(g, s.name.toUpperCase(), x, y + 20, { color: '#4a3820', size: 1, align: 'center' });
+    FX.pixelText(g, s.name.toUpperCase(), x, y + 20, { color: '#4a3820', size: 9, align: 'center', ink: 2, inkColor: 'rgba(255,246,224,0.85)' });
   }
 
   return { init, enter, update, render, click, hover: hoverAt, get busy() { return !!travel; } };
