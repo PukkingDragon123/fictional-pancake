@@ -51,7 +51,7 @@ const UI = (() => {
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
     if (G.mode !== 'grove') return;
-    wheelAt = { x: U.clamp(sx, 66, 574), y: U.clamp(sy, 60, 292) };
+    wheelAt = { x: U.clamp(sx, 10, 630), y: U.clamp(sy, 10, 350) };
     wheelRing = ring;
     renderWheel();
     Audio.play('click');
@@ -62,10 +62,10 @@ const UI = (() => {
     const w = $('wheel');
     const k = frameScale();
     w.hidden = false;
-    w.style.left = (wheelAt.x * k) + 'px'; w.style.top = (wheelAt.y * k) + 'px';
     w.innerHTML = '';
-    let items;
+    let items, title;
     if (wheelRing === 'tools') {
+      title = 'TOOLS';
       items = WHEEL_TOOLS.map((key) => {
         const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
         return { icon: t.icon, on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}`,
@@ -79,6 +79,7 @@ const UI = (() => {
       });
     } else {
       const food = wheelRing === 'food';
+      title = food ? 'FEED' : 'SEED';
       items = CROPS.map((c) => {
         const n = (food ? G.food : G.seeds)[c.key] || 0;
         const on = food ? G.selFood === c.key : G.selSeed === c.key;
@@ -92,24 +93,35 @@ const UI = (() => {
       if (food) items.unshift({ icon: 't_hand', on: !G.selFood, tip: '<b>Pet</b><br>hurries digestion', act: () => { G.selFood = null; Audio.play('click'); closeWheel(); refreshHUD(); } });
       items.push({ icon: 'back', tip: '<b>Back</b>', act: () => { wheelRing = 'tools'; renderWheel(); } });
     }
-    const R = items.length > 8 ? 104 : 86;
+    // a square tray, three to a row, that opens beside the cursor
+    const tray = document.createElement('div');
+    tray.className = 'tray';
+    const head = document.createElement('div');
+    head.className = 'trayhead';
+    head.innerHTML = `<span>${title}</span><b>x</b>`;
+    head.onclick = (e) => { e.stopPropagation(); if (wheelRing === 'tools') closeWheel(); else { wheelRing = 'tools'; renderWheel(); } };
+    tray.appendChild(head);
+    const grid = document.createElement('div');
+    grid.className = 'traygrid';
     items.forEach((it, idx) => {
-      const a = -Math.PI / 2 + (idx / items.length) * TAU;
       const el = document.createElement('button');
       el.className = 'spoke' + (it.on ? ' on' : '') + (it.locked ? ' locked' : '') + (it.out ? ' out' : '');
-      el.style.left = Math.round(Math.cos(a) * R) + 'px'; el.style.top = Math.round(Math.sin(a) * R) + 'px';
-      el.style.animationDelay = (idx * 22) + 'ms';
       el.innerHTML = `${ic(it.icon)}${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = (e) => { e.stopPropagation(); it.act(); };
       el.onmouseenter = (e) => showTip(e, it.tip);
       el.onmouseleave = hideTip;
-      w.appendChild(el);
+      grid.appendChild(el);
     });
-    const hub = document.createElement('div');
-    hub.className = 'hub';
-    hub.innerHTML = ic(wheelRing === 'tools' ? TOOL_BY_KEY[G.tool].icon : wheelRing === 'food' ? 't_food' : 't_seed', 'lg');
-    hub.onclick = (e) => { e.stopPropagation(); closeWheel(); };
-    w.appendChild(hub);
+    tray.appendChild(grid);
+    w.appendChild(tray);
+    // keep the whole tray on screen, opening down-right of the cursor by default
+    const fw = $('frame').clientWidth, fh = $('frame').clientHeight;
+    const tw = 3 * 58 + 2 * 7 + 22 + 8, th = tray.offsetHeight || 240;
+    let px = wheelAt.x * k + 14, py = wheelAt.y * k + 14;
+    if (px + tw > fw - 8) px = wheelAt.x * k - tw - 14;
+    if (py + th > fh - 8) py = Math.max(8, fh - th - 8);
+    w.style.left = Math.max(8, Math.round(px)) + 'px';
+    w.style.top = Math.max(8, Math.round(py)) + 'px';
   }
   // the badge in the corner shows the tool in hand and opens the wheel for touch
   function refreshTray() {
@@ -349,7 +361,7 @@ const UI = (() => {
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-truck').onclick = () => { Grove.callTruck(); refreshHUD(); };
-    $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(560, 250); };
+    $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(470, 120); };
     $('b-help').onclick = () => openPanel('panel-help');
     $('b-sound').onclick = () => {
       const m = Audio.toggleMute(); G.muted = m;
@@ -375,6 +387,7 @@ const UI = (() => {
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {
+    $('money').classList.toggle('low', mode === 'tree');   // the tree owns the top strip
     $('ov-shrine').hidden = mode !== 'shrine';
     $('ov-rite').hidden = mode !== 'rite';
     $('ov-shop').hidden = mode !== 'shop';

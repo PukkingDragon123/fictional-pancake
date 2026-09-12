@@ -74,7 +74,7 @@ const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
 const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
 
 // ---- The clearing: the small patch you actually have to tidy -------------
-const ZONE = { x: 512, y: 252, rx: 178, ry: 76 };
+const ZONE = { x: 512, y: 288, rx: 118, ry: 52 };
 const inZone = (x, y) => ((x - ZONE.x) / ZONE.rx) ** 2 + ((y - ZONE.y) / ZONE.ry) ** 2 <= 1;
 const ZONE_GRASS = 0.55;                 // how green the clearing has to be
 

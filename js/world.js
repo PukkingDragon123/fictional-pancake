@@ -3,10 +3,12 @@
 // water; when one matures it stains the ground layer and puts up blades, and
 // blades carry a little spring physics so anything walking through parts them.
 const World = (() => {
-  const W = 1024, H = 360;          // the grove is wider than the view; the camera pans
+  const W = 1024, H = 462;          // the grove is wider and deeper than the view; the camera pans
   const SKY = 126, GROUND = SKY + 2;
   let G = null;
   let grass = null, soil = null, sample = null;
+  const SW = 256, SH = Math.round(H / (W / SW));   // the down-sample keeps the grove's own aspect
+  const SX = W / SW, SY = H / SH;
   const stamps = new Map();
   const weeds = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
   let restored = 0, sampleT = 0, spreadT = 0, wind = 0, windT = 0;
@@ -61,7 +63,7 @@ const World = (() => {
 
   function init(g) {
     G = g;
-    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(256, 90).c;
+    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(SW, SH).c;
     for (const a of [weeds, blades, crops, sprouts, flowers, seams]) a.length = 0;
     const r = Art.rng(51817);
     const s = G.world || {};
@@ -284,12 +286,12 @@ const World = (() => {
   function measure() {
     try {
       const g = sample.getContext('2d');
-      g.clearRect(0, 0, 256, 90); g.imageSmoothingEnabled = false;
-      g.drawImage(grass, 0, 0, 256, 90);
-      const d = g.getImageData(0, 0, 256, 90).data;
+      g.clearRect(0, 0, SW, SH); g.imageSmoothingEnabled = false;
+      g.drawImage(grass, 0, 0, SW, SH);
+      const d = g.getImageData(0, 0, SW, SH).data;
       let n = 0;
       for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++;
-      restored = n * 16;
+      restored = n * SX * SY;
       G.world.restored = restored;
       measureZone();
     } catch (e) { }
@@ -299,12 +301,12 @@ const World = (() => {
   let zoneFrac = 0;
   function measureZone() {
     try {
-      const d = sample.getContext('2d').getImageData(0, 0, 256, 90).data;
+      const d = sample.getContext('2d').getImageData(0, 0, SW, SH).data;
       let n = 0, tot = 0;
-      for (let y = 0; y < 90; y++) for (let x = 0; x < 256; x++) {
-        if (!inZone(x * 4 + 2, y * 4 + 2)) continue;
+      for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
+        if (!inZone(x * SX + SX / 2, y * SY + SY / 2)) continue;
         tot++;
-        if (d[(y * 256 + x) * 4 + 3] > 40) n++;
+        if (d[(y * SW + x) * 4 + 3] > 40) n++;
       }
       zoneFrac = tot ? n / tot : 0;
     } catch (e) { }

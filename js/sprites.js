@@ -3,7 +3,7 @@
 // feet, so joeys are the same animal with a bigger head; pelts are swapped
 // palettes; poses are computed curves rather than hand-keyed frames.
 const Sprites = (() => {
-  const S = 2;                    // screen pixels per art pixel
+  const S = 1.1;                  // world pixels per art pixel: a wombat is a small animal
   const AW = 44, AH = 30;         // art canvas
   const PAD = 12;                 // headroom above, for poses that rear up
   const AX = 22, GY = 27;         // anchor: feet centre / ground line
@@ -233,6 +233,14 @@ const Sprites = (() => {
     const dh = img.height * scale * (1 + squash);
     const ax = (facing < 0 ? img.width - AX : AX) / img.width;
     g.drawImage(img, Math.round(x - dw * ax), Math.round(y + 2 - dh * (GY + PAD + 1) / img.height), dw, dh);
+  }
+  // the same sprite, laid flat on the ground and leaning away from the sun
+  function shadow(g, x, y, name, frame, pelt, facing, age = 'adult', scale = S, squash = 0) {
+    const img = wombat(name, frame, pelt, facing, age);
+    const dw = img.width * scale * (1 - squash * 0.45);
+    const dh = img.height * scale * (1 + squash);
+    const ax = (facing < 0 ? img.width - AX : AX) / img.width;
+    Art.castShadow(g, img, x, y + 1, dw, dh, { alpha: 0.3, lean: 0.6, squash: 0.28, anchor: ax });
   }
   function furOf(pelt) { return typeof pelt === 'string' ? (FUR_BY_KEY[pelt] || FUR[0]) : FUR[pelt % FUR.length]; }
 
@@ -764,5 +772,5 @@ const Sprites = (() => {
     if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = Math.max(1, px); g.strokeRect(x0, y0, w, h); }
   }
 
-  return { S, AGE, POSES, CULT_POSES, wombat, blit, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
+  return { S, AGE, POSES, CULT_POSES, wombat, blit, shadow, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
 })();

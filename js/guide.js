@@ -147,11 +147,10 @@ const Guide = (() => {
     const rate = { walk: 8, run: 12, cast: 5, sit: 2, idle: 3, jump: 9 }[cult.pose] || 4;
     const img = Sprites.cultist(Math.floor(cult.t * rate), cult.pose);
     const lift = 0;
-    const sc = 1.4;
+    const sc = 1.05;
     const dw = img.width * sc, dh = img.height * sc;
-    g.fillStyle = 'rgba(18,14,20,0.28)';
-    Art.ell(g, cult.x, cult.y + 2, 14, 4);
     const draw2 = cult.dir < 0 ? Art.flip(img) : img;
+    Art.castShadow(g, draw2, cult.x, cult.y + 2, dw, dh, { alpha: 0.32, lean: 0.62, squash: 0.3 });
     g.drawImage(draw2, Math.round(cult.x - dw / 2), Math.round(cult.y - dh + 4 - lift), Math.round(dw), Math.round(dh));
     // the glow of her lantern-charm, and a nudge toward the job
     const p = 0.5 + 0.5 * Math.sin(cult.t * 3);
@@ -180,8 +179,8 @@ const Guide = (() => {
   // squash, wobbles as it settles, every letter pops in oversized and drops
   // into place, words she stresses come out in gold, and praise arrives on a
   // starburst with lines flying off it.
-  const BFONT = '"Pixelify Sans", "Silkscreen", monospace';
-  const BSIZE = 12, LH = 15;
+  const BFONT = '"Fredoka", "Trebuchet MS", sans-serif';
+  const BSIZE = 13, LH = 16;
 
   // split the text into characters, honouring *stress* markers, and wrap it
   function layout(g, text, maxW) {

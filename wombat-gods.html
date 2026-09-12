@@ -23,8 +23,8 @@
   --ink: #33200f; --ink2: #5e422a;
   --m3: #5d9440; --m4: #84bb59;
   --cream: #eddcb6; --parch: #c2a176;
-  --f: "Pixelify Sans", "Silkscreen", monospace;
-  --ft: "Press Start 2P", "Silkscreen", monospace;
+  --f: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --ft: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -53,7 +53,7 @@ img.ico.xl { width: 48px; height: 48px; }
 */
 
 /* BUTTON */
-.btn, .act, .wbtn, .buy, .rbtn, .hub {
+.btn, .act, .wbtn, .buy, .rbtn {
   position: relative; display: flex; align-items: center; justify-content: center; gap: 7px;
   padding: 9px 15px; color: #3d2606; font-family: var(--f); text-shadow: 0 1px 0 rgba(255,240,190,0.4);
   background:
@@ -128,9 +128,10 @@ img.ico.xl { width: 48px; height: 48px; }
   border: 3px solid var(--ol); box-shadow: inset 0 2px 0 rgba(190,240,255,0.45);
 }
 #money::before { left: -10px; } #money::after { right: -10px; }
-#money b { font-weight: normal; color: var(--gd4); font-family: var(--ft); font-size: 15px; text-shadow: 0 2px 0 rgba(0,0,0,0.6); }
+#money b { font-weight: 700; color: var(--gd4); font-family: var(--ft); font-size: 20px; text-shadow: 0 2px 0 rgba(0,0,0,0.6); }
 #money img.ico { width: 30px; height: 30px; }
 #money.bump { animation: bump 0.32s ease-out; }
+#money.low { top: 98px; }
 
 /* ---- the to-do page ------------------------------------------------------ */
 #checklist {
@@ -158,7 +159,7 @@ img.ico.xl { width: 48px; height: 48px; }
 }
 #checklist h4 {
   position: relative; z-index: 1; margin: -30px -2px 14px; padding: 9px 18px 8px; text-align: center; line-height: 1;
-  color: #f6e4bb; font-family: var(--ft); font-size: 11px; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(0,0,0,0.6);
+  color: #f6e4bb; font-family: var(--ft); font-weight: 600; font-size: 16px; letter-spacing: 1.5px; text-shadow: 0 2px 0 rgba(0,0,0,0.6);
   background:
     linear-gradient(180deg, rgba(255,220,160,0.36) 0 13%, rgba(0,0,0,0) 13% 46%, rgba(0,0,0,0.18) 46% 78%, rgba(0,0,0,0.4) 78% 100%),
     var(--tex-wood, none) repeat,
@@ -194,7 +195,7 @@ img.ico.xl { width: 48px; height: 48px; }
 .rbtn.big img.ico { width: 38px; height: 38px; }
 .rbtn.on, .rbtn.full { background: linear-gradient(180deg, #a8d878 0 26%, #6ea83e 26% 64%, #44762a 64% 100%);
   box-shadow: inset 0 0 0 2px rgba(232,255,200,0.45), 0 5px 0 0 #2a4d18, 0 5px 0 3px var(--ol); }
-.rbtn b { font-weight: normal; font-size: 14px; color: #3d2606; font-family: var(--ft); }
+.rbtn b { font-weight: 700; font-size: 17px; color: #3d2606; font-family: var(--ft); }
 #mini { position: absolute; left: 18px; bottom: 16px; z-index: 6; display: flex; gap: 9px; }
 
 /* ---- tooltip ------------------------------------------------------------- */
@@ -209,7 +210,7 @@ img.ico.xl { width: 48px; height: 48px; }
   border: 4px solid var(--wd1);
   box-shadow: inset 0 0 0 2px var(--wd2), 0 0 0 3px var(--ol), 5px 6px 0 rgba(0,0,0,0.5);
 }
-#tip b { color: #6b3d12; font-family: var(--ft); font-size: 11px; }
+#tip b { color: #6b3d12; font-family: var(--ft); font-weight: 600; font-size: 15px; }
 #tip img { display: inline-block; vertical-align: -4px; }
 
 /* ---- overlays ------------------------------------------------------------ */
@@ -226,7 +227,7 @@ img.ico.xl { width: 48px; height: 48px; }
   border: 7px solid var(--wd1);
   box-shadow: inset 0 0 0 2px var(--wd2), inset 0 0 26px rgba(90,60,30,0.3), 0 0 0 4px var(--ol), 0 12px 0 4px rgba(0,0,0,0.5);
 }
-.bigrow { display: flex; gap: 10px; align-items: center; font-family: var(--ft); font-size: 15px; color: #6b3d12; }
+.bigrow { display: flex; gap: 10px; align-items: center; font-family: var(--ft); font-weight: 700; font-size: 21px; color: #6b3d12; }
 .act.big { padding: 13px 26px; }
 .act.small { padding: 7px 9px; }
 .keys { display: flex; gap: 6px; }
@@ -337,7 +338,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 .phead {
   position: relative; z-index: 2; display: flex; align-items: center; gap: 10px;
   margin: -24px 34px 14px; padding: 11px 22px 11px 18px;
-  color: #f6e4bb; font-family: var(--ft); font-size: 12px; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(0,0,0,0.6);
+  color: #f6e4bb; font-family: var(--ft); font-weight: 600; font-size: 17px; letter-spacing: 1.5px; text-shadow: 0 2px 0 rgba(0,0,0,0.6);
   background:
     linear-gradient(180deg, rgba(255,220,160,0.36) 0 13%, rgba(0,0,0,0) 13% 46%, rgba(0,0,0,0.18) 46% 78%, rgba(0,0,0,0.4) 78% 100%),
     var(--tex-wood, none) repeat,
@@ -375,8 +376,8 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     linear-gradient(var(--gd3), var(--gd1)) 0 100% / 6px 6px no-repeat,
     linear-gradient(var(--gd3), var(--gd1)) 100% 100% / 6px 6px no-repeat; }
 .item .pic img { width: 40px; height: 40px; image-rendering: pixelated; }
-.item h3 { grid-column: 2; margin: 0; font-family: var(--ft); font-size: 10px; display: flex; gap: 8px; align-items: baseline; color: #6b3d12; }
-.item h3 .lv { font-family: var(--f); font-size: 13px; color: var(--gd0); }
+.item h3 { grid-column: 2; margin: 0; font-family: var(--ft); font-weight: 600; font-size: 15px; display: flex; gap: 8px; align-items: baseline; color: #6b3d12; }
+.item h3 .lv { font-family: var(--f); font-size: 14px; color: var(--gd0); }
 .item p { grid-column: 2; margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink2); }
 .item .act2 { grid-column: 1 / 3; display: flex; gap: 6px; justify-content: flex-end; align-items: center; margin-top: 6px; }
 .buy { padding: 7px 11px; font-variant-numeric: tabular-nums; font-size: 13px; }
@@ -401,7 +402,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     linear-gradient(168deg, rgba(246,234,204,0.4) 0%, rgba(0,0,0,0) 44%, rgba(118,86,52,0.22) 100%),
     var(--tex-paper2, none) repeat,
     linear-gradient(180deg, var(--pg3), var(--pg3)); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--pg1); }
-.btotal b { font-family: var(--ft); font-size: 14px; color: #8a5a12; font-weight: normal; font-variant-numeric: tabular-nums; }
+.btotal b { font-family: var(--ft); font-weight: 700; font-size: 19px; color: #8a5a12; font-weight: normal; font-variant-numeric: tabular-nums; }
 .btotal .dim { margin-left: auto; font-size: 12px; }
 .brow2 { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
 .empty2 { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px; color: var(--ink2); }
@@ -433,7 +434,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     linear-gradient(180deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 100% 100%/22px 8px no-repeat,
     linear-gradient(90deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 100% 100%/8px 22px no-repeat;
 }
-.mcard h2 { margin: 0 0 10px; font-family: var(--ft); font-size: 16px; }
+.mcard h2 { margin: 0 0 10px; font-family: var(--ft); font-weight: 700; font-size: 24px; }
 .mcard p { font-size: 15px; line-height: 1.6; color: var(--ink2); margin: 0 0 12px; }
 .mcard .act { margin: 0 auto; }
 .mrow { display: flex; gap: 18px; align-items: center; justify-content: center; margin: 14px 0; flex-wrap: wrap; }
@@ -455,40 +456,71 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 .toast.good { border-color: #6ea83e; }
 .toast.bad { border-color: var(--am2); }
 
-/* ---- the tool ring ------------------------------------------------------- */
-#wheel { position: absolute; z-index: 9; width: 0; height: 0; }
+/* ---- the tool tray: a square pouch that opens at the cursor -------------- */
+#wheel { position: absolute; z-index: 9; }
+.tray {
+  position: relative; padding: 0 0 9px; animation: tray-in 0.13s ease-out both;
+  background:
+    linear-gradient(180deg, rgba(255,214,150,0.26) 0 11%, rgba(0,0,0,0) 11% 56%, rgba(0,0,0,0.36) 56% 100%),
+    var(--tex-darkwood, none) repeat,
+    linear-gradient(180deg, var(--wd1), var(--wd0));
+  border: 4px solid var(--ol);
+  box-shadow: inset 0 0 0 2px var(--wd2), 0 8px 0 3px rgba(0,0,0,0.5), 0 16px 26px rgba(0,0,0,0.55);
+}
+@keyframes tray-in { from { transform: scale(0.82) translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
+.tray::after {
+  content: ''; position: absolute; inset: -4px; pointer-events: none;
+  background:
+    linear-gradient(180deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 0 0/16px 5px no-repeat,
+    linear-gradient(90deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 0 0/5px 16px no-repeat,
+    linear-gradient(180deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 100% 0/16px 5px no-repeat,
+    linear-gradient(90deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 100% 0/5px 16px no-repeat,
+    linear-gradient(180deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 0 100%/16px 5px no-repeat,
+    linear-gradient(90deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 0 100%/5px 16px no-repeat,
+    linear-gradient(180deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 100% 100%/16px 5px no-repeat,
+    linear-gradient(90deg,var(--tl3) 0 30%,var(--tl2) 30% 70%,var(--tl1) 70%) 100% 100%/5px 16px no-repeat;
+}
+.trayhead {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin: -13px 12px 9px; padding: 6px 12px 5px; line-height: 1;
+  color: #f6e4bb; font-size: 14px; font-weight: 600; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(0,0,0,0.6);
+  background:
+    linear-gradient(180deg, rgba(255,220,160,0.36) 0 13%, rgba(0,0,0,0) 13% 46%, rgba(0,0,0,0.18) 46% 78%, rgba(0,0,0,0.4) 78% 100%),
+    var(--tex-wood, none) repeat,
+    linear-gradient(180deg, var(--wd2), var(--wd1));
+  border: 3px solid var(--ol); box-shadow: 0 3px 0 0 var(--wd0), 0 3px 0 3px var(--ol);
+}
+.trayhead b { font-weight: 600; color: var(--gd3); }
+.traygrid { display: grid; grid-template-columns: repeat(3, 58px); gap: 7px; padding: 0 11px; }
 .spoke {
-  position: absolute; width: 56px; height: 56px; margin: -28px 0 0 -28px; padding: 0;
+  position: relative; width: 58px; height: 58px; padding: 0;
   display: flex; align-items: center; justify-content: center;
-  animation: spoke-in 0.16s ease-out both;
   background:
     linear-gradient(162deg, rgba(230,184,124,0.3) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%),
     var(--tex-cellwood, none) repeat,
     linear-gradient(180deg, #442c18, #33200f);
   border: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 rgba(210,160,100,0.26), inset 0 -3px 0 rgba(0,0,0,0.45), 0 5px 0 0 #241505, 0 5px 0 3px var(--ol);
+  box-shadow: inset 0 2px 0 rgba(210,160,100,0.26), inset 0 -3px 0 rgba(0,0,0,0.45);
 }
 .spoke::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
-    linear-gradient(var(--gd3), var(--gd1)) 0 0 / 7px 7px no-repeat,
-    linear-gradient(var(--gd3), var(--gd1)) 100% 0 / 7px 7px no-repeat,
-    linear-gradient(var(--gd3), var(--gd1)) 0 100% / 7px 7px no-repeat,
-    linear-gradient(var(--gd3), var(--gd1)) 100% 100% / 7px 7px no-repeat;
+    linear-gradient(var(--gd3), var(--gd1)) 0 0 / 6px 6px no-repeat,
+    linear-gradient(var(--gd3), var(--gd1)) 100% 0 / 6px 6px no-repeat,
+    linear-gradient(var(--gd3), var(--gd1)) 0 100% / 6px 6px no-repeat,
+    linear-gradient(var(--gd3), var(--gd1)) 100% 100% / 6px 6px no-repeat;
 }
-@keyframes spoke-in { from { transform: scale(0.2); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } to { transform: scale(1); } }
-.spoke:hover { background: linear-gradient(162deg, #8a5c33 0%, #64401f 56%, #422914 100%); }
-.spoke.on { box-shadow: inset 0 0 0 3px var(--gd2), inset 0 2px 0 rgba(210,160,100,0.26), 0 5px 0 0 #241505, 0 5px 0 3px var(--ol); }
-.spoke.locked { filter: grayscale(0.55) brightness(0.78); }
-.spoke.locked img.ico { opacity: 0.45; }
+.spoke:hover { box-shadow: inset 0 0 0 2px var(--gd3), inset 0 2px 0 rgba(210,160,100,0.26); }
+.spoke:active { transform: translateY(2px); }
+.spoke.on { box-shadow: inset 0 0 0 3px var(--gd2), inset 0 -3px 0 rgba(0,0,0,0.45); }
+.spoke.locked { filter: grayscale(0.55) brightness(0.72); }
+.spoke.locked img.ico { opacity: 0.4; }
 .spoke.out { opacity: 0.5; }
 .spoke img.ico { width: 38px; height: 38px; }
-.spoke .n { position: absolute; right: 3px; bottom: 1px; font-size: 12px; color: var(--gd4); text-shadow: 0 2px 0 #000; }
+.spoke .n { position: absolute; right: 3px; bottom: 1px; font-size: 13px; font-weight: 600; color: var(--gd4); text-shadow: 0 2px 0 #000; }
 .spoke .lk { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-52%); padding: 3px;
   background: linear-gradient(180deg, var(--am3) 0 26%, var(--am2) 26% 64%, var(--am1) 64% 100%); border: 3px solid var(--ol); }
-.spoke .lk img { width: 22px; height: 22px; }
-.hub { position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; padding: 0; }
-.hub img.ico { width: 32px; height: 32px; }
+.spoke .lk img { width: 20px; height: 20px; }
 
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 @media (max-width: 760px) {
@@ -567,11 +599,11 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>Right-click (or press Tab) and your tools ring the cursor; pick one and it rides beside the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
+        <li>Right-click (or press Tab) and a tool tray opens beside the cursor; pick one and it rides with the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
         <li>The hooded one tells you what to do next in a speech bubble; click her to hear it again. Finish an order and she pays you in coin.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
         <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck, or call the truck to you.</li>
-        <li>Click the seed in the middle of the plot to stand in your garden. Click the seed again there and the first skill goes in free: the seed splits, a trunk climbs and forks into three branches. Buy a fruit and the tree grows to carry it. Drag to look around, scroll to zoom.</li>
+        <li>Click the seed in the middle of the plot to stand in your garden. Click the seed again there and the first skill goes in free: the seed splits, a trunk climbs and forks into three branches. Buy a fruit and the tree grows to carry it. Chains mark the ranks you have not opened. Drag to look around, or use the zoom buttons in the top bar.</li>
         <li>Click the signpost for the map. Wombat Mart sells seed and stock, the Ritual Site calls the gods, the Great Stack pays for a tall pile of offerings.</li>
         <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the counter.</li>
       </ol>
@@ -643,6 +675,77 @@ const U = {
   },
   uid: (() => { let i = 1; return () => i++; })(),
 };
+</script>
+
+<script>
+// ===== js/store.js =====
+// ---- Where the save lives -------------------------------------------------
+// On a plain page that is localStorage. Published as an Artifact the page is
+// sandboxed, so the same save also goes to the artifact's own document store
+// and is read back on the next open. Both are kept in step; whichever copy was
+// written last wins at boot.
+const Store = (() => {
+  let db = null, ready = false, pending = null, timer = 0, lastPush = 0;
+  const DOC = 'saves/game';
+
+  const raced = (p, ms) => Promise.race([p, new Promise((r) => setTimeout(() => r(null), ms))]);
+
+  function local(key) {
+    try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; }
+  }
+  function putLocal(key, obj) {
+    try { localStorage.setItem(key, JSON.stringify(obj)); } catch (e) { }
+  }
+
+  // Ask the viewer for the store, then read the save it holds. Both steps are
+  // capped: a page that never answers must not hold the game hostage.
+  async function boot(key) {
+    let remote = null;
+    try {
+      if (typeof window !== 'undefined' && window.claude && typeof window.claude.use === 'function') {
+        db = await raced(window.claude.use('db'), 3000);
+        if (db) {
+          const snap = await raced(db.doc(DOC).get(), 3000);
+          if (snap && snap.exists) {
+            const d = snap.data();
+            if (d && d.save) { try { remote = JSON.parse(d.save); } catch (e) { remote = null; } }
+          }
+        }
+      }
+    } catch (e) { db = null; }
+    ready = true;
+    const near = local(key);
+    if (remote && near) return (remote.lastSave || 0) >= (near.lastSave || 0) ? remote : near;
+    return remote || near;
+  }
+
+  // Writes land locally at once and are pushed to the store on a lazy timer,
+  // so a busy minute of play is one network write, not two hundred.
+  function put(key, obj) {
+    putLocal(key, obj);
+    if (!db) return;
+    pending = obj;
+    if (timer) return;
+    const wait = Math.max(0, 4000 - (Date.now() - lastPush));
+    timer = setTimeout(flush, wait);
+  }
+  function flush() {
+    clearTimeout(timer); timer = 0;
+    if (!db || !pending) return;
+    const body = pending; pending = null; lastPush = Date.now();
+    try { db.doc(DOC).set({ save: JSON.stringify(body), at: Date.now() }); } catch (e) { }
+  }
+  async function clear(key) {
+    try { localStorage.removeItem(key); } catch (e) { }
+    clearTimeout(timer); timer = 0; pending = null;
+    if (db) { try { await raced(db.doc(DOC).delete(), 2000); } catch (e) { } }
+  }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flush(); });
+  }
+  return { boot, put, clear, flush, get shared() { return !!db; }, get ready() { return ready; } };
+})();
 </script>
 
 <script>
@@ -834,6 +937,44 @@ const Art = (() => {
       if (last >= 0) g.fillRect(x, last - depth + 1, 1, depth);
     }
   }
+  // ---- real cast shadows --------------------------------------------------
+  // Not an ellipse under everything: the sprite's own silhouette, leaned away
+  // from the sun in the upper left, flattened to the ground and softened.
+  const sils = new WeakMap();
+  function silhouette(img, blur) {
+    let s = sils.get(img);
+    if (s) return s;
+    const pad = 2;
+    const { c, g } = cv(img.width + pad * 2, img.height + pad * 2);
+    g.drawImage(img, pad, pad);
+    g.globalCompositeOperation = 'source-in';
+    g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
+    g.globalCompositeOperation = 'source-over';
+    if (blur !== false) {                       // one dilation pass: a soft edge
+      const { c: c2, g: g2 } = cv(c.width, c.height);
+      g2.globalAlpha = 0.5;
+      for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) g2.drawImage(c, dx, dy);
+      g2.globalAlpha = 1; g2.drawImage(c, 0, 0);
+      sils.set(img, c2); return c2;
+    }
+    sils.set(img, c); return c;
+  }
+  // (x, y) is the ground point under the object. `anchor` is where the sprite's
+  // feet sit across its own width, 0..1.
+  function castShadow(g, img, x, y, w, h, opts) {
+    const o = opts || {};
+    const sil = silhouette(img, o.soft);
+    const lean = o.lean == null ? 0.66 : o.lean;      // how far it falls to the right
+    const squash = o.squash == null ? 0.34 : o.squash;
+    const ax = o.anchor == null ? 0.5 : o.anchor;
+    const sw = w * (sil.width / img.width), sh = h * (sil.height / img.height);
+    g.save();
+    g.globalAlpha = o.alpha == null ? 0.3 : o.alpha;
+    g.translate(Math.round(x), Math.round(y));
+    g.transform(1, 0, lean, squash, 0, 0);
+    g.drawImage(sil, Math.round(-sw * ax), Math.round(-sh), Math.round(sw), Math.round(sh));
+    g.restore();
+  }
   function flip(img) {
     const { c, g } = cv(img.width, img.height);
     g.translate(img.width, 0); g.scale(-1, 1); g.drawImage(img, 0, 0);
@@ -851,7 +992,7 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng };
+  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng, silhouette, castShadow };
 })();
 </script>
 
@@ -1187,7 +1328,7 @@ const Audio = (() => {
 // feet, so joeys are the same animal with a bigger head; pelts are swapped
 // palettes; poses are computed curves rather than hand-keyed frames.
 const Sprites = (() => {
-  const S = 2;                    // screen pixels per art pixel
+  const S = 1.1;                  // world pixels per art pixel: a wombat is a small animal
   const AW = 44, AH = 30;         // art canvas
   const PAD = 12;                 // headroom above, for poses that rear up
   const AX = 22, GY = 27;         // anchor: feet centre / ground line
@@ -1417,6 +1558,14 @@ const Sprites = (() => {
     const dh = img.height * scale * (1 + squash);
     const ax = (facing < 0 ? img.width - AX : AX) / img.width;
     g.drawImage(img, Math.round(x - dw * ax), Math.round(y + 2 - dh * (GY + PAD + 1) / img.height), dw, dh);
+  }
+  // the same sprite, laid flat on the ground and leaning away from the sun
+  function shadow(g, x, y, name, frame, pelt, facing, age = 'adult', scale = S, squash = 0) {
+    const img = wombat(name, frame, pelt, facing, age);
+    const dw = img.width * scale * (1 - squash * 0.45);
+    const dh = img.height * scale * (1 + squash);
+    const ax = (facing < 0 ? img.width - AX : AX) / img.width;
+    Art.castShadow(g, img, x, y + 1, dw, dh, { alpha: 0.3, lean: 0.6, squash: 0.28, anchor: ax });
   }
   function furOf(pelt) { return typeof pelt === 'string' ? (FUR_BY_KEY[pelt] || FUR[0]) : FUR[pelt % FUR.length]; }
 
@@ -1948,7 +2097,7 @@ const Sprites = (() => {
     if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = Math.max(1, px); g.strokeRect(x0, y0, w, h); }
   }
 
-  return { S, AGE, POSES, CULT_POSES, wombat, blit, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
+  return { S, AGE, POSES, CULT_POSES, wombat, blit, shadow, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, init() { }, clear: () => cache.clear() };
 })();
 </script>
 
@@ -3368,7 +3517,7 @@ const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
 const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
 
 // ---- The clearing: the small patch you actually have to tidy -------------
-const ZONE = { x: 512, y: 252, rx: 178, ry: 76 };
+const ZONE = { x: 512, y: 288, rx: 118, ry: 52 };
 const inZone = (x, y) => ((x - ZONE.x) / ZONE.rx) ** 2 + ((y - ZONE.y) / ZONE.ry) ** 2 <= 1;
 const ZONE_GRASS = 0.55;                 // how green the clearing has to be
 
@@ -3769,7 +3918,7 @@ const FX = (() => {
   function pixelText(g, text, x, y, o = {}) {
     const size = o.size && o.size > 3 ? o.size : (o.size || 1) * 7;
     g.save();
-    g.font = `${o.weight || 600} ${size}px ${o.font || '"Pixelify Sans", "Silkscreen", monospace'}`;
+    g.font = `${o.weight || 600} ${size}px ${o.font || '"Fredoka", "Trebuchet MS", sans-serif'}`;
     g.textAlign = o.align || 'center';
     g.textBaseline = o.baseline || 'top';
     const X = Math.round(x), Y = Math.round(y);
@@ -3795,10 +3944,12 @@ const FX = (() => {
 // water; when one matures it stains the ground layer and puts up blades, and
 // blades carry a little spring physics so anything walking through parts them.
 const World = (() => {
-  const W = 1024, H = 360;          // the grove is wider than the view; the camera pans
+  const W = 1024, H = 462;          // the grove is wider and deeper than the view; the camera pans
   const SKY = 126, GROUND = SKY + 2;
   let G = null;
   let grass = null, soil = null, sample = null;
+  const SW = 256, SH = Math.round(H / (W / SW));   // the down-sample keeps the grove's own aspect
+  const SX = W / SW, SY = H / SH;
   const stamps = new Map();
   const weeds = [], blades = [], crops = [], sprouts = [], flowers = [], seams = [];
   let restored = 0, sampleT = 0, spreadT = 0, wind = 0, windT = 0;
@@ -3853,7 +4004,7 @@ const World = (() => {
 
   function init(g) {
     G = g;
-    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(256, 90).c;
+    grass = Art.cv(W, H).c; soil = Art.cv(W, H).c; sample = Art.cv(SW, SH).c;
     for (const a of [weeds, blades, crops, sprouts, flowers, seams]) a.length = 0;
     const r = Art.rng(51817);
     const s = G.world || {};
@@ -4076,12 +4227,12 @@ const World = (() => {
   function measure() {
     try {
       const g = sample.getContext('2d');
-      g.clearRect(0, 0, 256, 90); g.imageSmoothingEnabled = false;
-      g.drawImage(grass, 0, 0, 256, 90);
-      const d = g.getImageData(0, 0, 256, 90).data;
+      g.clearRect(0, 0, SW, SH); g.imageSmoothingEnabled = false;
+      g.drawImage(grass, 0, 0, SW, SH);
+      const d = g.getImageData(0, 0, SW, SH).data;
       let n = 0;
       for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++;
-      restored = n * 16;
+      restored = n * SX * SY;
       G.world.restored = restored;
       measureZone();
     } catch (e) { }
@@ -4091,12 +4242,12 @@ const World = (() => {
   let zoneFrac = 0;
   function measureZone() {
     try {
-      const d = sample.getContext('2d').getImageData(0, 0, 256, 90).data;
+      const d = sample.getContext('2d').getImageData(0, 0, SW, SH).data;
       let n = 0, tot = 0;
-      for (let y = 0; y < 90; y++) for (let x = 0; x < 256; x++) {
-        if (!inZone(x * 4 + 2, y * 4 + 2)) continue;
+      for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
+        if (!inZone(x * SX + SX / 2, y * SY + SY / 2)) continue;
         tot++;
-        if (d[(y * 256 + x) * 4 + 3] > 40) n++;
+        if (d[(y * SW + x) * 4 + 3] > 40) n++;
       }
       zoneFrac = tot ? n / tot : 0;
     } catch (e) { }
@@ -4277,13 +4428,14 @@ const World = (() => {
 // ---- The grove ------------------------------------------------------------
 const Grove = (() => {
   let G = null;
-  const W = 1024, H = 360;               // the grove itself
+  const W = 1024, H = 462;               // the grove itself
   const VW = 640, VH = 360;              // what fits on screen at once
+  const ZOOM = VH / H;                   // the whole depth of the grove fits the window
   const SKY = 126, GROUND = SKY + 2;
-  const WALK = { x0: 30, x1: W - 30, y0: GROUND + 30, y1: H - 48 };   // the dock owns the last 48px
-  const SEED = { x: 512, y: 262 };
-  const POST = { x: 846, y: 256 };
-  const TRUCK = { x: 1140, y: 300, parked: false, t: 0 };
+  const WALK = { x0: 30, x1: W - 30, y0: GROUND + 34, y1: H - 58 };
+  const SEED = { x: 512, y: 300 };
+  const POST = { x: 846, y: 286 };
+  const TRUCK = { x: 1140, y: 372, parked: false, t: 0 };
   const PARK = 750;                      // where the truck stops when called: the east edge of the clearing
   const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0;
@@ -4328,7 +4480,13 @@ const Grove = (() => {
   function clampCam() {
     const half = VW / 2 / Math.max(0.2, FX.cam.zoom);
     FX.cam.tx = U.clamp(FX.cam.tx, Math.min(W / 2, half), Math.max(W / 2, W - half));
-    FX.cam.ty = 180;
+    FX.cam.ty = H / 2;
+  }
+  function enter() {
+    const c = FX.cam;
+    c.zoom = c.tzoom = ZOOM; c.ty = c.y = H / 2;
+    c.tx = U.clamp(c.tx, VW / 2 / ZOOM, W - VW / 2 / ZOOM); c.x = c.tx;
+    clampCam();
   }
   function panBy(dx) { if (arrival) return; FX.cam.tx += dx; clampCam(); FX.cam.x = FX.cam.tx; }
   function panTo(x, snap) { FX.cam.tx = x; clampCam(); if (snap) FX.cam.x = FX.cam.tx; }
@@ -4411,7 +4569,7 @@ const Grove = (() => {
     if (a.t < 5.2) a.x = U.lerp(-40, target, U.easeOut(Math.min(1, a.t / 4.4)));
     // camera pushes in on the newcomer
     const z = U.clamp(1 + U.easeInOut(Math.min(1, a.t / 3.4)) * 1.9, 1, 2.9);
-    FX.cam.tzoom = a.t > 6.6 ? 1 : z;
+    FX.cam.tzoom = a.t > 6.6 ? ZOOM : z;
     FX.cam.tx = a.t > 6.6 ? U.clamp(a.x, VW / 2, W - VW / 2) : U.lerp(VW / 2, a.x, 0.85);
     FX.cam.ty = a.t > 6.6 ? 180 : U.lerp(180, a.y - 26, 0.85);
     World.disturb(a.x, a.y, 26, 1.1);
@@ -4422,7 +4580,7 @@ const Grove = (() => {
       w.hap = 80;
       arrival = null;
       G.paused = false;
-      FX.cam.tzoom = 1; FX.cam.ty = 180; panTo(U.clamp(w.x, VW / 2, W - VW / 2));
+      FX.cam.tzoom = ZOOM; FX.cam.ty = H / 2; panTo(U.clamp(w.x, VW / 2, W - VW / 2));
       FX.hearts(w.x, w.y - 40, 6);
       UI.toast('a wombat has come', 'good');
       UI.refreshAll();
@@ -4881,6 +5039,7 @@ const Grove = (() => {
         if (x < L - 90 || x > R + 90) continue;
         const img = Props.get('tree', `${t.kind}|${t.v}|${(t.sh * (1 - f * 0.3)).toFixed(2)}`);
         const w2 = img.width * t.s, h2 = img.height * t.s;
+        if (d === 0) Art.castShadow(g, img, x, t.y + 2, w2, h2, { alpha: 0.2, lean: 0.72, squash: 0.16 });
         g.drawImage(img, Math.round(x - w2 / 2), Math.round(t.y - h2), Math.round(w2), Math.round(h2));
       }
       // things watching from the second row
@@ -4961,7 +5120,7 @@ const Grove = (() => {
     items.push({ y: -1, fn: () => World.drawCrops(g) });
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
     items.push({ y: Guide.cult.y, fn: () => Guide.draw(g) });
-    if (arrival) items.push({ y: arrival.y, fn: () => Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S) });
+    if (arrival) items.push({ y: arrival.y, fn: () => { Sprites.shadow(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); } });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
     if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
@@ -5081,8 +5240,7 @@ const Grove = (() => {
     g.save();
     if (o.gone) { g.globalAlpha = 1 - o.gone; g.translate(0, -o.gone * 22); }
     const img = Props.get(o.kind === 'fallen' ? 'fallen' : o.kind === 'ruin' ? 'ruin' : 'stump', o.v);
-    g.fillStyle = 'rgba(18,14,20,0.26)';
-    Art.ell(g, o.x, o.y + 1, img.width * 0.36, 5);
+    Art.castShadow(g, img, o.x, o.y + 3, img.width, img.height, { alpha: 0.3, lean: 0.58, squash: 0.2 });
     g.drawImage(img, Math.round(o.x - img.width / 2), Math.round(o.y - img.height + 4));
     g.restore();
     if (hoverObj === o) {
@@ -5095,6 +5253,7 @@ const Grove = (() => {
     const img = Sprites.ant(Math.floor(G.time * 12 + a.x), a.carry);
     const fl = a.dir > 0 ? img : Art.flip(img);
     const lift = a.phase === 'lift' ? Math.sin(a.t * 6) * 2 : 0;
+    Art.castShadow(g, fl, a.x, a.y, img.width, img.height, { alpha: 0.26, lean: 0.6, squash: 0.24, anchor: 0.5 });
     g.drawImage(fl, Math.round(a.x - 10), Math.round(a.y - 16 - lift));
   }
   function drawTruck(g) {
@@ -5119,7 +5278,7 @@ const Grove = (() => {
   function drawSeed(g) {
     const stage = G.fruitsCount ? Math.min(4, G.fruitsCount) : Object.keys(G.fruits).length;
     const img = Props.get('seed', Math.min(4, stage));
-    g.fillStyle = 'rgba(18,14,20,0.28)'; Art.ell(g, SEED.x, SEED.y + 1, 16, 5);
+    g.fillStyle = 'rgba(18,14,20,0.3)'; Art.poly(g, [[SEED.x - 8, SEED.y], [SEED.x + 8, SEED.y], [SEED.x + 22, SEED.y + 6], [SEED.x + 6, SEED.y + 6]], g.fillStyle);
     g.drawImage(img, Math.round(SEED.x - img.width / 2), Math.round(SEED.y - img.height + 4));
     const p = 0.5 + 0.5 * Math.sin(G.time * 2.2);
     const rad = 22 + p * 8;
@@ -5134,7 +5293,7 @@ const Grove = (() => {
     if (hoverSpot === 'seed') outline(g, SEED.x - 24, SEED.y - 46, 48, 52);
   }
   function drawPost(g) {
-    g.fillStyle = 'rgba(18,14,20,0.28)'; Art.ell(g, POST.x, POST.y + 1, 14, 4);
+    g.fillStyle = 'rgba(18,14,20,0.3)'; Art.poly(g, [[POST.x - 7, POST.y], [POST.x + 7, POST.y], [POST.x + 20, POST.y + 5], [POST.x + 6, POST.y + 5]], g.fillStyle);
     g.fillStyle = PAL.bark2; g.fillRect(POST.x - 2, POST.y - 34, 5, 34);
     g.fillStyle = PAL.bark3; g.fillRect(POST.x - 2, POST.y - 34, 2, 34);
     g.fillStyle = PAL.bark1; g.fillRect(POST.x - 16, POST.y - 48, 34, 18);
@@ -5160,8 +5319,7 @@ const Grove = (() => {
     else if (w.state === 'happy' || w.hap > hapCap() * 0.85) p = 'happy';
     const rate = p === 'walk' ? 9 : p === 'eat' ? 8 : p === 'dig' ? 9 : p === 'happy' ? 9 : 3.4;
     const k = Sprites.AGE[w.age].k;
-    g.fillStyle = 'rgba(18,14,20,0.26)';
-    Art.ell(g, w.x, w.y - 1, (24 + w.sq * 8) * k, 5 * k);
+    Sprites.shadow(g, w.x, w.y, p, Math.floor(w.anim * rate), w.pelt, w.dir, w.age, Sprites.S, w.sq);
     const fur = Sprites.furOf(w.pelt);
     if (fur.glow) {
       const gr = g.createRadialGradient(w.x, w.y - 18 * k, 2, w.x, w.y - 18 * k, 36 * k);
@@ -5237,7 +5395,7 @@ const Grove = (() => {
   }
 
   return {
-    init, update, render, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
+    init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, GROUND, WALK, W, H, VW,
@@ -5601,12 +5759,14 @@ const Knowledge = (() => {
   const WW = 1500, WH = 900;
   const GROUND = 780, BASE = 750, FORK = 630;
   const COLX = [450, 750, 1050];                 // one column per branch
-  const ROWY = [556, 448, 340, 232];             // one row per rank
+  const ROWY = [560, 468, 376, 284];             // one row per rank
   const NW = 176, NH = 80;
   const ZMIN = 0.34, ZMAX = 1.8;
-  const CARD = 88, CY = (VH - CARD) / 2;
-  const cam = { x: BASE, y: 480, z: 0.45, tx: BASE, ty: 480, tz: 0.45 };
-  let hover = -1, sel = -1, learnHot = false, seedHot = false;
+  const CARD = 88, TOP = 42;
+  const HH = (VH - CARD - TOP) / 2;      // half the height of the window onto the garden
+  const CY = TOP + HH;
+  const cam = { x: BASE, y: 512, z: 0.43, tx: BASE, ty: 512, tz: 0.43 };
+  let hover = -1, sel = -1, learnHot = false, seedHot = false, zoomHot = '';
   const grow = { t: 0, of: null, kind: '' };     // the growing animation
   const petals = [], flies = [], crumbs = [];
   let garden = null;
@@ -5653,9 +5813,9 @@ const Knowledge = (() => {
   const wxOf = (s) => (s - VW / 2) / cam.z + cam.x;
   const wyOf = (s) => (s - CY) / cam.z + cam.y;
   function clampCam() {
-    const hw = VW / 2 / cam.tz, hh = CY / cam.tz;
+    const hw = VW / 2 / cam.tz, hh = HH / cam.tz;
     cam.tx = hw * 2 > WW ? WW / 2 : U.clamp(cam.tx, hw, WW - hw);
-    const top = 120, bot = GROUND + 60;
+    const top = 200, bot = GROUND + 50;
     const lo = top + hh - 70, hi = bot - hh + 70;
     cam.ty = lo > hi ? (top + bot) / 2 : U.clamp(cam.ty, lo, hi);
   }
@@ -5683,7 +5843,7 @@ const Knowledge = (() => {
       const t = FRUITS.find((f) => state(f) === 'ready') || FRUITS.find((f) => !owned(f)) || FRUITS[0];
       sel = FRUITS.indexOf(t);
       const a = nodeAt(FRUITS[sel]);
-      lookAt(U.lerp(BASE, a.x, 0.5), U.lerp(GROUND - 160, a.y, 0.6), 0.45);
+      lookAt(U.lerp(BASE, a.x, 0.5), U.lerp(GROUND - 170, a.y, 0.6), 0.43);
     }
     cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz;
     Audio.setMode('pen');
@@ -5695,7 +5855,7 @@ const Knowledge = (() => {
     G.fruits.sprout = true;
     grow.t = 2.2; grow.of = null; grow.kind = 'sprout';
     sel = 0;                                   // the first Soil fruit is what you look at next
-    lookAt(BASE, 470, 0.45);
+    lookAt(BASE, 512, 0.43);
     Audio.play('bless');
     UI.toast('The seed takes. Three branches open.', 'good');
     FX.sparkle(VW / 2, VH / 2, 26, GD4);
@@ -5745,6 +5905,7 @@ const Knowledge = (() => {
 
   // ---- input --------------------------------------------------------------
   function indexAt(px, py) {
+    if (py < TOP) return -1;                             // the bar across the top owns its strip
     const wx = wxOf(px), wy = wyOf(py);
     if (!planted()) return Math.hypot(wx - SEED.x, (wy - SEED.y) * 0.8) < 60 ? -2 : -1;
     for (let i = 0; i < FRUITS.length; i++) {
@@ -5757,7 +5918,18 @@ const Knowledge = (() => {
   function overLearn(px, py) {
     return px > LEARN.x && px < LEARN.x + LEARN.w && py > LEARN.y && py < LEARN.y + LEARN.h && (sel >= 0 || !planted());
   }
+  function zoomAt2(px, py) {
+    for (const z of ZBTN) if (px > z.x && px < z.x + z.w && py > z.y && py < z.y + z.h) return z.k;
+    return '';
+  }
   function click(px, py) {
+    const z = zoomAt2(px, py);
+    if (z) {
+      if (z === 'in') zoomBy(1.3);
+      else if (z === 'out') zoomBy(1 / 1.3);
+      else { lookAt(BASE, 512, 0.43); cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz; }
+      Audio.play('click'); return;
+    }
     if (overLearn(px, py)) { if (!planted()) plant(); else buy(FRUITS[sel]); return; }
     const i = indexAt(px, py);
     if (i === -2) { plant(); return; }
@@ -5766,6 +5938,8 @@ const Knowledge = (() => {
     else { sel = i; Audio.play('click'); }
   }
   function hoverAt(px, py) {
+    zoomHot = zoomAt2(px, py);
+    if (zoomHot) { hover = -1; seedHot = false; learnHot = false; return null; }
     const i = indexAt(px, py);
     hover = i >= 0 ? i : -1;
     seedHot = i === -2;
@@ -6032,10 +6206,11 @@ const Knowledge = (() => {
         g.globalAlpha = live ? 1 : next ? 0.95 : 0.55;
         bough(g, p, { x: nx, y: ny }, tw + 4, tw * 0.78 + 4, '#241a0f', null, bend);
         bough(g, p, { x: nx, y: ny }, tw, tw * 0.78, live ? '#4a3420' : next ? '#5a442c' : '#4a3a2a', live ? '#7d5f42' : next ? '#7d5f42' : '#6a5238', bend);
-        if (!live) for (let k = 0; k < 3; k++) {          // bare twigs, waiting for a fruit
+        if (next) for (let k = 0; k < 3; k++) {           // bare twigs, waiting for a fruit
           const q = (k + 1) / 4, sx2 = U.lerp(p.x, nx, q) + bend * 0.4 * Math.sin(q * Math.PI), sy2 = U.lerp(p.y, ny, q);
           Art.limb(g, sx2, sy2, sx2 + (k % 2 ? 13 : -13), sy2 - 9, 3, 1, '#4a3a2a');
         }
+        if (!live && !next) chain(g, p.x, p.y, nx, ny, bend);   // a rank you have not opened yet
         g.globalAlpha = 1;
         p = { x: nx, y: ny }; path.push(p);
       }
@@ -6061,12 +6236,35 @@ const Knowledge = (() => {
     }
   }
 
+  // A run of teal links between two ranks: the lock you can see from anywhere.
+  function chain(g, x0, y0, x1, y1, bend) {
+    const mx = (x0 + x1) / 2 + bend, my = (y0 + y1) / 2;
+    const N = Math.max(4, Math.round(Math.hypot(x1 - x0, y1 - y0) / 17));
+    for (let i = 0; i <= N; i++) {
+      const q = i / N, u = 1 - q;
+      const x = u * u * x0 + 2 * u * q * mx + q * q * x1;
+      const y = u * u * y0 + 2 * u * q * my + q * q * y1;
+      const flat = i % 2 === 0;
+      const w = flat ? 13 : 8, h = flat ? 9 : 14;
+      g.fillStyle = OL; g.fillRect(Math.round(x - w / 2) - 1, Math.round(y - h / 2) - 1, w + 2, h + 2);
+      g.fillStyle = TL1; g.fillRect(Math.round(x - w / 2), Math.round(y - h / 2), w, h);
+      g.fillStyle = TL2; g.fillRect(Math.round(x - w / 2), Math.round(y - h / 2), w, Math.round(h * 0.45));
+      g.fillStyle = TL3; g.fillRect(Math.round(x - w / 2) + 1, Math.round(y - h / 2) + 1, w - 2, 1);
+      g.fillStyle = '#2a180c'; g.fillRect(Math.round(x - w / 2) + 3, Math.round(y - h / 2) + 3, w - 6, h - 6);
+    }
+  }
   function drawSeed(g, t, alpha) {
     const pulse = 0.5 + 0.5 * Math.sin(t * 2.6);
     g.globalAlpha = alpha ?? 1;
     const y = SEED.y + Math.sin(t * 1.6) * 3;
-    Art.ell(g, SEED.x, GROUND + 4, 34, 10, 'rgba(40,26,12,0.35)');
-    for (let r = 3; r >= 1; r--) Art.ell(g, SEED.x, y, 22 + r * 11 + pulse * 7, 26 + r * 12 + pulse * 7, `rgba(245,205,92,${(0.05 + pulse * 0.05).toFixed(3)})`);
+    g.fillStyle = 'rgba(40,26,12,0.35)';
+    Art.poly(g, [[SEED.x - 22, GROUND + 2], [SEED.x + 22, GROUND + 2], [SEED.x + 46, GROUND + 12], [SEED.x + 2, GROUND + 12]], g.fillStyle);
+    for (let r = 3; r >= 1; r--) {                          // a square halo, turning
+      const R = 26 + r * 13 + pulse * 8, a = t * 0.5 + r;
+      const p4 = [];
+      for (let i = 0; i < 4; i++) { const q = a + i * Math.PI / 2; p4.push([SEED.x + Math.cos(q) * R, y + Math.sin(q) * R * 1.1]); }
+      Art.poly(g, p4, `rgba(245,205,92,${(0.05 + pulse * 0.05).toFixed(3)})`);
+    }
     Art.ell(g, SEED.x, y, 22, 28, '#3a2a18');
     Art.ell(g, SEED.x, y, 20, 26, '#8a6134');
     Art.ell(g, SEED.x - 4, y - 5, 13, 16, '#c58f47');
@@ -6106,11 +6304,12 @@ const Knowledge = (() => {
     g.restore();
     g.save();                                              // the same grade the grove wears
     g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = '#7a4d94'; g.globalAlpha = 0.22; g.fillRect(0, 0, VW, CY * 2);
+    g.fillStyle = '#7a4d94'; g.globalAlpha = 0.22; g.fillRect(0, 0, VW, VH - CARD);
     g.restore();
-    const vg = g.createRadialGradient(VW / 2, CY, VH * 0.38, VW / 2, CY, VH * 1.05);
+    const vg = g.createRadialGradient(VW / 2, CY, VH * 0.36, VW / 2, CY, VH * 1.05);
     vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(28,14,40,0.5)');
-    g.fillStyle = vg; g.fillRect(0, 0, VW, CY * 2);
+    g.fillStyle = vg; g.fillRect(0, 0, VW, VH - CARD);
+    header(g, t);
     detail(g, t);
     FX.drawParticles(g, 0);
     FX.drawConfetti(g);
@@ -6122,7 +6321,7 @@ const Knowledge = (() => {
     const pulse = 0.5 + 0.5 * Math.sin(t * 4);
     // a ring of light around the seed, which is itself the button
     g.fillStyle = `rgba(255,244,200,${(0.1 + pulse * 0.14 + (seedHot ? 0.16 : 0)).toFixed(2)})`;
-    Art.ell(g, SEED.x, SEED.y, 46 + pulse * 6, 52 + pulse * 6, g.fillStyle);
+    g.fillRect(Math.round(SEED.x - 44 - pulse * 5), Math.round(SEED.y - 50 - pulse * 5), Math.round(88 + pulse * 10), Math.round(100 + pulse * 10));
     const w = 214, h = 36, X = SEED.x - w / 2, Y = SEED.y - 148 + bob;
     banner(g, X, Y, w, h, 'PLANT  ME  FREE');
     g.fillStyle = OL;                                      // the tail of the callout
@@ -6150,7 +6349,18 @@ const Knowledge = (() => {
     }
     g.globalAlpha = dim ? 0.82 : 1;
     frame9(g, X, Y, NW, NH, dim ? '#a89273' : PG2);
-    if (hot) { g.fillStyle = GD3; g.fillRect(X - 3, Y - 3, NW + 6, 3); g.fillRect(X - 3, Y + NH, NW + 6, 3); g.fillRect(X - 3, Y - 3, 3, NH + 6); g.fillRect(X + NW, Y - 3, 3, NH + 6); }
+    if (hot) {
+      g.fillStyle = sel === i ? GD3 : GD2;
+      g.fillRect(X - 5, Y - 5, NW + 10, 4); g.fillRect(X - 5, Y + NH + 1, NW + 10, 4);
+      g.fillRect(X - 5, Y - 5, 4, NH + 10); g.fillRect(X + NW + 1, Y - 5, 4, NH + 10);
+      if (sel === i) {                                     // a marker above the one you are reading
+        const bob = Math.round(Math.sin(t * 4) * 2);
+        g.fillStyle = OL; g.fillRect(X + NW / 2 - 8, Y - 21 + bob, 16, 12);
+        g.fillStyle = GD2; g.fillRect(X + NW / 2 - 6, Y - 19 + bob, 12, 8);
+        g.fillStyle = GD4; g.fillRect(X + NW / 2 - 6, Y - 19 + bob, 12, 3);
+        g.fillStyle = OL; g.fillRect(X + NW / 2 - 4, Y - 9 + bob, 8, 4); g.fillRect(X + NW / 2 - 2, Y - 5 + bob, 4, 3);
+      }
+    }
     // a coloured tab down the left, so you can tell the branches apart
     g.fillStyle = B.col; g.fillRect(X + 6, Y + 6, 5, NH - 12);
     g.fillStyle = B.dark; g.fillRect(X + 6, Y + NH - 9, 5, 3);
@@ -6176,6 +6386,51 @@ const Knowledge = (() => {
     }
     FX.pixelText(g, `${B.name}  ${f.i + 1}/4`, tx, Y + 52, { color: INK2, size: 10, align: 'left', ink: false });
     g.globalAlpha = 1;
+  }
+
+  // ---- the header: what this place is, and how far along you are ----------
+  const ZBTN = [
+    { k: 'out', x: VW - 106, y: 8, w: 28, h: 26, s: '-' },
+    { k: 'fit', x: VW - 74, y: 8, w: 28, h: 26, s: 'o' },
+    { k: 'in', x: VW - 42, y: 8, w: 28, h: 26, s: '+' },
+  ];
+  function header(g, t) {
+    const learned = FRUITS.filter(owned).length;
+    // one wooden strip across the top, so nothing hides behind a floating panel
+    g.fillStyle = WD1; g.fillRect(0, 0, VW, TOP);
+    Tex.fill(g, 'wood', 0, 0, VW, TOP, 0.55);
+    g.fillStyle = 'rgba(255,220,160,0.28)'; g.fillRect(0, 0, VW, 4);
+    g.fillStyle = WD0; g.fillRect(0, TOP - 5, VW, 5);
+    g.fillStyle = OL; g.fillRect(0, TOP - 2, VW, 2);
+    FX.pixelText(g, planted() ? 'TREE OF LIFE' : 'THE FIRST SEED', 14, 12, { color: '#f6e4bb', size: 17, align: 'left', ink: 2, inkColor: 'rgba(0,0,0,0.7)' });
+    // three branch meters in a row
+    for (let b = 0; b < 3; b++) {
+      const x = 172 + b * 106, n = learnedIn(b), B = BRANCH[b];
+      g.fillStyle = OL; g.fillRect(x - 2, 9, 98, 24);
+      g.fillStyle = '#2a180c'; g.fillRect(x, 11, 94, 20);
+      g.fillStyle = B.col; g.fillRect(x, 11, 4, 20);
+      FX.pixelText(g, B.name, x + 9, 11, { color: '#e3cda2', size: 12, align: 'left', ink: false });
+      const bx = x + 9, bw = 62;
+      g.fillStyle = '#160d06'; g.fillRect(bx, 23, bw, 6);
+      for (let i = 0; i < 4; i++) {
+        const cw = (bw - 3) / 4;
+        if (i < n) {
+          g.fillStyle = GD1; g.fillRect(bx + 1 + i * cw, 23, cw - 1, 6);
+          g.fillStyle = GD3; g.fillRect(bx + 1 + i * cw, 23, cw - 1, 3);
+        } else { g.fillStyle = '#4a3218'; g.fillRect(bx + 1 + i * cw, 24, cw - 1, 4); }
+      }
+      FX.pixelText(g, `${n}/4`, x + 76, 15, { color: n === 4 ? GD3 : '#a5825a', size: 12, align: 'left', ink: false });
+    }
+    FX.pixelText(g, `${learned}/${FRUITS.length}`, VW - 116, 12, { color: GD3, size: 15, align: 'right', ink: 2, inkColor: 'rgba(0,0,0,0.7)' });
+    for (const z of ZBTN) {
+      const hot = zoomHot === z.k;
+      goldButton(g, z.x, z.y, z.w, z.h, null, hot, 'gold');
+      g.fillStyle = '#3d2606';
+      const cx = z.x + z.w / 2, cy = z.y + z.h / 2 + (hot ? 3 : 0);
+      if (z.s !== 'o') g.fillRect(cx - 7, cy - 2, 14, 4);
+      if (z.s === '+') g.fillRect(cx - 2, cy - 7, 4, 14);
+      if (z.s === 'o') { g.fillRect(cx - 7, cy - 7, 14, 3); g.fillRect(cx - 7, cy + 4, 14, 3); g.fillRect(cx - 7, cy - 7, 3, 14); g.fillRect(cx + 4, cy - 7, 3, 14); }
+    }
   }
 
   // The card along the bottom: a wooden banner and a cream page under it.
@@ -6207,7 +6462,7 @@ const Knowledge = (() => {
     Icons.blit(g, f.icon, 20, Y + 22, 2.75);
     FX.pixelText(g, f.name.toUpperCase(), 84, Y + 12, { color: INK, size: 11, align: 'left', ink: false });
     g.fillStyle = B.col; g.fillRect(84, Y + 30, 4, 12);
-    FX.pixelText(g, `${B.name}  BRANCH ${f.i + 1} OF 4`, 94, Y + 32, { color: '#6b3d12', size: 9, align: 'left', ink: false });
+    FX.pixelText(g, `${B.name} / BRANCH ${f.i + 1} OF 4`, 96, Y + 32, { color: '#6b3d12', size: 13, align: 'left', ink: false });
     const words = f.desc.split(' ');
     let line = ''; const lines = [];
     for (const w of words) { if ((line + w).length > 46) { lines.push(line.trim()); line = ''; } line += w + ' '; }
@@ -6224,8 +6479,7 @@ const Knowledge = (() => {
       const why = st === 'locked' ? 'GROW THE ONE BELOW' : st === 'unripe' ? `FOREST ${Math.round(f.at * 100)}%` : `NEED ${f.cost}`;
       FX.pixelText(g, why, LEARN.x + LEARN.w / 2, LEARN.y - 16, { color: '#9a2a1a', size: 9, ink: false });
     }
-    FX.pixelText(g, `${learned}/${FRUITS.length}`, VW - 14, Y + 12, { color: INK2, size: 10, align: 'right', ink: false });
-  }
+      }
 
   return {
     init(g) { G = g; }, enter, update, render, click, hover: hoverAt, scroll, state, ripeCount, buy, plant, planted,
@@ -7266,11 +7520,10 @@ const Guide = (() => {
     const rate = { walk: 8, run: 12, cast: 5, sit: 2, idle: 3, jump: 9 }[cult.pose] || 4;
     const img = Sprites.cultist(Math.floor(cult.t * rate), cult.pose);
     const lift = 0;
-    const sc = 1.4;
+    const sc = 1.05;
     const dw = img.width * sc, dh = img.height * sc;
-    g.fillStyle = 'rgba(18,14,20,0.28)';
-    Art.ell(g, cult.x, cult.y + 2, 14, 4);
     const draw2 = cult.dir < 0 ? Art.flip(img) : img;
+    Art.castShadow(g, draw2, cult.x, cult.y + 2, dw, dh, { alpha: 0.32, lean: 0.62, squash: 0.3 });
     g.drawImage(draw2, Math.round(cult.x - dw / 2), Math.round(cult.y - dh + 4 - lift), Math.round(dw), Math.round(dh));
     // the glow of her lantern-charm, and a nudge toward the job
     const p = 0.5 + 0.5 * Math.sin(cult.t * 3);
@@ -7299,8 +7552,8 @@ const Guide = (() => {
   // squash, wobbles as it settles, every letter pops in oversized and drops
   // into place, words she stresses come out in gold, and praise arrives on a
   // starburst with lines flying off it.
-  const BFONT = '"Pixelify Sans", "Silkscreen", monospace';
-  const BSIZE = 12, LH = 15;
+  const BFONT = '"Fredoka", "Trebuchet MS", sans-serif';
+  const BSIZE = 13, LH = 16;
 
   // split the text into characters, honouring *stress* markers, and wrap it
   function layout(g, text, maxW) {
@@ -8229,7 +8482,7 @@ const UI = (() => {
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
     if (G.mode !== 'grove') return;
-    wheelAt = { x: U.clamp(sx, 66, 574), y: U.clamp(sy, 60, 292) };
+    wheelAt = { x: U.clamp(sx, 10, 630), y: U.clamp(sy, 10, 350) };
     wheelRing = ring;
     renderWheel();
     Audio.play('click');
@@ -8240,10 +8493,10 @@ const UI = (() => {
     const w = $('wheel');
     const k = frameScale();
     w.hidden = false;
-    w.style.left = (wheelAt.x * k) + 'px'; w.style.top = (wheelAt.y * k) + 'px';
     w.innerHTML = '';
-    let items;
+    let items, title;
     if (wheelRing === 'tools') {
+      title = 'TOOLS';
       items = WHEEL_TOOLS.map((key) => {
         const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
         return { icon: t.icon, on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}`,
@@ -8257,6 +8510,7 @@ const UI = (() => {
       });
     } else {
       const food = wheelRing === 'food';
+      title = food ? 'FEED' : 'SEED';
       items = CROPS.map((c) => {
         const n = (food ? G.food : G.seeds)[c.key] || 0;
         const on = food ? G.selFood === c.key : G.selSeed === c.key;
@@ -8270,24 +8524,35 @@ const UI = (() => {
       if (food) items.unshift({ icon: 't_hand', on: !G.selFood, tip: '<b>Pet</b><br>hurries digestion', act: () => { G.selFood = null; Audio.play('click'); closeWheel(); refreshHUD(); } });
       items.push({ icon: 'back', tip: '<b>Back</b>', act: () => { wheelRing = 'tools'; renderWheel(); } });
     }
-    const R = items.length > 8 ? 104 : 86;
+    // a square tray, three to a row, that opens beside the cursor
+    const tray = document.createElement('div');
+    tray.className = 'tray';
+    const head = document.createElement('div');
+    head.className = 'trayhead';
+    head.innerHTML = `<span>${title}</span><b>x</b>`;
+    head.onclick = (e) => { e.stopPropagation(); if (wheelRing === 'tools') closeWheel(); else { wheelRing = 'tools'; renderWheel(); } };
+    tray.appendChild(head);
+    const grid = document.createElement('div');
+    grid.className = 'traygrid';
     items.forEach((it, idx) => {
-      const a = -Math.PI / 2 + (idx / items.length) * TAU;
       const el = document.createElement('button');
       el.className = 'spoke' + (it.on ? ' on' : '') + (it.locked ? ' locked' : '') + (it.out ? ' out' : '');
-      el.style.left = Math.round(Math.cos(a) * R) + 'px'; el.style.top = Math.round(Math.sin(a) * R) + 'px';
-      el.style.animationDelay = (idx * 22) + 'ms';
       el.innerHTML = `${ic(it.icon)}${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = (e) => { e.stopPropagation(); it.act(); };
       el.onmouseenter = (e) => showTip(e, it.tip);
       el.onmouseleave = hideTip;
-      w.appendChild(el);
+      grid.appendChild(el);
     });
-    const hub = document.createElement('div');
-    hub.className = 'hub';
-    hub.innerHTML = ic(wheelRing === 'tools' ? TOOL_BY_KEY[G.tool].icon : wheelRing === 'food' ? 't_food' : 't_seed', 'lg');
-    hub.onclick = (e) => { e.stopPropagation(); closeWheel(); };
-    w.appendChild(hub);
+    tray.appendChild(grid);
+    w.appendChild(tray);
+    // keep the whole tray on screen, opening down-right of the cursor by default
+    const fw = $('frame').clientWidth, fh = $('frame').clientHeight;
+    const tw = 3 * 58 + 2 * 7 + 22 + 8, th = tray.offsetHeight || 240;
+    let px = wheelAt.x * k + 14, py = wheelAt.y * k + 14;
+    if (px + tw > fw - 8) px = wheelAt.x * k - tw - 14;
+    if (py + th > fh - 8) py = Math.max(8, fh - th - 8);
+    w.style.left = Math.max(8, Math.round(px)) + 'px';
+    w.style.top = Math.max(8, Math.round(py)) + 'px';
   }
   // the badge in the corner shows the tool in hand and opens the wheel for touch
   function refreshTray() {
@@ -8527,7 +8792,7 @@ const UI = (() => {
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-truck').onclick = () => { Grove.callTruck(); refreshHUD(); };
-    $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(560, 250); };
+    $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(470, 120); };
     $('b-help').onclick = () => openPanel('panel-help');
     $('b-sound').onclick = () => {
       const m = Audio.toggleMute(); G.muted = m;
@@ -8553,6 +8818,7 @@ const UI = (() => {
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {
+    $('money').classList.toggle('low', mode === 'tree');   // the tree owns the top strip
     $('ov-shrine').hidden = mode !== 'shrine';
     $('ov-rite').hidden = mode !== 'rite';
     $('ov-shop').hidden = mode !== 'shop';
@@ -8577,14 +8843,14 @@ const UI = (() => {
 // ===== js/main.js =====
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
-  const KEY = 'wombat-gods-v5';
+  const KEY = 'wombat-gods-v6';
   const W = 640, H = 360;
   let canvas, g, last = 0, G = null;
   let down = false, lastP = null, downP = null, moved = 0, panning = false, screenP = { x: 320, y: 240 };
 
   function fresh() {
     return {
-      v: 5, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
+      v: 6, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
@@ -8601,14 +8867,15 @@ const Main = (() => {
       World.save();
       Grove.saveObjects();
       G.lastSave = Date.now();
-      localStorage.setItem(KEY, JSON.stringify(Object.assign({}, G, { paused: false, pointer: undefined })));
+      Store.put(KEY, Object.assign({}, G, { paused: false, pointer: undefined }));
     } catch (e) { }
   }
+  let booted = null;                       // whatever Store.boot handed back
   function load() {
     try {
-      const raw = localStorage.getItem(KEY);
-      if (!raw) return null;
-      const d = JSON.parse(raw), s = fresh();
+      const d = booted;
+      if (!d) return null;
+      const s = fresh();
       for (const k of Object.keys(s)) if (d[k] !== undefined) s[k] = d[k];
       s.stats = Object.assign(fresh().stats, d.stats || {});
       s.world = Object.assign(fresh().world, d.world || {});
@@ -8628,7 +8895,7 @@ const Main = (() => {
       return s;
     } catch (e) { return null; }
   }
-  function reset() { try { localStorage.removeItem(KEY); } catch (e) { } location.reload(); }
+  function reset() { Store.clear(KEY).then(() => location.reload(), () => location.reload()); }
 
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
@@ -8641,7 +8908,8 @@ const Main = (() => {
     FX.clear(); FX.flash('#120e14', 0.5);
     if (mode !== 'shop') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
-    if (mode === 'tree') Knowledge.enter();
+    if (mode === 'grove') Grove.enter();
+    else if (mode === 'tree') Knowledge.enter();
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
     Audio.setMode(mode === 'rite' && Tower.active ? 'tower' : 'pen');
@@ -8830,10 +9098,23 @@ const Main = (() => {
     }
   }
 
-  function init() {
+  // A short splash while the save is fetched: published as an Artifact the
+  // store answers over a channel, and that takes a moment.
+  function splash() {
+    g.fillStyle = '#241230'; g.fillRect(0, 0, W, H);
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, '#533070'); gr.addColorStop(1, '#241230');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    FX.pixelText(g, 'WOMBAT GODS', W / 2, H / 2 - 22, { color: '#f2cf62', size: 26, ink: 3, inkColor: 'rgba(0,0,0,0.6)' });
+    FX.pixelText(g, 'opening the grove', W / 2, H / 2 + 14, { color: '#c2a176', size: 14, ink: false });
+  }
+  async function init() {
     canvas = document.getElementById('game');
     g = canvas.getContext('2d');
+    resize();
+    splash();
     Sprites.init();
+    booted = await Store.boot(KEY);
     G = load() || fresh();
     window.G = G;
     World.init(G);
@@ -8847,6 +9128,7 @@ const Main = (() => {
     G.paused = false;
     Audio.setState(G.muted, !G.musicOff);
     G.mode = 'grove';
+    Grove.enter();
     UI.setMode('grove');
     window.addEventListener('resize', resize);
     resize(); setTimeout(resize, 60);

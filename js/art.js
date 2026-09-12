@@ -185,6 +185,44 @@ const Art = (() => {
       if (last >= 0) g.fillRect(x, last - depth + 1, 1, depth);
     }
   }
+  // ---- real cast shadows --------------------------------------------------
+  // Not an ellipse under everything: the sprite's own silhouette, leaned away
+  // from the sun in the upper left, flattened to the ground and softened.
+  const sils = new WeakMap();
+  function silhouette(img, blur) {
+    let s = sils.get(img);
+    if (s) return s;
+    const pad = 2;
+    const { c, g } = cv(img.width + pad * 2, img.height + pad * 2);
+    g.drawImage(img, pad, pad);
+    g.globalCompositeOperation = 'source-in';
+    g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
+    g.globalCompositeOperation = 'source-over';
+    if (blur !== false) {                       // one dilation pass: a soft edge
+      const { c: c2, g: g2 } = cv(c.width, c.height);
+      g2.globalAlpha = 0.5;
+      for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) g2.drawImage(c, dx, dy);
+      g2.globalAlpha = 1; g2.drawImage(c, 0, 0);
+      sils.set(img, c2); return c2;
+    }
+    sils.set(img, c); return c;
+  }
+  // (x, y) is the ground point under the object. `anchor` is where the sprite's
+  // feet sit across its own width, 0..1.
+  function castShadow(g, img, x, y, w, h, opts) {
+    const o = opts || {};
+    const sil = silhouette(img, o.soft);
+    const lean = o.lean == null ? 0.66 : o.lean;      // how far it falls to the right
+    const squash = o.squash == null ? 0.34 : o.squash;
+    const ax = o.anchor == null ? 0.5 : o.anchor;
+    const sw = w * (sil.width / img.width), sh = h * (sil.height / img.height);
+    g.save();
+    g.globalAlpha = o.alpha == null ? 0.3 : o.alpha;
+    g.translate(Math.round(x), Math.round(y));
+    g.transform(1, 0, lean, squash, 0, 0);
+    g.drawImage(sil, Math.round(-sw * ax), Math.round(-sh), Math.round(sw), Math.round(sh));
+    g.restore();
+  }
   function flip(img) {
     const { c, g } = cv(img.width, img.height);
     g.translate(img.width, 0); g.scale(-1, 1); g.drawImage(img, 0, 0);
@@ -202,5 +240,5 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng };
+  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng, silhouette, castShadow };
 })();

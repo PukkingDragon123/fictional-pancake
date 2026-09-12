@@ -1,13 +1,13 @@
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
-  const KEY = 'wombat-gods-v5';
+  const KEY = 'wombat-gods-v6';
   const W = 640, H = 360;
   let canvas, g, last = 0, G = null;
   let down = false, lastP = null, downP = null, moved = 0, panning = false, screenP = { x: 320, y: 240 };
 
   function fresh() {
     return {
-      v: 5, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
+      v: 6, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
@@ -24,14 +24,15 @@ const Main = (() => {
       World.save();
       Grove.saveObjects();
       G.lastSave = Date.now();
-      localStorage.setItem(KEY, JSON.stringify(Object.assign({}, G, { paused: false, pointer: undefined })));
+      Store.put(KEY, Object.assign({}, G, { paused: false, pointer: undefined }));
     } catch (e) { }
   }
+  let booted = null;                       // whatever Store.boot handed back
   function load() {
     try {
-      const raw = localStorage.getItem(KEY);
-      if (!raw) return null;
-      const d = JSON.parse(raw), s = fresh();
+      const d = booted;
+      if (!d) return null;
+      const s = fresh();
       for (const k of Object.keys(s)) if (d[k] !== undefined) s[k] = d[k];
       s.stats = Object.assign(fresh().stats, d.stats || {});
       s.world = Object.assign(fresh().world, d.world || {});
@@ -51,7 +52,7 @@ const Main = (() => {
       return s;
     } catch (e) { return null; }
   }
-  function reset() { try { localStorage.removeItem(KEY); } catch (e) { } location.reload(); }
+  function reset() { Store.clear(KEY).then(() => location.reload(), () => location.reload()); }
 
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
@@ -64,7 +65,8 @@ const Main = (() => {
     FX.clear(); FX.flash('#120e14', 0.5);
     if (mode !== 'shop') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
-    if (mode === 'tree') Knowledge.enter();
+    if (mode === 'grove') Grove.enter();
+    else if (mode === 'tree') Knowledge.enter();
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
     Audio.setMode(mode === 'rite' && Tower.active ? 'tower' : 'pen');
@@ -253,10 +255,23 @@ const Main = (() => {
     }
   }
 
-  function init() {
+  // A short splash while the save is fetched: published as an Artifact the
+  // store answers over a channel, and that takes a moment.
+  function splash() {
+    g.fillStyle = '#241230'; g.fillRect(0, 0, W, H);
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, '#533070'); gr.addColorStop(1, '#241230');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    FX.pixelText(g, 'WOMBAT GODS', W / 2, H / 2 - 22, { color: '#f2cf62', size: 26, ink: 3, inkColor: 'rgba(0,0,0,0.6)' });
+    FX.pixelText(g, 'opening the grove', W / 2, H / 2 + 14, { color: '#c2a176', size: 14, ink: false });
+  }
+  async function init() {
     canvas = document.getElementById('game');
     g = canvas.getContext('2d');
+    resize();
+    splash();
     Sprites.init();
+    booted = await Store.boot(KEY);
     G = load() || fresh();
     window.G = G;
     World.init(G);
@@ -270,6 +285,7 @@ const Main = (() => {
     G.paused = false;
     Audio.setState(G.muted, !G.musicOff);
     G.mode = 'grove';
+    Grove.enter();
     UI.setMode('grove');
     window.addEventListener('resize', resize);
     resize(); setTimeout(resize, 60);

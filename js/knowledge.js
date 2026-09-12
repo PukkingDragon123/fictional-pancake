@@ -10,12 +10,14 @@ const Knowledge = (() => {
   const WW = 1500, WH = 900;
   const GROUND = 780, BASE = 750, FORK = 630;
   const COLX = [450, 750, 1050];                 // one column per branch
-  const ROWY = [556, 448, 340, 232];             // one row per rank
+  const ROWY = [560, 468, 376, 284];             // one row per rank
   const NW = 176, NH = 80;
   const ZMIN = 0.34, ZMAX = 1.8;
-  const CARD = 88, CY = (VH - CARD) / 2;
-  const cam = { x: BASE, y: 480, z: 0.45, tx: BASE, ty: 480, tz: 0.45 };
-  let hover = -1, sel = -1, learnHot = false, seedHot = false;
+  const CARD = 88, TOP = 42;
+  const HH = (VH - CARD - TOP) / 2;      // half the height of the window onto the garden
+  const CY = TOP + HH;
+  const cam = { x: BASE, y: 512, z: 0.43, tx: BASE, ty: 512, tz: 0.43 };
+  let hover = -1, sel = -1, learnHot = false, seedHot = false, zoomHot = '';
   const grow = { t: 0, of: null, kind: '' };     // the growing animation
   const petals = [], flies = [], crumbs = [];
   let garden = null;
@@ -62,9 +64,9 @@ const Knowledge = (() => {
   const wxOf = (s) => (s - VW / 2) / cam.z + cam.x;
   const wyOf = (s) => (s - CY) / cam.z + cam.y;
   function clampCam() {
-    const hw = VW / 2 / cam.tz, hh = CY / cam.tz;
+    const hw = VW / 2 / cam.tz, hh = HH / cam.tz;
     cam.tx = hw * 2 > WW ? WW / 2 : U.clamp(cam.tx, hw, WW - hw);
-    const top = 120, bot = GROUND + 60;
+    const top = 200, bot = GROUND + 50;
     const lo = top + hh - 70, hi = bot - hh + 70;
     cam.ty = lo > hi ? (top + bot) / 2 : U.clamp(cam.ty, lo, hi);
   }
@@ -92,7 +94,7 @@ const Knowledge = (() => {
       const t = FRUITS.find((f) => state(f) === 'ready') || FRUITS.find((f) => !owned(f)) || FRUITS[0];
       sel = FRUITS.indexOf(t);
       const a = nodeAt(FRUITS[sel]);
-      lookAt(U.lerp(BASE, a.x, 0.5), U.lerp(GROUND - 160, a.y, 0.6), 0.45);
+      lookAt(U.lerp(BASE, a.x, 0.5), U.lerp(GROUND - 170, a.y, 0.6), 0.43);
     }
     cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz;
     Audio.setMode('pen');
@@ -104,7 +106,7 @@ const Knowledge = (() => {
     G.fruits.sprout = true;
     grow.t = 2.2; grow.of = null; grow.kind = 'sprout';
     sel = 0;                                   // the first Soil fruit is what you look at next
-    lookAt(BASE, 470, 0.45);
+    lookAt(BASE, 512, 0.43);
     Audio.play('bless');
     UI.toast('The seed takes. Three branches open.', 'good');
     FX.sparkle(VW / 2, VH / 2, 26, GD4);
@@ -154,6 +156,7 @@ const Knowledge = (() => {
 
   // ---- input --------------------------------------------------------------
   function indexAt(px, py) {
+    if (py < TOP) return -1;                             // the bar across the top owns its strip
     const wx = wxOf(px), wy = wyOf(py);
     if (!planted()) return Math.hypot(wx - SEED.x, (wy - SEED.y) * 0.8) < 60 ? -2 : -1;
     for (let i = 0; i < FRUITS.length; i++) {
@@ -166,7 +169,18 @@ const Knowledge = (() => {
   function overLearn(px, py) {
     return px > LEARN.x && px < LEARN.x + LEARN.w && py > LEARN.y && py < LEARN.y + LEARN.h && (sel >= 0 || !planted());
   }
+  function zoomAt2(px, py) {
+    for (const z of ZBTN) if (px > z.x && px < z.x + z.w && py > z.y && py < z.y + z.h) return z.k;
+    return '';
+  }
   function click(px, py) {
+    const z = zoomAt2(px, py);
+    if (z) {
+      if (z === 'in') zoomBy(1.3);
+      else if (z === 'out') zoomBy(1 / 1.3);
+      else { lookAt(BASE, 512, 0.43); cam.x = cam.tx; cam.y = cam.ty; cam.z = cam.tz; }
+      Audio.play('click'); return;
+    }
     if (overLearn(px, py)) { if (!planted()) plant(); else buy(FRUITS[sel]); return; }
     const i = indexAt(px, py);
     if (i === -2) { plant(); return; }
@@ -175,6 +189,8 @@ const Knowledge = (() => {
     else { sel = i; Audio.play('click'); }
   }
   function hoverAt(px, py) {
+    zoomHot = zoomAt2(px, py);
+    if (zoomHot) { hover = -1; seedHot = false; learnHot = false; return null; }
     const i = indexAt(px, py);
     hover = i >= 0 ? i : -1;
     seedHot = i === -2;
@@ -441,10 +457,11 @@ const Knowledge = (() => {
         g.globalAlpha = live ? 1 : next ? 0.95 : 0.55;
         bough(g, p, { x: nx, y: ny }, tw + 4, tw * 0.78 + 4, '#241a0f', null, bend);
         bough(g, p, { x: nx, y: ny }, tw, tw * 0.78, live ? '#4a3420' : next ? '#5a442c' : '#4a3a2a', live ? '#7d5f42' : next ? '#7d5f42' : '#6a5238', bend);
-        if (!live) for (let k = 0; k < 3; k++) {          // bare twigs, waiting for a fruit
+        if (next) for (let k = 0; k < 3; k++) {           // bare twigs, waiting for a fruit
           const q = (k + 1) / 4, sx2 = U.lerp(p.x, nx, q) + bend * 0.4 * Math.sin(q * Math.PI), sy2 = U.lerp(p.y, ny, q);
           Art.limb(g, sx2, sy2, sx2 + (k % 2 ? 13 : -13), sy2 - 9, 3, 1, '#4a3a2a');
         }
+        if (!live && !next) chain(g, p.x, p.y, nx, ny, bend);   // a rank you have not opened yet
         g.globalAlpha = 1;
         p = { x: nx, y: ny }; path.push(p);
       }
@@ -470,12 +487,35 @@ const Knowledge = (() => {
     }
   }
 
+  // A run of teal links between two ranks: the lock you can see from anywhere.
+  function chain(g, x0, y0, x1, y1, bend) {
+    const mx = (x0 + x1) / 2 + bend, my = (y0 + y1) / 2;
+    const N = Math.max(4, Math.round(Math.hypot(x1 - x0, y1 - y0) / 17));
+    for (let i = 0; i <= N; i++) {
+      const q = i / N, u = 1 - q;
+      const x = u * u * x0 + 2 * u * q * mx + q * q * x1;
+      const y = u * u * y0 + 2 * u * q * my + q * q * y1;
+      const flat = i % 2 === 0;
+      const w = flat ? 13 : 8, h = flat ? 9 : 14;
+      g.fillStyle = OL; g.fillRect(Math.round(x - w / 2) - 1, Math.round(y - h / 2) - 1, w + 2, h + 2);
+      g.fillStyle = TL1; g.fillRect(Math.round(x - w / 2), Math.round(y - h / 2), w, h);
+      g.fillStyle = TL2; g.fillRect(Math.round(x - w / 2), Math.round(y - h / 2), w, Math.round(h * 0.45));
+      g.fillStyle = TL3; g.fillRect(Math.round(x - w / 2) + 1, Math.round(y - h / 2) + 1, w - 2, 1);
+      g.fillStyle = '#2a180c'; g.fillRect(Math.round(x - w / 2) + 3, Math.round(y - h / 2) + 3, w - 6, h - 6);
+    }
+  }
   function drawSeed(g, t, alpha) {
     const pulse = 0.5 + 0.5 * Math.sin(t * 2.6);
     g.globalAlpha = alpha ?? 1;
     const y = SEED.y + Math.sin(t * 1.6) * 3;
-    Art.ell(g, SEED.x, GROUND + 4, 34, 10, 'rgba(40,26,12,0.35)');
-    for (let r = 3; r >= 1; r--) Art.ell(g, SEED.x, y, 22 + r * 11 + pulse * 7, 26 + r * 12 + pulse * 7, `rgba(245,205,92,${(0.05 + pulse * 0.05).toFixed(3)})`);
+    g.fillStyle = 'rgba(40,26,12,0.35)';
+    Art.poly(g, [[SEED.x - 22, GROUND + 2], [SEED.x + 22, GROUND + 2], [SEED.x + 46, GROUND + 12], [SEED.x + 2, GROUND + 12]], g.fillStyle);
+    for (let r = 3; r >= 1; r--) {                          // a square halo, turning
+      const R = 26 + r * 13 + pulse * 8, a = t * 0.5 + r;
+      const p4 = [];
+      for (let i = 0; i < 4; i++) { const q = a + i * Math.PI / 2; p4.push([SEED.x + Math.cos(q) * R, y + Math.sin(q) * R * 1.1]); }
+      Art.poly(g, p4, `rgba(245,205,92,${(0.05 + pulse * 0.05).toFixed(3)})`);
+    }
     Art.ell(g, SEED.x, y, 22, 28, '#3a2a18');
     Art.ell(g, SEED.x, y, 20, 26, '#8a6134');
     Art.ell(g, SEED.x - 4, y - 5, 13, 16, '#c58f47');
@@ -515,11 +555,12 @@ const Knowledge = (() => {
     g.restore();
     g.save();                                              // the same grade the grove wears
     g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = '#7a4d94'; g.globalAlpha = 0.22; g.fillRect(0, 0, VW, CY * 2);
+    g.fillStyle = '#7a4d94'; g.globalAlpha = 0.22; g.fillRect(0, 0, VW, VH - CARD);
     g.restore();
-    const vg = g.createRadialGradient(VW / 2, CY, VH * 0.38, VW / 2, CY, VH * 1.05);
+    const vg = g.createRadialGradient(VW / 2, CY, VH * 0.36, VW / 2, CY, VH * 1.05);
     vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(28,14,40,0.5)');
-    g.fillStyle = vg; g.fillRect(0, 0, VW, CY * 2);
+    g.fillStyle = vg; g.fillRect(0, 0, VW, VH - CARD);
+    header(g, t);
     detail(g, t);
     FX.drawParticles(g, 0);
     FX.drawConfetti(g);
@@ -531,7 +572,7 @@ const Knowledge = (() => {
     const pulse = 0.5 + 0.5 * Math.sin(t * 4);
     // a ring of light around the seed, which is itself the button
     g.fillStyle = `rgba(255,244,200,${(0.1 + pulse * 0.14 + (seedHot ? 0.16 : 0)).toFixed(2)})`;
-    Art.ell(g, SEED.x, SEED.y, 46 + pulse * 6, 52 + pulse * 6, g.fillStyle);
+    g.fillRect(Math.round(SEED.x - 44 - pulse * 5), Math.round(SEED.y - 50 - pulse * 5), Math.round(88 + pulse * 10), Math.round(100 + pulse * 10));
     const w = 214, h = 36, X = SEED.x - w / 2, Y = SEED.y - 148 + bob;
     banner(g, X, Y, w, h, 'PLANT  ME  FREE');
     g.fillStyle = OL;                                      // the tail of the callout
@@ -559,7 +600,18 @@ const Knowledge = (() => {
     }
     g.globalAlpha = dim ? 0.82 : 1;
     frame9(g, X, Y, NW, NH, dim ? '#a89273' : PG2);
-    if (hot) { g.fillStyle = GD3; g.fillRect(X - 3, Y - 3, NW + 6, 3); g.fillRect(X - 3, Y + NH, NW + 6, 3); g.fillRect(X - 3, Y - 3, 3, NH + 6); g.fillRect(X + NW, Y - 3, 3, NH + 6); }
+    if (hot) {
+      g.fillStyle = sel === i ? GD3 : GD2;
+      g.fillRect(X - 5, Y - 5, NW + 10, 4); g.fillRect(X - 5, Y + NH + 1, NW + 10, 4);
+      g.fillRect(X - 5, Y - 5, 4, NH + 10); g.fillRect(X + NW + 1, Y - 5, 4, NH + 10);
+      if (sel === i) {                                     // a marker above the one you are reading
+        const bob = Math.round(Math.sin(t * 4) * 2);
+        g.fillStyle = OL; g.fillRect(X + NW / 2 - 8, Y - 21 + bob, 16, 12);
+        g.fillStyle = GD2; g.fillRect(X + NW / 2 - 6, Y - 19 + bob, 12, 8);
+        g.fillStyle = GD4; g.fillRect(X + NW / 2 - 6, Y - 19 + bob, 12, 3);
+        g.fillStyle = OL; g.fillRect(X + NW / 2 - 4, Y - 9 + bob, 8, 4); g.fillRect(X + NW / 2 - 2, Y - 5 + bob, 4, 3);
+      }
+    }
     // a coloured tab down the left, so you can tell the branches apart
     g.fillStyle = B.col; g.fillRect(X + 6, Y + 6, 5, NH - 12);
     g.fillStyle = B.dark; g.fillRect(X + 6, Y + NH - 9, 5, 3);
@@ -585,6 +637,51 @@ const Knowledge = (() => {
     }
     FX.pixelText(g, `${B.name}  ${f.i + 1}/4`, tx, Y + 52, { color: INK2, size: 10, align: 'left', ink: false });
     g.globalAlpha = 1;
+  }
+
+  // ---- the header: what this place is, and how far along you are ----------
+  const ZBTN = [
+    { k: 'out', x: VW - 106, y: 8, w: 28, h: 26, s: '-' },
+    { k: 'fit', x: VW - 74, y: 8, w: 28, h: 26, s: 'o' },
+    { k: 'in', x: VW - 42, y: 8, w: 28, h: 26, s: '+' },
+  ];
+  function header(g, t) {
+    const learned = FRUITS.filter(owned).length;
+    // one wooden strip across the top, so nothing hides behind a floating panel
+    g.fillStyle = WD1; g.fillRect(0, 0, VW, TOP);
+    Tex.fill(g, 'wood', 0, 0, VW, TOP, 0.55);
+    g.fillStyle = 'rgba(255,220,160,0.28)'; g.fillRect(0, 0, VW, 4);
+    g.fillStyle = WD0; g.fillRect(0, TOP - 5, VW, 5);
+    g.fillStyle = OL; g.fillRect(0, TOP - 2, VW, 2);
+    FX.pixelText(g, planted() ? 'TREE OF LIFE' : 'THE FIRST SEED', 14, 12, { color: '#f6e4bb', size: 17, align: 'left', ink: 2, inkColor: 'rgba(0,0,0,0.7)' });
+    // three branch meters in a row
+    for (let b = 0; b < 3; b++) {
+      const x = 172 + b * 106, n = learnedIn(b), B = BRANCH[b];
+      g.fillStyle = OL; g.fillRect(x - 2, 9, 98, 24);
+      g.fillStyle = '#2a180c'; g.fillRect(x, 11, 94, 20);
+      g.fillStyle = B.col; g.fillRect(x, 11, 4, 20);
+      FX.pixelText(g, B.name, x + 9, 11, { color: '#e3cda2', size: 12, align: 'left', ink: false });
+      const bx = x + 9, bw = 62;
+      g.fillStyle = '#160d06'; g.fillRect(bx, 23, bw, 6);
+      for (let i = 0; i < 4; i++) {
+        const cw = (bw - 3) / 4;
+        if (i < n) {
+          g.fillStyle = GD1; g.fillRect(bx + 1 + i * cw, 23, cw - 1, 6);
+          g.fillStyle = GD3; g.fillRect(bx + 1 + i * cw, 23, cw - 1, 3);
+        } else { g.fillStyle = '#4a3218'; g.fillRect(bx + 1 + i * cw, 24, cw - 1, 4); }
+      }
+      FX.pixelText(g, `${n}/4`, x + 76, 15, { color: n === 4 ? GD3 : '#a5825a', size: 12, align: 'left', ink: false });
+    }
+    FX.pixelText(g, `${learned}/${FRUITS.length}`, VW - 116, 12, { color: GD3, size: 15, align: 'right', ink: 2, inkColor: 'rgba(0,0,0,0.7)' });
+    for (const z of ZBTN) {
+      const hot = zoomHot === z.k;
+      goldButton(g, z.x, z.y, z.w, z.h, null, hot, 'gold');
+      g.fillStyle = '#3d2606';
+      const cx = z.x + z.w / 2, cy = z.y + z.h / 2 + (hot ? 3 : 0);
+      if (z.s !== 'o') g.fillRect(cx - 7, cy - 2, 14, 4);
+      if (z.s === '+') g.fillRect(cx - 2, cy - 7, 4, 14);
+      if (z.s === 'o') { g.fillRect(cx - 7, cy - 7, 14, 3); g.fillRect(cx - 7, cy + 4, 14, 3); g.fillRect(cx - 7, cy - 7, 3, 14); g.fillRect(cx + 4, cy - 7, 3, 14); }
+    }
   }
 
   // The card along the bottom: a wooden banner and a cream page under it.
@@ -616,7 +713,7 @@ const Knowledge = (() => {
     Icons.blit(g, f.icon, 20, Y + 22, 2.75);
     FX.pixelText(g, f.name.toUpperCase(), 84, Y + 12, { color: INK, size: 11, align: 'left', ink: false });
     g.fillStyle = B.col; g.fillRect(84, Y + 30, 4, 12);
-    FX.pixelText(g, `${B.name}  BRANCH ${f.i + 1} OF 4`, 94, Y + 32, { color: '#6b3d12', size: 9, align: 'left', ink: false });
+    FX.pixelText(g, `${B.name} / BRANCH ${f.i + 1} OF 4`, 96, Y + 32, { color: '#6b3d12', size: 13, align: 'left', ink: false });
     const words = f.desc.split(' ');
     let line = ''; const lines = [];
     for (const w of words) { if ((line + w).length > 46) { lines.push(line.trim()); line = ''; } line += w + ' '; }
@@ -633,8 +730,7 @@ const Knowledge = (() => {
       const why = st === 'locked' ? 'GROW THE ONE BELOW' : st === 'unripe' ? `FOREST ${Math.round(f.at * 100)}%` : `NEED ${f.cost}`;
       FX.pixelText(g, why, LEARN.x + LEARN.w / 2, LEARN.y - 16, { color: '#9a2a1a', size: 9, ink: false });
     }
-    FX.pixelText(g, `${learned}/${FRUITS.length}`, VW - 14, Y + 12, { color: INK2, size: 10, align: 'right', ink: false });
-  }
+      }
 
   return {
     init(g) { G = g; }, enter, update, render, click, hover: hoverAt, scroll, state, ripeCount, buy, plant, planted,

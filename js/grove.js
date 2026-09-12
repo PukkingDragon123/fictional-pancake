@@ -1,13 +1,14 @@
 // ---- The grove ------------------------------------------------------------
 const Grove = (() => {
   let G = null;
-  const W = 1024, H = 360;               // the grove itself
+  const W = 1024, H = 462;               // the grove itself
   const VW = 640, VH = 360;              // what fits on screen at once
+  const ZOOM = VH / H;                   // the whole depth of the grove fits the window
   const SKY = 126, GROUND = SKY + 2;
-  const WALK = { x0: 30, x1: W - 30, y0: GROUND + 30, y1: H - 48 };   // the dock owns the last 48px
-  const SEED = { x: 512, y: 262 };
-  const POST = { x: 846, y: 256 };
-  const TRUCK = { x: 1140, y: 300, parked: false, t: 0 };
+  const WALK = { x0: 30, x1: W - 30, y0: GROUND + 34, y1: H - 58 };
+  const SEED = { x: 512, y: 300 };
+  const POST = { x: 846, y: 286 };
+  const TRUCK = { x: 1140, y: 372, parked: false, t: 0 };
   const PARK = 750;                      // where the truck stops when called: the east edge of the clearing
   const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0;
@@ -52,7 +53,13 @@ const Grove = (() => {
   function clampCam() {
     const half = VW / 2 / Math.max(0.2, FX.cam.zoom);
     FX.cam.tx = U.clamp(FX.cam.tx, Math.min(W / 2, half), Math.max(W / 2, W - half));
-    FX.cam.ty = 180;
+    FX.cam.ty = H / 2;
+  }
+  function enter() {
+    const c = FX.cam;
+    c.zoom = c.tzoom = ZOOM; c.ty = c.y = H / 2;
+    c.tx = U.clamp(c.tx, VW / 2 / ZOOM, W - VW / 2 / ZOOM); c.x = c.tx;
+    clampCam();
   }
   function panBy(dx) { if (arrival) return; FX.cam.tx += dx; clampCam(); FX.cam.x = FX.cam.tx; }
   function panTo(x, snap) { FX.cam.tx = x; clampCam(); if (snap) FX.cam.x = FX.cam.tx; }
@@ -135,7 +142,7 @@ const Grove = (() => {
     if (a.t < 5.2) a.x = U.lerp(-40, target, U.easeOut(Math.min(1, a.t / 4.4)));
     // camera pushes in on the newcomer
     const z = U.clamp(1 + U.easeInOut(Math.min(1, a.t / 3.4)) * 1.9, 1, 2.9);
-    FX.cam.tzoom = a.t > 6.6 ? 1 : z;
+    FX.cam.tzoom = a.t > 6.6 ? ZOOM : z;
     FX.cam.tx = a.t > 6.6 ? U.clamp(a.x, VW / 2, W - VW / 2) : U.lerp(VW / 2, a.x, 0.85);
     FX.cam.ty = a.t > 6.6 ? 180 : U.lerp(180, a.y - 26, 0.85);
     World.disturb(a.x, a.y, 26, 1.1);
@@ -146,7 +153,7 @@ const Grove = (() => {
       w.hap = 80;
       arrival = null;
       G.paused = false;
-      FX.cam.tzoom = 1; FX.cam.ty = 180; panTo(U.clamp(w.x, VW / 2, W - VW / 2));
+      FX.cam.tzoom = ZOOM; FX.cam.ty = H / 2; panTo(U.clamp(w.x, VW / 2, W - VW / 2));
       FX.hearts(w.x, w.y - 40, 6);
       UI.toast('a wombat has come', 'good');
       UI.refreshAll();
@@ -605,6 +612,7 @@ const Grove = (() => {
         if (x < L - 90 || x > R + 90) continue;
         const img = Props.get('tree', `${t.kind}|${t.v}|${(t.sh * (1 - f * 0.3)).toFixed(2)}`);
         const w2 = img.width * t.s, h2 = img.height * t.s;
+        if (d === 0) Art.castShadow(g, img, x, t.y + 2, w2, h2, { alpha: 0.2, lean: 0.72, squash: 0.16 });
         g.drawImage(img, Math.round(x - w2 / 2), Math.round(t.y - h2), Math.round(w2), Math.round(h2));
       }
       // things watching from the second row
@@ -685,7 +693,7 @@ const Grove = (() => {
     items.push({ y: -1, fn: () => World.drawCrops(g) });
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
     items.push({ y: Guide.cult.y, fn: () => Guide.draw(g) });
-    if (arrival) items.push({ y: arrival.y, fn: () => Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S) });
+    if (arrival) items.push({ y: arrival.y, fn: () => { Sprites.shadow(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); } });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
     if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
@@ -805,8 +813,7 @@ const Grove = (() => {
     g.save();
     if (o.gone) { g.globalAlpha = 1 - o.gone; g.translate(0, -o.gone * 22); }
     const img = Props.get(o.kind === 'fallen' ? 'fallen' : o.kind === 'ruin' ? 'ruin' : 'stump', o.v);
-    g.fillStyle = 'rgba(18,14,20,0.26)';
-    Art.ell(g, o.x, o.y + 1, img.width * 0.36, 5);
+    Art.castShadow(g, img, o.x, o.y + 3, img.width, img.height, { alpha: 0.3, lean: 0.58, squash: 0.2 });
     g.drawImage(img, Math.round(o.x - img.width / 2), Math.round(o.y - img.height + 4));
     g.restore();
     if (hoverObj === o) {
@@ -819,6 +826,7 @@ const Grove = (() => {
     const img = Sprites.ant(Math.floor(G.time * 12 + a.x), a.carry);
     const fl = a.dir > 0 ? img : Art.flip(img);
     const lift = a.phase === 'lift' ? Math.sin(a.t * 6) * 2 : 0;
+    Art.castShadow(g, fl, a.x, a.y, img.width, img.height, { alpha: 0.26, lean: 0.6, squash: 0.24, anchor: 0.5 });
     g.drawImage(fl, Math.round(a.x - 10), Math.round(a.y - 16 - lift));
   }
   function drawTruck(g) {
@@ -843,7 +851,7 @@ const Grove = (() => {
   function drawSeed(g) {
     const stage = G.fruitsCount ? Math.min(4, G.fruitsCount) : Object.keys(G.fruits).length;
     const img = Props.get('seed', Math.min(4, stage));
-    g.fillStyle = 'rgba(18,14,20,0.28)'; Art.ell(g, SEED.x, SEED.y + 1, 16, 5);
+    g.fillStyle = 'rgba(18,14,20,0.3)'; Art.poly(g, [[SEED.x - 8, SEED.y], [SEED.x + 8, SEED.y], [SEED.x + 22, SEED.y + 6], [SEED.x + 6, SEED.y + 6]], g.fillStyle);
     g.drawImage(img, Math.round(SEED.x - img.width / 2), Math.round(SEED.y - img.height + 4));
     const p = 0.5 + 0.5 * Math.sin(G.time * 2.2);
     const rad = 22 + p * 8;
@@ -858,7 +866,7 @@ const Grove = (() => {
     if (hoverSpot === 'seed') outline(g, SEED.x - 24, SEED.y - 46, 48, 52);
   }
   function drawPost(g) {
-    g.fillStyle = 'rgba(18,14,20,0.28)'; Art.ell(g, POST.x, POST.y + 1, 14, 4);
+    g.fillStyle = 'rgba(18,14,20,0.3)'; Art.poly(g, [[POST.x - 7, POST.y], [POST.x + 7, POST.y], [POST.x + 20, POST.y + 5], [POST.x + 6, POST.y + 5]], g.fillStyle);
     g.fillStyle = PAL.bark2; g.fillRect(POST.x - 2, POST.y - 34, 5, 34);
     g.fillStyle = PAL.bark3; g.fillRect(POST.x - 2, POST.y - 34, 2, 34);
     g.fillStyle = PAL.bark1; g.fillRect(POST.x - 16, POST.y - 48, 34, 18);
@@ -884,8 +892,7 @@ const Grove = (() => {
     else if (w.state === 'happy' || w.hap > hapCap() * 0.85) p = 'happy';
     const rate = p === 'walk' ? 9 : p === 'eat' ? 8 : p === 'dig' ? 9 : p === 'happy' ? 9 : 3.4;
     const k = Sprites.AGE[w.age].k;
-    g.fillStyle = 'rgba(18,14,20,0.26)';
-    Art.ell(g, w.x, w.y - 1, (24 + w.sq * 8) * k, 5 * k);
+    Sprites.shadow(g, w.x, w.y, p, Math.floor(w.anim * rate), w.pelt, w.dir, w.age, Sprites.S, w.sq);
     const fur = Sprites.furOf(w.pelt);
     if (fur.glow) {
       const gr = g.createRadialGradient(w.x, w.y - 18 * k, 2, w.x, w.y - 18 * k, 36 * k);
@@ -961,7 +968,7 @@ const Grove = (() => {
   }
 
   return {
-    init, update, render, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
+    init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, GROUND, WALK, W, H, VW,
