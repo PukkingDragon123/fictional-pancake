@@ -6,12 +6,14 @@ const Grove = (() => {
   const ZOOM = VH / H;                   // the whole depth of the grove fits the window
   const SKY = 126, GROUND = SKY + 2;
   const WALK = { x0: 30, x1: W - 30, y0: GROUND + 34, y1: H - 58 };
+  // Wombats keep to the land you own; decor is always placed on the home plot.
+  const roam = () => { const s = ownedSpan(G); return { x0: s.x0 + 24, x1: s.x1 - 24 }; };
   const SEED = { x: 512, y: 300 };
-  const POST = { x: 846, y: 286 };
-  const TRUCK = { x: 742, y: 372, parked: true, t: 1 };   // always here; it is how you leave
-  const PARK = 750;                      // where the truck stops when called: the east edge of the clearing
+  const POST = { x: 392, y: 282 };
+  const TRUCK = { x: 648, y: 372, parked: true, t: 1 };   // always here; it is how you leave
+  const PARK = 656;                      // where the truck stops when called: the east edge of the clearing
   const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [];
-  let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0;
+  let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0, hoverSign = null;
   let arrival = null, dragging = null;
 
   // fixed forest layers behind the plot
@@ -50,16 +52,25 @@ const Grove = (() => {
   // The grove is wider than the window, so the view pans. Everything the
   // player clicks is in world coordinates; Grove.toWorld does the conversion.
   const CAM = { x: VW / 2, min: VW / 2, max: W - VW / 2 };
-  function clampCam() {
+  // The view only travels as far as the land you own, so one plot feels like
+  // a small clearing and each purchase visibly opens the wood up.
+  function camBounds() {
+    const s = ownedSpan(G || window.G || { plots: { home: true } });
     const half = VW / 2 / Math.max(0.2, FX.cam.zoom);
-    FX.cam.tx = U.clamp(FX.cam.tx, Math.min(W / 2, half), Math.max(W / 2, W - half));
+    const pad = 40;
+    const a = Math.max(6, s.x0 - pad), b = Math.min(W - 6, s.x1 + pad);
+    if (b - a <= half * 2) { const m = (a + b) / 2; return { lo: m, hi: m }; }
+    return { lo: a + half, hi: b - half };
+  }
+  function clampCam() {
+    const b = camBounds();
+    FX.cam.tx = U.clamp(FX.cam.tx, b.lo, b.hi);
     FX.cam.ty = H / 2;
   }
   function enter() {
     const c = FX.cam;
     c.zoom = c.tzoom = ZOOM; c.ty = c.y = H / 2;
-    c.tx = U.clamp(c.tx, VW / 2 / ZOOM, W - VW / 2 / ZOOM); c.x = c.tx;
-    clampCam();
+    clampCam(); c.x = c.tx;
   }
   function panBy(dx) { if (arrival) return; FX.cam.tx += dx; clampCam(); FX.cam.x = FX.cam.tx; }
   function panTo(x, snap) { FX.cam.tx = x; clampCam(); if (snap) FX.cam.x = FX.cam.tx; }
@@ -74,7 +85,7 @@ const Grove = (() => {
     else if (sx > VW - m) panBy((sx - (VW - m)) * 5 * dt);
   }
 
-  function capacity() { return 2 + (G.up.burrow || 0); }
+  function capacity() { return 2 + (G.up.burrow || 0) + PLOTS.filter((p) => p.cost > 0 && ownsPlot(G, p.key)).length; }
   function hapCap() { let c = 62; for (const d of DECOR) if (G.decor[d.key] && d.hap) c += 10; return Math.min(100, c); }
   function digestMult(w) {
     let m = (0.62 + (w.hap / 100) * 0.85) * (w.traits.gut || 1);
@@ -128,7 +139,7 @@ const Grove = (() => {
   function checkArrival() {
     if (G.arrived || arrival || !groveClean()) return;
     G.arrived = true;
-    arrival = { t: 0, x: -40, y: WALK.y0 + 44 };
+    arrival = { t: 0, x: ownedSpan(G).x0 - 40, y: WALK.y0 + 44 };
     panTo(VW / 2, true);
     G.paused = true;
     FX.letterbox(true);
@@ -180,15 +191,15 @@ const Grove = (() => {
     return {
       id: U.uid(), name: NAMES.find((n) => !used.has(n)) || 'Wombat',
       pelt: o.pelt || pickPelt(), age: o.age || 'adult', ageT: 0,
-      x: o.x ?? 320, y: o.y ?? WALK.y0 + 20, dir: -1,
+      x: o.x ?? 500, y: o.y ?? WALK.y0 + 20, dir: -1,
       state: 'idle', stateT: U.rand(0.5, 2), anim: U.rand(0, 9), sq: 0,
       hap: 58, stomach: 'empty', food: null, digestT: 0, digestTotal: 1, strain: 0,
       traits: o.traits || makeTraits(), pets: [], grump: 0, gest: 0, mate: null,
     };
   }
   function addWombat(o) {
-    const w = newWombat(Object.assign({ x: 320 + U.rand(-40, 40), y: WALK.y0 + U.rand(10, 50) }, o));
-    w.tx = U.rand(WALK.x0, WALK.x1); w.ty = U.rand(WALK.y0, WALK.y1);
+    const w = newWombat(Object.assign({ x: 500 + U.rand(-60, 60), y: WALK.y0 + U.rand(10, 50) }, o));
+    const rm0 = roam(); w.tx = U.rand(rm0.x0, rm0.x1); w.ty = U.rand(WALK.y0, WALK.y1);
     w.state = 'walk'; w.stateT = 6;
     G.wombats.push(w);
     FX.dust(w.x, w.y, 8, PAL.soil3);
@@ -270,20 +281,20 @@ const Grove = (() => {
       } else if (w.stateT <= 0 && w.state !== 'dig') {
         const r = Math.random();
         if (r < 0.3 && World.hasGrass(w.x, w.y)) { w.state = 'graze'; w.stateT = U.rand(3, 6); }
-        else if (r < 0.74) { w.tx = U.rand(WALK.x0, WALK.x1); w.ty = U.rand(WALK.y0, WALK.y1); w.state = 'walk'; w.goal = U.chance(0.35) ? 'graze' : 'idle'; }
+        else if (r < 0.74) { const rm = roam(); w.tx = U.rand(rm.x0, rm.x1); w.ty = U.rand(WALK.y0, WALK.y1); w.state = 'walk'; w.goal = U.chance(0.35) ? 'graze' : 'idle'; }
         else if (r < 0.85 && w.hap < 40) { w.state = 'sleep'; w.stateT = U.rand(5, 9); }
         else { w.state = 'idle'; w.stateT = U.rand(1.5, 3.5); if (U.chance(0.35)) w.dir = -w.dir; }
       }
       if (w.state === 'dig' && w.stateT <= 0 && w.stomach !== 'ready') { w.state = 'idle'; w.stateT = 1; }
       if (w.state === 'graze') { if (Math.random() < dt * 0.4) w.hap = Math.min(cap, w.hap + 0.6); World.disturb(w.x + w.dir * 14, w.y, 12, 0.5); }
       w.sq = U.lerp(w.sq, 0, 1 - Math.pow(0.001, dt));
-      w.x = U.clamp(w.x, WALK.x0, WALK.x1); w.y = U.clamp(w.y, WALK.y0, WALK.y1);
+      const rm2 = roam(); w.x = U.clamp(w.x, rm2.x0, rm2.x1); w.y = U.clamp(w.y, WALK.y0, WALK.y1);
     }
     for (let i = 0; i < G.wombats.length; i++) for (let j = i + 1; j < G.wombats.length; j++) {
       const a = G.wombats[i], b = G.wombats[j], dx = b.x - a.x;
       if (Math.abs(dx) < 34 && Math.abs(b.y - a.y) < 13) {
         const p = (34 - Math.abs(dx)) * dt * 8 * (dx >= 0 ? 1 : -1);
-        a.x = U.clamp(a.x - p, WALK.x0, WALK.x1); b.x = U.clamp(b.x + p, WALK.x0, WALK.x1);
+        const rm3 = roam(); a.x = U.clamp(a.x - p, rm3.x0, rm3.x1); b.x = U.clamp(b.x + p, rm3.x0, rm3.x1);
       }
     }
     // poop cubes settle
@@ -360,6 +371,7 @@ const Grove = (() => {
     w.state = 'eat'; w.stateT = 1.6; w.sq = 0.2;
     G.stats.fed++;
     Audio.play('munch');
+    FX.comic(w.x, w.y - 38, U.pick(['NOM!', 'CHOMP!', 'MUNCH!']), { ink: '#f5cd5c', edge: '#a97c1e', life: 0.7 });
     FX.burst(w.x + w.dir * 18, w.y - 12, 7, { color: [def.color, PAL.moss4], speed: 50, gravity: 240, life: 0.5, size: 2 });
     UI.refreshTray();
     return true;
@@ -375,6 +387,7 @@ const Grove = (() => {
     if (w.state === 'sleep' || w.state === 'walk') { w.state = 'happy'; w.stateT = 1.1; }
     G.stats.pets++;
     Audio.play('pet'); FX.hearts(w.x, w.y - 30, 3);
+    if (Math.random() < 0.45) FX.comic(w.x, w.y - 40, U.pick(['BOOP!', 'AWW!', 'SQUEE!']), { ink: '#ffc4dd', edge: '#e0507a', life: 0.7 });
   }
   function leave(w) {
     const def = CROP_BY_KEY[w.food] || CROPS[0];
@@ -472,6 +485,13 @@ const Grove = (() => {
     // unless a weed is standing in front of them, in which case you meant the weed
     if (first && !World.weeds.some((w) => Math.abs(w.x - x) < 16 && Math.abs(w.y - y) < 14)) {
       if (spotAt(x, y) === 'truck' && !dragging) { Main.setMode('map'); return true; }
+      const sp = signAt(x, y);
+      if (sp) return buyPlot(sp);
+    }
+    // nothing works on land you have not bought
+    if (!inOwned(G, x) && tool !== 'drag') {
+      if (first) { Audio.play('error'); const p = plotAt(x); UI.toast(p ? `buy <b>${p.name}</b> first` : 'not your land', 'bad'); }
+      return true;
     }
     if (tool === 'drag') {
       if (!first) return true;
@@ -516,7 +536,11 @@ const Grove = (() => {
       case 'sickle': {
         if (first || Math.random() < 0.25) slashes.push({ x, y, t: 0, r });
         const dead = World.hitWeeds(x, y, r, tier.dmg);
-        for (const d of dead) coins.push({ x: d.x, y: d.y - 10, vx: U.rand(-30, 30), vy: U.rand(-150, -90), z: 0, t: 0, n: d.big ? WEED_COIN * 2 : WEED_COIN });
+        for (const d of dead) {
+          coins.push({ x: d.x, y: d.y - 10, vx: U.rand(-30, 30), vy: U.rand(-150, -90), z: 0, t: 0, n: d.big ? WEED_COIN * 2 : WEED_COIN });
+          if (d.big) FX.comic(d.x, d.y - 26, U.pick(['CHOP!', 'SHNK!', 'KRAK!']), { ink: FX.COMIC_INK.pow });
+          else if (Math.random() < 0.3) FX.comic(d.x, d.y - 22, U.pick(['SNIP!', 'SWSH!', 'THWK!']), { ink: '#d8f0a0', edge: '#5d9440', life: 0.6 });
+        }
         World.disturb(x, y, r, 0.8);
         break;
       }
@@ -547,6 +571,9 @@ const Grove = (() => {
     hoverW = (G.tool === 'drag' || G.tool === 'food' || G.tool === 'pair') ? wombatAt(x, y) : null;
     hoverSpot = spotAt(x, y);
     hoverObj = G.tool === 'destroy' ? objAt(x, y) : null;
+    const sg = signAt(x, y);
+    hoverSign = sg ? sg.key : null;
+    if (sg) return `<b>${sg.name}</b><br>${sg.cost} W$ &middot; more room, more wombats`;
     if (hoverObj) return `<b>${hoverObj.kind === 'fallen' ? 'Fallen tree' : hoverObj.kind === 'ruin' ? 'Ruin' : 'Stump'}</b><br>${demolishCost(hoverObj)} W$ to have it carried off`;
     if (hoverW) {
       const w = hoverW;
@@ -669,13 +696,14 @@ const Grove = (() => {
     World.drawFlowers(g);
 
     drawZone(g, f);
+    drawFences(g, L, R);
     // Everything on the ground sorts by its feet, weeds included, so a ruin
     // behind a stand of thistles is actually behind them.
     const items = [];
     for (const w of World.weeds) items.push({ y: w.y, fn: () => World.drawWeed(g, w) });
     for (const o of objects) if (o.gone < 1) items.push({ y: o.y, fn: () => drawObject(g, o) });
     for (const d of DECOR) if (G.decor[d.key]) {
-      const dx = WALK.x0 + d.spot[0] * (WALK.x1 - WALK.x0), dy = WALK.y0 + d.spot[1] * (WALK.y1 - WALK.y0);
+      const dx = PLOT_BY_KEY.home.x0 + 20 + d.spot[0] * (PLOT_BY_KEY.home.x1 - PLOT_BY_KEY.home.x0 - 40), dy = WALK.y0 + d.spot[1] * (WALK.y1 - WALK.y0);
       items.push({ y: dy, fn: () => { const img = Props.get(d.key === 'nest' ? 'crate' : 'rock'); g.drawImage(img, Math.round(dx - img.width / 2), Math.round(dy - img.height + 4)); } });
     }
     items.push({ y: -1, fn: () => World.drawCrops(g) });
@@ -687,6 +715,7 @@ const Grove = (() => {
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
+    drawPlotSigns(g);
 
     // crows
     for (const b of birds) {
@@ -732,6 +761,7 @@ const Grove = (() => {
     }
     FX.drawParticles(g, 0);
     FX.drawFloaters(g, false);
+    FX.drawComics(g, false);
     for (const w of G.wombats) pips(g, w);
     if (G.pointer.on && !arrival) {
       const t = TOOL_BY_KEY[G.tool];
@@ -761,6 +791,144 @@ const Grove = (() => {
     edgeArrows(g);
   }
 
+  // ---- the fence line ------------------------------------------------------
+  // Land you do not own goes cold and hazy behind a leaning split-rail fence.
+  // A board on your side of it names the price. Drawn last, over everything,
+  // so no weed can hide it.
+  // The fence runs away from the camera, so it spreads outward as it nears.
+  // The cold ground behind it is clipped to the same line, so the two agree.
+  const fenceAt = (fx) => (y) => fx + (fx > 520 ? 1 : -1) * (y - GROUND) * 0.34;
+  function drawFences(g, L, R) {
+    for (const p of PLOTS) {
+      if (ownsPlot(G, p.key)) continue;
+      const sign = plotSign(G, p);
+      const border = sign ? (sign.side > 0 ? p.x1 : p.x0) : null;
+      const at = border == null ? null : fenceAt(border);
+      const y0 = SKY - 40, y1 = H + 60;
+      if (Math.min(R, p.x1) > Math.max(L, p.x0)) {          // cold, unworked ground
+        const near = at ? at(y1) : null, far = at ? at(y0) : null;
+        const pts = !at ? [[p.x0, y0], [p.x1, y0], [p.x1, y1], [p.x0, y1]]
+          : sign.side > 0 ? [[p.x0, y0], [far, y0], [near, y1], [p.x0, y1]]
+                          : [[far, y0], [p.x1, y0], [p.x1, y1], [near, y1]];
+        Art.poly(g, pts, 'rgba(26,18,42,0.52)');
+        Art.poly(g, pts, 'rgba(140,158,190,0.09)');
+      }
+      if (at) fenceLine(g, at);
+    }
+  }
+  // The boards read over everything: they are the offer, not scenery.
+  function drawPlotSigns(g) {
+    signRects.length = 0;
+    for (const p of PLOTS) {
+      if (ownsPlot(G, p.key)) continue;
+      const sign = plotSign(G, p);
+      if (sign) buySign(g, p, sign);
+    }
+  }
+  // A palisade: close-set pointed stakes lashed with two cords. In this
+  // projection a rail fence would read as a row of sticks, so the stakes carry
+  // the line instead, and the lashings tie them into one wall.
+  function fenceLine(g, at) {
+    const STEP = 7;
+    const posts = [];
+    for (let y = GROUND - 2; y < H + 62; y += STEP) {
+      const i = posts.length;
+      const ph = 34 + (y - GROUND) * 0.17 + ((i * 37) % 11);
+      posts.push({ y, x: Math.round(at(y)), ph: Math.round(ph), lean: ((i * 53) % 5) - 2, tone: i % 3 });
+    }
+    const TONE = [[PAL.bark2, PAL.bark3], ['#6a4c30', '#8a6a44'], ['#573d26', '#75563a']];
+    g.fillStyle = 'rgba(10,8,16,0.3)';                       // one shadow for the whole run
+    for (const p of posts) Art.ell(g, p.x + 3, p.y + 2, 7, 2.6);
+    for (const p of posts) {
+      const [body, lit] = TONE[p.tone];
+      const w = 4 + Math.round((p.y - GROUND) / 190);
+      const tx = p.x + p.lean, ty = p.y - p.ph;
+      Art.poly(g, [[p.x - w - 1, p.y + 2], [p.x + w + 1, p.y + 2], [tx + w + 1, ty + 3], [tx, ty - 5], [tx - w - 1, ty + 3]], '#0a0810');
+      Art.poly(g, [[p.x - w, p.y + 1], [p.x + w, p.y + 1], [tx + w, ty + 4], [tx, ty - 3], [tx - w, ty + 4]], body);
+      Art.poly(g, [[p.x - w, p.y + 1], [p.x - w + 2, p.y + 1], [tx - w + 2, ty + 4], [tx - w, ty + 4]], lit);
+      g.fillStyle = '#3f5a34';                                // moss creeping up the foot
+      if (p.tone === 1) g.fillRect(p.x - w, p.y - 6, w * 2, 4);
+    }
+    // two cords lashing the run together
+    for (const k of [0.72, 0.3]) {
+      for (let i = 0; i < posts.length - 1; i++) {
+        const a2 = posts[i], b2 = posts[i + 1];
+        const y1 = a2.y - a2.ph * k, y2 = b2.y - b2.ph * k;
+        Art.line(g, a2.x + a2.lean, y1, b2.x + b2.lean, y2, '#120c18', 4);
+        Art.line(g, a2.x + a2.lean, y1, b2.x + b2.lean, y2, '#c2a878', 2);
+      }
+    }
+    // a weathered scrap lashed on, a third of the way down
+    const p0 = posts[Math.floor(posts.length * 0.66)];
+    if (p0) {
+      const sy = p0.y - p0.ph - 6, sx = p0.x + p0.lean;
+      g.fillStyle = '#0a0810'; g.fillRect(sx - 27, sy, 54, 28);
+      g.fillStyle = '#cfc0a2'; g.fillRect(sx - 26, sy + 1, 52, 26);
+      g.fillStyle = '#b3a488'; g.fillRect(sx - 26, sy + 22, 52, 4);
+      g.fillStyle = '#8a7f68'; g.fillRect(sx - 24, sy + 3, 3, 3); g.fillRect(sx + 21, sy + 3, 3, 3);
+      Font.draw(g, 'KEEP', sx, sy + 4, { scale: 2, color: '#8a2f24', align: 'center' });
+      Font.draw(g, 'OUT', sx, sy + 15, { scale: 2, color: '#8a2f24', align: 'center' });
+    }
+  }
+  const signRects = [];
+  function buySign(g, p, sign) {
+    const x = Math.round(sign.x), y = 318;
+    const can = G.wd >= p.cost;
+    const hot = hoverSign === p.key;
+    const bob = hot ? Math.round(Math.sin(G.time * 6) * 1.5) : 0;
+    const BW = 152, BH = 92, by = y - 126 + bob;
+    signRects.push({ key: p.key, x: x - BW / 2, y: by, w: BW, h: BH });
+    g.fillStyle = 'rgba(10,8,16,0.4)'; Art.ell(g, x, y + 2, 18, 5);
+    g.fillStyle = '#0a0810'; g.fillRect(x - 4, y - 34, 8, 36);       // the stake
+    g.fillStyle = PAL.bark2; g.fillRect(x - 3, y - 33, 6, 34);
+    g.fillStyle = PAL.bark3; g.fillRect(x - 3, y - 33, 2, 34);
+    g.fillStyle = 'rgba(10,8,16,0.4)';                               // the board's own shadow
+    g.fillRect(x - BW / 2 + 3, by + 4, BW, BH);
+    g.fillStyle = '#0a0810'; g.fillRect(x - BW / 2, by, BW, BH);
+    g.fillStyle = PAL.bark1; g.fillRect(x - BW / 2 + 2, by + 2, BW - 4, BH - 4);
+    Tex.fill(g, 'wood', x - BW / 2 + 2, by + 2, BW - 4, BH - 4, 0.55);
+    g.fillStyle = 'rgba(255,232,180,0.18)'; g.fillRect(x - BW / 2 + 2, by + 2, BW - 4, 2);
+    g.fillStyle = 'rgba(0,0,0,0.34)'; g.fillRect(x - BW / 2 + 2, by + BH - 6, BW - 4, 4);
+    for (const nx of [x - BW / 2 + 7, x + BW / 2 - 8]) {             // two nails
+      g.fillStyle = '#2a2230'; g.fillRect(nx - 1, by + 5, 3, 3);
+      g.fillStyle = '#8f8a98'; g.fillRect(nx - 1, by + 5, 2, 2);
+    }
+    g.fillStyle = '#8f3a10'; g.fillRect(x - BW / 2 + 5, by + 5, BW - 10, 18);
+    g.fillStyle = '#c9581f'; g.fillRect(x - BW / 2 + 5, by + 5, BW - 10, 15);
+    Font.draw(g, 'FOR SALE', x, by + 7, { scale: 2, color: '#fff2d8', align: 'center', shadow: '#5c2008' });
+    g.fillStyle = 'rgba(30,17,9,0.62)'; g.fillRect(x - BW / 2 + 7, by + 26, BW - 14, 20);
+    Font.draw(g, p.name.toUpperCase(), x, by + 29, { scale: 2, color: '#fdf3dc', align: 'center', shadow: '#170d06' });
+    const cw = Font.width(String(p.cost), 3);
+    Icons.blit(g, 'coin', x - cw / 2 - 21, by + 62, 1.2);
+    Font.draw(g, String(p.cost), x + 10, by + 61, { scale: 3, color: can ? '#f5cd5c' : '#c9605a', align: 'center', shadow: '#170d06' });
+    if (hot) {
+      g.strokeStyle = can ? '#f5cd5c' : '#c9605a'; g.lineWidth = 1;
+      g.strokeRect(x - BW / 2 + 1.5, by + 1.5, BW - 3, BH - 3);
+      Font.draw(g, can ? 'CLICK TO BUY' : 'NOT ENOUGH', x, by - 18, { scale: 2, color: can ? '#c9e88a' : '#c9605a', align: 'center', shadow: '#170d06' });
+    }
+  }
+  function signAt(x, y) {
+    for (const r of signRects) if (x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h) return PLOT_BY_KEY[r.key];
+    return null;
+  }
+  function buyPlot(p) {
+    if (ownsPlot(G, p.key)) return false;
+    if (G.wd < p.cost) { Audio.play('error'); UI.toast(`need <b>${p.cost}</b>`, 'bad'); return true; }
+    G.wd -= p.cost;
+    G.plots[p.key] = true;
+    Audio.play('bless');
+    FX.shake(3);
+    const cx = (p.x0 + p.x1) / 2;
+    FX.burst(cx, 300, 30, PAL.gold2);
+    FX.comic(cx, 250, 'YOURS!');
+    FX.float(cx, 276, `-${p.cost}`, { color: PAL.gold2 });
+    UI.toast(`<b>${p.name}</b> is yours`, 'good');
+    panTo(cx);
+    clampCam();
+    UI.refreshTray();
+    return true;
+  }
+
   // Stakes and rope around the clearing: this is the patch you have to tidy.
   function drawZone(g, f) {
     if (G.arrived) return;
@@ -784,9 +952,9 @@ const Grove = (() => {
   function edgeArrows(g) {
     if (arrival) return;
     const c = FX.cam, p = 0.5 + 0.5 * Math.sin(G.time * 3);
-    const room = VW / 2 / c.zoom;
+    const room = VW / 2 / c.zoom, sp = ownedSpan(G);
     for (const s2 of [-1, 1]) {
-      const more = s2 < 0 ? c.x - room > 2 : c.x + room < W - 2;
+      const more = s2 < 0 ? c.x - room > sp.x0 - 38 : c.x + room < sp.x1 + 38;
       if (!more) continue;
       const x = s2 < 0 ? 12 : VW - 12;
       g.globalAlpha = 0.25 + p * 0.3;
@@ -916,11 +1084,11 @@ const Grove = (() => {
       Icons.blit(g, 'offering', x - 7, y - 18 - Math.abs(Math.sin(G.time * 8)) * 3, 0.85);
     }
     if (hoverW === w) {
-      g.font = '7px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      const tw = g.measureText(w.name).width;
-      g.fillStyle = PAL.ink; g.fillRect(x - tw / 2 - 5, y - 15, tw + 10, 12);
-      g.fillStyle = PAL.bark1; g.fillRect(x - tw / 2 - 4, y - 14, tw + 8, 10);
-      g.fillStyle = PAL.cream; g.fillText(w.name, x, y - 9);
+      const nm = String(w.name).toUpperCase();
+      const tw = Font.width(nm, 1);
+      g.fillStyle = PAL.ink; g.fillRect(x - tw / 2 - 5, y - 16, tw + 10, 13);
+      g.fillStyle = PAL.bark1; g.fillRect(x - tw / 2 - 4, y - 15, tw + 8, 11);
+      Font.draw(g, nm, x, y - 13, { scale: 1, color: PAL.cream, align: 'center' });
     }
   }
   function drawDrop(g, d) {

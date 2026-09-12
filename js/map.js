@@ -9,82 +9,65 @@ const Atlas = (() => {
   // A road map, drawn the way a phone draws one: pale land, green parks, blue
   // water, a grid of white roads with a yellow motorway through it, and blocks
   // of buildings in between. Pixel art, but the same language.
-  const LAND = '#eceae2', LAND2 = '#e2dfd4', PARK = '#c8e2b6', PARK2 = '#b2d49c';
-  const WATER = '#a9d7e8', WATER2 = '#8fc6dc', ROAD = '#ffffff', ROAD2 = '#d8d5cc';
-  const HWY = '#f7d06a', HWY2 = '#e0a83c', BLD = '#dcd8cd', BLD2 = '#c9c4b6';
-  const MINK = '#5a5750', MINK2 = '#8b8780';
+  // Seen from above: canopy, clearings cut into it, dirt tracks between them,
+  // and a creek running through. No streets out here.
+  const CAN0 = '#16301c', CAN1 = '#1e4023', CAN2 = '#2a5a2e', CAN3 = '#3a7a3c', CAN4 = '#58a04e';
+  const GRASS = '#7fae58', GRASS2 = '#6d9a49', DIRT = '#b9905c', DIRT2 = '#946d3f', DIRT3 = '#d8b285';
+  const WATER = '#4d90b8', WATER2 = '#78b6d8', ROCK = '#7b7468', MINK = '#2a3a24';
 
   function sheetOf() {
     if (sheet) return sheet;
     const { c, g } = Art.cv(VW, VH);
     const r = Art.rng(4242);
-    g.fillStyle = LAND; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 2400; i++) {                     // paper grain, barely there
-      g.fillStyle = r() < 0.5 ? LAND2 : '#f4f2ec';
-      g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 1, 1);
-    }
-    // ---- water: a bay along the bottom right and a river running into it ---
-    const bay = [];
-    for (let x = 0; x <= VW; x += 8) bay.push([x, 296 + Math.sin(x * 0.021) * 16 + Math.sin(x * 0.065) * 5]);
-    Art.poly(g, bay.concat([[VW, VH], [0, VH]]), WATER);
-    for (const [x, y] of bay) { g.fillStyle = WATER2; g.fillRect(x - 4, Math.round(y), 9, 3); }
-    let rx = 470, ry = 0;
-    for (let i = 0; i < 60; i++) {
-      const nx = rx + Math.sin(i * 0.31) * 7 - 1, ny = ry + 6;
-      Art.line(g, rx, ry, nx, ny, WATER, 7);
-      Art.line(g, rx, ry, nx, ny, WATER2, 3);
-      rx = nx; ry = ny;
-      if (ny > 300) break;
-    }
-    // ---- parks -------------------------------------------------------------
-    const parks = [[60, 60, 118, 86], [250, 34, 96, 64], [40, 168, 84, 72], [512, 108, 106, 78], [330, 186, 78, 58]];
-    for (const [px, py, pw, ph] of parks) {
-      g.fillStyle = PARK; g.fillRect(px, py, pw, ph);
-      g.fillStyle = PARK2;
-      for (let i = 0; i < pw * ph * 0.02; i++) g.fillRect(px + Math.floor(r() * pw), py + Math.floor(r() * ph), 2, 2);
-      for (let i = 0; i < 9; i++) {                      // a few trees in each
-        const tx = px + 6 + r() * (pw - 12), ty = py + 6 + r() * (ph - 12);
-        Art.ell(g, tx, ty, 4, 4, '#8fbf74'); Art.ell(g, tx - 1, ty - 1, 2.4, 2.4, '#a9d68c');
+    g.fillStyle = CAN1; g.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 3000; i++) { g.fillStyle = r() < 0.5 ? CAN0 : CAN2; g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 2, 2); }
+    // ---- the clearings each place sits in ---------------------------------
+    for (const s2 of SITES) {
+      const rad = 40 + r() * 16;
+      for (let k = 0; k < 22; k++) {
+        const a2 = r() * TAU, d = Math.sqrt(r()) * rad;
+        Art.ell(g, s2.x + Math.cos(a2) * d, s2.y + Math.sin(a2) * d * 0.8, 15 + r() * 9, 11 + r() * 7, GRASS2);
       }
+      Art.ell(g, s2.x, s2.y + 2, rad * 0.8, rad * 0.58, GRASS);
+      for (let k = 0; k < 26; k++) { g.fillStyle = r() < 0.5 ? '#8dbf66' : '#66904a'; g.fillRect(s2.x - rad + r() * rad * 2, s2.y - rad * 0.6 + r() * rad * 1.2, 2, 2); }
     }
-    // ---- the street grid ---------------------------------------------------
-    const cols = [36, 96, 158, 224, 288, 352, 416, 480, 548, 610];
-    const rows = [40, 92, 144, 196, 248, 300];
-    const road = (x, y, w, h) => {
-      g.fillStyle = ROAD2; g.fillRect(x - 1, y - 1, w + 2, h + 2);
-      g.fillStyle = ROAD; g.fillRect(x, y, w, h);
-    };
-    for (const x of cols) road(x, 8, 5, VH - 40);
-    for (const y of rows) road(8, y, VW - 16, 5);
-    // a couple of lanes at an angle, so it is not a chessboard
-    for (const [x0, y0, x1, y1] of [[0, 214, 300, 96], [352, 320, 640, 148]]) {
-      Art.line(g, x0, y0, x1, y1, ROAD2, 7);
-      Art.line(g, x0, y0, x1, y1, ROAD, 5);
+    // ---- the creek ---------------------------------------------------------
+    let wx = -10, wy = 84;
+    const wpts = [];
+    for (let i = 0; i <= 40; i++) { wpts.push([wx, wy]); wx += 17; wy += Math.sin(i * 0.34) * 13 + 3.6; }
+    for (let i = 0; i < wpts.length - 1; i++) {
+      Art.line(g, wpts[i][0], wpts[i][1], wpts[i + 1][0], wpts[i + 1][1], '#2f5f78', 13);
+      Art.line(g, wpts[i][0], wpts[i][1], wpts[i + 1][0], wpts[i + 1][1], WATER, 9);
+      if (i % 2 === 0) Art.line(g, wpts[i][0], wpts[i][1] - 2, wpts[i + 1][0], wpts[i + 1][1] - 2, WATER2, 2);
     }
-    // ---- the motorway ------------------------------------------------------
-    let hx = -10, hy = 132;
-    const hpts = [];
-    for (let i = 0; i <= 46; i++) { hpts.push([hx, hy]); hx += 14; hy += Math.sin(i * 0.26) * 7 + 1.6; }
-    for (let i = 0; i < hpts.length - 1; i++) {
-      Art.line(g, hpts[i][0], hpts[i][1], hpts[i + 1][0], hpts[i + 1][1], HWY2, 11);
-      Art.line(g, hpts[i][0], hpts[i][1], hpts[i + 1][0], hpts[i + 1][1], HWY, 8);
-      if (i % 2 === 0) Art.line(g, hpts[i][0], hpts[i][1], hpts[i + 1][0], hpts[i + 1][1], '#fff6d2', 2);
+    // ---- the canopy: crowns, thicker the further from a clearing -----------
+    for (let i = 0; i < 1100; i++) {
+      const x = r() * VW, y = r() * VH;
+      let near = 1e9;
+      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
+      if (near < 46 && r() < 0.94) continue;
+      const d = g.getImageData(Math.floor(U.clamp(x, 0, VW - 1)), Math.floor(U.clamp(y, 0, VH - 1)), 1, 1).data;
+      if (d[2] > 90 && d[2] > d[1]) continue;                   // keep out of the creek
+      const s3 = 7 + r() * 9;
+      Art.ell(g, x + 1, y + 2, s3, s3 * 0.86, CAN0);
+      Art.ell(g, x, y, s3, s3 * 0.86, r() < 0.45 ? CAN2 : CAN1);
+      Art.ell(g, x - s3 * 0.28, y - s3 * 0.3, s3 * 0.56, s3 * 0.46, r() < 0.3 ? CAN4 : CAN3);
+      if (r() < 0.14) Art.ell(g, x + s3 * 0.3, y + s3 * 0.2, s3 * 0.3, s3 * 0.24, CAN0);
     }
-    // ---- city blocks between the roads ------------------------------------
-    for (let i = 0; i < 240; i++) {
-      const bx = 14 + Math.floor(r() * (VW - 40)), by = 16 + Math.floor(r() * (VH - 90));
-      const bw = 8 + Math.floor(r() * 16), bh = 7 + Math.floor(r() * 13);
-      const d = g.getImageData(bx + bw / 2, by + bh / 2, 1, 1).data;
-      if (d[0] > 240 && d[1] > 240) continue;            // keep off the roads
-      if (d[0] === 169 || d[1] === 215) continue;        // and off the water
-      g.fillStyle = BLD2; g.fillRect(bx, by, bw, bh);
-      g.fillStyle = BLD; g.fillRect(bx, by, bw - 1, bh - 1);
-      g.fillStyle = '#b9b4a6'; g.fillRect(bx, by + bh - 2, bw, 1);
+    // ---- rocks, logs and ferns in the open ---------------------------------
+    for (let i = 0; i < 70; i++) {
+      const x = r() * VW, y = r() * VH;
+      let near = 1e9;
+      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
+      if (near > 52) continue;
+      if (r() < 0.4) { Art.ell(g, x, y + 1, 5, 4, '#5d5850'); Art.ell(g, x, y, 5, 4, ROCK); Art.ell(g, x - 1.4, y - 1.2, 2.4, 1.8, '#9a9286'); }
+      else if (r() < 0.5) { g.fillStyle = '#5d4430'; g.fillRect(x - 9, y, 18, 5); g.fillStyle = '#7d5f42'; g.fillRect(x - 9, y, 18, 2); }
+      else for (let f = -2; f <= 2; f++) Art.limb(g, x, y + 3, x + f * 5, y - 4, 2, 1, f % 2 ? '#3f7a2c' : '#58a04e');
     }
-    // ---- labels, in the flat grey a map uses -------------------------------
-    for (const [lx, ly, tx2] of [[112, 104, 'NORTH FERN'], [292, 66, 'KING PARK'], [560, 150, 'EAST HILL'],
-                                  [470, 330, 'THE BAY'], [84, 210, 'OLD MILL'], [214, 258, 'MIDDEN']]) {
-      Font.draw(g, tx2, lx, ly, { scale: 1, color: MINK, align: 'center', shadow: 'rgba(255,255,255,0.85)', shadowDist: -1 });
+    // ---- a few place names, stencilled into the canopy ---------------------
+    for (const [lx, ly, tx2] of [[112, 62, 'FERN GULLY'], [300, 200, 'THE SCRUB'],
+                                  [566, 292, 'BLACKWOOD'], [86, 316, 'STONE FLAT'], [470, 40, 'HIGH RIDGE']]) {
+      Font.draw(g, tx2, lx, ly, { scale: 1, color: '#9dbb84', align: 'center', shadow: 'rgba(8,16,8,0.9)' });
     }
     sheet = c;
     return c;
@@ -98,20 +81,37 @@ const Atlas = (() => {
   }
   function enter() { hover = null; travel = null; Audio.setMode('pen'); }
 
-  // the route: a blue ribbon with a white casing, the way a phone draws one
-  function pathBetween(g, a, b, t) {
-    const n = Math.max(8, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / 8));
-    const pt = (k) => ({ x: U.lerp(a.x, b.x, k), y: U.lerp(a.y, b.y, k) - Math.sin(k * Math.PI) * 16 });
-    for (const [w, col] of [[8, '#ffffff'], [5, '#2f7ad0']]) {
+  // a track worn into the forest floor, with boot prints going along it
+  // Tracks join one place to the next, not everything to the grove. Each leg
+  // has its own sag so the web reads as a walked network, not a fan.
+  const TRAILS = [
+    ['grove', 'mart', 26], ['grove', 'quarry', -30], ['grove', 'ritual', -22],
+    ['ritual', 'deep', 24], ['ritual', 'lake', -18], ['ritual', 'stack', 30],
+    ['mart', 'stack', 22],
+  ];
+  function pathBetween(g, a, b, bend, t) {
+    const n = Math.max(12, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / 5));
+    const pt = (k) => {
+      const s2 = Math.sin(k * Math.PI), w2 = Math.sin(k * Math.PI * 3) * 4;
+      return {
+        x: U.lerp(a.x, b.x, k) - (b.y - a.y) / Math.hypot(b.x - a.x, b.y - a.y || 1) * s2 * bend + w2,
+        y: U.lerp(a.y, b.y, k) + (b.x - a.x) / Math.hypot(b.x - a.x, b.y - a.y || 1) * s2 * bend,
+      };
+    };
+    for (const [w, col] of [[8, '#5d4a33'], [6, '#8b6942'], [3, '#b9905c']]) {
       let p = pt(0);
       for (let i = 1; i <= n; i++) { const q = pt(i / n); Art.line(g, p.x, p.y, q.x, q.y, col, w); p = q; }
     }
-    for (let i = 0; i < n; i++) {                        // the chevrons running along it
-      const k = ((i / n) + (t * 0.18) % (1 / n)) % 1;
-      if (((i - Math.floor(t * 5)) % 4 + 4) % 4) continue;
-      const p = pt(k), q = pt(Math.min(1, k + 0.03));
-      const dx = q.x - p.x, dy = q.y - p.y, L = Math.hypot(dx, dy) || 1;
-      Art.line(g, p.x, p.y, p.x + (dx / L) * 4, p.y + (dy / L) * 4, '#bcdcff', 2);
+    for (let i = 1; i < n; i += 3) {                      // grit worn into the middle
+      const p = pt(i / n);
+      g.fillStyle = '#d8b285'; g.fillRect(Math.round(p.x) + (i % 4 ? 0 : -1), Math.round(p.y) - 1, 1, 1);
+    }
+    for (let i = 0; i < 4; i++) {                         // boots, walking the track
+      const k = ((i / 4) + t * 0.09) % 1;
+      const p = pt(k);
+      g.fillStyle = 'rgba(62,42,22,0.6)';
+      g.fillRect(Math.round(p.x) - 2, Math.round(p.y) - 1, 2, 3);
+      g.fillRect(Math.round(p.x) + 1, Math.round(p.y) + 2, 2, 3);
     }
   }
 
@@ -145,8 +145,11 @@ const Atlas = (() => {
     const t = G.time;
     g.drawImage(sheetOf(), 0, 0);
     // paths
-    const home = SITES[0];
-    for (const s of SITES) if (s !== home && unlocked(s)) pathBetween(g, home, s, t);
+    const byKey = Object.fromEntries(SITES.map((s) => [s.key, s]));
+    for (const [ak, bk, bend] of TRAILS) {
+      const a = byKey[ak], b = byKey[bk];
+      if (a && b && unlocked(a) && unlocked(b)) pathBetween(g, a, b, bend, t);
+    }
 
     for (const s of SITES) {
       const open = unlocked(s);

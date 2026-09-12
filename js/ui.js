@@ -96,8 +96,12 @@ const UI = (() => {
     tray.className = 'tray';
     const head = document.createElement('div');
     head.className = 'trayhead';
-    head.innerHTML = `<span>${title}</span><b>x</b>`;
-    head.onclick = (e) => { e.stopPropagation(); if (wheelRing === 'tools') closeWheel(); else { wheelRing = 'tools'; renderWheel(); } };
+    head.innerHTML = `<span>${title}</span><i class="hq">?</i><b>x</b>`;
+    head.onclick = (e) => {
+      e.stopPropagation();
+      if (e.target.classList.contains('hq')) { closeWheel(); openPanel('panel-help'); return; }
+      if (wheelRing === 'tools') closeWheel(); else { wheelRing = 'tools'; renderWheel(); }
+    };
     tray.appendChild(head);
     const grid = document.createElement('div');
     grid.className = 'traygrid';
@@ -359,12 +363,6 @@ const UI = (() => {
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(470, 120); };
-    $('b-help').onclick = () => openPanel('panel-help');
-    $('b-sound').onclick = () => {
-      const m = Audio.toggleMute(); G.muted = m;
-      $('b-sound').firstElementChild.src = Icons.url(m ? 'mute' : 'sound');
-      Main.save();
-    };
     $('b-basket').onclick = () => openBasket();
     $('b-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('b-music').textContent = on ? 'MUSIC' : 'MUTED'; Main.save(); };
     let armed = 0;
@@ -380,7 +378,6 @@ const UI = (() => {
     $('b-start').onclick = () => { if (Tower.total()) Tower.newRun(); };
     $('b-cash').onclick = () => Tower.cashOut();
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); } });
-    $('b-sound').firstElementChild.src = Icons.url(G.muted ? 'mute' : 'sound');
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {

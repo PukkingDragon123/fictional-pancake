@@ -74,6 +74,34 @@ const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
 const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
 
 // ---- The clearing: the small patch you actually have to tidy -------------
+// ---- Plots ---------------------------------------------------------------
+// You start with one small clearing. The land either side is fenced off and
+// choked with weeds until you pay for it. Buying widens the camera, the ground
+// you can work, and how many wombats will settle.
+const PLOTS = [
+  { key: 'west', name: 'Fern Hollow', x0: 4,   x1: 340,  cost: 260 },
+  { key: 'home', name: 'Home Plot',   x0: 340, x1: 700,  cost: 0 },
+  { key: 'east', name: 'Stone Ridge', x0: 700, x1: 1020, cost: 720 },
+];
+const PLOT_BY_KEY = Object.fromEntries(PLOTS.map((p) => [p.key, p]));
+const ownsPlot = (g, k) => !!(g.plots && g.plots[k]);
+const plotAt = (x) => PLOTS.find((p) => x >= p.x0 && x < p.x1) || null;
+const inOwned = (g, x) => { const p = plotAt(x); return !!p && ownsPlot(g, p.key); };
+function ownedSpan(g) {
+  let a = 1e9, b = -1e9;
+  for (const p of PLOTS) if (ownsPlot(g, p.key)) { a = Math.min(a, p.x0); b = Math.max(b, p.x1); }
+  return a > b ? { x0: PLOT_BY_KEY.home.x0, x1: PLOT_BY_KEY.home.x1 } : { x0: a, x1: b };
+}
+// The sign sits on the owned side of each buyable border, so you can reach it.
+function plotSign(g, p) {
+  const i = PLOTS.indexOf(p);
+  if (ownsPlot(g, p.key)) return null;
+  const left = PLOTS[i - 1], right = PLOTS[i + 1];
+  if (right && ownsPlot(g, right.key)) return { x: p.x1 - 26, side: 1 };
+  if (left && ownsPlot(g, left.key)) return { x: p.x0 + 26, side: -1 };
+  return null;
+}
+
 const ZONE = { x: 512, y: 288, rx: 118, ry: 52 };
 const inZone = (x, y) => ((x - ZONE.x) / ZONE.rx) ** 2 + ((y - ZONE.y) / ZONE.ry) ** 2 <= 1;
 const ZONE_GRASS = 0.55;                 // how green the clearing has to be

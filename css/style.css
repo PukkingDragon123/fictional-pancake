@@ -482,7 +482,9 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     linear-gradient(180deg, var(--wd2), var(--wd1));
   border: 3px solid var(--ol); box-shadow: 0 3px 0 0 var(--wd0), 0 3px 0 3px var(--ol);
 }
-.trayhead b { font-weight: 600; color: var(--gd3); }
+.trayhead b { font-weight: 400; color: var(--gd3); }
+.trayhead .hq { font-style: normal; margin-left: auto; padding: 0 6px; color: var(--tl3); }
+.trayhead .hq:hover { color: #ffffff; }
 .traygrid { display: grid; grid-template-columns: repeat(3, 58px); gap: 7px; padding: 0 11px; }
 .spoke {
   position: relative; width: 58px; height: 58px; padding: 0;

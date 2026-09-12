@@ -149,7 +149,7 @@ const Shop = (() => {
     for (const sec of SECTIONS) {
       const items = list.filter((p) => p.kind === sec.key);
       if (!items.length) continue;
-      const cols = Math.ceil(items.length / 3);
+      const cols = Math.max(2, Math.ceil(items.length / 3));
       const w = cols * COLW;
       const taken = new Array(cols * 3).fill(false);
       bays.push({ sec, x, w, cols, taken });
@@ -202,7 +202,10 @@ const Shop = (() => {
     basket.push(p.id);
     Audio.play('pop');
     const s = slots.find((sl) => sl.p.id === p.id);
-    if (s) flies.push({ x: s.x - scroll, y: s.y - 20, t: 0, pic: pic(p) });
+    if (s) {
+      flies.push({ x: s.x - scroll, y: s.y - 20, t: 0, pic: pic(p) });
+      FX.comic(s.x - scroll, s.y - 42, U.pick(['GRAB!', 'IN!', 'YOINK!']), { ink: '#ffe98a', edge: '#c9581f', life: 0.6 });
+    }
     UI.refreshBasket();
   }
   function removeLine(id) {
@@ -231,6 +234,7 @@ const Shop = (() => {
     keeper.pose = 'happy'; keeper.t = 0;
     Audio.play('buy');
     FX.confettiBurst(VW * 0.72, 160, 24);
+    FX.comic(VW * 0.72, 150, 'KA-CHING!', { ink: '#f5cd5c', edge: '#c9581f', life: 1 });
     UI.refreshBasket(); UI.refreshAll();
     Main.save();
   }
@@ -426,10 +430,12 @@ const Shop = (() => {
       gl.addColorStop(0, 'rgba(255,253,232,0.35)'); gl.addColorStop(1, 'rgba(255,253,232,0)');
       g.fillStyle = gl; g.fillRect(x - 30, 24, 126, 130);
     }
+    ceilingPromos(g, S, t);
     // wall
     g.fillStyle = '#f1ecdc'; g.fillRect(0, 96, VW, 214);
     g.fillStyle = '#e2dcc8'; g.fillRect(0, 96, VW, 4);
     for (let x = -(S) % 64; x < VW; x += 64) { g.fillStyle = 'rgba(0,0,0,0.03)'; g.fillRect(x, 96, 1, 214); }
+    wallDressing(g, S, t);
     // floor: pale tiles with a yellow line
     g.fillStyle = '#dcd7c6'; g.fillRect(0, 310, VW, VH - 310);
     for (let x = -(S) % 44; x < VW; x += 44) { g.fillStyle = '#cdc7b4'; g.fillRect(x, 310, 2, 50); }
@@ -451,7 +457,7 @@ const Shop = (() => {
       g.drawImage(img, Math.round(x - img.width / 2), Math.round(s.y - img.height + 10 + bob));
       g.globalAlpha = 1;
       if (s.p.locked) Icons.blit(g, 'lock', x - 8, s.y - 30, 1);
-      tag(g, x, s.y + 5, s.p, hot);
+      tag(g, x, s.y + 3, s.p, hot);
       const n = countOf(s.p.id);
       if (n) {
         Art.ell(g, x + 17, s.y - 36, 7, 7, '#3f8f4a');
@@ -483,6 +489,67 @@ const Shop = (() => {
     FX.drawParticles(g, 0);
     FX.drawConfetti(g);
     FX.drawFloaters(g, false);
+    FX.drawComics(g, false);
+  }
+
+  // The wall above the aisles: the strip of a real shop that tells you where
+  // you are. A house banner, promo posters, a clock, vents.
+  const POSTERS = [
+    { x: 236,  w: 104, top: '2 FOR 1', mid: 'SEEDS',   bot: 'THIS WEEK', col: '#3f8f4a' },
+    { x: 620,  w: 112, top: 'NEW IN',  mid: 'SICKLES', bot: 'SHARPER',   col: '#c9581f' },
+    { x: 1004, w: 118, top: 'ADOPT',   mid: 'WOMBATS', bot: 'ASK STAFF', col: '#b8496a' },
+    { x: 1388, w: 104, top: 'SAVE',    mid: '20 W$',   bot: 'ON YARDS',  col: '#2f6f9f' },
+  ];
+  function wallDressing(g, S, t) {
+    // the house banner along the top of the wall
+    const by = 98;
+    g.fillStyle = '#e6dcc4'; g.fillRect(0, by, VW, 12);
+    g.fillStyle = '#c9581f'; g.fillRect(0, by + 9, VW, 3);
+    g.fillStyle = '#f6f1e2'; g.fillRect(0, by, VW, 2);
+    for (let x = -(S * 0.6) % 340; x < VW + 340; x += 340) {
+      Font.draw(g, 'WOMBAT MART', x + 24, by + 2, { scale: 1, color: 'rgba(140,110,78,0.75)' });
+    }
+    // vents along the wall between the gondolas
+    for (let x = -(S * 0.9) % 340 + 120; x < VW + 60; x += 340) {
+      g.fillStyle = '#cdc7b4'; g.fillRect(x, 122, 44, 15);
+      g.fillStyle = '#b5af9c'; g.fillRect(x + 2, 124, 40, 11);
+      for (let i = 0; i < 3; i++) { g.fillStyle = '#8e8879'; g.fillRect(x + 3, 125 + i * 3, 38, 1); }
+    }
+    // a wall clock, ticking
+    const cx = 890 - S;
+    if (cx > -40 && cx < VW + 40) {
+      g.fillStyle = '#1d2230'; Art.ell(g, cx, 130, 13, 13);
+      g.fillStyle = '#fffdf0'; Art.ell(g, cx, 130, 11, 11);
+      for (let i = 0; i < 12; i++) {
+        const a2 = (i / 12) * TAU;
+        g.fillStyle = '#8e8879'; g.fillRect(Math.round(cx + Math.cos(a2) * 8) - 1, Math.round(130 + Math.sin(a2) * 8) - 1, 2, 2);
+      }
+      g.fillStyle = '#2a2f3a'; g.fillRect(cx - 1, 124, 2, 7);
+      const mm = t * 0.5;
+      g.fillStyle = '#c9581f';
+      g.fillRect(Math.round(cx + Math.cos(mm - Math.PI / 2) * 4) - 1, Math.round(130 + Math.sin(mm - Math.PI / 2) * 4) - 1, 2, 2);
+    }
+  }
+
+  // Promo boards hung from the ceiling over the aisles: what fills the air of
+  // a real shop, and what tells you at a glance what is worth buying.
+  function ceilingPromos(g, S, t) {
+    for (const p of POSTERS) {
+      const x = Math.round(p.x - S * 1.06), h = 48;
+      if (x + p.w < -30 || x - p.w > VW + 30) continue;
+      const sway = Math.sin(t * 1.1 + p.x) * 0.9;
+      const x0 = Math.round(x - p.w / 2 + sway);
+      g.fillStyle = '#8e8a7c';                                   // drop wires
+      g.fillRect(x0 + 12, 0, 2, 26); g.fillRect(x0 + p.w - 14, 0, 2, 26);
+      g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(x0 + 3, 29, p.w, h);
+      g.fillStyle = '#1d2230'; g.fillRect(x0, 26, p.w, h);
+      g.fillStyle = '#fffdf0'; g.fillRect(x0 + 2, 28, p.w - 4, h - 4);
+      g.fillStyle = p.col; g.fillRect(x0 + 2, 28, p.w - 4, 12);
+      Font.draw(g, p.top, x0 + p.w / 2, 30, { scale: 1, color: '#fff6e2', align: 'center' });
+      Font.draw(g, p.mid, x0 + p.w / 2, 45, { scale: 2, color: p.col, align: 'center' });
+      Font.draw(g, p.bot, x0 + p.w / 2, 60, { scale: 1, color: '#6a6458', align: 'center' });
+      g.fillStyle = p.col; g.fillRect(x0 + 2, 26 + h - 6, p.w - 4, 4);
+    }
   }
 
   // The stretch you walk in through: doors, a mat, a cooler wall, a basket stack.
@@ -502,11 +569,14 @@ const Shop = (() => {
     g.fillStyle = '#5c6254'; g.fillRect(x - 48, 316, 98, 16);
     // basket stack
     for (let i = 0; i < 4; i++) {
-      g.fillStyle = i % 2 ? '#c9581f' : '#d8663a';
-      g.fillRect(x + 74, 286 - i * 9, 40, 12);
-      g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(x + 74, 294 - i * 9, 40, 4);
+      g.fillStyle = '#1d2230'; g.fillRect(x + 68, 285 - i * 9, 54, 14);
+      g.fillStyle = i % 2 ? '#c9581f' : '#d8663a'; g.fillRect(x + 69, 286 - i * 9, 52, 12);
+      g.fillStyle = 'rgba(255,255,255,0.24)'; g.fillRect(x + 69, 286 - i * 9, 52, 2);
+      g.fillStyle = 'rgba(0,0,0,0.22)'; g.fillRect(x + 69, 294 - i * 9, 52, 4);
     }
-    FX.pixelText(g, 'BASKETS', x + 94, 268, { color: '#2a2f3a', size: 7, ink: false });
+    g.fillStyle = '#1d2230'; g.fillRect(x + 66, 258, 58, 13);
+    g.fillStyle = '#fffdf0'; g.fillRect(x + 67, 259, 56, 11);
+    Font.draw(g, 'BASKETS', x + 95, 261, { scale: 1, color: '#2a2f3a', align: 'center' });
     // the cooler wall
     const cx = x + 140;
     g.fillStyle = '#9aa4ac'; g.fillRect(cx, 118, 180, 192);
@@ -532,7 +602,7 @@ const Shop = (() => {
   }
 
   function drawBay(g, b, S) {
-    const x0 = b.x - S - COLW / 2, w = b.w;
+    const x0 = b.x - S, w = b.w;
     if (x0 > VW + 40 || x0 + w < -40) return;
     // gondola body
     g.fillStyle = '#cfcabb'; g.fillRect(x0 - 10, 140, w + 20, 180);
@@ -563,27 +633,35 @@ const Shop = (() => {
       g.fillStyle = '#b3ada0'; g.fillRect(ux, 140, 6, 180);
       g.fillStyle = '#c9c4b6'; g.fillRect(ux, 140, 2, 180);
     }
-    sign(g, x0 + w / 2, 112, b.sec.name, b.sec.color);
+    sign(g, x0 + w / 2, 126, b.sec.name, b.sec.color, b.sec.sub);
   }
 
   // A hanging aisle plaque, the thing that makes a shop legible at a glance.
-  function sign(g, cx, cy, text, color) {
-    const w = Math.max(74, text.length * 11 + 26);
-    g.fillStyle = '#8e8a7c'; g.fillRect(cx - w / 2 + 8, cy - 22, 3, 12); g.fillRect(cx + w / 2 - 11, cy - 22, 3, 12);
-    g.fillStyle = '#1d2230'; g.fillRect(cx - w / 2 - 2, cy - 12, w + 4, 30);
-    g.fillStyle = color; g.fillRect(cx - w / 2, cy - 10, w, 26);
-    g.fillStyle = U.shade(color, 0.28); g.fillRect(cx - w / 2, cy - 10, w, 4);
-    g.fillStyle = U.shade(color, -0.3); g.fillRect(cx - w / 2, cy + 12, w, 4);
-    FX.pixelText(g, text, cx, cy - 2, { color: '#fffdf0', size: 10, ink: 3, inkColor: U.shade(color, -0.5) });
+  function sign(g, cx, cy, text, color, sub) {
+    const w = Math.max(80, Math.max(Font.width(text, 2), sub ? Font.width(sub.toUpperCase(), 1) : 0) + 24);
+    g.fillStyle = '#8e8a7c'; g.fillRect(cx - w / 2 + 8, cy - 24, 3, 12); g.fillRect(cx + w / 2 - 11, cy - 24, 3, 12);
+    g.fillStyle = '#1d2230'; g.fillRect(cx - w / 2 - 2, cy - 14, w + 4, 36);
+    g.fillStyle = color; g.fillRect(cx - w / 2, cy - 12, w, 32);
+    g.fillStyle = U.shade(color, 0.28); g.fillRect(cx - w / 2, cy - 12, w, 4);
+    g.fillStyle = U.shade(color, -0.3); g.fillRect(cx - w / 2, cy + 16, w, 4);
+    Font.draw(g, text, cx, cy - 7, { scale: 2, color: '#fffdf0', align: 'center', shadow: U.shade(color, -0.5) });
+    if (sub) Font.draw(g, sub.toUpperCase(), cx, cy + 8, { scale: 1, color: U.shade(color, 0.62), align: 'center' });
   }
 
+  // A shelf-edge price label. Big enough to read at a glance, short enough to
+  // leave the shelf below it clear; the name and blurb live in the hover card.
   function tag(g, x, y, p, hot) {
-    const txt = p.sold ? 'OWNED' : p.locked ? '---' : String(priceOf(p, countOf(p.id)));
-    const w = txt.length * 6 + 12;
-    g.fillStyle = hot ? '#d8b23a' : '#fffdf0'; g.fillRect(Math.round(x - w / 2), y, w, 11);
-    g.fillStyle = hot ? '#8a6a12' : '#b9b3a2'; g.fillRect(Math.round(x - w / 2), y + 9, w, 2);
-    g.fillStyle = '#c9581f'; g.fillRect(Math.round(x - w / 2), y, 3, 11);
-    FX.pixelText(g, txt, x + 1, y + 2, { color: '#2a2f3a', size: 7, ink: false });
+    const owned = p.sold, locked = p.locked;
+    const txt = owned ? 'OWNED' : locked ? 'LOCKED' : String(priceOf(p, countOf(p.id)));
+    const big = !owned && !locked;
+    const w = Math.max(34, Font.width(txt, big ? 2 : 1) + 14);
+    const lx = Math.round(x - w / 2);
+    g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(lx + 2, y + 2, w, 18);
+    g.fillStyle = hot ? '#f0cd52' : '#fffdf0'; g.fillRect(lx, y, w, 18);
+    g.fillStyle = hot ? '#a0791a' : '#b9b3a2'; g.fillRect(lx, y + 16, w, 2);
+    g.fillStyle = locked ? '#8e8879' : owned ? '#3f8f4a' : '#c9581f'; g.fillRect(lx, y, 4, 18);
+    Font.draw(g, txt, x + 2, y + (big ? 2 : 5), { scale: big ? 2 : 1, align: 'center',
+      color: locked ? '#8e8879' : owned ? '#3f8f4a' : '#2a2f3a' });
   }
 
   function drawCounter(g, cx, t) {

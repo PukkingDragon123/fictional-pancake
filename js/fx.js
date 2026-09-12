@@ -29,6 +29,50 @@ const FX = (() => {
   function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
   function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
+  // A comic-book word on a jagged starburst: the game's loudest small reward.
+  const comics = [];
+  const COMIC_INK = { pow: '#ffe98a', zap: '#8fe6ff', yay: '#c9f58a', bad: '#ff9a9a' };
+  function comic(x, y, text, o = {}) {
+    comics.push({
+      x, y, text: String(text).toUpperCase(), t: 0, life: o.life || 0.85,
+      ink: o.ink || COMIC_INK.pow, edge: o.edge || '#ff7a3c',
+      spikes: 9 + Math.floor(Math.random() * 4), rot: U.rand(-0.16, 0.16),
+      r: o.r || 0, world: o.world ?? false, vy: o.vy ?? -22,
+    });
+    if (comics.length > 14) comics.shift();
+  }
+  function drawComics(g, world) {
+    for (const c of comics) {
+      if (c.world !== world) continue;
+      const k = c.t / c.life;
+      const pop = k < 0.22 ? U.lerp(0.3, 1.14, k / 0.22) : k < 0.36 ? U.lerp(1.14, 1, (k - 0.22) / 0.14) : 1;
+      const a = k > 0.72 ? 1 - (k - 0.72) / 0.28 : 1;
+      const w = c.r || (Font.advance(c.text.length, 1) / 2 + 11);
+      g.save();
+      g.globalAlpha = a;
+      g.translate(Math.round(c.x), Math.round(c.y + c.vy * c.t));
+      g.rotate(c.rot + Math.sin(c.t * 18) * 0.02 * (1 - k));
+      g.scale(pop, pop);
+      const pts = [];
+      for (let i = 0; i < c.spikes * 2; i++) {
+        const ang = (i / (c.spikes * 2)) * TAU - Math.PI / 2;
+        const rr = (i % 2 ? 0.62 : 1) * (i % 4 === 1 ? 1.06 : 1);
+        pts.push([Math.cos(ang) * w * rr, Math.sin(ang) * w * 0.72 * rr]);
+      }
+      g.beginPath();
+      g.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
+      g.closePath();
+      g.fillStyle = '#120c18'; g.translate(2, 3); g.fill(); g.translate(-2, -3);
+      g.fillStyle = c.edge; g.fill();
+      g.save(); g.scale(0.78, 0.78); g.fillStyle = c.ink; g.fill(); g.restore();
+      g.lineJoin = 'miter'; g.lineWidth = 2; g.strokeStyle = '#120c18'; g.stroke();
+      Font.draw(g, c.text, 0, -3, { scale: 1, color: '#120c18', align: 'center' });
+      g.restore();
+    }
+    g.globalAlpha = 1;
+  }
+
   function confettiBurst(x, y, n = 60) { for (let i = 0; i < n; i++) confetti.push({ x, y, vx: U.rand(-160, 160), vy: U.rand(-320, -80), life: U.rand(1.5, 3), rot: U.rand(0, TAU), vr: U.rand(-8, 8), w: U.rand(3, 6), h: U.rand(2, 4), color: U.pick(['#ff5c8a', '#ffd23f', '#3fe0ff', '#7dff3f', '#c77dff', '#ff9a3f']) }); }
 
   // A jagged bolt with a couple of forks, alive for a few frames.
@@ -73,6 +117,7 @@ const FX = (() => {
 
   // dt = real seconds
   function update(dt) {
+    for (let i = comics.length - 1; i >= 0; i--) { comics[i].t += dt; if (comics[i].t >= comics[i].life) comics.splice(i, 1); }
     // camera smoothing
     cam.x = U.lerp(cam.x, cam.tx, 1 - Math.pow(0.001, dt));
     cam.y = U.lerp(cam.y, cam.ty, 1 - Math.pow(0.001, dt));
@@ -177,10 +222,10 @@ const FX = (() => {
       if (f.world !== world) continue;
       const a = U.clamp(f.life / f.maxLife * 2, 0, 1);
       g.globalAlpha = a;
-      g.font = `bold ${f.size}px "Press Start 2P", monospace`;
-      g.textAlign = 'center'; g.textBaseline = 'middle';
-      if (f.outline) { g.lineWidth = 3; g.strokeStyle = '#1b1210'; g.strokeText(f.text, Math.round(f.x), Math.round(f.y)); }
-      g.fillStyle = f.color; g.fillText(f.text, Math.round(f.x), Math.round(f.y));
+      Font.draw(g, String(f.text), Math.round(f.x), Math.round(f.y) - 3, {
+        scale: Font.scaleFor(f.size), color: f.color, align: 'center',
+        shadow: f.outline ? '#1b1210' : null, shadowDist: 1,
+      });
     }
     g.globalAlpha = 1;
   }
@@ -221,6 +266,7 @@ const FX = (() => {
     }
     if (cine.flash > 0.01) { g.fillStyle = cine.flashColor; g.globalAlpha = Math.min(1, cine.flash); g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
   }
+  function clearComics() { comics.length = 0; }
   function clear() { particles.length = 0; floaters.length = 0; confetti.length = 0; rings.length = 0; bolts.length = 0; tendrils.length = 0; }
 
   // All canvas text is bitmap text: hard-edged at any scale, never antialiased.
@@ -233,5 +279,5 @@ const FX = (() => {
     return Font.draw(g, text, x, y, opts);
   }
 
-  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawConfetti, drawCinema, clear, particles };
+  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, clear, clearComics, particles };
 })();

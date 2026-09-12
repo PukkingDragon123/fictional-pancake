@@ -500,14 +500,12 @@ const Tower = (() => {
     }
     // height rungs
     if (R.active) {
-      g.font = '7px "Press Start 2P", monospace'; g.textAlign = 'right'; g.textBaseline = 'middle';
       for (let h = 5; h <= Math.max(10, R.peak + 10); h += 5) {
         const y = PLAT_Y - h * CUBE_SIZE;
         g.strokeStyle = h <= R.height ? 'rgba(132,187,89,0.4)' : 'rgba(253,243,220,0.14)';
         g.setLineDash([4, 7]); g.lineWidth = 1;
         g.beginPath(); g.moveTo(PX - 150, y); g.lineTo(PX + 150, y); g.stroke(); g.setLineDash([]);
-        g.fillStyle = h === G.record && G.record > 0 ? PAL.gold4 : 'rgba(253,243,220,0.45)';
-        g.fillText(String(h), PX - 156, y);
+        Font.draw(g, String(h), PX - 156, y - 3, { scale: 1, align: 'right', color: h === G.record && G.record > 0 ? PAL.gold4 : 'rgba(253,243,220,0.45)' });
       }
     }
     // plinth
@@ -660,12 +658,9 @@ const Tower = (() => {
       const ry = y1 - (Math.min(maxH, G.record) / maxH) * (y1 - y0);
       g.fillStyle = PAL.gold4; g.fillRect(rx - 7, ry, 15, 2);
     }
-    g.font = '8px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'top';
-    g.fillStyle = PAL.cream; g.fillText(R.height.toFixed(1), rx + 1, y1 + 12);
+    Font.draw(g, R.height.toFixed(1), rx + 1, y1 + 12, { scale: 1, align: 'center', color: PAL.cream, shadow: '#120c18' });
     if (R.wind.warn > 0) {
-      g.font = '10px "Press Start 2P", monospace'; g.textBaseline = 'middle';
-      g.fillStyle = Math.sin(G.time * 20) > 0 ? PAL.gold4 : PAL.red3;
-      g.fillText('WIND', W / 2, 28);
+      Font.draw(g, 'WIND', W / 2, 24, { scale: 2, align: 'center', color: Math.sin(G.time * 20) > 0 ? PAL.gold4 : PAL.red3, shadow: '#120c18' });
     }
   }
 

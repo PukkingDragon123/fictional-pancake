@@ -233,6 +233,7 @@ const Ritual = (() => {
     }
     FX.drawParticles(g, 0);
     FX.drawFloaters(g, false);
+    FX.drawComics(g, false);
   }
 
   // ---- the summoning ------------------------------------------------------
@@ -318,6 +319,7 @@ const Ritual = (() => {
     g.globalAlpha = 1;
     FX.drawParticles(g, 0);
     FX.drawFloaters(g, false);
+    FX.drawComics(g, false);
     // rain of light during the strike
     if (beat === 'strike') {
       g.strokeStyle = U.rgba(PAL.cream, 0.35); g.lineWidth = 1;

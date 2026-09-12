@@ -10,7 +10,7 @@ const Main = (() => {
       v: 6, introDone: false, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
-      summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {},
+      summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
       wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0 },
@@ -47,6 +47,8 @@ const Main = (() => {
         if (w.stomach === 'ready') { w.stomach = 'digesting'; w.digestT = 0.5; w.digestTotal = Math.max(1, w.digestTotal || 1); }
         if (w.stomach === 'digesting' && !CROP_BY_KEY[w.food]) { w.stomach = 'empty'; w.food = null; }
       }
+      if (!s.plots || typeof s.plots !== 'object') s.plots = {};
+      s.plots.home = true;                    // the home plot is never for sale
       if (!TOOL_BY_KEY[s.tool]) s.tool = 'sickle';
       s.mode = 'grove';
       return s;
