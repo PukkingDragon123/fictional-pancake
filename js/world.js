@@ -200,6 +200,7 @@ const World = (() => {
       Audio.play('pluck');
       FX.burst(c.x, c.y - 10, 9, { color: [def.color, PAL.cream], speed: 74, gravity: 130, life: 0.5, size: 2 });
       FX.float(c.x, c.y - 22, '+' + def.yield, { color: PAL.moss5, size: 8 });
+      FX.comic(c.x, c.y - 32, U.pick(['POP!', 'PICK!', 'YOINK!']), { ink: '#d8f0a0', edge: '#5d9440', life: 0.55 });
       return 'ok';
     }
     for (let i = seams.length - 1; i >= 0; i--) {
@@ -208,6 +209,7 @@ const World = (() => {
       seams.splice(i, 1);
       G.offerings.gold = (G.offerings.gold || 0) + 1;
       Audio.play('coin'); FX.sparkle(s.x, s.y, 14, PAL.gold4);
+      FX.comic(s.x, s.y - 26, 'GOLD!', { ink: '#f5cd5c', edge: '#a97c1e', life: 0.9 });
       return 'gold';
     }
     return null;

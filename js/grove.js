@@ -12,8 +12,8 @@ const Grove = (() => {
   const POST = { x: 392, y: 282 };
   const TRUCK = { x: 648, y: 372, parked: true, t: 1 };   // always here; it is how you leave
   const PARK = 656;                      // where the truck stops when called: the east edge of the clearing
-  const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [];
-  let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0, hoverSign = null;
+  const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [], foods = [];
+  let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0, hoverPlot = null;
   let arrival = null, dragging = null;
 
   // fixed forest layers behind the plot
@@ -193,7 +193,7 @@ const Grove = (() => {
       pelt: o.pelt || pickPelt(), age: o.age || 'adult', ageT: 0,
       x: o.x ?? 500, y: o.y ?? WALK.y0 + 20, dir: -1,
       state: 'idle', stateT: U.rand(0.5, 2), anim: U.rand(0, 9), sq: 0,
-      hap: 58, stomach: 'empty', food: null, digestT: 0, digestTotal: 1, strain: 0,
+      hap: 58, stomach: 'empty', food: null, digestT: 0, digestTotal: 1, strain: 0, chew: 0, claim: null,
       traits: o.traits || makeTraits(), pets: [], grump: 0, gest: 0, mate: null,
     };
   }
@@ -207,6 +207,7 @@ const Grove = (() => {
   }
 
   function update(dt) {
+    updateFoods(dt);
     // weather: clouds crawl, leaves tear loose on a gust
     for (const c of clouds) { c.x += c.s * dt; if (c.x > W + 220) c.x = -c.w - 220; }
     const gu = World.gust(FX.cam.x);
@@ -268,10 +269,38 @@ const Grove = (() => {
         if (w.strain <= 0) leave(w);
       }
       w.stateT -= dt;
+      // an empty wombat claims the nearest bowl and heads for it
+      if (w.stomach === 'empty' && w.age !== 'baby' && w.state !== 'eat' && w.state !== 'sleep') {
+        const mine = w.claim ? foodById(w.claim) : null;
+        if (mine && mine.gone <= 0 && (!mine.taken || mine.taken === w.id)) {
+          mine.taken = w.id;
+          w.tx = mine.x; w.ty = mine.y; w.state = 'walk'; w.goal = 'eat';
+        } else {
+          w.claim = null;
+          let best = null, bd = 1e9;
+          for (const f of foods) {
+            if (f.gone > 0 || (f.taken && f.taken !== w.id)) continue;
+            const d2 = Math.hypot(f.x - w.x, f.y - w.y);
+            if (d2 < bd) { bd = d2; best = f; }
+          }
+          if (best) {
+            best.taken = w.id; w.claim = best.id;
+            w.tx = best.x; w.ty = best.y; w.state = 'walk'; w.goal = 'eat';
+            if (bd > 60) FX.comic(w.x, w.y - 34, U.pick(['SNIFF!', 'FOOD!', 'OOH!']), { ink: '#d8f0a0', edge: '#5d9440', life: 0.6 });
+          }
+        }
+      }
       if (w.state === 'walk') {
         const dx = w.tx - w.x, dy = w.ty - w.y, d = Math.hypot(dx, dy);
-        const sp = w.age === 'baby' ? 34 : w.age === 'juvenile' ? 30 : 25;
-        if (d < 3) { w.state = w.goal || 'idle'; w.stateT = U.rand(2, 4.5); w.goal = null; }
+        const sp = (w.age === 'baby' ? 34 : w.age === 'juvenile' ? 30 : 25) * (w.goal === 'eat' ? 1.9 : 1);
+        if (d < 3) {
+          if (w.goal === 'eat') {                       // it has arrived at the bowl
+            const f = foodById(w.claim);
+            w.claim = null; w.goal = null;
+            if (f && f.gone <= 0 && feed(w, f.key, true)) { f.gone = 0.001; f.taken = null; }
+            else { w.state = 'idle'; w.stateT = 1.2; }
+          } else { w.state = w.goal || 'idle'; w.stateT = U.rand(2, 4.5); w.goal = null; }
+        }
         else {
           w.x += (dx / d) * sp * dt; w.y += (dy / d) * sp * dt;
           w.dir = dx > 0 ? 1 : -1;
@@ -286,6 +315,11 @@ const Grove = (() => {
         else { w.state = 'idle'; w.stateT = U.rand(1.5, 3.5); if (U.chance(0.35)) w.dir = -w.dir; }
       }
       if (w.state === 'dig' && w.stateT <= 0 && w.stomach !== 'ready') { w.state = 'idle'; w.stateT = 1; }
+      if (w.chew > 0) {                                 // a chew wobble while it eats
+        w.chew -= dt;
+        w.sq = Math.sin(w.chew * 26) * 0.14;
+        if (Math.random() < dt * 7) FX.spawn(w.x + w.dir * 13, w.y - 8, 1, { color: [(CROP_BY_KEY[w.food] || CROPS[0]).color], speed: 34, gravity: 190, life: 0.4, size: 2 });
+      }
       if (w.state === 'graze') { if (Math.random() < dt * 0.4) w.hap = Math.min(cap, w.hap + 0.6); World.disturb(w.x + w.dir * 14, w.y, 12, 0.5); }
       w.sq = U.lerp(w.sq, 0, 1 - Math.pow(0.001, dt));
       const rm2 = roam(); w.x = U.clamp(w.x, rm2.x0, rm2.x1); w.y = U.clamp(w.y, WALK.y0, WALK.y1);
@@ -360,6 +394,60 @@ const Grove = (() => {
     checkArrival();
   }
 
+  // Put a pile down and step back: a hungry wombat will come to it. This is
+  // the whole feeding loop now — you never poke the animal directly.
+  function placeFood(x, y) {
+    const key = G.selFood;
+    if (!key || (G.food[key] || 0) <= 0) { Audio.play('error'); UI.toast('pick a food first', 'bad'); return true; }
+    if (y < WALK.y0 - 16 || y > WALK.y1 + 16) { Audio.play('error'); UI.toast('put it on the ground', 'bad'); return true; }
+    if (foods.length >= 6) { Audio.play('error'); UI.toast('too much on the ground', 'bad'); return true; }
+    G.food[key]--;
+    foods.push({ id: U.uid(), key, x, y, t: 0, taken: null, gone: 0 });
+    Audio.play('pluck');
+    FX.dust(x, y + 2, 6, PAL.soil3);
+    FX.comic(x, y - 26, 'HERE!', { ink: '#d8f0a0', edge: '#5d9440', life: 0.5 });
+    UI.refreshTray();
+    return true;
+  }
+  const foodById = (id) => foods.find((f) => f.id === id) || null;
+  function updateFoods(dt) {
+    for (let i = foods.length - 1; i >= 0; i--) {
+      const f = foods[i];
+      f.t += dt;
+      if (f.gone > 0) { f.gone += dt; if (f.gone > 0.5) foods.splice(i, 1); continue; }
+      if (f.taken && !G.wombats.some((w) => w.id === f.taken)) f.taken = null;   // its wombat wandered off
+    }
+  }
+  function drawFood(g, f) {
+    const def = CROP_BY_KEY[f.key] || CROPS[0];
+    const k = f.gone > 0 ? 1 - f.gone / 0.5 : 1;
+    const bob = Math.sin(f.t * 3) * 1.2;
+    g.save();
+    g.globalAlpha = k;
+    g.fillStyle = 'rgba(18,14,20,0.34)'; Art.ell(g, f.x, f.y + 1, 13, 4);
+    // a wooden bowl with the crop heaped in it
+    Art.ell(g, f.x, f.y - 2 + bob, 13, 6.6, '#0a0810');
+    Art.ell(g, f.x, f.y - 3 + bob, 11.6, 5.8, PAL.bark2);
+    Art.ell(g, f.x, f.y - 4.4 + bob, 9.6, 4.6, PAL.bark1);
+    Art.ellBand(g, f.x, f.y - 3 + bob, 11.6, 6.4, PAL.bark3, 0.56, 0.94);
+    for (let i = 0; i < 7; i++) {
+      const a = (i / 7) * TAU + f.t * 0.4;
+      Art.ell(g, f.x + Math.cos(a) * 5, f.y - 7 + bob + Math.sin(a) * 2, 3.4, 2.8, def.color);
+      Art.ell(g, f.x + Math.cos(a) * 5 - 0.9, f.y - 7.8 + bob + Math.sin(a) * 2, 1.6, 1.2, U.shade(def.color, 0.35));
+    }
+    Art.ell(g, f.x, f.y - 9 + bob, 4.4, 3.4, def.color);
+    Art.ell(g, f.x - 1.2, f.y - 10 + bob, 2, 1.5, U.shade(def.color, 0.4));
+    Icons.blit(g, def.icon, f.x - 8, f.y - 30 + bob * 1.6, 1);
+    // a smell, curling upward, so you can find it in the weeds
+    for (let i = 0; i < 3; i++) {
+      const sy = f.y - 12 - ((f.t * 14 + i * 9) % 20);
+      const a2 = 0.35 * (1 - ((f.t * 14 + i * 9) % 20) / 20);
+      g.fillStyle = `rgba(214,236,150,${(a2 * k).toFixed(2)})`;
+      g.fillRect(Math.round(f.x + Math.sin(f.t * 3 + i) * 4), Math.round(sy), 2, 2);
+    }
+    g.restore();
+  }
+
   function feed(w, key, auto) {
     const def = CROP_BY_KEY[key];
     if (!def || (G.food[key] || 0) <= 0) { if (!auto) Audio.play('error'); return false; }
@@ -368,7 +456,7 @@ const Grove = (() => {
     w.stomach = 'digesting'; w.food = key;
     w.digestTotal = def.grow * 0.55 + 12; w.digestT = w.digestTotal;
     w.hap = Math.min(hapCap(), w.hap + def.hap);
-    w.state = 'eat'; w.stateT = 1.6; w.sq = 0.2;
+    w.state = 'eat'; w.stateT = 1.9; w.sq = 0.32; w.chew = 1.9;
     G.stats.fed++;
     Audio.play('munch');
     FX.comic(w.x, w.y - 38, U.pick(['NOM!', 'CHOMP!', 'MUNCH!']), { ink: '#f5cd5c', edge: '#a97c1e', life: 0.7 });
@@ -406,6 +494,8 @@ const Grove = (() => {
     G.stats.left += n;
     Audio.play('plop'); FX.shake(1.6);
     FX.dust(w.x - w.dir * 14, w.y + 2, 8, PAL.soil3);
+    FX.comic(w.x - w.dir * 18, w.y - 30, U.pick(['PLOP!', 'THUD!', 'CLONK!']), { ink: '#d8b285', edge: '#7d5f42', life: 0.7 });
+    FX.float(w.x - w.dir * 18, w.y - 44, n > 1 ? `x${n}` : '+1', { color: '#d8b285', size: 8 });
   }
   function loadIntoTruck(d) {
     const i = drops.indexOf(d);
@@ -415,7 +505,8 @@ const Grove = (() => {
     G.stats.gathered++;
     Audio.play('pop');
     FX.burst(TRUCK.x - 20, TRUCK.y - 26, 8, { color: [OFFERINGS[d.type].color, PAL.cream], speed: 70, gravity: 120, life: 0.4, size: 2 });
-    FX.float(TRUCK.x - 20, TRUCK.y - 40, '+1', { color: PAL.gold4, size: 8 });
+    FX.float(TRUCK.x - 20, TRUCK.y - 44, '+1', { color: PAL.gold4, size: 8 });
+    FX.comic(TRUCK.x, TRUCK.y - 58, U.pick(['LOADED!', 'CLUNK!', 'IN!']), { ink: '#a8d0e0', edge: '#33495c', life: 0.6 });
     UI.refreshHUD();
   }
   // A handful of coins tossed from wherever the cultist is standing.
@@ -471,7 +562,7 @@ const Grove = (() => {
     return best;
   }
   function spotAt(x, y) {
-    if (x > TRUCK.x - 50 && x < TRUCK.x + 46 && y > TRUCK.y - 48 && y < TRUCK.y + 8) return 'truck';
+    if (x > TRUCK.x - 58 && x < TRUCK.x + 58 && y > TRUCK.y - 58 && y < TRUCK.y + 8) return 'truck';
     return null;
   }
 
@@ -485,12 +576,13 @@ const Grove = (() => {
     // unless a weed is standing in front of them, in which case you meant the weed
     if (first && !World.weeds.some((w) => Math.abs(w.x - x) < 16 && Math.abs(w.y - y) < 14)) {
       if (spotAt(x, y) === 'truck' && !dragging) { Main.setMode('map'); return true; }
-      const sp = signAt(x, y);
-      if (sp) return buyPlot(sp);
     }
-    // nothing works on land you have not bought
-    if (!inOwned(G, x) && tool !== 'drag') {
-      if (first) { Audio.play('error'); const p = plotAt(x); UI.toast(p ? `buy <b>${p.name}</b> first` : 'not your land', 'bad'); }
+    // the fenced land is the button: click it to buy it
+    if (!inOwned(G, x)) {
+      if (!first) return true;
+      const p = plotAt(x);
+      if (p && plotSign(G, p)) return buyPlot(p);
+      Audio.play('error'); UI.toast('too far out', 'bad');
       return true;
     }
     if (tool === 'drag') {
@@ -505,8 +597,8 @@ const Grove = (() => {
     if (tool === 'food') {
       if (!first) return true;
       const w = wombatAt(x, y);
-      if (w) { if (G.selFood && (G.food[G.selFood] || 0) > 0) feed(w, G.selFood, false); else pet(w); return true; }
-      return false;
+      if (w && (!G.selFood || (G.food[G.selFood] || 0) <= 0)) { pet(w); return true; }
+      return placeFood(x, y);
     }
     if (tool === 'destroy') {
       if (!first) return true;
@@ -571,9 +663,10 @@ const Grove = (() => {
     hoverW = (G.tool === 'drag' || G.tool === 'food' || G.tool === 'pair') ? wombatAt(x, y) : null;
     hoverSpot = spotAt(x, y);
     hoverObj = G.tool === 'destroy' ? objAt(x, y) : null;
-    const sg = signAt(x, y);
-    hoverSign = sg ? sg.key : null;
-    if (sg) return `<b>${sg.name}</b><br>${sg.cost} W$ &middot; more room, more wombats`;
+    const pl = y > GROUND ? plotAt(x) : null;
+    const buyable = pl && !ownsPlot(G, pl.key) && plotSign(G, pl) ? pl : null;
+    hoverPlot = buyable ? buyable.key : null;
+    if (buyable) return `<b>${buyable.name}</b><br>${buyable.cost} W$ &middot; more room, more wombats`;
     if (hoverObj) return `<b>${hoverObj.kind === 'fallen' ? 'Fallen tree' : hoverObj.kind === 'ruin' ? 'Ruin' : 'Stump'}</b><br>${demolishCost(hoverObj)} W$ to have it carried off`;
     if (hoverW) {
       const w = hoverW;
@@ -710,12 +803,13 @@ const Grove = (() => {
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
     items.push({ y: Guide.cult.y, fn: () => Guide.draw(g) });
     if (arrival) items.push({ y: arrival.y, fn: () => { Sprites.shadow(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); } });
+    for (const f of foods) items.push({ y: f.y, fn: () => drawFood(g, f) });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
     if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
-    drawPlotSigns(g);
+    drawPlotPrompt(g, L, R);
 
     // crows
     for (const b of birds) {
@@ -816,15 +910,7 @@ const Grove = (() => {
       if (at) fenceLine(g, at);
     }
   }
-  // The boards read over everything: they are the offer, not scenery.
-  function drawPlotSigns(g) {
-    signRects.length = 0;
-    for (const p of PLOTS) {
-      if (ownsPlot(G, p.key)) continue;
-      const sign = plotSign(G, p);
-      if (sign) buySign(g, p, sign);
-    }
-  }
+
   // A palisade: close-set pointed stakes lashed with two cords. In this
   // projection a rail fence would read as a row of sticks, so the stakes carry
   // the line instead, and the lashings tie them into one wall.
@@ -870,46 +956,34 @@ const Grove = (() => {
       Font.draw(g, 'OUT', sx, sy + 15, { scale: 2, color: '#8a2f24', align: 'center' });
     }
   }
-  const signRects = [];
-  function buySign(g, p, sign) {
-    const x = Math.round(sign.x), y = 318;
-    const can = G.wd >= p.cost;
-    const hot = hoverSign === p.key;
-    const bob = hot ? Math.round(Math.sin(G.time * 6) * 1.5) : 0;
-    const BW = 152, BH = 92, by = y - 126 + bob;
-    signRects.push({ key: p.key, x: x - BW / 2, y: by, w: BW, h: BH });
-    g.fillStyle = 'rgba(10,8,16,0.4)'; Art.ell(g, x, y + 2, 18, 5);
-    g.fillStyle = '#0a0810'; g.fillRect(x - 4, y - 34, 8, 36);       // the stake
-    g.fillStyle = PAL.bark2; g.fillRect(x - 3, y - 33, 6, 34);
-    g.fillStyle = PAL.bark3; g.fillRect(x - 3, y - 33, 2, 34);
-    g.fillStyle = 'rgba(10,8,16,0.4)';                               // the board's own shadow
-    g.fillRect(x - BW / 2 + 3, by + 4, BW, BH);
-    g.fillStyle = '#0a0810'; g.fillRect(x - BW / 2, by, BW, BH);
-    g.fillStyle = PAL.bark1; g.fillRect(x - BW / 2 + 2, by + 2, BW - 4, BH - 4);
-    Tex.fill(g, 'wood', x - BW / 2 + 2, by + 2, BW - 4, BH - 4, 0.55);
-    g.fillStyle = 'rgba(255,232,180,0.18)'; g.fillRect(x - BW / 2 + 2, by + 2, BW - 4, 2);
-    g.fillStyle = 'rgba(0,0,0,0.34)'; g.fillRect(x - BW / 2 + 2, by + BH - 6, BW - 4, 4);
-    for (const nx of [x - BW / 2 + 7, x + BW / 2 - 8]) {             // two nails
-      g.fillStyle = '#2a2230'; g.fillRect(nx - 1, by + 5, 3, 3);
-      g.fillStyle = '#8f8a98'; g.fillRect(nx - 1, by + 5, 2, 2);
+  // No board any more: the fenced land IS the button. Hovering it lifts the
+  // haze and prints the price where you are pointing.
+  function drawPlotPrompt(g, L, R) {
+    for (const p of PLOTS) {
+      if (ownsPlot(G, p.key) || !plotSign(G, p)) continue;
+      const hot = hoverPlot === p.key;
+      const v0 = Math.max(L + 80, p.x0 + 16), v1 = Math.min(R - 80, p.x1 - 16);
+      if (v1 <= v0) continue;                          // barely on screen: say nothing
+      const cx = (v0 + v1) / 2;
+      const can = G.wd >= p.cost;
+      const bob = Math.sin(G.time * 2.4 + p.x0) * 2;
+      const y = 244 + bob;
+      if (hot) {                                       // a warm wash over the land you are buying
+        g.fillStyle = 'rgba(245,205,92,0.07)';
+        g.fillRect(Math.max(L, p.x0), SKY - 20, Math.min(R, p.x1) - Math.max(L, p.x0), H - SKY + 40);
+      }
+      Font.draw(g, p.name.toUpperCase(), cx, y - 18, {
+        scale: 2, color: hot ? '#ffe9a8' : 'rgba(226,206,168,0.72)', align: 'center', shadow: '#120a06', shadowDist: 2,
+      });
+      const label = can ? `${p.cost} W$` : `${p.cost} W$`;
+      Font.draw(g, label, cx, y + 2, {
+        scale: 2, color: can ? '#f5cd5c' : '#e0756a',
+        align: 'center', shadow: '#120a06', shadowDist: 2,
+      });
+      Font.draw(g, can ? (hot ? 'CLICK THE LAND TO BUY IT' : 'FOR SALE') : 'NOT ENOUGH', cx, y + 20, {
+        scale: 1, color: !can ? '#c9605a' : hot ? '#c9e88a' : 'rgba(190,176,150,0.7)', align: 'center', shadow: '#120a06',
+      });
     }
-    g.fillStyle = '#8f3a10'; g.fillRect(x - BW / 2 + 5, by + 5, BW - 10, 18);
-    g.fillStyle = '#c9581f'; g.fillRect(x - BW / 2 + 5, by + 5, BW - 10, 15);
-    Font.draw(g, 'FOR SALE', x, by + 7, { scale: 2, color: '#fff2d8', align: 'center', shadow: '#5c2008' });
-    g.fillStyle = 'rgba(30,17,9,0.62)'; g.fillRect(x - BW / 2 + 7, by + 26, BW - 14, 20);
-    Font.draw(g, p.name.toUpperCase(), x, by + 29, { scale: 2, color: '#fdf3dc', align: 'center', shadow: '#170d06' });
-    const cw = Font.width(String(p.cost), 3);
-    Icons.blit(g, 'coin', x - cw / 2 - 21, by + 62, 1.2);
-    Font.draw(g, String(p.cost), x + 10, by + 61, { scale: 3, color: can ? '#f5cd5c' : '#c9605a', align: 'center', shadow: '#170d06' });
-    if (hot) {
-      g.strokeStyle = can ? '#f5cd5c' : '#c9605a'; g.lineWidth = 1;
-      g.strokeRect(x - BW / 2 + 1.5, by + 1.5, BW - 3, BH - 3);
-      Font.draw(g, can ? 'CLICK TO BUY' : 'NOT ENOUGH', x, by - 18, { scale: 2, color: can ? '#c9e88a' : '#c9605a', align: 'center', shadow: '#170d06' });
-    }
-  }
-  function signAt(x, y) {
-    for (const r of signRects) if (x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h) return PLOT_BY_KEY[r.key];
-    return null;
   }
   function buyPlot(p) {
     if (ownsPlot(G, p.key)) return false;
@@ -985,22 +1059,24 @@ const Grove = (() => {
     Art.castShadow(g, fl, a.x, a.y, img.width, img.height, { alpha: 0.26, lean: 0.6, squash: 0.24, anchor: 0.5 });
     g.drawImage(fl, Math.round(a.x - 10), Math.round(a.y - 16 - lift));
   }
+  const TRUCK_S = 0.78;                      // the Fortuner, sized for the grove
   function drawTruck(g) {
     const img = Props.get('truck');
-    g.fillStyle = 'rgba(18,14,20,0.3)'; Art.ell(g, TRUCK.x, TRUCK.y + 4, 46, 8);
-    g.drawImage(img, Math.round(TRUCK.x - img.width / 2), Math.round(TRUCK.y - img.height + 6));
-    // load already collected, stacked in the bed
+    const w = Math.round(img.width * TRUCK_S), h = Math.round(img.height * TRUCK_S);
+    Art.castShadow(g, img, TRUCK.x, TRUCK.y + 3, w, h, { alpha: 0.32, lean: 0.34, squash: 0.16 });
+    g.drawImage(img, Math.round(TRUCK.x - w / 2), Math.round(TRUCK.y - h + 6), w, h);
+    // load already collected, stacked in the tray at the back
     const n = Math.min(6, OFFER_ORDER.reduce((s, k) => s + (G.offerings[k] || 0), 0));
     for (let i = 0; i < n; i++) {
-      const bx = TRUCK.x - 36 + (i % 3) * 13, by = TRUCK.y - 26 - Math.floor(i / 3) * 11;
+      const bx = TRUCK.x + 24 + (i % 2) * 12, by = TRUCK.y - 26 - Math.floor(i / 2) * 10;
       g.save(); g.translate(bx, by);
-      Sprites.drawCube(g, OFFERINGS.plain, 11, 11, {});
+      Sprites.drawCube(g, OFFERINGS.plain, 10, 10, {});
       g.restore();
     }
     if (TRUCK.parked) {
       const p = 0.5 + 0.5 * Math.sin(G.time * 3);
       g.strokeStyle = `rgba(245,205,92,${0.3 + p * 0.3})`; g.lineWidth = 1; g.setLineDash([4, 4]);
-      g.strokeRect(TRUCK.x - 48, TRUCK.y - 44, 92, 50);
+      g.strokeRect(TRUCK.x - 56, TRUCK.y - 56, 112, 62);
       g.setLineDash([]);
     }
   }

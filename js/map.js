@@ -11,9 +11,10 @@ const Atlas = (() => {
   // of buildings in between. Pixel art, but the same language.
   // Seen from above: canopy, clearings cut into it, dirt tracks between them,
   // and a creek running through. No streets out here.
-  const CAN0 = '#16301c', CAN1 = '#1e4023', CAN2 = '#2a5a2e', CAN3 = '#3a7a3c', CAN4 = '#58a04e';
-  const GRASS = '#7fae58', GRASS2 = '#6d9a49', DIRT = '#b9905c', DIRT2 = '#946d3f', DIRT3 = '#d8b285';
-  const WATER = '#4d90b8', WATER2 = '#78b6d8', ROCK = '#7b7468', MINK = '#2a3a24';
+  const CAN0 = '#080f0c', CAN1 = '#0e1a12', CAN2 = '#15281a', CAN3 = '#1e3a23', CAN4 = '#2c5230';
+  const GRASS = '#33502f', GRASS2 = '#28422a', DIRT = '#6b5338', DIRT2 = '#4c3a26', DIRT3 = '#8a6c48';
+  const WATER = '#1e4a66', WATER2 = '#37708f', ROCK = '#3d3a38', MINK = '#111c14';
+  const BONE = '#b8b0a0', BONE2 = '#7d766a';
 
   function sheetOf() {
     if (sheet) return sheet;
@@ -64,20 +65,46 @@ const Atlas = (() => {
       else if (r() < 0.5) { g.fillStyle = '#5d4430'; g.fillRect(x - 9, y, 18, 5); g.fillStyle = '#7d5f42'; g.fillRect(x - 9, y, 18, 2); }
       else for (let f = -2; f <= 2; f++) Art.limb(g, x, y + 3, x + f * 5, y - 4, 2, 1, f % 2 ? '#3f7a2c' : '#58a04e');
     }
-    // ---- a few place names, stencilled into the canopy ---------------------
+    // ---- things you would rather not have found ---------------------------
+    for (let i = 0; i < 26; i++) {
+      const x = r() * VW, y = r() * VH;
+      let near = 1e9;
+      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
+      if (near < 40 || near > 120) continue;
+      if (r() < 0.45) {                                   // a ribcage in the leaf litter
+        Art.ell(g, x, y, 7, 4, '#10140f');
+        for (let k = -3; k <= 3; k++) {
+          g.fillStyle = k % 2 ? BONE2 : BONE;
+          g.fillRect(Math.round(x + k * 2), Math.round(y - 3 + Math.abs(k) * 0.5), 1, 6 - Math.abs(k));
+        }
+        g.fillStyle = BONE; g.fillRect(Math.round(x - 8), Math.round(y - 1), 4, 3);
+      } else if (r() < 0.5) {                             // a burnt stump, still black
+        Art.ell(g, x, y + 2, 7, 3, '#060907');
+        Art.ell(g, x, y, 6, 4, '#171410');
+        Art.ell(g, x, y - 1, 4.6, 2.8, '#241d16');
+        for (let k = 0; k < 3; k++) g.fillStyle = '#0a0806', g.fillRect(Math.round(x - 3 + k * 3), Math.round(y - 6), 2, 6);
+      } else {                                            // a cairn someone stacked and left
+        for (let k = 0; k < 4; k++) Art.ell(g, x + (k % 2 ? 1 : -1), y - k * 3, 5 - k * 0.8, 2.4 - k * 0.3, k % 2 ? ROCK : '#4c4844');
+      }
+    }
+    // ---- a few place names, scratched into the canopy ---------------------
     for (const [lx, ly, tx2] of [[112, 62, 'FERN GULLY'], [300, 200, 'THE SCRUB'],
                                   [566, 292, 'BLACKWOOD'], [86, 316, 'STONE FLAT'], [470, 40, 'HIGH RIDGE']]) {
-      Font.draw(g, tx2, lx, ly, { scale: 1, color: '#9dbb84', align: 'center', shadow: 'rgba(8,16,8,0.9)' });
+      Font.draw(g, tx2, lx, ly, { scale: 1, color: '#5f7a52', align: 'center', shadow: 'rgba(4,8,4,0.95)' });
     }
     sheet = c;
     return c;
   }
 
+  const eyes = [], bats = [], drift = [];
   function init(g) {
     G = g;
-    fog.length = 0;
+    fog.length = 0; eyes.length = 0; bats.length = 0; drift.length = 0;
     const r = Art.rng(1717);
     for (let i = 0; i < 90; i++) fog.push({ x: r() * VW, y: r() * VH, r: 22 + r() * 34, ph: r() * TAU, sp: 0.1 + r() * 0.3 });
+    for (let i = 0; i < 22; i++) eyes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU, sp: 0.3 + r() * 0.6, on: 0 });
+    for (let i = 0; i < 7; i++) bats.push({ x: r() * VW, y: 20 + r() * (VH - 60), ph: r() * TAU, sp: 16 + r() * 24, amp: 12 + r() * 26 });
+    for (let i = 0; i < 40; i++) drift.push({ x: r() * VW, y: r() * VH, ph: r() * TAU, sp: 0.2 + r() * 0.5 });
   }
   function enter() { hover = null; travel = null; Audio.setMode('pen'); }
 
@@ -104,12 +131,12 @@ const Atlas = (() => {
     }
     for (let i = 1; i < n; i += 3) {                      // grit worn into the middle
       const p = pt(i / n);
-      g.fillStyle = '#d8b285'; g.fillRect(Math.round(p.x) + (i % 4 ? 0 : -1), Math.round(p.y) - 1, 1, 1);
+      g.fillStyle = DIRT3; g.fillRect(Math.round(p.x) + (i % 4 ? 0 : -1), Math.round(p.y) - 1, 1, 1);
     }
     for (let i = 0; i < 4; i++) {                         // boots, walking the track
       const k = ((i / 4) + t * 0.09) % 1;
       const p = pt(k);
-      g.fillStyle = 'rgba(62,42,22,0.6)';
+      g.fillStyle = 'rgba(26,18,10,0.7)';
       g.fillRect(Math.round(p.x) - 2, Math.round(p.y) - 1, 2, 3);
       g.fillRect(Math.round(p.x) + 1, Math.round(p.y) + 2, 2, 3);
     }
@@ -179,6 +206,53 @@ const Atlas = (() => {
       g.fillRect(x - f.r, y - f.r, f.r * 2, f.r * 2);
     }
     g.restore();
+
+    // ---- things moving in the dark ----------------------------------------
+    for (const e of eyes) {                      // pairs of eyes, out under the canopy
+      let lit = 1e9;
+      for (const s2 of SITES) if (unlocked(s2)) lit = Math.min(lit, Math.hypot(e.x - s2.x, e.y - s2.y));
+      if (lit < 54) { e.on *= 0.9; continue; }   // they keep clear of the places you know
+      e.on = Math.sin(t * e.sp + e.ph) > 0.93 ? 1 : e.on * 0.92;
+      if (e.on < 0.05) continue;
+      g.fillStyle = `rgba(226,176,96,${(e.on * 0.85).toFixed(2)})`;
+      g.fillRect(Math.round(e.x), Math.round(e.y), 2, 2);
+      g.fillRect(Math.round(e.x) + 4, Math.round(e.y), 2, 2);
+      g.fillStyle = `rgba(226,176,96,${(e.on * 0.2).toFixed(2)})`;
+      g.fillRect(Math.round(e.x) - 2, Math.round(e.y) - 2, 10, 6);
+    }
+    for (const b of bats) {                      // something crossing the canopy
+      const x = ((b.x + t * b.sp) % (VW + 40)) - 20;
+      const y = b.y + Math.sin(t * 2.2 + b.ph) * b.amp;
+      const flap = Math.sin(t * 16 + b.ph) * 2.4;
+      g.fillStyle = 'rgba(8,10,8,0.8)';
+      g.fillRect(Math.round(x), Math.round(y), 2, 2);
+      g.fillRect(Math.round(x) - 3, Math.round(y - flap), 3, 1);
+      g.fillRect(Math.round(x) + 2, Math.round(y - flap), 3, 1);
+    }
+    for (const d of drift) {                     // spores riding the cold air
+      const x = d.x + Math.sin(t * d.sp + d.ph) * 16;
+      const y = d.y - ((t * 7 * d.sp) % VH);
+      g.fillStyle = `rgba(150,176,150,${(0.12 + 0.16 * Math.sin(t * 2 + d.ph)).toFixed(2)})`;
+      g.fillRect(Math.round(x), Math.round((y + VH) % VH), 1, 1);
+    }
+    // ---- the grade: a cold wood, lit only where you have been -------------
+    g.save();
+    g.globalCompositeOperation = 'soft-light';
+    g.fillStyle = '#16346a'; g.globalAlpha = 0.5; g.fillRect(0, 0, VW, VH);
+    g.restore();
+    g.save();
+    g.globalCompositeOperation = 'screen';
+    for (const s2 of SITES) {
+      if (!unlocked(s2)) continue;
+      const wl = g.createRadialGradient(s2.x, s2.y, 4, s2.x, s2.y, 92);
+      wl.addColorStop(0, 'rgba(255,206,130,0.24)');
+      wl.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = wl; g.fillRect(s2.x - 96, s2.y - 96, 192, 192);
+    }
+    g.restore();
+    const vg = g.createRadialGradient(VW / 2, VH / 2, VH * 0.32, VW / 2, VH / 2, VH * 1.06);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(2,4,3,0.88)');
+    g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
 
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);

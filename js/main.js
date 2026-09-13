@@ -1,10 +1,8 @@
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
   const KEY = 'wombat-gods-v6';
-  const SLOTS = [1, 2, 3];
-  const slotKey = (n) => KEY + ':s' + n;
-  let saves = { 1: null, 2: null, 3: null };   // what each slot held at boot
-  let slot = 0;                                // 0 means we are at the title
+  let booted = null;                           // whatever the store held at boot
+  let playing = false;                         // false means we are at the title
   let settings = { muted: false, musicOff: false, shake: true, bigText: false };
   const W = 640, H = 360;
   let canvas, g, last = 0, G = null;
@@ -29,10 +27,10 @@ const Main = (() => {
       World.save();
       Grove.saveObjects();
       G.lastSave = Date.now();
-      if (!slot) return;
+      if (!playing) return;
       const body = Object.assign({}, G, { paused: false, pointer: undefined });
-      saves[slot] = body;                     // the title screen reads from this
-      Store.put(slotKey(slot), body);
+      booted = body;
+      Store.put(KEY, body);
     } catch (e) { }
   }
   function load(d) {
@@ -46,7 +44,7 @@ const Main = (() => {
       for (const bag of [s.offerings, s.blessed]) for (const k of Object.keys(bag)) if (!OFFERINGS[k]) delete bag[k];
       for (const bag of [s.seeds, s.food]) for (const k of Object.keys(bag)) if (!CROP_BY_KEY[k]) delete bag[k];
       for (const w of s.wombats) {
-        w.pets = []; w.state = 'idle'; w.stateT = 1; w.sq = 0; w.anim = U.rand(0, 9);
+        w.pets = []; w.state = 'idle'; w.stateT = 1; w.sq = 0; w.anim = U.rand(0, 9); w.chew = 0; w.claim = null;
         if (!w.traits) w.traits = { gut: 1, calm: 1, luck: 1 };
         if (!w.pelt || !FUR_BY_KEY[w.pelt]) w.pelt = 'brown';
         if (!w.age) w.age = 'adult';
@@ -68,10 +66,10 @@ const Main = (() => {
     setTimeout(() => UI.toast('the grove is dead', 'bad'), 1400);
     setTimeout(() => UI.toast('clear the list and one will come'), 6400);
   }
-  function reset() { if (slot) Store.clear(slotKey(slot)).then(() => location.reload(), () => location.reload()); }
+  function reset() { Store.clear(KEY).then(() => location.reload(), () => location.reload()); }
 
   // ---- the title screen ----------------------------------------------------
-  // Nothing is loaded until a slot is picked, so the menu can offer three.
+  // Nothing is loaded until you walk in, so the title can stand on its own.
   function applySettings() {
     G.muted = !!settings.muted; G.musicOff = !!settings.musicOff;
     Audio.setState(settings.muted, !settings.musicOff);
@@ -79,19 +77,19 @@ const Main = (() => {
     document.documentElement.classList.toggle('bigtext', !!settings.bigText);
   }
   function toMenu() {
-    if (slot) save();
-    slot = 0;
+    if (playing) save();
+    playing = false;
     G.mode = 'menu';
     UI.hideAll(); UI.closePanels(); UI.setMode('menu');
-    Menu.setSlots(saves); Menu.enter();
+    Menu.setSave(booted); Menu.enter();
   }
-  // The wood shuts, the slot is swapped behind it, and the wood opens again.
-  function startSlot(n) {
+  // You walk into the wood; the game is loaded while it is dark.
+  function startGame() {
     if (FX.curtaining) return;
     Audio.init(); Audio.resume();
     FX.trees(() => {
-      slot = n;
-      const fromSave = load(saves[n]);
+      playing = true;
+      const fromSave = load(booted);
       const g2 = fromSave || fresh();
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
@@ -112,18 +110,19 @@ const Main = (() => {
     }, () => { if (!G.seen && G.introDone) openingBeats(); });
   }
   function menuAction(a) {
-    if (a.play) { startSlot(a.play); return; }
+    if (a.play) { startGame(); return; }
     if (a.toggle) {
-      settings[a.toggle] = a.toggle === 'shake' || a.toggle === 'bigText' ? !settings[a.toggle] : !settings[a.toggle];
+      settings[a.toggle] = !settings[a.toggle];
       Store.putSettings(settings);
       applySettings();
       Audio.play('click');
       return;
     }
-    if (a.erase) { saves[a.erase] = null; Store.clear(slotKey(a.erase)); Menu.setSlots(saves); Audio.play('error'); return; }
-    if (a.eraseAll) {
-      for (const n of SLOTS) { saves[n] = null; Store.clear(slotKey(n)); }
-      Menu.setSlots(saves); Audio.play('error');
+    if (a.wipe) {
+      booted = null;
+      Store.clear(KEY);
+      Menu.setSave(null);
+      Audio.play('error');
     }
   }
 
@@ -351,15 +350,14 @@ const Main = (() => {
     resize();
     splash();
     Sprites.init();
-    saves = await Store.boot(SLOTS.map(slotKey));
-    saves = { 1: saves[slotKey(1)], 2: saves[slotKey(2)], 3: saves[slotKey(3)] };
+    booted = await Store.boot(KEY);
     settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false }, Store.settings());
     G = fresh();
     G.mode = 'menu';
     window.G = G;
     World.init(G);
     Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
-    Menu.init(settings, saves, menuAction);
+    Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();
     UI.setMode('menu');
@@ -370,5 +368,5 @@ const Main = (() => {
   }
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
-  return { save, reset, setMode, back, openingBeats, toMenu, startSlot, get slot() { return slot; }, get settings() { return settings; }, get G() { return G; } };
+  return { save, reset, setMode, back, openingBeats, toMenu, startGame, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
 })();

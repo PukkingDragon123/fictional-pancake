@@ -10,6 +10,7 @@ const Intro = (() => {
   let card = 0, off = 0, dragY = 0, dragging = false, from = 0;
   const hearts = [], pops = [];
   let skipT = 0, applyR = null, heartR = null;
+  let lastTap = 0, lastTapX = 0, lastTapY = 0;   // for the double-tap like
   let chatStep = 0, chatT = 0, replyR = null, linkR = null;
   let webT = 0, acceptR = null, popupOn = 2, closeR = null;   // two popups to get past
   let dodge = 0, dodgeX = 0;                                  // the close button runs once
@@ -75,6 +76,15 @@ const Intro = (() => {
     const c = CLIPS[card];
     if (c.job && hit(applyR, x, y, 6)) { Audio.play('cash'); comic(x, y, 14); phase = 'chat'; chatStep = 1; chatT = 0; linkR = null; return; }
     if (!c.job && heartR && x > heartR.x - 8 && x < heartR.x + 56 && y > heartR.y - 10 && y < heartR.y + 30) { like(); return; }
+    // double-tap anywhere on the clip to like it, the way a phone does
+    const now = performance.now();
+    const near = Math.abs(x - lastTapX) < 26 && Math.abs(y - lastTapY) < 26;
+    if (!c.job && now - lastTap < 340 && near && y > SY + 30 && y < SY + SH - 80) {
+      lastTap = 0;
+      like(x, y);
+      return;
+    }
+    lastTap = now; lastTapX = x; lastTapY = y;
     dragging = true; from = y;
   }
   function move(x, y) { if (dragging) dragY = y - from; }
@@ -87,13 +97,40 @@ const Intro = (() => {
     else off = dragY;
     dragY = 0;
   }
-  function like() {
+  function like(px, py) {
     const c = CLIPS[card];
-    if (c.liked) return;
+    const hx = px == null ? heartR.x + 8 : px, hy = py == null ? heartR.y + 4 : py;
+    if (c.liked) {                                     // already liked: still pop, just no count
+      burstT = 0.7; burstX = hx; burstY = hy;
+      for (let i = 0; i < 6; i++) hearts.push({ x: hx + U.rand(-6, 6), y: hy, vx: U.rand(-30, 30), vy: U.rand(-80, -40), t: 0 });
+      return;
+    }
     c.liked = true; c.likes++;
     Audio.play('pop');
-    for (let i = 0; i < 14; i++) hearts.push({ x: heartR.x + 8 + U.rand(-8, 8), y: heartR.y + 4, vx: U.rand(-46, 46), vy: U.rand(-104, -46), t: 0 });
-    comic(heartR.x + 8, heartR.y + 4, 8, '#ff6b86');
+    burstT = 0.7; burstX = hx; burstY = hy;
+    for (let i = 0; i < 14; i++) hearts.push({ x: hx + U.rand(-8, 8), y: hy, vx: U.rand(-46, 46), vy: U.rand(-104, -46), t: 0 });
+    comic(hx, hy, 8, '#ff6b86');
+  }
+  // the big heart a double-tap throws up over the clip
+  let burstT = 0, burstX = 0, burstY = 0;
+  function drawLikeBurst(g) {
+    if (burstT <= 0) return;
+    const k = 1 - burstT / 0.7;
+    const s = k < 0.3 ? U.lerp(0.3, 1.25, k / 0.3) : k < 0.45 ? U.lerp(1.25, 1, (k - 0.3) / 0.15) : 1;
+    const a = k > 0.6 ? 1 - (k - 0.6) / 0.4 : 1;
+    g.save();
+    g.globalAlpha = a;
+    g.translate(burstX, burstY - k * 14);
+    g.scale(s, s);
+    for (const [dx, dy, r, col] of [[0, 1, 0, '#7a1030'], [0, 0, 0, '#ff4d74'], [-3, -3, 0, '#ff8aa4']]) {
+      Art.ell(g, -6 + dx, -5 + dy, 7, 7, col);
+      Art.ell(g, 6 + dx, -5 + dy, 7, 7, col);
+      Art.poly(g, [[-12 + dx, -2 + dy], [12 + dx, -2 + dy], [0 + dx, 13 + dy]], col);
+      if (r === 0 && col === '#ff8aa4') break;
+    }
+    Art.ell(g, -5, -7, 3, 2.4, '#ffd0da');
+    g.restore();
+    g.globalAlpha = 1;
   }
   function next() {
     if (phase === 'plane') { phase = 'drive'; t = 0; }
@@ -103,6 +140,7 @@ const Intro = (() => {
   function skip() { finish(); }
 
   function update(dt) {
+    if (burstT > 0) burstT = Math.max(0, burstT - dt);
     t += dt; skipT += dt; chatT += dt; webT += dt;
     off = Math.abs(off) < 1 ? 0 : off * Math.pow(0.0008, dt);
     for (let i = hearts.length - 1; i >= 0; i--) {
@@ -345,7 +383,7 @@ const Intro = (() => {
       heartR = { x: hx, y: hy };
       drawHeart(g, hx, hy, c.liked ? '#e0405a' : '#2c2c3a', c.liked);
       Font.draw(g, fmt(c.likes), hx + 20, hy + 4, { scale: 1, color: c.liked ? '#ff8fa0' : '#9a97a8', align: 'left' });
-      Font.draw(g, 'TAP THE HEART', hx + 70, hy + 4, { scale: 1, color: '#55536a', align: 'left' });
+      Font.draw(g, 'DOUBLE TAP', x + w - 7, hy + 4, { scale: 1, color: '#55536a', align: 'right' });
       Font.wrap(c.cap, w - 14, 1).slice(0, 3).forEach((l, k) => Font.draw(g, l, x + 7, ay + 26 + k * 11, { scale: 1, color: '#cfccdc', align: 'left' }));
       Font.draw(g, 'SWIPE UP', x + w / 2, y + h - 16, { scale: 1, color: '#4a4860', align: 'center' });
     }
@@ -588,32 +626,9 @@ const Intro = (() => {
   }
 
   // ---- the drive: the truck, seen from the side ----------------------------
-  let truckC = null;
-  function truckImg() {
-    if (truckC) return truckC;
-    const { c, g } = Art.cv(120, 56);
-    // tray
-    Art.rect(g, 46, 20, 62, 22, '#4a6f8a'); Art.rect(g, 46, 20, 62, 4, '#6f97b0');
-    Art.rect(g, 46, 38, 62, 4, '#33495c');
-    for (let i = 0; i < 5; i++) Art.rect(g, 52 + i * 12, 22, 2, 18, '#3c5c74');
-    // cab
-    Art.poly(g, [[12, 42], [12, 22], [24, 10], [46, 10], [46, 42]], '#5a7f9a');
-    Art.poly(g, [[13, 23], [24, 12], [34, 12], [34, 23]], '#a8d0e0');
-    Art.poly(g, [[36, 12], [45, 12], [45, 23], [36, 23]], '#89b6cc');
-    Art.rect(g, 12, 22, 34, 2, '#7fa8c0');
-    Art.rect(g, 8, 30, 6, 12, '#5a7f9a'); Art.rect(g, 6, 32, 4, 5, '#f2cf62');   // headlight
-    Art.rect(g, 10, 40, 100, 5, '#2b3b4a');                                       // chassis
-    Art.rect(g, 34, 6, 4, 6, '#3a2a20');                                          // mirror
-    // wheels
-    for (const wx of [28, 88]) {
-      Art.ell(g, wx, 45, 11, 11, '#1c1620'); Art.ell(g, wx, 45, 7, 7, '#3b3542'); Art.ell(g, wx, 45, 3, 3, '#8b849c');
-    }
-    // a crate and a spade in the tray
-    Art.rect(g, 60, 8, 20, 14, '#8a6134'); Art.rect(g, 60, 8, 20, 3, '#a3763f');
-    Art.rect(g, 84, 4, 3, 20, '#7c5128'); Art.poly(g, [[80, 2], [91, 2], [88, 10], [83, 10]], '#8e97a8');
-    Art.outline(c, '#1c1008', 1);
-    truckC = c; return c;
-  }
+  // The same vehicle that is parked in your grove, facing the way it travels.
+  function truckImg() { return Art.flip(Props.get('truck')); }
+
   function drive(g) {
     const k = U.clamp(t / 5.6, 0, 1);
     const sp = t * 108;
@@ -627,27 +642,19 @@ const Intro = (() => {
     g.fillStyle = '#5b4a72'; g.fillRect(0, 220, VW, 70);
     g.fillStyle = '#4d3e62'; g.fillRect(0, 246, VW, 44);
     g.fillStyle = '#3f3352'; g.fillRect(0, 266, VW, 24);
-    // three ranks of Tasmanian gums, each at its own speed
-    const RANKS = [[0.22, 238, '#2f4a3a', '#3d6149', '#4d7a58', '#6b5a48', 58, 86],
-                   [0.5, 254, '#22382c', '#2e4d3a', '#3d6149', '#4e4136', 46, 70],
-                   [1.0, 272, '#16261e', '#1e3428', '#2a4634', '#382c22', 36, 56]];
-    for (const [rate, yy, col, lit, hi, bark, w, hh] of RANKS) {
-      for (let i = 0; i < 22; i++) {
-        const x = ((i * w * 1.6 - sp * rate) % (VW + 300) + VW + 300) % (VW + 300) - 150;
-        const h = hh + ((i * 37) % 30);
-        Art.limb(g, x, yy, x + 2, yy - h * 0.66, 9, 5, '#1a120c');     // trunk, outlined
-        Art.limb(g, x - 1, yy, x + 1, yy - h * 0.64, 6, 3, bark);
-        Art.limb(g, x - 2, yy - h * 0.1, x - 1, yy - h * 0.5, 2, 1, U.shade(bark, 0.3));
-        Art.limb(g, x, yy - h * 0.24, x - 13, yy - h * 0.58, 4, 2, '#1a120c');
-        Art.limb(g, x, yy - h * 0.34, x + 14, yy - h * 0.62, 4, 2, '#1a120c');
-        Art.ell(g, x + 2, yy - h * 0.78, w * 0.5, h * 0.43, '#12190f');  // crown rim
-        Art.ell(g, x + 2, yy - h * 0.78, w * 0.46, h * 0.4, col);
-        Art.ell(g, x + 11, yy - h * 0.7, w * 0.26, h * 0.22, U.shade(col, -0.2));
-        Art.ell(g, x - 6, yy - h * 0.88, w * 0.3, h * 0.26, lit);
-        Art.ell(g, x - 10, yy - h * 0.95, w * 0.16, h * 0.13, hi);
-        if (i % 3 === 0) { g.fillStyle = bark; g.fillRect(Math.round(x + 3), Math.round(yy - h * 0.45), 2, 12); }
+    // three ranks of the grove's own trees, each at its own speed
+    const RANKS = [[0.22, 252, 0.8, 0.3], [0.5, 272, 1.1, 0.5], [1.0, 296, 1.5, 0.7]];
+    RANKS.forEach(([rate, yy, sc, sh], ri) => {
+      const n = 9 + ri * 3;
+      for (let i = 0; i < n; i++) {
+        const span = VW + 340;
+        const x = ((i * (span / n) - sp * rate) % span + span) % span - 170;
+        const kind = ['gnarl', 'oak', 'pine', 'birch'][(i + ri) % 4];
+        const img = Props.get('tree', `${kind}|${(i * 3 + ri) % 6}|${sh.toFixed(2)}`);
+        const w = img.width * sc, h = img.height * sc;
+        g.drawImage(img, Math.round(x - w / 2), Math.round(yy - h), Math.round(w), Math.round(h));
       }
-    }
+    });
     // ferns along the verge
     for (let i = 0; i < 26; i++) {
       const x = ((i * 46 - sp * 1.5) % (VW + 100) + VW + 100) % (VW + 100) - 50;
@@ -677,15 +684,28 @@ const Intro = (() => {
       Font.draw(g, '5 km', sx + 34, 222, { scale: 1, color: '#bfe8c6', align: 'center' });
     }
     // the truck itself, bouncing down the road
-    const tx = 160 + Math.sin(t * 0.8) * 22, ty = 300 + Math.abs(Math.sin(t * 9)) * 3;
-    const tw = 240, th = 112;
-    Art.castShadow(g, truckImg(), tx, ty + 12, tw, th, { alpha: 0.3, lean: 0.35, squash: 0.16 });
-    g.drawImage(truckImg(), Math.round(tx - tw / 2), Math.round(ty - th + 12), tw, th);
-    // dust and speed lines behind it
+    const img = truckImg();
+    const tw = img.width * 1.5, th = img.height * 1.5;
+    const tx = 210 + Math.sin(t * 0.8) * 20, ty = 316 + Math.abs(Math.sin(t * 9)) * 3;
+    // exhaust, coughing out of the back of it
+    for (let i = 0; i < 12; i++) {
+      const k = ((t * 1.6 + i * 0.14) % 1);
+      const px = tx - tw / 2 - 6 - k * 90;
+      const py = ty - 10 - k * 22 + Math.sin(k * 7 + i) * 4;
+      const a = (1 - k) * 0.4;
+      if (a < 0.02) continue;
+      g.fillStyle = `rgba(150,146,140,${a.toFixed(2)})`;
+      Art.ell(g, px, py, 4 + k * 16, 3 + k * 12, g.fillStyle);
+      g.fillStyle = `rgba(196,192,186,${(a * 0.5).toFixed(2)})`;
+      Art.ell(g, px - 2, py - 2, 2 + k * 8, 1.6 + k * 6, g.fillStyle);
+    }
+    Art.castShadow(g, img, tx, ty + 10, tw, th, { alpha: 0.34, lean: 0.3, squash: 0.14 });
+    g.drawImage(img, Math.round(tx - tw / 2), Math.round(ty - th + 12), Math.round(tw), Math.round(th));
+    // dust kicked off the back wheels
     for (let i = 0; i < 9; i++) {
-      const dx = tx - tw / 2 - i * 15 - (t * 60) % 15, a = (1 - i / 9) * 0.4;
+      const dx = tx - tw / 2 - i * 14 - (t * 60) % 14, a = (1 - i / 9) * 0.38;
       g.fillStyle = `rgba(196,170,130,${a.toFixed(2)})`;
-      Art.ell(g, dx, ty + 4 - (i % 3) * 4, 9 + i, 5 + i * 0.6, g.fillStyle);
+      Art.ell(g, dx, ty + 6 - (i % 3) * 4, 8 + i, 4 + i * 0.6, g.fillStyle);
     }
     // a blurred verge tearing past the bottom of frame
     for (let i = 0; i < 18; i++) {
@@ -723,6 +743,7 @@ const Intro = (() => {
         if (card + 1 < CLIPS.length) feedCard(g, card + 1, o + 300);
         if (card > 0) feedCard(g, card - 1, o - 300);
         for (const h of hearts) { g.globalAlpha = 1 - h.t / 1.1; drawHeart(g, h.x, h.y, '#ff6b86', false); g.globalAlpha = 1; }
+        drawLikeBurst(g);
       } else if (phase === 'chat') chat(g);
       else web(g);
       g.restore();

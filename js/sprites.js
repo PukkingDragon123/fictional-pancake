@@ -415,21 +415,25 @@ const Sprites = (() => {
       Art.ell(g, CX, headTop + 11, 6.4, 6.4, R1);
       Art.rect(g, CX - 3.4, headTop + 7, 7, 1.2, R3);
     } else {
-      Art.ell(g, hx, faceY + 1, 4.2, 5.2, VOID);                 // the shadow inside the hood
-      Art.ellBand(g, hx, faceY + 1, 4.9, 5.9, R0, 0, 1);         // the hood's rolled edge
-      Art.ellBand(g, hx, faceY + 1, 5.4, 6.4, R3, 0, 1);
-      Art.ell(g, hx, faceY + 1, 4.2, 5.2, VOID);
+      Art.ell(g, hx, faceY + 1.2, 4.8, 5.6, VOID);               // the shadow inside the hood
+      Art.ellBand(g, hx, faceY + 1.2, 5.5, 6.4, R0, 0, 1);       // the hood's rolled edge
+      Art.ellBand(g, hx, faceY + 1.2, 6, 6.9, R3, 0, 1);
+      Art.ell(g, hx, faceY + 1.2, 4.8, 5.6, VOID);
       // the hoodie's own snout and nose, sitting above the face opening
       Art.ell(g, hx, headTop + 3.4, 3, 2.2, R1);
       Art.ell(g, hx, headTop + 3.2, 2.5, 1.7, R3);
       Art.ell(g, hx - 0.6, headTop + 2.8, 1.1, 0.8, R4);
       Art.ell(g, hx, headTop + 4.2, 1.4, 0.9, SNOUT);            // the nose
-      // a human face, mostly in shadow: cheek, nose, jaw, mouth
-      Art.ell(g, hx, faceY + 3, 3, 3, SK0);
-      Art.ell(g, hx - 0.4, faceY + 3.1, 2.5, 2.6, SK1);
-      Art.ell(g, hx - 0.9, faceY + 2.8, 1.5, 1.5, SK2);
-      Art.rect(g, hx - 0.5, faceY + 1.9, 1.2, 1.7, SK2);         // the bridge of the nose
-      Art.rect(g, hx - 1, faceY + 4.1, 2.4, 0.8, SK0);           // the mouth
+      // a full, round face: wide cheeks, a soft chin, a small nose
+      Art.ell(g, hx, faceY + 3.2, 3.8, 3.5, SK0);
+      Art.ell(g, hx - 0.3, faceY + 3.2, 3.3, 3.1, SK1);
+      Art.ell(g, hx - 1.5, faceY + 3, 1.6, 1.6, SK2);            // the near cheek, lit
+      Art.ell(g, hx + 1.7, faceY + 3.3, 1.3, 1.4, SK1);          // the far cheek
+      Art.ell(g, hx, faceY + 5.2, 2.4, 1.3, SK1);                // a soft second chin
+      Art.ell(g, hx - 0.4, faceY + 5, 1.6, 0.9, SK2);
+      Art.rect(g, hx - 0.4, faceY + 2.2, 1.1, 1.5, SK2);         // the bridge of the nose
+      Art.ell(g, hx, faceY + 3.7, 0.9, 0.7, SK0);                // the tip of it
+      Art.rect(g, hx - 1.2, faceY + 4.4, 2.8, 0.8, SK0);         // the mouth
       const ey = faceY + (hurt > 0 ? -0.4 : 0.4);
       if (pose === 'hurt') { Art.rect(g, hx - 3.4, ey, 2.6, 1.2, GOLD2); Art.rect(g, hx + 1, ey, 2.6, 1.2, GOLD2); }
       else {

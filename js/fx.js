@@ -29,71 +29,90 @@ const FX = (() => {
   function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
   function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
-  // ---- the tree curtain ----------------------------------------------------
-  // Two walls of black trunks sweep in from the edges, meet, and sweep out
-  // again. Whatever changes underneath happens while the wood is closed.
+  // ---- walking into the wood -----------------------------------------------
+  // A first-person push through dark trees: trunks rush out of the middle of
+  // frame and past the camera while the step-bob rocks the view and the light
+  // goes out. The swap happens at the darkest point, then it thins out again.
   let curtain = null;
-  const CTREES = [];
+  const WALKERS = [];
   {
     const r = Art.rng(7734);
-    for (let i = 0; i < 14; i++) {
-      CTREES.push({ w: 26 + r() * 34, lean: (r() - 0.5) * 0.3, y: r() * 40, sway: r() * TAU,
-                    br: Array.from({ length: 5 }, () => [0.3 + r() * 0.5, r() < 0.5 ? -1 : 1, 18 + r() * 26]) });
+    for (let i = 0; i < 34; i++) {
+      WALKERS.push({
+        a: r() * TAU,                       // where it sits around the camera
+        rad: 0.16 + r() * 0.9,              // how far off the centre line
+        z: r(),                             // where it starts along the path
+        w: 0.5 + r() * 1.1,
+        lean: (r() - 0.5) * 0.5,
+        kind: r() < 0.35 ? 'fern' : 'tree',
+        br: Array.from({ length: 4 }, () => [0.25 + r() * 0.6, r() < 0.5 ? -1 : 1, 0.18 + r() * 0.3]),
+      });
     }
   }
   function trees(onShut, onDone) {
-    curtain = { t: 0, shut: 0.72, open: 1.28, fired: false, done: false, onShut, onDone };
+    curtain = { t: 0, shut: 0.9, open: 1.14, fired: false, onShut, onDone };
   }
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
-    const k = c.t <= c.shut ? U.easeInOut(c.t / c.shut)
-      : 1 - U.easeInOut(U.clamp((c.t - c.open) / c.shut, 0, 1));
-    if (k <= 0.001) return;
-    if (k > 0.9) { g.fillStyle = `rgba(6,8,6,${(((k - 0.9) / 0.1) * 0.8).toFixed(2)})`; g.fillRect(0, 0, W, H); }
-    const half = W / 2;
-    for (const s of [-1, 1]) {
-      // Each side is a rank of trunks that rests across its own half when the
-      // curtain is shut and sits entirely off its own edge when it is open.
-      for (let i = 0; i < CTREES.length; i++) {
-        const tr = CTREES[i];
-        const lane = (i / (CTREES.length - 1)) * (half + 50) - 30;
-        const rest = s < 0 ? lane : W - lane;
-        const start = rest + s * -(half + 190);
-        const x = U.lerp(start, rest, k);
-        if (x < -180 || x > W + 180) continue;
-        const sway = Math.sin(c.t * 3 + tr.sway) * 4 * (1 - k);
-        const depth = i / (CTREES.length - 1);              // 0 at the edge, 1 at the seam
-        const v = Math.round(18 + depth * 30);
-        const col = `rgb(${v},${v + 9},${v - 2})`;
-        const rim = `rgb(${v + 34},${v + 52},${v + 22})`;
-        const lean = tr.lean * H;
-        const bx0 = x + sway, bx1 = x + lean + sway;
-        Art.limb(g, bx0, H + 30 + tr.y, bx1, -40, tr.w, tr.w * 0.34, '#050705');
-        Art.limb(g, bx0, H + 30 + tr.y, bx1, -40, tr.w - 2, tr.w * 0.3, col);
-        Art.limb(g, bx0 - s * (tr.w * 0.34), H + 30 + tr.y, bx1 - s * (tr.w * 0.28), -40, tr.w * 0.2, 1.4, rim);
+    const dark = c.t <= c.shut ? U.easeInOut(c.t / c.shut)
+      : 1 - U.easeInOut(U.clamp((c.t - c.open) / (c.shut * 0.8), 0, 1));
+    if (dark <= 0.002) return;
+    const cx = W / 2, cy = H * 0.46;
+    const bob = Math.sin(c.t * 11) * 4 * dark;             // the footfalls
+    const roll = Math.sin(c.t * 5.5) * 0.012 * dark;
+    g.save();
+    g.translate(cx, cy + bob); g.rotate(roll); g.translate(-cx, -cy);
+    // the path ahead falls away into nothing
+    const fade = g.createRadialGradient(cx, cy, 10, cx, cy, H * 0.9);
+    const fk = U.clamp(dark * 1.8, 0, 1);
+    fade.addColorStop(0, `rgba(10,16,12,${(fk * 0.42).toFixed(2)})`);
+    fade.addColorStop(1, `rgba(4,7,5,${(fk * 0.99).toFixed(2)})`);
+    g.fillStyle = fade; g.fillRect(-40, -40, W + 80, H + 80);
+    // trunks, sorted far to near so the near ones overlap
+    const sorted = WALKERS.map((tr) => {
+      const z = ((tr.z + c.t * 0.62) % 1);
+      return { tr, z };
+    }).sort((p, q) => p.z - q.z);
+    for (const { tr, z } of sorted) {
+      const persp = 0.14 + z * z * 3.2;                     // how close it has come
+      const x = cx + Math.cos(tr.a) * tr.rad * W * persp;
+      if (x < -W * 0.6 || x > W * 1.6) continue;
+      const sh = Math.round(24 + (1 - z) * 62);
+      const col = `rgb(${sh},${sh + 10},${sh - 2})`;
+      const lit = `rgb(${sh + 38},${sh + 58},${sh + 20})`;
+      const fadeIn = U.clamp(z * 5, 0, 1) * U.clamp(dark * 2.4, 0, 1);   // solid through the middle
+      g.globalAlpha = fadeIn;
+      if (tr.kind === 'fern') {
+        const fy = cy + H * 0.42 * persp, fw = 32 * tr.w * persp;
+        for (let b2 = -2; b2 <= 2; b2++) {
+          Art.limb(g, x, fy, x + b2 * fw, fy - fw * 1.5 - Math.abs(b2) * 3, fw * 0.3, 1.4, b2 % 2 ? col : lit);
+        }
+      } else {
+        const w = 26 * tr.w * persp;
+        const base = cy + H * 0.62 * persp, top = cy - H * 0.9 * persp;
+        const tipX = x + tr.lean * (base - top);
+        Art.limb(g, x, base, tipX, top, w, w * 0.3, col);
+        Art.limb(g, x - w * 0.32, base, tipX - w * 0.26, top, w * 0.2, 1, lit);
         for (const [ky, side, len] of tr.br) {
-          const by = U.lerp(H + 20, 0, ky), bx = x + lean * ky + sway;
-          Art.limb(g, bx, by, bx + side * len, by - len * 0.8, tr.w * 0.3, 1.6, '#050705');
-          Art.limb(g, bx, by, bx + side * len, by - len * 0.8, tr.w * 0.22, 1.2, col);
-          // a clump of leaves out at the tip
-          Art.ell(g, bx + side * len, by - len * 0.8, len * 0.42, len * 0.3, '#0b1a0d');
-          Art.ell(g, bx + side * len - side * len * 0.12, by - len * 0.86, len * 0.26, len * 0.18, `rgb(${v + 8},${v + 26},${v + 4})`);
+          const by = U.lerp(base, top, ky), bx = U.lerp(x, tipX, ky);
+          const L = len * H * persp;
+          Art.limb(g, bx, by, bx + side * L, by - L * 0.7, w * 0.3, 1.6, col);
+          Art.ell(g, bx + side * L, by - L * 0.7, L * 0.3, L * 0.22, '#132a16');
+          Art.ell(g, bx + side * L * 0.92, by - L * 0.76, L * 0.18, L * 0.13, lit);
         }
       }
-      // speed streaks, torn out of the air by the sweep
-      const blur = (1 - Math.abs(k - 0.5) * 2) * 0.5;
-      if (blur > 0.02) {
-        for (let i = 0; i < 10; i++) {
-          const yy = ((i * 97) % H);
-          g.fillStyle = `rgba(190,214,180,${(blur * 0.1).toFixed(3)})`;
-          g.fillRect(s < 0 ? 0 : W - 220, yy, 220, 1);
-        }
-      }
+      g.globalAlpha = 1;
+    }
+    g.restore();
+    // the last of the light going out
+    if (dark > 0.92) {
+      g.fillStyle = `rgba(4,7,5,${(((dark - 0.92) / 0.08) * 0.72).toFixed(2)})`;
+      g.fillRect(0, 0, W, H);
     }
   }
 
-  // A comic-book word on a jagged starburst: the game's loudest small reward.
+  // A comic-book word on a jagged starburst  // A comic-book word on a jagged starburst: the game's loudest small reward.
   const comics = [];
   const COMIC_INK = { pow: '#ffe98a', zap: '#8fe6ff', yay: '#c9f58a', bad: '#ff9a9a' };
   function comic(x, y, text, o = {}) {
