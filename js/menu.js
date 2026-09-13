@@ -36,26 +36,21 @@ const Menu = (() => {
       });
     }
   });
-  // Statues: four back in the wood, two big ones framing the frame.
-  const STATUES_BACK = [
-    { x: 64, y: 238, s: 0.62, turn: 1 }, { x: 232, y: 222, s: 0.46, turn: -1 },
-    { x: 448, y: 224, s: 0.48, turn: 1 }, { x: 586, y: 242, s: 0.66, turn: -1 },
-  ];
-  const STATUES_FRONT = [
-    { x: 20, y: 300, s: 0.95, turn: 1 }, { x: 614, y: 352, s: 1.3, turn: -1 },
-  ];
+  // The undergrowth is the same stuff you have to clear in the grove.
+  const scrub = [];
+  for (let i = 0; i < 30; i++) {
+    scrub.push({ x: R() * VW, y: 250 + R() * 106, s: 0.5 + R() * 0.9, v: Math.floor(R() * 6), ph: R() * TAU });
+  }
   const motes = [];
   for (let i = 0; i < 44; i++) motes.push({ x: R() * VW, y: 110 + R() * 250, ph: R() * TAU, sp: 0.2 + R() * 0.5 });
   const eyes = [];
   for (let i = 0; i < 10; i++) eyes.push({ x: 24 + R() * (VW - 48), y: 150 + R() * 92, ph: R() * TAU, on: 0 });
-  const ferns = [];
-  for (let i = 0; i < 26; i++) ferns.push({ x: R() * VW, y: 262 + R() * 88, s: 0.5 + R() * 0.8, ph: R() * TAU });
 
   // ---- the wombat who is doing something about it -------------------------
   // A loop: trots in, squats, strains, drops a cube, trots off. The cube stays
   // where it fell until the next lap, so the clearing slowly fills up.
   const cubes = [];
-  const wb = { x: 130, y: 338, dir: 1, state: 'walk', tx: 220, st: 0, anim: 0 };
+  const wb = { x: 260, y: 340, dir: 1, state: 'walk', tx: 340, st: 0, anim: 0 };
   function wombatLoop(dt) {
     wb.anim += dt * 9;
     wb.st += dt;
@@ -71,7 +66,7 @@ const Menu = (() => {
       if (cubes.length > 5) cubes.shift();
     } else if (wb.state === 'drop' && wb.st > 0.7) {
       wb.state = 'walk'; wb.st = 0;
-      wb.tx = 70 + R() * 180; wb.y = 328 + R() * 18;
+      wb.tx = 210 + R() * 190; wb.y = 330 + R() * 18;
     }
     for (const c of cubes) {
       c.t += dt;
@@ -116,53 +111,102 @@ const Menu = (() => {
   function setSave(v) { hasSave = !!v; }
   function enter() { t = 0; page = 'home'; confirm = null; hover = null; Audio.setMode('menu'); }
 
-  // ---- a stone wombat ------------------------------------------------------
-  function statue(g, s2) {
-    const { x, y, s, turn } = s2;
-    const S0 = '#0f1115', S1 = '#262b32', S2 = '#343a43', S3 = '#454c56';
-    const lit = x < 330 ? 1 : -1;
+  // ---- WOMBATHENA, of the Bolt -------------------------------------------
+  // A colossus of a wombat carved mid-flex: chest out, both arms up, stone
+  // muscle everywhere. Every so often the carved eyes catch something and go
+  // red, which is the only part of it that ever moves.
+  const GOD = { x: 136, y: 334, s: 1.95 };
+  let redT = 0, redNext = 2.5;
+  function godStatue(g) {
+    const { x, y, s } = GOD;
+    const S0 = '#090b0f', S1 = '#1d2229', S2 = '#2a303a', S3 = '#3a414c', S4 = '#4e5661';
+    const flick = redT > 0 ? U.clamp(redT / 0.6, 0, 1) * (0.62 + 0.38 * Math.sin(t * 26)) : 0;
     g.save();
-    g.translate(x, y); g.scale(s * turn, s);
-    Art.poly(g, [[-22, 0], [22, 0], [18, -12], [-18, -12]], S0);
-    Art.poly(g, [[-20, -1], [20, -1], [16.5, -11], [-16.5, -11]], S1);
-    Art.rect(g, -16.5, -11, 33, 2, S2);
-    for (let i = -3; i <= 3; i++) Art.rect(g, i * 5, -10, 1, 9, S0);
-    Art.ell(g, 0, -26, 19, 16, S0);
-    Art.ell(g, 0, -27, 17.5, 14.5, S1);
-    Art.ell(g, -6 * lit, -32, 9, 7, S2);
-    Art.ell(g, -9 * lit, -35, 4.5, 3.4, S3);
-    for (const lx of [-12, 10]) { Art.rect(g, lx, -14, 7, 14, S0); Art.rect(g, lx + 1, -13, 5, 13, S1); }
-    Art.ell(g, 14, -34, 10.5, 9.5, S0);
-    Art.ell(g, 14, -35, 9.5, 8.5, S1);
-    Art.ell(g, 11, -38.5, 4.6, 3.6, S2);
-    Art.ell(g, 9.5, -40, 2, 1.5, S3);
-    Art.ell(g, 8.5, -42.5, 4, 3.8, S0); Art.ell(g, 8.5, -43, 2.9, 2.7, S2);
-    Art.ell(g, 18.5, -42, 3.8, 3.6, S0); Art.ell(g, 19, -42, 1.8, 2.2, S1);
-    Art.ell(g, 20, -31.5, 4.6, 3.8, S0); Art.ell(g, 20, -32.2, 3.8, 3.1, S2);
-    Art.rect(g, 21.6, -33.2, 2, 1.4, S0);
-    Art.ell(g, 12, -36.5, 1.7, 1.9, '#07080b');
-    Art.ell(g, 17.6, -36, 1.5, 1.7, '#07080b');
-    Art.rect(g, -4, -34, 1, 12, S0);
-    Art.rect(g, 4, -24, 6, 1, S0);
-    g.globalAlpha = 0.55;
-    Art.speckle(g, -2, -16, 18, 9, '#3f5a34', 0.22, 3);
-    Art.speckle(g, 0, -3, 20, 5, '#2f4a2a', 0.3, 5);
-    g.globalAlpha = 1;
-    Art.rect(g, -16.5, -11, 33, 1, S3);
-    g.restore();
-  }
-  function drawStatues(g, list) {
-    for (const s2 of list.slice().sort((a, b) => a.y - b.y)) {
-      const away = s2.x < 214 ? -1 : 1;
-      Art.poly(g, [[s2.x - 20 * s2.s, s2.y], [s2.x + 20 * s2.s, s2.y],
-                   [s2.x + away * 56 * s2.s, s2.y + 13 * s2.s], [s2.x + away * 24 * s2.s, s2.y + 13 * s2.s]],
-               'rgba(0,0,0,0.45)');
-      statue(g, s2);
+    g.translate(x, y); g.scale(s, s);
+    // plinth, carved with a row of cubes
+    Art.poly(g, [[-30, 0], [30, 0], [25, -13], [-25, -13]], S0);
+    Art.poly(g, [[-28, -1], [28, -1], [23.5, -12], [-23.5, -12]], S1);
+    Art.rect(g, -23.5, -12, 47, 2, S2);
+    for (let i = -4; i <= 4; i++) { Art.rect(g, i * 5 - 1.6, -10, 3.2, 3.2, S0); Art.rect(g, i * 5 - 1.6, -10, 3.2, 1, S2); }
+    Art.rect(g, -23.5, -12, 47, 1, S3);
+    // legs: short, planted wide, thick as columns
+    for (const lx of [-13, 9]) {
+      Art.poly(g, [[lx - 5, -12], [lx + 5, -12], [lx + 6, -26], [lx - 6, -26]], S0);
+      Art.poly(g, [[lx - 4, -12.5], [lx + 4, -12.5], [lx + 5, -25], [lx - 5, -25]], S1);
+      Art.rect(g, lx - 4, -25, 2, 12, S2);
+      Art.ell(g, lx, -21, 4.4, 3.4, S2);                     // the calf
     }
+    // a torso that tapers hard to the waist: the classic pose
+    Art.poly(g, [[-9, -24], [9, -24], [17, -46], [-17, -46]], S0);
+    Art.poly(g, [[-8, -24.5], [8, -24.5], [15.5, -45], [-15.5, -45]], S1);
+    Art.poly(g, [[-15.5, -45], [-4, -45], [-6, -25], [-8, -25]], S2);   // lit flank
+    // pectorals and a carved six-pack
+    Art.ell(g, -6.5, -40, 6.4, 4.4, S2); Art.ell(g, 6.5, -40, 6.4, 4.4, S1);
+    Art.ell(g, -7.5, -41.5, 4, 2.4, S3);
+    Art.rect(g, -0.6, -45, 1.2, 20, S0);
+    for (let r2 = 0; r2 < 3; r2++) {
+      Art.rect(g, -6, -33 + r2 * 3.4, 12, 0.9, S0);
+      Art.ell(g, -3.4, -34.4 + r2 * 3.4, 2.4, 1.2, S2);
+      Art.ell(g, 3.4, -34.4 + r2 * 3.4, 2.4, 1.2, S1);
+    }
+    // arms up, fists clenched: both biceps balled
+    for (const sd of [-1, 1]) {
+      const sx = sd * 15, sy = -44;
+      Art.limb(g, sx, sy, sx + sd * 13, sy - 9, 7.5, 6, S0);           // upper arm
+      Art.limb(g, sx, sy - 0.6, sx + sd * 12.4, sy - 9, 6.2, 4.8, sd < 0 ? S2 : S1);
+      Art.ell(g, sx + sd * 6, sy - 6, 5.4, 4.4, sd < 0 ? S3 : S2);     // the bicep
+      Art.limb(g, sx + sd * 13, sy - 9, sx + sd * 9, sy - 24, 6, 5, S0);   // forearm, folded up
+      Art.limb(g, sx + sd * 12.6, sy - 9.4, sx + sd * 9, sy - 23.4, 4.8, 4, sd < 0 ? S2 : S1);
+      Art.ell(g, sx + sd * 9, sy - 25, 5, 4.6, S0);                    // the fist
+      Art.ell(g, sx + sd * 9, sy - 25.4, 4.2, 3.8, sd < 0 ? S3 : S2);
+      for (let k = 0; k < 3; k++) Art.rect(g, sx + sd * 9 - 3 + k * 2.2, -72.4, 1.4, 2.4, S0);
+    }
+    // the head: a wombat's, blunt, with a laurel of stone leaves
+    Art.ell(g, 0, -52, 11, 9.5, S0);
+    Art.ell(g, 0, -52.6, 10, 8.6, S1);
+    Art.ell(g, -3.4, -56, 5, 3.8, S2);
+    Art.ell(g, -5, -57.4, 2.2, 1.6, S3);
+    Art.ell(g, -7.5, -59.5, 4.2, 4, S0); Art.ell(g, -7.5, -60, 3, 2.8, S2);     // ears
+    Art.ell(g, 7.5, -59.5, 4, 3.8, S0); Art.ell(g, 7.5, -60, 2.8, 2.6, S1);
+    Art.ell(g, 0, -46.5, 5.4, 4, S0); Art.ell(g, 0, -47.2, 4.6, 3.4, S2);       // snout
+    Art.rect(g, -1.4, -48.2, 2.8, 1.6, S0);                                      // nose
+    for (let i = 0; i < 7; i++) {                                                // laurel
+      const a2 = Math.PI + (i / 6) * Math.PI;
+      Art.ell(g, Math.cos(a2) * 10.5, -56 + Math.sin(a2) * 5.5, 2.4, 1.4, i % 2 ? S2 : S3);
+    }
+    // eyes: hollow, until they are not
+    const eyeCol = flick > 0.02 ? U.mix('#3a0a06', '#ff2a1e', flick) : '#07080b';
+    Art.ell(g, -3.6, -51.4, 2.2, 2.4, eyeCol);
+    Art.ell(g, 3.6, -51, 2.1, 2.3, eyeCol);
+    if (flick > 0.3) { Art.ell(g, -3.6, -51.4, 1, 1.1, '#ffd0c4'); Art.ell(g, 3.6, -51, 1, 1.1, '#ffd0c4'); }
+    if (flick > 0.02) {
+      g.globalAlpha = flick * 0.5;
+      Art.ell(g, -3.6, -51.4, 4.4, 4.4, '#ff2a1e');
+      Art.ell(g, 3.6, -51, 4.2, 4.2, '#ff2a1e');
+      g.globalAlpha = 1;
+    }
+    // weather: cracks, chips, moss up the legs
+    Art.rect(g, -12, -40, 0.9, 9, S0);
+    Art.rect(g, 6, -30, 5, 0.9, S0);
+    g.globalAlpha = 0.5;
+    Art.speckle(g, 0, -16, 20, 7, '#3f5a34', 0.3, 3);
+    Art.speckle(g, 0, -4, 26, 6, '#2f4a2a', 0.34, 5);
+    g.globalAlpha = 1;
+    g.restore();
+    // the light it throws when the eyes take
+    if (flick > 0.02) {
+      const gl = g.createRadialGradient(x, y - 128, 6, x, y - 128, 150 * flick);
+      gl.addColorStop(0, `rgba(255,50,36,${(0.24 * flick).toFixed(2)})`);
+      gl.addColorStop(1, 'rgba(255,50,36,0)');
+      g.fillStyle = gl; g.fillRect(x - 160, y - 290, 320, 320);
+    }
+    // the name, cut into the plinth
+    Font.draw(g, 'WOMBATHENA', x, y + 6, { scale: 1, color: 'rgba(150,160,172,0.75)', align: 'center', shadow: '#05070a' });
+    Font.draw(g, 'OF THE BOLT', x, y + 16, { scale: 1, color: 'rgba(110,120,132,0.6)', align: 'center', shadow: '#05070a' });
   }
 
   // ---- the scene -----------------------------------------------------------
-  const LX = 196, LY = 96;                              // the lantern
+  const LX = 128, LY = 78;                              // the lantern
   function scene(g) {
     const flick = 0.82 + 0.18 * Math.sin(t * 9) + 0.06 * Math.sin(t * 23);
     const sky = g.createLinearGradient(0, 0, 0, HORIZON);
@@ -194,16 +238,19 @@ const Menu = (() => {
           g.fillRect(e.x, e.y, 2, 2); g.fillRect(e.x + 5, e.y, 2, 2);
         }
       }
-      if (d === 1) drawStatues(g, STATUES_BACK);
 
     }
-    // ferns along the floor
-    for (const f of ferns) {
-      const sw = Math.sin(t * 0.9 + f.ph) * 1.4;
-      for (let b = -2; b <= 2; b++) {
-        Art.limb(g, f.x, f.y, f.x + b * 8 * f.s + sw, f.y - 13 * f.s - Math.abs(b) * 1.5, 2.6 * f.s, 0.8,
-                 b % 2 ? '#16301a' : '#1e3f21');
-      }
+    // the same scrub you spend the game cutting, growing over everything
+    for (const b2 of scrub.slice().sort((p, q) => p.y - q.y)) {
+      const img = Props.get('weed', b2.v);
+      const w = img.width * b2.s, h = img.height * b2.s;
+      const sw = Math.sin(t * 0.8 + b2.ph) * 1.2;
+      g.save();
+      g.globalAlpha = 0.9;
+      g.drawImage(img, Math.round(b2.x - w / 2 + sw), Math.round(b2.y - h), Math.round(w), Math.round(h));
+      g.restore();
+      g.fillStyle = 'rgba(6,10,8,0.5)';                  // press it back into the dark
+      g.fillRect(Math.round(b2.x - w / 2 + sw), Math.round(b2.y - h), Math.round(w), Math.round(h));
     }
     // moss hanging out of the canopy, moving just enough to be noticed
     for (let i = 0; i < 9; i++) {
@@ -238,6 +285,7 @@ const Menu = (() => {
     g.fillStyle = warm; g.fillRect(0, 0, VW, VH);
     g.restore();
     lantern(g, flick);
+    godStatue(g);
     wombatShadowPass(g); drawWombat(g);
     for (const m of motes) {
       const mx = m.x + Math.sin(t * m.sp + m.ph) * 22;
@@ -312,9 +360,9 @@ const Menu = (() => {
 
   function drawHome(g) {
     buttons = [];
-    const BW = 236, BX = (VW - BW) / 2;
-    buttons.push({ id: 'enter', x: BX, y: 232, w: BW, h: 46 });
-    buttons.push({ id: 'settings', x: BX, y: 288, w: BW, h: 32 });
+    const BW = 250, BX = VW - BW - 30;
+    buttons.push({ id: 'enter', x: BX, y: 214, w: BW, h: 50 });
+    buttons.push({ id: 'settings', x: BX, y: 274, w: BW, h: 36 });
     bigButton(g, buttons[0], hasSave ? 'ENTER THE GROVE' : 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
     bigButton(g, buttons[1], 'SETTINGS', null, 2);
   }
@@ -385,23 +433,26 @@ const Menu = (() => {
   }
 
   function title(g) {
-    const y = 34 + Math.sin(t * 1.4) * 2;
+    const cx = 485, y = 44 + Math.sin(t * 1.4) * 2;
     for (let i = 5; i > 0; i--) {
-      Font.draw(g, 'WOMBAT GODS', VW / 2 + i * 0.6, y + i * 1.2, {
-        scale: 4, align: 'center', color: `rgba(24,12,8,${(0.5 - i * 0.07).toFixed(2)})`,
+      Font.draw(g, 'WOMBAT GODS', cx + i * 0.6, y + i * 1.2, {
+        scale: 3, align: 'center', color: `rgba(24,12,8,${(0.5 - i * 0.07).toFixed(2)})`,
       });
     }
-    Font.draw(g, 'WOMBAT GODS', VW / 2, y, { scale: 4, align: 'center', color: '#f5cd5c', shadow: '#2a1608', shadowDist: 2 });
-    Font.draw(g, 'THE GROVE IS DEAD. BRING IT BACK.', VW / 2, y + 34, { scale: 1, align: 'center', color: '#8fa886' });
+    Font.draw(g, 'WOMBAT GODS', cx, y, { scale: 3, align: 'center', color: '#f5cd5c', shadow: '#2a1608', shadowDist: 2 });
+    Font.draw(g, 'THE GROVE IS DEAD. BRING IT BACK.', cx, y + 27, { scale: 1, align: 'center', color: '#8fa886' });
   }
 
-  function update(dt) { t += dt; wombatLoop(dt); }
+  function update(dt) {
+    t += dt; wombatLoop(dt);
+    redT -= dt; redNext -= dt;                          // the god's eyes, now and then
+    if (redNext <= 0) { redT = 0.9 + Math.random() * 0.8; redNext = 2.2 + Math.random() * 4.5; }
+  }
   function render(g) {
     scene(g);
     title(g);
     if (page === 'home') drawHome(g);
     else drawSettings(g);
-    drawStatues(g, STATUES_FRONT);
     if (confirm) drawConfirm(g);
   }
 

@@ -29,23 +29,22 @@ const FX = (() => {
   function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
   function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
-  // ---- walking into the wood -----------------------------------------------
-  // A first-person push through dark trees: trunks rush out of the middle of
-  // frame and past the camera while the step-bob rocks the view and the light
-  // goes out. The swap happens at the darkest point, then it thins out again.
+  // ---- into the wood --------------------------------------------------------
+  // The camera pushes straight into the trees: the grove's own tree art,
+  // scaling up out of the middle of frame and sliding past the edges, with the
+  // light going out as the canopy closes over. The swap happens in the dark.
   let curtain = null;
   const WALKERS = [];
   {
     const r = Art.rng(7734);
-    for (let i = 0; i < 34; i++) {
+    const KIND = ['gnarl', 'oak', 'pine', 'birch'];
+    for (let i = 0; i < 26; i++) {
       WALKERS.push({
         a: r() * TAU,                       // where it sits around the camera
-        rad: 0.16 + r() * 0.9,              // how far off the centre line
+        rad: 0.2 + r() * 0.95,              // how far off the centre line
         z: r(),                             // where it starts along the path
-        w: 0.5 + r() * 1.1,
-        lean: (r() - 0.5) * 0.5,
-        kind: r() < 0.35 ? 'fern' : 'tree',
-        br: Array.from({ length: 4 }, () => [0.25 + r() * 0.6, r() < 0.5 ? -1 : 1, 0.18 + r() * 0.3]),
+        kind: KIND[Math.floor(r() * 4)], v: Math.floor(r() * 6),
+        sh: 0.55 + r() * 0.35, flip: r() < 0.5,
       });
     }
   }
@@ -58,61 +57,41 @@ const FX = (() => {
     const dark = c.t <= c.shut ? U.easeInOut(c.t / c.shut)
       : 1 - U.easeInOut(U.clamp((c.t - c.open) / (c.shut * 0.8), 0, 1));
     if (dark <= 0.002) return;
-    const cx = W / 2, cy = H * 0.46;
-    const bob = Math.sin(c.t * 11) * 4 * dark;             // the footfalls
-    const roll = Math.sin(c.t * 5.5) * 0.012 * dark;
+    const cx = W / 2, cy = H * 0.5;
+    const bob = Math.sin(c.t * 11) * 3.5 * dark;           // the footfalls
+    const roll = Math.sin(c.t * 5.5) * 0.01 * dark;
     g.save();
     g.translate(cx, cy + bob); g.rotate(roll); g.translate(-cx, -cy);
-    // the path ahead falls away into nothing
-    const fade = g.createRadialGradient(cx, cy, 10, cx, cy, H * 0.9);
+    // the way ahead falling into nothing
     const fk = U.clamp(dark * 1.8, 0, 1);
-    fade.addColorStop(0, `rgba(10,16,12,${(fk * 0.42).toFixed(2)})`);
+    const fade = g.createRadialGradient(cx, cy, 10, cx, cy, H * 0.95);
+    fade.addColorStop(0, `rgba(10,16,12,${(fk * 0.4).toFixed(2)})`);
     fade.addColorStop(1, `rgba(4,7,5,${(fk * 0.99).toFixed(2)})`);
     g.fillStyle = fade; g.fillRect(-40, -40, W + 80, H + 80);
-    // trunks, sorted far to near so the near ones overlap
-    const sorted = WALKERS.map((tr) => {
-      const z = ((tr.z + c.t * 0.62) % 1);
-      return { tr, z };
-    }).sort((p, q) => p.z - q.z);
+    // the wood itself, far to near so the near trunks overlap
+    const sorted = WALKERS.map((tr) => ({ tr, z: (tr.z + c.t * 0.6) % 1 })).sort((p, q) => p.z - q.z);
+    const alpha = U.clamp(dark * 2.4, 0, 1);
     for (const { tr, z } of sorted) {
-      const persp = 0.14 + z * z * 3.2;                     // how close it has come
+      const persp = 0.1 + z * z * 4.2;                     // how close it has come
+      const img0 = Props.get('tree', `${tr.kind}|${tr.v}|${tr.sh.toFixed(2)}`);
+      const img = tr.flip ? Art.flip(img0) : img0;
+      const w = img.width * persp * 1.6, h = img.height * persp * 1.6;
       const x = cx + Math.cos(tr.a) * tr.rad * W * persp;
-      if (x < -W * 0.6 || x > W * 1.6) continue;
-      const sh = Math.round(24 + (1 - z) * 62);
-      const col = `rgb(${sh},${sh + 10},${sh - 2})`;
-      const lit = `rgb(${sh + 38},${sh + 58},${sh + 20})`;
-      const fadeIn = U.clamp(z * 5, 0, 1) * U.clamp(dark * 2.4, 0, 1);   // solid through the middle
-      g.globalAlpha = fadeIn;
-      if (tr.kind === 'fern') {
-        const fy = cy + H * 0.42 * persp, fw = 32 * tr.w * persp;
-        for (let b2 = -2; b2 <= 2; b2++) {
-          Art.limb(g, x, fy, x + b2 * fw, fy - fw * 1.5 - Math.abs(b2) * 3, fw * 0.3, 1.4, b2 % 2 ? col : lit);
-        }
-      } else {
-        const w = 26 * tr.w * persp;
-        const base = cy + H * 0.62 * persp, top = cy - H * 0.9 * persp;
-        const tipX = x + tr.lean * (base - top);
-        Art.limb(g, x, base, tipX, top, w, w * 0.3, col);
-        Art.limb(g, x - w * 0.32, base, tipX - w * 0.26, top, w * 0.2, 1, lit);
-        for (const [ky, side, len] of tr.br) {
-          const by = U.lerp(base, top, ky), bx = U.lerp(x, tipX, ky);
-          const L = len * H * persp;
-          Art.limb(g, bx, by, bx + side * L, by - L * 0.7, w * 0.3, 1.6, col);
-          Art.ell(g, bx + side * L, by - L * 0.7, L * 0.3, L * 0.22, '#132a16');
-          Art.ell(g, bx + side * L * 0.92, by - L * 0.76, L * 0.18, L * 0.13, lit);
-        }
-      }
+      const y = cy + Math.sin(tr.a) * tr.rad * H * 0.55 * persp + h * 0.32;
+      if (x + w / 2 < -60 || x - w / 2 > W + 60 || w < 6) continue;
+      g.globalAlpha = U.clamp(z * 5, 0, 1) * alpha;
+      g.drawImage(img, Math.round(x - w / 2), Math.round(y - h), Math.round(w), Math.round(h));
       g.globalAlpha = 1;
     }
     g.restore();
     // the last of the light going out
     if (dark > 0.92) {
-      g.fillStyle = `rgba(4,7,5,${(((dark - 0.92) / 0.08) * 0.72).toFixed(2)})`;
+      g.fillStyle = `rgba(4,7,5,${(((dark - 0.92) / 0.08) * 0.78).toFixed(2)})`;
       g.fillRect(0, 0, W, H);
     }
   }
 
-  // A comic-book word on a jagged starburst  // A comic-book word on a jagged starburst: the game's loudest small reward.
+  // A comic-book word on a jagged starburst  // A comic-book word on a jagged starburst  // A comic-book word on a jagged starburst: the game's loudest small reward.
   const comics = [];
   const COMIC_INK = { pow: '#ffe98a', zap: '#8fe6ff', yay: '#c9f58a', bad: '#ff9a9a' };
   function comic(x, y, text, o = {}) {

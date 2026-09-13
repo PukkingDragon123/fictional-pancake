@@ -229,7 +229,11 @@ const Main = (() => {
     canvas.addEventListener('pointerleave', () => { G.pointer.on = false; UI.hideTip(); });
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     canvas.addEventListener('wheel', (e) => {
-      if (G.mode === 'grove') { e.preventDefault(); Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8); }
+      if (G.mode === 'grove') {
+        e.preventDefault();
+        if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8);
+        else { const p = pos(e); Grove.zoomBy(e.deltaY < 0 ? 1.14 : 1 / 1.14, p.x, p.y); }
+      }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
@@ -246,6 +250,8 @@ const Main = (() => {
         e.preventDefault(); return;
       }
       if (e.key === 'm' || e.key === 'M') { if (G.mode === 'grove') setMode('map'); return; }
+      if (G.mode === 'grove' && (e.key === '+' || e.key === '=')) { Grove.zoomBy(1.18, screenP.x, screenP.y); e.preventDefault(); return; }
+      if (G.mode === 'grove' && (e.key === '-' || e.key === '_')) { Grove.zoomBy(1 / 1.18, screenP.x, screenP.y); e.preventDefault(); return; }
       if (e.key === 'h' || e.key === 'H') { UI.openPanel('panel-help'); return; }
       if (G.mode === 'rite') {
         if (Tower.key(e.key)) e.preventDefault();
@@ -329,6 +335,7 @@ const Main = (() => {
 
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
+      if (G.mode === 'grove') UI.refreshZoom();
       if (Tower.active) UI.refreshRunHUD();
       if (G.mode === 'shrine') UI.refreshRitual();
     }

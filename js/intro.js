@@ -655,10 +655,13 @@ const Intro = (() => {
         g.drawImage(img, Math.round(x - w / 2), Math.round(yy - h), Math.round(w), Math.round(h));
       }
     });
-    // ferns along the verge
-    for (let i = 0; i < 26; i++) {
-      const x = ((i * 46 - sp * 1.5) % (VW + 100) + VW + 100) % (VW + 100) - 50;
-      for (let f = -2; f <= 2; f++) Art.limb(g, x, 292, x + f * 11, 274 - Math.abs(f) * 3, 4, 1, f % 2 ? '#2f5a34' : '#3d7040');
+    // the same scrub that chokes the grove, growing along the verge
+    for (let i = 0; i < 18; i++) {
+      const x = ((i * 60 - sp * 1.5) % (VW + 140) + VW + 140) % (VW + 140) - 70;
+      const img = Props.get('weed', i % 6);
+      const sc = 0.8 + (i % 3) * 0.12;
+      g.drawImage(img, Math.round(x - img.width * sc / 2), Math.round(298 - img.height * sc),
+                  Math.round(img.width * sc), Math.round(img.height * sc));
     }
     // the road
     g.fillStyle = '#3a352f'; g.fillRect(0, 288, VW, VH - 288);
@@ -707,15 +710,15 @@ const Intro = (() => {
       g.fillStyle = `rgba(196,170,130,${a.toFixed(2)})`;
       Art.ell(g, dx, ty + 6 - (i % 3) * 4, 8 + i, 4 + i * 0.6, g.fillStyle);
     }
-    // a blurred verge tearing past the bottom of frame
-    for (let i = 0; i < 18; i++) {
-      const x = ((i * 44 - sp * 3.4) % (VW + 120) + VW + 120) % (VW + 120) - 60;
-      const c2 = ['#24402a', '#2f5a34', '#1b3020'][i % 3];
-      g.fillStyle = c2;
-      g.fillRect(x, 348, 30 + (i % 4) * 12, 12);
-      for (let f = -2; f <= 2; f++) Art.limb(g, x + 14, 356, x + 14 + f * 9, 342 - Math.abs(f) * 2, 5, 2, f % 2 ? c2 : U.shade(c2, 0.25));
+    // the near verge tearing past the bottom of frame, same scrub, big
+    for (let i = 0; i < 10; i++) {
+      const x = ((i * 84 - sp * 3.4) % (VW + 220) + VW + 220) % (VW + 220) - 110;
+      const img = Props.get('weed', (i * 2) % 6);
+      const sc = 1.9 + (i % 3) * 0.35;
+      g.drawImage(img, Math.round(x - img.width * sc / 2), Math.round(378 - img.height * sc),
+                  Math.round(img.width * sc), Math.round(img.height * sc));
     }
-    g.fillStyle = 'rgba(12,8,20,0.35)'; g.fillRect(0, 354, VW, VH - 354);
+    g.fillStyle = 'rgba(12,8,20,0.42)'; g.fillRect(0, 330, VW, VH - 330);
     for (let i = 0; i < 7; i++) {
       const ly = 236 + i * 14, lx = ((i * 90 - t * 420) % (VW + 160) + VW + 160) % (VW + 160) - 80;
       g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(lx, ly, 40 + (i % 3) * 18, 2);

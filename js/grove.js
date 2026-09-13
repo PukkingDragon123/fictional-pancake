@@ -65,14 +65,34 @@ const Grove = (() => {
   function clampCam() {
     const b = camBounds();
     FX.cam.tx = U.clamp(FX.cam.tx, b.lo, b.hi);
-    FX.cam.ty = H / 2;
+    const halfY = VH / 2 / Math.max(0.2, FX.cam.zoom);
+    FX.cam.ty = halfY * 2 >= H ? H / 2 : U.clamp(FX.cam.ty, halfY, H - halfY);
   }
   function enter() {
     const c = FX.cam;
     c.zoom = c.tzoom = ZOOM; c.ty = c.y = H / 2;
+    c.ty = c.y = H / 2;
     clampCam(); c.x = c.tx;
   }
-  function panBy(dx) { if (arrival) return; FX.cam.tx += dx; clampCam(); FX.cam.x = FX.cam.tx; }
+  function panBy(dx) { if (arrival) return; FX.cam.tx += dx / Math.max(0.2, FX.cam.zoom); clampCam(); FX.cam.x = FX.cam.tx; }
+  // Zoom: ZOOM fits the whole depth of the grove; you can push in to 2.2x that.
+  const ZMIN = ZOOM, ZMAX = ZOOM * 2.4;
+  function zoomBy(mult, sx, sy) {
+    if (arrival) return;
+    const c = FX.cam;
+    const before = sx == null ? null : toWorld(sx, sy);
+    c.tzoom = U.clamp(c.tzoom * mult, ZMIN, ZMAX);
+    c.zoom = c.tzoom;
+    if (before) {                                   // keep the point under the cursor still
+      const after = toWorld(sx, sy);
+      c.tx += before.x - after.x;
+      c.ty = U.clamp(c.ty + (before.y - after.y), VH / 2 / c.zoom, H - VH / 2 / c.zoom);
+    }
+    clampCam();
+    c.x = c.tx;
+  }
+  function zoomTo(z) { const c = FX.cam; c.tzoom = c.zoom = U.clamp(z, ZMIN, ZMAX); clampCam(); c.x = c.tx; }
+  const zoomFrac = () => (FX.cam.zoom - ZMIN) / (ZMAX - ZMIN);
   function panTo(x, snap) { FX.cam.tx = x; clampCam(); if (snap) FX.cam.x = FX.cam.tx; }
   function toWorld(sx, sy) {
     const c = FX.cam;
@@ -1003,23 +1023,72 @@ const Grove = (() => {
     return true;
   }
 
-  // Stakes and rope around the clearing: this is the patch you have to tidy.
+  // The patch you have to tidy, marked out the way a site is: hazard tape
+  // strung between striped pegs, cones at the quarters, and a barrow and a
+  // stack of tools parked at the near edge.
   function drawZone(g, f) {
     if (G.arrived) return;
     const t = G.time;
-    g.setLineDash([5, 4]); g.lineDashOffset = -t * 6;
-    g.strokeStyle = 'rgba(10,8,16,0.85)'; g.lineWidth = 3;
-    g.beginPath(); g.ellipse(ZONE.x, ZONE.y, ZONE.rx, ZONE.ry, 0, 0, TAU); g.stroke();
-    g.strokeStyle = '#d8b26a'; g.lineWidth = 1;
-    g.beginPath(); g.ellipse(ZONE.x, ZONE.y, ZONE.rx, ZONE.ry, 0, 0, TAU); g.stroke();
-    g.setLineDash([]);
-    for (let i = 0; i < 10; i++) {
-      const a = (i / 10) * TAU, x = Math.round(ZONE.x + Math.cos(a) * ZONE.rx), y = Math.round(ZONE.y + Math.sin(a) * ZONE.ry);
-      g.fillStyle = '#0a0810'; g.fillRect(x - 3, y - 15, 6, 17);
-      g.fillStyle = PAL.bark2; g.fillRect(x - 2, y - 14, 4, 15);
-      g.fillStyle = PAL.bark3; g.fillRect(x - 2, y - 14, 1, 15);
-      g.fillStyle = '#c94a3a'; g.fillRect(x - 2, y - 14, 4, 3);
+    const pt = (a2) => [ZONE.x + Math.cos(a2) * ZONE.rx, ZONE.y + Math.sin(a2) * ZONE.ry];
+    const N = 12;
+    // the tape itself: a black-and-yellow band that sags between the pegs
+    for (let i = 0; i < N; i++) {
+      const [x1, y1] = pt((i / N) * TAU), [x2, y2] = pt(((i + 1) / N) * TAU);
+      const sag = 3 + Math.sin(t * 1.6 + i) * 1.2;
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 + sag;
+      const steps = 7;
+      let px = x1, py = y1 - 13;
+      for (let k = 1; k <= steps; k++) {
+        const u = k / steps, iu = 1 - u;
+        const qx = iu * iu * x1 + 2 * iu * u * mx + u * u * x2;
+        const qy = iu * iu * (y1 - 13) + 2 * iu * u * (my - 13) + u * u * (y2 - 13);
+        Art.line(g, px, py, qx, qy, '#0a0810', 5);
+        Art.line(g, px, py, qx, qy, (i * steps + k) % 2 ? '#f2cf3a' : '#1a1408', 3);
+        px = qx; py = qy;
+      }
     }
+    // striped pegs holding it up
+    for (let i = 0; i < N; i++) {
+      const [x, y] = pt((i / N) * TAU);
+      const rx = Math.round(x), ry = Math.round(y);
+      g.fillStyle = 'rgba(10,8,16,0.34)'; Art.ell(g, rx, ry + 1, 4, 1.6);
+      g.fillStyle = '#0a0810'; g.fillRect(rx - 3, ry - 18, 6, 20);
+      for (let k = 0; k < 4; k++) { g.fillStyle = k % 2 ? '#f2cf3a' : '#c9581f'; g.fillRect(rx - 2, ry - 17 + k * 4.4, 4, 4.4); }
+      g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(rx - 2, ry - 17, 1, 19);
+    }
+    // cones at the four quarters, because it is a site
+    for (let q = 0; q < 4; q++) {
+      const [x, y] = pt((q / 4) * TAU + Math.PI / 4);
+      const rx = Math.round(x), ry = Math.round(y);
+      g.fillStyle = 'rgba(10,8,16,0.34)'; Art.ell(g, rx, ry + 1, 7, 2.4);
+      Art.poly(g, [[rx - 7, ry + 1], [rx + 7, ry + 1], [rx + 5, ry - 2], [rx - 5, ry - 2]], '#0a0810');
+      Art.poly(g, [[rx - 6, ry], [rx + 6, ry], [rx + 4, ry - 2], [rx - 4, ry - 2]], '#8a3a12');
+      Art.poly(g, [[rx - 4.5, ry - 2], [rx + 4.5, ry - 2], [rx + 1.3, ry - 15], [rx - 1.3, ry - 15]], '#0a0810');
+      Art.poly(g, [[rx - 3.6, ry - 2.6], [rx + 3.6, ry - 2.6], [rx + 1, ry - 14], [rx - 1, ry - 14]], '#e0641f');
+      Art.poly(g, [[rx - 2.8, ry - 6], [rx + 2.8, ry - 6], [rx + 2.2, ry - 9], [rx - 2.2, ry - 9]], '#f2ead8');
+      g.fillStyle = 'rgba(255,220,180,0.3)'; g.fillRect(rx - 3, ry - 13, 1, 10);
+    }
+    // a board on the near edge saying what the job is
+    const bx = Math.round(ZONE.x), by = Math.round(ZONE.y + ZONE.ry + 4);
+    const pct = Math.round(U.clamp(World.zoneFraction() / ZONE_GRASS, 0, 1) * 100);
+    g.fillStyle = 'rgba(10,8,16,0.34)'; Art.ell(g, bx, by + 2, 22, 4);
+    g.fillStyle = '#0a0810'; g.fillRect(bx - 3, by - 16, 6, 18);
+    g.fillStyle = PAL.bark2; g.fillRect(bx - 2, by - 15, 4, 17);
+    g.fillStyle = '#0a0810'; g.fillRect(bx - 44, by - 40, 88, 26);
+    g.fillStyle = '#f2cf3a'; g.fillRect(bx - 42, by - 38, 84, 22);
+    for (let i = -44; i < 44; i += 8) Art.poly(g, [[bx + i, by - 38], [bx + i + 4, by - 38], [bx + i - 2, by - 32], [bx + i - 6, by - 32]], '#1a1408');
+    g.fillStyle = '#f2cf3a'; g.fillRect(bx - 42, by - 32, 84, 14);
+    Font.draw(g, 'WORK SITE', bx, by - 31, { scale: 1, color: '#1a1408', align: 'center' });
+    Font.draw(g, `CLEARED ${pct}%`, bx, by - 24, { scale: 1, color: '#5c4a10', align: 'center' });
+    // a barrow and a leaning tool at the corner of the site
+    const wx = Math.round(ZONE.x - ZONE.rx - 14), wy = Math.round(ZONE.y + ZONE.ry * 0.5);
+    g.fillStyle = 'rgba(10,8,16,0.3)'; Art.ell(g, wx, wy + 1, 12, 3);
+    Art.poly(g, [[wx - 10, wy - 8], [wx + 9, wy - 10], [wx + 7, wy - 1], [wx - 8, wy - 1]], '#0a0810');
+    Art.poly(g, [[wx - 9, wy - 8], [wx + 8, wy - 9.4], [wx + 6, wy - 2], [wx - 7, wy - 2]], '#8a3a12');
+    Art.poly(g, [[wx - 9, wy - 8], [wx + 8, wy - 9.4], [wx + 8, wy - 8], [wx - 9, wy - 6.6]], '#d0561f');
+    Art.limb(g, wx + 7, wy - 4, wx + 16, wy - 9, 2, 1.4, PAL.bark2);
+    Art.ell(g, wx - 5, wy, 3.4, 3.4, '#1c1620'); Art.ell(g, wx - 5, wy, 1.6, 1.6, PAL.stone3);
+    Icons.blit(g, 't_sickle', wx + 12, wy - 26, 0.8);
   }
 
   // A hint at each edge while there is more grove that way.
@@ -1200,7 +1269,7 @@ const Grove = (() => {
   }
 
   return {
-    init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, edgeScroll, addWombat, newWombat, feed, pet, offline,
+    init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, zoomBy, zoomTo, zoomFrac, edgeScroll, addWombat, newWombat, feed, pet, offline,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, TRUCK, GROUND, WALK, W, H, VW,

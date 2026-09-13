@@ -527,3 +527,29 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 /* Big text: one step up everywhere, for anyone who wants it. */
 html.bigtext { font-size: 18px; }
 html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
+
+/* ---- zoom column: a chunky wooden slider down the right of the grove ---- */
+#zoomer {
+  position: absolute; right: 8px; bottom: 96px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  z-index: 6; pointer-events: auto;
+}
+.zbtn {
+  width: 32px; height: 32px; padding: 0;
+  font: 16px/1 var(--f); color: #f3e3c0;
+  background: #6b4526 var(--tex-darkwood) repeat; background-size: 72px 40px;
+  border: 2px solid #120d08; box-shadow: 0 2px 0 #120d08, inset 0 2px 0 rgba(255,226,180,.22);
+  cursor: pointer; image-rendering: pixelated;
+}
+.zbtn:hover { color: #ffe9a8; box-shadow: 0 2px 0 #120d08, inset 0 0 0 2px #f5cd5c, inset 0 2px 0 rgba(255,226,180,.3); }
+.zbtn:active { transform: translateY(2px); box-shadow: 0 0 0 #120d08, inset 0 2px 0 rgba(255,226,180,.22); }
+#zbar {
+  position: relative; width: 10px; height: 88px;
+  background: #1a1208; border: 2px solid #120d08;
+  box-shadow: inset 0 0 0 2px #4a2f18;
+}
+#znub {
+  position: absolute; left: -3px; width: 12px; height: 10px;
+  background: #f5cd5c; border: 2px solid #120d08; display: block;
+  transition: bottom .08s linear;
+}

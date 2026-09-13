@@ -362,6 +362,8 @@ const UI = (() => {
     Tex.install();                         // wood, paper, metal and gold, painted not faked
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
+    $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };
+    $('b-zout').onclick = () => { Audio.play('click'); Grove.zoomBy(1 / 1.24); refreshZoom(); };
     $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(470, 120); };
     $('b-basket').onclick = () => openBasket();
     $('b-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('b-music').textContent = on ? 'MUSIC' : 'MUTED'; Main.save(); };
@@ -383,6 +385,7 @@ const UI = (() => {
   function setMode(mode) {
     const intro = mode === 'intro' || mode === 'menu';
     $('money').hidden = intro; $('mini').hidden = intro; $('side').hidden = intro;
+    $('zoomer').hidden = mode !== 'grove';
     if (intro) { closeWheel(); $('checklist').hidden = true; }
     $('ov-shrine').hidden = mode !== 'shrine';
     $('ov-rite').hidden = mode !== 'rite';
@@ -393,12 +396,19 @@ const UI = (() => {
     if (mode === 'rite') refreshRiteCard();
     if (mode === 'shop') refreshBasket();
   }
+  // the zoom column follows the camera so the nub always tells the truth
+  function refreshZoom() {
+    const bar = $('zbar'), nub = $('znub');
+    if (!bar || !nub || $('zoomer').hidden) return;
+    const f = U.clamp(Grove.zoomFrac(), 0, 1);
+    nub.style.bottom = Math.round(f * (bar.clientHeight - 10)) + 'px';
+  }
   function anyPanel() { return PANELS.some((id) => !$(id).hidden) || !$('modal').hidden; }
 
   return {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
-    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel,
+    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom,
   };
 })();

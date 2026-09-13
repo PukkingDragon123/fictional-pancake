@@ -20,17 +20,17 @@ const Tex = (() => {
   // Grain is laid down on a half-size tile and blown back up with smoothing
   // off, so every mark is a fat two-pixel block: the low-resolution wood the
   // rest of the art is drawn at, not a fine photographic grain.
-  const CHUNK = 2;
+  const CHUNK = 4;
   function wood(base, dark, light, knots) {
     return (g0, w0, h0, r) => {
       const w = Math.round(w0 / CHUNK), h = Math.round(h0 / CHUNK);
       const { c, g } = Art.cv(w, h);
       g.fillStyle = base; g.fillRect(0, 0, w, h);
-      for (let i = 0; i < h * 1.6; i++) {                     // grain lines
+      for (let i = 0; i < h * 1.1; i++) {                     // grain lines
         const y0 = 1 + r() * (h - 2), k = 1 + Math.floor(r() * 3);
-        const amp = 0.5 + r() * 1.1, ph = r() * TAU;
+        const amp = 0.4 + r() * 0.8, ph = r() * TAU;
         const col = r() < 0.5 ? dark : light;
-        const a = 0.3 + r() * 0.55;
+        const a = 0.34 + r() * 0.5;
         g.globalAlpha = a;
         for (let x = 0; x < w; x++) {
           const y = Math.round(y0 + Math.sin((x / w) * TAU * k + ph) * amp);
@@ -39,15 +39,15 @@ const Tex = (() => {
         g.globalAlpha = 1;
       }
       for (let i = 0; i < (knots || 2); i++) {                 // knots, kept off the seams
-        const kx = 4 + r() * (w - 8), ky = 3 + r() * (h - 6);
+        const kx = 3 + r() * (w - 6), ky = 2 + r() * (h - 4);
         for (let ring = 4; ring >= 1; ring--) {
           g.globalAlpha = 0.5;
-          Art.ell(g, kx, ky, ring * 1.1, ring * 0.75, ring % 2 ? dark : light);
+          Art.ell(g, kx, ky, ring * 0.62, ring * 0.42, ring % 2 ? dark : light);
         }
-        g.globalAlpha = 0.75; Art.ell(g, kx, ky, 1, 0.7, dark);
+        g.globalAlpha = 0.75; Art.ell(g, kx, ky, 0.7, 0.5, dark);
         g.globalAlpha = 1;
       }
-      for (let i = 0; i < w * h * 0.05; i++) dot(g, r() * w, r() * h, w, h, r() < 0.5 ? dark : light);
+      for (let i = 0; i < w * h * 0.035; i++) dot(g, r() * w, r() * h, w, h, r() < 0.5 ? dark : light);
       g0.imageSmoothingEnabled = false;                        // blow it back up in blocks
       g0.drawImage(c, 0, 0, w0, h0);
     };
@@ -108,9 +108,9 @@ const Tex = (() => {
   }
 
   const DEF = {
-    wood:     [72, 40, wood('#6b4526', '#3f2611', '#a2714a', 2)],
-    darkwood: [72, 40, wood('#4a2c1a', '#25150a', '#7a4e2c', 2)],
-    cellwood: [48, 48, wood('#442c18', '#22140a', '#6b4728', 1)],
+    wood:     [72, 40, wood('#8f6238', '#5b3a1c', '#c49461', 2)],
+    darkwood: [72, 40, wood('#6b4526', '#3f2611', '#a2714a', 2)],
+    cellwood: [48, 48, wood('#5e3f22', '#33200f', '#8a6236', 1)],
     paper:    [72, 72, paper('#c2a176', '#8d6a44', '#e3cda2', '#9a7248')],
     paper2:   [72, 72, paper('#d8bd92', '#a5825a', '#f2e2bd', '#a9814f')],
     metal:    [26, 26, metal('#4fa6be', '#22647a', '#a6e3f2')],
