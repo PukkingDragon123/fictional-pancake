@@ -562,6 +562,13 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   background: #f5cd5c; border: 2px solid #120d08; display: block;
   transition: bottom .08s linear;
 }
+
+/* A little bounce on anything you can press: the whole UI should feel springy. */
+.spoke, .rbtn, .mbtn, .zbtn, .hq { transition: transform .09s cubic-bezier(.34,1.56,.64,1), filter .09s ease; }
+.spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover { transform: translateY(-2px) scale(1.04); }
+.spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active { transform: translateY(1px) scale(.96); }
+@keyframes pop-in { 0% { transform: scale(.86); opacity: 0 } 60% { transform: scale(1.04); opacity: 1 } 100% { transform: scale(1) } }
+.panel:not([hidden]), .tray:not([hidden]) { animation: pop-in .16s cubic-bezier(.34,1.56,.64,1); }
 </style>
 
 <div id="app">
@@ -6098,6 +6105,7 @@ const Grove = (() => {
     } else if (w.stomach === 'ready') {
       Icons.blit(g, 'offering', x - 7, y - 18 - Math.abs(Math.sin(G.time * 8)) * 3, 0.85);
     }
+    emote(g, w, x, y);
     if (hoverW === w) {
       const nm = String(w.name).toUpperCase();
       const tw = Font.width(nm, 1);
@@ -6106,6 +6114,42 @@ const Grove = (() => {
       Font.draw(g, nm, x, y - 13, { scale: 1, color: PAL.cream, align: 'center' });
     }
   }
+  // Small moods over each wombat: z's asleep, a note while it grazes, hearts
+  // when it is thoroughly pleased with you. Cheap, and it makes them alive.
+  function emote(g, w, x, y) {
+    const T = G.time;
+    if (w.state === 'sleep') {
+      for (let i = 0; i < 3; i++) {
+        const k = ((T * 0.5 + i * 0.33) % 1);
+        const a = (1 - k) * 0.9;
+        const zs = 1 + Math.floor(k * 2);
+        Font.draw(g, 'Z', x + 9 + k * 13, y - 20 - k * 16, {
+          scale: zs, color: `rgba(206,222,246,${a.toFixed(2)})`, align: 'center',
+        });
+      }
+      return;
+    }
+    if (w.state === 'graze' && Math.sin(T * 2 + w.id) > 0.2) {
+      const bob = Math.sin(T * 6 + w.id) * 2;
+      g.fillStyle = 'rgba(180,226,150,0.85)';
+      g.fillRect(Math.round(x + 10), Math.round(y - 24 + bob), 2, 7);
+      g.fillRect(Math.round(x + 12), Math.round(y - 25 + bob), 3, 2);
+      Art.ell(g, x + 10, y - 17 + bob, 2.2, 1.8, 'rgba(180,226,150,0.85)');
+      return;
+    }
+    if (w.state === 'happy' || (w.hap > 82 && Math.sin(T * 0.9 + w.id * 2) > 0.86)) {
+      for (let i = 0; i < 2; i++) {
+        const k = ((T * 0.8 + i * 0.5) % 1);
+        const a = (1 - k) * 0.9;
+        const hx = x - 4 + Math.sin(k * 5 + i) * 5, hy = y - 22 - k * 18;
+        g.fillStyle = `rgba(255,140,170,${a.toFixed(2)})`;
+        Art.ell(g, hx - 2, hy, 2.2, 2.2, g.fillStyle);
+        Art.ell(g, hx + 2, hy, 2.2, 2.2, g.fillStyle);
+        Art.poly(g, [[hx - 4, hy + 1], [hx + 4, hy + 1], [hx, hy + 6]], g.fillStyle);
+      }
+    }
+  }
+
   function drawDrop(g, d) {
     const def = OFFERINGS[d.type], s = CUBE_SIZE * 0.72;
     const w = def.w * s, h = def.h * s;
@@ -6647,7 +6691,7 @@ const Atlas = (() => {
     if (!s) return;
     if (!unlocked(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return; }
     if (!s.mode) { Audio.play('error'); return; }
-    travel = { t: 0, site: s };
+    travel = { t: 0, site: s, from: whereAmI(), dust: [] };
     Audio.play('whoosh');
     FX.shake(1.4);
   }
@@ -6657,10 +6701,77 @@ const Atlas = (() => {
     if (!unlocked(hover)) return `<b>?</b><br>${hover.gate && !hover.gate(G) ? hover.why : hover.need + ' gods must answer first'}`;
     return `<b>${hover.name}</b>`;
   }
+  // Where the truck is parked right now: the last place you were, or the grove.
+  function whereAmI() {
+    const byMode = SITES.find((s) => s.mode === (G.lastSite || 'grove'));
+    return byMode || SITES[0];
+  }
+  // The route the truck takes: a trail leg if there is one, else a straight run.
+  function routeOf(a, b) {
+    for (const [ak, bk, bend] of TRAILS) {
+      if (ak === a.key && bk === b.key) return { a, b, bend };
+      if (bk === a.key && ak === b.key) return { a: b, b: a, bend, back: true };
+    }
+    return { a, b, bend: 14 };
+  }
+  const DRIVE = 1.5;                                  // how long the drive lasts
   function update(dt) {
     if (!travel) return;
     travel.t += dt;
-    if (travel.t > 0.62) { const m = travel.site.mode; travel = null; Main.setMode(m); }
+    for (let i = travel.dust.length - 1; i >= 0; i--) {
+      const d = travel.dust[i];
+      d.t += dt; d.x += d.vx * dt; d.y += d.vy * dt; d.vy += 14 * dt;
+      if (d.t > d.life) travel.dust.splice(i, 1);
+    }
+    if (travel.t > DRIVE + 0.5) {
+      const m = travel.site.mode;
+      G.lastSite = travel.site.mode;
+      travel = null;
+      Main.setMode(m);
+    }
+  }
+  // The truck, drawn small and driving the leg, nose pointing the way it goes.
+  function drawTravel(g, t) {
+    const k = U.clamp(travel.t / DRIVE, 0, 1);
+    const r = routeOf(travel.from, travel.site);
+    const pt = (u) => {
+      const s2 = Math.sin(u * Math.PI);
+      const dx = r.b.x - r.a.x, dy = r.b.y - r.a.y, L = Math.hypot(dx, dy) || 1;
+      return {
+        x: U.lerp(r.a.x, r.b.x, u) - (dy / L) * s2 * r.bend + Math.sin(u * Math.PI * 3) * 4,
+        y: U.lerp(r.a.y, r.b.y, u) + (dx / L) * s2 * r.bend,
+      };
+    };
+    const u = r.back ? 1 - U.easeInOut(k) : U.easeInOut(k);
+    const p = pt(u), q = pt(U.clamp(u + (r.back ? -0.02 : 0.02), 0, 1));
+    const facing = q.x >= p.x ? 1 : -1;
+    const bounce = Math.abs(Math.sin(travel.t * 15)) * 1.4;
+    // dust off the back wheels
+    if (k < 1 && Math.random() < 0.7) {
+      travel.dust.push({ x: p.x - facing * 8, y: p.y + 3, vx: -facing * U.rand(6, 20), vy: U.rand(-14, -4), t: 0, life: 0.6 + Math.random() * 0.4 });
+    }
+    for (const d of travel.dust) {
+      const a = (1 - d.t / d.life) * 0.5;
+      g.fillStyle = `rgba(150,132,104,${a.toFixed(2)})`;
+      Art.ell(g, d.x, d.y, 2 + d.t * 7, 1.5 + d.t * 5, g.fillStyle);
+    }
+    const img0 = Props.get('truck');
+    const img = facing > 0 ? Art.flip(img0) : img0;
+    const w = img.width * 0.33, h = img.height * 0.33;
+    g.fillStyle = 'rgba(0,0,0,0.4)'; Art.ell(g, p.x, p.y + 3, w * 0.42, 3);
+    g.drawImage(img, Math.round(p.x - w / 2), Math.round(p.y - h + 5 - bounce), Math.round(w), Math.round(h));
+    // headlights, since it is dark out here
+    const hx = p.x + facing * w * 0.5;
+    const beam = g.createRadialGradient(hx, p.y - 3, 2, hx, p.y - 3, 42);
+    beam.addColorStop(0, 'rgba(255,236,176,0.4)');
+    beam.addColorStop(1, 'rgba(255,236,176,0)');
+    g.fillStyle = beam; g.fillRect(hx - 44, p.y - 47, 88, 88);
+    // the name of where it is going, riding along above it
+    if (k < 0.98) {
+      Font.draw(g, travel.site.name.toUpperCase(), p.x, p.y - h - 6 - bounce, {
+        scale: 1, color: '#f5cd5c', align: 'center', shadow: '#120a06', shadowDist: 1,
+      });
+    }
   }
 
   function render(g) {
@@ -6752,8 +6863,9 @@ const Atlas = (() => {
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);
 
-    if (travel) {
-      const k = U.clamp(travel.t / 0.62, 0, 1);
+    if (travel) drawTravel(g, t);
+    if (travel && travel.t > DRIVE) {
+      const k = U.clamp((travel.t - DRIVE) / 0.5, 0, 1);
       const s = travel.site;
       const rad = U.lerp(Math.hypot(VW, VH), 0, U.easeIn(k));
       g.save();
@@ -6843,7 +6955,7 @@ const Shop = (() => {
   const VW = 640, VH = 360;
   const cache = new Map();
   let phase = 'door', pt = 0, scroll = 0, tscroll = 0, till = 0, hover = null;
-  let drag = null, moved = 0, keeper = { t: 0, pose: 'idle' };
+  let drag = null, moved = 0, keeper = { t: 0, pose: 'idle' }, keeperHot = false;
   const basket = [], flies = [], motes = [];
 
   // ---- product sprites ----------------------------------------------------
@@ -7129,13 +7241,21 @@ const Shop = (() => {
     if (wasDrag) return;
     const s = slotAt(x, y);
     if (s) { add(s.p); return; }
+    if (keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h) {
+      if (!basket.length) { Audio.play('error'); UI.toast('nothing in the basket yet', 'bad'); return; }
+      UI.openBasket(); Audio.play('click');
+      FX.comic(x, y - 26, 'HI!', { ink: '#d8f0a0', edge: '#2f8f42', life: 0.5 });
+      return;
+    }
     if (overCounter(x) && y > 150) { UI.openBasket(); Audio.play('click'); return; }
   }
   function hoverAt(x, y) {
     if (phase !== 'aisle') return null;
+    keeperHot = !!(keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h);
     const s = slotAt(x, y);
     hover = s;
-    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>pay for the basket' : null;
+    if (keeperHot) return `<b>Baz</b> <span class="dim">shopkeeper</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'bring him a basket'}`;
+    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>ask the wombat' : null;
     const p = s.p;
     const tag = p.locked ? '<span class="warn">a god must bless it</span>'
       : p.sold ? '<span class="good">owned</span>'
@@ -7316,6 +7436,19 @@ const Shop = (() => {
     for (const m of motes) {
       g.fillStyle = 'rgba(255,250,220,0.5)';
       g.fillRect(Math.round((m.x + Math.sin(t * 0.4 + m.ph) * 20) % VW), Math.round(m.y + Math.cos(t * 0.3 + m.ph) * 14), 1, 1);
+    }
+    // once you have something, point the way to the counter
+    if (basket.length && counterX - scroll > VW - 40) {
+      const a = 0.5 + 0.5 * Math.sin(t * 4);
+      const ax = VW - 96, ay = 96;
+      g.fillStyle = `rgba(201,88,31,${(0.5 + a * 0.4).toFixed(2)})`;
+      g.fillRect(ax - 44, ay - 11, 84, 22);
+      g.fillStyle = '#fff0dc'; g.fillRect(ax - 44, ay - 11, 84, 2);
+      Font.draw(g, 'TO THE TILL', ax - 6, ay - 4, { scale: 1, color: '#fff0dc', align: 'center' });
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle = `rgba(255,240,220,${(0.3 + a * 0.6 - i * 0.15).toFixed(2)})`;
+        for (let k = 0; k < 5; k++) g.fillRect(ax + 26 + i * 7 + k, ay - 5 + k, 1, 11 - k * 2);
+      }
     }
     // swipe hint
     if (pt < 5 && tscroll < 20) {
@@ -7528,17 +7661,34 @@ const Shop = (() => {
     }
     g.fillStyle = '#2a2f3a'; g.fillRect(sx, 142, 66, 9);
     FX.pixelText(g, 'SLUSH', sx + 33, 143, { color: '#fff', size: 7, ink: false });
-    // the keeper behind the counter
-    const pose = till > 0 ? 'bite' : 'pray';
-    Sprites.blit(g, cx + 112, 320, pose, Math.floor(t * (till > 0 ? 8 : 2.5)), 'sand', -1, 'adult', 2.4);
-    // counter body: pale top, panelled front, a kick rail and the house stripe
-    g.fillStyle = '#c9c3b2'; g.fillRect(cx, 284, 250, 48);
-    g.fillStyle = '#efeade'; g.fillRect(cx, 284, 250, 8);
-    g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(cx, 284, 250, 2);
-    for (let i = 0; i < 5; i++) { g.fillStyle = 'rgba(0,0,0,0.1)'; g.fillRect(cx + 12 + i * 48, 298, 36, 26); }
-    g.fillStyle = '#c9581f'; g.fillRect(cx, 292, 250, 5);
+    // a rubber plant in the corner, because every shop has one
+    const px = cx + 248;
+    g.fillStyle = '#8a5a3a'; g.fillRect(px - 12, 296, 24, 26);
+    g.fillStyle = '#a87048'; g.fillRect(px - 12, 296, 24, 4);
+    g.fillStyle = '#6b4530'; g.fillRect(px - 12, 318, 24, 4);
+    for (let i = 0; i < 7; i++) {
+      const a2 = -Math.PI / 2 + (i - 3) * 0.34, L = 30 + (i % 3) * 9;
+      const lx2 = px + Math.cos(a2) * L, ly2 = 296 + Math.sin(a2) * L;
+      Art.limb(g, px, 296, lx2, ly2, 3, 1.4, '#2f6b34');
+      Art.ell(g, lx2, ly2, 9, 6, '#3f8f4a');
+      Art.ell(g, lx2 - 2, ly2 - 2, 5, 3.2, '#5fb05c');
+    }
+    // counter body: tiled front, a pale top, a kick rail and the house stripe
+    g.fillStyle = '#b3ad9c'; g.fillRect(cx, 288, 250, 44);
+    for (let r = 0; r < 3; r++) for (let i = 0; i < 13; i++) {          // little square tiles
+      const tx2 = cx + 2 + i * 19 + (r % 2 ? 9 : 0), ty2 = 296 + r * 12;
+      g.fillStyle = (i + r) % 3 ? '#cfc8b6' : '#dfd8c4'; g.fillRect(tx2, ty2, 17, 10);
+      g.fillStyle = 'rgba(255,255,255,0.4)'; g.fillRect(tx2, ty2, 17, 2);
+    }
+    g.fillStyle = '#efeade'; g.fillRect(cx - 4, 282, 258, 9);           // the countertop lip
+    g.fillStyle = 'rgba(255,255,255,0.7)'; g.fillRect(cx - 4, 282, 258, 2);
+    g.fillStyle = '#9a9484'; g.fillRect(cx - 4, 289, 258, 3);
+    g.fillStyle = '#c9581f'; g.fillRect(cx, 292, 250, 4);
     g.fillStyle = '#9a9484'; g.fillRect(cx, 326, 250, 6);
     g.fillStyle = '#74705f'; g.fillRect(cx, 332, 250, 4);
+    // a floor decal telling you where to stand
+    g.fillStyle = 'rgba(201,88,31,0.5)'; g.fillRect(cx - 66, 342, 56, 3);
+    Font.draw(g, 'WAIT HERE', cx - 38, 346, { scale: 1, color: 'rgba(122,108,86,0.8)', align: 'center' });
     // card reader on a stalk
     g.fillStyle = '#3d434e'; g.fillRect(cx + 214, 268, 20, 18);
     g.fillStyle = '#8ad0a0'; g.fillRect(cx + 217, 271, 14, 8);
@@ -7562,9 +7712,63 @@ const Shop = (() => {
       g.fillStyle = '#fffdf0'; g.fillRect(cx + 170, 252 - h, 14, h);
       g.fillStyle = '#b9b3a2'; for (let y = 4; y < h; y += 6) g.fillRect(cx + 172, 252 - h + y, 10, 1);
     }
-    sign(g, cx + 120, 104, 'PAY', '#b8412c');
-    const m = Sprites.mascot(Math.floor(t * 3));
-    g.drawImage(m, Math.round(cx + 232), Math.round(330 - m.height));
+    keeperWombat(g, cx, t);
+    sign(g, cx + 120, 104, 'PAY HERE', '#b8412c', 'ask the wombat');
+  }
+
+  // The shopkeeper: a wombat sat on the counter in a little green visor. It is
+  // the checkout — you come to it, and it holds up what you owe.
+  let keeperR = null;
+  function keeperWombat(g, cx, t) {
+    const n = basket.length;
+    const wx = cx + 66, wy = 288;
+    const hop = n ? Math.abs(Math.sin(t * 4)) * 3 : Math.abs(Math.sin(t * 1.6)) * 1.2;
+    const hot = keeperHot;
+    keeperR = { x: wx - 40, y: wy - 66, w: 80, h: 70 };
+    // the counter dips a little under it
+    g.fillStyle = 'rgba(0,0,0,0.16)'; Art.ell(g, wx, wy + 1, 22, 5);
+    const f = Math.floor(t * (till > 0 ? 9 : n ? 6 : 2.2));
+    const pose = till > 0 ? 'happy' : n ? 'sit' : 'idle';
+    g.save();
+    g.translate(0, -hop);
+    Sprites.blit(g, wx, wy, pose, f, 'sand', -1, 'adult', 2.6);
+    // a green visor, because it works here
+    g.fillStyle = '#12361c'; g.fillRect(wx - 16, wy - 62, 32, 7);
+    g.fillStyle = '#2f8f42'; g.fillRect(wx - 15, wy - 61, 30, 5);
+    g.fillStyle = '#5fc46c'; g.fillRect(wx - 15, wy - 61, 30, 1);
+    g.fillStyle = '#12361c'; g.fillRect(wx - 24, wy - 56, 32, 5);
+    g.fillStyle = '#3fa552'; g.fillRect(wx - 24, wy - 56, 32, 2);
+    // a name badge
+    g.fillStyle = '#fffdf0'; g.fillRect(wx - 14, wy - 30, 18, 8);
+    g.fillStyle = '#c9581f'; g.fillRect(wx - 14, wy - 30, 18, 2);
+    Font.draw(g, 'BAZ', wx - 5, wy - 26, { scale: 1, color: '#2a2f3a', align: 'center' });
+    g.restore();
+    // what it wants from you
+    const by = wy - 74 - hop;
+    if (till > 0) {
+      bubble(g, wx, by, 'TA!', '#3f8f4a', '#dff5d8');
+    } else if (n) {
+      bubble(g, wx, by, `${total()} W$`, '#c9581f', '#fff0dc');
+      const a = 0.5 + 0.5 * Math.sin(t * 5);
+      Font.draw(g, 'CLICK ME', wx, by - 32, { scale: 1, color: `rgba(245,205,92,${a.toFixed(2)})`, align: 'center', shadow: '#2a1608' });
+    } else if (hot) {
+      bubble(g, wx, by, 'G\'DAY', '#2f6f9f', '#d8ecff');
+    }
+    if (hot) {                                        // a ring so you know it is the button
+      g.strokeStyle = '#f5cd5c'; g.lineWidth = 1;
+      g.setLineDash([4, 3]); g.lineDashOffset = -t * 10;
+      g.strokeRect(keeperR.x + 0.5, keeperR.y + 0.5, keeperR.w - 1, keeperR.h - 1);
+      g.setLineDash([]);
+    }
+  }
+  function bubble(g, x, y, text, col, ink) {
+    const w = Font.width(text, 2) + 16, h = 20;
+    g.fillStyle = '#0a0810'; g.fillRect(x - w / 2 - 2, y - h - 2, w + 4, h + 4);
+    g.fillStyle = col; g.fillRect(x - w / 2, y - h, w, h);
+    g.fillStyle = U.shade(col, 0.35); g.fillRect(x - w / 2, y - h, w, 3);
+    Art.poly(g, [[x - 5, y], [x + 5, y], [x, y + 7]], '#0a0810');
+    Art.poly(g, [[x - 4, y - 1], [x + 4, y - 1], [x, y + 5]], col);
+    Font.draw(g, text, x, y - h + 6, { scale: 2, color: ink, align: 'center', shadow: U.shade(col, -0.5) });
   }
 
   return {
@@ -9924,11 +10128,56 @@ const Menu = (() => {
   function setSave(v) { hasSave = !!v; }
   function enter() { t = 0; page = 'home'; confirm = null; hover = null; Audio.setMode('menu'); }
 
+  // The name of the game, cut into a stone lintel the god is holding up. The
+  // letters are chiselled: a dark inset with a lit lower lip, the way carved
+  // stone reads. Nothing else on this screen is text.
+  function lintel(g) {
+    const y = GOD.y - 69 * GOD.s;                       // sits right on the fists
+    const x0 = 26, x1 = VW - 26, h = 54;
+    const S0 = '#090b0f', S1 = '#232932', S2 = '#323945', S3 = '#454d59', S4 = '#5a6270';
+    const flick = redT > 0 ? U.clamp(redT / 0.6, 0, 1) * (0.62 + 0.38 * Math.sin(t * 26)) : 0;
+    const top = y - h;
+    // the slab, with a moulded lip top and bottom
+    Art.poly(g, [[x0 - 8, top - 8], [x1 + 8, top - 8], [x1 + 4, top], [x0 - 4, top]], S0);
+    Art.poly(g, [[x0 - 7, top - 7], [x1 + 7, top - 7], [x1 + 3.5, top - 1], [x0 - 3.5, top - 1]], S2);
+    Art.rect(g, x0 - 7, top - 7, x1 - x0 + 14, 2, S3);
+    Art.rect(g, x0 - 4, top, x1 - x0 + 8, h, S0);
+    Art.rect(g, x0 - 2, top + 2, x1 - x0 + 4, h - 4, S1);
+    Art.rect(g, x0 - 2, top + 2, x1 - x0 + 4, 3, S2);
+    Art.rect(g, x0 - 2, top + h - 7, x1 - x0 + 4, 3, S0);
+    Art.poly(g, [[x0 - 8, y + 8], [x1 + 8, y + 8], [x1 + 4, y], [x0 - 4, y]], S0);
+    Art.poly(g, [[x0 - 7, y + 7], [x1 + 7, y + 7], [x1 + 3.5, y + 1], [x0 - 3.5, y + 1]], S1);
+    Art.rect(g, x0 - 7, y + 1, x1 - x0 + 14, 2, S3);
+    // weathering: a long crack and some chips before the letters go on
+    Art.limb(g, x0 + 58, top + 4, x0 + 74, y - 6, 1.6, 0.6, S0);
+    Art.rect(g, x1 - 90, top + 8, 2, 12, S0);
+    g.globalAlpha = 0.4;
+    Art.speckle(g, (x0 + x1) / 2, top + h / 2, (x1 - x0) / 2, h / 2 - 3, '#3f5a34', 0.05, 7);
+    g.globalAlpha = 1;
+    // the letters, chiselled in
+    const cx = (x0 + x1) / 2, ty = top + 13;
+    Font.draw(g, 'WOMBAT GODS', cx, ty + 3, { scale: 4, align: 'center', color: '#05070a' });   // the depth of the cut
+    Font.draw(g, 'WOMBAT GODS', cx + 1, ty + 4, { scale: 4, align: 'center', color: S4 });      // the lit lower lip
+    Font.draw(g, 'WOMBAT GODS', cx, ty + 1, { scale: 4, align: 'center', color: '#cdb98d' });   // lamplight in the groove
+    Font.draw(g, 'WOMBAT GODS', cx, ty, { scale: 4, align: 'center', color: '#f0dcab' });
+    // when the eyes take, the cut glows with them
+    if (flick > 0.02) {
+      g.globalAlpha = flick * 0.75;
+      Font.draw(g, 'WOMBAT GODS', cx, ty + 1.5, { scale: 4, align: 'center', color: '#ff3a26' });
+      g.globalAlpha = 1;
+    }
+    // two iron rings the god's fists are hooked through
+    for (const fx of [GOD.x - 16 * GOD.s, GOD.x + 16 * GOD.s]) {
+      Art.ellBand(g, fx, y + 6, 9, 11, '#14171d', 0, 1);
+      Art.ellBand(g, fx, y + 6, 7.6, 9.4, '#404854', 0.06, 0.44);
+    }
+  }
+
   // ---- WOMBATHENA, of the Bolt -------------------------------------------
   // A colossus of a wombat carved mid-flex: chest out, both arms up, stone
   // muscle everywhere. Every so often the carved eyes catch something and go
   // red, which is the only part of it that ever moves.
-  const GOD = { x: 136, y: 334, s: 1.95 };
+  const GOD = { x: 206, y: 346, s: 2.35 };
   let redT = 0, redNext = 2.5;
   function godStatue(g) {
     const { x, y, s } = GOD;
@@ -9970,10 +10219,14 @@ const Menu = (() => {
       Art.ell(g, sx + sd * 6, sy - 6, 5.4, 4.4, sd < 0 ? S3 : S2);     // the bicep
       Art.limb(g, sx + sd * 13, sy - 9, sx + sd * 9, sy - 24, 6, 5, S0);   // forearm, folded up
       Art.limb(g, sx + sd * 12.6, sy - 9.4, sx + sd * 9, sy - 23.4, 4.8, 4, sd < 0 ? S2 : S1);
-      Art.ell(g, sx + sd * 9, sy - 25, 5, 4.6, S0);                    // the fist
+      Art.ell(g, sx + sd * 9, sy - 25, 5, 4.6, S0);                    // the fist, open, holding
       Art.ell(g, sx + sd * 9, sy - 25.4, 4.2, 3.8, sd < 0 ? S3 : S2);
       for (let k = 0; k < 3; k++) Art.rect(g, sx + sd * 9 - 3 + k * 2.2, -72.4, 1.4, 2.4, S0);
     }
+    g.restore();
+    lintel(g);
+    g.save();
+    g.translate(x, y); g.scale(s, s);
     // the head: a wombat's, blunt, with a laurel of stone leaves
     Art.ell(g, 0, -52, 11, 9.5, S0);
     Art.ell(g, 0, -52.6, 10, 8.6, S1);
@@ -10245,17 +10498,6 @@ const Menu = (() => {
     }
   }
 
-  function title(g) {
-    const cx = 485, y = 44 + Math.sin(t * 1.4) * 2;
-    for (let i = 5; i > 0; i--) {
-      Font.draw(g, 'WOMBAT GODS', cx + i * 0.6, y + i * 1.2, {
-        scale: 3, align: 'center', color: `rgba(24,12,8,${(0.5 - i * 0.07).toFixed(2)})`,
-      });
-    }
-    Font.draw(g, 'WOMBAT GODS', cx, y, { scale: 3, align: 'center', color: '#f5cd5c', shadow: '#2a1608', shadowDist: 2 });
-    Font.draw(g, 'THE GROVE IS DEAD. BRING IT BACK.', cx, y + 27, { scale: 1, align: 'center', color: '#8fa886' });
-  }
-
   function update(dt) {
     t += dt; wombatLoop(dt);
     redT -= dt; redNext -= dt;                          // the god's eyes, now and then
@@ -10263,7 +10505,6 @@ const Menu = (() => {
   }
   function render(g) {
     scene(g);
-    title(g);
     if (page === 'home') drawHome(g);
     else drawSettings(g);
     if (confirm) drawConfirm(g);
@@ -10312,7 +10553,7 @@ const Main = (() => {
     return {
       v: 6, introDone: false, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
-      seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
+      seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
       wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
@@ -10433,6 +10674,7 @@ const Main = (() => {
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
+    if (mode !== 'map') G.lastSite = mode;
     UI.setMode(mode);
     FX.clear(); FX.flash('#120e14', 0.5);
     if (mode !== 'shop') Audio.play('whoosh');

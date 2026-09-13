@@ -111,11 +111,56 @@ const Menu = (() => {
   function setSave(v) { hasSave = !!v; }
   function enter() { t = 0; page = 'home'; confirm = null; hover = null; Audio.setMode('menu'); }
 
+  // The name of the game, cut into a stone lintel the god is holding up. The
+  // letters are chiselled: a dark inset with a lit lower lip, the way carved
+  // stone reads. Nothing else on this screen is text.
+  function lintel(g) {
+    const y = GOD.y - 69 * GOD.s;                       // sits right on the fists
+    const x0 = 26, x1 = VW - 26, h = 54;
+    const S0 = '#090b0f', S1 = '#232932', S2 = '#323945', S3 = '#454d59', S4 = '#5a6270';
+    const flick = redT > 0 ? U.clamp(redT / 0.6, 0, 1) * (0.62 + 0.38 * Math.sin(t * 26)) : 0;
+    const top = y - h;
+    // the slab, with a moulded lip top and bottom
+    Art.poly(g, [[x0 - 8, top - 8], [x1 + 8, top - 8], [x1 + 4, top], [x0 - 4, top]], S0);
+    Art.poly(g, [[x0 - 7, top - 7], [x1 + 7, top - 7], [x1 + 3.5, top - 1], [x0 - 3.5, top - 1]], S2);
+    Art.rect(g, x0 - 7, top - 7, x1 - x0 + 14, 2, S3);
+    Art.rect(g, x0 - 4, top, x1 - x0 + 8, h, S0);
+    Art.rect(g, x0 - 2, top + 2, x1 - x0 + 4, h - 4, S1);
+    Art.rect(g, x0 - 2, top + 2, x1 - x0 + 4, 3, S2);
+    Art.rect(g, x0 - 2, top + h - 7, x1 - x0 + 4, 3, S0);
+    Art.poly(g, [[x0 - 8, y + 8], [x1 + 8, y + 8], [x1 + 4, y], [x0 - 4, y]], S0);
+    Art.poly(g, [[x0 - 7, y + 7], [x1 + 7, y + 7], [x1 + 3.5, y + 1], [x0 - 3.5, y + 1]], S1);
+    Art.rect(g, x0 - 7, y + 1, x1 - x0 + 14, 2, S3);
+    // weathering: a long crack and some chips before the letters go on
+    Art.limb(g, x0 + 58, top + 4, x0 + 74, y - 6, 1.6, 0.6, S0);
+    Art.rect(g, x1 - 90, top + 8, 2, 12, S0);
+    g.globalAlpha = 0.4;
+    Art.speckle(g, (x0 + x1) / 2, top + h / 2, (x1 - x0) / 2, h / 2 - 3, '#3f5a34', 0.05, 7);
+    g.globalAlpha = 1;
+    // the letters, chiselled in
+    const cx = (x0 + x1) / 2, ty = top + 13;
+    Font.draw(g, 'WOMBAT GODS', cx, ty + 3, { scale: 4, align: 'center', color: '#05070a' });   // the depth of the cut
+    Font.draw(g, 'WOMBAT GODS', cx + 1, ty + 4, { scale: 4, align: 'center', color: S4 });      // the lit lower lip
+    Font.draw(g, 'WOMBAT GODS', cx, ty + 1, { scale: 4, align: 'center', color: '#cdb98d' });   // lamplight in the groove
+    Font.draw(g, 'WOMBAT GODS', cx, ty, { scale: 4, align: 'center', color: '#f0dcab' });
+    // when the eyes take, the cut glows with them
+    if (flick > 0.02) {
+      g.globalAlpha = flick * 0.75;
+      Font.draw(g, 'WOMBAT GODS', cx, ty + 1.5, { scale: 4, align: 'center', color: '#ff3a26' });
+      g.globalAlpha = 1;
+    }
+    // two iron rings the god's fists are hooked through
+    for (const fx of [GOD.x - 16 * GOD.s, GOD.x + 16 * GOD.s]) {
+      Art.ellBand(g, fx, y + 6, 9, 11, '#14171d', 0, 1);
+      Art.ellBand(g, fx, y + 6, 7.6, 9.4, '#404854', 0.06, 0.44);
+    }
+  }
+
   // ---- WOMBATHENA, of the Bolt -------------------------------------------
   // A colossus of a wombat carved mid-flex: chest out, both arms up, stone
   // muscle everywhere. Every so often the carved eyes catch something and go
   // red, which is the only part of it that ever moves.
-  const GOD = { x: 136, y: 334, s: 1.95 };
+  const GOD = { x: 206, y: 346, s: 2.35 };
   let redT = 0, redNext = 2.5;
   function godStatue(g) {
     const { x, y, s } = GOD;
@@ -157,10 +202,14 @@ const Menu = (() => {
       Art.ell(g, sx + sd * 6, sy - 6, 5.4, 4.4, sd < 0 ? S3 : S2);     // the bicep
       Art.limb(g, sx + sd * 13, sy - 9, sx + sd * 9, sy - 24, 6, 5, S0);   // forearm, folded up
       Art.limb(g, sx + sd * 12.6, sy - 9.4, sx + sd * 9, sy - 23.4, 4.8, 4, sd < 0 ? S2 : S1);
-      Art.ell(g, sx + sd * 9, sy - 25, 5, 4.6, S0);                    // the fist
+      Art.ell(g, sx + sd * 9, sy - 25, 5, 4.6, S0);                    // the fist, open, holding
       Art.ell(g, sx + sd * 9, sy - 25.4, 4.2, 3.8, sd < 0 ? S3 : S2);
       for (let k = 0; k < 3; k++) Art.rect(g, sx + sd * 9 - 3 + k * 2.2, -72.4, 1.4, 2.4, S0);
     }
+    g.restore();
+    lintel(g);
+    g.save();
+    g.translate(x, y); g.scale(s, s);
     // the head: a wombat's, blunt, with a laurel of stone leaves
     Art.ell(g, 0, -52, 11, 9.5, S0);
     Art.ell(g, 0, -52.6, 10, 8.6, S1);
@@ -432,17 +481,6 @@ const Menu = (() => {
     }
   }
 
-  function title(g) {
-    const cx = 485, y = 44 + Math.sin(t * 1.4) * 2;
-    for (let i = 5; i > 0; i--) {
-      Font.draw(g, 'WOMBAT GODS', cx + i * 0.6, y + i * 1.2, {
-        scale: 3, align: 'center', color: `rgba(24,12,8,${(0.5 - i * 0.07).toFixed(2)})`,
-      });
-    }
-    Font.draw(g, 'WOMBAT GODS', cx, y, { scale: 3, align: 'center', color: '#f5cd5c', shadow: '#2a1608', shadowDist: 2 });
-    Font.draw(g, 'THE GROVE IS DEAD. BRING IT BACK.', cx, y + 27, { scale: 1, align: 'center', color: '#8fa886' });
-  }
-
   function update(dt) {
     t += dt; wombatLoop(dt);
     redT -= dt; redNext -= dt;                          // the god's eyes, now and then
@@ -450,7 +488,6 @@ const Menu = (() => {
   }
   function render(g) {
     scene(g);
-    title(g);
     if (page === 'home') drawHome(g);
     else drawSettings(g);
     if (confirm) drawConfirm(g);

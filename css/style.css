@@ -553,3 +553,10 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   background: #f5cd5c; border: 2px solid #120d08; display: block;
   transition: bottom .08s linear;
 }
+
+/* A little bounce on anything you can press: the whole UI should feel springy. */
+.spoke, .rbtn, .mbtn, .zbtn, .hq { transition: transform .09s cubic-bezier(.34,1.56,.64,1), filter .09s ease; }
+.spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover { transform: translateY(-2px) scale(1.04); }
+.spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active { transform: translateY(1px) scale(.96); }
+@keyframes pop-in { 0% { transform: scale(.86); opacity: 0 } 60% { transform: scale(1.04); opacity: 1 } 100% { transform: scale(1) } }
+.panel:not([hidden]), .tray:not([hidden]) { animation: pop-in .16s cubic-bezier(.34,1.56,.64,1); }

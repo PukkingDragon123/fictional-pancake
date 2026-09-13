@@ -1228,6 +1228,7 @@ const Grove = (() => {
     } else if (w.stomach === 'ready') {
       Icons.blit(g, 'offering', x - 7, y - 18 - Math.abs(Math.sin(G.time * 8)) * 3, 0.85);
     }
+    emote(g, w, x, y);
     if (hoverW === w) {
       const nm = String(w.name).toUpperCase();
       const tw = Font.width(nm, 1);
@@ -1236,6 +1237,42 @@ const Grove = (() => {
       Font.draw(g, nm, x, y - 13, { scale: 1, color: PAL.cream, align: 'center' });
     }
   }
+  // Small moods over each wombat: z's asleep, a note while it grazes, hearts
+  // when it is thoroughly pleased with you. Cheap, and it makes them alive.
+  function emote(g, w, x, y) {
+    const T = G.time;
+    if (w.state === 'sleep') {
+      for (let i = 0; i < 3; i++) {
+        const k = ((T * 0.5 + i * 0.33) % 1);
+        const a = (1 - k) * 0.9;
+        const zs = 1 + Math.floor(k * 2);
+        Font.draw(g, 'Z', x + 9 + k * 13, y - 20 - k * 16, {
+          scale: zs, color: `rgba(206,222,246,${a.toFixed(2)})`, align: 'center',
+        });
+      }
+      return;
+    }
+    if (w.state === 'graze' && Math.sin(T * 2 + w.id) > 0.2) {
+      const bob = Math.sin(T * 6 + w.id) * 2;
+      g.fillStyle = 'rgba(180,226,150,0.85)';
+      g.fillRect(Math.round(x + 10), Math.round(y - 24 + bob), 2, 7);
+      g.fillRect(Math.round(x + 12), Math.round(y - 25 + bob), 3, 2);
+      Art.ell(g, x + 10, y - 17 + bob, 2.2, 1.8, 'rgba(180,226,150,0.85)');
+      return;
+    }
+    if (w.state === 'happy' || (w.hap > 82 && Math.sin(T * 0.9 + w.id * 2) > 0.86)) {
+      for (let i = 0; i < 2; i++) {
+        const k = ((T * 0.8 + i * 0.5) % 1);
+        const a = (1 - k) * 0.9;
+        const hx = x - 4 + Math.sin(k * 5 + i) * 5, hy = y - 22 - k * 18;
+        g.fillStyle = `rgba(255,140,170,${a.toFixed(2)})`;
+        Art.ell(g, hx - 2, hy, 2.2, 2.2, g.fillStyle);
+        Art.ell(g, hx + 2, hy, 2.2, 2.2, g.fillStyle);
+        Art.poly(g, [[hx - 4, hy + 1], [hx + 4, hy + 1], [hx, hy + 6]], g.fillStyle);
+      }
+    }
+  }
+
   function drawDrop(g, d) {
     const def = OFFERINGS[d.type], s = CUBE_SIZE * 0.72;
     const w = def.w * s, h = def.h * s;

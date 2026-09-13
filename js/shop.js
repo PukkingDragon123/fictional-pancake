@@ -4,7 +4,7 @@ const Shop = (() => {
   const VW = 640, VH = 360;
   const cache = new Map();
   let phase = 'door', pt = 0, scroll = 0, tscroll = 0, till = 0, hover = null;
-  let drag = null, moved = 0, keeper = { t: 0, pose: 'idle' };
+  let drag = null, moved = 0, keeper = { t: 0, pose: 'idle' }, keeperHot = false;
   const basket = [], flies = [], motes = [];
 
   // ---- product sprites ----------------------------------------------------
@@ -290,13 +290,21 @@ const Shop = (() => {
     if (wasDrag) return;
     const s = slotAt(x, y);
     if (s) { add(s.p); return; }
+    if (keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h) {
+      if (!basket.length) { Audio.play('error'); UI.toast('nothing in the basket yet', 'bad'); return; }
+      UI.openBasket(); Audio.play('click');
+      FX.comic(x, y - 26, 'HI!', { ink: '#d8f0a0', edge: '#2f8f42', life: 0.5 });
+      return;
+    }
     if (overCounter(x) && y > 150) { UI.openBasket(); Audio.play('click'); return; }
   }
   function hoverAt(x, y) {
     if (phase !== 'aisle') return null;
+    keeperHot = !!(keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h);
     const s = slotAt(x, y);
     hover = s;
-    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>pay for the basket' : null;
+    if (keeperHot) return `<b>Baz</b> <span class="dim">shopkeeper</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'bring him a basket'}`;
+    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>ask the wombat' : null;
     const p = s.p;
     const tag = p.locked ? '<span class="warn">a god must bless it</span>'
       : p.sold ? '<span class="good">owned</span>'
@@ -477,6 +485,19 @@ const Shop = (() => {
     for (const m of motes) {
       g.fillStyle = 'rgba(255,250,220,0.5)';
       g.fillRect(Math.round((m.x + Math.sin(t * 0.4 + m.ph) * 20) % VW), Math.round(m.y + Math.cos(t * 0.3 + m.ph) * 14), 1, 1);
+    }
+    // once you have something, point the way to the counter
+    if (basket.length && counterX - scroll > VW - 40) {
+      const a = 0.5 + 0.5 * Math.sin(t * 4);
+      const ax = VW - 96, ay = 96;
+      g.fillStyle = `rgba(201,88,31,${(0.5 + a * 0.4).toFixed(2)})`;
+      g.fillRect(ax - 44, ay - 11, 84, 22);
+      g.fillStyle = '#fff0dc'; g.fillRect(ax - 44, ay - 11, 84, 2);
+      Font.draw(g, 'TO THE TILL', ax - 6, ay - 4, { scale: 1, color: '#fff0dc', align: 'center' });
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle = `rgba(255,240,220,${(0.3 + a * 0.6 - i * 0.15).toFixed(2)})`;
+        for (let k = 0; k < 5; k++) g.fillRect(ax + 26 + i * 7 + k, ay - 5 + k, 1, 11 - k * 2);
+      }
     }
     // swipe hint
     if (pt < 5 && tscroll < 20) {
@@ -689,17 +710,34 @@ const Shop = (() => {
     }
     g.fillStyle = '#2a2f3a'; g.fillRect(sx, 142, 66, 9);
     FX.pixelText(g, 'SLUSH', sx + 33, 143, { color: '#fff', size: 7, ink: false });
-    // the keeper behind the counter
-    const pose = till > 0 ? 'bite' : 'pray';
-    Sprites.blit(g, cx + 112, 320, pose, Math.floor(t * (till > 0 ? 8 : 2.5)), 'sand', -1, 'adult', 2.4);
-    // counter body: pale top, panelled front, a kick rail and the house stripe
-    g.fillStyle = '#c9c3b2'; g.fillRect(cx, 284, 250, 48);
-    g.fillStyle = '#efeade'; g.fillRect(cx, 284, 250, 8);
-    g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(cx, 284, 250, 2);
-    for (let i = 0; i < 5; i++) { g.fillStyle = 'rgba(0,0,0,0.1)'; g.fillRect(cx + 12 + i * 48, 298, 36, 26); }
-    g.fillStyle = '#c9581f'; g.fillRect(cx, 292, 250, 5);
+    // a rubber plant in the corner, because every shop has one
+    const px = cx + 248;
+    g.fillStyle = '#8a5a3a'; g.fillRect(px - 12, 296, 24, 26);
+    g.fillStyle = '#a87048'; g.fillRect(px - 12, 296, 24, 4);
+    g.fillStyle = '#6b4530'; g.fillRect(px - 12, 318, 24, 4);
+    for (let i = 0; i < 7; i++) {
+      const a2 = -Math.PI / 2 + (i - 3) * 0.34, L = 30 + (i % 3) * 9;
+      const lx2 = px + Math.cos(a2) * L, ly2 = 296 + Math.sin(a2) * L;
+      Art.limb(g, px, 296, lx2, ly2, 3, 1.4, '#2f6b34');
+      Art.ell(g, lx2, ly2, 9, 6, '#3f8f4a');
+      Art.ell(g, lx2 - 2, ly2 - 2, 5, 3.2, '#5fb05c');
+    }
+    // counter body: tiled front, a pale top, a kick rail and the house stripe
+    g.fillStyle = '#b3ad9c'; g.fillRect(cx, 288, 250, 44);
+    for (let r = 0; r < 3; r++) for (let i = 0; i < 13; i++) {          // little square tiles
+      const tx2 = cx + 2 + i * 19 + (r % 2 ? 9 : 0), ty2 = 296 + r * 12;
+      g.fillStyle = (i + r) % 3 ? '#cfc8b6' : '#dfd8c4'; g.fillRect(tx2, ty2, 17, 10);
+      g.fillStyle = 'rgba(255,255,255,0.4)'; g.fillRect(tx2, ty2, 17, 2);
+    }
+    g.fillStyle = '#efeade'; g.fillRect(cx - 4, 282, 258, 9);           // the countertop lip
+    g.fillStyle = 'rgba(255,255,255,0.7)'; g.fillRect(cx - 4, 282, 258, 2);
+    g.fillStyle = '#9a9484'; g.fillRect(cx - 4, 289, 258, 3);
+    g.fillStyle = '#c9581f'; g.fillRect(cx, 292, 250, 4);
     g.fillStyle = '#9a9484'; g.fillRect(cx, 326, 250, 6);
     g.fillStyle = '#74705f'; g.fillRect(cx, 332, 250, 4);
+    // a floor decal telling you where to stand
+    g.fillStyle = 'rgba(201,88,31,0.5)'; g.fillRect(cx - 66, 342, 56, 3);
+    Font.draw(g, 'WAIT HERE', cx - 38, 346, { scale: 1, color: 'rgba(122,108,86,0.8)', align: 'center' });
     // card reader on a stalk
     g.fillStyle = '#3d434e'; g.fillRect(cx + 214, 268, 20, 18);
     g.fillStyle = '#8ad0a0'; g.fillRect(cx + 217, 271, 14, 8);
@@ -723,9 +761,63 @@ const Shop = (() => {
       g.fillStyle = '#fffdf0'; g.fillRect(cx + 170, 252 - h, 14, h);
       g.fillStyle = '#b9b3a2'; for (let y = 4; y < h; y += 6) g.fillRect(cx + 172, 252 - h + y, 10, 1);
     }
-    sign(g, cx + 120, 104, 'PAY', '#b8412c');
-    const m = Sprites.mascot(Math.floor(t * 3));
-    g.drawImage(m, Math.round(cx + 232), Math.round(330 - m.height));
+    keeperWombat(g, cx, t);
+    sign(g, cx + 120, 104, 'PAY HERE', '#b8412c', 'ask the wombat');
+  }
+
+  // The shopkeeper: a wombat sat on the counter in a little green visor. It is
+  // the checkout — you come to it, and it holds up what you owe.
+  let keeperR = null;
+  function keeperWombat(g, cx, t) {
+    const n = basket.length;
+    const wx = cx + 66, wy = 288;
+    const hop = n ? Math.abs(Math.sin(t * 4)) * 3 : Math.abs(Math.sin(t * 1.6)) * 1.2;
+    const hot = keeperHot;
+    keeperR = { x: wx - 40, y: wy - 66, w: 80, h: 70 };
+    // the counter dips a little under it
+    g.fillStyle = 'rgba(0,0,0,0.16)'; Art.ell(g, wx, wy + 1, 22, 5);
+    const f = Math.floor(t * (till > 0 ? 9 : n ? 6 : 2.2));
+    const pose = till > 0 ? 'happy' : n ? 'sit' : 'idle';
+    g.save();
+    g.translate(0, -hop);
+    Sprites.blit(g, wx, wy, pose, f, 'sand', -1, 'adult', 2.6);
+    // a green visor, because it works here
+    g.fillStyle = '#12361c'; g.fillRect(wx - 16, wy - 62, 32, 7);
+    g.fillStyle = '#2f8f42'; g.fillRect(wx - 15, wy - 61, 30, 5);
+    g.fillStyle = '#5fc46c'; g.fillRect(wx - 15, wy - 61, 30, 1);
+    g.fillStyle = '#12361c'; g.fillRect(wx - 24, wy - 56, 32, 5);
+    g.fillStyle = '#3fa552'; g.fillRect(wx - 24, wy - 56, 32, 2);
+    // a name badge
+    g.fillStyle = '#fffdf0'; g.fillRect(wx - 14, wy - 30, 18, 8);
+    g.fillStyle = '#c9581f'; g.fillRect(wx - 14, wy - 30, 18, 2);
+    Font.draw(g, 'BAZ', wx - 5, wy - 26, { scale: 1, color: '#2a2f3a', align: 'center' });
+    g.restore();
+    // what it wants from you
+    const by = wy - 74 - hop;
+    if (till > 0) {
+      bubble(g, wx, by, 'TA!', '#3f8f4a', '#dff5d8');
+    } else if (n) {
+      bubble(g, wx, by, `${total()} W$`, '#c9581f', '#fff0dc');
+      const a = 0.5 + 0.5 * Math.sin(t * 5);
+      Font.draw(g, 'CLICK ME', wx, by - 32, { scale: 1, color: `rgba(245,205,92,${a.toFixed(2)})`, align: 'center', shadow: '#2a1608' });
+    } else if (hot) {
+      bubble(g, wx, by, 'G\'DAY', '#2f6f9f', '#d8ecff');
+    }
+    if (hot) {                                        // a ring so you know it is the button
+      g.strokeStyle = '#f5cd5c'; g.lineWidth = 1;
+      g.setLineDash([4, 3]); g.lineDashOffset = -t * 10;
+      g.strokeRect(keeperR.x + 0.5, keeperR.y + 0.5, keeperR.w - 1, keeperR.h - 1);
+      g.setLineDash([]);
+    }
+  }
+  function bubble(g, x, y, text, col, ink) {
+    const w = Font.width(text, 2) + 16, h = 20;
+    g.fillStyle = '#0a0810'; g.fillRect(x - w / 2 - 2, y - h - 2, w + 4, h + 4);
+    g.fillStyle = col; g.fillRect(x - w / 2, y - h, w, h);
+    g.fillStyle = U.shade(col, 0.35); g.fillRect(x - w / 2, y - h, w, 3);
+    Art.poly(g, [[x - 5, y], [x + 5, y], [x, y + 7]], '#0a0810');
+    Art.poly(g, [[x - 4, y - 1], [x + 4, y - 1], [x, y + 5]], col);
+    Font.draw(g, text, x, y - h + 6, { scale: 2, color: ink, align: 'center', shadow: U.shade(col, -0.5) });
   }
 
   return {

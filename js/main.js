@@ -12,7 +12,7 @@ const Main = (() => {
     return {
       v: 6, introDone: false, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
       tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
-      seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {},
+      seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
       wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
@@ -133,6 +133,7 @@ const Main = (() => {
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
+    if (mode !== 'map') G.lastSite = mode;
     UI.setMode(mode);
     FX.clear(); FX.flash('#120e14', 0.5);
     if (mode !== 'shop') Audio.play('whoosh');

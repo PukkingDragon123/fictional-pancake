@@ -152,7 +152,7 @@ const Atlas = (() => {
     if (!s) return;
     if (!unlocked(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return; }
     if (!s.mode) { Audio.play('error'); return; }
-    travel = { t: 0, site: s };
+    travel = { t: 0, site: s, from: whereAmI(), dust: [] };
     Audio.play('whoosh');
     FX.shake(1.4);
   }
@@ -162,10 +162,77 @@ const Atlas = (() => {
     if (!unlocked(hover)) return `<b>?</b><br>${hover.gate && !hover.gate(G) ? hover.why : hover.need + ' gods must answer first'}`;
     return `<b>${hover.name}</b>`;
   }
+  // Where the truck is parked right now: the last place you were, or the grove.
+  function whereAmI() {
+    const byMode = SITES.find((s) => s.mode === (G.lastSite || 'grove'));
+    return byMode || SITES[0];
+  }
+  // The route the truck takes: a trail leg if there is one, else a straight run.
+  function routeOf(a, b) {
+    for (const [ak, bk, bend] of TRAILS) {
+      if (ak === a.key && bk === b.key) return { a, b, bend };
+      if (bk === a.key && ak === b.key) return { a: b, b: a, bend, back: true };
+    }
+    return { a, b, bend: 14 };
+  }
+  const DRIVE = 1.5;                                  // how long the drive lasts
   function update(dt) {
     if (!travel) return;
     travel.t += dt;
-    if (travel.t > 0.62) { const m = travel.site.mode; travel = null; Main.setMode(m); }
+    for (let i = travel.dust.length - 1; i >= 0; i--) {
+      const d = travel.dust[i];
+      d.t += dt; d.x += d.vx * dt; d.y += d.vy * dt; d.vy += 14 * dt;
+      if (d.t > d.life) travel.dust.splice(i, 1);
+    }
+    if (travel.t > DRIVE + 0.5) {
+      const m = travel.site.mode;
+      G.lastSite = travel.site.mode;
+      travel = null;
+      Main.setMode(m);
+    }
+  }
+  // The truck, drawn small and driving the leg, nose pointing the way it goes.
+  function drawTravel(g, t) {
+    const k = U.clamp(travel.t / DRIVE, 0, 1);
+    const r = routeOf(travel.from, travel.site);
+    const pt = (u) => {
+      const s2 = Math.sin(u * Math.PI);
+      const dx = r.b.x - r.a.x, dy = r.b.y - r.a.y, L = Math.hypot(dx, dy) || 1;
+      return {
+        x: U.lerp(r.a.x, r.b.x, u) - (dy / L) * s2 * r.bend + Math.sin(u * Math.PI * 3) * 4,
+        y: U.lerp(r.a.y, r.b.y, u) + (dx / L) * s2 * r.bend,
+      };
+    };
+    const u = r.back ? 1 - U.easeInOut(k) : U.easeInOut(k);
+    const p = pt(u), q = pt(U.clamp(u + (r.back ? -0.02 : 0.02), 0, 1));
+    const facing = q.x >= p.x ? 1 : -1;
+    const bounce = Math.abs(Math.sin(travel.t * 15)) * 1.4;
+    // dust off the back wheels
+    if (k < 1 && Math.random() < 0.7) {
+      travel.dust.push({ x: p.x - facing * 8, y: p.y + 3, vx: -facing * U.rand(6, 20), vy: U.rand(-14, -4), t: 0, life: 0.6 + Math.random() * 0.4 });
+    }
+    for (const d of travel.dust) {
+      const a = (1 - d.t / d.life) * 0.5;
+      g.fillStyle = `rgba(150,132,104,${a.toFixed(2)})`;
+      Art.ell(g, d.x, d.y, 2 + d.t * 7, 1.5 + d.t * 5, g.fillStyle);
+    }
+    const img0 = Props.get('truck');
+    const img = facing > 0 ? Art.flip(img0) : img0;
+    const w = img.width * 0.33, h = img.height * 0.33;
+    g.fillStyle = 'rgba(0,0,0,0.4)'; Art.ell(g, p.x, p.y + 3, w * 0.42, 3);
+    g.drawImage(img, Math.round(p.x - w / 2), Math.round(p.y - h + 5 - bounce), Math.round(w), Math.round(h));
+    // headlights, since it is dark out here
+    const hx = p.x + facing * w * 0.5;
+    const beam = g.createRadialGradient(hx, p.y - 3, 2, hx, p.y - 3, 42);
+    beam.addColorStop(0, 'rgba(255,236,176,0.4)');
+    beam.addColorStop(1, 'rgba(255,236,176,0)');
+    g.fillStyle = beam; g.fillRect(hx - 44, p.y - 47, 88, 88);
+    // the name of where it is going, riding along above it
+    if (k < 0.98) {
+      Font.draw(g, travel.site.name.toUpperCase(), p.x, p.y - h - 6 - bounce, {
+        scale: 1, color: '#f5cd5c', align: 'center', shadow: '#120a06', shadowDist: 1,
+      });
+    }
   }
 
   function render(g) {
@@ -257,8 +324,9 @@ const Atlas = (() => {
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);
 
-    if (travel) {
-      const k = U.clamp(travel.t / 0.62, 0, 1);
+    if (travel) drawTravel(g, t);
+    if (travel && travel.t > DRIVE) {
+      const k = U.clamp((travel.t - DRIVE) / 0.5, 0, 1);
       const s = travel.site;
       const rad = U.lerp(Math.hypot(VW, VH), 0, U.easeIn(k));
       g.save();
