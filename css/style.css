@@ -27,7 +27,7 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { margin: 0; height: 100%; overflow: hidden; color: var(--ink); font-family: var(--f); font-size: 14px;
+html, body { margin: 0; height: 100%; overflow: hidden; color: var(--ink); font-family: var(--f); font-size: 16px;
   -webkit-font-smoothing: none; font-smooth: never; text-rendering: geometricPrecision;
   background: radial-gradient(ellipse at 50% 42%, var(--pp2) 0%, var(--pp1) 46%, var(--pp0) 100%); }
 button { font-family: var(--f); cursor: pointer; color: var(--cream); font-size: 16px; }
@@ -296,22 +296,21 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     var(--tex-paper, none) repeat,
     linear-gradient(180deg, var(--pg2), var(--pg2)); border: 3px solid var(--ol); border-left: 7px solid var(--wd2); box-shadow: inset 0 0 0 2px var(--wd2); }
 .readout .line img { width: 18px; height: 18px; image-rendering: pixelated; }
-#r-lives { gap: 3px; }
-#r-lives img { width: 16px; height: 16px; image-rendering: pixelated; }
-.goals { display: flex; flex-direction: column; gap: 4px; }
-.goals div { display: flex; align-items: center; gap: 6px; padding: 4px 8px; font-size: 16px; color: var(--ink);
+.readout .line.big { font-size: 26px; min-width: 120px; padding: 6px 11px; color: var(--gd1); }
+.readout .line.big img { width: 26px; height: 26px; }
+.readout .line em { font-style: normal; margin-left: auto; font-size: 13px; color: #3f6b1c; }
+/* the next rank on the ladder, and how far up it you are */
+.rank { width: 176px; padding: 7px 9px 8px; color: var(--ink);
   background:
     radial-gradient(ellipse at 34% 22%, rgba(255,244,212,0.4) 0%, rgba(255,244,212,0) 62%),
     linear-gradient(168deg, rgba(232,210,170,0.42) 0%, rgba(0,0,0,0) 38%, rgba(110,80,48,0.3) 100%),
     var(--tex-paper, none) repeat,
-    linear-gradient(180deg, var(--pg2), var(--pg2)); border: 3px solid var(--ol); border-left: 7px solid var(--tl2); box-shadow: inset 0 0 0 2px var(--wd2); }
-.goals div.done { border-left-color: #6ea83e; color: #3f6b1c; }
-.boons { display: flex; gap: 4px; flex-wrap: wrap; max-width: 128px; }
-.boons img { width: 26px; height: 26px; image-rendering: pixelated; padding: 2px;
-  background:
-    linear-gradient(162deg, rgba(230,184,124,0.3) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%),
-    var(--tex-cellwood, none) repeat,
-    linear-gradient(180deg, #442c18, #33200f); border: 3px solid var(--ol); }
+    linear-gradient(180deg, var(--pg2), var(--pg2)); border: 3px solid var(--ol); border-left: 7px solid var(--gd3); box-shadow: inset 0 0 0 2px var(--wd2); }
+.rank .rname { font-size: 15px; letter-spacing: 0.5px; }
+.rank .rsub { font-size: 12px; color: var(--pg5); margin-top: 3px; }
+.rank .rbar { height: 9px; margin-top: 5px; background: #3a2a18; border: 2px solid var(--ol); box-shadow: inset 0 0 0 1px #241708; }
+.rank .rbar i { display: block; height: 100%; background: linear-gradient(180deg, var(--gd4), var(--gd2)); transition: width 0.25s ease-out; }
+#rite-keys { position: absolute; right: 56px; bottom: 14px; }
 
 /* ---- panels: the open book ----------------------------------------------- */
 .panel {
@@ -541,7 +540,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 }
 
 /* Big text: one step up everywhere, for anyone who wants it. */
-html.bigtext { font-size: 18px; }
+html.bigtext { font-size: 20px; }
 html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
 /* ---- zoom column: a chunky wooden slider down the right of the grove ---- */

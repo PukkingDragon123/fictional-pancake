@@ -1282,7 +1282,8 @@ const Grove = (() => {
     g.translate(Math.round(d.x), Math.round(d.y - d.z - h / 2));
     g.rotate(d.spin * 0.4 + (held ? Math.sin(G.time * 8) * 0.06 : 0));
     if (d.t > 0 && d.z === 0) { const p = 1 + Math.sin(d.t * 4.5) * 0.035; g.scale(p, 1 / p); }
-    Sprites.drawCube(g, def, w, h, { blessed: d.blessed, outline: held ? PAL.gold4 : d.blessed ? PAL.div4 : null });
+    Sprites.drawCube(g, def, w, h, { blessed: d.blessed, outline: held ? PAL.gold4 : d.blessed ? PAL.div4 : null,
+      face: held ? 'ready' : (((G.time + d.t) % 6) < 0.16 ? 'blink' : 'happy') });
     g.restore();
     if (d.blessed && Math.sin(d.t * 7) > 0.4) { g.fillStyle = PAL.div5; g.fillRect(d.x + w / 2 - 2, d.y - d.z - h - 3, 2, 2); }
   }

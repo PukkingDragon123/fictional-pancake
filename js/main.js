@@ -15,7 +15,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
+      stack: [], wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0 },
       pointer: { x: 320, y: 240, on: false },
       paused: false, muted: false, musicOff: false, lastSave: Date.now(), seen: false,
@@ -26,6 +26,7 @@ const Main = (() => {
     try {
       World.save();
       Grove.saveObjects();
+      if (G.mode === 'rite') Tower.serialise();     // the standing tower goes in the save
       G.lastSave = Date.now();
       if (!playing) return;
       const body = Object.assign({}, G, { paused: false, pointer: undefined });
@@ -98,9 +99,15 @@ const Main = (() => {
       Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
-      if (away > 30 && G.wombats.some((w) => w.stomach === 'digesting')) {
-        const made = Grove.offline(Math.min(away, 7200));
-        if (made > 0) setTimeout(() => UI.toast(`${U.time(Math.min(away, 7200))} away &middot; <b>${made}</b>`, 'good'), 900);
+      if (away > 30) {
+        const made = G.wombats.some((w) => w.stomach === 'digesting') ? Grove.offline(Math.min(away, 7200)) : 0;
+        const tips = Tower.offline(away);          // the standing tower kept earning
+        if (made > 0 || tips > 0) {
+          const bits = [];
+          if (made > 0) bits.push(`<b>${made}</b> poop`);
+          if (tips > 0) bits.push(`<b>${U.fmt(tips)}</b> W$ in tips`);
+          setTimeout(() => UI.toast(`${U.time(Math.min(away, 14400))} away &middot; ${bits.join(' &middot; ')}`, 'good'), 900);
+        }
       }
       G.paused = false;
       if (!G.introDone) { G.mode = 'intro'; Intro.enter(); UI.setMode('intro'); }
@@ -128,8 +135,8 @@ const Main = (() => {
 
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
-    if (Tower.active && mode !== 'rite') { UI.toast('finish the stack', 'bad'); Audio.play('error'); return; }
     if (Ritual.active) return;
+    if (Tower.open && mode !== 'rite') Tower.leave();
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
@@ -142,7 +149,8 @@ const Main = (() => {
     else if (mode === 'grove') Grove.enter();
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
-    Audio.setMode(mode === 'rite' && Tower.active ? 'tower' : 'pen');
+    else if (mode === 'rite') Tower.enter();
+    if (mode !== 'rite') Audio.setMode('pen');
     save();
   }
   function back() {
@@ -256,8 +264,6 @@ const Main = (() => {
       if (e.key === 'h' || e.key === 'H') { UI.openPanel('panel-help'); return; }
       if (G.mode === 'rite') {
         if (Tower.key(e.key)) e.preventDefault();
-        if (e.key === 'c' || e.key === 'C') Tower.cashOut();
-      } else if (false) {
       } else if (G.mode === 'grove') {
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { Grove.panBy(-70); e.preventDefault(); return; }
         if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { Grove.panBy(70); e.preventDefault(); return; }
@@ -337,7 +343,7 @@ const Main = (() => {
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
       if (G.mode === 'grove') UI.refreshZoom();
-      if (Tower.active) UI.refreshRunHUD();
+      if (Tower.open) UI.refreshRunHUD();
       if (G.mode === 'shrine') UI.refreshRitual();
     }
   }

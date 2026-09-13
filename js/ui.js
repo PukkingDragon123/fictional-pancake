@@ -177,7 +177,7 @@ const UI = (() => {
       el.className = 'chip' + (keys && G.selOffer === k ? ' on' : '');
       el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
       el.onclick = (e) => onClick(k, e);
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${def.value} at the stack${def.sell ? `<br>${def.sell} W$ pawned` : ''}${bl ? '<br><b>blessed</b> pays double' : ''}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${def.value} W$ stacked, more the higher it goes${def.sell ? `<br>${def.sell} W$ pawned` : ''}${bl ? '<br><b>blessed</b> pays double' : ''}`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
@@ -187,30 +187,27 @@ const UI = (() => {
 
   // ---- the stack ----------------------------------------------------------
   function refreshRunHUD() {
+    if (!Tower.open) return;
     const R = Tower.R;
-    if (!R.active) return;
     $('r-h').textContent = R.height.toFixed(1);
     $('r-c').textContent = Tower.crowdSize;
-    $('r-e').textContent = U.fmt(R.earned);
-    let h = '';
-    for (let i = 0; i < R.maxLives; i++) h += `<img src="${Icons.url('heart')}" alt="" style="opacity:${i < R.lives ? 1 : 0.25}">`;
-    $('r-lives').innerHTML = h;
-    $('r-goals').innerHTML = R.goals.map((gl) => `<div class="${gl.done ? 'done' : ''}">${gl.text} ${gl.done ? '' : `${gl.at}/${gl.need}`}</div>`).join('');
-    $('r-boons').innerHTML = Object.keys(R.boons).map((k) => {
-      const b = CUPID_BOONS.find((x) => x.key === k);
-      return `<img src="${Icons.url(b.icon)}" alt="" title="${b.name}">`;
-    }).join('');
+    $('r-e').textContent = U.fmt(R.session);
+    $('r-rate').textContent = '+' + (Tower.rate < 10 ? Tower.rate.toFixed(1) : U.fmt(Math.round(Tower.rate))) + '/s';
+    const nx = nextRank(Math.max(Math.floor(R.peak), G.record || 0));
+    const box = $('r-rank');
+    if (!nx) { box.innerHTML = '<div class="rname">THE GREAT STACK</div><div class="rsub">nothing left to beat</div>'; return; }
+    const done = Math.min(1, R.height / nx.h);
+    box.innerHTML = `<div class="rname">${nx.name}</div>
+      <div class="rbar"><i style="width:${(done * 100).toFixed(0)}%"></i></div>
+      <div class="rsub">${Math.floor(R.height)}/${nx.h} &middot; ${U.fmt(nx.pay)} W$</div>`;
   }
-  function onRunStart() { $('rite-card').hidden = true; $('rite-read').hidden = true; $('rite-tray').hidden = false; refreshRunHUD(); refreshOfferTray(); }
-  function onRunPlay() { $('rite-read').hidden = false; refreshRunHUD(); }
-  function hideRunHUD() { $('rite-read').hidden = true; }
-  function onRunEnd() { refreshRiteCard(); refreshHUD(); refreshOfferTray(); }
+  function onRunStart() { refreshRunHUD(); refreshOfferTray(); }
+  function onRunPlay() { refreshRunHUD(); }
+  function hideRunHUD() { }
+  function onRunEnd() { refreshHUD(); refreshOfferTray(); }
   function refreshRiteCard() {
-    const n = Tower.total();
-    $('rite-card').hidden = Tower.active || G.mode !== 'rite';
-    $('rite-tray').hidden = !Tower.active || G.mode !== 'rite';
-    $('b-start').disabled = n === 0;
-    $('rite-n').textContent = n;
+    if (G.mode !== 'rite') return;
+    refreshRunHUD();
     refreshOfferTray();
   }
   function refreshOfferTray() {
@@ -339,21 +336,6 @@ const UI = (() => {
     m.hidden = false; G.paused = true;
     $('b-ok').onclick = () => { m.hidden = true; G.paused = false; Audio.play('click'); refreshAll(); refreshRitual(); };
   }
-  function showSummary(s) {
-    const m = $('modal'), c = $('mcard');
-    c.innerHTML = `<h2 style="color:${s.cashed ? 'var(--m4)' : 'var(--redL)'}">${s.cashed ? U.fmt(s.earned) + ' W$' : s.peak.toFixed(1)}</h2>
-      <div class="sum">
-        <span>${ic('u_seats', 'sm')}</span><span class="v">${s.peak.toFixed(1)}</span>
-        <span>${ic('offering', 'sm')}</span><span class="v">${s.settled}/${s.used}</span>
-        <span>${ic('wombat', 'sm')}</span><span class="v">${s.crowd}</span>
-        <span>${ic('eye', 'sm')}</span><span class="v">${s.goals}/3</span>
-        <span>${ic('wdollar', 'sm')}</span><span class="v">${U.fmt(s.earned)}</span>
-      </div>
-      <button class="act" id="b-ok2"><img class="ico" src="${Icons.url('close')}" alt=""></button>`;
-    m.hidden = false; G.paused = true;
-    $('b-ok2').onclick = () => { m.hidden = true; G.paused = false; Audio.play('click'); refreshRiteCard(); refreshHUD(); };
-  }
-
   function hideAll() {
     closeWheel(); $('checklist').hidden = true; $('b-tool').hidden = true;
     $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true;
@@ -382,8 +364,6 @@ const UI = (() => {
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
     $('b-summon').onclick = () => Ritual.summon();
     $('b-unstage').onclick = () => Ritual.clearStage();
-    $('b-start').onclick = () => { if (Tower.total()) Tower.newRun(); };
-    $('b-cash').onclick = () => Tower.cashOut();
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); } });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
@@ -413,7 +393,7 @@ const UI = (() => {
   return {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
-    onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, showSummary,
+    onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing,
     showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom,
   };
 })();

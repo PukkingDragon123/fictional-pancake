@@ -96,7 +96,7 @@ const Menu = (() => {
       g.translate(c.x, c.y + c.z);
       g.fillStyle = 'rgba(0,0,0,0.4)'; Art.ell(g, 0, 1, 8, 3);
       g.scale(1 + sq * 0.5, 1 - sq * 0.45);
-      Sprites.drawCube(g, OFFERINGS.plain, 16, 16, {});
+      Sprites.drawCube(g, OFFERINGS.plain, 16, 16, { face: 'happy' });
       g.restore();
       if (c.t < 0.4) {                                    // a puff where it landed
         const a = 1 - c.t / 0.4;

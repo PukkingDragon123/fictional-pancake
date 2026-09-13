@@ -604,17 +604,32 @@ const Props = (() => {
   });
 
   // A stone pedestal, drawn to whatever width the stack platform needs.
+  // The pedestal under the Great Stack: chunky courses of dressed stone with a
+  // wombat carved into the front, so the thing you build on has some weight.
   P.plinth = (w) => cached('plinth' + w, Math.max(24, Math.round(w)), 64, (g) => {
     const W = Math.max(24, Math.round(w));
-    for (let y = 0; y < 64; y += 8) {
-      const inset = Math.min(6, Math.floor(y / 16));
-      Art.rect(g, inset, y, W - inset * 2, 8, (y / 8) % 2 ? PAL.stone2 : PAL.stone1);
-      Art.rect(g, inset, y, W - inset * 2, 1.6, PAL.stone3);
-      Art.rect(g, inset, y + 6.4, W - inset * 2, 1.6, PAL.stone0);
-      for (let x = inset + 6; x < W - inset - 4; x += 22) Art.rect(g, x + ((y / 8) % 2) * 11, y + 1, 2, 6, PAL.stone0);
+    for (let y = 0; y < 64; y += 10) {
+      const inset = Math.min(7, Math.floor(y / 14));
+      Art.rect(g, inset, y, W - inset * 2, 10, (y / 10) % 2 ? PAL.stone2 : PAL.stone1);
+      Art.rect(g, inset, y, W - inset * 2, 2, PAL.stone3);
+      Art.rect(g, inset, y + 8, W - inset * 2, 2, PAL.stone0);
+      for (let x = inset + 8; x < W - inset - 6; x += 26) Art.rect(g, x + ((y / 10) % 2) * 13, y + 2, 2.4, 6, PAL.stone0);
     }
-    Art.rect(g, 0, 0, W, 3, PAL.stone4);
-    for (let i = 0; i < 6; i++) Art.rect(g, 4 + i * ((W - 8) / 6), 12, 3, 3, PAL.div2);
+    Art.rect(g, 0, 0, W, 4, PAL.stone4);                       // the cap
+    Art.rect(g, 0, 4, W, 2, PAL.stone0);
+    Art.rect(g, 2, 60, W - 4, 4, PAL.stone3);                  // and the foot
+    // the carving: a wombat's head, filled with the same dark as the joints
+    const cx = W / 2, cy = 34, s = Math.min(1.15, W / 120);
+    const D = PAL.stone0, L = PAL.stone3;
+    Art.ell(g, cx, cy, 15 * s, 12 * s, D);
+    Art.ell(g, cx - 11 * s, cy - 9 * s, 5 * s, 5 * s, D);      // ears
+    Art.ell(g, cx + 11 * s, cy - 9 * s, 5 * s, 5 * s, D);
+    Art.ell(g, cx, cy + 4 * s, 8 * s, 6 * s, L);               // snout
+    Art.ell(g, cx, cy + 6 * s, 3.4 * s, 2.4 * s, D);           // nose
+    Art.ell(g, cx - 6 * s, cy - 3 * s, 2.4 * s, 2.4 * s, L);   // eyes
+    Art.ell(g, cx + 6 * s, cy - 3 * s, 2.4 * s, 2.4 * s, L);
+    // and a row of little offering marks along the top course
+    for (let i = 0; i < 6; i++) Art.rect(g, 6 + i * ((W - 12) / 6), 12, 3, 3, PAL.div2);
   });
 
   function buildLifeTree(w, h, seed) {

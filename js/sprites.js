@@ -249,7 +249,7 @@ const Sprites = (() => {
   // a slight flare, arms that hang and swing, bare hands at the cuffs, and a
   // face you can half see in the shadow of the hood.
   const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 3 };
-  const CW = 40, CH = 66, CX = 20, CGY = 63;
+  const CW = 40, CH = 76, CX = 20, CGY = 73;   // the extra headroom is the hat
   // ---- what the face is doing --------------------------------------------
   // One place for every expression the guide can wear, so new dialogue can ask
   // for a mood by name and get eyes and a mouth that match.
@@ -317,13 +317,11 @@ const Sprites = (() => {
     const key = `cult:${f}:${pose}:${faceMood}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(CW, CH);
-    // a big man in a safari hat and a shirt he had printed himself
+    // a big man in a plush wombat hat and a shirt he had printed himself
     const R0 = '#1d130e', R1 = '#3d2718', R2 = '#5b3b26', R3 = '#7a5138', R4 = '#9d6d4c';
     const TEE0 = '#15323c', TEE1 = '#1f4a58', TEE2 = '#2f6878', TEE3 = '#4a8b9c';
     const KH0 = '#2a2a1e', KH1 = '#413f2c', KH2 = '#5a563c', KH3 = '#6f6a4a';
     const BOOT0 = '#14100e', BOOT1 = '#2e241c', BOOT2 = '#463628';
-    const HAT0 = '#4a4028', HAT1 = '#6a5c3a', HAT2 = '#8a7a50';
-    const BAND0 = '#7a1c1a', BAND1 = '#a8302c', BAND2 = '#2a3a22';
     const HAIR0 = '#7a5620', HAIR1 = '#5c4016', HAIR2 = '#9a7130';
     const BRD0 = '#8f7440', HBRD = '#b39358', BRD1 = '#a8874a', BRD2 = '#c4a469';
     const GLS = '#0c0a10', INK = '#08161c', HEART = '#a8203a';
@@ -370,7 +368,7 @@ const Sprites = (() => {
     // a big man, so the belly is the widest part and the shoulders are broad,
     // but the proportions are a person's, not a barrel's.
     const y0 = bob;
-    const hatTop  = (sit ? 13 : 2) + y0;
+    const hatTop  = (sit ? 23 : 12) + y0;
     const headTop = hatTop + 3;                 // crown of the skull
     const chin    = headTop + 11;
     const neckBot = chin + 3;
@@ -524,27 +522,52 @@ const Sprites = (() => {
       expressions(g, hx, faceY - 1.4, pose, f, hurt);
       Art.poly(g, [[hx - 4.5, faceY + 0.6], [hx - 3.3, faceY - 2.8], [hx - 2.6, faceY - 2.8], [hx - 3.8, faceY + 0.6]], '#e8f2f8');
       Art.poly(g, [[hx + 1, faceY + 0.6], [hx + 2.2, faceY - 2.8], [hx + 2.8, faceY - 2.8], [hx + 1.6, faceY + 0.6]], '#e8f2f8');
-      // the headband, tied at the back
-      Art.rect(g, hx - 6, faceY - 4, 12, 2.2, BAND0);
-      Art.rect(g, hx - 6, faceY - 4, 12, 0.9, BAND1);
-      Art.rect(g, hx + 5.2, faceY - 3.6, 3.2, 1.2, BAND0);
     }
-    // ---- the safari hat -----------------------------------------------------
-    const hatY = hatTop + 5;
-    Art.poly(g, [[hx - 6, hatY], [hx + 6, hatY], [hx + 4.6, hatY - 5], [hx - 4.6, hatY - 5]], HAT0);
-    Art.poly(g, [[hx - 5.2, hatY - 0.4], [hx + 5.2, hatY - 0.4], [hx + 4, hatY - 4.4], [hx - 4, hatY - 4.4]], HAT1);
-    Art.poly(g, [[hx - 5.2, hatY - 0.4], [hx - 2.4, hatY - 0.4], [hx - 2, hatY - 4.4], [hx - 4, hatY - 4.4]], HAT2);
-    Art.ell(g, hx, hatY - 4.8, 4.6, 1.6, HAT1);
-    Art.ell(g, hx - 1.4, hatY - 5.2, 2.2, 0.9, HAT2);
-    Art.ell(g, hx, hatY - 4.2, 2.4, 0.8, HAT0);
-    Art.rect(g, hx - 5.6, hatY - 2.2, 11.2, 2.2, BAND2);
-    Art.rect(g, hx - 5.6, hatY - 2.2, 11.2, 0.8, '#5f7a48');
-    Art.rect(g, hx + 2.4, hatY - 2.2, 1.3, 2.2, '#2e3d22');
-    Art.ell(g, hx, hatY + 0.6, 12.5, 2.8, HAT0);                           // the wide flat brim
-    Art.ell(g, hx, hatY, 12, 2.4, HAT1);
-    Art.ell(g, hx - 4, hatY - 0.6, 5.2, 1.2, HAT2);
-    Art.ellBand(g, hx, hatY, 12, 3, HAT0, 0.04, 0.46);
-    Art.limb(g, hx - 7.6, hatY + 1.4, hx - 5.6, faceY + 6, 1.1, 0.9, BAND2);
+    // ---- the wombat hat -----------------------------------------------------
+    // A plush wombat head worn as a beanie: round furry dome, two little ears,
+    // a snout flopping over his brow and a shiny nose. It sits ON his head, so
+    // his glasses and beard still read underneath.
+    const domeY = hatTop - 1;
+    const FUR0 = '#3f2c1d', FUR1 = '#6b4c31', FUR2 = '#8a6640', FUR3 = '#ab855c';
+    const SNOUT = '#c2a077', NOSE = '#1d1218', EAR = '#d4838a';
+    // ears first, so the dome overlaps their roots
+    for (const s2 of [-1, 1]) {
+      const ex2 = hx + s2 * 6.8, ey2 = domeY - 3.6;
+      Art.ell(g, ex2, ey2, 3.8, 3.6, FUR0);
+      Art.ell(g, ex2, ey2, 2.9, 2.7, FUR1);
+      Art.ell(g, ex2 - s2 * 0.4, ey2 + 0.5, 1.7, 1.5, EAR);
+      Art.ell(g, ex2 - s2 * 0.7, ey2 - 1, 1.1, 0.9, FUR3);
+    }
+    // the dome
+    Art.ell(g, hx, domeY, 8.6, 6.4, FUR0);
+    Art.ell(g, hx, domeY - 0.3, 7.8, 5.7, FUR1);
+    Art.ell(g, hx - 2.6, domeY - 2.6, 4.2, 2.8, FUR2);                    // light on the crown
+    Art.ell(g, hx - 3.6, domeY - 3.4, 2.1, 1.2, FUR3);
+    Art.speckle(g, hx, domeY - 0.5, 7.2, 5, FUR2, 16, 91);                // a little plush nap
+    // the brim: a fur roll hugging his forehead
+    Art.ellBand(g, hx, domeY + 0.4, 8.8, 6.2, FUR0, 0.6, 1);
+    Art.ellBand(g, hx, domeY + 0.1, 8.2, 5.8, FUR2, 0.64, 0.84);
+    // two sleepy stitched eyes, shut and happy
+    for (const s2 of [-1, 1]) {
+      Art.rect(g, hx + s2 * 3.9 - 1.6, domeY - 0.6, 3.2, 1, NOSE);
+      Art.rect(g, hx + s2 * 3.9 - 2.2, domeY - 1.4, 1, 0.9, NOSE);
+      Art.rect(g, hx + s2 * 3.9 + 1.3, domeY - 1.4, 1, 0.9, NOSE);
+    }
+    // the snout, flopping forward over his brow
+    Art.ell(g, hx, domeY + 3.4, 4.2, 2.8, FUR0);
+    Art.ell(g, hx, domeY + 3.2, 3.6, 2.2, SNOUT);
+    Art.ell(g, hx - 1.2, domeY + 2.6, 1.7, 0.9, '#dcbd95');
+    Art.ell(g, hx, domeY + 4.3, 2, 1.3, NOSE);
+    Art.ell(g, hx - 0.7, domeY + 3.9, 0.8, 0.5, '#5a4450');
+    // stubby paws hanging off the sides, flopping as he moves
+    for (const s2 of [-1, 1]) {
+      const px2 = hx + s2 * 8.4, py2 = domeY + 4.4 + Math.sin(f * 0.9 + s2) * 0.7;
+      Art.ell(g, px2, py2, 2.2, 2.7, FUR0);
+      Art.ell(g, px2, py2, 1.6, 2.1, FUR1);
+      Art.rect(g, px2 - 1, py2 + 1.5, 2, 1, SNOUT);
+    }
+    // and the hat throws its own shadow across his brow
+    if (!hurt) Art.ellBand(g, hx, faceY - 1.6, 5.4, 5.8, SHADE, 0, 0.26);
 
     // ---- casting: a staff crowned with a cross, and sparks ------------------
     if (staff > 0) {
@@ -918,7 +941,31 @@ const Sprites = (() => {
       const e = Math.max(1, Math.round(w / 9));
       g.fillStyle = PAL.div5; g.fillRect(-w / 4 - e / 2, -h / 8, e, e); g.fillRect(w / 4 - e / 2, -h / 8, e, e);
     }
+    // every cube has a little face on it. It is a lump of poop and it is happy.
+    if (opts.face) cubeFace(g, opts.face, w, h, px);
     if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = Math.max(1, px); g.strokeRect(x0, y0, w, h); }
+  }
+  function cubeFace(g, mood, w, h, px) {
+    const e = Math.max(1.4, px * 1.15);
+    const ex = Math.min(w * 0.22, e * 2.4), ey = -h * 0.1;
+    const dark = '#1a1016', white = '#fdf3dc';
+    for (const s of [-1, 1]) {
+      if (mood === 'blink') { g.fillStyle = dark; g.fillRect(-ex * 0 + s * ex - e, ey, e * 2, e * 0.7); continue; }
+      g.fillStyle = white; g.fillRect(s * ex - e, ey - e, e * 2, e * 2);
+      g.fillStyle = dark;
+      const look = mood === 'fall' ? -e * 0.4 : mood === 'ready' ? e * 0.3 : 0;
+      g.fillRect(s * ex - e * 0.4 + look, ey - e * 0.4, e * 0.9, e * 1.1);
+    }
+    g.fillStyle = dark;
+    const my = ey + e * 2.1;
+    if (mood === 'fall') { g.fillRect(-e, my - e * 0.3, e * 2, e * 1.5); g.fillStyle = '#c26b7a'; g.fillRect(-e * 0.5, my + e * 0.6, e, e * 0.5); }
+    else if (mood === 'ready') { g.fillRect(-e * 1.1, my, e * 2.2, e * 0.6); g.fillRect(-e * 1.6, my - e * 0.5, e * 0.6, e * 0.6); g.fillRect(e, my - e * 0.5, e * 0.6, e * 0.6); }
+    else { g.fillRect(-e * 1.2, my, e * 2.4, e * 0.6); g.fillRect(-e * 1.8, my - e * 0.6, e * 0.6, e * 0.6); g.fillRect(e * 1.2, my - e * 0.6, e * 0.6, e * 0.6); }
+    if (mood !== 'fall') {                                    // a blush on each cheek
+      g.fillStyle = 'rgba(200,110,120,0.42)';
+      g.fillRect(-ex - e * 1.9, ey + e * 0.9, e * 1.5, e * 0.8);
+      g.fillRect(ex + e * 0.4, ey + e * 0.9, e * 1.5, e * 0.8);
+    }
   }
 
   return { S, AGE, POSES, CULT_POSES, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };

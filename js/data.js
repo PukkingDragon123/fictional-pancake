@@ -1,5 +1,5 @@
 // ---- Balance data. Icon keys everywhere, almost no prose. -----------------
-const CUBE_SIZE = 24;
+const CUBE_SIZE = 30;          // one poop cube, and the game's unit of height
 
 // Offerings: what a wombat leaves behind, and what you stack at the shrine.
 const OFFERINGS = {
@@ -137,7 +137,7 @@ const SITES = [
   { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
-  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0, gate: (g) => OFFER_ORDER.reduce((s2, k) => s2 + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0) >= 4, why: 'four offerings first' },
+  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0, gate: (g) => g.step >= 4 || (g.stack || []).length > 0 || OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring a poop first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
   { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },
@@ -211,20 +211,22 @@ const FRUITS = [
   { key: 'deepgut',    root: 1, i: 1, cost: 220,  at: 0.14, icon: 'f_gut',    name: 'Deep Gut',     desc: 'Digestion runs a quarter faster.' },
   { key: 'twinfall',   root: 1, i: 2, cost: 520,  at: 0.28, icon: 'f_twin',   name: 'Twin Fall',    desc: 'Offerings sometimes come in pairs.' },
   { key: 'longlife',   root: 1, i: 3, cost: 1100, at: 0.5,  icon: 'f_heart',  name: 'Fond Herd',    desc: 'Joeys grow up twice as quickly.' },
-  { key: 'steadyclaw', root: 2, i: 0, cost: 90,   at: 0.06, icon: 'f_claw',   name: 'Steady Claw',  desc: 'The shrine crane is slower and level.' },
-  { key: 'wideplinth', root: 2, i: 1, cost: 260,  at: 0.16, icon: 'f_plinth', name: 'Wide Plinth',  desc: 'A broader shrine plinth.' },
-  { key: 'seersight',  root: 2, i: 2, cost: 600,  at: 0.3,  icon: 'f_eye',    name: 'Seer Sight',   desc: 'A landing guide, and a fourth blessing to choose from.' },
+  { key: 'steadyclaw', root: 2, i: 0, cost: 90,   at: 0.06, icon: 'f_claw',   name: 'Steady Claw',  desc: 'The crane is slower and hangs level.' },
+  { key: 'wideplinth', root: 2, i: 1, cost: 260,  at: 0.16, icon: 'f_plinth', name: 'Wide Plinth',  desc: 'A broader plinth at the stack.' },
+  { key: 'seersight',  root: 2, i: 2, cost: 600,  at: 0.3,  icon: 'f_eye',    name: 'Seer Sight',   desc: 'A landing guide at the stack, and a fourth blessing.' },
   { key: 'godtongue',  root: 2, i: 3, cost: 1300, at: 0.55, icon: 'f_tongue', name: 'God Tongue',   desc: 'Rituals need one fewer of each offering.' },
 ];
 const ROOT_NAMES = ['Soil', 'Beast', 'Rite'];
 
 // ---- Things to buy with W$ ------------------------------------------------
 const UPGRADES = [
-  { key: 'shrine',  name: 'Shrine',   icon: 'u_shrine',  base: 260, mult: 2.3,  max: 5, desc: (l) => `Plinth ${l}. Taller stacks stand.` },
+  { key: 'shrine',  name: 'Plinth',   icon: 'u_shrine',  base: 220, mult: 2.1,  max: 6, desc: (l) => `Plinth ${l}. A wider base holds more.` },
+  { key: 'crane',   name: 'Crane',    icon: 'u_cart',    base: 180, mult: 2.0,  max: 5, desc: (l) => l >= 5 ? 'The crane holds still. Drop where you like.' : l ? `The crane swings ${l * 15}% slower.` : 'A steadier crane arm.' },
+  { key: 'grip',    name: 'Grip Wax', icon: 'u_trough',  base: 200, mult: 2.2,  max: 5, desc: (l) => l ? `Cubes grip ${l * 12}% harder.` : 'Wax the cubes so they hold.' },
+  { key: 'seats',   name: 'Stands',   icon: 'u_seats',   base: 280, mult: 1.9,  max: 8, desc: (l) => `Seats ${12 + l * 5} wombats. Tips +${l * 14}%.` },
   { key: 'burrow',  name: 'Burrow',   icon: 'u_burrow',  base: 150, mult: 2.25, max: 6, desc: (l) => `Room for ${2 + l} wombats.` },
   { key: 'trough',  name: 'Trough',   icon: 'u_trough',  base: 240, mult: 2.1,  max: 4, desc: (l) => l ? `Feeds one wombat every ${(15 / l).toFixed(0)}s.` : 'Feeds hungry wombats.' },
-  { key: 'cart',    name: 'Cart',     icon: 'u_cart',    base: 170, mult: 2.4,  max: 3, desc: (l) => l >= 3 ? 'Instant pickup, +10% value.' : l ? `Gathers after ${(4 / l).toFixed(1)}s.` : 'Gathers offerings for you.' },
-  { key: 'seats',   name: 'Seats',    icon: 'u_seats',   base: 320, mult: 1.95, max: 8, desc: (l) => `Seats ${30 + l * 26}. Favour +${l * 12}%.` },
+  { key: 'cart',    name: 'Cart',     icon: 'u_cart',    base: 170, mult: 2.4,  max: 3, desc: (l) => l >= 3 ? 'Instant pickup, +10% value.' : l ? `Gathers after ${(4 / l).toFixed(1)}s.` : 'Gathers poop for you.' },
 ];
 const DECOR = [
   { key: 'nest',    name: 'Nest',      icon: 'd_nest',    cost: 300,  unlocks: 'pair', desc: 'Pair two adults to breed.', spot: [0.16, 0.62] },
@@ -235,27 +237,31 @@ const DECOR = [
 ];
 const WOMBAT_PRICE = (n) => Math.round(180 * Math.pow(2.5, Math.max(0, n - 1)));
 
-// ---- Shrine run: obstacles, goals, cupid blessings ------------------------
-const OBSTACLES = [
-  { key: 'censer', name: 'Censer', from: 4, desc: 'A swinging censer.' },
-  { key: 'gust',   name: 'Gust',   from: 6, desc: 'Wind across the grove.' },
-  { key: 'stones', name: 'Falling stone', from: 9, desc: 'Debris from the canopy.' },
-  { key: 'tremor', name: 'Tremor', from: 13, desc: 'The ground shifts.' },
+// ---- The Great Stack -----------------------------------------------------
+// No runs, no lives, no losing. The tower you build stays standing between
+// visits and the crowd keeps paying for it. What progression there is lives
+// here: a ladder of heights, each one paid once and each one worth more per
+// second forever after.
+const STACK_RANKS = [
+  { h: 3,  name: 'Little Heap',   pay: 120,   tip: 0.15 },
+  { h: 6,  name: 'Proper Pile',   pay: 320,   tip: 0.3 },
+  { h: 10, name: 'Poop Pillar',   pay: 700,   tip: 0.5 },
+  { h: 15, name: 'Brown Obelisk', pay: 1400,  tip: 0.75 },
+  { h: 21, name: 'Dung Spire',    pay: 2600,  tip: 1.05 },
+  { h: 28, name: 'Cube Cathedral', pay: 4800, tip: 1.4 },
+  { h: 36, name: 'Stinking Steeple', pay: 8200, tip: 1.8 },
+  { h: 45, name: 'The Brown Tower', pay: 14000, tip: 2.3 },
+  { h: 55, name: 'Heaven Reacher', pay: 24000, tip: 2.9 },
+  { h: 66, name: 'The Great Stack', pay: 44000, tip: 3.6 },
 ];
-const GOALS = [
-  { key: 'reach',  gen: (n) => ({ text: `Reach ${n}`, need: n, kind: 'height', pay: 40 * n }) },
-  { key: 'run',    gen: (n) => ({ text: `${n} in a row`, need: n, kind: 'streak', pay: 55 * n }) },
-  { key: 'centre', gen: (n) => ({ text: `${n} centred`, need: n, kind: 'centre', pay: 70 * n }) },
-  { key: 'heavy',  gen: (n) => ({ text: `${n} stone`, need: n, kind: 'stone', pay: 60 * n }) },
-];
-const CUPID_BOONS = [
-  { key: 'slow',   name: 'Held Breath', icon: 'b_slow',   dur: 12, desc: 'Time crawls.' },
-  { key: 'magnet', name: 'Lodestone',   icon: 'b_magnet', dur: 14, desc: 'Offerings drift to centre.' },
-  { key: 'tacky',  name: 'Sap Hands',   icon: 'b_tacky',  dur: 16, desc: 'Everything clings.' },
-  { key: 'double', name: 'Rich Favour', icon: 'b_double', dur: 12, desc: 'Double pay.' },
-  { key: 'shield', name: 'Ward',        icon: 'b_shield', dur: 18, desc: 'One fall forgiven.' },
-  { key: 'feather', name: 'Light Fall', icon: 'b_feather', dur: 14, desc: 'Offerings drift down.' },
-];
+const rankAt = (h) => { let r = null; for (const k of STACK_RANKS) if (h >= k.h) r = k; return r; };
+const nextRank = (h) => STACK_RANKS.find((k) => h < k.h) || null;
+// Every rank you have ever reached adds its tip to the crowd's rate.
+function tipBonus(g) {
+  let t = 0;
+  for (const k of STACK_RANKS) if ((g.record || 0) >= k.h) t += k.tip;
+  return t;
+}
 
 // ---- Breeding -------------------------------------------------------------
 const TRAITS = [

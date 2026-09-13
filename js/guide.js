@@ -48,7 +48,7 @@ const Guide = (() => {
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', say: 'What she leaves is holy. Drag it to the truck.', mood: 'proud', praise: 'Loaded. The gods will notice.', icon: 'truck', title: 'Load the cubes',
+      key: 'load', say: 'What she leaves is money. Drag it to the truck.', mood: 'proud', praise: 'Loaded. That lot is worth a fortune stacked.', icon: 'truck', title: 'Load the cubes',
       note: 'What she leaves is an offering. Drag it to the truck, or call the truck over.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
       done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
@@ -62,6 +62,11 @@ const Guide = (() => {
       key: 'mart', say: 'Walk the mart. Fill a basket, then ask the wombat on the counter.', mood: 'sly', praise: 'A fair trade.', icon: 'shop', title: 'Walk the mart',
       note: 'Seed, stock and stone. Basket first, counter after.',
       at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.shop),
+    },
+    {
+      key: 'stack', say: 'Now the good part. Truck the poop to the Great Stack and pile it high.', mood: 'happy', praise: 'Look at it. The higher it goes, the more they pay.', icon: 'u_seats', title: 'Stack the poop',
+      note: 'The Great Stack is on the map. Every cube pays when it lands, and the crowd tips by the second for as long as the tower stands.',
+      at: () => Grove.TRUCK.x, done: (g) => (g.record || 0) >= 2,
     },
     {
       key: 'god', say: 'Stack what she leaves at the ritual site. Call one down.', mood: 'shock', praise: 'They answered. I am so proud.', icon: 'shrine', title: 'Call one of them',
