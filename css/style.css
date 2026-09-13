@@ -523,3 +523,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
   .spoke img.ico { width: 30px; height: 30px; }
   .chip { width: 42px; height: 42px; } .chip img.ico { width: 26px; height: 26px; }
 }
+
+/* Big text: one step up everywhere, for anyone who wants it. */
+html.bigtext { font-size: 18px; }
+html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }

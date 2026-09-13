@@ -11,7 +11,8 @@ const Intro = (() => {
   const hearts = [], pops = [];
   let skipT = 0, applyR = null, heartR = null;
   let chatStep = 0, chatT = 0, replyR = null, linkR = null;
-  let webT = 0, acceptR = null, popupOn = true, closeR = null;
+  let webT = 0, acceptR = null, popupOn = 2, closeR = null;   // two popups to get past
+  let dodge = 0, dodgeX = 0;                                  // the close button runs once
 
   const CLIPS = [
     { cap: 'she found the good grass', tag: '@fernbottom', likes: 24100, kind: 'graze' },
@@ -36,7 +37,7 @@ const Intro = (() => {
   function init(g) { G = g; }
   function enter() {
     phase = 'phone'; t = 0; card = 0; off = 0; done = false;
-    chatStep = 0; chatT = 0; webT = 0; popupOn = true; linkR = null;
+    chatStep = 0; chatT = 0; webT = 0; popupOn = 2; dodge = 0; dodgeX = 0; linkR = null;
     hearts.length = 0; pops.length = 0;
     CLIPS.forEach((c) => { c.liked = false; });
     Audio.setMode('pen');
@@ -56,12 +57,17 @@ const Intro = (() => {
   function press(x, y) {
     skipT = 0;
     if (phase === 'chat') {
-      if (linkR && hit(linkR, x, y, 8)) { Audio.play('whoosh'); comic(x, y, 10, '#7fc6e0'); phase = 'web'; webT = 0; popupOn = true; return; }
+      if (linkR && hit(linkR, x, y, 8)) { Audio.play('whoosh'); comic(x, y, 10, '#7fc6e0'); phase = 'web'; webT = 0; popupOn = 2; dodge = 0; dodgeX = 0; return; }
       if (hit(replyR, x, y, 6)) { chatStep = Math.min(CHAT.length, chatStep + 1); chatT = 0; Audio.play('click'); comic(x, y, 6); }
       return;
     }
     if (phase === 'web') {
-      if (popupOn && hit(closeR, x, y, 5)) { popupOn = false; Audio.play('click'); comic(x, y, 6, '#ff6b86'); return; }
+      if (popupOn && hit(closeR, x, y, 5)) {
+        // the first one dodges your finger once before it will close
+        if (popupOn === 2 && dodge < 1) { dodge = 1; Audio.play('error'); return; }
+        popupOn--; dodge = 0; dodgeX = 0;
+        Audio.play('click'); comic(x, y, 6, '#ff6b86'); return;
+      }
       if (!popupOn && hit(acceptR, x, y, 6)) { Audio.play('cash'); comic(x, y, 14); phase = 'plane'; t = 0; }
       return;
     }
@@ -404,8 +410,9 @@ const Intro = (() => {
     // the browser bar
     g.fillStyle = '#2a2a34'; g.fillRect(SX, SY + 18, SW, 16);
     g.fillStyle = '#3f3f4c'; g.fillRect(SX + 4, SY + 21, SW - 8, 10);
-    Font.draw(g, 'grove-tas-hiring-realjob.biz', SX + 7, SY + 23, { scale: 1, color: '#b9b6c6', align: 'left' });
-    g.fillStyle = '#e04a3c'; g.fillRect(SX + SW - 12, SY + 22, 7, 7);
+    Font.draw(g, 'grove-tas-hiring.biz.ru', SX + 15, SY + 23, { scale: 1, color: '#b9b6c6', align: 'left' });
+    g.fillStyle = '#e04a3c'; g.fillRect(SX + 6, SY + 22, 6, 7);            // NOT SECURE
+    Font.draw(g, '!', SX + 9, SY + 23, { scale: 1, color: '#ffffff', align: 'center' });
     let y = SY + 40;
     // a banner that will not sit still
     g.fillStyle = blink ? '#e0405a' : '#f2cf3a'; g.fillRect(SX + 4, y, SW - 8, 22);
@@ -413,17 +420,18 @@ const Intro = (() => {
     y += 28;
     Font.draw(g, 'YOU ARE VISITOR', SX + SW / 2, y, { scale: 1, color: '#7de08a', align: 'center' });
     Font.draw(g, '000000001', SX + SW / 2, y + 12, { scale: 2, color: '#7de08a', align: 'center' });
-    y += 34;
+    Font.draw(g, 'AS SEEN ON TELEVISION*', SX + SW / 2, y + 30, { scale: 1, color: '#5f5c74', align: 'center' });
+    y += 42;
     g.fillStyle = '#1c2a52'; g.fillRect(SX + 6, y, SW - 12, 62);
     g.fillStyle = '#3a5a9a'; g.fillRect(SX + 6, y, SW - 12, 2);
     Font.draw(g, 'WOMBAT CARETAKER', SX + SW / 2, y + 6, { scale: 1, color: '#ffe497', align: 'center' });
-    Font.draw(g, 'no experience', SX + SW / 2, y + 20, { scale: 1, color: '#cfccdc', align: 'center' });
-    Font.draw(g, 'no questions', SX + SW / 2, y + 31, { scale: 1, color: '#cfccdc', align: 'center' });
-    Font.draw(g, 'one (1) grove', SX + SW / 2, y + 42, { scale: 1, color: '#cfccdc', align: 'center' });
+    Font.draw(g, 'NO EXPERIENCE, NO INTERVIEW', SX + SW / 2, y + 20, { scale: 1, color: '#cfccdc', align: 'center' });
+    Font.draw(g, 'NO BACKGROUND CHECK', SX + SW / 2, y + 31, { scale: 1, color: '#cfccdc', align: 'center' });
+    Font.draw(g, 'ONE (1) GROVE INCLUDED', SX + SW / 2, y + 42, { scale: 1, color: '#cfccdc', align: 'center' });
     y += 70;
     // the small print that scrolls past
     g.save(); g.beginPath(); g.rect(SX + 6, y, SW - 12, 14); g.clip();
-    Font.draw(g, 'by signing you accept the wombats and whatever they do   ', SX + 6 + ((-webT * 26) % 400), y + 3, { scale: 1, color: '#6a6880', align: 'left' });
+    Font.draw(g, 'BY SIGNING YOU ACCEPT THE WOMBATS AND WHATEVER THEY DO AND WAIVE ALL CLAIM TO YOUR PREVIOUS LIFE   ', SX + 6 + ((-webT * 30) % 700), y + 3, { scale: 1, color: '#6a6880', align: 'left' });
     g.restore();
     y += 20;
     const bob = Math.round(Math.sin(webT * 5) * 2);
@@ -432,7 +440,7 @@ const Intro = (() => {
     g.fillStyle = blink ? '#3fbf5a' : '#2f8f42'; g.fillRect(acceptR.x, acceptR.y, acceptR.w, acceptR.h);
     g.fillStyle = '#7de08a'; g.fillRect(acceptR.x, acceptR.y, acceptR.w, 8);
     Font.draw(g, 'I ACCEPT', acceptR.x + acceptR.w / 2, acceptR.y + 12, { scale: 2, color: '#06210c', align: 'center' });
-    Font.draw(g, 'THE JOB IS YOURS', SX + SW / 2, acceptR.y + 42, { scale: 1, color: '#7a7490', align: 'center' });
+    Font.draw(g, 'YOU AGREE TO EVERYTHING', SX + SW / 2, acceptR.y + 42, { scale: 1, color: '#7a7490', align: 'center' });
     y = acceptR.y + 56;
     // a countdown that never actually runs out
     g.fillStyle = '#2a1030'; g.fillRect(SX + 6, y, SW - 12, 22);
@@ -458,23 +466,68 @@ const Intro = (() => {
       y += 22;
     }
     Font.draw(g, 'C 1998 GROVE TAS PTY LTD', SX + SW / 2, y + 4, { scale: 1, color: '#4a4860', align: 'center' });
-    // the popup you have to close first
+    Font.draw(g, '*NOT SEEN ON TELEVISION', SX + SW / 2, y + 13, { scale: 1, color: '#3a3850', align: 'center' });
+    Font.draw(g, 'NOT A REGISTERED EMPLOYER', SX + SW / 2, y + 22, { scale: 1, color: '#3a3850', align: 'center' });
+    // the popups you have to get past first. The second one dodges your finger.
     if (popupOn) {
-      const px = SX + 10, py = SY + 96, pw = SW - 20, ph = 96;
-      g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(SX, SY, SW, SH);
-      g.fillStyle = '#0a0710'; g.fillRect(px - 3, py - 3, pw + 6, ph + 6);
-      g.fillStyle = '#d8d4e0'; g.fillRect(px, py, pw, ph);
-      g.fillStyle = '#2f5f8a'; g.fillRect(px, py, pw, 14);
-      Font.draw(g, 'ALERT', px + 5, py + 4, { scale: 1, color: '#ffffff', align: 'left' });
-      closeR = { x: px + pw - 14, y: py + 2, w: 11, h: 10 };
-      g.fillStyle = '#e04a3c'; g.fillRect(closeR.x, closeR.y, closeR.w, closeR.h);
-      Font.draw(g, 'x', closeR.x + 5, closeR.y + 2, { scale: 1, color: '#ffffff', align: 'center' });
-      Font.draw(g, '11 WOMBATS ARE', px + pw / 2, py + 20, { scale: 1, color: '#2a2433', align: 'center' });
-      Font.draw(g, 'WAITING IN YOUR AREA', px + pw / 2, py + 31, { scale: 1, color: '#2a2433', align: 'center' });
-      Font.draw(g, 'RIGHT NOW', px + pw / 2, py + 42, { scale: 2, color: '#c02030', align: 'center' });
-      Sprites.blit(g, px + pw / 2 - 22, py + 92, 'happy', Math.floor(webT * 8), 'pale', 1, 'adult', 1.1);
-      Sprites.blit(g, px + pw / 2 + 24, py + 92, 'idle', Math.floor(webT * 6), 'brown', -1, 'adult', 1);
+      g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(SX, SY, SW, SH);
+      if (popupOn === 2) alertBox(g, 'ALERT', SY + 74, [
+        ['11 WOMBATS ARE', 1, '#2a2433'],
+        ['WAITING IN YOUR AREA', 1, '#2a2433'],
+        ['RIGHT NOW', 2, '#c02030'],
+      ], true);
+      else winBox(g, SY + 92);
     }
+  }
+  // A grey system dialog with a tiny red X. The X moves the first time you
+  // reach for it, which is the whole joke.
+  function alertBox(g, title, py, lines, wombats) {
+    const px = SX + 10, pw = SW - 20, ph = wombats ? 104 : 84;
+    const jog = dodge ? -38 : 0;   // it shuffles left, still just reachable
+    g.fillStyle = '#0a0710'; g.fillRect(px - 3, py - 3, pw + 6, ph + 6);
+    g.fillStyle = '#d8d4e0'; g.fillRect(px, py, pw, ph);
+    g.fillStyle = '#2f5f8a'; g.fillRect(px, py, pw, 14);
+    Font.draw(g, title, px + 5, py + 4, { scale: 1, color: '#ffffff', align: 'left' });
+    for (const bx of [px + pw - 38, px + pw - 26]) {                  // dead minimise/maximise
+      g.fillStyle = '#b4b0bc'; g.fillRect(bx, py + 2, 11, 10);
+      g.fillStyle = '#6a6678'; g.fillRect(bx + 2, py + 8, 7, 2);
+    }
+    closeR = { x: px + pw - 14 + jog, y: py + 2, w: 11, h: 10 };
+    g.fillStyle = '#e04a3c'; g.fillRect(closeR.x, closeR.y, closeR.w, closeR.h);
+    g.fillStyle = '#ff8a7c'; g.fillRect(closeR.x, closeR.y, closeR.w, 2);
+    Font.draw(g, 'x', closeR.x + 5, closeR.y + 2, { scale: 1, color: '#ffffff', align: 'center' });
+    let ly = py + 20;
+    for (const [txt, sc, col] of lines) {
+      Font.draw(g, txt, px + pw / 2, ly, { scale: sc, color: col, align: 'center' });
+      ly += sc === 2 ? 18 : 12;
+    }
+    if (wombats) {
+      Sprites.blit(g, px + pw / 2 - 22, py + ph - 6, 'happy', Math.floor(webT * 8), 'pale', 1, 'adult', 1.1);
+      Sprites.blit(g, px + pw / 2 + 24, py + ph - 6, 'idle', Math.floor(webT * 6), 'brown', -1, 'adult', 1);
+    }
+    if (dodge) Font.draw(g, 'NICE TRY', px + pw / 2, py + ph - 12, { scale: 1, color: '#c02030', align: 'center' });
+  }
+  // The second one is a prize draw you have definitely already won.
+  function winBox(g, py) {
+    const px = SX + 8, pw = SW - 16, ph = 120;
+    const blink = Math.floor(webT * 4) % 2;
+    g.fillStyle = '#0a0710'; g.fillRect(px - 3, py - 3, pw + 6, ph + 6);
+    g.fillStyle = '#f2ead8'; g.fillRect(px, py, pw, ph);
+    g.fillStyle = blink ? '#c02030' : '#8a1020'; g.fillRect(px, py, pw, 14);
+    Font.draw(g, 'SYSTEM MESSAGE', px + 5, py + 4, { scale: 1, color: '#ffffff', align: 'left' });
+    closeR = { x: px + pw - 14, y: py + 2, w: 11, h: 10 };
+    g.fillStyle = '#e04a3c'; g.fillRect(closeR.x, closeR.y, closeR.w, closeR.h);
+    Font.draw(g, 'x', closeR.x + 5, closeR.y + 2, { scale: 1, color: '#ffffff', align: 'center' });
+    Font.draw(g, 'YOUR PHONE IS', px + pw / 2, py + 22, { scale: 1, color: '#2a2433', align: 'center' });
+    Font.draw(g, blink ? 'INFECTED' : 'INFECTED!', px + pw / 2, py + 34, { scale: 2, color: '#c02030', align: 'center' });
+    Font.draw(g, 'WITH 3 WOMBATS', px + pw / 2, py + 54, { scale: 1, color: '#2a2433', align: 'center' });
+    // a progress bar that has been at 99% since 1998
+    g.fillStyle = '#0a0710'; g.fillRect(px + 14, py + 68, pw - 28, 12);
+    g.fillStyle = '#cfcbd8'; g.fillRect(px + 15, py + 69, pw - 30, 10);
+    g.fillStyle = '#3fbf5a'; g.fillRect(px + 15, py + 69, (pw - 30) * 0.99, 10);
+    Font.draw(g, '99%', px + pw / 2, py + 71, { scale: 1, color: '#06210c', align: 'center' });
+    Font.draw(g, 'SCANNING... PLEASE WAIT', px + pw / 2, py + 86, { scale: 1, color: '#6a6678', align: 'center' });
+    Font.draw(g, 'DO NOT CLOSE THIS WINDOW', px + pw / 2, py + 100, { scale: 1, color: blink ? '#c02030' : '#8a8496', align: 'center' });
   }
 
   // ---- the flight ----------------------------------------------------------
@@ -698,6 +751,6 @@ const Intro = (() => {
   }
 
   // a way in for tests and for the skip key
-  function go(p) { phase = p; t = 0; webT = 0; chatT = 0; if (p === 'chat') { chatStep = 1; linkR = null; } if (p === 'web') popupOn = true; }
+  function go(p) { phase = p; t = 0; webT = 0; chatT = 0; if (p === 'chat') { chatStep = 1; linkR = null; } if (p === 'web') { popupOn = 2; dodge = 0; dodgeX = 0; } }
   return { init, enter, update, render, press, move, release, skip, go, get phase() { return phase; } };
 })();

@@ -53,7 +53,19 @@ const Icons = (() => {
 
   const DEF = {
     // --- currency and counters ---
-    wdollar: (d) => { d.E(8, 9, 6.5, 6.5, G1); d.E(8, 8, 6, 6, G2); d.E(7, 7, 3, 2.6, G4); d.R(6, 4, 1, 9, G1); d.R(9, 4, 1, 9, G1); d.R(5, 6, 6, 1, G1); d.R(5, 10, 6, 1, G1); },
+    // The wombat dollar: a bright struck coin with a wombat's head stamped
+    // into it in the dark of the alloy, so the face reads at 16 pixels.
+    wdollar: (d) => {
+      d.E(8, 9.3, 7, 7, I);                                    // the coin's dark edge
+      d.E(8, 8.4, 7, 7, G1);                                   // milled rim
+      d.E(8, 8.3, 5.7, 5.7, G3);                               // bright struck face
+      d.E(4.5, 5.6, 2, 2, G1); d.E(11.5, 5.6, 2, 2, G1);       // ears, standing clear
+      d.E(4.5, 5.8, 0.9, 0.9, G3); d.E(11.5, 5.8, 0.9, 0.9, G3);
+      d.E(8, 9.8, 3.7, 3.5, G1);                               // head
+      d.R(6.4, 8.6, 1.2, 1.5, I); d.R(9.4, 8.6, 1.2, 1.5, I);  // eyes
+      d.R(7.2, 10.8, 1.6, 1, I);                               // nose
+      d.E(5.4, 5.2, 1.7, 1.2, G4);                             // catchlight on the rim
+    },
     offering: (d) => { cube(d, E2, 3, 7, 7, 7); cube(d, E1, 8, 4, 6, 6); d.R(4, 5, 2, 2, M3); },
     leaf: (d) => { d.L(3, 14, 12, 4, M1, 1); for (let i = 0; i < 5; i++) { const t = i / 5, x = U.lerp(4, 12, t), y = U.lerp(13, 4, t); d.L(x, y, x - 3 + i * 0.6, y - 2, M3, 1); d.L(x, y, x + 3 - i * 0.4, y + 1, M2, 1); } d.E(11, 4, 2, 2, M4); },
     eye: (d) => { d.E(8, 8, 7, 4.5, C); d.E(8, 8, 4, 4, D3); d.E(8, 8, 2, 2, I); d.E(6.6, 6.6, 1, 1, C); d.L(1, 4, 3, 6, I, 1); d.L(15, 4, 13, 6, I, 1); },

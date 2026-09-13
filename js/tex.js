@@ -17,14 +17,20 @@ const Tex = (() => {
   const dot = (g, x, y, w, h, col) => { g.fillStyle = col; g.fillRect(((x % w) + w) % w, ((y % h) + h) % h, 1, 1); };
 
   // ---- wood: grain running the long way, a couple of knots ---------------
+  // Grain is laid down on a half-size tile and blown back up with smoothing
+  // off, so every mark is a fat two-pixel block: the low-resolution wood the
+  // rest of the art is drawn at, not a fine photographic grain.
+  const CHUNK = 2;
   function wood(base, dark, light, knots) {
-    return (g, w, h, r) => {
+    return (g0, w0, h0, r) => {
+      const w = Math.round(w0 / CHUNK), h = Math.round(h0 / CHUNK);
+      const { c, g } = Art.cv(w, h);
       g.fillStyle = base; g.fillRect(0, 0, w, h);
       for (let i = 0; i < h * 1.6; i++) {                     // grain lines
         const y0 = 1 + r() * (h - 2), k = 1 + Math.floor(r() * 3);
-        const amp = 0.6 + r() * 1.6, ph = r() * TAU;
+        const amp = 0.5 + r() * 1.1, ph = r() * TAU;
         const col = r() < 0.5 ? dark : light;
-        const a = 0.25 + r() * 0.5;
+        const a = 0.3 + r() * 0.55;
         g.globalAlpha = a;
         for (let x = 0; x < w; x++) {
           const y = Math.round(y0 + Math.sin((x / w) * TAU * k + ph) * amp);
@@ -33,15 +39,17 @@ const Tex = (() => {
         g.globalAlpha = 1;
       }
       for (let i = 0; i < (knots || 2); i++) {                 // knots, kept off the seams
-        const kx = 8 + r() * (w - 16), ky = 6 + r() * (h - 12);
+        const kx = 4 + r() * (w - 8), ky = 3 + r() * (h - 6);
         for (let ring = 4; ring >= 1; ring--) {
           g.globalAlpha = 0.5;
-          Art.ell(g, kx, ky, ring * 1.9, ring * 1.25, ring % 2 ? dark : light);
+          Art.ell(g, kx, ky, ring * 1.1, ring * 0.75, ring % 2 ? dark : light);
         }
-        g.globalAlpha = 0.75; Art.ell(g, kx, ky, 1.6, 1.1, dark);
+        g.globalAlpha = 0.75; Art.ell(g, kx, ky, 1, 0.7, dark);
         g.globalAlpha = 1;
       }
       for (let i = 0; i < w * h * 0.05; i++) dot(g, r() * w, r() * h, w, h, r() < 0.5 ? dark : light);
+      g0.imageSmoothingEnabled = false;                        // blow it back up in blocks
+      g0.drawImage(c, 0, 0, w0, h0);
     };
   }
   // ---- paper: fibre, laid lines, a few old stains ------------------------

@@ -29,6 +29,70 @@ const FX = (() => {
   function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
   function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
+  // ---- the tree curtain ----------------------------------------------------
+  // Two walls of black trunks sweep in from the edges, meet, and sweep out
+  // again. Whatever changes underneath happens while the wood is closed.
+  let curtain = null;
+  const CTREES = [];
+  {
+    const r = Art.rng(7734);
+    for (let i = 0; i < 14; i++) {
+      CTREES.push({ w: 26 + r() * 34, lean: (r() - 0.5) * 0.3, y: r() * 40, sway: r() * TAU,
+                    br: Array.from({ length: 5 }, () => [0.3 + r() * 0.5, r() < 0.5 ? -1 : 1, 18 + r() * 26]) });
+    }
+  }
+  function trees(onShut, onDone) {
+    curtain = { t: 0, shut: 0.72, open: 1.28, fired: false, done: false, onShut, onDone };
+  }
+  function drawTrees(g, W, H) {
+    if (!curtain) return;
+    const c = curtain;
+    const k = c.t <= c.shut ? U.easeInOut(c.t / c.shut)
+      : 1 - U.easeInOut(U.clamp((c.t - c.open) / c.shut, 0, 1));
+    if (k <= 0.001) return;
+    if (k > 0.9) { g.fillStyle = `rgba(6,8,6,${(((k - 0.9) / 0.1) * 0.8).toFixed(2)})`; g.fillRect(0, 0, W, H); }
+    const half = W / 2;
+    for (const s of [-1, 1]) {
+      // Each side is a rank of trunks that rests across its own half when the
+      // curtain is shut and sits entirely off its own edge when it is open.
+      for (let i = 0; i < CTREES.length; i++) {
+        const tr = CTREES[i];
+        const lane = (i / (CTREES.length - 1)) * (half + 50) - 30;
+        const rest = s < 0 ? lane : W - lane;
+        const start = rest + s * -(half + 190);
+        const x = U.lerp(start, rest, k);
+        if (x < -180 || x > W + 180) continue;
+        const sway = Math.sin(c.t * 3 + tr.sway) * 4 * (1 - k);
+        const depth = i / (CTREES.length - 1);              // 0 at the edge, 1 at the seam
+        const v = Math.round(18 + depth * 30);
+        const col = `rgb(${v},${v + 9},${v - 2})`;
+        const rim = `rgb(${v + 34},${v + 52},${v + 22})`;
+        const lean = tr.lean * H;
+        const bx0 = x + sway, bx1 = x + lean + sway;
+        Art.limb(g, bx0, H + 30 + tr.y, bx1, -40, tr.w, tr.w * 0.34, '#050705');
+        Art.limb(g, bx0, H + 30 + tr.y, bx1, -40, tr.w - 2, tr.w * 0.3, col);
+        Art.limb(g, bx0 - s * (tr.w * 0.34), H + 30 + tr.y, bx1 - s * (tr.w * 0.28), -40, tr.w * 0.2, 1.4, rim);
+        for (const [ky, side, len] of tr.br) {
+          const by = U.lerp(H + 20, 0, ky), bx = x + lean * ky + sway;
+          Art.limb(g, bx, by, bx + side * len, by - len * 0.8, tr.w * 0.3, 1.6, '#050705');
+          Art.limb(g, bx, by, bx + side * len, by - len * 0.8, tr.w * 0.22, 1.2, col);
+          // a clump of leaves out at the tip
+          Art.ell(g, bx + side * len, by - len * 0.8, len * 0.42, len * 0.3, '#0b1a0d');
+          Art.ell(g, bx + side * len - side * len * 0.12, by - len * 0.86, len * 0.26, len * 0.18, `rgb(${v + 8},${v + 26},${v + 4})`);
+        }
+      }
+      // speed streaks, torn out of the air by the sweep
+      const blur = (1 - Math.abs(k - 0.5) * 2) * 0.5;
+      if (blur > 0.02) {
+        for (let i = 0; i < 10; i++) {
+          const yy = ((i * 97) % H);
+          g.fillStyle = `rgba(190,214,180,${(blur * 0.1).toFixed(3)})`;
+          g.fillRect(s < 0 ? 0 : W - 220, yy, 220, 1);
+        }
+      }
+    }
+  }
+
   // A comic-book word on a jagged starburst: the game's loudest small reward.
   const comics = [];
   const COMIC_INK = { pow: '#ffe98a', zap: '#8fe6ff', yay: '#c9f58a', bad: '#ff9a9a' };
@@ -105,7 +169,7 @@ const FX = (() => {
     });
   }
   function ring(x, y, r, color) { rings.push({ x, y, r0: r * 0.3, r1: r, life: 0.35, maxLife: 0.35, color: color || 'rgba(255,248,230,0.7)' }); }
-  function shake(a) { cam.shake = Math.min(20, cam.shake + a); }
+  function shake(a) { if (cam.noShake) return; cam.shake = Math.min(20, cam.shake + a); }
   function punch(a = 0.08) { cam.punch = Math.min(0.3, cam.punch + a); }
   function flash(color = '#ffffff', a = 0.8) { cine.flash = Math.max(cine.flash, a); cine.flashColor = color; }
   function title(text, o = {}) { cine.titles.push({ text, sub: o.sub || '', t: 0, dur: o.dur || 2, color: o.color || '#fff', size: o.size || 26, style: o.style || 'slam', y: o.y ?? 0.42, delay: o.delay || 0, shakeAmt: o.shake || 0 }); }
@@ -117,6 +181,11 @@ const FX = (() => {
 
   // dt = real seconds
   function update(dt) {
+    if (curtain) {
+      curtain.t += dt;
+      if (!curtain.fired && curtain.t >= curtain.shut) { curtain.fired = true; if (curtain.onShut) curtain.onShut(); }
+      if (curtain.t >= curtain.open + curtain.shut) { const d = curtain.onDone; curtain = null; if (d) d(); }
+    }
     for (let i = comics.length - 1; i >= 0; i--) { comics[i].t += dt; if (comics[i].t >= comics[i].life) comics.splice(i, 1); }
     // camera smoothing
     cam.x = U.lerp(cam.x, cam.tx, 1 - Math.pow(0.001, dt));
@@ -279,5 +348,5 @@ const FX = (() => {
     return Font.draw(g, text, x, y, opts);
   }
 
-  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, clear, clearComics, particles };
+  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, drawTrees, trees, get curtaining() { return !!curtain; }, clear, clearComics, particles };
 })();

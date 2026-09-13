@@ -1,6 +1,11 @@
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
   const KEY = 'wombat-gods-v6';
+  const SLOTS = [1, 2, 3];
+  const slotKey = (n) => KEY + ':s' + n;
+  let saves = { 1: null, 2: null, 3: null };   // what each slot held at boot
+  let slot = 0;                                // 0 means we are at the title
+  let settings = { muted: false, musicOff: false, shake: true, bigText: false };
   const W = 640, H = 360;
   let canvas, g, last = 0, G = null;
   let down = false, lastP = null, downP = null, moved = 0, panning = false, screenP = { x: 320, y: 240 };
@@ -24,13 +29,14 @@ const Main = (() => {
       World.save();
       Grove.saveObjects();
       G.lastSave = Date.now();
-      Store.put(KEY, Object.assign({}, G, { paused: false, pointer: undefined }));
+      if (!slot) return;
+      const body = Object.assign({}, G, { paused: false, pointer: undefined });
+      saves[slot] = body;                     // the title screen reads from this
+      Store.put(slotKey(slot), body);
     } catch (e) { }
   }
-  let booted = null;                       // whatever Store.boot handed back
-  function load() {
+  function load(d) {
     try {
-      const d = booted;
       if (!d) return null;
       const s = fresh();
       for (const k of Object.keys(s)) if (d[k] !== undefined) s[k] = d[k];
@@ -62,7 +68,64 @@ const Main = (() => {
     setTimeout(() => UI.toast('the grove is dead', 'bad'), 1400);
     setTimeout(() => UI.toast('clear the list and one will come'), 6400);
   }
-  function reset() { Store.clear(KEY).then(() => location.reload(), () => location.reload()); }
+  function reset() { if (slot) Store.clear(slotKey(slot)).then(() => location.reload(), () => location.reload()); }
+
+  // ---- the title screen ----------------------------------------------------
+  // Nothing is loaded until a slot is picked, so the menu can offer three.
+  function applySettings() {
+    G.muted = !!settings.muted; G.musicOff = !!settings.musicOff;
+    Audio.setState(settings.muted, !settings.musicOff);
+    FX.cam.noShake = settings.shake === false;
+    document.documentElement.classList.toggle('bigtext', !!settings.bigText);
+  }
+  function toMenu() {
+    if (slot) save();
+    slot = 0;
+    G.mode = 'menu';
+    UI.hideAll(); UI.closePanels(); UI.setMode('menu');
+    Menu.setSlots(saves); Menu.enter();
+  }
+  // The wood shuts, the slot is swapped behind it, and the wood opens again.
+  function startSlot(n) {
+    if (FX.curtaining) return;
+    Audio.init(); Audio.resume();
+    FX.trees(() => {
+      slot = n;
+      const fromSave = load(saves[n]);
+      const g2 = fromSave || fresh();
+      for (const k of Object.keys(G)) delete G[k];
+      Object.assign(G, g2);
+      applySettings();
+      World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
+      Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G);
+      FX.clear(); FX.clearComics();
+      const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
+      if (away > 30 && G.wombats.some((w) => w.stomach === 'digesting')) {
+        const made = Grove.offline(Math.min(away, 7200));
+        if (made > 0) setTimeout(() => UI.toast(`${U.time(Math.min(away, 7200))} away &middot; <b>${made}</b>`, 'good'), 900);
+      }
+      G.paused = false;
+      if (!G.introDone) { G.mode = 'intro'; Intro.enter(); UI.setMode('intro'); }
+      else { G.mode = 'grove'; Grove.enter(); UI.setMode('grove'); }
+      UI.refreshAll();
+      save();
+    }, () => { if (!G.seen && G.introDone) openingBeats(); });
+  }
+  function menuAction(a) {
+    if (a.play) { startSlot(a.play); return; }
+    if (a.toggle) {
+      settings[a.toggle] = a.toggle === 'shake' || a.toggle === 'bigText' ? !settings[a.toggle] : !settings[a.toggle];
+      Store.putSettings(settings);
+      applySettings();
+      Audio.play('click');
+      return;
+    }
+    if (a.erase) { saves[a.erase] = null; Store.clear(slotKey(a.erase)); Menu.setSlots(saves); Audio.play('error'); return; }
+    if (a.eraseAll) {
+      for (const n of SLOTS) { saves[n] = null; Store.clear(slotKey(n)); }
+      Menu.setSlots(saves); Audio.play('error');
+    }
+  }
 
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
@@ -110,9 +173,11 @@ const Main = (() => {
     canvas.addEventListener('pointerdown', (e) => {
       Audio.init(); Audio.resume();
       canvas.setPointerCapture?.(e.pointerId);
+      const pm = pos(e);
+      if (G.mode === 'menu') { if (!FX.curtaining) Menu.press(pm.x, pm.y); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel() || G.paused) return;
-      const p = pos(e);
+      const p = pm;
       if (e.button === 2) { if (G.mode === 'grove') UI.openWheel(p.x, p.y); return; }
       if (UI.wheelOpen()) { UI.closeWheel(); return; }
       down = true; lastP = null; downP = p; moved = 0; panning = false;
@@ -129,6 +194,7 @@ const Main = (() => {
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
+      if (G.mode === 'menu') { Menu.move(p.x, p.y); return; }
       screenP = p;
       const wp = world(p);
       G.pointer.x = wp.x; G.pointer.y = wp.y; G.pointer.on = true;
@@ -171,10 +237,15 @@ const Main = (() => {
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
       Audio.init();
+      if (G.mode === 'menu') { if (!FX.curtaining && Menu.key(e.key)) e.preventDefault(); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel()) return;
       if (e.key === 'Tab' || e.key === ' ') { if (G.mode === 'grove') { e.preventDefault(); if (UI.wheelOpen()) UI.closeWheel(); else UI.openWheel(screenP.x, screenP.y); } return; }
-      if (e.key === 'Escape' || e.key === 'Backspace') { if (UI.wheelOpen()) { UI.closeWheel(); return; } if (G.mode !== 'grove') { back(); e.preventDefault(); } return; }
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        if (UI.wheelOpen()) { UI.closeWheel(); return; }
+        if (G.mode !== 'grove') back(); else toMenu();
+        e.preventDefault(); return;
+      }
       if (e.key === 'm' || e.key === 'M') { if (G.mode === 'grove') setMode('map'); return; }
       if (e.key === 'h' || e.key === 'H') { UI.openPanel('panel-help'); return; }
       if (G.mode === 'rite') {
@@ -220,9 +291,10 @@ const Main = (() => {
     if (G.paused) gdt = 0;
     G.time += real;
 
-    if (G.mode === 'intro') Intro.update(real);
+    if (G.mode === 'menu') Menu.update(real);
+    else if (G.mode === 'intro') Intro.update(real);
     else Ritual.update(gdt, real);
-    if (G.mode !== 'intro' && !G.paused) {
+    if (G.mode !== 'intro' && G.mode !== 'menu' && !G.paused) {
       World.update(real);
       Grove.update(real);
       Guide.update(real);
@@ -233,7 +305,7 @@ const Main = (() => {
     } else if (Grove.arriving) {
       Grove.update(real);
     }
-    if (G.mode !== 'intro') Tower.update(gdt, real);
+    if (G.mode !== 'intro' && G.mode !== 'menu') Tower.update(gdt, real);
     // The rite pauses the world but its own effects must keep running, or
     // bolts and roots spawned during the cutscene never expire.
     FX.updateWorld(Ritual.active ? real : G.mode === 'rite' ? gdt : (G.paused ? 0 : real));
@@ -241,7 +313,8 @@ const Main = (() => {
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.imageSmoothingEnabled = false;
     g.clearRect(0, 0, W, H);
-    if (Ritual.active) Ritual.renderScene(g);
+    if (G.mode === 'menu') Menu.render(g);
+    else if (Ritual.active) Ritual.renderScene(g);
     else {
       g.save(); g.translate(FX.cam.shakeX, FX.cam.shakeY);
       if (G.mode === 'intro') Intro.render(g);
@@ -253,6 +326,7 @@ const Main = (() => {
       g.restore();
     }
     FX.drawCinema(g, W, H);
+    FX.drawTrees(g, W, H);            // the curtain sits above everything
 
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
@@ -277,28 +351,24 @@ const Main = (() => {
     resize();
     splash();
     Sprites.init();
-    booted = await Store.boot(KEY);
-    G = load() || fresh();
+    saves = await Store.boot(SLOTS.map(slotKey));
+    saves = { 1: saves[slotKey(1)], 2: saves[slotKey(2)], 3: saves[slotKey(3)] };
+    settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false }, Store.settings());
+    G = fresh();
+    G.mode = 'menu';
     window.G = G;
     World.init(G);
     Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
-
-    const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
-    if (away > 30 && G.wombats.some((w) => w.stomach === 'digesting')) {
-      const made = Grove.offline(Math.min(away, 7200));
-      if (made > 0) setTimeout(() => UI.toast(`${U.time(Math.min(away, 7200))} away &middot; <b>${made}</b>`, 'good'), 700);
-    }
-    G.paused = false;
-    Audio.setState(G.muted, !G.musicOff);
-    if (!G.introDone) { G.mode = 'intro'; Intro.enter(); UI.setMode('intro'); }
-    else { G.mode = 'grove'; Grove.enter(); UI.setMode('grove'); }
+    Menu.init(settings, saves, menuAction);
+    Menu.enter();
+    applySettings();
+    UI.setMode('menu');
     window.addEventListener('resize', resize);
     resize(); setTimeout(resize, 60);
     bind();
-    if (!G.seen && G.introDone) openingBeats();
     requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
   }
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
-  return { save, reset, setMode, back, openingBeats, get G() { return G; } };
+  return { save, reset, setMode, back, openingBeats, toMenu, startSlot, get slot() { return slot; }, get settings() { return settings; }, get G() { return G; } };
 })();

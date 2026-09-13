@@ -255,8 +255,11 @@ const Sprites = (() => {
     const key = `cult:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(CW, CH);
-    // a deep violet-brown habit, gold trim, one teal clasp
-    const R0 = '#140d1c', R1 = '#241730', R2 = '#372447', R3 = '#4d3660', R4 = '#6a4d82';
+    // a wombat hoodie over flannel pyjamas: warm browns, a cool blue below
+    const R0 = '#1d130e', R1 = '#3d2718', R2 = '#5b3b26', R3 = '#7a5138', R4 = '#9d6d4c';
+    const PJ0 = '#141a2e', PJ1 = '#2c3757', PJ2 = '#3e4d78', PJ3 = '#58699c', STAR = '#cfdaf5';
+    const SLIP = '#b47a96', SLIP2 = '#d79bb4', SOLE = '#e8ddc6';
+    const FUR = '#8a5f42', SNOUT = '#3a2418';
     const GOLD = '#c1912a', GOLD2 = '#f2cf62', TEAL = '#4fa6be', TEAL2 = '#8fd4e4';
     const VOID = '#0b0710', WINE = '#5c2a3a';
     const SK0 = '#7a5344', SK1 = '#a8735c', SK2 = '#d0a186', SK3 = '#e8c4a6';
@@ -306,102 +309,121 @@ const Sprites = (() => {
     const hipW = sit ? 12.6 : 8.8;              // she is a comfortable person
     const hemW = (sit ? 15 : 11.8) + flare;
 
-    // ---- boots, when the hem lifts off them --------------------------------
-    if (hemUp > 1 || stride) {
-      for (const s of [-1, 1]) {
-        const sx = CX + s * 3.6 + stride * s * 3.4;
-        Art.rect(g, sx - 2.6, hem - 5, 5.2, 6, '#2a1b18');
-        Art.rect(g, sx - 3.4, CGY - 3.2, 7, 3.4, '#1c110f');
-        Art.rect(g, sx - 2.6, hem - 5, 5.2, 1.4, '#4a3128');
-      }
+    // ---- slippers ----------------------------------------------------------
+    for (const s2 of [-1, 1]) {
+      const sx = CX + s2 * 4 + stride * s2 * 3.4;
+      Art.ell(g, sx, CGY - 1.6, 4.2, 3, R0);
+      Art.ell(g, sx, CGY - 2.2, 3.8, 2.6, SLIP);
+      Art.ell(g, sx - s2 * 0.8, CGY - 3, 2.4, 1.6, SLIP2);
+      Art.rect(g, sx - 3.8, CGY - 1.4, 7.6, 1.4, SOLE);
+      Art.ell(g, sx + s2 * 1.4, CGY - 3.6, 1.2, 1, SOLE);           // a pompom
     }
-    // ---- the robe: shoulders to the floor, a slight A, cut with folds -------
-    const robe = (x0, x1, col) => Art.poly(g, [
+    // ---- pyjama legs: two soft tubes, not a robe ---------------------------
+    const legTop = hip - 1;
+    for (const s2 of [-1, 1]) {
+      const kx = CX + s2 * (hipW * 0.5);
+      const fx = CX + s2 * (4 + flare * 0.3) + stride * s2 * 3.2;
+      const leg = (wTop, wBot, col) => Art.poly(g, [
+        [kx - wTop, legTop], [kx + wTop, legTop],
+        [fx + wBot, hem], [fx - wBot, hem]], col);
+      leg(hipW * 0.56 + 1, 4.6, PJ0);
+      leg(hipW * 0.56, 4, s2 < 0 ? PJ2 : PJ1);
+      leg(hipW * 0.3, 2, s2 < 0 ? PJ3 : PJ2);
+      for (let i = 0; i < 4; i++) {                                  // little stars on the flannel
+        const k = 0.24 + i * 0.2;
+        const sx2 = U.lerp(kx, fx, k) + (i % 2 ? 1.4 : -1.6) * s2, sy2 = U.lerp(legTop, hem, k);
+        Art.rect(g, sx2, sy2 - 0.5, 1, 1, STAR);
+        Art.rect(g, sx2 - 0.5, sy2, 2, 0.6, STAR);
+      }
+      Art.rect(g, fx - 4.4, hem - 3.4, 8.8, 2, PJ0);                 // ribbed ankle cuff
+      Art.rect(g, fx - 4.4, hem - 3.4, 8.8, 0.8, PJ3);
+    }
+    // ---- the hoodie: a soft body that stops at the hips ---------------------
+    const hoodHem = hip + 4;
+    const body = (x0, x1, col) => Art.poly(g, [
       [CX + x0 * shW, shoulder], [CX + x1 * shW, shoulder],
-      [CX + x1 * hemW, hem], [CX + x0 * hemW, hem]], col);
-    robe(-1, 1, R2);
-    robe(-1, -0.42, R3);                                       // lit side
-    robe(0.46, 1, R1);                                         // shadow side
-    robe(-1, -0.82, R4);                                       // rim light down the left edge
-    for (let i = -2; i <= 2; i++) {                            // vertical folds
-      const k = i / 2.6;
+      [CX + x1 * (hipW + 2), hoodHem], [CX + x0 * (hipW + 2), hoodHem]], col);
+    body(-1.05, 1.05, R1);
+    body(-1.05, -0.4, R3);                                          // lit side
+    body(0.44, 1.05, R0);                                           // shadow side
+    body(-1.05, -0.84, R4);                                         // rim light
+    Art.ell(g, CX, hip - 2, hipW + 1.6, 7.5, R2);                   // a comfortable middle
+    Art.ell(g, CX - 2.6, hip - 4.4, hipW * 0.5, 4, R3);
+    for (let i = -1; i <= 1; i++) {                                 // soft folds
+      const k = i / 1.6;
       Art.poly(g, [
-        [CX + k * shW + S * 0.4, waist], [CX + k * shW + 1.2 + S * 0.4, waist],
-        [CX + k * hemW + 1.2, hem], [CX + k * hemW, hem]], i % 2 ? R0 : R4);
+        [CX + k * shW + S * 0.3, waist], [CX + k * shW + 1 + S * 0.3, waist],
+        [CX + k * (hipW + 2) + 1, hoodHem - 3], [CX + k * (hipW + 2), hoodHem - 3]], i % 2 ? R0 : R3);
     }
-    Art.rect(g, CX - hemW, hem - 3, hemW * 2, 3, R0);          // the hem itself
-    Art.rect(g, CX - hemW, hem - 4.4, hemW * 2, 1.8, GOLD);   // one gold band
-    Art.rect(g, CX - hemW, hem - 4.4, hemW * 2, 0.8, GOLD2);
-    for (let i = 2; i < hemW * 2 - 1; i += 4.6) Art.rect(g, CX - hemW + i, hem - 2.6, 1.8, 1.6, GOLD);
+    Art.rect(g, CX - hipW - 2, hoodHem - 3.4, (hipW + 2) * 2, 3.4, R0);   // ribbed waistband
+    for (let i = 1; i < (hipW + 2) * 2 - 1; i += 2.4) Art.rect(g, CX - hipW - 2 + i, hoodHem - 3.2, 1, 3, R2);
 
-    // ---- torso -------------------------------------------------------------
-    Art.poly(g, [[CX - shW, shoulder], [CX + shW, shoulder], [CX + hipW, hip], [CX - hipW, hip]], R2);
-    Art.ell(g, CX, hip - 4, hipW + 0.6, 7.5, R2);            // a round belly under the cord
-    Art.ell(g, CX - 2.6, hip - 6, hipW * 0.52, 4, R3);
-    Art.poly(g, [[CX - shW, shoulder], [CX - shW * 0.34, shoulder], [CX - hipW * 0.3, hip], [CX - hipW, hip]], R3);
-    Art.rect(g, CX - shW, shoulder, 1.6, hip - shoulder, R4);
-
-    // ---- arms: upper arm, forearm, and a bare hand at the cuff -------------
+    // ---- sleeves: same fleece, ribbed cuffs, bare hands ---------------------
     if (!sit || clasp) {
-      for (const [s, sw] of [[-1, armL], [1, armR]]) {
-        const sxp = CX + s * (shW - 1.2), syp = shoulder + 2;
+      for (const [s2, sw] of [[-1, armL], [1, armR]]) {
+        const sxp = CX + s2 * (shW - 1), syp = shoulder + 2;
         const inward = clasp ? 2.6 : 0;
-        const ex = CX + s * (hipW - 0.6 - inward) + s * 0.6, ey = waist + 6 + sw;
-        const mx = CX + s * (shW + 1.8), myy = (syp + ey) / 2 + 1;
-        Art.limb(g, sxp, syp, mx, myy, 6.4, 5.4, R0);            // ink under the sleeve
-        Art.limb(g, mx, myy, ex, ey, 5.4, 4.4, R0);
-        Art.limb(g, sxp, syp, mx, myy, 4.8, 4, s < 0 ? R4 : R3);
-        Art.limb(g, mx, myy, ex, ey, 4, 3.4, s < 0 ? R4 : R3);
-        Art.limb(g, sxp + s * 1.6, syp, mx + s * 1.6, myy, 1.3, 1.1, R0);   // the shadowed inner edge
-        Art.limb(g, sxp - s * 1.3, syp, mx - s * 1.3, myy, 1.4, 1.2, s < 0 ? '#8a6aa4' : R4);
-        Art.rect(g, ex - 1.9, ey - 0.8, 3.8, 1.5, GOLD);         // the cuff
-        Art.rect(g, ex - 1.9, ey - 0.8, 3.8, 0.7, GOLD2);
-        Art.ell(g, ex, ey + 2.4, 1.9, 2.2, SK1);                 // the hand
-        Art.ell(g, ex - 0.3, ey + 2, 1.5, 1.8, SK2);
-        Art.ell(g, ex - 0.7, ey + 1.5, 0.8, 0.8, SK3);
+        const ex = CX + s2 * (hipW + 0.4 - inward) + s2 * 0.6, ey = waist + 6 + sw;
+        const mx = CX + s2 * (shW + 2.4), myy = (syp + ey) / 2 + 1;
+        Art.limb(g, sxp, syp, mx, myy, 7, 6, R0);
+        Art.limb(g, mx, myy, ex, ey, 6, 5, R0);
+        Art.limb(g, sxp, syp, mx, myy, 5.4, 4.6, s2 < 0 ? R3 : R2);
+        Art.limb(g, mx, myy, ex, ey, 4.6, 3.8, s2 < 0 ? R3 : R2);
+        Art.limb(g, sxp + s2 * 1.8, syp, mx + s2 * 1.8, myy, 1.4, 1.2, R0);
+        Art.limb(g, sxp - s2 * 1.5, syp, mx - s2 * 1.5, myy, 1.5, 1.3, s2 < 0 ? R4 : R3);
+        Art.rect(g, ex - 2.4, ey - 1.2, 4.8, 2.6, R0);              // ribbed cuff
+        Art.rect(g, ex - 2.4, ey - 1.2, 4.8, 0.8, R4);
+        Art.ell(g, ex, ey + 3, 1.9, 2.2, SK1);                      // the hand
+        Art.ell(g, ex - 0.3, ey + 2.6, 1.5, 1.8, SK2);
+        Art.ell(g, ex - 0.7, ey + 2.1, 0.8, 0.8, SK3);
       }
     }
-    // a rope cord knotted at the waist, worn over the sleeves
-    Art.rect(g, CX - hipW - 1, waist, hipW * 2 + 2, 1.8, GOLD);
-    Art.rect(g, CX - hipW - 1, waist, hipW * 2 + 2, 0.8, GOLD2);
-    Art.rect(g, CX - hipW - 1, waist + 1.8, hipW * 2 + 2, 0.6, '#7a5210');
-    Art.ell(g, CX - 0.6, waist + 1, 2.2, 2, GOLD);
-    Art.ell(g, CX - 1, waist + 0.6, 1.2, 1.1, GOLD2);
-    for (const [tx, tl] of [[-2.2, 5.4], [0.8, 4.2]]) {
-      Art.rect(g, CX + tx, waist + 2.4, 1.3, tl + S * 0.6, GOLD);
-      Art.rect(g, CX + tx - 0.2, waist + 2.4 + tl + S * 0.6, 1.7, 1.6, GOLD2);
+    // ---- the kangaroo pocket, and two drawstrings ---------------------------
+    if (view !== 'back') {
+      Art.poly(g, [[CX - hipW - 0.4, waist + 3], [CX + hipW + 0.4, waist + 3],
+                   [CX + hipW - 1.4, hoodHem - 3.6], [CX - hipW + 1.4, hoodHem - 3.6]], R0);
+      Art.poly(g, [[CX - hipW - 0.4, waist + 3.8], [CX + hipW + 0.4, waist + 3.8],
+                   [CX + hipW - 1.6, hoodHem - 4], [CX - hipW + 1.6, hoodHem - 4]], R2);
+      Art.rect(g, CX - hipW + 0.6, waist + 3.2, 2.6, 1, R0);        // the two hand openings
+      Art.rect(g, CX + hipW - 3.2, waist + 3.2, 2.6, 1, R0);
+      for (const [tx, tl] of [[-3.4, 6], [2.2, 4.8]]) {
+        Art.rect(g, CX + tx, shoulder + 4, 1.2, tl + S * 0.6, '#e8ddc6');
+        Art.ell(g, CX + tx + 0.6, shoulder + 4 + tl + S * 0.6, 1.3, 1.3, '#cfc0a2');
+      }
+      // the Wombachu, worn over the hoodie on its chain
+      Art.ellBand(g, CX, shoulder + 1, shW + 1.4, 5, GOLD, 0.82, 1);
+      wombachu(g, CX, shoulder + 8, 0.62);
     }
-
-    // ---- a short shoulder cape --------------------------------------------
-    const my = shoulder - 1;
-    Art.ell(g, CX, my + 4, shW + 2, 6, R0);
-    Art.ell(g, CX, my + 3.2, shW + 1.4, 5.4, R2);
-    Art.ell(g, CX - 3.2, my + 2, shW * 0.56, 3.8, R4);
-    Art.ell(g, CX + 3.6, my + 3.6, shW * 0.46, 3.2, R1);
-    Art.ellBand(g, CX, my + 3.6, shW + 1.8, 6, GOLD, 0.86, 1);
-    if (view !== 'back') {                                       // a teal clasp and the charm
-      Art.ell(g, CX, my + 1, 2.4, 2, TEAL);
-      Art.ell(g, CX - 0.4, my + 0.6, 1.2, 1, TEAL2);
-      wombachu(g, CX, my + 9.5, 0.62);
-    }
-
     // ---- the hood, and the face inside it ----------------------------------
     const hx = view === 'quarter' ? CX + 1.6 : CX;
     const faceY = headTop + 8;
-    Art.poly(g, [[CX + 0.4, headTop - 0.5], [CX + 6.8, headTop + 9], [CX - 6, headTop + 9]], R1);   // the peak
-    Art.poly(g, [[CX + 0.4, headTop - 0.5], [CX + 2.8, headTop + 5.5], [CX - 2, headTop + 5.5]], R2);
-    Art.ell(g, CX, headTop + 8, 6.8, 7, R2);                     // the cowl
-    Art.ell(g, CX - 3, headTop + 6, 3.4, 4.2, R3);
-    Art.ell(g, CX + 3.6, headTop + 9, 3.2, 4, R1);
-    Art.rect(g, CX - 6.6, headTop + 5, 1.2, 4.6, R4);            // rim light
-    Art.poly(g, [[CX - 6.4, headTop + 12], [CX + 6.4, headTop + 12], [CX + 5, chin + 1], [CX - 5, chin + 1]], R1);
+    // the hood is a wombat's head: two round ears, a domed skull, a blunt snout
+    for (const s2 of [-1, 1]) {
+      const ex2 = CX + s2 * 5.4, ey2 = headTop + 1.4;
+      Art.ell(g, ex2, ey2, 3.1, 3, R0);
+      Art.ell(g, ex2, ey2, 2.5, 2.4, s2 < 0 ? R3 : R2);
+      Art.ell(g, ex2 - s2 * 0.3, ey2 + 0.3, 1.3, 1.3, SNOUT);    // the inner ear
+    }
+    Art.ell(g, CX, headTop + 7, 7, 7.2, R0);                     // the skull, inked
+    Art.ell(g, CX, headTop + 7, 6.4, 6.6, R2);
+    Art.ell(g, CX - 2.8, headTop + 5, 3.4, 4, R3);               // lit crown
+    Art.ell(g, CX - 4.6, headTop + 3.6, 1.6, 1.8, R4);
+    Art.ell(g, CX + 3.8, headTop + 8.4, 3, 3.6, R1);             // shadow side
+    Art.speckle(g, CX - 6, headTop + 1, 12, 8, FUR, 0.16, 1);    // a little fleece nap
+    Art.poly(g, [[CX - 6.6, headTop + 12], [CX + 6.6, headTop + 12], [CX + 5.2, chin + 1.5], [CX - 5.2, chin + 1.5]], R1);
     if (view === 'back') {
       Art.ell(g, CX, headTop + 11, 6.4, 6.4, R1);
-      Art.rect(g, CX - 3.4, headTop + 7, 7, 1.2, GOLD);
+      Art.rect(g, CX - 3.4, headTop + 7, 7, 1.2, R3);
     } else {
-      Art.ell(g, hx, faceY + 1, 4.2, 5.2, VOID);                 // the shadow of the hood
-      Art.ellBand(g, hx, faceY + 1, 4.9, 5.9, GOLD, 0, 1);       // gold edge of the opening
+      Art.ell(g, hx, faceY + 1, 4.2, 5.2, VOID);                 // the shadow inside the hood
+      Art.ellBand(g, hx, faceY + 1, 4.9, 5.9, R0, 0, 1);         // the hood's rolled edge
+      Art.ellBand(g, hx, faceY + 1, 5.4, 6.4, R3, 0, 1);
       Art.ell(g, hx, faceY + 1, 4.2, 5.2, VOID);
+      // the hoodie's own snout and nose, sitting above the face opening
+      Art.ell(g, hx, headTop + 3.4, 3, 2.2, R1);
+      Art.ell(g, hx, headTop + 3.2, 2.5, 1.7, R3);
+      Art.ell(g, hx - 0.6, headTop + 2.8, 1.1, 0.8, R4);
+      Art.ell(g, hx, headTop + 4.2, 1.4, 0.9, SNOUT);            // the nose
       // a human face, mostly in shadow: cheek, nose, jaw, mouth
       Art.ell(g, hx, faceY + 3, 3, 3, SK0);
       Art.ell(g, hx - 0.4, faceY + 3.1, 2.5, 2.6, SK1);

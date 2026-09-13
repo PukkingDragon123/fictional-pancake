@@ -381,7 +381,7 @@ const UI = (() => {
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {
-    const intro = mode === 'intro';
+    const intro = mode === 'intro' || mode === 'menu';
     $('money').hidden = intro; $('mini').hidden = intro; $('side').hidden = intro;
     if (intro) { closeWheel(); $('checklist').hidden = true; }
     $('ov-shrine').hidden = mode !== 'shrine';
