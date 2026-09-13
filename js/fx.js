@@ -29,90 +29,66 @@ const FX = (() => {
   function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
   function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
-  // ---- into the wood --------------------------------------------------------
-  // The camera pushes straight into the trees: the grove's own tree art,
-  // scaling up out of the middle of frame and sliding past the edges, with the
-  // light going out as the canopy closes over. The swap happens in the dark.
+  // ---- the pixel dissolve ---------------------------------------------------
+  // No trees. The screen eats itself in chunky blocks: 16px cells blacking out
+  // in a fixed scattered order, a beat of dark, then the same cells peeling
+  // back off in a different order. Cheap, unmistakably pixel-art, and there is
+  // nothing in it that can smear.
   let curtain = null;
-  const WALKERS = [];
-  {
-    const r = Art.rng(7734);
-    for (let i = 0; i < 26; i++) {
-      WALKERS.push({
-        a: r() * TAU,                       // which side of the path it passes on
-        rad: 0.2 + r() * 0.95,              // how far off the centre line
-        z: r(),                             // where it starts along the path
-        lean: (r() - 0.5) * 0.5,
-        br: Array.from({ length: 3 }, () => [0.3 + r() * 0.5, r() < 0.5 ? -1 : 1, 0.16 + r() * 0.22]),
-      });
+  const CELL = 16;
+  const ORD = new Map();                       // cell key -> its two shuffle keys
+  function cellOrder(cols, rows) {
+    const k = cols + 'x' + rows;
+    let o = ORD.get(k);
+    if (o) return o;
+    const r = Art.rng(4211 + cols * 131 + rows);
+    const cells = [];
+    for (let cy = 0; cy < rows; cy++) {
+      for (let cx = 0; cx < cols; cx++) {
+        // a soft bias out from the middle, jittered hard so it reads as noise
+        const dx = (cx + 0.5) / cols - 0.5, dy = (cy + 0.5) / rows - 0.5;
+        const d = Math.sqrt(dx * dx + dy * dy) / 0.72;
+        cells.push({ cx, cy, in: d * 0.55 + r() * 0.62, out: r() });
+      }
     }
+    const norm = (key) => {
+      const s2 = cells.slice().sort((a, b) => a[key] - b[key]);
+      s2.forEach((c, i) => { c[key] = i / (s2.length - 1 || 1); });
+    };
+    norm('in'); norm('out');
+    o = cells;
+    ORD.set(k, o);
+    return o;
   }
   function trees(onShut, onDone) {
-    curtain = { t: 0, shut: 0.9, open: 1.14, fired: false, onShut, onDone };
+    curtain = { t: 0, shut: 0.62, hold: 0.22, open: 0.5, fired: false, onShut, onDone };
   }
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
-    const dark = c.t <= c.shut ? U.easeInOut(c.t / c.shut)
-      : 1 - U.easeInOut(U.clamp((c.t - c.open) / (c.shut * 0.8), 0, 1));
-    if (dark <= 0.002) return;
-    const cx = W / 2, cy = H * 0.52;
-    const bob = Math.sin(c.t * 11) * 3 * dark;             // the footfalls
-    const roll = Math.sin(c.t * 5.5) * 0.008 * dark;
-    g.save();
-    g.translate(cx, cy + bob); g.rotate(roll); g.translate(-cx, -cy);
-    // the way ahead falling into nothing
-    const fk = U.clamp(dark * 1.8, 0, 1);
-    const fade = g.createRadialGradient(cx, cy, 10, cx, cy, H * 0.95);
-    fade.addColorStop(0, `rgba(10,16,12,${(fk * 0.3).toFixed(2)})`);
-    fade.addColorStop(1, `rgba(4,7,5,${(fk * 0.92).toFixed(2)})`);
-    g.fillStyle = fade; g.fillRect(-40, -40, W + 80, H + 80);
-    // Trunks only, and only ones that pass to the side of the camera: a tree
-    // scaled up in your face is a smear, so they stay at the edges and the
-    // canopy is a separate band across the top. Far to near, so near overlaps.
-    const alpha = U.clamp(dark * 2.4, 0, 1);
-    const sorted = WALKERS.map((tr) => ({ tr, z: (tr.z + c.t * 0.55) % 1 })).sort((p, q) => p.z - q.z);
-    for (const { tr, z } of sorted) {
-      const persp = 0.16 + z * z * 3.4;
-      const side = Math.cos(tr.a) < 0 ? -1 : 1;
-      const off = (0.26 + tr.rad * 0.5) * W * persp;       // always clear of the middle
-      const x = cx + side * off;
-      const w = 40 * (0.7 + tr.rad) * persp;
-      if (x + w < -20 || x - w > W + 20) continue;
-      const base = cy + H * 0.85 * persp, top = cy - H * 1.1 * persp;
-      const lean = tr.lean * (base - top) * 0.4;
-      const sh = Math.round(42 + (1 - z) * 56);
-      const bark = `rgb(${sh + 12},${sh + 4},${sh - 6})`;
-      const lit = `rgb(${sh + 52},${sh + 38},${sh + 12})`;
-      g.globalAlpha = U.clamp(z * 5, 0, 1) * alpha;
-      Art.limb(g, x, base, x + lean, top, w, w * 0.42, '#0c1a0e');
-      Art.limb(g, x, base, x + lean, top, w - 2, w * 0.34, bark);
-      Art.limb(g, x - side * (w * 0.3), base, x + lean - side * (w * 0.24), top, w * 0.18, 1.4, lit);
-      for (const [ky, bs, len] of tr.br) {                 // limbs, reaching inward
-        const by = U.lerp(base, top, ky), bx = U.lerp(x, x + lean, ky);
-        const L = len * H * persp * 0.8;
-        Art.limb(g, bx, by, bx - side * L, by - L * 0.45, w * 0.32, 2, '#0c1a0e');
-        Art.limb(g, bx, by, bx - side * L, by - L * 0.45, w * 0.22, 1.2, bark);
+    let cover, phase;
+    if (c.t < c.shut) { cover = c.t / c.shut; phase = 'in'; }
+    else if (c.t < c.shut + c.hold) { cover = 1; phase = 'in'; }
+    else { cover = 1 - (c.t - c.shut - c.hold) / c.open; phase = 'out'; }
+    cover = U.clamp(cover, 0, 1);
+    if (cover <= 0) return;
+    const cols = Math.ceil(W / CELL), rows = Math.ceil(H / CELL);
+    const cells = cellOrder(cols, rows);
+    if (cover >= 1) { g.fillStyle = '#07090c'; g.fillRect(0, 0, W, H); return; }
+    const e = phase === 'in' ? U.easeInOut(cover) : cover;
+    for (const cel of cells) {
+      const k = cel[phase];
+      const p = phase === 'in' ? e - k : (1 - e) - (1 - k);
+      if (p <= 0) continue;
+      const x = cel.cx * CELL, y = cel.cy * CELL;
+      if (p < 0.16) {                          // the half-second the block flickers in
+        g.fillStyle = '#1b2430';
+        const m = Math.round(CELL * 0.25);
+        g.fillRect(x + m, y + m, CELL - m * 2, CELL - m * 2);
+      } else {
+        g.fillStyle = '#07090c';
+        g.fillRect(x, y, CELL, CELL);
       }
-      g.globalAlpha = 1;
-    }
-    // the canopy closing over, drawn as one soft band rather than blown-up leaves
-    const ck = U.clamp(dark * 1.4, 0, 1);
-    for (let i = 0; i < 16; i++) {
-      const p = i / 15;
-      const px = p * W + Math.sin(c.t * 1.6 + i) * 6;
-      const drop = (H * 0.2 + Math.sin(i * 2.3) * 26) * ck;
-      const r = 60 + Math.sin(i * 1.7) * 26;
-      g.globalAlpha = alpha;
-      Art.ell(g, px, -r * 0.5 + drop, r, r * 0.68, '#141f14');
-      Art.ell(g, px - r * 0.2, -r * 0.62 + drop, r * 0.6, r * 0.4, '#22351f');
-      g.globalAlpha = 1;
-    }
-    g.restore();
-    // the last of the light going out
-    if (dark > 0.94) {
-      g.fillStyle = `rgba(4,7,5,${(((dark - 0.94) / 0.06) * 0.7).toFixed(2)})`;
-      g.fillRect(0, 0, W, H);
     }
   }
 
@@ -207,7 +183,7 @@ const FX = (() => {
     if (curtain) {
       curtain.t += dt;
       if (!curtain.fired && curtain.t >= curtain.shut) { curtain.fired = true; if (curtain.onShut) curtain.onShut(); }
-      if (curtain.t >= curtain.open + curtain.shut) { const d = curtain.onDone; curtain = null; if (d) d(); }
+      if (curtain.t >= curtain.shut + curtain.hold + curtain.open) { const d = curtain.onDone; curtain = null; if (d) d(); }
     }
     for (let i = comics.length - 1; i >= 0; i--) { comics[i].t += dt; if (comics[i].t >= comics[i].life) comics.splice(i, 1); }
     // camera smoothing
