@@ -235,12 +235,9 @@ const Menu = (() => {
     Art.ell(g, 0, -45.5, 6, 4.4, S0); Art.ell(g, 0, -46.2, 5.2, 3.8, S2);
     Art.ell(g, -1.6, -47.4, 2.4, 1.6, S3);
     Art.rect(g, -1.6, -47.6, 3.2, 1.8, '#07080b');                              // nostrils
-    // fangs, two up and two down
-    Art.poly(g, [[-3.6, -44.4], [-2, -44.4], [-2.6, -40.2]], '#d8d2c4');
-    Art.poly(g, [[2, -44.4], [3.6, -44.4], [2.6, -40.2]], '#d8d2c4');
-    Art.poly(g, [[-5.4, -47.6], [-4, -47.6], [-4.6, -50.6]], '#c4bdae');
-    Art.poly(g, [[4, -47.6], [5.4, -47.6], [4.6, -50.6]], '#c4bdae');
-    Art.rect(g, -4.4, -44.6, 8.8, 1.2, '#07080b');                              // the dark of the mouth
+    Art.rect(g, -4.4, -44.6, 8.8, 1.2, '#07080b');                              // a hard flat mouth
+    Art.rect(g, -4.4, -45.6, 1.6, 1, '#07080b');
+    Art.rect(g, 2.8, -45.6, 1.6, 1, '#07080b');
     // scars, a chipped horn and an old crack across the cheek
     Art.limb(g, -8.4, -50, -4.6, -44.6, 1.1, 0.6, '#07080b');
     Art.limb(g, -8, -49.6, -4.4, -44.4, 0.6, 0.4, S3);
@@ -274,8 +271,6 @@ const Menu = (() => {
       g.fillStyle = gl; g.fillRect(x - 160, y - 290, 320, 320);
     }
     // the name, cut into the plinth
-    Font.draw(g, 'WOMBATHENA', x, y - 26 * GOD.s, { scale: 1, color: 'rgba(176,186,198,0.8)', align: 'center', shadow: '#05070a' });
-    Font.draw(g, 'OF THE BOLT', x, y - 26 * GOD.s + 9, { scale: 1, color: 'rgba(126,136,148,0.65)', align: 'center', shadow: '#05070a' });
   }
 
   // ---- the scene -----------------------------------------------------------

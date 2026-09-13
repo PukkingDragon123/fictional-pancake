@@ -1856,7 +1856,7 @@ const Sprites = (() => {
   // One place for every expression the guide can wear, so new dialogue can ask
   // for a mood by name and get eyes and a mouth that match.
   const FACES = {
-    idle:   { eye: 'open',  brow: 0,     mouth: 'flat' },
+    idle:   { eye: 'narrow', brow: -0.5, mouth: 'smirk' },
     talk:   { eye: 'open',  brow: 0.4,   mouth: 'open' },
     happy:  { eye: 'happy', brow: 0.5,   mouth: 'grin' },
     proud:  { eye: 'squint', brow: 0.6,  mouth: 'grin' },
@@ -1867,7 +1867,7 @@ const Sprites = (() => {
     tired:  { eye: 'shut',  brow: -0.2,  mouth: 'wobble' },
     sly:    { eye: 'narrow', brow: 0.5,  mouth: 'smirk' },
   };
-  let faceMood = 'idle';
+  let faceMood = 'sly';
   function setFace(m) { if (FACES[m] && m !== faceMood) { faceMood = m; } }
   function expressions(g, hx, faceY, pose, f, hurt) {
     const SK0 = '#7a5344', BRD0 = '#c9a15a', W = '#f3ece0', I = '#100c14';
@@ -1921,26 +1921,27 @@ const Sprites = (() => {
     const { c, g } = Art.cv(CW, CH);
     // a big man in a safari hat and a shirt he had printed himself
     const R0 = '#1d130e', R1 = '#3d2718', R2 = '#5b3b26', R3 = '#7a5138', R4 = '#9d6d4c';
-    const TEE0 = '#2e5f6f', TEE1 = '#3f7d8f', TEE2 = '#589aae', TEE3 = '#7fbdd0';
-    const KH0 = '#4a4230', KH1 = '#6b6146', KH2 = '#8b7f5c', KH3 = '#a89b74';
-    const BOOT0 = '#241c18', BOOT1 = '#4a382c', BOOT2 = '#6b5340';
-    const HAT0 = '#7a6a44', HAT1 = '#9c8a5c', HAT2 = '#c0ac78';
-    const BAND0 = '#a8302c', BAND1 = '#d1554a', BAND2 = '#3f5a34';
-    const HAIR0 = '#b8862f', HAIR1 = '#8f6420', HAIR2 = '#d9a94b';
-    const BRD0 = '#c9a15a', BRD1 = '#e0bd7c', BRD2 = '#f0d6a2';
-    const GLS = '#2a2632', INK = '#12222a', HEART = '#e0405a';
+    const TEE0 = '#15323c', TEE1 = '#1f4a58', TEE2 = '#2f6878', TEE3 = '#4a8b9c';
+    const KH0 = '#2a2a1e', KH1 = '#413f2c', KH2 = '#5a563c', KH3 = '#6f6a4a';
+    const BOOT0 = '#14100e', BOOT1 = '#2e241c', BOOT2 = '#463628';
+    const HAT0 = '#4a4028', HAT1 = '#6a5c3a', HAT2 = '#8a7a50';
+    const BAND0 = '#7a1c1a', BAND1 = '#a8302c', BAND2 = '#2a3a22';
+    const HAIR0 = '#7a5620', HAIR1 = '#5c4016', HAIR2 = '#9a7130';
+    const BRD0 = '#8f7440', HBRD = '#b39358', BRD1 = '#a8874a', BRD2 = '#c4a469';
+    const GLS = '#0c0a10', INK = '#08161c', HEART = '#a8203a';
+    const SHADE = 'rgba(8,6,14,0.5)';
     const GOLD = '#c1912a', GOLD2 = '#f2cf62', TEAL = '#4fa6be', TEAL2 = '#8fd4e4';
     const VOID = '#0b0710', WINE = '#5c2a3a';
-    const SK0 = '#7a5344', SK1 = '#a8735c', SK2 = '#d0a186', SK3 = '#e8c4a6';
+    const SK0 = '#5e4034', SK1 = '#8a6148', SK2 = '#ab8264', SK3 = '#c9a480';
     const S = Math.sin(t * TAU);
     let bob = 0, lean = 0, flare = 0, hemUp = 0, armL = 0, armR = 0, view = 'front';
     let sit = 0, lie = 0, hurt = 0, staff = 0, spark = 0, stride = 0, clasp = 1;
     switch (pose) {
       case 'idle': bob = [0, 0, 1, 1, 0, 0][f]; armL = S * 0.5; armR = -S * 0.5; break;
-      case 'walk': stride = S; flare = Math.abs(S) * 2.4; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.5;
-        armL = -S * 3.2; armR = S * 3.2; clasp = 0; break;
-      case 'run': lean = 1.6; stride = S * 1.7; flare = 3 + Math.abs(S) * 2.5; hemUp = 5;
-        bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.4; armL = -S * 5 - 2; armR = S * 5 - 2; clasp = 0; break;
+      case 'walk': stride = S * 1.7; flare = Math.abs(S) * 2.4; bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.8;
+        armL = -S * 5.5; armR = S * 5.5; clasp = 0; break;
+      case 'run': lean = 2.2; stride = S * 1.9; flare = 3 + Math.abs(S) * 2.5; hemUp = 4;
+        bob = -Math.abs(Math.sin(t * TAU * 2)) * 3; armL = -S * 8 - 3; armR = S * 8 - 3; clasp = 0; break;
       case 'turn': view = ['front', 'quarter', 'back', 'back', 'quarter', 'front'][f]; break;
       case 'jump': bob = [1, -9, -15, -9, 1][f]; hemUp = [0, 4, 7, 4, 0][f]; flare = [0, 2, 3, 2, 0][f];
         armL = armR = [0, -6, -9, -6, 0][f]; clasp = 0; break;
@@ -1970,9 +1971,9 @@ const Sprites = (() => {
     const y0 = bob;
     const headTop = (sit ? 16 : 4) + y0;        // crown of the hood
     const chin = headTop + 17;                  // where the head ends
-    const shoulder = chin + 3;                  // y of the shoulder line
-    const waist = shoulder + 15;
-    const hip = shoulder + 20;
+    const shoulder = chin + 2;                  // y of the shoulder line
+    const waist = shoulder + 12;
+    const hip = shoulder + 16;
     const hem = (sit ? 62 : CGY) - hemUp;
     const shW = sit ? 10.4 : 9.6;               // half-width at the shoulders
     const hipW = sit ? 14 : 11;                 // he is a substantial person
@@ -1980,7 +1981,7 @@ const Sprites = (() => {
 
     // ---- boots -------------------------------------------------------------
     for (const s2 of [-1, 1]) {
-      const sx = CX + s2 * 4.4 + stride * s2 * 3.4;
+      const sx = CX + s2 * 4.4 + stride * s2 * 4.4;
       Art.rect(g, sx - 3.4, CGY - 6, 6.8, 6, BOOT0);
       Art.rect(g, sx - 3, CGY - 5.4, 6, 5, BOOT1);
       Art.rect(g, sx - 3, CGY - 5.4, 6, 1.4, BOOT2);
@@ -1991,8 +1992,8 @@ const Sprites = (() => {
     const legTop = hip - 1;
     for (const s2 of [-1, 1]) {
       const kx = CX + s2 * (hipW * 0.5);
-      const fx = CX + s2 * (5 + flare * 0.3) + stride * s2 * 3.2;
-      const knee = hem - 14;
+      const fx = CX + s2 * (5 + flare * 0.3) + stride * s2 * 4.2;
+      const knee = hem - 13;
       const leg = (wTop, wBot, col) => Art.poly(g, [
         [kx - wTop, legTop], [kx + wTop, legTop],
         [fx + wBot, knee], [fx - wBot, knee]], col);
@@ -2007,7 +2008,7 @@ const Sprites = (() => {
       for (let h2 = 0; h2 < 4; h2++) Art.rect(g, fx - 2 + (h2 % 2) * 3, knee + 2 + h2 * 3, 1, 1.6, HAIR0);
     }
     // ---- the shirt: a big soft tee that hangs over the belt -----------------
-    const shirtHem = hip + 5;
+    const shirtHem = hip + 4;
     const body = (x0, x1, col) => Art.poly(g, [
       [CX + x0 * shW, shoulder], [CX + x1 * shW, shoulder],
       [CX + x1 * (hipW + 3), shirtHem], [CX + x0 * (hipW + 3), shirtHem]], col);
@@ -2057,15 +2058,16 @@ const Sprites = (() => {
       Art.ell(g, CX + 2.2, py + 1, 2, 1.8, HEART);
       Art.poly(g, [[CX - 2.6, py + 1.8], [CX + 4.2, py + 1.8], [CX + 0.8, py + 6]], HEART);
       Art.rect(g, CX - 0.8, py + 0.2, 1.2, 1, '#ff9ab0');
-      // and a wombat, printed under it
-      const wy2 = py + 9;
-      Art.ell(g, CX - 1.4, wy2, 4.6, 2.8, INK);                    // body
-      Art.ell(g, CX + 3, wy2 - 0.6, 2.6, 2.3, INK);                // head
-      Art.ell(g, CX + 1.8, wy2 - 2.4, 1.1, 1.1, INK);              // ears
-      Art.ell(g, CX + 4, wy2 - 2.4, 1.1, 1.1, INK);
-      Art.rect(g, CX - 4.4, wy2 + 2, 1.6, 1.4, INK);               // feet
-      Art.rect(g, CX - 0.4, wy2 + 2, 1.6, 1.4, INK);
-      Art.rect(g, CX + 4.4, wy2 - 1, 0.9, 0.9, '#3f7d8f');         // an eye, in shirt colour
+      // and a wombat, printed under it: blocky, so it reads at this size
+      const wy2 = py + 9, W2 = '#e8f0f2';
+      Art.rect(g, CX - 5, wy2 - 1.6, 8, 4.6, W2);                  // body
+      Art.rect(g, CX + 2.4, wy2 - 2.6, 4, 4.4, W2);                // head
+      Art.rect(g, CX + 2.4, wy2 - 4.2, 1.4, 1.6, W2);              // ears
+      Art.rect(g, CX + 5, wy2 - 4.2, 1.4, 1.6, W2);
+      Art.rect(g, CX - 4.4, wy2 + 3, 1.8, 1.6, W2);                // feet
+      Art.rect(g, CX - 0.6, wy2 + 3, 1.8, 1.6, W2);
+      Art.rect(g, CX + 4.2, wy2 - 1.6, 1, 1, TEE1);                // an eye, punched out
+      Art.rect(g, CX + 6.4, wy2 - 0.6, 1.2, 1, W2);                // a snout
     }
     // ---- the head: bearded, glasses, headband, under a safari hat -----------
     const hx = view === 'quarter' ? CX + 1.6 : CX;
@@ -2088,27 +2090,32 @@ const Sprites = (() => {
       Art.ell(g, hx + 2.4, faceY + 1.6, 1.9, 1.9, SK1);
       Art.ell(g, hx, faceY + 3.6, 1.5, 1.2, SK2);                  // the nose
       Art.rect(g, hx - 0.5, faceY + 2.2, 1.1, 1.6, SK2);
-      // the beard: a big pale bush around the jaw
-      Art.ell(g, hx, faceY + 6, 5.4, 4.2, BRD0);
-      Art.ell(g, hx, faceY + 5.6, 4.8, 3.6, BRD1);
-      Art.ell(g, hx - 1.6, faceY + 5.2, 2.6, 2, BRD2);
-      Art.ell(g, hx - 5, faceY + 3.6, 1.8, 2.4, BRD1);
-      Art.ell(g, hx + 5, faceY + 3.8, 1.7, 2.3, BRD0);
-      Art.rect(g, hx - 2.2, faceY + 4.6, 1.2, 2, BRD0);            // the moustache
-      Art.rect(g, hx + 1, faceY + 4.6, 1.2, 2, BRD0);
+      // the beard: a straggling bush around the jaw, darker than the face
+      Art.ell(g, hx, faceY + 6.2, 5.8, 4.6, '#4a3a1e');
+      Art.ell(g, hx, faceY + 6, 5.2, 4, BRD0);
+      Art.ell(g, hx, faceY + 5.4, 4.4, 3, BRD1);
+      Art.ell(g, hx - 1.8, faceY + 5, 2.4, 1.8, BRD2);
+      Art.ell(g, hx - 5.2, faceY + 3.6, 2, 2.6, BRD0);
+      Art.ell(g, hx + 5.2, faceY + 3.8, 1.9, 2.5, '#4a3a1e');
+      for (let i = -2; i <= 2; i++) {                              // straggly ends
+        Art.rect(g, hx + i * 2.2, faceY + 9.4, 1.2, 1.8 + (i % 2 ? 1.2 : 0), '#4a3a1e');
+      }
+      Art.rect(g, hx - 2.4, faceY + 4.4, 1.4, 2.2, BRD0);          // the moustache
+      Art.rect(g, hx + 1, faceY + 4.4, 1.4, 2.2, BRD0);
+      // the hat throws a hard shadow across the top half of the face
+      Art.ellBand(g, hx, faceY + 2, 5.6, 5.4, SHADE, 0, 0.52);
       // round glasses: a dark rim, pale glass, and the eyes sitting on it
       for (const s2 of [-1, 1]) {
         Art.ell(g, hx + s2 * 2.9, faceY + 0.8, 3.1, 3.3, GLS);
-        Art.ell(g, hx + s2 * 2.9, faceY + 0.8, 2.3, 2.5, '#cfe2ec');
+        Art.ell(g, hx + s2 * 2.9, faceY + 0.8, 2.3, 2.5, '#6f8a98');
       }
       Art.rect(g, hx - 1, faceY + 0.4, 2, 1, GLS);                 // the bridge
       Art.rect(g, hx - 7.4, faceY + 0.4, 1.6, 1, GLS);             // the temples
       Art.rect(g, hx + 5.8, faceY + 0.4, 1.6, 1, GLS);
       expressions(g, hx, faceY, pose, f, hurt);
-      g.globalAlpha = 0.42;                                        // light across the lenses
-      Art.poly(g, [[hx - 4.6, faceY + 2], [hx - 2.4, faceY - 1.6], [hx - 1.2, faceY - 1.6], [hx - 3.4, faceY + 2]], '#ffffff');
-      Art.poly(g, [[hx + 1.2, faceY + 2], [hx + 3.4, faceY - 1.6], [hx + 4.4, faceY - 1.6], [hx + 2.2, faceY + 2]], '#ffffff');
-      g.globalAlpha = 1;
+      // a hard white glare down the lenses, the way a screen catches them
+      Art.poly(g, [[hx - 4.8, faceY + 2.2], [hx - 3.4, faceY - 1.6], [hx - 2.6, faceY - 1.6], [hx - 4, faceY + 2.2]], '#e8f2f8');
+      Art.poly(g, [[hx + 1.4, faceY + 2.2], [hx + 2.8, faceY - 1.6], [hx + 3.5, faceY - 1.6], [hx + 2.1, faceY + 2.2]], '#e8f2f8');
     }
     // the headband, tied at the back
     if (view !== 'back') {
@@ -4252,14 +4259,13 @@ const FX = (() => {
   const WALKERS = [];
   {
     const r = Art.rng(7734);
-    const KIND = ['gnarl', 'oak', 'pine', 'birch'];
     for (let i = 0; i < 26; i++) {
       WALKERS.push({
-        a: r() * TAU,                       // where it sits around the camera
+        a: r() * TAU,                       // which side of the path it passes on
         rad: 0.2 + r() * 0.95,              // how far off the centre line
         z: r(),                             // where it starts along the path
-        kind: KIND[Math.floor(r() * 4)], v: Math.floor(r() * 6),
-        sh: 0.55 + r() * 0.35, flip: r() < 0.5,
+        lean: (r() - 0.5) * 0.5,
+        br: Array.from({ length: 3 }, () => [0.3 + r() * 0.5, r() < 0.5 ? -1 : 1, 0.16 + r() * 0.22]),
       });
     }
   }
@@ -4272,36 +4278,62 @@ const FX = (() => {
     const dark = c.t <= c.shut ? U.easeInOut(c.t / c.shut)
       : 1 - U.easeInOut(U.clamp((c.t - c.open) / (c.shut * 0.8), 0, 1));
     if (dark <= 0.002) return;
-    const cx = W / 2, cy = H * 0.5;
-    const bob = Math.sin(c.t * 11) * 3.5 * dark;           // the footfalls
-    const roll = Math.sin(c.t * 5.5) * 0.01 * dark;
+    const cx = W / 2, cy = H * 0.52;
+    const bob = Math.sin(c.t * 11) * 3 * dark;             // the footfalls
+    const roll = Math.sin(c.t * 5.5) * 0.008 * dark;
     g.save();
     g.translate(cx, cy + bob); g.rotate(roll); g.translate(-cx, -cy);
     // the way ahead falling into nothing
     const fk = U.clamp(dark * 1.8, 0, 1);
     const fade = g.createRadialGradient(cx, cy, 10, cx, cy, H * 0.95);
-    fade.addColorStop(0, `rgba(10,16,12,${(fk * 0.4).toFixed(2)})`);
-    fade.addColorStop(1, `rgba(4,7,5,${(fk * 0.99).toFixed(2)})`);
+    fade.addColorStop(0, `rgba(10,16,12,${(fk * 0.3).toFixed(2)})`);
+    fade.addColorStop(1, `rgba(4,7,5,${(fk * 0.92).toFixed(2)})`);
     g.fillStyle = fade; g.fillRect(-40, -40, W + 80, H + 80);
-    // the wood itself, far to near so the near trunks overlap
-    const sorted = WALKERS.map((tr) => ({ tr, z: (tr.z + c.t * 0.6) % 1 })).sort((p, q) => p.z - q.z);
+    // Trunks only, and only ones that pass to the side of the camera: a tree
+    // scaled up in your face is a smear, so they stay at the edges and the
+    // canopy is a separate band across the top. Far to near, so near overlaps.
     const alpha = U.clamp(dark * 2.4, 0, 1);
+    const sorted = WALKERS.map((tr) => ({ tr, z: (tr.z + c.t * 0.55) % 1 })).sort((p, q) => p.z - q.z);
     for (const { tr, z } of sorted) {
-      const persp = 0.1 + z * z * 4.2;                     // how close it has come
-      const img0 = Props.get('tree', `${tr.kind}|${tr.v}|${tr.sh.toFixed(2)}`);
-      const img = tr.flip ? Art.flip(img0) : img0;
-      const w = img.width * persp * 1.6, h = img.height * persp * 1.6;
-      const x = cx + Math.cos(tr.a) * tr.rad * W * persp;
-      const y = cy + Math.sin(tr.a) * tr.rad * H * 0.55 * persp + h * 0.32;
-      if (x + w / 2 < -60 || x - w / 2 > W + 60 || w < 6) continue;
+      const persp = 0.16 + z * z * 3.4;
+      const side = Math.cos(tr.a) < 0 ? -1 : 1;
+      const off = (0.26 + tr.rad * 0.5) * W * persp;       // always clear of the middle
+      const x = cx + side * off;
+      const w = 40 * (0.7 + tr.rad) * persp;
+      if (x + w < -20 || x - w > W + 20) continue;
+      const base = cy + H * 0.85 * persp, top = cy - H * 1.1 * persp;
+      const lean = tr.lean * (base - top) * 0.4;
+      const sh = Math.round(42 + (1 - z) * 56);
+      const bark = `rgb(${sh + 12},${sh + 4},${sh - 6})`;
+      const lit = `rgb(${sh + 52},${sh + 38},${sh + 12})`;
       g.globalAlpha = U.clamp(z * 5, 0, 1) * alpha;
-      g.drawImage(img, Math.round(x - w / 2), Math.round(y - h), Math.round(w), Math.round(h));
+      Art.limb(g, x, base, x + lean, top, w, w * 0.42, '#0c1a0e');
+      Art.limb(g, x, base, x + lean, top, w - 2, w * 0.34, bark);
+      Art.limb(g, x - side * (w * 0.3), base, x + lean - side * (w * 0.24), top, w * 0.18, 1.4, lit);
+      for (const [ky, bs, len] of tr.br) {                 // limbs, reaching inward
+        const by = U.lerp(base, top, ky), bx = U.lerp(x, x + lean, ky);
+        const L = len * H * persp * 0.8;
+        Art.limb(g, bx, by, bx - side * L, by - L * 0.45, w * 0.32, 2, '#0c1a0e');
+        Art.limb(g, bx, by, bx - side * L, by - L * 0.45, w * 0.22, 1.2, bark);
+      }
+      g.globalAlpha = 1;
+    }
+    // the canopy closing over, drawn as one soft band rather than blown-up leaves
+    const ck = U.clamp(dark * 1.4, 0, 1);
+    for (let i = 0; i < 16; i++) {
+      const p = i / 15;
+      const px = p * W + Math.sin(c.t * 1.6 + i) * 6;
+      const drop = (H * 0.2 + Math.sin(i * 2.3) * 26) * ck;
+      const r = 60 + Math.sin(i * 1.7) * 26;
+      g.globalAlpha = alpha;
+      Art.ell(g, px, -r * 0.5 + drop, r, r * 0.68, '#141f14');
+      Art.ell(g, px - r * 0.2, -r * 0.62 + drop, r * 0.6, r * 0.4, '#22351f');
       g.globalAlpha = 1;
     }
     g.restore();
     // the last of the light going out
-    if (dark > 0.92) {
-      g.fillStyle = `rgba(4,7,5,${(((dark - 0.92) / 0.08) * 0.78).toFixed(2)})`;
+    if (dark > 0.94) {
+      g.fillStyle = `rgba(4,7,5,${(((dark - 0.94) / 0.06) * 0.7).toFixed(2)})`;
       g.fillRect(0, 0, W, H);
     }
   }
@@ -7267,7 +7299,7 @@ const Shop = (() => {
     { key: 'dec',    name: 'YARD',  color: '#c97a25', sub: 'set it' },
     { key: 'wombat', name: 'ADOPT', color: '#b8496a', sub: 'love it' },
   ];
-  const SHELF_Y = [176, 234, 292];        // board tops, three to a gondola
+  const SHELF_Y = [190, 242, 294];        // board tops, three to a gondola
   const COLW = 96;                        // one product slot
   const AISLE0 = 470;                     // the doors and the cooler take the first stretch
   const GAP = 64;                         // between gondolas
@@ -7556,36 +7588,65 @@ const Shop = (() => {
 
   function renderRoom(g) {
     const t = G.time, S = scroll;
-    // ---- ceiling, wall, floor ---------------------------------------------
-    g.fillStyle = '#e7e2d2'; g.fillRect(0, 0, VW, 96);
-    for (let x = -(S * 0.5) % 40; x < VW; x += 40) { g.fillStyle = '#d9d3c0'; g.fillRect(x, 0, 2, 96); }
-    for (let y = 22; y < 96; y += 26) { g.fillStyle = '#d9d3c0'; g.fillRect(0, y, VW, 2); }
-    // fluorescent tubes
+    // ---- ceiling: tiles, cable trays, and warm tubes ----------------------
+    g.fillStyle = '#ded6c0'; g.fillRect(0, 0, VW, 96);
+    for (let x = -(S * 0.5) % 40; x < VW; x += 40) { g.fillStyle = '#cdc4ab'; g.fillRect(x, 0, 2, 96); }
+    for (let y = 22; y < 96; y += 26) { g.fillStyle = '#cdc4ab'; g.fillRect(0, y, VW, 2); }
+    for (let x = -(S * 0.5) % 160; x < VW; x += 160) {           // a cable tray running the length
+      g.fillStyle = '#9a927f'; g.fillRect(x, 30, 160, 5);
+      g.fillStyle = '#b3aa94'; g.fillRect(x, 30, 160, 2);
+      for (let i = 0; i < 8; i++) { g.fillStyle = '#7f7767'; g.fillRect(x + 6 + i * 19, 35, 3, 3); }
+    }
+    // fluorescent tubes, and the warm pool each one throws
     for (let x = -(S * 0.7) % 190 + 40; x < VW + 60; x += 190) {
       g.fillStyle = '#8e8a7c'; g.fillRect(x - 2, 0, 4, 14); g.fillRect(x + 64, 0, 4, 14);
       g.fillStyle = '#cfcabb'; g.fillRect(x - 8, 14, 82, 10);
       g.fillStyle = '#fffdf0'; g.fillRect(x - 4, 16, 74, 6);
-      const gl = g.createLinearGradient(0, 24, 0, 150);
-      gl.addColorStop(0, 'rgba(255,253,232,0.35)'); gl.addColorStop(1, 'rgba(255,253,232,0)');
-      g.fillStyle = gl; g.fillRect(x - 30, 24, 126, 130);
+      const gl = g.createLinearGradient(0, 24, 0, 170);
+      gl.addColorStop(0, 'rgba(255,246,214,0.42)'); gl.addColorStop(1, 'rgba(255,246,214,0)');
+      g.fillStyle = gl; g.fillRect(x - 34, 24, 134, 150);
     }
     ceilingPromos(g, S, t);
-    // wall
-    g.fillStyle = '#f1ecdc'; g.fillRect(0, 96, VW, 214);
-    g.fillStyle = '#e2dcc8'; g.fillRect(0, 96, VW, 4);
-    for (let x = -(S) % 64; x < VW; x += 64) { g.fillStyle = 'rgba(0,0,0,0.03)'; g.fillRect(x, 96, 1, 214); }
-    wallDressing(g, S, t);
-    // floor: pale tiles with a yellow line
-    g.fillStyle = '#dcd7c6'; g.fillRect(0, 310, VW, VH - 310);
-    for (let x = -(S) % 44; x < VW; x += 44) { g.fillStyle = '#cdc7b4'; g.fillRect(x, 310, 2, 50); }
-    for (let y = 316; y < VH; y += 13) { g.fillStyle = '#cdc7b4'; g.fillRect(0, y, VW, 1); }
+    // ---- wall: warm cream, with a dado rail and a skirting ----------------
+    g.fillStyle = '#efe2c6'; g.fillRect(0, 96, VW, 214);
+    const wg = g.createLinearGradient(0, 96, 0, 310);
+    wg.addColorStop(0, 'rgba(255,244,214,0.5)'); wg.addColorStop(1, 'rgba(150,124,80,0.22)');
+    g.fillStyle = wg; g.fillRect(0, 96, VW, 214);
+    for (let x = -(S) % 64; x < VW; x += 64) { g.fillStyle = 'rgba(90,60,20,0.05)'; g.fillRect(x, 96, 1, 214); }
+    g.fillStyle = '#c9b892'; g.fillRect(0, 300, VW, 4);
+    g.fillStyle = '#8d7a56'; g.fillRect(0, 304, VW, 6);
+    // ---- floor: checkerboard vinyl, scuffed, with the light on it ---------
+    g.fillStyle = '#cdc4ab'; g.fillRect(0, 310, VW, VH - 310);
+    for (let r = 0; r < 4; r++) {
+      const y = 310 + r * 13, h = 13;
+      for (let i = -1; i < 18; i++) {
+        const x = Math.round(i * 40 - (S % 80) + (r % 2 ? 20 : 0));
+        g.fillStyle = (i + r) % 2 ? '#ded6c0' : '#c3baa2';
+        g.fillRect(x, y, 40, h);
+        g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(x, y, 40, 1);
+      }
+    }
+    for (let x = -(S * 0.7) % 190 + 40; x < VW + 60; x += 190) {  // the tube's reflection
+      const fl = g.createLinearGradient(0, 310, 0, VH);
+      fl.addColorStop(0, 'rgba(255,250,224,0.3)'); fl.addColorStop(1, 'rgba(255,250,224,0)');
+      g.fillStyle = fl; g.fillRect(x - 26, 310, 118, 50);
+    }
+    for (let i = 0; i < 26; i++) {                                // scuffs and a dropped receipt
+      const x = ((i * 137 - S * 1.02) % (VW + 120) + VW + 120) % (VW + 120) - 60;
+      g.fillStyle = 'rgba(120,104,74,0.2)';
+      g.fillRect(x, 316 + (i * 7) % 40, 6 + (i % 3) * 5, 1);
+    }
     g.fillStyle = '#d8b23a'; g.fillRect(0, 352, VW, 4);
+    g.fillStyle = '#a8861c'; g.fillRect(0, 356, VW, 2);
     g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(0, 310, VW, 2);
+
+    wallDressing(g, S, t);
 
     // ---- entrance stretch --------------------------------------------------
     drawEntrance(g, 60 - S, t);
     // ---- the aisles --------------------------------------------------------
     for (const b of bays) drawBay(g, b, S);
+    floorProps(g, S, t);
     for (const s of slots) {
       const x = s.x - S;
       if (x < -60 || x > VW + 60) continue;
@@ -7756,36 +7817,130 @@ const Shop = (() => {
   function drawBay(g, b, S) {
     const x0 = b.x - S, w = b.w;
     if (x0 > VW + 40 || x0 + w < -40) return;
-    // gondola body
-    g.fillStyle = '#cfcabb'; g.fillRect(x0 - 10, 140, w + 20, 180);
-    g.fillStyle = '#bdb7a6'; g.fillRect(x0 - 10, 140, w + 20, 5);
-    g.fillStyle = '#a8a294'; g.fillRect(x0 - 10, 314, w + 20, 8);
-    for (const y of SHELF_Y) {
-      g.fillStyle = '#8e8879'; g.fillRect(x0 - 10, y + 4, w + 20, 10);   // shelf face
-      g.fillStyle = '#e4dfd0'; g.fillRect(x0 - 10, y, w + 20, 5);        // shelf top
-      g.fillStyle = 'rgba(255,255,255,0.55)'; g.fillRect(x0 - 10, y, w + 20, 2);
-      g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(x0 - 10, y + 14, w + 20, 3);
-    }
-    // generic stock fills whatever the catalogue does not, so no shelf is bare
-    for (let r = 0; r < 3; r++) for (let c = 0; c < b.cols; c++) {
-      if (b.taken[r * b.cols + c]) continue;
-      const fx = x0 + c * COLW + 6, fy = SHELF_Y[r];
-      for (let i = 0; i < 5; i++) {
-        const seed = (r * 7 + c * 13 + i * 3 + b.x) % 5;
-        const col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#b8496a', '#d8b23a'][seed];
-        const h = 16 + (seed % 3) * 4, w2 = 13;
-        g.fillStyle = U.shade(col, -0.45); g.fillRect(fx + i * 16, fy - h, w2, h);
-        g.fillStyle = col; g.fillRect(fx + i * 16, fy - h, w2 - 2, h - 1);
-        g.fillStyle = U.shade(col, 0.35); g.fillRect(fx + i * 16, fy - h, w2 - 2, 4);
-        g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(fx + i * 16 + 2, fy - h + 6, w2 - 6, 3);
+    const col = b.sec.color;
+    const TOP = 158, BOT = 316;
+    // ---- the gondola: a pegboard back between two coloured end caps -------
+    g.fillStyle = '#5f5a4e'; g.fillRect(x0 - 14, TOP, w + 28, BOT - TOP + 6);
+    g.fillStyle = '#b8b0a0'; g.fillRect(x0 - 10, TOP + 4, w + 20, BOT - TOP - 2);
+    g.fillStyle = '#a29a8a'; g.fillRect(x0 - 10, TOP + 4, w + 20, 3);
+    for (let py = TOP + 12; py < BOT - 4; py += 7) {              // the pegboard holes
+      for (let px = x0 - 6; px < x0 + w + 8; px += 7) {
+        g.fillStyle = 'rgba(60,54,44,0.35)'; g.fillRect(px, py, 2, 2);
       }
     }
-    for (let i = 0; i <= b.cols; i++) {                                   // uprights
-      const ux = x0 + i * COLW - 3;
-      g.fillStyle = '#b3ada0'; g.fillRect(ux, 140, 6, 180);
-      g.fillStyle = '#c9c4b6'; g.fillRect(ux, 140, 2, 180);
+    for (const ex of [x0 - 14, x0 + w + 4]) {                     // end caps in the section colour
+      g.fillStyle = '#3a352c'; g.fillRect(ex, TOP - 4, 10, BOT - TOP + 12);
+      g.fillStyle = col; g.fillRect(ex + 1, TOP - 3, 8, BOT - TOP + 10);
+      g.fillStyle = U.shade(col, 0.36); g.fillRect(ex + 1, TOP - 3, 8, 3);
+      g.fillStyle = U.shade(col, -0.4); g.fillRect(ex + 1, BOT + 4, 8, 3);
+      g.fillStyle = U.shade(col, 0.2); g.fillRect(ex + 2, TOP + 10, 2, BOT - TOP - 14);
     }
-    sign(g, x0 + w / 2, 126, b.sec.name, b.sec.color, b.sec.sub);
+    // ---- the boards, each with a price rail along the front ---------------
+    for (const y of SHELF_Y) {
+      g.fillStyle = 'rgba(0,0,0,0.22)'; g.fillRect(x0 - 10, y - 12, w + 20, 12);   // the shadow under it
+      g.fillStyle = '#efe9da'; g.fillRect(x0 - 11, y, w + 22, 5);                   // the board
+      g.fillStyle = '#ffffff'; g.fillRect(x0 - 11, y, w + 22, 2);
+      g.fillStyle = '#8e8879'; g.fillRect(x0 - 11, y + 5, w + 22, 4);
+      g.fillStyle = col; g.fillRect(x0 - 11, y + 9, w + 22, 4);                     // the price rail
+      g.fillStyle = U.shade(col, 0.4); g.fillRect(x0 - 11, y + 9, w + 22, 1);
+      for (let i = 0; i < w + 22; i += 24) {                                        // shelf talkers
+        g.fillStyle = '#fffdf0'; g.fillRect(x0 - 9 + i, y + 9, 16, 4);
+        g.fillStyle = '#b9b3a2'; g.fillRect(x0 - 9 + i, y + 12, 16, 1);
+      }
+      g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(x0 - 11, y + 13, w + 22, 2);
+    }
+    g.fillStyle = '#6f6858'; g.fillRect(x0 - 12, BOT, w + 24, 6);                   // the kick plate
+    g.fillStyle = '#57513f'; g.fillRect(x0 - 12, BOT + 4, w + 24, 4);
+    // ---- what fills the shelves the catalogue does not --------------------
+    for (let r = 0; r < 3; r++) for (let c = 0; c < b.cols; c++) {
+      if (b.taken[r * b.cols + c]) continue;
+      fillShelf(g, x0 + c * COLW - 8, SHELF_Y[r], COLW, r * 7 + c * 13 + Math.round(b.x));
+    }
+    sign(g, x0 + w / 2, 126, b.sec.name, col, b.sec.sub);
+  }
+
+  // Generic stock, in four shapes, so a bare shelf still looks like a shop.
+  const STOCK_COL = ['#c9581f', '#3f8f4a', '#2f6f9f', '#b8496a', '#d8b23a', '#7a4f9a'];
+  function fillShelf(g, x, y, wide, seed) {
+    let i = 0, px = x + 4;
+    while (px < x + wide - 8) {
+      const s2 = (seed + i * 7) % 4;
+      const col = STOCK_COL[(seed + i * 3) % STOCK_COL.length];
+      const dk = U.shade(col, -0.42), lt = U.shade(col, 0.36);
+      if (s2 === 0) {                                     // a can
+        const h = 15;
+        g.fillStyle = dk; g.fillRect(px, y - h, 11, h);
+        g.fillStyle = col; g.fillRect(px, y - h, 9, h);
+        g.fillStyle = lt; g.fillRect(px + 1, y - h + 1, 3, h - 2);
+        g.fillStyle = '#d8d2c2'; g.fillRect(px, y - h, 9, 2); g.fillRect(px, y - 3, 9, 2);
+        px += 13;
+      } else if (s2 === 1) {                              // a bottle
+        const h = 20;
+        g.fillStyle = dk; g.fillRect(px + 2, y - h, 5, 6);
+        g.fillStyle = col; g.fillRect(px, y - h + 6, 9, h - 6);
+        g.fillStyle = lt; g.fillRect(px + 1, y - h + 7, 2, h - 8);
+        g.fillStyle = '#fffdf0'; g.fillRect(px, y - 10, 9, 5);
+        px += 11;
+      } else if (s2 === 2) {                              // a box
+        const h = 17;
+        g.fillStyle = dk; g.fillRect(px, y - h, 14, h);
+        g.fillStyle = col; g.fillRect(px, y - h, 12, h);
+        g.fillStyle = lt; g.fillRect(px, y - h, 12, 4);
+        g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(px + 2, y - h + 6, 8, 3);
+        px += 16;
+      } else {                                            // a bag, slumped
+        const h = 14;
+        Art.poly(g, [[px, y], [px + 13, y], [px + 11, y - h + 3], [px + 6, y - h], [px + 2, y - h + 3]], dk);
+        Art.poly(g, [[px + 1, y - 1], [px + 12, y - 1], [px + 10, y - h + 4], [px + 6, y - h + 1], [px + 3, y - h + 4]], col);
+        g.fillStyle = lt; g.fillRect(px + 3, y - h + 5, 4, 3);
+        px += 15;
+      }
+      i++;
+    }
+  }
+
+  // Things standing about on the floor between the gondolas.
+  function floorProps(g, S, t) {
+    const spots = [];
+    for (let i = 0; i < bays.length - 1; i++) {
+      spots.push((bays[i].x + bays[i].w + bays[i + 1].x) / 2 - 20);
+    }
+    spots.push(AISLE0 - 96);
+    spots.forEach((sx, i) => {
+      const x = sx - S;
+      if (x < -80 || x > VW + 80) return;
+      if (i % 2 === 0) {                                  // a pallet of crates, half unwrapped
+        g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, x + 18, 344, 30, 6);
+        g.fillStyle = '#8a6a44'; g.fillRect(x - 4, 336, 44, 7);
+        g.fillStyle = '#a3803a'; g.fillRect(x - 4, 336, 44, 2);
+        for (let k = 0; k < 3; k++) { g.fillStyle = '#6b5030'; g.fillRect(x - 2 + k * 15, 336, 4, 7); }
+        for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) {
+          const bx = x + c * 20, by = 336 - 17 - r * 17;
+          g.fillStyle = '#2a2018'; g.fillRect(bx - 1, by - 1, 20, 18);
+          g.fillStyle = '#a8763a'; g.fillRect(bx, by, 18, 16);
+          g.fillStyle = '#c08e4a'; g.fillRect(bx, by, 18, 3);
+          g.fillStyle = '#7d552a'; g.fillRect(bx, by + 7, 18, 2);
+        }
+        g.fillStyle = 'rgba(214,236,244,0.14)'; g.fillRect(x - 2, 300, 42, 38);   // the shrink wrap
+        g.fillStyle = 'rgba(255,255,255,0.3)'; g.fillRect(x + 4, 300, 2, 38);
+      } else {                                            // a dump bin of discount stock
+        g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, x + 20, 346, 30, 6);
+        g.fillStyle = '#2a2f3a'; g.fillRect(x - 4, 312, 48, 32);
+        g.fillStyle = '#c9581f'; g.fillRect(x - 2, 314, 44, 28);
+        g.fillStyle = '#e2762c'; g.fillRect(x - 2, 314, 44, 3);
+        g.fillStyle = '#8f3a10'; g.fillRect(x - 2, 338, 44, 4);
+        for (let k = 0; k < 7; k++) {                     // what is in it
+          const col = STOCK_COL[(k * 3 + i) % STOCK_COL.length];
+          g.fillStyle = col;
+          g.fillRect(x + 1 + (k % 4) * 10, 308 + (k % 2) * 5, 8, 9);
+          g.fillStyle = U.shade(col, 0.34); g.fillRect(x + 1 + (k % 4) * 10, 308 + (k % 2) * 5, 8, 2);
+        }
+        const blink = Math.floor(t * 3) % 2;
+        g.fillStyle = '#0a0810'; g.fillRect(x + 6, 292, 30, 14);
+        g.fillStyle = blink ? '#f2cf3a' : '#fffdf0'; g.fillRect(x + 7, 293, 28, 12);
+        Font.draw(g, 'SALE', x + 21, 296, { scale: 1, color: '#c02030', align: 'center' });
+      }
+    });
   }
 
   // A hanging aisle plaque, the thing that makes a shop legible at a glance.
@@ -10411,12 +10566,9 @@ const Menu = (() => {
     Art.ell(g, 0, -45.5, 6, 4.4, S0); Art.ell(g, 0, -46.2, 5.2, 3.8, S2);
     Art.ell(g, -1.6, -47.4, 2.4, 1.6, S3);
     Art.rect(g, -1.6, -47.6, 3.2, 1.8, '#07080b');                              // nostrils
-    // fangs, two up and two down
-    Art.poly(g, [[-3.6, -44.4], [-2, -44.4], [-2.6, -40.2]], '#d8d2c4');
-    Art.poly(g, [[2, -44.4], [3.6, -44.4], [2.6, -40.2]], '#d8d2c4');
-    Art.poly(g, [[-5.4, -47.6], [-4, -47.6], [-4.6, -50.6]], '#c4bdae');
-    Art.poly(g, [[4, -47.6], [5.4, -47.6], [4.6, -50.6]], '#c4bdae');
-    Art.rect(g, -4.4, -44.6, 8.8, 1.2, '#07080b');                              // the dark of the mouth
+    Art.rect(g, -4.4, -44.6, 8.8, 1.2, '#07080b');                              // a hard flat mouth
+    Art.rect(g, -4.4, -45.6, 1.6, 1, '#07080b');
+    Art.rect(g, 2.8, -45.6, 1.6, 1, '#07080b');
     // scars, a chipped horn and an old crack across the cheek
     Art.limb(g, -8.4, -50, -4.6, -44.6, 1.1, 0.6, '#07080b');
     Art.limb(g, -8, -49.6, -4.4, -44.4, 0.6, 0.4, S3);
@@ -10450,8 +10602,6 @@ const Menu = (() => {
       g.fillStyle = gl; g.fillRect(x - 160, y - 290, 320, 320);
     }
     // the name, cut into the plinth
-    Font.draw(g, 'WOMBATHENA', x, y - 26 * GOD.s, { scale: 1, color: 'rgba(176,186,198,0.8)', align: 'center', shadow: '#05070a' });
-    Font.draw(g, 'OF THE BOLT', x, y - 26 * GOD.s + 9, { scale: 1, color: 'rgba(126,136,148,0.65)', align: 'center', shadow: '#05070a' });
   }
 
   // ---- the scene -----------------------------------------------------------

@@ -37,14 +37,13 @@ const FX = (() => {
   const WALKERS = [];
   {
     const r = Art.rng(7734);
-    const KIND = ['gnarl', 'oak', 'pine', 'birch'];
     for (let i = 0; i < 26; i++) {
       WALKERS.push({
-        a: r() * TAU,                       // where it sits around the camera
+        a: r() * TAU,                       // which side of the path it passes on
         rad: 0.2 + r() * 0.95,              // how far off the centre line
         z: r(),                             // where it starts along the path
-        kind: KIND[Math.floor(r() * 4)], v: Math.floor(r() * 6),
-        sh: 0.55 + r() * 0.35, flip: r() < 0.5,
+        lean: (r() - 0.5) * 0.5,
+        br: Array.from({ length: 3 }, () => [0.3 + r() * 0.5, r() < 0.5 ? -1 : 1, 0.16 + r() * 0.22]),
       });
     }
   }
@@ -57,36 +56,62 @@ const FX = (() => {
     const dark = c.t <= c.shut ? U.easeInOut(c.t / c.shut)
       : 1 - U.easeInOut(U.clamp((c.t - c.open) / (c.shut * 0.8), 0, 1));
     if (dark <= 0.002) return;
-    const cx = W / 2, cy = H * 0.5;
-    const bob = Math.sin(c.t * 11) * 3.5 * dark;           // the footfalls
-    const roll = Math.sin(c.t * 5.5) * 0.01 * dark;
+    const cx = W / 2, cy = H * 0.52;
+    const bob = Math.sin(c.t * 11) * 3 * dark;             // the footfalls
+    const roll = Math.sin(c.t * 5.5) * 0.008 * dark;
     g.save();
     g.translate(cx, cy + bob); g.rotate(roll); g.translate(-cx, -cy);
     // the way ahead falling into nothing
     const fk = U.clamp(dark * 1.8, 0, 1);
     const fade = g.createRadialGradient(cx, cy, 10, cx, cy, H * 0.95);
-    fade.addColorStop(0, `rgba(10,16,12,${(fk * 0.4).toFixed(2)})`);
-    fade.addColorStop(1, `rgba(4,7,5,${(fk * 0.99).toFixed(2)})`);
+    fade.addColorStop(0, `rgba(10,16,12,${(fk * 0.3).toFixed(2)})`);
+    fade.addColorStop(1, `rgba(4,7,5,${(fk * 0.92).toFixed(2)})`);
     g.fillStyle = fade; g.fillRect(-40, -40, W + 80, H + 80);
-    // the wood itself, far to near so the near trunks overlap
-    const sorted = WALKERS.map((tr) => ({ tr, z: (tr.z + c.t * 0.6) % 1 })).sort((p, q) => p.z - q.z);
+    // Trunks only, and only ones that pass to the side of the camera: a tree
+    // scaled up in your face is a smear, so they stay at the edges and the
+    // canopy is a separate band across the top. Far to near, so near overlaps.
     const alpha = U.clamp(dark * 2.4, 0, 1);
+    const sorted = WALKERS.map((tr) => ({ tr, z: (tr.z + c.t * 0.55) % 1 })).sort((p, q) => p.z - q.z);
     for (const { tr, z } of sorted) {
-      const persp = 0.1 + z * z * 4.2;                     // how close it has come
-      const img0 = Props.get('tree', `${tr.kind}|${tr.v}|${tr.sh.toFixed(2)}`);
-      const img = tr.flip ? Art.flip(img0) : img0;
-      const w = img.width * persp * 1.6, h = img.height * persp * 1.6;
-      const x = cx + Math.cos(tr.a) * tr.rad * W * persp;
-      const y = cy + Math.sin(tr.a) * tr.rad * H * 0.55 * persp + h * 0.32;
-      if (x + w / 2 < -60 || x - w / 2 > W + 60 || w < 6) continue;
+      const persp = 0.16 + z * z * 3.4;
+      const side = Math.cos(tr.a) < 0 ? -1 : 1;
+      const off = (0.26 + tr.rad * 0.5) * W * persp;       // always clear of the middle
+      const x = cx + side * off;
+      const w = 40 * (0.7 + tr.rad) * persp;
+      if (x + w < -20 || x - w > W + 20) continue;
+      const base = cy + H * 0.85 * persp, top = cy - H * 1.1 * persp;
+      const lean = tr.lean * (base - top) * 0.4;
+      const sh = Math.round(42 + (1 - z) * 56);
+      const bark = `rgb(${sh + 12},${sh + 4},${sh - 6})`;
+      const lit = `rgb(${sh + 52},${sh + 38},${sh + 12})`;
       g.globalAlpha = U.clamp(z * 5, 0, 1) * alpha;
-      g.drawImage(img, Math.round(x - w / 2), Math.round(y - h), Math.round(w), Math.round(h));
+      Art.limb(g, x, base, x + lean, top, w, w * 0.42, '#0c1a0e');
+      Art.limb(g, x, base, x + lean, top, w - 2, w * 0.34, bark);
+      Art.limb(g, x - side * (w * 0.3), base, x + lean - side * (w * 0.24), top, w * 0.18, 1.4, lit);
+      for (const [ky, bs, len] of tr.br) {                 // limbs, reaching inward
+        const by = U.lerp(base, top, ky), bx = U.lerp(x, x + lean, ky);
+        const L = len * H * persp * 0.8;
+        Art.limb(g, bx, by, bx - side * L, by - L * 0.45, w * 0.32, 2, '#0c1a0e');
+        Art.limb(g, bx, by, bx - side * L, by - L * 0.45, w * 0.22, 1.2, bark);
+      }
+      g.globalAlpha = 1;
+    }
+    // the canopy closing over, drawn as one soft band rather than blown-up leaves
+    const ck = U.clamp(dark * 1.4, 0, 1);
+    for (let i = 0; i < 16; i++) {
+      const p = i / 15;
+      const px = p * W + Math.sin(c.t * 1.6 + i) * 6;
+      const drop = (H * 0.2 + Math.sin(i * 2.3) * 26) * ck;
+      const r = 60 + Math.sin(i * 1.7) * 26;
+      g.globalAlpha = alpha;
+      Art.ell(g, px, -r * 0.5 + drop, r, r * 0.68, '#141f14');
+      Art.ell(g, px - r * 0.2, -r * 0.62 + drop, r * 0.6, r * 0.4, '#22351f');
       g.globalAlpha = 1;
     }
     g.restore();
     // the last of the light going out
-    if (dark > 0.92) {
-      g.fillStyle = `rgba(4,7,5,${(((dark - 0.92) / 0.08) * 0.78).toFixed(2)})`;
+    if (dark > 0.94) {
+      g.fillStyle = `rgba(4,7,5,${(((dark - 0.94) / 0.06) * 0.7).toFixed(2)})`;
       g.fillRect(0, 0, W, H);
     }
   }

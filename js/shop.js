@@ -136,7 +136,7 @@ const Shop = (() => {
     { key: 'dec',    name: 'YARD',  color: '#c97a25', sub: 'set it' },
     { key: 'wombat', name: 'ADOPT', color: '#b8496a', sub: 'love it' },
   ];
-  const SHELF_Y = [176, 234, 292];        // board tops, three to a gondola
+  const SHELF_Y = [190, 242, 294];        // board tops, three to a gondola
   const COLW = 96;                        // one product slot
   const AISLE0 = 470;                     // the doors and the cooler take the first stretch
   const GAP = 64;                         // between gondolas
@@ -425,36 +425,65 @@ const Shop = (() => {
 
   function renderRoom(g) {
     const t = G.time, S = scroll;
-    // ---- ceiling, wall, floor ---------------------------------------------
-    g.fillStyle = '#e7e2d2'; g.fillRect(0, 0, VW, 96);
-    for (let x = -(S * 0.5) % 40; x < VW; x += 40) { g.fillStyle = '#d9d3c0'; g.fillRect(x, 0, 2, 96); }
-    for (let y = 22; y < 96; y += 26) { g.fillStyle = '#d9d3c0'; g.fillRect(0, y, VW, 2); }
-    // fluorescent tubes
+    // ---- ceiling: tiles, cable trays, and warm tubes ----------------------
+    g.fillStyle = '#ded6c0'; g.fillRect(0, 0, VW, 96);
+    for (let x = -(S * 0.5) % 40; x < VW; x += 40) { g.fillStyle = '#cdc4ab'; g.fillRect(x, 0, 2, 96); }
+    for (let y = 22; y < 96; y += 26) { g.fillStyle = '#cdc4ab'; g.fillRect(0, y, VW, 2); }
+    for (let x = -(S * 0.5) % 160; x < VW; x += 160) {           // a cable tray running the length
+      g.fillStyle = '#9a927f'; g.fillRect(x, 30, 160, 5);
+      g.fillStyle = '#b3aa94'; g.fillRect(x, 30, 160, 2);
+      for (let i = 0; i < 8; i++) { g.fillStyle = '#7f7767'; g.fillRect(x + 6 + i * 19, 35, 3, 3); }
+    }
+    // fluorescent tubes, and the warm pool each one throws
     for (let x = -(S * 0.7) % 190 + 40; x < VW + 60; x += 190) {
       g.fillStyle = '#8e8a7c'; g.fillRect(x - 2, 0, 4, 14); g.fillRect(x + 64, 0, 4, 14);
       g.fillStyle = '#cfcabb'; g.fillRect(x - 8, 14, 82, 10);
       g.fillStyle = '#fffdf0'; g.fillRect(x - 4, 16, 74, 6);
-      const gl = g.createLinearGradient(0, 24, 0, 150);
-      gl.addColorStop(0, 'rgba(255,253,232,0.35)'); gl.addColorStop(1, 'rgba(255,253,232,0)');
-      g.fillStyle = gl; g.fillRect(x - 30, 24, 126, 130);
+      const gl = g.createLinearGradient(0, 24, 0, 170);
+      gl.addColorStop(0, 'rgba(255,246,214,0.42)'); gl.addColorStop(1, 'rgba(255,246,214,0)');
+      g.fillStyle = gl; g.fillRect(x - 34, 24, 134, 150);
     }
     ceilingPromos(g, S, t);
-    // wall
-    g.fillStyle = '#f1ecdc'; g.fillRect(0, 96, VW, 214);
-    g.fillStyle = '#e2dcc8'; g.fillRect(0, 96, VW, 4);
-    for (let x = -(S) % 64; x < VW; x += 64) { g.fillStyle = 'rgba(0,0,0,0.03)'; g.fillRect(x, 96, 1, 214); }
-    wallDressing(g, S, t);
-    // floor: pale tiles with a yellow line
-    g.fillStyle = '#dcd7c6'; g.fillRect(0, 310, VW, VH - 310);
-    for (let x = -(S) % 44; x < VW; x += 44) { g.fillStyle = '#cdc7b4'; g.fillRect(x, 310, 2, 50); }
-    for (let y = 316; y < VH; y += 13) { g.fillStyle = '#cdc7b4'; g.fillRect(0, y, VW, 1); }
+    // ---- wall: warm cream, with a dado rail and a skirting ----------------
+    g.fillStyle = '#efe2c6'; g.fillRect(0, 96, VW, 214);
+    const wg = g.createLinearGradient(0, 96, 0, 310);
+    wg.addColorStop(0, 'rgba(255,244,214,0.5)'); wg.addColorStop(1, 'rgba(150,124,80,0.22)');
+    g.fillStyle = wg; g.fillRect(0, 96, VW, 214);
+    for (let x = -(S) % 64; x < VW; x += 64) { g.fillStyle = 'rgba(90,60,20,0.05)'; g.fillRect(x, 96, 1, 214); }
+    g.fillStyle = '#c9b892'; g.fillRect(0, 300, VW, 4);
+    g.fillStyle = '#8d7a56'; g.fillRect(0, 304, VW, 6);
+    // ---- floor: checkerboard vinyl, scuffed, with the light on it ---------
+    g.fillStyle = '#cdc4ab'; g.fillRect(0, 310, VW, VH - 310);
+    for (let r = 0; r < 4; r++) {
+      const y = 310 + r * 13, h = 13;
+      for (let i = -1; i < 18; i++) {
+        const x = Math.round(i * 40 - (S % 80) + (r % 2 ? 20 : 0));
+        g.fillStyle = (i + r) % 2 ? '#ded6c0' : '#c3baa2';
+        g.fillRect(x, y, 40, h);
+        g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(x, y, 40, 1);
+      }
+    }
+    for (let x = -(S * 0.7) % 190 + 40; x < VW + 60; x += 190) {  // the tube's reflection
+      const fl = g.createLinearGradient(0, 310, 0, VH);
+      fl.addColorStop(0, 'rgba(255,250,224,0.3)'); fl.addColorStop(1, 'rgba(255,250,224,0)');
+      g.fillStyle = fl; g.fillRect(x - 26, 310, 118, 50);
+    }
+    for (let i = 0; i < 26; i++) {                                // scuffs and a dropped receipt
+      const x = ((i * 137 - S * 1.02) % (VW + 120) + VW + 120) % (VW + 120) - 60;
+      g.fillStyle = 'rgba(120,104,74,0.2)';
+      g.fillRect(x, 316 + (i * 7) % 40, 6 + (i % 3) * 5, 1);
+    }
     g.fillStyle = '#d8b23a'; g.fillRect(0, 352, VW, 4);
+    g.fillStyle = '#a8861c'; g.fillRect(0, 356, VW, 2);
     g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(0, 310, VW, 2);
+
+    wallDressing(g, S, t);
 
     // ---- entrance stretch --------------------------------------------------
     drawEntrance(g, 60 - S, t);
     // ---- the aisles --------------------------------------------------------
     for (const b of bays) drawBay(g, b, S);
+    floorProps(g, S, t);
     for (const s of slots) {
       const x = s.x - S;
       if (x < -60 || x > VW + 60) continue;
@@ -625,36 +654,130 @@ const Shop = (() => {
   function drawBay(g, b, S) {
     const x0 = b.x - S, w = b.w;
     if (x0 > VW + 40 || x0 + w < -40) return;
-    // gondola body
-    g.fillStyle = '#cfcabb'; g.fillRect(x0 - 10, 140, w + 20, 180);
-    g.fillStyle = '#bdb7a6'; g.fillRect(x0 - 10, 140, w + 20, 5);
-    g.fillStyle = '#a8a294'; g.fillRect(x0 - 10, 314, w + 20, 8);
-    for (const y of SHELF_Y) {
-      g.fillStyle = '#8e8879'; g.fillRect(x0 - 10, y + 4, w + 20, 10);   // shelf face
-      g.fillStyle = '#e4dfd0'; g.fillRect(x0 - 10, y, w + 20, 5);        // shelf top
-      g.fillStyle = 'rgba(255,255,255,0.55)'; g.fillRect(x0 - 10, y, w + 20, 2);
-      g.fillStyle = 'rgba(0,0,0,0.16)'; g.fillRect(x0 - 10, y + 14, w + 20, 3);
-    }
-    // generic stock fills whatever the catalogue does not, so no shelf is bare
-    for (let r = 0; r < 3; r++) for (let c = 0; c < b.cols; c++) {
-      if (b.taken[r * b.cols + c]) continue;
-      const fx = x0 + c * COLW + 6, fy = SHELF_Y[r];
-      for (let i = 0; i < 5; i++) {
-        const seed = (r * 7 + c * 13 + i * 3 + b.x) % 5;
-        const col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#b8496a', '#d8b23a'][seed];
-        const h = 16 + (seed % 3) * 4, w2 = 13;
-        g.fillStyle = U.shade(col, -0.45); g.fillRect(fx + i * 16, fy - h, w2, h);
-        g.fillStyle = col; g.fillRect(fx + i * 16, fy - h, w2 - 2, h - 1);
-        g.fillStyle = U.shade(col, 0.35); g.fillRect(fx + i * 16, fy - h, w2 - 2, 4);
-        g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(fx + i * 16 + 2, fy - h + 6, w2 - 6, 3);
+    const col = b.sec.color;
+    const TOP = 158, BOT = 316;
+    // ---- the gondola: a pegboard back between two coloured end caps -------
+    g.fillStyle = '#5f5a4e'; g.fillRect(x0 - 14, TOP, w + 28, BOT - TOP + 6);
+    g.fillStyle = '#b8b0a0'; g.fillRect(x0 - 10, TOP + 4, w + 20, BOT - TOP - 2);
+    g.fillStyle = '#a29a8a'; g.fillRect(x0 - 10, TOP + 4, w + 20, 3);
+    for (let py = TOP + 12; py < BOT - 4; py += 7) {              // the pegboard holes
+      for (let px = x0 - 6; px < x0 + w + 8; px += 7) {
+        g.fillStyle = 'rgba(60,54,44,0.35)'; g.fillRect(px, py, 2, 2);
       }
     }
-    for (let i = 0; i <= b.cols; i++) {                                   // uprights
-      const ux = x0 + i * COLW - 3;
-      g.fillStyle = '#b3ada0'; g.fillRect(ux, 140, 6, 180);
-      g.fillStyle = '#c9c4b6'; g.fillRect(ux, 140, 2, 180);
+    for (const ex of [x0 - 14, x0 + w + 4]) {                     // end caps in the section colour
+      g.fillStyle = '#3a352c'; g.fillRect(ex, TOP - 4, 10, BOT - TOP + 12);
+      g.fillStyle = col; g.fillRect(ex + 1, TOP - 3, 8, BOT - TOP + 10);
+      g.fillStyle = U.shade(col, 0.36); g.fillRect(ex + 1, TOP - 3, 8, 3);
+      g.fillStyle = U.shade(col, -0.4); g.fillRect(ex + 1, BOT + 4, 8, 3);
+      g.fillStyle = U.shade(col, 0.2); g.fillRect(ex + 2, TOP + 10, 2, BOT - TOP - 14);
     }
-    sign(g, x0 + w / 2, 126, b.sec.name, b.sec.color, b.sec.sub);
+    // ---- the boards, each with a price rail along the front ---------------
+    for (const y of SHELF_Y) {
+      g.fillStyle = 'rgba(0,0,0,0.22)'; g.fillRect(x0 - 10, y - 12, w + 20, 12);   // the shadow under it
+      g.fillStyle = '#efe9da'; g.fillRect(x0 - 11, y, w + 22, 5);                   // the board
+      g.fillStyle = '#ffffff'; g.fillRect(x0 - 11, y, w + 22, 2);
+      g.fillStyle = '#8e8879'; g.fillRect(x0 - 11, y + 5, w + 22, 4);
+      g.fillStyle = col; g.fillRect(x0 - 11, y + 9, w + 22, 4);                     // the price rail
+      g.fillStyle = U.shade(col, 0.4); g.fillRect(x0 - 11, y + 9, w + 22, 1);
+      for (let i = 0; i < w + 22; i += 24) {                                        // shelf talkers
+        g.fillStyle = '#fffdf0'; g.fillRect(x0 - 9 + i, y + 9, 16, 4);
+        g.fillStyle = '#b9b3a2'; g.fillRect(x0 - 9 + i, y + 12, 16, 1);
+      }
+      g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(x0 - 11, y + 13, w + 22, 2);
+    }
+    g.fillStyle = '#6f6858'; g.fillRect(x0 - 12, BOT, w + 24, 6);                   // the kick plate
+    g.fillStyle = '#57513f'; g.fillRect(x0 - 12, BOT + 4, w + 24, 4);
+    // ---- what fills the shelves the catalogue does not --------------------
+    for (let r = 0; r < 3; r++) for (let c = 0; c < b.cols; c++) {
+      if (b.taken[r * b.cols + c]) continue;
+      fillShelf(g, x0 + c * COLW - 8, SHELF_Y[r], COLW, r * 7 + c * 13 + Math.round(b.x));
+    }
+    sign(g, x0 + w / 2, 126, b.sec.name, col, b.sec.sub);
+  }
+
+  // Generic stock, in four shapes, so a bare shelf still looks like a shop.
+  const STOCK_COL = ['#c9581f', '#3f8f4a', '#2f6f9f', '#b8496a', '#d8b23a', '#7a4f9a'];
+  function fillShelf(g, x, y, wide, seed) {
+    let i = 0, px = x + 4;
+    while (px < x + wide - 8) {
+      const s2 = (seed + i * 7) % 4;
+      const col = STOCK_COL[(seed + i * 3) % STOCK_COL.length];
+      const dk = U.shade(col, -0.42), lt = U.shade(col, 0.36);
+      if (s2 === 0) {                                     // a can
+        const h = 15;
+        g.fillStyle = dk; g.fillRect(px, y - h, 11, h);
+        g.fillStyle = col; g.fillRect(px, y - h, 9, h);
+        g.fillStyle = lt; g.fillRect(px + 1, y - h + 1, 3, h - 2);
+        g.fillStyle = '#d8d2c2'; g.fillRect(px, y - h, 9, 2); g.fillRect(px, y - 3, 9, 2);
+        px += 13;
+      } else if (s2 === 1) {                              // a bottle
+        const h = 20;
+        g.fillStyle = dk; g.fillRect(px + 2, y - h, 5, 6);
+        g.fillStyle = col; g.fillRect(px, y - h + 6, 9, h - 6);
+        g.fillStyle = lt; g.fillRect(px + 1, y - h + 7, 2, h - 8);
+        g.fillStyle = '#fffdf0'; g.fillRect(px, y - 10, 9, 5);
+        px += 11;
+      } else if (s2 === 2) {                              // a box
+        const h = 17;
+        g.fillStyle = dk; g.fillRect(px, y - h, 14, h);
+        g.fillStyle = col; g.fillRect(px, y - h, 12, h);
+        g.fillStyle = lt; g.fillRect(px, y - h, 12, 4);
+        g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(px + 2, y - h + 6, 8, 3);
+        px += 16;
+      } else {                                            // a bag, slumped
+        const h = 14;
+        Art.poly(g, [[px, y], [px + 13, y], [px + 11, y - h + 3], [px + 6, y - h], [px + 2, y - h + 3]], dk);
+        Art.poly(g, [[px + 1, y - 1], [px + 12, y - 1], [px + 10, y - h + 4], [px + 6, y - h + 1], [px + 3, y - h + 4]], col);
+        g.fillStyle = lt; g.fillRect(px + 3, y - h + 5, 4, 3);
+        px += 15;
+      }
+      i++;
+    }
+  }
+
+  // Things standing about on the floor between the gondolas.
+  function floorProps(g, S, t) {
+    const spots = [];
+    for (let i = 0; i < bays.length - 1; i++) {
+      spots.push((bays[i].x + bays[i].w + bays[i + 1].x) / 2 - 20);
+    }
+    spots.push(AISLE0 - 96);
+    spots.forEach((sx, i) => {
+      const x = sx - S;
+      if (x < -80 || x > VW + 80) return;
+      if (i % 2 === 0) {                                  // a pallet of crates, half unwrapped
+        g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, x + 18, 344, 30, 6);
+        g.fillStyle = '#8a6a44'; g.fillRect(x - 4, 336, 44, 7);
+        g.fillStyle = '#a3803a'; g.fillRect(x - 4, 336, 44, 2);
+        for (let k = 0; k < 3; k++) { g.fillStyle = '#6b5030'; g.fillRect(x - 2 + k * 15, 336, 4, 7); }
+        for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) {
+          const bx = x + c * 20, by = 336 - 17 - r * 17;
+          g.fillStyle = '#2a2018'; g.fillRect(bx - 1, by - 1, 20, 18);
+          g.fillStyle = '#a8763a'; g.fillRect(bx, by, 18, 16);
+          g.fillStyle = '#c08e4a'; g.fillRect(bx, by, 18, 3);
+          g.fillStyle = '#7d552a'; g.fillRect(bx, by + 7, 18, 2);
+        }
+        g.fillStyle = 'rgba(214,236,244,0.14)'; g.fillRect(x - 2, 300, 42, 38);   // the shrink wrap
+        g.fillStyle = 'rgba(255,255,255,0.3)'; g.fillRect(x + 4, 300, 2, 38);
+      } else {                                            // a dump bin of discount stock
+        g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, x + 20, 346, 30, 6);
+        g.fillStyle = '#2a2f3a'; g.fillRect(x - 4, 312, 48, 32);
+        g.fillStyle = '#c9581f'; g.fillRect(x - 2, 314, 44, 28);
+        g.fillStyle = '#e2762c'; g.fillRect(x - 2, 314, 44, 3);
+        g.fillStyle = '#8f3a10'; g.fillRect(x - 2, 338, 44, 4);
+        for (let k = 0; k < 7; k++) {                     // what is in it
+          const col = STOCK_COL[(k * 3 + i) % STOCK_COL.length];
+          g.fillStyle = col;
+          g.fillRect(x + 1 + (k % 4) * 10, 308 + (k % 2) * 5, 8, 9);
+          g.fillStyle = U.shade(col, 0.34); g.fillRect(x + 1 + (k % 4) * 10, 308 + (k % 2) * 5, 8, 2);
+        }
+        const blink = Math.floor(t * 3) % 2;
+        g.fillStyle = '#0a0810'; g.fillRect(x + 6, 292, 30, 14);
+        g.fillStyle = blink ? '#f2cf3a' : '#fffdf0'; g.fillRect(x + 7, 293, 28, 12);
+        Font.draw(g, 'SALE', x + 21, 296, { scale: 1, color: '#c02030', align: 'center' });
+      }
+    });
   }
 
   // A hanging aisle plaque, the thing that makes a shop legible at a glance.
