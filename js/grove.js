@@ -149,9 +149,9 @@ const Grove = (() => {
     const nw = G.startWeeds || 1, nj = zoneObjects();
     const zf = World.zoneFraction();
     return [
-      { key: 'weeds', icon: 't_sickle', at: nw - zoneWeeds(), need: nw, done: zoneWeeds() === 0 },
-      { key: 'junk', icon: 't_destroy', at: nj - zoneJunk(), need: nj, done: zoneJunk() === 0 },
-      { key: 'grass', icon: 't_moss', at: Math.round(zf * 100), need: Math.round(ZONE_GRASS * 100), done: zf >= ZONE_GRASS },
+      { key: 'weeds', name: 'CUT WEEDS', icon: 't_sickle', at: nw - zoneWeeds(), need: nw, done: zoneWeeds() === 0 },
+      { key: 'junk', name: 'HAUL JUNK', icon: 't_destroy', at: nj - zoneJunk(), need: nj, done: zoneJunk() === 0 },
+      { key: 'grass', name: 'SOW GRASS', icon: 't_moss', at: Math.round(zf * 100), need: Math.round(ZONE_GRASS * 100), done: zf >= ZONE_GRASS },
     ];
   }
   const groveClean = () => tasks().every((t) => t.done);

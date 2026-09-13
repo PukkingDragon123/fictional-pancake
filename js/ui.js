@@ -31,14 +31,19 @@ const UI = (() => {
     if (G.mode !== 'grove' || G.arrived) { box.hidden = true; return; }
     box.hidden = false;
     const ts = Grove.tasks();
-    box.innerHTML = `<div class="tape"></div><h4>TO DO</h4>` + ts.map((t) => {
+    const left = ts.filter((t) => !t.done).length;
+    box.innerHTML = `<h4>TO DO</h4>` + ts.map((t) => {
       const p = U.clamp(t.at / t.need, 0, 1);
+      const at = Math.max(0, Math.round(t.at));
       return `<div class="task ${t.done ? 'done' : ''}" data-k="${t.key}">
-        <span class="box">${t.done ? '<i></i>' : ''}</span>
-        ${ic(t.icon)}
-        <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
-        <b>${Math.max(0, Math.round(t.at))}<small>/${t.need}</small></b></div>`;
-    }).join('') + '<div class="tear"></div>';
+        <div class="trow">
+          <span class="box">${t.done ? '<i></i>' : ''}</span>
+          ${ic(t.icon)}
+          <b class="tname">${t.name || t.key}</b>
+          <b class="tnum">${at}<small>/${t.need}</small></b>
+        </div>
+        <div class="bar"><i style="width:${Math.round(p * 100)}%"></i></div></div>`;
+    }).join('') + `<div class="tfoot">${left ? left + (left === 1 ? ' JOB LEFT' : ' JOBS LEFT') : 'ALL DONE'}</div>`;
   }
 
   function refreshNotebook() { }           // the cultist speaks for herself now

@@ -10,61 +10,61 @@ const Guide = (() => {
   // Each step is a line in the notebook and a place for her to stand.
   const STEPS = [
     {
-      key: 'weeds', say: 'Cut the *weeds* inside my rope. Big ones take a few swings.', praise: 'Clean cut! *Take these.*', icon: 't_sickle', title: 'Cut the weeds',
+      key: 'weeds', say: 'Cut the weeds inside my rope. Big ones take a few swings.', mood: 'cross', praise: 'Clean cut. Take these.', icon: 't_sickle', title: 'Cut the weeds',
       note: 'Take the sickle and drag across them. Just inside the rope will do; big ones take a few swings.',
       at: () => ZONE.x - 120, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
-      key: 'junk', say: 'Those wrecks are not ours to lift. Send for the *ants*.', praise: 'The ants thank you. *So do I.*', icon: 't_destroy', title: 'Send for the ants',
+      key: 'junk', say: 'Those wrecks are not ours to lift. Send for the ants.', mood: 'think', praise: 'The ants thank you. So do I.', icon: 't_destroy', title: 'Send for the ants',
       note: 'Logs and ruins are not ours to lift. The ants carry them, for a fee.',
       at: () => { const o = Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)); return o ? o.x : ZONE.x; },
       done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
-      key: 'grass', say: 'Farm tool, then *grass*, inside the rope. Water it or it sulks.', praise: '*Green again.* Here.', icon: 't_moss', title: 'Sow the grass',
+      key: 'grass', say: 'Farm tool, then grass, inside the rope. Water it or it sulks.', mood: 'talk', praise: 'Green again. Here.', icon: 't_moss', title: 'Sow the grass',
       note: 'Farm, then grass, inside the rope. Sprouts need time and a drink before they take.',
       at: () => ZONE.x, done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
-      key: 'arrive', say: 'Hush now. A clean grove calls *one of them*.', praise: '*She came!* I knew it.', icon: 'wombat', title: 'Wait for her',
+      key: 'arrive', say: 'Hush now. A clean grove calls one of them.', mood: 'worry', praise: 'She came. I knew it.', icon: 'wombat', title: 'Wait for her',
       note: 'A clean grove calls a wombat. One always comes.',
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
-      key: 'sow', say: '*Hoe* a bed and drop *seed* on the bare soil.', praise: 'Sown. *Good hands.*', icon: 't_hoe', title: 'Break a bed and sow it',
+      key: 'sow', say: 'Hoe a bed and drop seed on the bare soil.', mood: 'talk', praise: 'Sown. Good hands.', icon: 't_hoe', title: 'Break a bed and sow it',
       note: 'Hoe a patch, then seed on the bare soil.',
       at: () => 380, done: () => World.crops.length > 0,
     },
     {
-      key: 'pick', say: '*Water* it. When it *glows*, pick it with the hand.', praise: '*A harvest!* Take your cut.', icon: 't_water', title: 'Water, then pick',
+      key: 'pick', say: 'Water it. When it glows, pick it with the hand.', mood: 'talk', praise: 'A harvest. Take your cut.', icon: 't_water', title: 'Water, then pick',
       note: 'Thirsty crops sulk. When one glows, click it with the hand.',
       at: () => { const c = World.crops[0]; return c ? c.x : 380; },
       done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
     },
     {
-      key: 'feed', say: '*Food* tool, pick what you grew, click the *wombat*.', praise: 'Fed and content. *Well done.*', icon: 't_food', title: 'Feed her',
+      key: 'feed', say: 'Food tool, pick what you grew, and put a bowl on the ground.', mood: 'happy', praise: 'Fed and content. Well done.', icon: 't_food', title: 'Feed her',
       note: 'Food tool, pick what you grew, then click the wombat.',
       at: (g) => (g.wombats[0] ? g.wombats[0].x : 340),
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', say: 'What she leaves is holy. Drag it to the *truck*.', praise: 'Loaded. *The gods will notice.*', icon: 'truck', title: 'Load the cubes',
+      key: 'load', say: 'What she leaves is holy. Drag it to the truck.', mood: 'proud', praise: 'Loaded. The gods will notice.', icon: 'truck', title: 'Load the cubes',
       note: 'What she leaves is an offering. Drag it to the truck, or call the truck over.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
       done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
     },
     {
-      key: 'map', say: 'The *truck* has a map. Everything else is out there.', praise: '*Now you know the way.*', icon: 'map', title: 'Open the map',
+      key: 'map', say: 'The truck has a map. Everything else is out there.', mood: 'think', praise: 'Now you know the way.', icon: 'map', title: 'Open the map',
       note: 'The truck has a map: the mart, the ritual site, and fog over the rest.',
       at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.map),
     },
     {
-      key: 'mart', say: 'Walk the *mart*. Basket first, counter after.', praise: '*A fair trade.*', icon: 'shop', title: 'Walk the mart',
+      key: 'mart', say: 'Walk the mart. Fill a basket, then ask the wombat on the counter.', mood: 'sly', praise: 'A fair trade.', icon: 'shop', title: 'Walk the mart',
       note: 'Seed, stock and stone. Basket first, counter after.',
       at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.shop),
     },
     {
-      key: 'god', say: 'Stack what she leaves at the *ritual site*. Call one down.', praise: '*They answered!* I am so proud.', icon: 'shrine', title: 'Call one of them',
+      key: 'god', say: 'Stack what she leaves at the ritual site. Call one down.', mood: 'shock', praise: 'They answered. I am so proud.', icon: 'shrine', title: 'Call one of them',
       note: 'Stack what she leaves at the ritual site. They do answer.',
       at: () => Grove.TRUCK.x, done: (g) => Object.keys(g.summoned).length > 0,
     },
@@ -79,10 +79,54 @@ const Guide = (() => {
   const finished = () => G.step >= STEPS.length;
   const step = () => (finished() ? null : STEPS[G.step]);
 
-  function say(text, kind = 'order') { bubble.text = text; bubble.shown = 0; bubble.life = kind === 'order' ? 9 : 4.5; bubble.pop = 1; bubble.kind = kind; }
+  function say(text, kind = 'order', mood) {
+    bubble.text = text; bubble.shown = 0;
+    bubble.life = kind === 'order' ? 9 : kind === 'chat' ? 6 : 4.5;
+    bubble.pop = 1; bubble.kind = kind;
+    Sprites.setFace(mood || (kind === 'praise' ? 'happy' : 'talk'));
+  }
+
+  // ---- chatter -------------------------------------------------------------
+  // Things he says when nothing is happening. Each one asks the grove a
+  // question first, so he comments on what is actually in front of him.
+  const CHAT = [
+    { when: (g) => g.wombats.some((w) => w.stomach === 'empty'), mood: 'worry',
+      lines: ['She is looking at me like I am lunch.', 'Something down there is hungry.', 'Put a bowl out. She will find it.'] },
+    { when: () => Grove.drops.length > 2, mood: 'sly',
+      lines: ['There is a lot of holy matter on my lawn.', 'Load the truck before I trip on one.', 'Cubes. Everywhere. I love this job.'] },
+    { when: (g) => g.wd > 400, mood: 'proud',
+      lines: ['You are doing better than the last one.', 'Rich, for a caretaker.', 'Buy the land. Land never sulks.'] },
+    { when: (g) => g.wombats.length >= 3, mood: 'happy',
+      lines: ['Three of them. My chest hurts.', 'Look at them go. Look at them.', 'I did not cry. You cried.'] },
+    { when: () => World.weeds.length > 40, mood: 'cross',
+      lines: ['The thistles are winning again.', 'It grows back. It always grows back.', 'I dream about thistles. Not good dreams.'] },
+    { when: (g) => Object.keys(g.summoned || {}).length > 0, mood: 'shock',
+      lines: ['One of them is watching. Do not look up.', 'The wood went quiet when it answered.', 'They like you. That is not always good.'] },
+    { when: () => true, mood: 'idle',
+      lines: [
+        'Twenty years I have kept this wood.', 'The shirt was a gift. I never take it off.',
+        'A wombat can outrun you. I have tested this.', 'They make the cubes on purpose. I am sure of it.',
+        'Quiet, isn\'t it. Too quiet.', 'My hat is older than you are.',
+        'Do not feed them the gold ones. Long story.', 'I have named every tree. Do not ask.',
+        'If you hear digging at night, it is fine. Probably.',
+      ] },
+  ];
+  let chatT = 14 + Math.random() * 10, lastChat = '';
+  function chatter(dt) {
+    if (bubble.life > 0 || cult.happyT > 0) { chatT = 12 + Math.random() * 12; return; }
+    chatT -= dt;
+    if (chatT > 0) return;
+    chatT = 16 + Math.random() * 16;
+    const pool = CHAT.filter((c) => { try { return c.when(G); } catch (e) { return false; } });
+    const pick = pool[Math.floor(Math.random() * pool.length)] || CHAT[CHAT.length - 1];
+    let line = pick.lines[Math.floor(Math.random() * pick.lines.length)];
+    if (line === lastChat) line = pick.lines[(pick.lines.indexOf(line) + 1) % pick.lines.length];
+    lastChat = line;
+    say(line, 'chat', pick.mood);
+  }
   function poke() {                          // click her and she repeats the order
     const s = step(); if (!s) return;
-    say(s.say); cult.still = 0; cult.pose = 'idle';
+    say(s.say, 'order', s.mood); cult.still = 0; cult.pose = 'idle';
     FX.burst(cult.x, cult.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
     Audio.play('squeak');
   }
@@ -93,7 +137,7 @@ const Guide = (() => {
     if (!s.done(G)) return;
     const reward = REWARD[G.step] || 0;
     G.step++;
-    say(s.praise + (reward ? ` +${reward}` : ''), 'praise');
+    say(s.praise + (reward ? ` +${reward}` : ''), 'praise', 'proud');
     cult.happyT = 2.2;
     FX.confettiBurst(cult.x, cult.y - 50, 18);
     FX.hearts(cult.x, cult.y - 56, 5);
@@ -110,11 +154,13 @@ const Guide = (() => {
 
   let lastStep = -1, sayT = 0;
   function update(dt) {
+    if (bubble.life <= 0 && Sprites.face !== 'idle' && cult.happyT <= 0) Sprites.setFace('idle');
     if (flash > 0) flash -= dt;
     cult.t += dt;
     // a new order gets spoken once she is roughly in place
     const s = step();
-    if (s && G.step !== lastStep) { sayT += dt; if (sayT > 1.2 || lastStep === -1) { lastStep = G.step; sayT = 0; if (!bubble.life) say(s.say); } }
+    chatter(dt);
+    if (s && G.step !== lastStep) { sayT += dt; if (sayT > 1.2 || lastStep === -1) { lastStep = G.step; sayT = 0; if (!bubble.life) say(s.say, 'order', s.mood); } }
     if (bubble.life > 0) { bubble.life -= dt; bubble.shown += dt * 28; bubble.pop = Math.max(0, bubble.pop - dt * 3); }
     if (cult.happyT > 0) { cult.happyT -= dt; }
     if (cult.hop > 0) cult.hop = Math.max(0, cult.hop - dt * 1.6);
@@ -213,128 +259,56 @@ const Guide = (() => {
 
   function drawBubble(g) {
     if (bubble.life <= 0 || !bubble.text) return;
-    const praise = bubble.kind === 'praise';
-    const OL = '#1c1008';
-    const PG1 = '#a5825a', PG2 = praise ? '#e2cb9c' : '#c8a87e', PG3 = praise ? '#f6e6bc' : '#dcc49a';
-    const WD0 = '#2a180c', WD1 = praise ? '#7a5210' : '#4a2c1a', WD2 = praise ? '#c1912a' : '#6b4526', WD3 = praise ? '#f2cf62' : '#8a5c33';
-    const TL1 = '#2f7a90', TL2 = '#4fa6be', TL3 = '#8fd4e4';
-    const GD2 = '#e0a82e', GD3 = '#f2cf62', GD4 = '#ffeaa8';
+    // A plain speech bubble: white paper, a black border, black letters. No
+    // shine, no wobble, no starburst — it is there to be read.
+    const INK = '#141118', PAPER = '#fbf8f2', EDGE = '#c8c2b8';
 
-    const lines = layout(bubble.text, 160);
-    const W = Math.max(96, Math.ceil(Math.max(...lines.map((l) => l.w))) + 26);
-    const H = lines.length * LH + 20;
+    const lines = layout(bubble.text, 176);
+    const W = Math.max(96, Math.ceil(Math.max(...lines.map((l) => l.w))) + 24);
+    const H = lines.length * LH + 18;
     const shownN = Math.floor(bubble.shown);
     const total = lines.reduce((n, l) => n + l.length, 0);
     const done = shownN >= total;
 
-    // where it sits: above her head, always inside the view
+    // where it sits: above his head, always inside the view
     const half = W / 2 + 10;
     const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
     const bx = lo > hi ? FX.cam.x : U.clamp(cult.x + 6, lo, hi);
-    const bob = Math.sin(G.time * 2.4) * 1.6;
-    const by = Math.max(30 + H, cult.y - 94) + bob;
-
-    // the landing: a squash that overshoots, and a wobble that settles
-    const p = bubble.pop;
-    const sx = 1 + Math.sin(p * Math.PI) * 0.26 + p * 0.1;
-    const sy = 1 + Math.sin(p * Math.PI) * 0.26 - p * 0.14;
-    const rot = Math.sin(p * 13) * 0.075 * p;
+    const by = Math.max(26 + H, cult.y - 96);
 
     g.save();
-    g.translate(bx, by); g.rotate(rot); g.scale(sx, sy); g.translate(-bx, -by);
     const X = Math.round(bx - W / 2), Y = Math.round(by - H);
-    const CXb = bx, CYb = by - H / 2;
 
-    if (praise) {
-      // a starburst behind the whole thing, turning slowly
-      const spin = G.time * 0.7;
-      const pts = [];
-      for (let i = 0; i < 40; i++) {
-        const a = (i / 40) * TAU + spin, far = i % 2 === 0;
-        const jag = far ? 20 + Math.sin(i * 2.1) * 7 : 4;
-        pts.push([CXb + Math.cos(a) * (W / 2 + jag), CYb + Math.sin(a) * (H / 2 + jag * 0.92)]);
-      }
-      Art.poly(g, pts, 'rgba(28,16,8,0.9)');
-      const pts2 = pts.map(([px, py]) => [CXb + (px - CXb) * 0.9, CYb + (py - CYb) * 0.9]);
-      Art.poly(g, pts2, GD2);
-      const pts3 = pts.map(([px, py]) => [CXb + (px - CXb) * 0.82, CYb + (py - CYb) * 0.82]);
-      Art.poly(g, pts3, GD3);
-      // lines flying off, and a couple of stars
-      for (let i = 0; i < 10; i++) {
-        const a = (i / 10) * TAU + spin * 1.4;
-        const r0 = W / 2 + 26, r1 = r0 + 8 + Math.sin(G.time * 6 + i) * 5;
-        Art.line(g, CXb + Math.cos(a) * r0, CYb + Math.sin(a) * r0 * 0.8,
-                    CXb + Math.cos(a) * r1, CYb + Math.sin(a) * r1 * 0.8, GD4, 2);
-      }
-      for (let i = 0; i < 4; i++) {
-        const a = G.time * 1.6 + i * 1.57, r = W / 2 + 34 + Math.sin(G.time * 3 + i) * 4;
-        star(g, CXb + Math.cos(a) * r, CYb + Math.sin(a) * r * 0.8, 4 + Math.sin(G.time * 5 + i) * 1.4, GD4);
-      }
-    } else if (p > 0.05) {
-      // little marks popping off the moment she starts speaking
-      for (let i = 0; i < 6; i++) {
-        const a = (i / 6) * TAU, r = (1 - p) * 26 + 12;
-        star(g, CXb + Math.cos(a) * (W / 2 + r * 0.5), CYb + Math.sin(a) * (H / 2 + r * 0.4), 3 * p, GD4);
-      }
-    }
+    // the tail, pointing at him
+    const tx = U.clamp(Math.round(cult.x + 6), X + 16, X + W - 16);
+    g.fillStyle = INK;
+    g.beginPath(); g.moveTo(tx - 9, Y + H - 2); g.lineTo(tx - 1, Y + H + 13); g.lineTo(tx + 8, Y + H - 2); g.fill();
+    // the box
+    g.fillStyle = INK; g.fillRect(X - 2, Y - 2, W + 4, H + 4);
+    g.fillStyle = PAPER; g.fillRect(X, Y, W, H);
+    g.fillStyle = EDGE; g.fillRect(X, Y + H - 1, W, 1);
+    g.fillStyle = PAPER;
+    g.beginPath(); g.moveTo(tx - 6, Y + H - 2); g.lineTo(tx - 1, Y + H + 8); g.lineTo(tx + 5, Y + H - 2); g.fill();
 
-    // the frame: wood cover, parchment page, teal brackets
-    g.fillStyle = 'rgba(0,0,0,0.4)'; g.fillRect(X + 3, Y + 5, W, H);
-    g.fillStyle = OL; g.fillRect(X - 3, Y - 3, W + 6, H + 6);
-    g.fillStyle = WD1; g.fillRect(X, Y, W, H);
-    g.fillStyle = WD3; g.fillRect(X + 1, Y + 1, W - 2, 2);
-    g.fillStyle = WD0; g.fillRect(X + 1, Y + H - 3, W - 2, 2);
-    g.fillStyle = WD2; g.fillRect(X + 3, Y + 3, W - 6, H - 6);
-    g.fillStyle = PG2; g.fillRect(X + 5, Y + 5, W - 10, H - 10);
-    Tex.fill(g, 'paper', X + 5, Y + 5, W - 10, H - 10, 0.5);
-    g.fillStyle = PG3; g.fillRect(X + 5, Y + 5, W - 10, 2);
-    g.fillStyle = PG1; g.fillRect(X + 5, Y + H - 8, W - 10, 3);
-    const put = (x, y, bw, bh) => {
-      g.fillStyle = OL; g.fillRect(x - 1, y - 1, bw + 2, bh + 2);
-      g.fillStyle = TL1; g.fillRect(x, y, bw, bh);
-      g.fillStyle = TL2; g.fillRect(x, y, bw, Math.max(1, Math.round(bh * 0.62)));
-      g.fillStyle = TL3; g.fillRect(x, y, bw, 1);
-    };
-    for (const qx of [0, 1]) for (const qy of [0, 1]) {
-      put(qx ? X + W - 11 : X, qy ? Y + H - 4 : Y, 11, 4);
-      put(qx ? X + W - 4 : X, qy ? Y + H - 11 : Y, 4, 11);
-    }
-    // the tail, still pointing at her, with a wag
-    const tx = U.clamp(cult.x + 6 + Math.sin(G.time * 3.2) * 2, X + 18, X + W - 18);
-    g.fillStyle = OL; g.beginPath(); g.moveTo(tx - 11, Y + H - 1); g.lineTo(tx - 2, Y + H + 14); g.lineTo(tx + 6, Y + H - 1); g.fill();
-    g.fillStyle = WD1; g.beginPath(); g.moveTo(tx - 8, Y + H - 2); g.lineTo(tx - 2.5, Y + H + 10); g.lineTo(tx + 3, Y + H - 2); g.fill();
-    g.fillStyle = PG2; g.fillRect(X + 5, Y + H - 7, W - 10, 2);
-
-    // ---- the letters: each one lands oversized and drops into place --------
+    // ---- the letters, typed in, all one weight -----------------------------
     lines.forEach((l, li) => {
-      const ly = Y + 11 + li * LH;
+      const ly = Y + 10 + li * LH;
       for (const ch of l) {
         if (ch.i >= shownN || ch.c === ' ') continue;
-        const age = bubble.shown - ch.i;
-        const k = U.clamp(age / 2.6, 0, 1);
-        const e = 1 - U.easeOut(k);
-        const cs = BS + Math.round(e * 2);                 // it lands a block or two oversized
-        const cx = X + 13 + ch.x - (cs - BS) * Font.CW / 2;
-        const cy = ly - Math.round(e * 7) - (cs - BS) * Font.CH / 2;
-        const body = ch.em ? '#a36a10' : '#33200f';
-        const shade = ch.em ? 'rgba(255,234,168,0.9)' : 'rgba(232,214,178,0.85)';
-        Font.draw(g, ch.c, cx, cy, { scale: cs, color: body, shadow: shade, shadowDist: -1, align: 'left' });
+        Font.draw(g, ch.c, X + 12 + ch.x, ly, { scale: BS, color: INK, align: 'left' });
       }
     });
 
     // ---- the cue in the corner ---------------------------------------------
     if (!done) {                                        // still speaking: three dots
       for (let i = 0; i < 3; i++) {
-        const up = Math.max(0, Math.sin(G.time * 7 - i * 0.7)) * 3;
-        g.fillStyle = i === Math.floor(G.time * 4) % 3 ? '#33200f' : '#8d6a44';
-        g.fillRect(X + W - 24 + i * 6, Y + H - 12 - up, 3, 3);
+        g.fillStyle = i === Math.floor(G.time * 4) % 3 ? '#141118' : '#b4aea4';
+        g.fillRect(X + W - 22 + i * 6, Y + H - 10, 3, 3);
       }
-    } else {                                            // finished: a bouncing arrow
-      const up = Math.abs(Math.sin(G.time * 4)) * 3;
-      const ax = X + W - 16, ay = Y + H - 13 + up;
-      g.fillStyle = OL; g.fillRect(ax - 5, ay - 1, 10, 3); g.fillRect(ax - 3, ay + 2, 6, 3); g.fillRect(ax - 1, ay + 5, 2, 2);
-      g.fillStyle = GD2; g.fillRect(ax - 4, ay, 8, 2); g.fillRect(ax - 2, ay + 2, 4, 2);
-      g.fillStyle = GD4; g.fillRect(ax - 4, ay, 8, 1);
+    } else {                                            // finished: a small arrow
+      const up = Math.round(Math.sin(G.time * 4) * 1.5);
+      g.fillStyle = '#141118';
+      for (let i = 0; i < 4; i++) g.fillRect(X + W - 20 + i, Y + H - 12 + i + up, 8 - i * 2, 1);
     }
     g.restore();
   }

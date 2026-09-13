@@ -107,6 +107,36 @@ const Tex = (() => {
     };
   }
 
+  // ---- stone: coarse granite, chisel tracks and a few chips ---------------
+  function granite(base, dark, light, spark) {
+    return (g0, w0, h0, r) => {
+      const w = Math.round(w0 / 4), h = Math.round(h0 / 4);
+      const { c, g } = Art.cv(w, h);
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < w * h * 0.34; i++) {                 // the grain of the rock
+        const v = r();
+        dot(g, r() * w, r() * h, w, h, v < 0.42 ? dark : v < 0.86 ? light : spark);
+      }
+      for (let i = 0; i < 5; i++) {                            // chisel tracks, roughly parallel
+        const y0 = r() * h, dy = (r() - 0.5) * 2;
+        g.globalAlpha = 0.4 + r() * 0.3;
+        for (let x = 0; x < w; x++) {
+          const y = Math.round(y0 + (x / w) * dy);
+          g.fillStyle = dark; g.fillRect(x, ((y % h) + h) % h, 1, 1);
+          g.fillStyle = light; g.fillRect(x, (((y + 1) % h) + h) % h, 1, 1);
+        }
+        g.globalAlpha = 1;
+      }
+      for (let i = 0; i < 3; i++) {                            // chips out of the face
+        const cx2 = 2 + r() * (w - 4), cy2 = 2 + r() * (h - 4);
+        Art.ell(g, cx2, cy2, 1 + r() * 1.6, 0.8 + r(), dark);
+        Art.ell(g, cx2 - 0.5, cy2 - 0.5, 0.8, 0.6, light);
+      }
+      g0.imageSmoothingEnabled = false;
+      g0.drawImage(c, 0, 0, w0, h0);
+    };
+  }
+
   const DEF = {
     wood:     [72, 40, wood('#8f6238', '#5b3a1c', '#c49461', 2)],
     darkwood: [72, 40, wood('#6b4526', '#3f2611', '#a2714a', 2)],
@@ -117,6 +147,9 @@ const Tex = (() => {
     gold:     [26, 26, beaten('#e0a82e', '#9a6c12', '#ffeaa8')],
     amber:    [26, 26, beaten('#cf7a2a', '#8a440f', '#ffc98a')],
     slate:    [26, 26, metal('#3f5f8f', '#1e3050', '#9fbde6')],
+    stone:    [64, 64, granite('#6e6a66', '#46433f', '#8d8983', '#b3aea6')],
+    stoned:   [64, 64, granite('#4a4744', '#2c2a28', '#63605b', '#807b74')],
+    stonel:   [64, 64, granite('#8f8a84', '#6a6660', '#aaa49c', '#c9c2b8')],
   };
 
   function canvas(name) {

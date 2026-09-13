@@ -115,8 +115,8 @@ const Menu = (() => {
   // letters are chiselled: a dark inset with a lit lower lip, the way carved
   // stone reads. Nothing else on this screen is text.
   function lintel(g) {
-    const y = GOD.y - 69 * GOD.s;                       // sits right on the fists
-    const x0 = 26, x1 = VW - 26, h = 54;
+    const y = GOD.y - 82 * GOD.s;                       // held right up over its head
+    const x0 = 14, x1 = VW - 14, h = 50;
     const S0 = '#090b0f', S1 = '#232932', S2 = '#323945', S3 = '#454d59', S4 = '#5a6270';
     const flick = redT > 0 ? U.clamp(redT / 0.6, 0, 1) * (0.62 + 0.38 * Math.sin(t * 26)) : 0;
     const top = y - h;
@@ -150,7 +150,7 @@ const Menu = (() => {
       g.globalAlpha = 1;
     }
     // two iron rings the god's fists are hooked through
-    for (const fx of [GOD.x - 16 * GOD.s, GOD.x + 16 * GOD.s]) {
+    for (const fx of [GOD.x - 26 * GOD.s, GOD.x + 26 * GOD.s]) {
       Art.ellBand(g, fx, y + 6, 9, 11, '#14171d', 0, 1);
       Art.ellBand(g, fx, y + 6, 7.6, 9.4, '#404854', 0.06, 0.44);
     }
@@ -160,7 +160,7 @@ const Menu = (() => {
   // A colossus of a wombat carved mid-flex: chest out, both arms up, stone
   // muscle everywhere. Every so often the carved eyes catch something and go
   // red, which is the only part of it that ever moves.
-  const GOD = { x: 206, y: 346, s: 2.35 };
+  const GOD = { x: 198, y: 338, s: 2.6 };
   let redT = 0, redNext = 2.5;
   function godStatue(g) {
     const { x, y, s } = GOD;
@@ -197,37 +197,61 @@ const Menu = (() => {
     // arms up, fists clenched: both biceps balled
     for (const sd of [-1, 1]) {
       const sx = sd * 15, sy = -44;
-      Art.limb(g, sx, sy, sx + sd * 13, sy - 9, 7.5, 6, S0);           // upper arm
-      Art.limb(g, sx, sy - 0.6, sx + sd * 12.4, sy - 9, 6.2, 4.8, sd < 0 ? S2 : S1);
-      Art.ell(g, sx + sd * 6, sy - 6, 5.4, 4.4, sd < 0 ? S3 : S2);     // the bicep
-      Art.limb(g, sx + sd * 13, sy - 9, sx + sd * 9, sy - 24, 6, 5, S0);   // forearm, folded up
-      Art.limb(g, sx + sd * 12.6, sy - 9.4, sx + sd * 9, sy - 23.4, 4.8, 4, sd < 0 ? S2 : S1);
-      Art.ell(g, sx + sd * 9, sy - 25, 5, 4.6, S0);                    // the fist, open, holding
-      Art.ell(g, sx + sd * 9, sy - 25.4, 4.2, 3.8, sd < 0 ? S3 : S2);
-      for (let k = 0; k < 3; k++) Art.rect(g, sx + sd * 9 - 3 + k * 2.2, -72.4, 1.4, 2.4, S0);
+      Art.limb(g, sx, sy, sx + sd * 9, sy - 16, 10, 8.4, S0);          // upper arm, driving up
+      Art.limb(g, sx, sy - 0.6, sx + sd * 8.6, sy - 16, 8.4, 7, sd < 0 ? S2 : S1);
+      Art.ell(g, sx + sd * 4.4, sy - 8, 7, 6, sd < 0 ? S3 : S2);       // the bicep, balled
+      Art.ell(g, sx + sd * 3.4, sy - 10, 3.4, 2.6, sd < 0 ? S4 : S3);
+      Art.limb(g, sx + sd * 9, sy - 16, sx + sd * 11, sy - 34, 8.4, 7, S0);      // forearm, straight up
+      Art.limb(g, sx + sd * 8.6, sy - 16.4, sx + sd * 10.6, sy - 33.6, 7, 5.8, sd < 0 ? S2 : S1);
+      Art.ell(g, sx + sd * 11, sy - 36, 6.4, 5.8, S0);                 // the fist
+      Art.ell(g, sx + sd * 11, sy - 36.4, 5.6, 5, sd < 0 ? S3 : S2);
+      for (let k = 0; k < 3; k++) Art.rect(g, sx + sd * 11 - 3.8 + k * 2.8, sy - 40, 1.8, 3, S0);
     }
     g.restore();
     lintel(g);
     g.save();
     g.translate(x, y); g.scale(s, s);
-    // the head: a wombat's, blunt, with a laurel of stone leaves
-    Art.ell(g, 0, -52, 11, 9.5, S0);
-    Art.ell(g, 0, -52.6, 10, 8.6, S1);
-    Art.ell(g, -3.4, -56, 5, 3.8, S2);
-    Art.ell(g, -5, -57.4, 2.2, 1.6, S3);
-    Art.ell(g, -7.5, -59.5, 4.2, 4, S0); Art.ell(g, -7.5, -60, 3, 2.8, S2);     // ears
-    Art.ell(g, 7.5, -59.5, 4, 3.8, S0); Art.ell(g, 7.5, -60, 2.8, 2.6, S1);
-    Art.ell(g, 0, -46.5, 5.4, 4, S0); Art.ell(g, 0, -47.2, 4.6, 3.4, S2);       // snout
-    Art.rect(g, -1.4, -48.2, 2.8, 1.6, S0);                                      // nose
-    for (let i = 0; i < 7; i++) {                                                // laurel
-      const a2 = Math.PI + (i / 6) * Math.PI;
-      Art.ell(g, Math.cos(a2) * 10.5, -56 + Math.sin(a2) * 5.5, 2.4, 1.4, i % 2 ? S2 : S3);
+    // the head: a wombat's, but snarling, horned, and badly used
+    Art.ell(g, 0, -52, 11.5, 10, S0);
+    Art.ell(g, 0, -52.6, 10.4, 9, S1);
+    Art.ell(g, -3.6, -56.4, 5.2, 4, S2);
+    Art.ell(g, -5.2, -58, 2.2, 1.6, S3);
+    // ears, torn: one has a bite out of it
+    Art.poly(g, [[-11, -57], [-6, -61.5], [-4.5, -55]], S0);
+    Art.poly(g, [[-10, -57], [-6.4, -60.4], [-5.4, -55.6]], S2);
+    Art.poly(g, [[11, -56.6], [6.4, -61], [4.8, -54.8]], S0);
+    Art.poly(g, [[10.2, -56.8], [7, -59.8], [5.8, -55.4]], S1);
+    Art.poly(g, [[8.2, -59], [10.2, -58], [9.2, -56.4]], '#07080b');            // the bite
+    // two short horns growing out of the brow
+    for (const hs of [-1, 1]) {
+      Art.poly(g, [[hs * 6.4, -58], [hs * 9.6, -66], [hs * 10.8, -64.4], [hs * 8.4, -56.6]], S0);
+      Art.poly(g, [[hs * 6.8, -58], [hs * 9.4, -64.8], [hs * 10.2, -64], [hs * 8.2, -57]], hs < 0 ? S3 : S2);
     }
+    // a heavy overhanging brow, which is most of the menace
+    Art.poly(g, [[-10, -55.4], [10, -55.4], [9, -51.4], [-9, -51.4]], S0);
+    Art.poly(g, [[-9.4, -55], [9.4, -55], [8.4, -52.6], [-8.4, -52.6]], S2);
+    Art.poly(g, [[-9.4, -55], [-1, -55], [-1, -52.6], [-8.4, -52.6]], S3);
+    // the snout, drawn back off the teeth
+    Art.ell(g, 0, -45.5, 6, 4.4, S0); Art.ell(g, 0, -46.2, 5.2, 3.8, S2);
+    Art.ell(g, -1.6, -47.4, 2.4, 1.6, S3);
+    Art.rect(g, -1.6, -47.6, 3.2, 1.8, '#07080b');                              // nostrils
+    // fangs, two up and two down
+    Art.poly(g, [[-3.6, -44.4], [-2, -44.4], [-2.6, -40.2]], '#d8d2c4');
+    Art.poly(g, [[2, -44.4], [3.6, -44.4], [2.6, -40.2]], '#d8d2c4');
+    Art.poly(g, [[-5.4, -47.6], [-4, -47.6], [-4.6, -50.6]], '#c4bdae');
+    Art.poly(g, [[4, -47.6], [5.4, -47.6], [4.6, -50.6]], '#c4bdae');
+    Art.rect(g, -4.4, -44.6, 8.8, 1.2, '#07080b');                              // the dark of the mouth
+    // scars, a chipped horn and an old crack across the cheek
+    Art.limb(g, -8.4, -50, -4.6, -44.6, 1.1, 0.6, '#07080b');
+    Art.limb(g, -8, -49.6, -4.4, -44.4, 0.6, 0.4, S3);
+    Art.rect(g, 6, -53, 3.4, 0.9, '#07080b');
     // eyes: hollow, until they are not
     const eyeCol = flick > 0.02 ? U.mix('#3a0a06', '#ff2a1e', flick) : '#07080b';
-    Art.ell(g, -3.6, -51.4, 2.2, 2.4, eyeCol);
-    Art.ell(g, 3.6, -51, 2.1, 2.3, eyeCol);
-    if (flick > 0.3) { Art.ell(g, -3.6, -51.4, 1, 1.1, '#ffd0c4'); Art.ell(g, 3.6, -51, 1, 1.1, '#ffd0c4'); }
+    for (const es of [-1, 1]) {
+      Art.poly(g, [[es * 1.8, -52.4], [es * 6, -51.6], [es * 5.4, -48.6], [es * 2, -49.4]], '#07080b');
+      Art.poly(g, [[es * 2.2, -52], [es * 5.6, -51.4], [es * 5.1, -49], [es * 2.4, -49.6]], eyeCol);
+      if (flick > 0.3) Art.poly(g, [[es * 3, -51.4], [es * 4.6, -51.1], [es * 4.4, -50], [es * 3.1, -50.3]], '#ffd0c4');
+    }
     if (flick > 0.02) {
       g.globalAlpha = flick * 0.5;
       Art.ell(g, -3.6, -51.4, 4.4, 4.4, '#ff2a1e');
@@ -250,8 +274,8 @@ const Menu = (() => {
       g.fillStyle = gl; g.fillRect(x - 160, y - 290, 320, 320);
     }
     // the name, cut into the plinth
-    Font.draw(g, 'WOMBATHENA', x, y + 6, { scale: 1, color: 'rgba(150,160,172,0.75)', align: 'center', shadow: '#05070a' });
-    Font.draw(g, 'OF THE BOLT', x, y + 16, { scale: 1, color: 'rgba(110,120,132,0.6)', align: 'center', shadow: '#05070a' });
+    Font.draw(g, 'WOMBATHENA', x, y - 26 * GOD.s, { scale: 1, color: 'rgba(176,186,198,0.8)', align: 'center', shadow: '#05070a' });
+    Font.draw(g, 'OF THE BOLT', x, y - 26 * GOD.s + 9, { scale: 1, color: 'rgba(126,136,148,0.65)', align: 'center', shadow: '#05070a' });
   }
 
   // ---- the scene -----------------------------------------------------------
@@ -335,7 +359,6 @@ const Menu = (() => {
     g.restore();
     lantern(g, flick);
     godStatue(g);
-    wombatShadowPass(g); drawWombat(g);
     for (const m of motes) {
       const mx = m.x + Math.sin(t * m.sp + m.ph) * 22;
       const my = m.y - ((t * 10 * m.sp) % 250);
@@ -482,7 +505,7 @@ const Menu = (() => {
   }
 
   function update(dt) {
-    t += dt; wombatLoop(dt);
+    t += dt;
     redT -= dt; redNext -= dt;                          // the god's eyes, now and then
     if (redNext <= 0) { redT = 0.9 + Math.random() * 0.8; redNext = 2.2 + Math.random() * 4.5; }
   }
