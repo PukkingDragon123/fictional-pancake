@@ -178,7 +178,7 @@ const Tower = (() => {
   }
   function tipRate() {
     if (R.height < 0.5) return 0;
-    return (0.6 + R.height * 0.85) * (1 + tipBonus(G)) * payMult() * (1 + crowd.length * 0.04);
+    return (0.6 + R.height * 0.85) * (1 + tipBonus(G) + trophyBonus(G)) * payMult() * (1 + crowd.length * 0.04);
   }
   function earn(a, x, y, big) {
     G.wd += a; R.session += a; G.stats.earned += a;
@@ -587,7 +587,7 @@ const Tower = (() => {
   function offline(sec) {
     const h = idleHeight();
     if (h < 1) return 0;
-    const rate = (0.6 + h * 0.85) * (1 + tipBonus(G)) * (1 + 0.14 * lvl('seats')) * 0.4;
+    const rate = (0.6 + h * 0.85) * (1 + tipBonus(G) + trophyBonus(G)) * (1 + 0.14 * lvl('seats')) * 0.4;
     const got = Math.floor(rate * Math.min(sec, 14400));
     if (got > 0) { G.wd += got; G.stats.earned += got; }
     return got;

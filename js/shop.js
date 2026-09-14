@@ -141,6 +141,9 @@ const Shop = (() => {
   const AISLE0 = 470;                     // the doors and the cooler take the first stretch
   const GAP = 64;                         // between gondolas
   let slots = [], bays = [], counterX = 1200, worldW = 1500;
+  // The prize machine by the till, and the one item on special this visit.
+  const gacha = { x: 0, t: 0, spin: 0, prize: null, showT: 0, shake: 0 };
+  let gachaR = null, deal = null;
 
   function layout() {
     const list = catalogue();
@@ -162,11 +165,20 @@ const Shop = (() => {
     }
     counterX = x + 30;
     worldW = counterX + 330;
+    gacha.x = counterX - 152;
+    // one line on special every visit, picked from whatever is actually for sale
+    const buyable = slots.filter((sl) => !sl.p.sold && !sl.p.locked);
+    deal = buyable.length ? buyable[Math.floor(Math.random() * buyable.length)].p.id : null;
   }
 
   // ---- basket -------------------------------------------------------------
   function countOf(id) { return basket.filter((b) => b === id).length; }
+  const onDeal = (p) => !!deal && p.id === deal;
   function priceOf(p, extra = 0) {
+    if (onDeal(p)) return Math.max(1, Math.round(rawPrice(p, extra) * 0.5));
+    return rawPrice(p, extra);
+  }
+  function rawPrice(p, extra = 0) {
     if (p.kind === 'wombat') return WOMBAT_PRICE(G.wombats.length + extra);
     if (p.kind === 'tier') { const t = TIERS[p.key][tierIndex(G, p.key) + 1 + extra]; return t ? t.cost : 0; }
     if (p.kind === 'up') { const u = UPGRADES.find((x) => x.key === p.key); return Math.round(u.base * Math.pow(u.mult, (G.up[p.key] || 0) + extra)); }
@@ -258,6 +270,12 @@ const Shop = (() => {
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.0015, dt));
     keeper.t += dt;
     if (till > 0) { till -= dt; if (till <= 0) keeper.pose = 'idle'; }
+    if (gacha.spin > 0) {
+      gacha.spin = Math.max(0, gacha.spin - dt * 0.8);
+      if (gacha.spin === 0) { gacha.prize = rollPrize(); gacha.showT = 2.2; award(gacha.prize); }
+    }
+    gacha.shake = Math.max(0, gacha.shake - dt * 3);
+    if (gacha.showT > 0) gacha.showT = Math.max(0, gacha.showT - dt);
     for (let i = flies.length - 1; i >= 0; i--) {
       const f = flies[i]; f.t += dt * 1.6;
       if (f.t >= 1) flies.splice(i, 1);
@@ -290,6 +308,7 @@ const Shop = (() => {
     if (wasDrag) return;
     const s = slotAt(x, y);
     if (s) { add(s.p); return; }
+    if (gachaR && x > gachaR.x && x < gachaR.x + gachaR.w && y > gachaR.y && y < gachaR.y + gachaR.h) { spinGacha(); return; }
     if (keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h) {
       if (!basket.length) { Audio.play('error'); UI.toast('nothing in the basket yet', 'bad'); return; }
       UI.openBasket(); Audio.play('click');
@@ -301,6 +320,10 @@ const Shop = (() => {
   function hoverAt(x, y) {
     if (phase !== 'aisle') return null;
     keeperHot = !!(keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h);
+    if (gachaR && x > gachaR.x && x < gachaR.x + gachaR.w && y > gachaR.y && y < gachaR.y + gachaR.h) {
+      hover = null;
+      return `<b>Prize Machine</b><br>${U.fmt(PRIZE_COST)} W$ a go<br><span class="dim">seed, coin, cubes &mdash; or a Golden Wombat</span>`;
+    }
     const s = slotAt(x, y);
     hover = s;
     if (keeperHot) return `<b>Baz</b> <span class="dim">shopkeeper</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'bring him a basket'}`;
@@ -427,8 +450,15 @@ const Shop = (() => {
     const t = G.time, S = scroll;
     // ---- ceiling: tiles, cable trays, and warm tubes ----------------------
     g.fillStyle = '#ded6c0'; g.fillRect(0, 0, VW, 96);
-    for (let x = -(S * 0.5) % 40; x < VW; x += 40) { g.fillStyle = '#cdc4ab'; g.fillRect(x, 0, 2, 96); }
-    for (let y = 22; y < 96; y += 26) { g.fillStyle = '#cdc4ab'; g.fillRect(0, y, VW, 2); }
+    Tex.fill(g, 'ceilt', -(S * 0.5) % 40, 0, VW + 40, 96, 0.9);
+    for (let x = -(S * 0.5) % 40; x < VW; x += 40) {
+      g.fillStyle = '#b3aa94'; g.fillRect(x, 0, 2, 96);
+      g.fillStyle = '#f0e9d4'; g.fillRect(x + 2, 0, 1, 96);
+    }
+    for (let y = 22; y < 96; y += 26) {
+      g.fillStyle = '#b3aa94'; g.fillRect(0, y, VW, 2);
+      g.fillStyle = '#f0e9d4'; g.fillRect(0, y + 2, VW, 1);
+    }
     for (let x = -(S * 0.5) % 160; x < VW; x += 160) {           // a cable tray running the length
       g.fillStyle = '#9a927f'; g.fillRect(x, 30, 160, 5);
       g.fillStyle = '#b3aa94'; g.fillRect(x, 30, 160, 2);
@@ -446,6 +476,7 @@ const Shop = (() => {
     ceilingPromos(g, S, t);
     // ---- wall: warm cream, with a dado rail and a skirting ----------------
     g.fillStyle = '#efe2c6'; g.fillRect(0, 96, VW, 214);
+    Tex.fill(g, 'plaster', -S % 56, 96, VW + 56, 214, 0.85);
     const wg = g.createLinearGradient(0, 96, 0, 310);
     wg.addColorStop(0, 'rgba(255,244,214,0.5)'); wg.addColorStop(1, 'rgba(150,124,80,0.22)');
     g.fillStyle = wg; g.fillRect(0, 96, VW, 214);
@@ -460,7 +491,9 @@ const Shop = (() => {
         const x = Math.round(i * 40 - (S % 80) + (r % 2 ? 20 : 0));
         g.fillStyle = (i + r) % 2 ? '#ded6c0' : '#c3baa2';
         g.fillRect(x, y, 40, h);
+        Tex.fill(g, (i + r) % 2 ? 'vinyl' : 'vinyl2', x, y, 40, h, 0.85);
         g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(x, y, 40, 1);
+        g.fillStyle = 'rgba(90,76,48,0.22)'; g.fillRect(x, y + h - 1, 40, 1); g.fillRect(x, y, 1, h);
       }
     }
     for (let x = -(S * 0.7) % 190 + 40; x < VW + 60; x += 190) {  // the tube's reflection
@@ -483,7 +516,9 @@ const Shop = (() => {
     drawEntrance(g, 60 - S, t);
     // ---- the aisles --------------------------------------------------------
     for (const b of bays) drawBay(g, b, S);
+    fixtures(g, S, t);
     floorProps(g, S, t);
+    drawGacha(g, S, t);
     for (const s of slots) {
       const x = s.x - S;
       if (x < -60 || x > VW + 60) continue;
@@ -495,6 +530,18 @@ const Shop = (() => {
       g.globalAlpha = 1;
       if (s.p.locked) Icons.blit(g, 'lock', x - 8, s.y - 30, 1);
       tag(g, x, s.y + 3, s.p, hot);
+      if (onDeal(s.p) && !s.p.sold && !s.p.locked) {          // today's special
+        const bl = 0.5 + 0.5 * Math.sin(t * 5);
+        const bx2 = x - 26, by = s.y - 18 - bl * 1.5;
+        g.fillStyle = '#c02030';
+        for (let k = 0; k < 10; k++) {                         // a paper starburst
+          const a1 = (k / 10) * TAU, a2 = ((k + 0.5) / 10) * TAU;
+          Art.poly(g, [[bx2, by], [bx2 + Math.cos(a1) * 16, by + Math.sin(a1) * 13],
+                       [bx2 + Math.cos(a2) * 11, by + Math.sin(a2) * 9]], '#c02030');
+        }
+        Art.ell(g, bx2, by, 12, 9.5, '#f2cf3a');
+        Font.draw(g, 'HALF', bx2, by - 3, { scale: 1, color: '#7a2010', align: 'center' });
+      }
       const n = countOf(s.p.id);
       if (n) {
         Art.ell(g, x + 17, s.y - 36, 7, 7, '#3f8f4a');
@@ -630,6 +677,7 @@ const Shop = (() => {
     // the cooler wall
     const cx = x + 140;
     g.fillStyle = '#9aa4ac'; g.fillRect(cx, 118, 180, 192);
+    Tex.fill(g, 'freezer', cx, 118, 180, 192, 0.7);
     g.fillStyle = '#5f6a72'; g.fillRect(cx, 118, 180, 8);
     for (let d = 0; d < 3; d++) {
       const dx = cx + 6 + d * 58;
@@ -659,6 +707,7 @@ const Shop = (() => {
     // ---- the gondola: a pegboard back between two coloured end caps -------
     g.fillStyle = '#5f5a4e'; g.fillRect(x0 - 14, TOP, w + 28, BOT - TOP + 6);
     g.fillStyle = '#b8b0a0'; g.fillRect(x0 - 10, TOP + 4, w + 20, BOT - TOP - 2);
+    Tex.fill(g, 'shelfmet', x0 - 10, TOP + 4, w + 20, BOT - TOP - 2, 0.55);
     g.fillStyle = '#a29a8a'; g.fillRect(x0 - 10, TOP + 4, w + 20, 3);
     for (let py = TOP + 12; py < BOT - 4; py += 7) {              // the pegboard holes
       for (let px = x0 - 6; px < x0 + w + 8; px += 7) {
@@ -676,6 +725,7 @@ const Shop = (() => {
     for (const y of SHELF_Y) {
       g.fillStyle = 'rgba(0,0,0,0.22)'; g.fillRect(x0 - 10, y - 12, w + 20, 12);   // the shadow under it
       g.fillStyle = '#efe9da'; g.fillRect(x0 - 11, y, w + 22, 5);                   // the board
+      Tex.fill(g, 'shelfmet', x0 - 11, y, w + 22, 5, 0.3);
       g.fillStyle = '#ffffff'; g.fillRect(x0 - 11, y, w + 22, 2);
       g.fillStyle = '#8e8879'; g.fillRect(x0 - 11, y + 5, w + 22, 4);
       g.fillStyle = col; g.fillRect(x0 - 11, y + 9, w + 22, 4);                     // the price rail
@@ -780,6 +830,179 @@ const Shop = (() => {
     });
   }
 
+  // ---- the things a real shop has that nobody looks at ---------------------
+  // Cameras, a mirror in the corner, an extinguisher, a staff door, a trolley
+  // somebody abandoned, a cone over a spill. None of it does anything; all of
+  // it is what makes the room feel like a room. Everything on the wall goes in
+  // the gaps between gondolas, so nothing ever lands on a shelf.
+  function gaps() {
+    const out = [];
+    for (let i = 0; i < bays.length - 1; i++) out.push((bays[i].x + bays[i].w + bays[i + 1].x) / 2);
+    if (bays.length) out.push(bays[0].x - GAP);
+    return out;
+  }
+  function fixtures(g, S, t) {
+    const gp = gaps();
+    // cameras, up in the ceiling grid, sweeping
+    for (let wx = 396; wx < worldW; wx += 452) {
+      const x = wx - S; if (x < -40 || x > VW + 40) continue;
+      g.fillStyle = '#6c6759'; g.fillRect(x - 2, 62, 4, 10);
+      const sw = Math.sin(t * 0.7 + wx) * 5;
+      g.fillStyle = '#3a3f48'; g.fillRect(x - 9 + sw, 72, 18, 9);
+      g.fillStyle = '#585e68'; g.fillRect(x - 9 + sw, 72, 18, 3);
+      g.fillStyle = '#12161c'; g.fillRect(x + 5 + sw, 74, 5, 5);
+      g.fillStyle = Math.floor(t * 2) % 2 ? '#e03a3a' : '#5a1414';
+      g.fillRect(x - 7 + sw, 74, 2, 2);
+    }
+    gp.forEach((wx, i) => {
+      const x = wx - S;
+      if (x < -120 || x > VW + 120) return;
+      if (i % 3 === 0) {
+        // a convex security mirror, hung above the gap
+        g.fillStyle = '#2a2f3a'; Art.ell(g, x, 148, 27, 27);
+        g.fillStyle = '#8d96a0'; Art.ell(g, x, 148, 24, 24);
+        const mg = g.createRadialGradient(x - 7, 141, 3, x, 148, 26);
+        mg.addColorStop(0, 'rgba(240,246,250,0.9)'); mg.addColorStop(1, 'rgba(90,104,120,0.9)');
+        g.fillStyle = mg; Art.ell(g, x, 148, 22, 22);
+        g.fillStyle = 'rgba(255,255,255,0.55)'; Art.ell(g, x - 8, 140, 6, 4);
+        g.fillStyle = '#6c6759'; g.fillRect(x - 2, 122, 4, 8);
+        // a wet-floor cone under it
+        g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, x, 344, 16, 4);
+        Art.poly(g, [[x - 11, 344], [x + 11, 344], [x + 5, 312], [x - 5, 312]], '#d8b23a');
+        Art.poly(g, [[x - 11, 344], [x - 4, 344], [x - 1, 312], [x - 5, 312]], '#f2cf62');
+        g.fillStyle = '#a8861c'; g.fillRect(x - 9, 336, 18, 3);
+        g.fillStyle = '#2a2f3a'; g.fillRect(x - 7, 320, 14, 10);
+      } else if (i % 3 === 1) {
+        // a staff door, with the extinguisher beside it
+        g.fillStyle = '#5a5448'; g.fillRect(x - 28, 150, 56, 162);
+        g.fillStyle = '#7f7869'; g.fillRect(x - 25, 153, 50, 156);
+        Tex.fill(g, 'shelfmet', x - 25, 153, 50, 156, 0.5);
+        g.fillStyle = '#5a5448'; g.fillRect(x - 25, 153, 50, 3);
+        g.fillStyle = '#c9c2ad'; g.fillRect(x - 22, 172, 44, 16);
+        Font.draw(g, 'STAFF', x, 175, { scale: 1, color: '#3a3f48', align: 'center' });
+        g.fillStyle = '#3a3f48'; g.fillRect(x + 14, 236, 8, 4);
+        g.fillStyle = 'rgba(0,0,0,0.22)'; g.fillRect(x - 28, 309, 56, 4);
+        const fx = x - 44;
+        g.fillStyle = '#6c6759'; g.fillRect(fx - 2, 206, 4, 44);
+        g.fillStyle = '#8f1e18'; g.fillRect(fx - 7, 212, 14, 34);
+        g.fillStyle = '#c02c22'; g.fillRect(fx - 6, 213, 12, 32);
+        g.fillStyle = '#e05a4a'; g.fillRect(fx - 6, 213, 4, 32);
+        g.fillStyle = '#2a2f3a'; g.fillRect(fx - 4, 206, 8, 7);
+        g.fillStyle = '#d8d2c0'; g.fillRect(fx - 6, 224, 12, 6);
+      } else {
+        // a trolley somebody left standing in the gap
+        g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, x + 2, 346, 26, 5);
+        g.fillStyle = '#8d96a0'; g.fillRect(x - 20, 300, 44, 4);
+        g.fillStyle = '#aab4bc';
+        for (let k = 0; k < 7; k++) g.fillRect(x - 19 + k * 6, 300, 2, 30);
+        for (let k = 0; k < 4; k++) g.fillRect(x - 20, 302 + k * 8, 44, 2);
+        g.fillStyle = '#7f8b96'; g.fillRect(x + 22, 278, 3, 56);
+        g.fillStyle = '#c9581f'; g.fillRect(x + 8, 276, 20, 4);
+        g.fillStyle = '#2a2f3a'; Art.ell(g, x - 16, 342, 4, 4); Art.ell(g, x + 18, 342, 4, 4);
+        // and a rack of papers against the wall behind it
+        g.fillStyle = '#5a5448'; g.fillRect(x - 62, 240, 34, 70);
+        g.fillStyle = '#8d8577'; g.fillRect(x - 60, 242, 30, 66);
+        for (let k = 0; k < 3; k++) {
+          g.fillStyle = '#efe9da'; g.fillRect(x - 58, 246 + k * 22, 26, 18);
+          g.fillStyle = ['#c9581f', '#2f6f9f', '#3f8f4a'][k]; g.fillRect(x - 58, 246 + k * 22, 26, 5);
+          g.fillStyle = '#b9b3a2'; g.fillRect(x - 56, 254 + k * 22, 22, 1); g.fillRect(x - 56, 257 + k * 22, 16, 1);
+        }
+      }
+    });
+    // floor markings down the middle of the aisle
+    for (let wx = -60; wx < worldW + 60; wx += 60) {
+      const x = wx - S; if (x < -60 || x > VW + 60) continue;
+      g.fillStyle = 'rgba(216,178,58,0.3)'; g.fillRect(x, 347, 34, 3);
+    }
+  }
+
+  // ---- the prize machine ---------------------------------------------------
+  // A capsule machine by the till. Put a coin in, the drum turns, something
+  // falls out. It is the only thing in the shop that can hand you a trophy.
+  function drawGacha(g, S, t) {
+    const x = gacha.x - S;
+    gachaR = { x: x - 26, y: 168, w: 52, h: 148 };
+    if (x < -70 || x > VW + 70) { gachaR = null; return; }
+    const sh = gacha.shake > 0 ? Math.sin(t * 60) * gacha.shake : 0;
+    g.save(); g.translate(sh, 0);
+    g.fillStyle = 'rgba(0,0,0,0.22)'; Art.ell(g, x, 318, 30, 6);
+    // the pedestal
+    g.fillStyle = '#2a2f3a'; g.fillRect(x - 22, 256, 44, 60);
+    g.fillStyle = '#c9581f'; g.fillRect(x - 20, 258, 40, 56);
+    Tex.fill(g, 'shelfmet', x - 20, 258, 40, 56, 0.32);
+    g.fillStyle = '#e2762c'; g.fillRect(x - 20, 258, 40, 3);
+    g.fillStyle = '#8f3a10'; g.fillRect(x - 20, 310, 40, 4);
+    // the coin slot and the knob
+    g.fillStyle = '#1d2230'; g.fillRect(x - 12, 266, 24, 16);
+    g.fillStyle = '#d8b23a'; g.fillRect(x - 9, 269, 18, 3);
+    g.fillStyle = '#8d96a0'; Art.ell(g, x, 290, 8, 8);
+    g.fillStyle = '#c9c2ad'; Art.ell(g, x, 290, 6, 6);
+    g.save(); g.translate(x, 290); g.rotate(gacha.spin * 3.4);
+    g.fillStyle = '#3a3f48'; g.fillRect(-1.5, -5, 3, 10);
+    g.restore();
+    // the delivery flap
+    g.fillStyle = '#1d2230'; g.fillRect(x - 14, 296, 28, 14);
+    g.fillStyle = '#3a3f48'; g.fillRect(x - 12, 298, 24, 10);
+    // the glass drum, full of capsules
+    g.fillStyle = '#2a2f3a'; Art.ell(g, x, 224, 27, 30);
+    g.fillStyle = '#cfe4ee'; Art.ell(g, x, 224, 24, 27);
+    const r = Art.rng(7);
+    for (let i = 0; i < 22; i++) {
+      const a = r() * TAU + gacha.spin * 2, d = r();
+      const cxp = x + Math.cos(a) * 17 * d, cyp = 224 + Math.sin(a) * 19 * d + (gacha.spin ? Math.sin(t * 24 + i) * 2 : 0);
+      const col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#b8496a', '#d8b23a', '#7a4f9a'][i % 6];
+      Art.ell(g, cxp, cyp, 4.4, 4.4, col);
+      Art.ell(g, cxp - 1.2, cyp - 1.4, 1.8, 1.4, U.shade(col, 0.45));
+    }
+    g.fillStyle = 'rgba(255,255,255,0.4)'; Art.ell(g, x - 9, 214, 6, 9);
+    g.fillStyle = 'rgba(120,150,170,0.2)'; Art.ell(g, x, 224, 24, 27);
+    g.fillStyle = '#8d96a0'; Art.ell(g, x, 250, 26, 7);
+    // the header card
+    g.fillStyle = '#1d2230'; g.fillRect(x - 30, 172, 60, 32);
+    g.fillStyle = '#f2cf3a'; g.fillRect(x - 28, 174, 56, 28);
+    Font.draw(g, 'PRIZE', x, 178, { scale: 1, color: '#7a3a10', align: 'center' });
+    Font.draw(g, U.fmt(PRIZE_COST) + ' W$', x, 190, { scale: 1, color: '#7a3a10', align: 'center' });
+    g.restore();
+    // what just came out, floating up
+    if (gacha.showT > 0 && gacha.prize) {
+      const k = 1 - gacha.showT / 2.2;
+      const py = 300 - k * 90;
+      g.globalAlpha = Math.min(1, gacha.showT * 2);
+      Art.ell(g, x, py, 13, 13, '#f2cf3a');
+      Art.ell(g, x, py, 11, 11, '#fff0b8');
+      Icons.blit(g, gacha.prize.icon, x - 9, py - 9, 1.1);
+      g.globalAlpha = 1;
+    }
+  }
+  function spinGacha() {
+    if (gacha.spin > 0) return;
+    if (G.wd < PRIZE_COST) { Audio.play('error'); UI.toast('not enough for the machine', 'bad'); return; }
+    G.wd -= PRIZE_COST; G.spins = (G.spins || 0) + 1;
+    gacha.spin = 1; gacha.shake = 2;
+    Audio.play('coin'); Audio.play('whoosh');
+    UI.refreshHUD();
+  }
+  function award(p) {
+    const say = (txt, kind) => UI.toast(txt, kind);
+    if (p.key === 'seed') { const c = U.pick(CROPS.slice(0, 5)); G.seeds[c.key] = (G.seeds[c.key] || 0) + 6; say(`${p.name} &middot; <b>6 ${c.name}</b>`, 'good'); }
+    else if (p.key === 'coin') { const n = 120 + Math.floor(Math.random() * 180); G.wd += n; say(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); }
+    else if (p.key === 'purse') { const n = 900 + Math.floor(Math.random() * 1400); G.wd += n; say(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); }
+    else if (p.key === 'blessed') { const k = U.pick(OFFER_ORDER.slice(0, 5)); G.blessed[k] = (G.blessed[k] || 0) + 1; say(`${p.name} &middot; <b>blessed ${OFFERINGS[k].name}</b>`, 'good'); }
+    else if (p.key === 'trophy') {
+      G.trophies = (G.trophies || 0) + 1;
+      say(`<b>GOLDEN WOMBAT</b> &middot; every stack tips +8%`, 'good');
+      FX.confettiBurst(VW / 2, 120, 120); FX.flash('rgba(242,207,58,0.45)', 0.4); Audio.play('record');
+    } else {
+      const n = p.key === 'plain' ? 3 : p.key === 'rich' ? 2 : 1;
+      G.offerings[p.key] = (G.offerings[p.key] || 0) + n;
+      say(`${p.name}`, 'good');
+    }
+    Audio.play(p.tier >= 2 ? 'chime' : 'pop');
+    if (p.tier >= 2) { FX.comic(VW / 2, 150, p.tier >= 3 ? 'JACKPOT' : 'RARE!', { ink: FX.COMIC_INK.pow, life: 1.1 }); }
+    UI.refreshHUD(); UI.refreshTray();
+    Main.save();
+  }
+
   // A hanging aisle plaque, the thing that makes a shop legible at a glance.
   function sign(g, cx, cy, text, color, sub) {
     const w = Math.max(80, Math.max(Font.width(text, 2), sub ? Font.width(sub.toUpperCase(), 1) : 0) + 24);
@@ -833,6 +1056,31 @@ const Shop = (() => {
     }
     g.fillStyle = '#2a2f3a'; g.fillRect(sx, 142, 66, 9);
     FX.pixelText(g, 'SLUSH', sx + 33, 143, { color: '#fff', size: 7, ink: false });
+    // the impulse rack at the end of the belt, where the sweets live
+    const ix = cx - 38;
+    g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, ix, 340, 20, 5);
+    g.fillStyle = '#2a2f3a'; g.fillRect(ix - 17, 252, 34, 86);
+    g.fillStyle = '#8d8577'; g.fillRect(ix - 15, 254, 30, 82);
+    Tex.fill(g, 'shelfmet', ix - 15, 254, 30, 82, 0.4);
+    for (let r = 0; r < 4; r++) {
+      g.fillStyle = '#efe9da'; g.fillRect(ix - 15, 274 + r * 18, 30, 3);
+      for (let k = 0; k < 3; k++) {
+        const col = ['#c9581f', '#3f8f4a', '#b8496a', '#d8b23a', '#7a4f9a'][(r * 3 + k) % 5];
+        g.fillStyle = col; g.fillRect(ix - 13 + k * 10, 262 + r * 18, 8, 12);
+        g.fillStyle = U.shade(col, 0.4); g.fillRect(ix - 13 + k * 10, 262 + r * 18, 8, 3);
+      }
+    }
+    g.fillStyle = '#c9581f'; g.fillRect(ix - 17, 244, 34, 9);
+    FX.pixelText(g, 'TREATS', ix, 245, { color: '#fff', size: 7, ink: false });
+    // a queue post with a belt across it
+    const qx = cx - 86;
+    g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, qx, 342, 12, 4);
+    g.fillStyle = '#3a3f48'; Art.ell(g, qx, 338, 10, 4);
+    g.fillStyle = '#8d96a0'; g.fillRect(qx - 2, 282, 4, 58);
+    g.fillStyle = '#aab4bc'; g.fillRect(qx - 2, 282, 1.6, 58);
+    g.fillStyle = '#3a3f48'; g.fillRect(qx - 5, 276, 10, 8);
+    g.fillStyle = '#c9581f'; g.fillRect(qx + 5, 279, 44, 4);
+    g.fillStyle = '#e2762c'; g.fillRect(qx + 5, 279, 44, 1.4);
     // a rubber plant in the corner, because every shop has one
     const px = cx + 248;
     g.fillStyle = '#8a5a3a'; g.fillRect(px - 12, 296, 24, 26);
@@ -946,6 +1194,8 @@ const Shop = (() => {
   return {
     init(g) { G = g; }, open, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
     add, removeLine, clear, checkout, total, lines, layout, catalogue,
-    get basket() { return basket; }, get phase() { return phase; },
+    get gachaHit() { return gachaR; },
+    setScroll(f) { tscroll = (worldW - VW) * U.clamp(f, 0, 1); scroll = tscroll; },
+    get basket() { return basket; }, get phase() { return phase; }, get worldW() { return worldW; },
   };
 })();

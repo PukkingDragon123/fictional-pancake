@@ -137,6 +137,61 @@ const Tex = (() => {
     };
   }
 
+  // ---- the shop surfaces --------------------------------------------------
+  // Flat institutional colours read as plastic more than anything else does.
+  // These are the four surfaces the Mart is built out of, each painted a pixel
+  // at a time on a half-scale tile so the grain stays chunky.
+  function speck(base, dark, light, chips, chipCol) {
+    return (g0, w0, h0, r) => {
+      const w = Math.round(w0 / 2), h = Math.round(h0 / 2);
+      const { c, g } = Art.cv(w, h);
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < w * h * 0.5; i++) {                 // the body of the speckle
+        const v = r();
+        dot(g, r() * w, r() * h, w, h, v < 0.5 ? dark : light);
+      }
+      for (let i = 0; i < chips; i++) {                       // bigger chips of aggregate
+        const cx = r() * w, cy = r() * h, n = 1 + Math.floor(r() * 2);
+        for (let k = 0; k < n; k++) dot(g, cx + k, cy + (k % 2), w, h, chipCol);
+      }
+      g0.imageSmoothingEnabled = false;
+      g0.drawImage(c, 0, 0, w0, h0);
+    };
+  }
+  // painted sheet steel: a fine horizontal brush and a scratch or two
+  function sheet(base, dark, light) {
+    return (g0, w0, h0, r) => {
+      const w = Math.round(w0 / 2), h = Math.round(h0 / 2);
+      const { c, g } = Art.cv(w, h);
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for (let y = 0; y < h; y++) {
+        g.fillStyle = y % 3 === 0 ? dark : y % 3 === 1 ? base : light;
+        g.globalAlpha = 0.35 + r() * 0.3;
+        g.fillRect(0, y, w, 1);
+      }
+      g.globalAlpha = 1;
+      for (let i = 0; i < 4; i++) {                           // scratches
+        const y0 = r() * h, len = 3 + r() * (w - 4), x0 = r() * w;
+        g.fillStyle = r() < 0.5 ? light : dark;
+        for (let x = 0; x < len; x++) dot(g, x0 + x, y0, w, h, g.fillStyle);
+      }
+      g0.imageSmoothingEnabled = false;
+      g0.drawImage(c, 0, 0, w0, h0);
+    };
+  }
+  // acoustic ceiling tile: fine render, pinpricked all over
+  function acoustic(base, dark, light) {
+    return (g0, w0, h0, r) => {
+      const w = Math.round(w0 / 2), h = Math.round(h0 / 2);
+      const { c, g } = Art.cv(w, h);
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < w * h * 0.3; i++) dot(g, r() * w, r() * h, w, h, r() < 0.6 ? dark : light);
+      for (let y = 1; y < h; y += 3) for (let x = (y % 6) / 3; x < w; x += 3) dot(g, x, y, w, h, dark);
+      g0.imageSmoothingEnabled = false;
+      g0.drawImage(c, 0, 0, w0, h0);
+    };
+  }
+
   const DEF = {
     wood:     [72, 40, wood('#8f6238', '#5b3a1c', '#c49461', 2)],
     darkwood: [72, 40, wood('#6b4526', '#3f2611', '#a2714a', 2)],
@@ -150,6 +205,12 @@ const Tex = (() => {
     stone:    [64, 64, granite('#6e6a66', '#46433f', '#8d8983', '#b3aea6')],
     stoned:   [64, 64, granite('#4a4744', '#2c2a28', '#63605b', '#807b74')],
     stonel:   [64, 64, granite('#8f8a84', '#6a6660', '#aaa49c', '#c9c2b8')],
+    vinyl:    [48, 48, speck('#ded6c0', '#c3baa2', '#f2ecd8', 10, '#a89b7c')],
+    vinyl2:   [48, 48, speck('#c3baa2', '#a89b7c', '#ded6c0', 10, '#8d8168')],
+    plaster:  [56, 56, speck('#efe2c6', '#dccfb0', '#faf0d8', 4, '#cbbc99')],
+    ceilt:    [40, 40, acoustic('#ded6c0', '#c8bfa6', '#f0e9d4')],
+    shelfmet: [32, 32, sheet('#8f8a7c', '#6c6759', '#b5b0a0')],
+    freezer:  [32, 32, sheet('#a8b6bc', '#7f8f96', '#d2dfe4')],
   };
 
   function canvas(name) {

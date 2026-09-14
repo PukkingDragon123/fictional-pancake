@@ -263,6 +263,30 @@ function tipBonus(g) {
   return t;
 }
 
+// ---- The Mart's prize machine --------------------------------------------
+// A capsule machine by the till. You put a coin in, the drum turns, and you
+// get whatever it feels like giving you. Weights are relative, not percentages.
+const PRIZE_COST = 250;
+const PRIZES = [
+  { key: 'seed',   w: 22, name: 'A fistful of seed',  icon: 't_seed',   tier: 0 },
+  { key: 'coin',   w: 20, name: 'Loose change',       icon: 'wdollar',  tier: 0 },
+  { key: 'plain',  w: 18, name: 'Three plain cubes',  icon: 'o_plain',  tier: 0 },
+  { key: 'rich',   w: 12, name: 'Two rich cubes',     icon: 'o_rich',   tier: 1 },
+  { key: 'blessed', w: 10, name: 'A blessed cube',    icon: 'o_resin',  tier: 1 },
+  { key: 'purse',  w: 8,  name: 'A fat purse',        icon: 'wdollar',  tier: 1 },
+  { key: 'gold',   w: 5,  name: 'A gilded cube',      icon: 'o_gold',   tier: 2 },
+  { key: 'rune',   w: 3,  name: 'A rune cube',        icon: 'o_rune',   tier: 2 },
+  { key: 'trophy', w: 2,  name: 'GOLDEN WOMBAT',      icon: 'wombat',   tier: 3 },
+];
+const PRIZE_TOTAL = PRIZES.reduce((a, p) => a + p.w, 0);
+function rollPrize() {
+  let n = Math.random() * PRIZE_TOTAL;
+  for (const p of PRIZES) { n -= p.w; if (n <= 0) return p; }
+  return PRIZES[0];
+}
+// Every Golden Wombat on the shelf pays a little more at the stack, for good.
+const trophyBonus = (g) => (g.trophies || 0) * 0.08;
+
 // ---- Breeding -------------------------------------------------------------
 const TRAITS = [
   { key: 'gut',   name: 'Gut',   min: 0.7, max: 1.4 },   // digestion multiplier
