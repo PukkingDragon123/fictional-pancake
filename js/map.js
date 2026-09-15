@@ -136,8 +136,8 @@ const Atlas = (() => {
     // ---- the names on it --------------------------------------------------
     for (const [lx, ly, tx2, col] of [
       [330, 246, 'WOMBAT FLAT', '#9aa88a'], [112, 74, 'FERN GULLY', '#7a8a6e'],
-      [540, 48, 'STILL LAKE', '#6f9ab0'], [248, 128, 'THE SCRUB', '#7a8a6e'],
-      [560, 292, 'BLACKWOOD', '#7a8a6e'], [86, 330, 'STONE FLAT', '#7a8a6e'],
+      [512, 44, 'STILL LAKE', '#6f9ab0'], [248, 128, 'THE SCRUB', '#7a8a6e'],
+      [560, 292, 'BLACKWOOD', '#7a8a6e'], [128, 320, 'STONE FLAT', '#7a8a6e'],
       [470, 336, 'HIGHWAY 1', '#b39a52']]) {
       Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center', shadow: 'rgba(4,8,4,0.95)' });
     }

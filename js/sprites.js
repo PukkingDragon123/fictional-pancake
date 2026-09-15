@@ -270,54 +270,58 @@ const Sprites = (() => {
   // Under the hood there is nothing but shadow and two lights. The mood table
   // still drives them: the eye shape and the brow angle carry the whole
   // performance, because there is no face left to read.
+  // Two white lights in the dark of the hood. The mood table still drives them:
+  // the eye shape and the brow angle carry the whole performance, because
+  // there is nothing else in there to read.
   function expressions(g, hx, faceY, pose, f, hurt) {
-    const GL0 = '#3d2a08', GL1 = '#a8761a', GL2 = '#ffcf4a', GL3 = '#fff2c0';
+    const GL0 = 'rgba(180,202,255,0.13)', GL1 = '#6d86bc', GL2 = '#dfeaff', GL3 = '#ffffff';
     let m = FACES[faceMood] || FACES.idle;
     if (hurt > 0) m = FACES.shock;
     else if (pose === 'cast') m = FACES.proud;
     else if (pose === 'sleep') m = FACES.tired;
-    const ey = faceY + 1.2;
+    const ey = faceY + 1;
     const blink = pose === 'idle' && f === 3;
     const shut = m.eye === 'shut' || blink;
-    // the glow each eye throws on the inside of the hood
+    const sep = 3.8;
+    // A tight halo on each one. Anything wider and the two of them run
+    // together into a single band and he reads as a man in ski goggles.
     for (const s2 of [-1, 1]) {
-      const ex = hx + s2 * 2.8;
-      const r = shut ? 2 : m.eye === 'wide' ? 5 : 4;
-      Art.ell(g, ex, ey, r, r * 0.85, 'rgba(168,118,26,0.28)');
-      Art.ell(g, ex, ey, r * 0.62, r * 0.55, 'rgba(255,207,74,0.22)');
+      const ex = hx + s2 * sep;
+      const r = shut ? 1.6 : m.eye === 'wide' ? 3.2 : 2.7;
+      Art.ell(g, ex, ey, r, r * 0.92, GL0);
     }
     if (shut) {
       for (const s2 of [-1, 1]) {
-        Art.rect(g, hx + s2 * 2.8 - 1.8, ey, 3.6, 0.9, GL1);
-        Art.rect(g, hx + s2 * 2.8 - 1.2, ey, 2.4, 0.9, GL2);
+        Art.rect(g, hx + s2 * sep - 1.6, ey, 3.2, 1, GL1);
+        Art.rect(g, hx + s2 * sep - 1.1, ey, 2.2, 1, GL2);
       }
       return;
     }
     for (const s2 of [-1, 1]) {
-      const ex = hx + s2 * 2.8;
+      const ex = hx + s2 * sep;
       if (m.eye === 'happy') {                       // two curved slits, turned up
-        Art.poly(g, [[ex - 2.1, ey + 1.1], [ex, ey - 1.5], [ex + 2.1, ey + 1.1], [ex, ey + 0.1]], GL1);
-        Art.poly(g, [[ex - 1.5, ey + 0.7], [ex, ey - 0.9], [ex + 1.5, ey + 0.7], [ex, ey - 0.1]], GL2);
+        Art.poly(g, [[ex - 2, ey + 1.1], [ex, ey - 1.5], [ex + 2, ey + 1.1], [ex, ey + 0.1]], GL1);
+        Art.poly(g, [[ex - 1.4, ey + 0.7], [ex, ey - 0.9], [ex + 1.4, ey + 0.7], [ex, ey - 0.1]], GL3);
         continue;
       }
-      const rw = m.eye === 'wide' ? 2.3 : m.eye === 'narrow' ? 2.4 : 2;
-      const rh = m.eye === 'wide' ? 2.4 : m.eye === 'narrow' ? 0.9 : m.eye === 'squint' ? 1.2 : 1.9;
-      const off = m.eye === 'look' ? 0.8 : 0;
-      Art.ell(g, ex, ey, rw + 0.5, rh + 0.5, GL0);
-      Art.ell(g, ex + off, ey, rw, rh, GL1);
-      Art.ell(g, ex + off, ey, rw * 0.68, rh * 0.66, GL2);
-      Art.ell(g, ex + off - 0.4, ey - rh * 0.25, rw * 0.3, rh * 0.3, GL3);
+      const rw = m.eye === 'wide' ? 2.2 : m.eye === 'narrow' ? 1.8 : 1.9;
+      const rh = m.eye === 'wide' ? 2.4 : m.eye === 'narrow' ? 1.4 : 2.1;
+      const off = m.eye === 'look' ? 0.9 : 0;
+      Art.ell(g, ex, ey, rw + 0.5, rh + 0.5, GL1);
+      Art.ell(g, ex + off, ey, rw, rh, GL2);
+      Art.ell(g, ex + off, ey, rw * 0.66, rh * 0.62, GL3);
+      Art.ell(g, ex + off - rw * 0.32, ey - rh * 0.3, rw * 0.32, rh * 0.32, '#ffffff');
     }
     // the brow is a bar of shadow biting down over the lights
     for (const s2 of [-1, 1]) {
-      const bx = hx + s2 * 2.8;
+      const bx = hx + s2 * sep;
       const tilt = m.brow * s2 * 1.5;
-      Art.poly(g, [[bx - 3, ey - 4.2 - tilt], [bx + 3, ey - 4.2 + tilt],
-                   [bx + 3, ey - 2.2 + tilt], [bx - 3, ey - 2.2 - tilt]], 'rgba(6,4,10,0.85)');
+      Art.poly(g, [[bx - 2.8, ey - 4.2 - tilt], [bx + 2.8, ey - 4.2 + tilt],
+                   [bx + 2.8, ey - 2.6 + tilt], [bx - 2.8, ey - 2.6 - tilt]], 'rgba(4,3,8,0.9)');
     }
     // and a thin mouth of light, when the mood has one
-    if (m.mouth === 'o' || m.mouth === 'open') Art.ell(g, hx, ey + 5.4, 1.3, 1.5, 'rgba(168,118,26,0.55)');
-    else if (m.mouth === 'grin') Art.rect(g, hx - 2, ey + 5.4, 4, 0.9, 'rgba(168,118,26,0.5)');
+    if (m.mouth === 'o' || m.mouth === 'open') Art.ell(g, hx, ey + 5, 1.4, 1.6, 'rgba(160,184,230,0.5)');
+    else if (m.mouth === 'grin') Art.rect(g, hx - 2.2, ey + 5, 4.4, 1, 'rgba(160,184,230,0.45)');
   }
 
   function cultist(frame, pose = 'idle') {
@@ -555,9 +559,10 @@ const Sprites = (() => {
       Art.ell(g, hx, faceY + 0.6, 7, 6.5, '#0a0610');
       Art.ell(g, hx, faceY + 0.9, 6.2, 5.8, VOID);
       Art.ell(g, hx, faceY + 1.4, 5, 4.6, '#000000');
-      // one faint ring of light caught on the lip of it, and no more
-      Art.ellBand(g, hx, faceY - 0.2, 8, 6.9, 'rgba(112,78,48,0.55)', 0.4, 0.62);
-      Art.ellBand(g, hx, faceY, 8.2, 7, 'rgba(48,32,20,0.6)', 0.86, 1);
+      expressions(g, hx, faceY - 0.6, pose, f, hurt);
+      // the lip of the hood, catching a little of what is burning inside it
+      Art.ellBand(g, hx, faceY - 0.2, 8, 6.9, 'rgba(126,146,190,0.4)', 0.4, 0.62);
+      Art.ellBand(g, hx, faceY, 8.2, 7, 'rgba(34,30,44,0.7)', 0.86, 1);
     }
     // the sides of the cowl, closing in on the opening
     for (const s2 of [-1, 1]) {

@@ -992,8 +992,19 @@ const Grove = (() => {
         g.fillStyle = 'rgba(245,205,92,0.07)';
         g.fillRect(Math.max(L, p.x0), SKY - 20, Math.min(R, p.x1) - Math.max(L, p.x0), H - SKY + 40);
       }
-      Font.draw(g, p.name.toUpperCase(), cx, y - 18, {
-        scale: 2, color: hot ? '#ffe9a8' : 'rgba(226,206,168,0.72)', align: 'center', shadow: '#120a06', shadowDist: 2,
+      // a board behind it, because gold letters on a field of weeds are gold
+      // letters you cannot read
+      const label0 = p.name.toUpperCase();
+      const bw = Math.max(Font.width(label0, 2), 108) + 22;
+      Art.rect(g, cx - bw / 2 - 2, y - 26, bw + 4, 54, '#120c08');
+      Art.rect(g, cx - bw / 2, y - 24, bw, 50, hot ? '#4a361c' : '#2e2414');
+      Art.rect(g, cx - bw / 2, y - 24, bw, 2, hot ? '#7a5a2c' : '#4a3a20');
+      Art.rect(g, cx - bw / 2, y + 24, bw, 2, '#0e0a06');
+      for (const sd of [-1, 1]) Art.rect(g, cx + sd * (bw / 2 - 3) - 1, y - 22, 2, 46, hot ? '#6a4c24' : '#3e3018');
+      Art.rect(g, cx - 3, y + 26, 6, 26, '#2a1f10');                   // the post it is nailed to
+      Art.rect(g, cx - 3, y + 26, 2, 26, '#443218');
+      Font.draw(g, label0, cx, y - 18, {
+        scale: 2, color: hot ? '#ffe9a8' : '#d8c8a4', align: 'center', shadow: '#120a06', shadowDist: 2,
       });
       const label = can ? `${p.cost} W$` : `${p.cost} W$`;
       Font.draw(g, label, cx, y + 2, {
@@ -1001,7 +1012,7 @@ const Grove = (() => {
         align: 'center', shadow: '#120a06', shadowDist: 2,
       });
       Font.draw(g, can ? (hot ? 'CLICK THE LAND TO BUY IT' : 'FOR SALE') : 'NOT ENOUGH', cx, y + 20, {
-        scale: 1, color: !can ? '#c9605a' : hot ? '#c9e88a' : 'rgba(190,176,150,0.7)', align: 'center', shadow: '#120a06',
+        scale: 1, color: !can ? '#e0756a' : hot ? '#c9e88a' : '#b0a488', align: 'center', shadow: '#120a06',
       });
     }
   }

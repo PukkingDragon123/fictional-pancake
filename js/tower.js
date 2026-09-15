@@ -182,7 +182,14 @@ const Tower = (() => {
   }
   function earn(a, x, y, big) {
     G.wd += a; R.session += a; G.stats.earned += a;
-    if (x !== undefined) FX.float(x, y, '+' + U.fmt(a), { color: PAL.gold4, size: big ? 10 : 8, world: true, life: 1.1 });
+    if (x !== undefined) {
+      FX.float(x, y, '+' + U.fmt(a), { color: PAL.gold4, size: big ? 10 : 8, world: true, life: 1.1 });
+      // the camera is doing the work here, so the coins are handed over in
+      // screen space or they would fly off with the scenery
+      const cam = FX.cam;
+      FX.coinBurst((x - cam.x) * cam.zoom + W / 2, (y - cam.y) * cam.zoom + H / 2,
+        big ? 3 : 2, false);
+    }
     UI.refreshHUD();
   }
 

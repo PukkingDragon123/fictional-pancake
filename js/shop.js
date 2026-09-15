@@ -892,8 +892,8 @@ const Shop = (() => {
   function award(p) {
     const say = (txt, kind) => UI.toast(txt, kind);
     if (p.key === 'seed') { const c = U.pick(CROPS.slice(0, 5)); G.seeds[c.key] = (G.seeds[c.key] || 0) + 6; say(`${p.name} &middot; <b>6 ${c.name}</b>`, 'good'); }
-    else if (p.key === 'coin') { const n = 120 + Math.floor(Math.random() * 180); G.wd += n; say(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); }
-    else if (p.key === 'purse') { const n = 900 + Math.floor(Math.random() * 1400); G.wd += n; say(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); }
+    else if (p.key === 'coin') { const n = 120 + Math.floor(Math.random() * 180); G.wd += n; FX.coinBurst(gacha.x - scroll, 300, 5); say(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); }
+    else if (p.key === 'purse') { const n = 900 + Math.floor(Math.random() * 1400); G.wd += n; FX.coinBurst(gacha.x - scroll, 300, 9); say(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); }
     else if (p.key === 'blessed') { const k = U.pick(OFFER_ORDER.slice(0, 5)); G.blessed[k] = (G.blessed[k] || 0) + 1; say(`${p.name} &middot; <b>blessed ${OFFERINGS[k].name}</b>`, 'good'); }
     else if (p.key === 'trophy') {
       G.trophies = (G.trophies || 0) + 1;

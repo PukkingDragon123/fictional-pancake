@@ -231,6 +231,7 @@ const FX = (() => {
 
   // dt = real seconds
   function update(dt) {
+    updateCoins(dt);
     if (curtain) {
       curtain.t += dt;
       if (!curtain.fired && curtain.t >= curtain.shut) { curtain.fired = true; if (curtain.onShut) curtain.onShut(); }
@@ -348,6 +349,50 @@ const FX = (() => {
     }
     g.globalAlpha = 1;
   }
+  // ---- coins flying to the wallet ------------------------------------------
+  // Money that lands somewhere in the world does not simply appear in the
+  // counter: a coin arcs up out of wherever it was earned, curves across the
+  // frame, and knocks the chip in the corner as it goes in.
+  const coins = [];
+  const PURSE = { x: 56, y: 26 };
+  function coinBurst(x, y, n, world) {
+    for (let i = 0; i < Math.min(9, n); i++) {
+      coins.push({
+        x, y, t: -i * 0.055, life: 0.62 + Math.random() * 0.2, world: !!world,
+        ax: x + U.rand(-26, 26), ay: y - U.rand(24, 54),   // the arc's high point
+        sp: 1 + Math.random() * 0.3, ph: Math.random() * TAU,
+      });
+    }
+    if (coins.length > 60) coins.splice(0, coins.length - 60);
+  }
+  function updateCoins(dt) {
+    for (let i = coins.length - 1; i >= 0; i--) {
+      const c = coins[i];
+      c.t += dt * c.sp;
+      if (c.t >= c.life) {
+        coins.splice(i, 1);
+        if (typeof UI !== 'undefined' && UI.pingPurse) UI.pingPurse();
+      }
+    }
+  }
+  function drawCoins(g, world) {
+    for (const c of coins) {
+      if (c.world !== !!world || c.t < 0) continue;
+      const k = U.clamp(c.t / c.life, 0, 1);
+      // a quadratic through the arc point, into the corner
+      const px = world ? PURSE.x : PURSE.x, py = world ? PURSE.y : PURSE.y;
+      const u = U.easeIn(k);
+      const x = (1 - u) * (1 - u) * c.x + 2 * (1 - u) * u * c.ax + u * u * px;
+      const y = (1 - u) * (1 - u) * c.y + 2 * (1 - u) * u * c.ay + u * u * py;
+      const s = 1 - k * 0.45;
+      const spin = Math.abs(Math.cos(c.t * 11 + c.ph));
+      g.globalAlpha = k > 0.86 ? (1 - k) / 0.14 : 1;
+      Art.ell(g, x, y, 4.4 * s * (0.28 + spin * 0.72), 4.4 * s, '#8a5a12');
+      Art.ell(g, x, y, 3.4 * s * (0.28 + spin * 0.72), 3.4 * s, '#f2cf3a');
+      if (spin > 0.4) Art.ell(g, x - 0.8 * s, y - 0.9 * s, 1.1 * s * spin, 1 * s, '#fff2c0');
+      g.globalAlpha = 1;
+    }
+  }
   function drawConfetti(g) {
     for (const c of confetti) {
       g.save(); g.translate(c.x, c.y); g.rotate(c.rot); g.fillStyle = c.color; g.globalAlpha = U.clamp(c.life, 0, 1); g.fillRect(-c.w / 2, -c.h / 2, c.w, c.h); g.restore();
@@ -398,5 +443,5 @@ const FX = (() => {
     return Font.draw(g, text, x, y, opts);
   }
 
-  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, drawTrees, trees, get curtaining() { return !!curtain; }, clear, clearComics, particles };
+  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, coinBurst, drawCoins, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, drawTrees, trees, get curtaining() { return !!curtain; }, clear, clearComics, particles };
 })();

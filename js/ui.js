@@ -184,6 +184,17 @@ const UI = (() => {
     if (!i) box.innerHTML = '<span class="empty">no offerings</span>';
   }
   function refreshKnow() { refreshHUD(); }
+  // a coin has just landed in the wallet: knock it
+  let purseT = 0;
+  function pingPurse() {
+    const el = $('money');
+    if (!el) return;
+    el.classList.remove('ping');
+    void el.offsetWidth;
+    el.classList.add('ping');
+    clearTimeout(purseT);
+    purseT = setTimeout(() => el.classList.remove('ping'), 320);
+  }
 
   // ---- the stack ----------------------------------------------------------
   function refreshRunHUD() {
@@ -327,11 +338,13 @@ const UI = (() => {
         sold++;
       }
       G.wd += def.sell * sold;
+      FX.coinBurst(320, 200, 6);
     } else {
       const god = GOD_BY_KEY[d.k];
       if ((G.artifacts[d.k] || 0) < n) return;
       G.artifacts[d.k] -= n;
       G.wd += god.artValue * n;
+      FX.coinBurst(320, 200, 8);
     }
     Audio.play('sell');
     renderPawn(); refreshHUD(); Main.save();
@@ -406,7 +419,7 @@ const UI = (() => {
   return {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
-    onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing,
+    onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, pingPurse,
     showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom,
   };
 })();
