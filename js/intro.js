@@ -149,6 +149,7 @@ const Intro = (() => {
     }
     for (let i = pops.length - 1; i >= 0; i--) { const p = pops[i]; p.t += dt; p.r += dt * 150; if (p.t > 0.4) pops.splice(i, 1); }
     if (phase === 'chat' && chatT > 0.85 && chatStep < CHAT.length) { chatStep++; chatT = 0; Audio.play('click'); }
+    if (phase === 'drive' || phase === 'arrive') driveTick(dt);
     if (phase === 'plane' && t > 4.4) { phase = 'drive'; t = 0; }
     if (phase === 'drive' && t > 5.6) { phase = 'arrive'; t = 0; }
     if (phase === 'arrive' && t > 2.0) finish();
@@ -625,106 +626,19 @@ const Intro = (() => {
     Font.draw(g, 'TASMANIA', 320, y + 16, { scale: 1, color: '#cfc4e0', align: 'center' });
   }
 
-  // ---- the drive: the truck, seen from the side ----------------------------
-  // The same vehicle that is parked in your grove, facing the way it travels.
-  function truckImg() { return Art.flip(Props.get('truck')); }
-
+  // ---- the drive: the same road every journey uses -------------------------
+  // The opening haul is the travel scene with the dash swapped for a title.
+  const driveState = { t: 0, dur: 5.6, to: 'WOMBAT GROVE', km: 5, cars: [], dust: [],
+    title: 'TASMANIA', sub: 'two hours from the airport', fade: false };
   function drive(g) {
-    const k = U.clamp(t / 5.6, 0, 1);
-    const sp = t * 108;
-    const sky = g.createLinearGradient(0, 0, 0, 250);
-    sky.addColorStop(0, '#3e2b62'); sky.addColorStop(0.5, '#9a5f7a'); sky.addColorStop(1, '#f0b070');
-    g.fillStyle = sky; g.fillRect(0, 0, VW, 250);
-    g.fillStyle = '#ffd9a0'; Art.ell(g, 470, 176, 34, 34, '#ffd9a0');
-    g.globalAlpha = 0.25; g.fillStyle = '#ffd9a0'; Art.ell(g, 470, 176, 54, 54, '#ffd9a0'); g.globalAlpha = 1;
-    // far hills
-    for (let i = 0; i < 9; i++) { const hx = ((i * 120 - sp * 0.06) % (VW + 260)) - 130; Art.ell(g, hx, 224, 110, 44, '#5b4a72'); }
-    g.fillStyle = '#5b4a72'; g.fillRect(0, 220, VW, 70);
-    g.fillStyle = '#4d3e62'; g.fillRect(0, 246, VW, 44);
-    g.fillStyle = '#3f3352'; g.fillRect(0, 266, VW, 24);
-    // three ranks of the grove's own trees, each at its own speed
-    const RANKS = [[0.22, 252, 0.8, 0.3], [0.5, 272, 1.1, 0.5], [1.0, 296, 1.5, 0.7]];
-    RANKS.forEach(([rate, yy, sc, sh], ri) => {
-      const n = 9 + ri * 3;
-      for (let i = 0; i < n; i++) {
-        const span = VW + 340;
-        const x = ((i * (span / n) - sp * rate) % span + span) % span - 170;
-        const kind = ['gnarl', 'oak', 'pine', 'birch'][(i + ri) % 4];
-        const img = Props.get('tree', `${kind}|${(i * 3 + ri) % 6}|${sh.toFixed(2)}`);
-        const w = img.width * sc, h = img.height * sc;
-        g.drawImage(img, Math.round(x - w / 2), Math.round(yy - h), Math.round(w), Math.round(h));
-      }
-    });
-    // the same scrub that chokes the grove, growing along the verge
-    for (let i = 0; i < 18; i++) {
-      const x = ((i * 60 - sp * 1.5) % (VW + 140) + VW + 140) % (VW + 140) - 70;
-      const img = Props.get('weed', i % 6);
-      const sc = 0.8 + (i % 3) * 0.12;
-      g.drawImage(img, Math.round(x - img.width * sc / 2), Math.round(298 - img.height * sc),
-                  Math.round(img.width * sc), Math.round(img.height * sc));
-    }
-    // the road
-    g.fillStyle = '#3a352f'; g.fillRect(0, 288, VW, VH - 288);
-    g.fillStyle = '#4a443c'; g.fillRect(0, 288, VW, 5);
-    g.fillStyle = '#2a251f'; g.fillRect(0, 340, VW, 20);
-    for (let i = 0; i < 14; i++) { const dx = ((i * 64 - sp * 2.2) % (VW + 80) + VW + 80) % (VW + 80) - 40; g.fillStyle = '#e8dfa8'; g.fillRect(dx, 318, 30, 4); }
-    for (let i = 0; i < 40; i++) { const dx = ((i * 31 - sp * 2.4) % VW + VW) % VW; g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(dx, 296 + (i * 13) % 40, 9, 2); }
-    // roadside marker posts, flicking past
-    for (let i = 0; i < 4; i++) {
-      const x = ((i * 240 - sp * 2.1) % (VW + 240) + VW + 240) % (VW + 240) - 120;
-      g.fillStyle = '#1a120c'; g.fillRect(x, 276, 5, 20);
-      g.fillStyle = '#cfc4a8'; g.fillRect(x + 1, 277, 3, 18);
-      g.fillStyle = '#e04a36'; g.fillRect(x + 1, 279, 3, 4);
-    }
-    // the sign going by
-    const sx = VW + 60 - k * 900;
-    if (sx > -120 && sx < VW + 60) {
-      g.fillStyle = '#3a2a18'; g.fillRect(sx + 26, 230, 8, 62);
-      g.fillStyle = '#1c1008'; g.fillRect(sx - 4, 192, 76, 42);
-      g.fillStyle = '#2f6f3a'; g.fillRect(sx, 196, 68, 34);
-      Font.draw(g, 'WOMBAT', sx + 34, 202, { scale: 1, color: '#ffffff', align: 'center' });
-      Font.draw(g, 'GROVE', sx + 34, 212, { scale: 1, color: '#ffffff', align: 'center' });
-      Font.draw(g, '5 km', sx + 34, 222, { scale: 1, color: '#bfe8c6', align: 'center' });
-    }
-    // the truck itself, bouncing down the road
-    const img = truckImg();
-    const tw = img.width * 1.5, th = img.height * 1.5;
-    const tx = 210 + Math.sin(t * 0.8) * 20, ty = 316 + Math.abs(Math.sin(t * 9)) * 3;
-    // exhaust, coughing out of the back of it
-    for (let i = 0; i < 12; i++) {
-      const k = ((t * 1.6 + i * 0.14) % 1);
-      const px = tx - tw / 2 - 6 - k * 90;
-      const py = ty - 10 - k * 22 + Math.sin(k * 7 + i) * 4;
-      const a = (1 - k) * 0.4;
-      if (a < 0.02) continue;
-      g.fillStyle = `rgba(150,146,140,${a.toFixed(2)})`;
-      Art.ell(g, px, py, 4 + k * 16, 3 + k * 12, g.fillStyle);
-      g.fillStyle = `rgba(196,192,186,${(a * 0.5).toFixed(2)})`;
-      Art.ell(g, px - 2, py - 2, 2 + k * 8, 1.6 + k * 6, g.fillStyle);
-    }
-    Art.castShadow(g, img, tx, ty + 10, tw, th, { alpha: 0.34, lean: 0.3, squash: 0.14 });
-    g.drawImage(img, Math.round(tx - tw / 2), Math.round(ty - th + 12), Math.round(tw), Math.round(th));
-    // dust kicked off the back wheels
-    for (let i = 0; i < 9; i++) {
-      const dx = tx - tw / 2 - i * 14 - (t * 60) % 14, a = (1 - i / 9) * 0.38;
-      g.fillStyle = `rgba(196,170,130,${a.toFixed(2)})`;
-      Art.ell(g, dx, ty + 6 - (i % 3) * 4, 8 + i, 4 + i * 0.6, g.fillStyle);
-    }
-    // the near verge tearing past the bottom of frame, same scrub, big
-    for (let i = 0; i < 10; i++) {
-      const x = ((i * 84 - sp * 3.4) % (VW + 220) + VW + 220) % (VW + 220) - 110;
-      const img = Props.get('weed', (i * 2) % 6);
-      const sc = 1.9 + (i % 3) * 0.35;
-      g.drawImage(img, Math.round(x - img.width * sc / 2), Math.round(378 - img.height * sc),
-                  Math.round(img.width * sc), Math.round(img.height * sc));
-    }
-    g.fillStyle = 'rgba(12,8,20,0.42)'; g.fillRect(0, 330, VW, VH - 330);
-    for (let i = 0; i < 7; i++) {
-      const ly = 236 + i * 14, lx = ((i * 90 - t * 420) % (VW + 160) + VW + 160) % (VW + 160) - 80;
-      g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(lx, ly, 40 + (i % 3) * 18, 2);
-    }
-    Font.draw(g, 'TASMANIA', 320, 22, { scale: 2, color: '#f0d2a0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
-    Font.draw(g, 'two hours from the airport', 320, 42, { scale: 1, color: '#c9a9c0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
+    driveState.t = t;
+    Drive.paint(g, driveState);
+  }
+  // the oncoming traffic is state, so it needs a tick of its own here
+  function driveTick(dt) {
+    const st = driveState;
+    if (st.cars.length < 2 && Math.random() < dt * 0.5) st.cars.push({ x: 760, sp: 260 + Math.random() * 180, lane: Math.random() < 0.5 ? 0 : 1 });
+    for (let i = st.cars.length - 1; i >= 0; i--) { st.cars[i].x -= st.cars[i].sp * dt; if (st.cars[i].x < -180) st.cars.splice(i, 1); }
   }
 
   function arrive(g) {

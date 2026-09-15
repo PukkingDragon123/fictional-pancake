@@ -15,6 +15,18 @@ const Props = (() => {
     cache.set(key, o.c);
     return o.c;
   }
+  // Hard-edged, hand-shaded props (the truck) skip the automatic pass: its
+  // dithered top light lands as a dashed line along every straight edge, which
+  // reads as a texture bug on anything mechanical.
+  function cachedFlat(key, w, h, draw) {
+    let c = cache.get(key);
+    if (c) return c;
+    const o = Art.cv(w, h);
+    draw(o.g, w, h);
+    Art.outline(o.c, '#0a0810', 1);
+    cache.set(key, o.c);
+    return o.c;
+  }
   const P = {};
 
   // ---- trees --------------------------------------------------------------
@@ -499,10 +511,11 @@ const Props = (() => {
     // --- the roof rack load, and a snorkel up the A pillar ---
     Art.rect(g, 46, y0 - 44, 3, 18, TRIM);
     Art.rect(g, 46, y0 - 44, 1, 18, CHR);
-    Art.outline(g.canvas, '#100d16', 1);
+    // No outline pass here: cached() already lays one black line round the
+    // whole prop, and a second one stipples every interior edge.
   }
-  P.truck = () => cached('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: true }));
-  P.fortuner = (spec) => cached('fortuner:' + spec, 140, 78, (g) => fortuner(g, 140, 78, { open: spec === 'open' }));
+  P.truck = () => cachedFlat('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: true }));
+  P.fortuner = (spec) => cachedFlat('fortuner:' + spec, 140, 78, (g) => fortuner(g, 140, 78, { open: spec === 'open' }));
 
   P.crate = () => cached('crate', 22, 20, (g) => {
     Art.rect(g, 1, 3, 20, 16, PAL.bark2);

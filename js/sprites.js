@@ -249,7 +249,7 @@ const Sprites = (() => {
   // a slight flare, arms that hang and swing, bare hands at the cuffs, and a
   // face you can half see in the shadow of the hood.
   const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 3 };
-  const CW = 40, CH = 76, CX = 20, CGY = 73;   // the extra headroom is the hat
+  const CW = 52, CH = 84, CX = 26, CGY = 81;   // wide enough for the robe, tall enough for the cowl
   // ---- what the face is doing --------------------------------------------
   // One place for every expression the guide can wear, so new dialogue can ask
   // for a mood by name and get eyes and a mouth that match.
@@ -374,20 +374,20 @@ const Sprites = (() => {
     // and whatever the hood lets out. Every joint is a point; the robe is hung
     // off them.
     const y0 = bob;
-    const hoodTop = (sit ? 21 : 10) + y0;
+    const hoodTop = (sit ? 22 : 10) + y0;
     const headTop = hoodTop + 4;                // crown of the skull, inside the hood
-    const chin    = headTop + 11;
-    const neckBot = chin + 3;
+    const chin    = headTop + 12;
+    const neckBot = chin + 4;
     const shoulder = neckBot;
-    const chestY  = shoulder + 6;
-    const waist   = shoulder + 14;
-    const hip     = sit ? shoulder + 16 : shoulder + 20;
-    const hem     = (sit ? hip + 12 : CGY - 1) - hemUp;
-    const shW = 10.2;                           // half-width at the shoulders
-    const chW = 10.6;
-    const blW = 11 + flare * 0.2;               // the belly, the widest part
-    const hipW = 10.4;
-    const hemW = 13.6 + flare * 0.9;            // where the robe meets the floor
+    const chestY  = shoulder + 7;
+    const waist   = shoulder + 16;
+    const hip     = sit ? shoulder + 18 : shoulder + 23;
+    const hem     = (sit ? hip + 14 : CGY - 1) - hemUp;
+    const shW = 13;                             // half-width at the shoulders
+    const chW = 14;
+    const blW = 15.4 + flare * 0.25;            // the belly, the widest part by a long way
+    const hipW = 14.6;
+    const hemW = 18.4 + flare * 1.1;            // where the robe meets the floor
 
     // ---- the robe, from the hem up -----------------------------------------
     // Two boots under the hem, and only when he is moving enough to show them.
@@ -472,10 +472,14 @@ const Sprites = (() => {
     }
 
     // ---- the mantle over his shoulders, and the sigil on it -----------------
+    Art.ell(g, CX - shW - 0.4, shoulder + 2, 5.6, 4.6, ROBE0);             // the shoulders under it
+    Art.ell(g, CX + shW + 0.4, shoulder + 2, 5.6, 4.6, ROBE0);
     Art.poly(g, [[CX - shW - 2.6, shoulder - 1], [CX + shW + 2.6, shoulder - 1],
                  [CX + shW + 1.4, chestY + 4], [CX, chestY + 8], [CX - shW - 1.4, chestY + 4]], ROBE0);
     Art.poly(g, [[CX - shW - 1.8, shoulder - 0.2], [CX + shW + 1.8, shoulder - 0.2],
                  [CX + shW + 0.8, chestY + 3], [CX, chestY + 6.6], [CX - shW - 0.8, chestY + 3]], ROBE2);
+    Art.ell(g, CX - shW + 0.6, shoulder + 1.6, 5, 3.8, ROBE3);             // light catching each shoulder
+    Art.ell(g, CX + shW - 0.6, shoulder + 1.8, 4.4, 3.4, ROBE1);
     Art.poly(g, [[CX - shW - 1.8, shoulder - 0.2], [CX - 3, shoulder - 0.2],
                  [CX - 4, chestY + 5], [CX - shW - 0.8, chestY + 3]], ROBE3);
     for (let i = 0; i < 9; i++) {                                          // a scalloped edge
@@ -501,51 +505,57 @@ const Sprites = (() => {
     // A wombat's head worn as a hood. It is drawn from the back forward: the
     // dome, then the dark it makes, then whatever is burning in the dark, then
     // the snout pulled down over the top of the opening as a brim.
-    const hx = view === 'quarter' ? CX + 1.6 : CX;
-    const domeY = hoodTop + 2;
-    const faceY = domeY + 5.4;
+    // Mood is carried by how he holds his head: FACES is still the table, but
+    // the brow value tips the cowl and the eye shape sets how far it is pulled
+    // down over the opening.
+    const mood = FACES[hurt > 0 ? 'shock' : pose === 'cast' ? 'proud' : pose === 'sleep' ? 'tired' : faceMood] || FACES.idle;
+    const tip = U.clamp(mood.brow, -1, 1);
+    const hx = (view === 'quarter' ? CX + 1.6 : CX) + tip * 0.9;
+    const domeY = hoodTop + 3 - tip * 1.2 + (mood.eye === 'shut' ? 1.4 : 0);
+    const faceY = domeY + 3.8;
     for (const s2 of [-1, 1]) {                                            // ears, pricked
-      const ex2 = hx + s2 * 7.6, ey2 = domeY - 4.6;
-      Art.ell(g, ex2, ey2, 4, 4.3, ROBE0);
-      Art.ell(g, ex2, ey2, 3.1, 3.3, FUR1);
-      Art.ell(g, ex2 - s2 * 0.4, ey2 + 0.4, 1.6, 1.7, '#2a1a12');
-      Art.ell(g, ex2 - s2 * 0.8, ey2 - 1.2, 1.1, 1, FUR2);
+      const ex2 = hx + s2 * 9.2, ey2 = domeY - 5.6;
+      Art.ell(g, ex2, ey2, 4.8, 5.2, ROBE0);
+      Art.ell(g, ex2, ey2, 3.8, 4, FUR1);
+      Art.ell(g, ex2 - s2 * 0.5, ey2 + 0.5, 2, 2.1, '#2a1a12');
+      Art.ell(g, ex2 - s2 * 1, ey2 - 1.4, 1.3, 1.2, FUR2);
     }
-    Art.ell(g, hx, domeY + 1.4, 9.6, 9, ROBE0);                            // the cowl
-    Art.ell(g, hx, domeY + 0.6, 8.8, 8, FUR0);
-    Art.ell(g, hx - 2.8, domeY - 3.4, 4.4, 3, FUR1);                       // light on the crown
-    Art.ell(g, hx - 3.8, domeY - 4.2, 2.2, 1.2, FUR2);
-    Art.speckle(g, hx, domeY - 1, 8.2, 6, FUR1, 20, 91);                   // coarse fur
+    Art.ell(g, hx, domeY + 1.8, 11.8, 11, ROBE0);                          // the cowl
+    Art.ell(g, hx, domeY + 0.8, 10.9, 9.9, FUR0);
+    Art.ell(g, hx - 3.4, domeY - 4.2, 5.4, 3.6, FUR1);                     // light on the crown
+    Art.ell(g, hx - 4.6, domeY - 5.2, 2.7, 1.5, FUR2);
+    Art.speckle(g, hx, domeY - 1.2, 10, 7.4, FUR1, 26, 91);                // coarse fur
+    // the muzzle, high on the face where a wombat's is
+    Art.ell(g, hx, domeY - 2.4, 5.4, 3.6, ROBE0);
+    Art.ell(g, hx, domeY - 2.8, 4.6, 2.9, FUR0);
+    Art.ell(g, hx - 1.6, domeY - 3.8, 2, 1.1, FUR1);
+    Art.ell(g, hx, domeY - 1.4, 2.4, 1.5, '#100a12');                      // the nose
+    Art.ell(g, hx - 0.9, domeY - 1.9, 1, 0.6, '#3a2c34');
     if (view === 'back') {
-      Art.ell(g, hx, domeY + 3, 6, 5, FUR0);
-      Art.ell(g, hx, domeY + 3, 5, 4, ROBE1);
+      Art.ell(g, hx, domeY + 4, 7, 6, FUR0);
+      Art.ell(g, hx, domeY + 4, 6, 5, ROBE1);
     } else {
-      // the opening: nothing in there but shadow
-      Art.ell(g, hx, faceY, 6.4, 6.2, '#0d0812');
-      Art.ell(g, hx, faceY + 0.4, 5.6, 5.4, VOID);
-      // a beard finding its way out of the dark
-      Art.ell(g, hx, faceY + 5.6, 4.2, 3.2, '#231a10');
-      Art.ell(g, hx, faceY + 6, 3.4, 2.6, '#3f3018');
-      Art.ell(g, hx - 1.2, faceY + 5.8, 1.7, 1.4, BRD0);
-      for (let i = -2; i <= 2; i++) Art.rect(g, hx + i * 1.7, faceY + 7.8, 1, 1.2 + (i % 2 ? 0.8 : 0), '#231a10');
-      expressions(g, hx, faceY - 1.4, pose, f, hurt);
-      Art.ellBand(g, hx, faceY - 0.6, 6.8, 6.6, 'rgba(5,3,9,0.8)', 0, 0.18);
+      // The opening: a hole cut in the front of the head. There is nothing in
+      // it. Whatever mood he is in comes out of the set of his shoulders and
+      // the tilt of the hood, because there is no face under there to read.
+      Art.ell(g, hx, faceY, 8.4, 7.2, FUR0);                               // the fur rim
+      Art.ell(g, hx, faceY + 0.3, 7.6, 6.5, ROBE0);
+      Art.ell(g, hx, faceY + 0.6, 6.8, 5.8, '#0a0610');
+      Art.ell(g, hx, faceY + 0.9, 6, 5.1, VOID);
+      Art.ell(g, hx, faceY + 1.4, 4.8, 3.9, '#000000');
+      // one faint ring of light caught on the lip of it, and no more
+      Art.ellBand(g, hx, faceY - 0.2, 8, 6.9, 'rgba(112,78,48,0.55)', 0.4, 0.62);
+      Art.ellBand(g, hx, faceY, 8.2, 7, 'rgba(48,32,20,0.6)', 0.86, 1);
     }
-    // the snout, hanging over the brow like the peak of a cap
-    Art.ell(g, hx, domeY + 1.6, 5, 3.2, ROBE0);
-    Art.ell(g, hx, domeY + 1.3, 4.3, 2.5, FUR0);
-    Art.ell(g, hx - 1.4, domeY + 0.5, 1.8, 1, FUR1);
-    Art.ell(g, hx, domeY + 2.5, 2.1, 1.3, '#100a12');                      // the nose
-    Art.ell(g, hx - 0.8, domeY + 2.1, 0.9, 0.5, '#3a2c34');
     // the sides of the cowl, closing in on the opening
     for (const s2 of [-1, 1]) {
-      Art.ell(g, hx + s2 * 7, faceY - 0.4, 3.2, 6, ROBE0);
-      Art.ell(g, hx + s2 * 7.2, faceY - 0.8, 2.5, 5.2, FUR0);
-      Art.ell(g, hx + s2 * 7.4, faceY - 2.4, 1.2, 2, FUR1);
+      Art.ell(g, hx + s2 * 9.4, faceY - 1.4, 3, 6.2, ROBE0);
+      Art.ell(g, hx + s2 * 9.6, faceY - 1.8, 2.3, 5.4, FUR0);
+      Art.ell(g, hx + s2 * 9.8, faceY - 3.6, 1.2, 2.2, FUR1);
     }
     // two teeth of the skull hanging either side, on cords
     for (const s2 of [-1, 1]) {
-      const tx2 = hx + s2 * 9, ty2 = faceY + 2.4;
+      const tx2 = hx + s2 * 10.4, ty2 = faceY + 2.6;
       Art.rect(g, tx2 - 0.4, ty2 - 3, 0.8, 3.4, '#6a5a3a');
       Art.poly(g, [[tx2 - 1.4, ty2 + 0.4], [tx2 + 1.4, ty2 + 0.4], [tx2, ty2 + 4.4]], '#d8cfae');
       Art.poly(g, [[tx2 - 0.8, ty2 + 0.8], [tx2 + 0.2, ty2 + 0.8], [tx2 - 0.2, ty2 + 3]], '#f2ead0');
@@ -572,6 +582,148 @@ const Sprites = (() => {
       }
     }
     g.restore();
+    Art.outline(c, '#0a0810', 1);
+    cache.set(key, c);
+    return c;
+  }
+
+  // ---- Shaz, on the till ---------------------------------------------------
+  // A woman in her fifties who has worked here nineteen years and has never
+  // once stopped talking about wombats. Seen from the counter up: polo shirt,
+  // apron, a lanyard she has covered in enamel pins, and a mug.
+  const KW = 72, KH = 84;
+  function cashier(frame, pose = 'idle') {
+    const n = { idle: 4, talk: 6, happy: 4, wave: 6 }[pose] || 4;
+    const f = ((frame % n) + n) % n, t = f / n;
+    const key = `shaz:${f}:${pose}`;
+    let img = cache.get(key); if (img) return img;
+    const { c, g } = Art.cv(KW, KH);
+    const S = Math.sin(t * TAU);
+    const CXK = 36;
+    const SK0 = '#a87050', SK1 = '#d09a72', SK2 = '#e8bb92', SK3 = '#f7dcbc';
+    const HAIR0 = '#4a4650', HAIR1 = '#6f6a76', HAIR2 = '#9a95a2', HAIR3 = '#c4c0ca';
+    const POLO0 = '#14421f', POLO1 = '#1e6330', POLO2 = '#2f8f42', POLO3 = '#5fc46c';
+    const APR0 = '#7a2a12', APR1 = '#a83f1c', APR2 = '#d0632c';
+    const INK = '#1a1620';
+    let bob = 0, lean = 0, armR = 0, mouth = 'flat', brow = 0;
+    switch (pose) {
+      case 'idle': bob = [0, 0, 1, 0][f]; mouth = f === 2 ? 'small' : 'flat'; break;
+      case 'talk': bob = [0, 1, 0, 1, 0, 1][f]; mouth = ['open', 'wide', 'small', 'open', 'wide', 'flat'][f];
+        lean = S * 0.6; armR = -2 - Math.abs(S) * 3; brow = 0.4; break;
+      case 'happy': bob = [0, 1, 2, 1][f]; mouth = 'grin'; brow = 0.6; armR = -4; break;
+      case 'wave': bob = [0, 1, 1, 0, 1, 1][f]; mouth = 'grin'; brow = 0.5;
+        armR = -12 - Math.abs(Math.sin(t * TAU * 2)) * 4; break;
+    }
+    const y0 = -bob;
+    const shoulder = 40 + y0, chestY = shoulder + 10, waist = shoulder + 26;
+    const headY = shoulder - 16 + y0 * 0, faceY = headY;
+    // ---- the apron and the body ------------------------------------------
+    Art.poly(g, [[CXK - 22, shoulder], [CXK + 22, shoulder], [CXK + 26, waist + 16], [CXK - 26, waist + 16]], POLO0);
+    Art.poly(g, [[CXK - 20, shoulder + 1], [CXK + 20, shoulder + 1], [CXK + 24, waist + 16], [CXK - 24, waist + 16]], POLO1);
+    Art.poly(g, [[CXK - 20, shoulder + 1], [CXK - 6, shoulder + 1], [CXK - 10, waist + 16], [CXK - 24, waist + 16]], POLO2);
+    Art.rect(g, CXK - 21, shoulder + 1, 2, waist + 14 - shoulder, POLO3);
+    // the collar
+    Art.poly(g, [[CXK - 9, shoulder - 1], [CXK, shoulder + 7], [CXK + 9, shoulder - 1], [CXK + 5, shoulder - 4], [CXK - 5, shoulder - 4]], POLO0);
+    Art.poly(g, [[CXK - 7, shoulder - 1], [CXK, shoulder + 5], [CXK + 7, shoulder - 1]], SK1);
+    // the apron over the front of it
+    Art.poly(g, [[CXK - 15, chestY], [CXK + 15, chestY], [CXK + 20, waist + 16], [CXK - 20, waist + 16]], APR0);
+    Art.poly(g, [[CXK - 14, chestY + 1], [CXK + 14, chestY + 1], [CXK + 19, waist + 16], [CXK - 19, waist + 16]], APR1);
+    Art.poly(g, [[CXK - 14, chestY + 1], [CXK - 5, chestY + 1], [CXK - 9, waist + 16], [CXK - 19, waist + 16]], APR2);
+    Art.rect(g, CXK - 15, chestY, 30, 2, APR0);
+    for (const sd of [-1, 1]) Art.limb(g, CXK + sd * 7, chestY, CXK + sd * 16, shoulder + 1, 2.4, 1.8, APR1);
+    Art.rect(g, CXK - 11, waist + 2, 22, 9, APR0);                      // the pouch
+    Art.rect(g, CXK - 11, waist + 2, 22, 1.6, APR2);
+    Art.rect(g, CXK - 6, waist + 4, 3, 6, '#d8d2c2');                   // a pen and a docket in it
+    Art.rect(g, CXK + 2, waist + 3, 6, 7, '#fffdf0');
+    // ---- the lanyard, and the pins she has covered it with ---------------
+    for (const sd of [-1, 1]) Art.limb(g, CXK + sd * 6, shoulder + 2, CXK + sd * 2, chestY + 6, 2, 1.6, '#2a3a46');
+    Art.rect(g, CXK - 3, chestY + 5, 7, 9, '#1d2230');                  // the badge itself
+    Art.rect(g, CXK - 2, chestY + 6, 5, 7, '#fffdf0');
+    Art.rect(g, CXK - 2, chestY + 6, 5, 2, '#c9581f');
+    const PINS = ['#d8b23a', '#b8496a', '#2f6f9f', '#8a6a3a', '#7a4f9a'];
+    for (let i = 0; i < 5; i++) {
+      const px = CXK - 14 + (i % 3) * 5, py = chestY + 2 + Math.floor(i / 3) * 5;
+      Art.ell(g, px, py, 2.4, 2.4, '#1a1620');
+      Art.ell(g, px, py, 1.8, 1.8, PINS[i]);
+      Art.ell(g, px - 0.5, py - 0.5, 0.8, 0.6, '#fff8e0');
+    }
+    // a small wombat embroidered on the polo, because of course
+    Art.ell(g, CXK + 12, chestY + 4, 4, 2.8, POLO3);
+    Art.ell(g, CXK + 15, chestY + 2.6, 2.4, 2.2, POLO3);
+    Art.rect(g, CXK + 14, chestY + 0.6, 1, 1.2, POLO3);
+    Art.rect(g, CXK + 16.4, chestY + 0.6, 1, 1.2, POLO3);
+    Art.rect(g, CXK + 15.6, chestY + 2.4, 0.8, 0.8, POLO0);
+    // ---- arms: one on the counter, one doing whatever she is saying -------
+    Art.limb(g, CXK - 19, shoulder + 4, CXK - 26, waist + 12, 7, 5.4, POLO1);
+    Art.limb(g, CXK - 20, shoulder + 4, CXK - 26, waist + 10, 4, 3, POLO2);
+    Art.ell(g, CXK - 27, waist + 14, 4, 3.4, SK0);
+    Art.ell(g, CXK - 27, waist + 13, 3.2, 2.8, SK1);
+    const ex = CXK + 22, ey = waist + 10 + armR;
+    Art.limb(g, CXK + 19, shoulder + 4, ex, ey, 7, 5.4, POLO0);
+    Art.limb(g, CXK + 20, shoulder + 4, ex, ey, 4.4, 3.2, POLO1);
+    Art.ell(g, ex + 1, ey + 4, 4.2, 3.6, SK0);
+    Art.ell(g, ex + 1, ey + 3.4, 3.4, 2.9, SK1);
+    for (let k = 0; k < 3; k++) Art.rect(g, ex - 1.4 + k * 1.8, ey + 5.4, 1.2, 1.8, SK0);
+    // ---- neck and head ----------------------------------------------------
+    const hx = CXK + lean;
+    Art.limb(g, hx, faceY + 10, hx, shoulder + 2, 5, 6, SK0);
+    Art.ell(g, hx, shoulder + 1, 6, 2.2, '#8a5a40');
+    Art.ell(g, hx, faceY + 12, 9.6, 6, SK0);                            // the jaw
+    Art.ell(g, hx, faceY + 6, 10.5, 11.5, SK0);                         // the skull
+    Art.ell(g, hx - 0.4, faceY + 5.6, 9.6, 10.6, SK1);
+    Art.ell(g, hx - 4, faceY + 2.4, 4.4, 4, SK2);                       // the lit temple
+    Art.ell(g, hx + 5, faceY + 4.4, 3, 3.4, SK1);
+    Art.ell(g, hx, faceY + 8, 2.6, 2.2, SK2);                           // the nose
+    Art.rect(g, hx - 1, faceY + 5.6, 2, 3.2, SK2);
+    Art.ell(g, hx - 10.4, faceY + 7, 2.4, 3, SK0);                      // ears, with studs in
+    Art.ell(g, hx + 10.4, faceY + 7, 2.4, 3, SK0);
+    Art.ell(g, hx - 10.4, faceY + 9.6, 1.1, 1.1, '#d8b23a');
+    Art.ell(g, hx + 10.4, faceY + 9.6, 1.1, 1.1, '#d8b23a');
+    // the hair: greying, pinned up, with a strand escaping
+    Art.ell(g, hx, faceY + 0.6, 11.4, 8.4, HAIR0);
+    Art.ell(g, hx - 0.6, faceY - 0.4, 10.4, 7.4, HAIR1);
+    Art.ell(g, hx - 4, faceY - 2.2, 5, 3.4, HAIR2);
+    Art.ell(g, hx - 5, faceY - 3, 2.4, 1.4, HAIR3);
+    Art.ell(g, hx + 2, faceY - 7.6, 6, 5, HAIR0);                       // the bun
+    Art.ell(g, hx + 2, faceY - 7.8, 5, 4, HAIR1);
+    Art.ell(g, hx + 0.6, faceY - 9, 2.4, 1.6, HAIR2);
+    Art.rect(g, hx + 4.4, faceY - 7.6, 5, 1.4, '#d8b23a');              // a clip through the bun
+    Art.limb(g, hx - 9.4, faceY + 0.6, hx - 11.6, faceY + 9, 2, 1.2, HAIR1);
+    Art.ell(g, hx - 10.6, faceY + 2.6, 2.6, 4.6, HAIR0);
+    Art.ell(g, hx + 10, faceY + 2.6, 2.4, 4.4, HAIR0);
+    // the glasses, on a chain
+    for (const sd of [-1, 1]) {
+      Art.ell(g, hx + sd * 4.4, faceY + 4.4, 4, 3.6, '#2a3038');
+      Art.ell(g, hx + sd * 4.4, faceY + 4.4, 3.2, 2.9, '#cfe2ea');
+    }
+    Art.rect(g, hx - 1.2, faceY + 4, 2.4, 1.2, '#2a3038');
+    Art.rect(g, hx - 10.4, faceY + 3.6, 2.6, 1.2, '#2a3038');
+    Art.rect(g, hx + 7.8, faceY + 3.6, 2.6, 1.2, '#2a3038');
+    for (const sd of [-1, 1]) Art.limb(g, hx + sd * 9.4, faceY + 6, hx + sd * 11.4, faceY + 12, 1, 0.8, '#8a95a0');
+    // the eyes behind them, and the brows over the top
+    for (const sd of [-1, 1]) {
+      const exx = hx + sd * 4.4;
+      if (pose === 'happy' || pose === 'wave') {
+        Art.poly(g, [[exx - 2.4, faceY + 5.4], [exx, faceY + 3], [exx + 2.4, faceY + 5.4], [exx, faceY + 4.4]], INK);
+      } else {
+        Art.ell(g, exx, faceY + 4.4, 1.8, 1.8, '#fdf6ea');
+        Art.ell(g, exx + sd * 0.3, faceY + 4.6, 1.1, 1.2, INK);
+        Art.rect(g, exx - 0.7, faceY + 3.6, 0.7, 0.7, '#fdf6ea');
+      }
+      Art.poly(g, [[exx - 3, faceY + 0.6 - brow * sd * 0.6], [exx + 3, faceY + 0.6 + brow * sd * 0.6],
+                   [exx + 3, faceY + 2 + brow * sd * 0.6], [exx - 3, faceY + 2 - brow * sd * 0.6]], HAIR0);
+    }
+    // the mouth, always going
+    const my = faceY + 11;
+    if (mouth === 'open') { Art.ell(g, hx, my, 2.6, 2.4, '#5a2430'); Art.ell(g, hx, my - 0.8, 2, 1, '#fdf6ea'); }
+    else if (mouth === 'wide') { Art.ell(g, hx, my, 3.4, 3, '#5a2430'); Art.ell(g, hx, my - 1, 2.6, 1.1, '#fdf6ea'); Art.ell(g, hx, my + 1.8, 1.8, 0.9, '#c2607a'); }
+    else if (mouth === 'grin') {
+      Art.poly(g, [[hx - 4, my - 1.4], [hx + 4, my - 1.4], [hx + 2.6, my + 2.2], [hx - 2.6, my + 2.2]], '#5a2430');
+      Art.rect(g, hx - 3.4, my - 1.2, 6.8, 1.4, '#fdf6ea');
+    } else if (mouth === 'small') { Art.ell(g, hx, my, 1.6, 1.4, '#5a2430'); }
+    else { Art.rect(g, hx - 2.6, my - 0.4, 5.2, 1.2, '#8a4048'); }
+    Art.ell(g, hx - 5.4, my - 1, 2.2, 1.4, 'rgba(198,110,120,0.35)');    // a bit of colour
+    Art.ell(g, hx + 5.4, my - 1, 2.2, 1.4, 'rgba(198,110,120,0.35)');
     Art.outline(c, '#0a0810', 1);
     cache.set(key, c);
     return c;
@@ -958,5 +1110,5 @@ const Sprites = (() => {
     }
   }
 
-  return { S, AGE, POSES, CULT_POSES, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
+  return { S, AGE, POSES, CULT_POSES, KW, KH, cashier, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
 })();

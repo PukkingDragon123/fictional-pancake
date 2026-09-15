@@ -6,91 +6,138 @@ const Atlas = (() => {
   const fog = [];
   let travel = null;
 
-  // A road map, drawn the way a phone draws one: pale land, green parks, blue
-  // water, a grid of white roads with a yellow motorway through it, and blocks
-  // of buildings in between. Pixel art, but the same language.
-  // Seen from above: canopy, clearings cut into it, dirt tracks between them,
-  // and a creek running through. No streets out here.
-  const CAN0 = '#080f0c', CAN1 = '#0e1a12', CAN2 = '#15281a', CAN3 = '#1e3a23', CAN4 = '#2c5230';
-  const GRASS = '#33502f', GRASS2 = '#28422a', DIRT = '#6b5338', DIRT2 = '#4c3a26', DIRT3 = '#8a6c48';
-  const WATER = '#1e4a66', WATER2 = '#37708f', ROCK = '#3d3a38', MINK = '#111c14';
-  const BONE = '#b8b0a0', BONE2 = '#7d766a';
+  // A road map of the district, drawn the way a phone draws one: dark land,
+  // forest blocks, water, a grid of lit streets through the town, a highway
+  // running the length of it, and the buildings packed in between.
+  const LAND = '#3a4232', LAND2 = '#444c3a', SCRUB = '#333b2c';
+  const FOR0 = '#1d2a1c', FOR1 = '#2a3d27', FOR2 = '#365030', FOR3 = '#48693c';
+  const WATER = '#2a5a7e', WATER2 = '#3b7ba4', WATER3 = '#63a8c8';
+  const HWY0 = '#3a2c10', HWY1 = '#8a6a1c', HWY2 = '#d8a52f', HWY3 = '#f2cf62';
+  const RD0 = '#2e3128', RD1 = '#7e8270', RD2 = '#b6b9a6', RD3 = '#e4e6d6';
+  const ST0 = '#2a2d24', ST1 = '#6e7260', ST2 = '#a4a892';
+  const BLD0 = '#22261e', BLD1 = '#4e5544', BLD2 = '#697259', BLD3 = '#8d976f';
+  const LIT = '#d8b23a';
+
+  // The network. The highway runs the length of the district; everything else
+  // hangs off it. Points are map pixels, so a road ends where its place is.
+  const HIGHWAY = [[-24, 330], [110, 312], [236, 296], [352, 268], [452, 238], [556, 200], [664, 178]];
+  const ROADS = [
+    [[176, 236], [200, 258], [228, 274], [236, 296]],                      // the grove road
+    [[330, 296], [318, 288], [300, 282], [284, 286], [236, 296]],          // into town
+    [[424, 132], [436, 172], [448, 206], [452, 238]],                      // up to the ritual site
+    [[548, 232], [556, 218], [556, 200]],                                  // the stack turn-off
+    [[96, 104], [114, 150], [140, 194], [162, 218], [176, 236]],           // the quarry track
+    [[566, 78], [584, 112], [600, 148], [592, 176], [556, 200]],           // the lake road
+    [[292, 58], [332, 72], [376, 96], [408, 116], [424, 132]],             // the deepwood road
+    [[292, 58], [230, 76], [172, 112], [128, 136], [114, 150]],            // and the back way round
+  ];
+  // The town: a grid of streets either side of the Mart.
+  const TOWN = { x0: 258, x1: 404, y0: 252, y1: 330, gx: 28, gy: 24 };
+
+  function poly(g, pts, col, w) {
+    for (let i = 0; i < pts.length - 1; i++) Art.line(g, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], col, w);
+    for (let i = 1; i < pts.length - 1; i++) Art.ell(g, pts[i][0], pts[i][1], w / 2, w / 2, col);
+  }
+  function dashed(g, pts, col, w, on, off) {
+    let carry = 0, draw = true;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+      const L = Math.hypot(x1 - x0, y1 - y0) || 1;
+      for (let d = 0; d < L; d++) {
+        const u = d / L;
+        if (draw) { g.fillStyle = col; g.fillRect(Math.round(U.lerp(x0, x1, u)), Math.round(U.lerp(y0, y1, u)), w, w); }
+        if (++carry >= (draw ? on : off)) { carry = 0; draw = !draw; }
+      }
+    }
+  }
 
   function sheetOf() {
     if (sheet) return sheet;
     const { c, g } = Art.cv(VW, VH);
     const r = Art.rng(4242);
-    g.fillStyle = CAN1; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 3000; i++) { g.fillStyle = r() < 0.5 ? CAN0 : CAN2; g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 2, 2); }
-    // ---- the clearings each place sits in ---------------------------------
-    for (const s2 of SITES) {
-      const rad = 40 + r() * 16;
-      for (let k = 0; k < 22; k++) {
-        const a2 = r() * TAU, d = Math.sqrt(r()) * rad;
-        Art.ell(g, s2.x + Math.cos(a2) * d, s2.y + Math.sin(a2) * d * 0.8, 15 + r() * 9, 11 + r() * 7, GRASS2);
+    // ---- the land ---------------------------------------------------------
+    g.fillStyle = LAND; g.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 2600; i++) { g.fillStyle = r() < 0.5 ? SCRUB : LAND2; g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 2, 2); }
+    // ---- forest, in blocks, the way a map shows it ------------------------
+    const BLOCKS = [[60, 40, 150, 90], [250, 20, 130, 70], [470, 30, 160, 80],
+                    [20, 150, 120, 110], [400, 120, 120, 90], [520, 250, 140, 100],
+                    [120, 280, 110, 70], [300, 160, 90, 70]];
+    for (const [bx, by, bw, bh] of BLOCKS) {
+      for (let i = 0; i < (bw * bh) / 34; i++) {
+        const x = bx + r() * bw, y = by + r() * bh;
+        const s3 = 5 + r() * 6;
+        Art.ell(g, x + 1, y + 1.6, s3, s3 * 0.84, FOR0);
+        Art.ell(g, x, y, s3, s3 * 0.84, r() < 0.45 ? FOR2 : FOR1);
+        Art.ell(g, x - s3 * 0.3, y - s3 * 0.3, s3 * 0.5, s3 * 0.42, r() < 0.3 ? FOR3 : FOR2);
       }
-      Art.ell(g, s2.x, s2.y + 2, rad * 0.8, rad * 0.58, GRASS);
-      for (let k = 0; k < 26; k++) { g.fillStyle = r() < 0.5 ? '#8dbf66' : '#66904a'; g.fillRect(s2.x - rad + r() * rad * 2, s2.y - rad * 0.6 + r() * rad * 1.2, 2, 2); }
     }
-    // ---- the creek ---------------------------------------------------------
-    let wx = -10, wy = 84;
-    const wpts = [];
-    for (let i = 0; i <= 40; i++) { wpts.push([wx, wy]); wx += 17; wy += Math.sin(i * 0.34) * 13 + 3.6; }
-    for (let i = 0; i < wpts.length - 1; i++) {
-      Art.line(g, wpts[i][0], wpts[i][1], wpts[i + 1][0], wpts[i + 1][1], '#2f5f78', 13);
-      Art.line(g, wpts[i][0], wpts[i][1], wpts[i + 1][0], wpts[i + 1][1], WATER, 9);
-      if (i % 2 === 0) Art.line(g, wpts[i][0], wpts[i][1] - 2, wpts[i + 1][0], wpts[i + 1][1] - 2, WATER2, 2);
+    // ---- water: a lake up north and a river down to the sea --------------
+    Art.ell(g, 586, 66, 52, 30, '#0d2237');
+    Art.ell(g, 586, 66, 48, 26, WATER);
+    Art.ell(g, 580, 62, 36, 17, WATER2);
+    Art.ell(g, 572, 58, 18, 8, WATER3);
+    const river = [[586, 88], [560, 126], [530, 160], [516, 200], [522, 250], [540, 300], [560, 358]];
+    poly(g, river, '#0d2237', 11); poly(g, river, WATER, 8);
+    dashed(g, river, WATER3, 1, 4, 5);
+    // ---- the street grid through town ------------------------------------
+    const T = TOWN;
+    for (let x = T.x0; x <= T.x1; x += T.gx) {
+      poly(g, [[x, T.y0], [x, T.y1]], ST0, 7);
+      poly(g, [[x, T.y0], [x, T.y1]], ST1, 5);
+      poly(g, [[x, T.y0], [x, T.y1]], ST2, 1);
     }
-    // ---- the canopy: crowns, thicker the further from a clearing -----------
-    for (let i = 0; i < 1100; i++) {
-      const x = r() * VW, y = r() * VH;
-      let near = 1e9;
-      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
-      if (near < 46 && r() < 0.94) continue;
-      const d = g.getImageData(Math.floor(U.clamp(x, 0, VW - 1)), Math.floor(U.clamp(y, 0, VH - 1)), 1, 1).data;
-      if (d[2] > 90 && d[2] > d[1]) continue;                   // keep out of the creek
-      const s3 = 7 + r() * 9;
-      Art.ell(g, x + 1, y + 2, s3, s3 * 0.86, CAN0);
-      Art.ell(g, x, y, s3, s3 * 0.86, r() < 0.45 ? CAN2 : CAN1);
-      Art.ell(g, x - s3 * 0.28, y - s3 * 0.3, s3 * 0.56, s3 * 0.46, r() < 0.3 ? CAN4 : CAN3);
-      if (r() < 0.14) Art.ell(g, x + s3 * 0.3, y + s3 * 0.2, s3 * 0.3, s3 * 0.24, CAN0);
+    for (let y = T.y0; y <= T.y1; y += T.gy) {
+      poly(g, [[T.x0, y], [T.x1, y]], ST0, 7);
+      poly(g, [[T.x0, y], [T.x1, y]], ST1, 5);
+      poly(g, [[T.x0, y], [T.x1, y]], ST2, 1);
     }
-    // ---- rocks, logs and ferns in the open ---------------------------------
-    for (let i = 0; i < 70; i++) {
-      const x = r() * VW, y = r() * VH;
-      let near = 1e9;
-      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
-      if (near > 52) continue;
-      if (r() < 0.4) { Art.ell(g, x, y + 1, 5, 4, '#5d5850'); Art.ell(g, x, y, 5, 4, ROCK); Art.ell(g, x - 1.4, y - 1.2, 2.4, 1.8, '#9a9286'); }
-      else if (r() < 0.5) { g.fillStyle = '#5d4430'; g.fillRect(x - 9, y, 18, 5); g.fillStyle = '#7d5f42'; g.fillRect(x - 9, y, 18, 2); }
-      else for (let f = -2; f <= 2; f++) Art.limb(g, x, y + 3, x + f * 5, y - 4, 2, 1, f % 2 ? '#3f7a2c' : '#58a04e');
-    }
-    // ---- things you would rather not have found ---------------------------
-    for (let i = 0; i < 26; i++) {
-      const x = r() * VW, y = r() * VH;
-      let near = 1e9;
-      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
-      if (near < 40 || near > 120) continue;
-      if (r() < 0.45) {                                   // a ribcage in the leaf litter
-        Art.ell(g, x, y, 7, 4, '#10140f');
-        for (let k = -3; k <= 3; k++) {
-          g.fillStyle = k % 2 ? BONE2 : BONE;
-          g.fillRect(Math.round(x + k * 2), Math.round(y - 3 + Math.abs(k) * 0.5), 1, 6 - Math.abs(k));
+    // the blocks between the streets, built up
+    for (let x = T.x0; x < T.x1; x += T.gx) {
+      for (let y = T.y0; y < T.y1; y += T.gy) {
+        const n = 2 + Math.floor(r() * 3);
+        for (let i = 0; i < n; i++) {
+          const bw = 6 + r() * 9, bh = 5 + r() * 7;
+          const bx = x + 5 + r() * (T.gx - 10 - bw), by = y + 5 + r() * (T.gy - 10 - bh);
+          g.fillStyle = BLD0; g.fillRect(Math.round(bx), Math.round(by + 1), Math.round(bw), Math.round(bh));
+          g.fillStyle = r() < 0.4 ? BLD2 : BLD1; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), Math.round(bh));
+          g.fillStyle = BLD3; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), 1);
+          if (r() < 0.45) { g.fillStyle = LIT; g.fillRect(Math.round(bx + 1), Math.round(by + 2), 1, 1); }
         }
-        g.fillStyle = BONE; g.fillRect(Math.round(x - 8), Math.round(y - 1), 4, 3);
-      } else if (r() < 0.5) {                             // a burnt stump, still black
-        Art.ell(g, x, y + 2, 7, 3, '#060907');
-        Art.ell(g, x, y, 6, 4, '#171410');
-        Art.ell(g, x, y - 1, 4.6, 2.8, '#241d16');
-        for (let k = 0; k < 3; k++) g.fillStyle = '#0a0806', g.fillRect(Math.round(x - 3 + k * 3), Math.round(y - 6), 2, 6);
-      } else {                                            // a cairn someone stacked and left
-        for (let k = 0; k < 4; k++) Art.ell(g, x + (k % 2 ? 1 : -1), y - k * 3, 5 - k * 0.8, 2.4 - k * 0.3, k % 2 ? ROCK : '#4c4844');
       }
     }
-    // ---- a few place names, scratched into the canopy ---------------------
-    for (const [lx, ly, tx2] of [[112, 62, 'FERN GULLY'], [300, 200, 'THE SCRUB'],
-                                  [566, 292, 'BLACKWOOD'], [86, 316, 'STONE FLAT'], [470, 40, 'HIGH RIDGE']]) {
-      Font.draw(g, tx2, lx, ly, { scale: 1, color: '#5f7a52', align: 'center', shadow: 'rgba(4,8,4,0.95)' });
+    // ---- the secondary roads ---------------------------------------------
+    for (const p of ROADS) {
+      poly(g, p, RD0, 9);
+      poly(g, p, RD1, 7);
+      poly(g, p, RD2, 3);
+      dashed(g, p, RD3, 1, 3, 5);
+    }
+    // ---- the highway, over the top of everything -------------------------
+    poly(g, HIGHWAY, '#120e08', 15);
+    poly(g, HIGHWAY, HWY0, 13);
+    poly(g, HIGHWAY, HWY1, 11);
+    poly(g, HIGHWAY, HWY2, 8);
+    dashed(g, HIGHWAY, '#2a1f08', 2, 5, 6);
+    // ---- farms and sheds strung along the roads --------------------------
+    for (const p of ROADS) {
+      for (let i = 1; i < p.length - 1; i++) {
+        if (r() < 0.45) continue;
+        const sd = r() < 0.5 ? -1 : 1;
+        const bx = p[i][0] + sd * (9 + r() * 10), by = p[i][1] + (r() - 0.5) * 14;
+        const bw = 7 + r() * 6, bh = 6 + r() * 5;
+        g.fillStyle = BLD0; g.fillRect(Math.round(bx), Math.round(by + 1), Math.round(bw), Math.round(bh));
+        g.fillStyle = BLD1; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), Math.round(bh));
+        g.fillStyle = BLD2; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), 1);
+        if (r() < 0.5) { g.fillStyle = LIT; g.fillRect(Math.round(bx + bw - 2), Math.round(by + 2), 1, 1); }
+      }
+    }
+    // ---- the names on it --------------------------------------------------
+    for (const [lx, ly, tx2, col] of [
+      [330, 246, 'WOMBAT FLAT', '#9aa88a'], [112, 74, 'FERN GULLY', '#7a8a6e'],
+      [540, 48, 'STILL LAKE', '#6f9ab0'], [248, 128, 'THE SCRUB', '#7a8a6e'],
+      [560, 292, 'BLACKWOOD', '#7a8a6e'], [86, 330, 'STONE FLAT', '#7a8a6e'],
+      [470, 336, 'HIGHWAY 1', '#b39a52']]) {
+      Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center', shadow: 'rgba(4,8,4,0.95)' });
     }
     sheet = c;
     return c;
@@ -105,41 +152,28 @@ const Atlas = (() => {
     for (let i = 0; i < 22; i++) eyes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU, sp: 0.3 + r() * 0.6, on: 0 });
     for (let i = 0; i < 7; i++) bats.push({ x: r() * VW, y: 20 + r() * (VH - 60), ph: r() * TAU, sp: 16 + r() * 24, amp: 12 + r() * 26 });
     for (let i = 0; i < 40; i++) drift.push({ x: r() * VW, y: r() * VH, ph: r() * TAU, sp: 0.2 + r() * 0.5 });
+    TRAFFIC.length = 0;
+    for (let i = 0; i < 9; i++) TRAFFIC.push({ u: r(), sp: 0.012 + r() * 0.018, dir: r() < 0.5 ? 1 : -1 });
   }
   function enter() { hover = null; travel = null; Audio.setMode('pen'); }
 
-  // a track worn into the forest floor, with boot prints going along it
-  // Tracks join one place to the next, not everything to the grove. Each leg
-  // has its own sag so the web reads as a walked network, not a fan.
-  const TRAILS = [
-    ['grove', 'mart', 26], ['grove', 'quarry', -30], ['grove', 'ritual', -22],
-    ['ritual', 'deep', 24], ['ritual', 'lake', -18], ['ritual', 'stack', 30],
-    ['mart', 'stack', 22],
-  ];
-  function pathBetween(g, a, b, bend, t) {
-    const n = Math.max(12, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / 5));
-    const pt = (k) => {
-      const s2 = Math.sin(k * Math.PI), w2 = Math.sin(k * Math.PI * 3) * 4;
-      return {
-        x: U.lerp(a.x, b.x, k) - (b.y - a.y) / Math.hypot(b.x - a.x, b.y - a.y || 1) * s2 * bend + w2,
-        y: U.lerp(a.y, b.y, k) + (b.x - a.x) / Math.hypot(b.x - a.x, b.y - a.y || 1) * s2 * bend,
-      };
-    };
-    for (const [w, col] of [[8, '#5d4a33'], [6, '#8b6942'], [3, '#b9905c']]) {
-      let p = pt(0);
-      for (let i = 1; i <= n; i++) { const q = pt(i / n); Art.line(g, p.x, p.y, q.x, q.y, col, w); p = q; }
+  // Traffic, crawling the highway while you decide where to go.
+  const TRAFFIC = [];
+  function hwyAt(u) {
+    const P = HIGHWAY;
+    let tot = 0; const seg = [];
+    for (let i = 0; i < P.length - 1; i++) { const L = Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]); seg.push(L); tot += L; }
+    let d = u * tot;
+    for (let i = 0; i < seg.length; i++) {
+      if (d <= seg[i]) {
+        const k = d / seg[i];
+        return { x: U.lerp(P[i][0], P[i + 1][0], k), y: U.lerp(P[i][1], P[i + 1][1], k),
+          a: Math.atan2(P[i + 1][1] - P[i][1], P[i + 1][0] - P[i][0]) };
+      }
+      d -= seg[i];
     }
-    for (let i = 1; i < n; i += 3) {                      // grit worn into the middle
-      const p = pt(i / n);
-      g.fillStyle = DIRT3; g.fillRect(Math.round(p.x) + (i % 4 ? 0 : -1), Math.round(p.y) - 1, 1, 1);
-    }
-    for (let i = 0; i < 4; i++) {                         // boots, walking the track
-      const k = ((i / 4) + t * 0.09) % 1;
-      const p = pt(k);
-      g.fillStyle = 'rgba(26,18,10,0.7)';
-      g.fillRect(Math.round(p.x) - 2, Math.round(p.y) - 1, 2, 3);
-      g.fillRect(Math.round(p.x) + 1, Math.round(p.y) + 2, 2, 3);
-    }
+    const n = P.length - 1;
+    return { x: P[n][0], y: P[n][1], a: 0 };
   }
 
   function siteAt(x, y) {
@@ -152,9 +186,19 @@ const Atlas = (() => {
     if (!s) return;
     if (!unlocked(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return; }
     if (!s.mode) { Audio.play('error'); return; }
-    travel = { t: 0, site: s, from: whereAmI(), dust: [] };
-    Audio.play('whoosh');
+    const from = whereAmI();
+    travel = { site: s };
+    Audio.play('rumble');
     FX.shake(1.4);
+    Drive.start({
+      to: s.name, from: from.name, km: kmBetween(from, s), dur: 3.1,
+      onDone: () => {
+        const m = s.mode;
+        G.lastSite = m;
+        travel = null;
+        Main.setMode(m);
+      },
+    });
   }
   function hoverAt(x, y) {
     hover = siteAt(x, y);
@@ -167,82 +211,23 @@ const Atlas = (() => {
     const byMode = SITES.find((s) => s.mode === (G.lastSite || 'grove'));
     return byMode || SITES[0];
   }
-  // The route the truck takes: a trail leg if there is one, else a straight run.
-  function routeOf(a, b) {
-    for (const [ak, bk, bend] of TRAILS) {
-      if (ak === a.key && bk === b.key) return { a, b, bend };
-      if (bk === a.key && ak === b.key) return { a: b, b: a, bend, back: true };
-    }
-    return { a, b, bend: 14 };
-  }
-  const DRIVE = 1.5;                                  // how long the drive lasts
+  // How far it is, in the money of the map: a straight line scaled to km.
+  const kmBetween = (a, b) => Math.max(3, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / 11));
   function update(dt) {
-    if (!travel) return;
-    travel.t += dt;
-    for (let i = travel.dust.length - 1; i >= 0; i--) {
-      const d = travel.dust[i];
-      d.t += dt; d.x += d.vx * dt; d.y += d.vy * dt; d.vy += 14 * dt;
-      if (d.t > d.life) travel.dust.splice(i, 1);
-    }
-    if (travel.t > DRIVE + 0.5) {
-      const m = travel.site.mode;
-      G.lastSite = travel.site.mode;
-      travel = null;
-      Main.setMode(m);
-    }
-  }
-  // The truck, drawn small and driving the leg, nose pointing the way it goes.
-  function drawTravel(g, t) {
-    const k = U.clamp(travel.t / DRIVE, 0, 1);
-    const r = routeOf(travel.from, travel.site);
-    const pt = (u) => {
-      const s2 = Math.sin(u * Math.PI);
-      const dx = r.b.x - r.a.x, dy = r.b.y - r.a.y, L = Math.hypot(dx, dy) || 1;
-      return {
-        x: U.lerp(r.a.x, r.b.x, u) - (dy / L) * s2 * r.bend + Math.sin(u * Math.PI * 3) * 4,
-        y: U.lerp(r.a.y, r.b.y, u) + (dx / L) * s2 * r.bend,
-      };
-    };
-    const u = r.back ? 1 - U.easeInOut(k) : U.easeInOut(k);
-    const p = pt(u), q = pt(U.clamp(u + (r.back ? -0.02 : 0.02), 0, 1));
-    const facing = q.x >= p.x ? 1 : -1;
-    const bounce = Math.abs(Math.sin(travel.t * 15)) * 1.4;
-    // dust off the back wheels
-    if (k < 1 && Math.random() < 0.7) {
-      travel.dust.push({ x: p.x - facing * 8, y: p.y + 3, vx: -facing * U.rand(6, 20), vy: U.rand(-14, -4), t: 0, life: 0.6 + Math.random() * 0.4 });
-    }
-    for (const d of travel.dust) {
-      const a = (1 - d.t / d.life) * 0.5;
-      g.fillStyle = `rgba(150,132,104,${a.toFixed(2)})`;
-      Art.ell(g, d.x, d.y, 2 + d.t * 7, 1.5 + d.t * 5, g.fillStyle);
-    }
-    const img0 = Props.get('truck');
-    const img = facing > 0 ? Art.flip(img0) : img0;
-    const w = img.width * 0.33, h = img.height * 0.33;
-    g.fillStyle = 'rgba(0,0,0,0.4)'; Art.ell(g, p.x, p.y + 3, w * 0.42, 3);
-    g.drawImage(img, Math.round(p.x - w / 2), Math.round(p.y - h + 5 - bounce), Math.round(w), Math.round(h));
-    // headlights, since it is dark out here
-    const hx = p.x + facing * w * 0.5;
-    const beam = g.createRadialGradient(hx, p.y - 3, 2, hx, p.y - 3, 42);
-    beam.addColorStop(0, 'rgba(255,236,176,0.4)');
-    beam.addColorStop(1, 'rgba(255,236,176,0)');
-    g.fillStyle = beam; g.fillRect(hx - 44, p.y - 47, 88, 88);
-    // the name of where it is going, riding along above it
-    if (k < 0.98) {
-      Font.draw(g, travel.site.name.toUpperCase(), p.x, p.y - h - 6 - bounce, {
-        scale: 1, color: '#f5cd5c', align: 'center', shadow: '#120a06', shadowDist: 1,
-      });
-    }
+    Drive.update(dt);
   }
 
   function render(g) {
+    if (Drive.active()) { Drive.render(g); return; }
     const t = G.time;
     g.drawImage(sheetOf(), 0, 0);
-    // paths
-    const byKey = Object.fromEntries(SITES.map((s) => [s.key, s]));
-    for (const [ak, bk, bend] of TRAILS) {
-      const a = byKey[ak], b = byKey[bk];
-      if (a && b && unlocked(a) && unlocked(b)) pathBetween(g, a, b, bend, t);
+    // headlights crawling the highway
+    for (const v of TRAFFIC) {
+      const u = ((v.u + t * v.sp * v.dir) % 1 + 1) % 1;
+      const p = hwyAt(u);
+      const c = v.dir > 0 ? 'rgba(255,232,168,' : 'rgba(255,120,96,';
+      g.fillStyle = c + '0.22)'; Art.ell(g, p.x, p.y, 5, 5);
+      g.fillStyle = c + '0.85)'; g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2);
     }
 
     for (const s of SITES) {
@@ -264,11 +249,11 @@ const Atlas = (() => {
         if (d < 120) cover = Math.max(cover, 1 - d / 120);
       }
       const edge = Math.max(0, 1 - Math.min(x, VW - x, y, VH - y) / 70);
-      const a = Math.max(cover, edge * 0.85);
+      const a = Math.max(cover, edge * 0.5);
       if (a <= 0.02) continue;
       const gr = g.createRadialGradient(x, y, 0, x, y, f.r);
-      gr.addColorStop(0, `rgba(74,66,84,${(0.5 * a).toFixed(3)})`);
-      gr.addColorStop(1, 'rgba(74,66,84,0)');
+      gr.addColorStop(0, `rgba(58,54,70,${(0.42 * a).toFixed(3)})`);
+      gr.addColorStop(1, 'rgba(58,54,70,0)');
       g.fillStyle = gr;
       g.fillRect(x - f.r, y - f.r, f.r * 2, f.r * 2);
     }
@@ -324,22 +309,7 @@ const Atlas = (() => {
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);
 
-    if (travel) drawTravel(g, t);
-    if (travel && travel.t > DRIVE) {
-      const k = U.clamp((travel.t - DRIVE) / 0.5, 0, 1);
-      const s = travel.site;
-      const rad = U.lerp(Math.hypot(VW, VH), 0, U.easeIn(k));
-      g.save();
-      g.fillStyle = '#0b0810';
-      g.beginPath();
-      g.rect(0, 0, VW, VH);
-      g.arc(s.x, s.y, Math.max(0, rad), 0, TAU, true);
-      g.fill('evenodd');
-      g.restore();
-      g.globalAlpha = k * 0.6; g.fillStyle = PAL.gold3;
-      g.beginPath(); g.arc(s.x, s.y, Math.max(0, rad), 0, TAU); g.lineWidth = 3; g.strokeStyle = PAL.gold3; g.stroke();
-      g.globalAlpha = 1;
-    }
+
     FX.drawParticles(g, 0);
   }
 
@@ -355,11 +325,12 @@ const Atlas = (() => {
     g.fillRect(34, 26, 2, 2); g.fillRect(36, 28, 2, 2);
     Font.draw(g, text, 46, 16, { scale: 2, color: '#3c3a35', align: 'left' });
     // compass, top right
-    g.fillStyle = '#ffffff'; g.fillRect(VW - 44, 48, 26, 26);
-    g.fillStyle = '#1c1008'; g.fillRect(VW - 46, 46, 30, 2); g.fillRect(VW - 46, 74, 30, 2);
-    g.fillStyle = '#1c1008'; g.fillRect(VW - 46, 46, 2, 30); g.fillRect(VW - 18, 46, 2, 30);
-    g.fillStyle = '#e04a3c'; Art.poly(g, [[VW - 31, 52], [VW - 27, 62], [VW - 35, 62]], '#e04a3c');
-    g.fillStyle = '#5a5750'; Art.poly(g, [[VW - 31, 70], [VW - 27, 62], [VW - 35, 62]], '#5a5750');
+    const cy3 = VH - 92;
+    g.fillStyle = '#ffffff'; g.fillRect(VW - 44, cy3, 26, 26);
+    g.fillStyle = '#1c1008'; g.fillRect(VW - 46, cy3 - 2, 30, 2); g.fillRect(VW - 46, cy3 + 26, 30, 2);
+    g.fillStyle = '#1c1008'; g.fillRect(VW - 46, cy3 - 2, 2, 30); g.fillRect(VW - 18, cy3 - 2, 2, 30);
+    g.fillStyle = '#e04a3c'; Art.poly(g, [[VW - 31, cy3 + 4], [VW - 27, cy3 + 14], [VW - 35, cy3 + 14]], '#e04a3c');
+    g.fillStyle = '#5a5750'; Art.poly(g, [[VW - 31, cy3 + 22], [VW - 27, cy3 + 14], [VW - 35, cy3 + 14]], '#5a5750');
     // scale bar, bottom right
     g.fillStyle = 'rgba(255,255,255,0.85)'; g.fillRect(VW - 96, VH - 26, 84, 14);
     g.fillStyle = '#3c3a35'; g.fillRect(VW - 90, VH - 16, 60, 2); g.fillRect(VW - 90, VH - 20, 2, 6); g.fillRect(VW - 32, VH - 20, 2, 6);

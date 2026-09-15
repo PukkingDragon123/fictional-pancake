@@ -409,21 +409,39 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     var(--tex-paper2, none) repeat,
     linear-gradient(180deg, var(--pg3), var(--pg3)); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--pg1); }
 .brow img.ico { image-rendering: pixelated; }
-.brow .bn { flex: 1; }
-.brow .bq { color: var(--gd0); }
-.brow .bp { display: flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
-.btotal { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 12px; color: var(--ink);
+.brow.deal { border-left: 7px solid #c02030; }
+.brow .bico { display: flex; }
+.brow .bn { flex: 1; display: flex; flex-direction: column; line-height: 1.25; }
+.brow .bn em { font-style: normal; font-size: 12px; color: var(--pg5); }
+.brow.deal .bn em { color: #a01a28; }
+/* a stepper, so the basket is something you edit rather than empty and refill */
+.brow .bstep { display: flex; align-items: center; gap: 2px; }
+.brow .bstep b { min-width: 22px; text-align: center; font-weight: normal; font-variant-numeric: tabular-nums; }
+.brow .bstep button { width: 22px; height: 22px; font-family: var(--f); font-size: 15px; line-height: 1; cursor: pointer; color: #f4e6c4;
+  background: linear-gradient(180deg, #6a5330, #3f2f18); border: 3px solid var(--ol); box-shadow: inset 0 0 0 1px #8a6c42; }
+.brow .bstep button:active { transform: translateY(1px); }
+.brow .bp { min-width: 54px; text-align: right; font-variant-numeric: tabular-nums; color: #8a5a12; }
+.brow .bx { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  background: linear-gradient(180deg, #7a3a2a, #4a1f14); border: 3px solid var(--ol); }
+.btotal { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; color: var(--ink);
   background:
     radial-gradient(ellipse at 30% 20%, rgba(255,250,225,0.44) 0%, rgba(255,250,225,0) 62%),
     linear-gradient(168deg, rgba(246,234,204,0.4) 0%, rgba(0,0,0,0) 44%, rgba(118,86,52,0.22) 100%),
     var(--tex-paper2, none) repeat,
     linear-gradient(180deg, var(--pg3), var(--pg3)); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px var(--pg1); }
-.btotal b { font-family: var(--ft); font-weight: 700; font-size: 16px; color: #8a5a12; font-weight: normal; font-variant-numeric: tabular-nums; }
-.btotal .dim { margin-left: auto; font-size: 16px; }
+.btotal .tl { font-size: 13px; color: var(--pg5); letter-spacing: 1px; }
+.btotal b { display: flex; align-items: center; gap: 4px; font-size: 21px; color: #8a5a12; font-weight: normal; font-variant-numeric: tabular-nums; }
+.btotal b.over { color: #a01a28; }
+.btotal .wallet { margin-left: auto; font-size: 13px; color: var(--pg5); }
+.btotal .tbar { flex: 0 0 100%; height: 9px; background: #3a2a18; border: 2px solid var(--ol); box-shadow: inset 0 0 0 1px #241708; }
+.btotal .tbar i { display: block; height: 100%; background: linear-gradient(180deg, #a8d878, #6ea83e); transition: width 0.2s ease-out; }
+.btotal .tbar i.over { background: linear-gradient(180deg, #e0705a, #a01a28); }
 .brow2 { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
-.empty2 { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px; color: var(--ink2); }
+.brow2 .act.big { flex: 1; justify-content: center; }
+.empty2 { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px; color: var(--ink2); text-align: center; }
 .empty2 img { image-rendering: pixelated; }
 .empty2 p { margin: 0; font-size: 16px; }
+.empty2 span { font-size: 13px; color: var(--pg5); }
 
 .help ol { padding-left: 22px; font-size: 16px; line-height: 1.75; color: var(--ink); }
 .help li { margin-bottom: 5px; }
@@ -1904,7 +1922,7 @@ const Sprites = (() => {
   // a slight flare, arms that hang and swing, bare hands at the cuffs, and a
   // face you can half see in the shadow of the hood.
   const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 3 };
-  const CW = 40, CH = 76, CX = 20, CGY = 73;   // the extra headroom is the hat
+  const CW = 52, CH = 84, CX = 26, CGY = 81;   // wide enough for the robe, tall enough for the cowl
   // ---- what the face is doing --------------------------------------------
   // One place for every expression the guide can wear, so new dialogue can ask
   // for a mood by name and get eyes and a mouth that match.
@@ -2029,20 +2047,20 @@ const Sprites = (() => {
     // and whatever the hood lets out. Every joint is a point; the robe is hung
     // off them.
     const y0 = bob;
-    const hoodTop = (sit ? 21 : 10) + y0;
+    const hoodTop = (sit ? 22 : 10) + y0;
     const headTop = hoodTop + 4;                // crown of the skull, inside the hood
-    const chin    = headTop + 11;
-    const neckBot = chin + 3;
+    const chin    = headTop + 12;
+    const neckBot = chin + 4;
     const shoulder = neckBot;
-    const chestY  = shoulder + 6;
-    const waist   = shoulder + 14;
-    const hip     = sit ? shoulder + 16 : shoulder + 20;
-    const hem     = (sit ? hip + 12 : CGY - 1) - hemUp;
-    const shW = 10.2;                           // half-width at the shoulders
-    const chW = 10.6;
-    const blW = 11 + flare * 0.2;               // the belly, the widest part
-    const hipW = 10.4;
-    const hemW = 13.6 + flare * 0.9;            // where the robe meets the floor
+    const chestY  = shoulder + 7;
+    const waist   = shoulder + 16;
+    const hip     = sit ? shoulder + 18 : shoulder + 23;
+    const hem     = (sit ? hip + 14 : CGY - 1) - hemUp;
+    const shW = 13;                             // half-width at the shoulders
+    const chW = 14;
+    const blW = 15.4 + flare * 0.25;            // the belly, the widest part by a long way
+    const hipW = 14.6;
+    const hemW = 18.4 + flare * 1.1;            // where the robe meets the floor
 
     // ---- the robe, from the hem up -----------------------------------------
     // Two boots under the hem, and only when he is moving enough to show them.
@@ -2127,10 +2145,14 @@ const Sprites = (() => {
     }
 
     // ---- the mantle over his shoulders, and the sigil on it -----------------
+    Art.ell(g, CX - shW - 0.4, shoulder + 2, 5.6, 4.6, ROBE0);             // the shoulders under it
+    Art.ell(g, CX + shW + 0.4, shoulder + 2, 5.6, 4.6, ROBE0);
     Art.poly(g, [[CX - shW - 2.6, shoulder - 1], [CX + shW + 2.6, shoulder - 1],
                  [CX + shW + 1.4, chestY + 4], [CX, chestY + 8], [CX - shW - 1.4, chestY + 4]], ROBE0);
     Art.poly(g, [[CX - shW - 1.8, shoulder - 0.2], [CX + shW + 1.8, shoulder - 0.2],
                  [CX + shW + 0.8, chestY + 3], [CX, chestY + 6.6], [CX - shW - 0.8, chestY + 3]], ROBE2);
+    Art.ell(g, CX - shW + 0.6, shoulder + 1.6, 5, 3.8, ROBE3);             // light catching each shoulder
+    Art.ell(g, CX + shW - 0.6, shoulder + 1.8, 4.4, 3.4, ROBE1);
     Art.poly(g, [[CX - shW - 1.8, shoulder - 0.2], [CX - 3, shoulder - 0.2],
                  [CX - 4, chestY + 5], [CX - shW - 0.8, chestY + 3]], ROBE3);
     for (let i = 0; i < 9; i++) {                                          // a scalloped edge
@@ -2156,51 +2178,57 @@ const Sprites = (() => {
     // A wombat's head worn as a hood. It is drawn from the back forward: the
     // dome, then the dark it makes, then whatever is burning in the dark, then
     // the snout pulled down over the top of the opening as a brim.
-    const hx = view === 'quarter' ? CX + 1.6 : CX;
-    const domeY = hoodTop + 2;
-    const faceY = domeY + 5.4;
+    // Mood is carried by how he holds his head: FACES is still the table, but
+    // the brow value tips the cowl and the eye shape sets how far it is pulled
+    // down over the opening.
+    const mood = FACES[hurt > 0 ? 'shock' : pose === 'cast' ? 'proud' : pose === 'sleep' ? 'tired' : faceMood] || FACES.idle;
+    const tip = U.clamp(mood.brow, -1, 1);
+    const hx = (view === 'quarter' ? CX + 1.6 : CX) + tip * 0.9;
+    const domeY = hoodTop + 3 - tip * 1.2 + (mood.eye === 'shut' ? 1.4 : 0);
+    const faceY = domeY + 3.8;
     for (const s2 of [-1, 1]) {                                            // ears, pricked
-      const ex2 = hx + s2 * 7.6, ey2 = domeY - 4.6;
-      Art.ell(g, ex2, ey2, 4, 4.3, ROBE0);
-      Art.ell(g, ex2, ey2, 3.1, 3.3, FUR1);
-      Art.ell(g, ex2 - s2 * 0.4, ey2 + 0.4, 1.6, 1.7, '#2a1a12');
-      Art.ell(g, ex2 - s2 * 0.8, ey2 - 1.2, 1.1, 1, FUR2);
+      const ex2 = hx + s2 * 9.2, ey2 = domeY - 5.6;
+      Art.ell(g, ex2, ey2, 4.8, 5.2, ROBE0);
+      Art.ell(g, ex2, ey2, 3.8, 4, FUR1);
+      Art.ell(g, ex2 - s2 * 0.5, ey2 + 0.5, 2, 2.1, '#2a1a12');
+      Art.ell(g, ex2 - s2 * 1, ey2 - 1.4, 1.3, 1.2, FUR2);
     }
-    Art.ell(g, hx, domeY + 1.4, 9.6, 9, ROBE0);                            // the cowl
-    Art.ell(g, hx, domeY + 0.6, 8.8, 8, FUR0);
-    Art.ell(g, hx - 2.8, domeY - 3.4, 4.4, 3, FUR1);                       // light on the crown
-    Art.ell(g, hx - 3.8, domeY - 4.2, 2.2, 1.2, FUR2);
-    Art.speckle(g, hx, domeY - 1, 8.2, 6, FUR1, 20, 91);                   // coarse fur
+    Art.ell(g, hx, domeY + 1.8, 11.8, 11, ROBE0);                          // the cowl
+    Art.ell(g, hx, domeY + 0.8, 10.9, 9.9, FUR0);
+    Art.ell(g, hx - 3.4, domeY - 4.2, 5.4, 3.6, FUR1);                     // light on the crown
+    Art.ell(g, hx - 4.6, domeY - 5.2, 2.7, 1.5, FUR2);
+    Art.speckle(g, hx, domeY - 1.2, 10, 7.4, FUR1, 26, 91);                // coarse fur
+    // the muzzle, high on the face where a wombat's is
+    Art.ell(g, hx, domeY - 2.4, 5.4, 3.6, ROBE0);
+    Art.ell(g, hx, domeY - 2.8, 4.6, 2.9, FUR0);
+    Art.ell(g, hx - 1.6, domeY - 3.8, 2, 1.1, FUR1);
+    Art.ell(g, hx, domeY - 1.4, 2.4, 1.5, '#100a12');                      // the nose
+    Art.ell(g, hx - 0.9, domeY - 1.9, 1, 0.6, '#3a2c34');
     if (view === 'back') {
-      Art.ell(g, hx, domeY + 3, 6, 5, FUR0);
-      Art.ell(g, hx, domeY + 3, 5, 4, ROBE1);
+      Art.ell(g, hx, domeY + 4, 7, 6, FUR0);
+      Art.ell(g, hx, domeY + 4, 6, 5, ROBE1);
     } else {
-      // the opening: nothing in there but shadow
-      Art.ell(g, hx, faceY, 6.4, 6.2, '#0d0812');
-      Art.ell(g, hx, faceY + 0.4, 5.6, 5.4, VOID);
-      // a beard finding its way out of the dark
-      Art.ell(g, hx, faceY + 5.6, 4.2, 3.2, '#231a10');
-      Art.ell(g, hx, faceY + 6, 3.4, 2.6, '#3f3018');
-      Art.ell(g, hx - 1.2, faceY + 5.8, 1.7, 1.4, BRD0);
-      for (let i = -2; i <= 2; i++) Art.rect(g, hx + i * 1.7, faceY + 7.8, 1, 1.2 + (i % 2 ? 0.8 : 0), '#231a10');
-      expressions(g, hx, faceY - 1.4, pose, f, hurt);
-      Art.ellBand(g, hx, faceY - 0.6, 6.8, 6.6, 'rgba(5,3,9,0.8)', 0, 0.18);
+      // The opening: a hole cut in the front of the head. There is nothing in
+      // it. Whatever mood he is in comes out of the set of his shoulders and
+      // the tilt of the hood, because there is no face under there to read.
+      Art.ell(g, hx, faceY, 8.4, 7.2, FUR0);                               // the fur rim
+      Art.ell(g, hx, faceY + 0.3, 7.6, 6.5, ROBE0);
+      Art.ell(g, hx, faceY + 0.6, 6.8, 5.8, '#0a0610');
+      Art.ell(g, hx, faceY + 0.9, 6, 5.1, VOID);
+      Art.ell(g, hx, faceY + 1.4, 4.8, 3.9, '#000000');
+      // one faint ring of light caught on the lip of it, and no more
+      Art.ellBand(g, hx, faceY - 0.2, 8, 6.9, 'rgba(112,78,48,0.55)', 0.4, 0.62);
+      Art.ellBand(g, hx, faceY, 8.2, 7, 'rgba(48,32,20,0.6)', 0.86, 1);
     }
-    // the snout, hanging over the brow like the peak of a cap
-    Art.ell(g, hx, domeY + 1.6, 5, 3.2, ROBE0);
-    Art.ell(g, hx, domeY + 1.3, 4.3, 2.5, FUR0);
-    Art.ell(g, hx - 1.4, domeY + 0.5, 1.8, 1, FUR1);
-    Art.ell(g, hx, domeY + 2.5, 2.1, 1.3, '#100a12');                      // the nose
-    Art.ell(g, hx - 0.8, domeY + 2.1, 0.9, 0.5, '#3a2c34');
     // the sides of the cowl, closing in on the opening
     for (const s2 of [-1, 1]) {
-      Art.ell(g, hx + s2 * 7, faceY - 0.4, 3.2, 6, ROBE0);
-      Art.ell(g, hx + s2 * 7.2, faceY - 0.8, 2.5, 5.2, FUR0);
-      Art.ell(g, hx + s2 * 7.4, faceY - 2.4, 1.2, 2, FUR1);
+      Art.ell(g, hx + s2 * 9.4, faceY - 1.4, 3, 6.2, ROBE0);
+      Art.ell(g, hx + s2 * 9.6, faceY - 1.8, 2.3, 5.4, FUR0);
+      Art.ell(g, hx + s2 * 9.8, faceY - 3.6, 1.2, 2.2, FUR1);
     }
     // two teeth of the skull hanging either side, on cords
     for (const s2 of [-1, 1]) {
-      const tx2 = hx + s2 * 9, ty2 = faceY + 2.4;
+      const tx2 = hx + s2 * 10.4, ty2 = faceY + 2.6;
       Art.rect(g, tx2 - 0.4, ty2 - 3, 0.8, 3.4, '#6a5a3a');
       Art.poly(g, [[tx2 - 1.4, ty2 + 0.4], [tx2 + 1.4, ty2 + 0.4], [tx2, ty2 + 4.4]], '#d8cfae');
       Art.poly(g, [[tx2 - 0.8, ty2 + 0.8], [tx2 + 0.2, ty2 + 0.8], [tx2 - 0.2, ty2 + 3]], '#f2ead0');
@@ -2227,6 +2255,148 @@ const Sprites = (() => {
       }
     }
     g.restore();
+    Art.outline(c, '#0a0810', 1);
+    cache.set(key, c);
+    return c;
+  }
+
+  // ---- Shaz, on the till ---------------------------------------------------
+  // A woman in her fifties who has worked here nineteen years and has never
+  // once stopped talking about wombats. Seen from the counter up: polo shirt,
+  // apron, a lanyard she has covered in enamel pins, and a mug.
+  const KW = 72, KH = 84;
+  function cashier(frame, pose = 'idle') {
+    const n = { idle: 4, talk: 6, happy: 4, wave: 6 }[pose] || 4;
+    const f = ((frame % n) + n) % n, t = f / n;
+    const key = `shaz:${f}:${pose}`;
+    let img = cache.get(key); if (img) return img;
+    const { c, g } = Art.cv(KW, KH);
+    const S = Math.sin(t * TAU);
+    const CXK = 36;
+    const SK0 = '#a87050', SK1 = '#d09a72', SK2 = '#e8bb92', SK3 = '#f7dcbc';
+    const HAIR0 = '#4a4650', HAIR1 = '#6f6a76', HAIR2 = '#9a95a2', HAIR3 = '#c4c0ca';
+    const POLO0 = '#14421f', POLO1 = '#1e6330', POLO2 = '#2f8f42', POLO3 = '#5fc46c';
+    const APR0 = '#7a2a12', APR1 = '#a83f1c', APR2 = '#d0632c';
+    const INK = '#1a1620';
+    let bob = 0, lean = 0, armR = 0, mouth = 'flat', brow = 0;
+    switch (pose) {
+      case 'idle': bob = [0, 0, 1, 0][f]; mouth = f === 2 ? 'small' : 'flat'; break;
+      case 'talk': bob = [0, 1, 0, 1, 0, 1][f]; mouth = ['open', 'wide', 'small', 'open', 'wide', 'flat'][f];
+        lean = S * 0.6; armR = -2 - Math.abs(S) * 3; brow = 0.4; break;
+      case 'happy': bob = [0, 1, 2, 1][f]; mouth = 'grin'; brow = 0.6; armR = -4; break;
+      case 'wave': bob = [0, 1, 1, 0, 1, 1][f]; mouth = 'grin'; brow = 0.5;
+        armR = -12 - Math.abs(Math.sin(t * TAU * 2)) * 4; break;
+    }
+    const y0 = -bob;
+    const shoulder = 40 + y0, chestY = shoulder + 10, waist = shoulder + 26;
+    const headY = shoulder - 16 + y0 * 0, faceY = headY;
+    // ---- the apron and the body ------------------------------------------
+    Art.poly(g, [[CXK - 22, shoulder], [CXK + 22, shoulder], [CXK + 26, waist + 16], [CXK - 26, waist + 16]], POLO0);
+    Art.poly(g, [[CXK - 20, shoulder + 1], [CXK + 20, shoulder + 1], [CXK + 24, waist + 16], [CXK - 24, waist + 16]], POLO1);
+    Art.poly(g, [[CXK - 20, shoulder + 1], [CXK - 6, shoulder + 1], [CXK - 10, waist + 16], [CXK - 24, waist + 16]], POLO2);
+    Art.rect(g, CXK - 21, shoulder + 1, 2, waist + 14 - shoulder, POLO3);
+    // the collar
+    Art.poly(g, [[CXK - 9, shoulder - 1], [CXK, shoulder + 7], [CXK + 9, shoulder - 1], [CXK + 5, shoulder - 4], [CXK - 5, shoulder - 4]], POLO0);
+    Art.poly(g, [[CXK - 7, shoulder - 1], [CXK, shoulder + 5], [CXK + 7, shoulder - 1]], SK1);
+    // the apron over the front of it
+    Art.poly(g, [[CXK - 15, chestY], [CXK + 15, chestY], [CXK + 20, waist + 16], [CXK - 20, waist + 16]], APR0);
+    Art.poly(g, [[CXK - 14, chestY + 1], [CXK + 14, chestY + 1], [CXK + 19, waist + 16], [CXK - 19, waist + 16]], APR1);
+    Art.poly(g, [[CXK - 14, chestY + 1], [CXK - 5, chestY + 1], [CXK - 9, waist + 16], [CXK - 19, waist + 16]], APR2);
+    Art.rect(g, CXK - 15, chestY, 30, 2, APR0);
+    for (const sd of [-1, 1]) Art.limb(g, CXK + sd * 7, chestY, CXK + sd * 16, shoulder + 1, 2.4, 1.8, APR1);
+    Art.rect(g, CXK - 11, waist + 2, 22, 9, APR0);                      // the pouch
+    Art.rect(g, CXK - 11, waist + 2, 22, 1.6, APR2);
+    Art.rect(g, CXK - 6, waist + 4, 3, 6, '#d8d2c2');                   // a pen and a docket in it
+    Art.rect(g, CXK + 2, waist + 3, 6, 7, '#fffdf0');
+    // ---- the lanyard, and the pins she has covered it with ---------------
+    for (const sd of [-1, 1]) Art.limb(g, CXK + sd * 6, shoulder + 2, CXK + sd * 2, chestY + 6, 2, 1.6, '#2a3a46');
+    Art.rect(g, CXK - 3, chestY + 5, 7, 9, '#1d2230');                  // the badge itself
+    Art.rect(g, CXK - 2, chestY + 6, 5, 7, '#fffdf0');
+    Art.rect(g, CXK - 2, chestY + 6, 5, 2, '#c9581f');
+    const PINS = ['#d8b23a', '#b8496a', '#2f6f9f', '#8a6a3a', '#7a4f9a'];
+    for (let i = 0; i < 5; i++) {
+      const px = CXK - 14 + (i % 3) * 5, py = chestY + 2 + Math.floor(i / 3) * 5;
+      Art.ell(g, px, py, 2.4, 2.4, '#1a1620');
+      Art.ell(g, px, py, 1.8, 1.8, PINS[i]);
+      Art.ell(g, px - 0.5, py - 0.5, 0.8, 0.6, '#fff8e0');
+    }
+    // a small wombat embroidered on the polo, because of course
+    Art.ell(g, CXK + 12, chestY + 4, 4, 2.8, POLO3);
+    Art.ell(g, CXK + 15, chestY + 2.6, 2.4, 2.2, POLO3);
+    Art.rect(g, CXK + 14, chestY + 0.6, 1, 1.2, POLO3);
+    Art.rect(g, CXK + 16.4, chestY + 0.6, 1, 1.2, POLO3);
+    Art.rect(g, CXK + 15.6, chestY + 2.4, 0.8, 0.8, POLO0);
+    // ---- arms: one on the counter, one doing whatever she is saying -------
+    Art.limb(g, CXK - 19, shoulder + 4, CXK - 26, waist + 12, 7, 5.4, POLO1);
+    Art.limb(g, CXK - 20, shoulder + 4, CXK - 26, waist + 10, 4, 3, POLO2);
+    Art.ell(g, CXK - 27, waist + 14, 4, 3.4, SK0);
+    Art.ell(g, CXK - 27, waist + 13, 3.2, 2.8, SK1);
+    const ex = CXK + 22, ey = waist + 10 + armR;
+    Art.limb(g, CXK + 19, shoulder + 4, ex, ey, 7, 5.4, POLO0);
+    Art.limb(g, CXK + 20, shoulder + 4, ex, ey, 4.4, 3.2, POLO1);
+    Art.ell(g, ex + 1, ey + 4, 4.2, 3.6, SK0);
+    Art.ell(g, ex + 1, ey + 3.4, 3.4, 2.9, SK1);
+    for (let k = 0; k < 3; k++) Art.rect(g, ex - 1.4 + k * 1.8, ey + 5.4, 1.2, 1.8, SK0);
+    // ---- neck and head ----------------------------------------------------
+    const hx = CXK + lean;
+    Art.limb(g, hx, faceY + 10, hx, shoulder + 2, 5, 6, SK0);
+    Art.ell(g, hx, shoulder + 1, 6, 2.2, '#8a5a40');
+    Art.ell(g, hx, faceY + 12, 9.6, 6, SK0);                            // the jaw
+    Art.ell(g, hx, faceY + 6, 10.5, 11.5, SK0);                         // the skull
+    Art.ell(g, hx - 0.4, faceY + 5.6, 9.6, 10.6, SK1);
+    Art.ell(g, hx - 4, faceY + 2.4, 4.4, 4, SK2);                       // the lit temple
+    Art.ell(g, hx + 5, faceY + 4.4, 3, 3.4, SK1);
+    Art.ell(g, hx, faceY + 8, 2.6, 2.2, SK2);                           // the nose
+    Art.rect(g, hx - 1, faceY + 5.6, 2, 3.2, SK2);
+    Art.ell(g, hx - 10.4, faceY + 7, 2.4, 3, SK0);                      // ears, with studs in
+    Art.ell(g, hx + 10.4, faceY + 7, 2.4, 3, SK0);
+    Art.ell(g, hx - 10.4, faceY + 9.6, 1.1, 1.1, '#d8b23a');
+    Art.ell(g, hx + 10.4, faceY + 9.6, 1.1, 1.1, '#d8b23a');
+    // the hair: greying, pinned up, with a strand escaping
+    Art.ell(g, hx, faceY + 0.6, 11.4, 8.4, HAIR0);
+    Art.ell(g, hx - 0.6, faceY - 0.4, 10.4, 7.4, HAIR1);
+    Art.ell(g, hx - 4, faceY - 2.2, 5, 3.4, HAIR2);
+    Art.ell(g, hx - 5, faceY - 3, 2.4, 1.4, HAIR3);
+    Art.ell(g, hx + 2, faceY - 7.6, 6, 5, HAIR0);                       // the bun
+    Art.ell(g, hx + 2, faceY - 7.8, 5, 4, HAIR1);
+    Art.ell(g, hx + 0.6, faceY - 9, 2.4, 1.6, HAIR2);
+    Art.rect(g, hx + 4.4, faceY - 7.6, 5, 1.4, '#d8b23a');              // a clip through the bun
+    Art.limb(g, hx - 9.4, faceY + 0.6, hx - 11.6, faceY + 9, 2, 1.2, HAIR1);
+    Art.ell(g, hx - 10.6, faceY + 2.6, 2.6, 4.6, HAIR0);
+    Art.ell(g, hx + 10, faceY + 2.6, 2.4, 4.4, HAIR0);
+    // the glasses, on a chain
+    for (const sd of [-1, 1]) {
+      Art.ell(g, hx + sd * 4.4, faceY + 4.4, 4, 3.6, '#2a3038');
+      Art.ell(g, hx + sd * 4.4, faceY + 4.4, 3.2, 2.9, '#cfe2ea');
+    }
+    Art.rect(g, hx - 1.2, faceY + 4, 2.4, 1.2, '#2a3038');
+    Art.rect(g, hx - 10.4, faceY + 3.6, 2.6, 1.2, '#2a3038');
+    Art.rect(g, hx + 7.8, faceY + 3.6, 2.6, 1.2, '#2a3038');
+    for (const sd of [-1, 1]) Art.limb(g, hx + sd * 9.4, faceY + 6, hx + sd * 11.4, faceY + 12, 1, 0.8, '#8a95a0');
+    // the eyes behind them, and the brows over the top
+    for (const sd of [-1, 1]) {
+      const exx = hx + sd * 4.4;
+      if (pose === 'happy' || pose === 'wave') {
+        Art.poly(g, [[exx - 2.4, faceY + 5.4], [exx, faceY + 3], [exx + 2.4, faceY + 5.4], [exx, faceY + 4.4]], INK);
+      } else {
+        Art.ell(g, exx, faceY + 4.4, 1.8, 1.8, '#fdf6ea');
+        Art.ell(g, exx + sd * 0.3, faceY + 4.6, 1.1, 1.2, INK);
+        Art.rect(g, exx - 0.7, faceY + 3.6, 0.7, 0.7, '#fdf6ea');
+      }
+      Art.poly(g, [[exx - 3, faceY + 0.6 - brow * sd * 0.6], [exx + 3, faceY + 0.6 + brow * sd * 0.6],
+                   [exx + 3, faceY + 2 + brow * sd * 0.6], [exx - 3, faceY + 2 - brow * sd * 0.6]], HAIR0);
+    }
+    // the mouth, always going
+    const my = faceY + 11;
+    if (mouth === 'open') { Art.ell(g, hx, my, 2.6, 2.4, '#5a2430'); Art.ell(g, hx, my - 0.8, 2, 1, '#fdf6ea'); }
+    else if (mouth === 'wide') { Art.ell(g, hx, my, 3.4, 3, '#5a2430'); Art.ell(g, hx, my - 1, 2.6, 1.1, '#fdf6ea'); Art.ell(g, hx, my + 1.8, 1.8, 0.9, '#c2607a'); }
+    else if (mouth === 'grin') {
+      Art.poly(g, [[hx - 4, my - 1.4], [hx + 4, my - 1.4], [hx + 2.6, my + 2.2], [hx - 2.6, my + 2.2]], '#5a2430');
+      Art.rect(g, hx - 3.4, my - 1.2, 6.8, 1.4, '#fdf6ea');
+    } else if (mouth === 'small') { Art.ell(g, hx, my, 1.6, 1.4, '#5a2430'); }
+    else { Art.rect(g, hx - 2.6, my - 0.4, 5.2, 1.2, '#8a4048'); }
+    Art.ell(g, hx - 5.4, my - 1, 2.2, 1.4, 'rgba(198,110,120,0.35)');    // a bit of colour
+    Art.ell(g, hx + 5.4, my - 1, 2.2, 1.4, 'rgba(198,110,120,0.35)');
     Art.outline(c, '#0a0810', 1);
     cache.set(key, c);
     return c;
@@ -2613,7 +2783,7 @@ const Sprites = (() => {
     }
   }
 
-  return { S, AGE, POSES, CULT_POSES, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
+  return { S, AGE, POSES, CULT_POSES, KW, KH, cashier, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
 })();
 </script>
 
@@ -2633,6 +2803,18 @@ const Props = (() => {
     Art.topLight(o.c, 'rgba(255,244,214,0.3)', 2);
     Art.underShade(o.c, 'rgba(18,12,24,0.3)', 2);
     Art.outline(o.c, '#0a0810', 1);                 // everything wears the same black line
+    cache.set(key, o.c);
+    return o.c;
+  }
+  // Hard-edged, hand-shaded props (the truck) skip the automatic pass: its
+  // dithered top light lands as a dashed line along every straight edge, which
+  // reads as a texture bug on anything mechanical.
+  function cachedFlat(key, w, h, draw) {
+    let c = cache.get(key);
+    if (c) return c;
+    const o = Art.cv(w, h);
+    draw(o.g, w, h);
+    Art.outline(o.c, '#0a0810', 1);
     cache.set(key, o.c);
     return o.c;
   }
@@ -3120,10 +3302,11 @@ const Props = (() => {
     // --- the roof rack load, and a snorkel up the A pillar ---
     Art.rect(g, 46, y0 - 44, 3, 18, TRIM);
     Art.rect(g, 46, y0 - 44, 1, 18, CHR);
-    Art.outline(g.canvas, '#100d16', 1);
+    // No outline pass here: cached() already lays one black line round the
+    // whole prop, and a second one stipples every interior edge.
   }
-  P.truck = () => cached('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: true }));
-  P.fortuner = (spec) => cached('fortuner:' + spec, 140, 78, (g) => fortuner(g, 140, 78, { open: spec === 'open' }));
+  P.truck = () => cachedFlat('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: true }));
+  P.fortuner = (spec) => cachedFlat('fortuner:' + spec, 140, 78, (g) => fortuner(g, 140, 78, { open: spec === 'open' }));
 
   P.crate = () => cached('crate', 22, 20, (g) => {
     Art.rect(g, 1, 3, 20, 16, PAL.bark2);
@@ -6867,6 +7050,251 @@ const Ritual = (() => {
 </script>
 
 <script>
+// ===== js/drive.js =====
+// ---- The drive: the road between one place and the next --------------------
+// Every journey on the map is actually driven. The same scene serves the
+// opening (the long haul in from the airport) and every hop between sites:
+// parallax ranks of the grove's own trees, power lines, a sign coming up with
+// the distance on it, oncoming traffic, and the Fortuner bouncing along in
+// front of it all.
+const Drive = (() => {
+  const VW = 640, VH = 360;
+  const ROAD = 288, HORIZON = 250;
+  let run = null;
+
+  // the only thing the caller has to decide is where to and how long for
+  function start(o) {
+    run = {
+      t: 0, dur: o.dur || 3.2, to: (o.to || '').toUpperCase(), from: (o.from || '').toUpperCase(),
+      km: o.km || 12, sub: o.sub || '', onDone: o.onDone || null, done: false,
+      fade: o.fade !== false, title: o.title || '',
+      cars: [], dust: [],
+    };
+    Audio.play('whoosh');
+  }
+  function stop() { run = null; }
+  const active = () => !!run;
+  const progress = () => (run ? U.clamp(run.t / run.dur, 0, 1) : 0);
+
+  function update(dt) {
+    if (!run) return;
+    run.t += dt;
+    // something coming the other way, now and then
+    if (run.cars.length < 2 && Math.random() < dt * 0.55 && progress() < 0.8) {
+      run.cars.push({ x: VW + 140, sp: 230 + Math.random() * 150, lane: Math.random() < 0.5 ? 0 : 1,
+        col: U.pick(['#7a4030', '#3f5a3a', '#6a5a2a', '#4a3a5a', '#6a6a6a']) });
+    }
+    for (let i = run.cars.length - 1; i >= 0; i--) {
+      const c = run.cars[i]; c.x -= c.sp * dt;
+      if (c.x < -180) run.cars.splice(i, 1);
+    }
+    for (let i = run.dust.length - 1; i >= 0; i--) {
+      const d = run.dust[i]; d.t += dt; d.x += d.vx * dt; d.y += d.vy * dt;
+      if (d.t > d.life) run.dust.splice(i, 1);
+    }
+    if (!run.done && run.t >= run.dur + 0.55) {
+      run.done = true;
+      const f = run.onDone; run = null;
+      if (f) f();
+    }
+  }
+
+  // ---- the scene -----------------------------------------------------------
+  function render(g) { if (run) paint(g, run); }
+  // The scene, given nothing but a state object: the intro drives the same road.
+  function paint(g, run) {
+    const t = run.t, k = U.clamp(run.t / run.dur, 0, 1);
+    const sp = t * 128;
+    // ---- sky: dusk going over to night as the drive goes on ---------------
+    const night = U.clamp(k * 1.15, 0, 1);
+    const sky = g.createLinearGradient(0, 0, 0, HORIZON + 20);
+    sky.addColorStop(0, U.mix('#3e2b62', '#0b0a1e', night));
+    sky.addColorStop(0.52, U.mix('#9a5f7a', '#221a3e', night));
+    sky.addColorStop(1, U.mix('#f0b070', '#4a3358', night));
+    g.fillStyle = sky; g.fillRect(0, 0, VW, HORIZON + 20);
+    // stars coming out behind it
+    if (night > 0.25) {
+      g.fillStyle = `rgba(255,248,224,${((night - 0.25) * 0.9).toFixed(2)})`;
+      for (let i = 0; i < 60; i++) {
+        const sx = (i * 149) % VW, sy = (i * 73) % 180;
+        if ((i * 37) % 5 === 0 && Math.sin(t * 3 + i) < 0) continue;
+        g.fillRect(sx, sy, 2, 2);
+      }
+    }
+    // the sun going down, becoming the moon
+    const sunY = 172 + night * 26;
+    g.globalAlpha = 0.24;
+    g.fillStyle = U.mix('#ffd9a0', '#cfe4f2', night);
+    Art.ell(g, 470, sunY, 52, 52, g.fillStyle);
+    g.globalAlpha = 1;
+    g.fillStyle = U.mix('#ffd9a0', '#dcecf6', night);
+    Art.ell(g, 470, sunY, 32, 32, g.fillStyle);
+    if (night > 0.5) {
+      g.fillStyle = 'rgba(150,178,196,0.5)';
+      Art.ell(g, 478, sunY - 9, 7, 7); Art.ell(g, 460, sunY + 8, 5, 5);
+    }
+    // ---- a mountain range, then the hills, then the ridge -----------------
+    const mts = U.mix('#4a3a66', '#1a1630', night);
+    for (let i = 0; i < 7; i++) {
+      const mx = ((i * 190 - sp * 0.02) % (VW + 400) + VW + 400) % (VW + 400) - 200;
+      Art.poly(g, [[mx - 110, HORIZON - 12], [mx - 30, 150 + (i % 3) * 16], [mx + 20, 178],
+                   [mx + 60, 142 + (i % 2) * 22], [mx + 130, HORIZON - 12]], mts);
+      Art.poly(g, [[mx - 30, 150 + (i % 3) * 16], [mx - 8, 170], [mx + 6, 163]],
+        U.mix('#8d7ea8', '#3a3254', night));
+    }
+    const hill = U.mix('#5b4a72', '#1f1a34', night);
+    for (let i = 0; i < 9; i++) { const hx = ((i * 120 - sp * 0.06) % (VW + 260) + VW + 260) % (VW + 260) - 130; Art.ell(g, hx, 224, 110, 44, hill); }
+    g.fillStyle = hill; g.fillRect(0, 220, VW, 70);
+    g.fillStyle = U.mix('#4d3e62', '#191430', night); g.fillRect(0, 246, VW, 44);
+    g.fillStyle = U.mix('#3f3352', '#140f28', night); g.fillRect(0, 266, VW, 24);
+    // ---- power lines, striding along the far verge ------------------------
+    for (let i = 0; i < 5; i++) {
+      const px = ((i * 170 - sp * 0.42) % (VW + 340) + VW + 340) % (VW + 340) - 170;
+      const pole = U.mix('#2e2438', '#120e20', night);
+      g.fillStyle = pole; g.fillRect(px, 176, 4, 82);
+      g.fillStyle = pole; g.fillRect(px - 12, 182, 28, 3); g.fillRect(px - 9, 192, 22, 3);
+      for (const [o, y0] of [[-11, 184], [13, 184], [-8, 194], [11, 194]]) {
+        g.strokeStyle = `rgba(30,24,44,${(0.5 + night * 0.4).toFixed(2)})`;
+        g.lineWidth = 1; g.beginPath();
+        g.moveTo(px + o, y0); g.quadraticCurveTo(px + o + 85, y0 + 14, px + o + 170, y0); g.stroke();
+      }
+    }
+    // ---- three ranks of the grove's own trees -----------------------------
+    const RANKS = [[0.22, 254, 0.5, 0.62], [0.5, 272, 0.72, 0.74], [1.0, 292, 1, 0.84]];
+    RANKS.forEach(([rate, yy, sc, sh], ri) => {
+      const n = 9 + ri * 3;
+      for (let i = 0; i < n; i++) {
+        const span = VW + 340;
+        const x = ((i * (span / n) - sp * rate) % span + span) % span - 170;
+        const kind = ['gnarl', 'oak', 'pine', 'birch'][(i + ri) % 4];
+        const img = Props.get('tree', `${kind}|${(i * 3 + ri) % 6}|${Math.min(0.94, sh + night * 0.08).toFixed(2)}`);
+        const w = img.width * sc, h = img.height * sc;
+        g.drawImage(img, Math.round(x - w / 2), Math.round(yy - h), Math.round(w), Math.round(h));
+      }
+    });
+    // a post-and-wire fence between the trees and the road
+    for (let i = 0; i < 16; i++) {
+      const x = ((i * 64 - sp * 1.3) % (VW + 140) + VW + 140) % (VW + 140) - 70;
+      g.fillStyle = '#2a2018'; g.fillRect(x, 276, 3, 18);
+      g.fillStyle = '#463726'; g.fillRect(x, 276, 1.4, 18);
+    }
+    g.fillStyle = 'rgba(70,55,38,0.8)'; g.fillRect(0, 280, VW, 1); g.fillRect(0, 287, VW, 1);
+    // the same scrub that chokes the grove, growing along the verge
+    for (let i = 0; i < 18; i++) {
+      const x = ((i * 60 - sp * 1.5) % (VW + 140) + VW + 140) % (VW + 140) - 70;
+      const img = Props.get('weed', i % 6);
+      const sc = 0.62 + (i % 3) * 0.1;
+      g.drawImage(img, Math.round(x - img.width * sc / 2), Math.round(298 - img.height * sc),
+                  Math.round(img.width * sc), Math.round(img.height * sc));
+    }
+    // ---- the road ---------------------------------------------------------
+    g.fillStyle = '#3a352f'; g.fillRect(0, ROAD, VW, VH - ROAD);
+    g.fillStyle = '#4a443c'; g.fillRect(0, ROAD, VW, 5);
+    g.fillStyle = '#2a251f'; g.fillRect(0, 340, VW, 20);
+    for (let i = 0; i < 14; i++) { const dx = ((i * 64 - sp * 2.2) % (VW + 80) + VW + 80) % (VW + 80) - 40; g.fillStyle = '#e8dfa8'; g.fillRect(dx, 318, 30, 4); }
+    for (let i = 0; i < 40; i++) { const dx = ((i * 31 - sp * 2.4) % VW + VW) % VW; g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(dx, 296 + (i * 13) % 40, 9, 2); }
+    g.fillStyle = 'rgba(232,223,168,0.5)'; g.fillRect(0, 300, VW, 2); g.fillRect(0, 336, VW, 2);
+    // roadside marker posts, flicking past
+    for (let i = 0; i < 4; i++) {
+      const x = ((i * 240 - sp * 2.1) % (VW + 240) + VW + 240) % (VW + 240) - 120;
+      g.fillStyle = '#1a120c'; g.fillRect(x, 276, 5, 20);
+      g.fillStyle = '#cfc4a8'; g.fillRect(x + 1, 277, 3, 18);
+      g.fillStyle = '#e04a36'; g.fillRect(x + 1, 279, 3, 4);
+    }
+    // ---- oncoming traffic, headlights first -------------------------------
+    for (const c of run.cars) {
+      const y = 300 + c.lane * 6, sc = 0.34 + c.lane * 0.08;
+      // coming the other way, and not all of them are this one's colour
+      const img = Art.flip(Art.tinted(Props.get('truck'), c.col, 0.45));
+      const w = img.width * sc, h = img.height * sc;
+      const beam = g.createRadialGradient(c.x - w * 0.4, y - 4, 2, c.x - w * 0.4, y - 4, 54);
+      beam.addColorStop(0, `rgba(255,240,196,${(0.18 + night * 0.3).toFixed(2)})`); beam.addColorStop(1, 'rgba(255,240,196,0)');
+      g.fillStyle = beam; g.fillRect(c.x - w * 0.4 - 56, y - 60, 112, 112);
+      g.fillStyle = 'rgba(0,0,0,0.3)'; Art.ell(g, c.x, y + 3, w * 0.42, 3);
+      g.drawImage(img, Math.round(c.x - w / 2), Math.round(y - h + 6), Math.round(w), Math.round(h));
+    }
+    // ---- the sign coming up, with the distance on it ----------------------
+    const sx = VW + 80 - k * (VW + 280);
+    if (sx > -140 && sx < VW + 80) {
+      g.fillStyle = '#2a1e10'; g.fillRect(sx + 30, 232, 7, 62);
+      g.fillStyle = '#3a2a18'; g.fillRect(sx + 31, 232, 3, 62);
+      g.fillStyle = '#12180f'; g.fillRect(sx - 6, 186, 92, 50);
+      g.fillStyle = '#1f6b34'; g.fillRect(sx - 2, 190, 84, 42);
+      g.fillStyle = '#2f8a44'; g.fillRect(sx - 2, 190, 84, 2);
+      g.fillStyle = '#e8f4ea'; g.fillRect(sx + 2, 194, 76, 1);
+      g.fillRect(sx + 2, 227, 76, 1); g.fillRect(sx + 2, 194, 1, 34); g.fillRect(sx + 77, 194, 1, 34);
+      Font.draw(g, run.to, sx + 40, 200, { scale: 1, color: '#ffffff', align: 'center' });
+      Font.draw(g, Math.max(1, Math.round(run.km * (1 - k))) + ' km', sx + 40, 214, { scale: 1, color: '#bfe8c6', align: 'center' });
+    }
+    // ---- the truck, bouncing down the road --------------------------------
+    const img = Art.flip(Props.get('truck'));
+    const tw = img.width * 1.5, th = img.height * 1.5;
+    const tx = 210 + Math.sin(t * 0.8) * 20, ty = 316 + Math.abs(Math.sin(t * 9)) * 3;
+    for (let i = 0; i < 12; i++) {                                // exhaust
+      const e = ((t * 1.6 + i * 0.14) % 1);
+      const px = tx - tw / 2 - 6 - e * 90;
+      const py = ty - 10 - e * 22 + Math.sin(e * 7 + i) * 4;
+      const a = (1 - e) * 0.4;
+      if (a < 0.02) continue;
+      g.fillStyle = `rgba(150,146,140,${a.toFixed(2)})`;
+      Art.ell(g, px, py, 4 + e * 16, 3 + e * 12, g.fillStyle);
+      g.fillStyle = `rgba(196,192,186,${(a * 0.5).toFixed(2)})`;
+      Art.ell(g, px - 2, py - 2, 2 + e * 8, 1.6 + e * 6, g.fillStyle);
+    }
+    // its own headlights, reaching down the road
+    const hx = tx + tw * 0.46;
+    const hb = g.createLinearGradient(hx, ty - 8, hx + 210, ty + 16);
+    hb.addColorStop(0, `rgba(255,238,184,${(0.14 + night * 0.28).toFixed(2)})`);
+    hb.addColorStop(1, 'rgba(255,238,184,0)');
+    g.fillStyle = hb;
+    Art.poly(g, [[hx, ty - 12], [hx + 230, ty - 34], [hx + 230, ty + 30], [hx, ty - 2]], hb);
+    Art.castShadow(g, img, tx, ty + 10, tw, th, { alpha: 0.34, lean: 0.3, squash: 0.14 });
+    g.drawImage(img, Math.round(tx - tw / 2), Math.round(ty - th + 12), Math.round(tw), Math.round(th));
+    for (let i = 0; i < 9; i++) {                                 // dust off the back wheels
+      const dx = tx - tw / 2 - i * 14 - (t * 60) % 14, a = (1 - i / 9) * 0.38;
+      g.fillStyle = `rgba(196,170,130,${a.toFixed(2)})`;
+      Art.ell(g, dx, ty + 6 - (i % 3) * 4, 8 + i, 4 + i * 0.6, g.fillStyle);
+    }
+    // ---- the near verge tearing past the bottom of frame ------------------
+    for (let i = 0; i < 10; i++) {
+      const x = ((i * 84 - sp * 3.4) % (VW + 220) + VW + 220) % (VW + 220) - 110;
+      const w2 = Props.get('weed', (i * 2) % 6);
+      const sc = 1.15 + (i % 3) * 0.25;
+      g.drawImage(w2, Math.round(x - w2.width * sc / 2), Math.round(378 - w2.height * sc),
+                  Math.round(w2.width * sc), Math.round(w2.height * sc));
+    }
+    g.fillStyle = 'rgba(12,8,20,0.42)'; g.fillRect(0, 330, VW, VH - 330);
+    for (let i = 0; i < 7; i++) {                                 // speed streaks
+      const ly = 236 + i * 14, lx = ((i * 90 - t * 420) % (VW + 160) + VW + 160) % (VW + 160) - 80;
+      g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(lx, ly, 40 + (i % 3) * 18, 2);
+    }
+    // ---- the dash: where you are going, and how far is left ---------------
+    if (run.title) {
+      Font.draw(g, run.title, VW / 2, 22, { scale: 2, color: '#f0d2a0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
+      if (run.sub) Font.draw(g, run.sub, VW / 2, 42, { scale: 1, color: '#c9a9c0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
+    } else {
+      const bw = 210, bx = VW / 2 - bw / 2, by = 18;
+      g.fillStyle = 'rgba(10,8,16,0.72)'; g.fillRect(bx - 3, by - 3, bw + 6, 34);
+      g.fillStyle = 'rgba(232,223,168,0.25)'; g.fillRect(bx - 3, by - 3, bw + 6, 1);
+      Font.draw(g, 'TO ' + run.to, VW / 2, by, { scale: 1, color: '#f5cd5c', align: 'center' });
+      g.fillStyle = '#2a251f'; g.fillRect(bx, by + 13, bw, 6);
+      g.fillStyle = '#6ea83e'; g.fillRect(bx, by + 13, Math.round(bw * k), 6);
+      g.fillStyle = '#a8d46c'; g.fillRect(bx, by + 13, Math.round(bw * k), 2);
+      Font.draw(g, Math.max(0, Math.round(run.km * (1 - k))) + ' km', VW / 2, by + 22, { scale: 1, color: '#cfc4a8', align: 'center' });
+    }
+    // ---- arriving ---------------------------------------------------------
+    if (run.fade && run.t > run.dur) {
+      const f = U.clamp((run.t - run.dur) / 0.55, 0, 1);
+      g.fillStyle = `rgba(8,6,14,${f.toFixed(2)})`; g.fillRect(0, 0, VW, VH);
+      if (f > 0.35) Font.draw(g, run.to, VW / 2, 156, { scale: 2, color: '#f5cd5c', align: 'center', shadow: '#000' });
+    }
+  }
+
+  return { start, stop, update, render, paint, active, progress, get run() { return run; } };
+})();
+</script>
+
+<script>
 // ===== js/map.js =====
 // ---- The map: parchment, fog, and places to go ---------------------------
 const Atlas = (() => {
@@ -6876,91 +7304,138 @@ const Atlas = (() => {
   const fog = [];
   let travel = null;
 
-  // A road map, drawn the way a phone draws one: pale land, green parks, blue
-  // water, a grid of white roads with a yellow motorway through it, and blocks
-  // of buildings in between. Pixel art, but the same language.
-  // Seen from above: canopy, clearings cut into it, dirt tracks between them,
-  // and a creek running through. No streets out here.
-  const CAN0 = '#080f0c', CAN1 = '#0e1a12', CAN2 = '#15281a', CAN3 = '#1e3a23', CAN4 = '#2c5230';
-  const GRASS = '#33502f', GRASS2 = '#28422a', DIRT = '#6b5338', DIRT2 = '#4c3a26', DIRT3 = '#8a6c48';
-  const WATER = '#1e4a66', WATER2 = '#37708f', ROCK = '#3d3a38', MINK = '#111c14';
-  const BONE = '#b8b0a0', BONE2 = '#7d766a';
+  // A road map of the district, drawn the way a phone draws one: dark land,
+  // forest blocks, water, a grid of lit streets through the town, a highway
+  // running the length of it, and the buildings packed in between.
+  const LAND = '#3a4232', LAND2 = '#444c3a', SCRUB = '#333b2c';
+  const FOR0 = '#1d2a1c', FOR1 = '#2a3d27', FOR2 = '#365030', FOR3 = '#48693c';
+  const WATER = '#2a5a7e', WATER2 = '#3b7ba4', WATER3 = '#63a8c8';
+  const HWY0 = '#3a2c10', HWY1 = '#8a6a1c', HWY2 = '#d8a52f', HWY3 = '#f2cf62';
+  const RD0 = '#2e3128', RD1 = '#7e8270', RD2 = '#b6b9a6', RD3 = '#e4e6d6';
+  const ST0 = '#2a2d24', ST1 = '#6e7260', ST2 = '#a4a892';
+  const BLD0 = '#22261e', BLD1 = '#4e5544', BLD2 = '#697259', BLD3 = '#8d976f';
+  const LIT = '#d8b23a';
+
+  // The network. The highway runs the length of the district; everything else
+  // hangs off it. Points are map pixels, so a road ends where its place is.
+  const HIGHWAY = [[-24, 330], [110, 312], [236, 296], [352, 268], [452, 238], [556, 200], [664, 178]];
+  const ROADS = [
+    [[176, 236], [200, 258], [228, 274], [236, 296]],                      // the grove road
+    [[330, 296], [318, 288], [300, 282], [284, 286], [236, 296]],          // into town
+    [[424, 132], [436, 172], [448, 206], [452, 238]],                      // up to the ritual site
+    [[548, 232], [556, 218], [556, 200]],                                  // the stack turn-off
+    [[96, 104], [114, 150], [140, 194], [162, 218], [176, 236]],           // the quarry track
+    [[566, 78], [584, 112], [600, 148], [592, 176], [556, 200]],           // the lake road
+    [[292, 58], [332, 72], [376, 96], [408, 116], [424, 132]],             // the deepwood road
+    [[292, 58], [230, 76], [172, 112], [128, 136], [114, 150]],            // and the back way round
+  ];
+  // The town: a grid of streets either side of the Mart.
+  const TOWN = { x0: 258, x1: 404, y0: 252, y1: 330, gx: 28, gy: 24 };
+
+  function poly(g, pts, col, w) {
+    for (let i = 0; i < pts.length - 1; i++) Art.line(g, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], col, w);
+    for (let i = 1; i < pts.length - 1; i++) Art.ell(g, pts[i][0], pts[i][1], w / 2, w / 2, col);
+  }
+  function dashed(g, pts, col, w, on, off) {
+    let carry = 0, draw = true;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+      const L = Math.hypot(x1 - x0, y1 - y0) || 1;
+      for (let d = 0; d < L; d++) {
+        const u = d / L;
+        if (draw) { g.fillStyle = col; g.fillRect(Math.round(U.lerp(x0, x1, u)), Math.round(U.lerp(y0, y1, u)), w, w); }
+        if (++carry >= (draw ? on : off)) { carry = 0; draw = !draw; }
+      }
+    }
+  }
 
   function sheetOf() {
     if (sheet) return sheet;
     const { c, g } = Art.cv(VW, VH);
     const r = Art.rng(4242);
-    g.fillStyle = CAN1; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 3000; i++) { g.fillStyle = r() < 0.5 ? CAN0 : CAN2; g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 2, 2); }
-    // ---- the clearings each place sits in ---------------------------------
-    for (const s2 of SITES) {
-      const rad = 40 + r() * 16;
-      for (let k = 0; k < 22; k++) {
-        const a2 = r() * TAU, d = Math.sqrt(r()) * rad;
-        Art.ell(g, s2.x + Math.cos(a2) * d, s2.y + Math.sin(a2) * d * 0.8, 15 + r() * 9, 11 + r() * 7, GRASS2);
+    // ---- the land ---------------------------------------------------------
+    g.fillStyle = LAND; g.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 2600; i++) { g.fillStyle = r() < 0.5 ? SCRUB : LAND2; g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 2, 2); }
+    // ---- forest, in blocks, the way a map shows it ------------------------
+    const BLOCKS = [[60, 40, 150, 90], [250, 20, 130, 70], [470, 30, 160, 80],
+                    [20, 150, 120, 110], [400, 120, 120, 90], [520, 250, 140, 100],
+                    [120, 280, 110, 70], [300, 160, 90, 70]];
+    for (const [bx, by, bw, bh] of BLOCKS) {
+      for (let i = 0; i < (bw * bh) / 34; i++) {
+        const x = bx + r() * bw, y = by + r() * bh;
+        const s3 = 5 + r() * 6;
+        Art.ell(g, x + 1, y + 1.6, s3, s3 * 0.84, FOR0);
+        Art.ell(g, x, y, s3, s3 * 0.84, r() < 0.45 ? FOR2 : FOR1);
+        Art.ell(g, x - s3 * 0.3, y - s3 * 0.3, s3 * 0.5, s3 * 0.42, r() < 0.3 ? FOR3 : FOR2);
       }
-      Art.ell(g, s2.x, s2.y + 2, rad * 0.8, rad * 0.58, GRASS);
-      for (let k = 0; k < 26; k++) { g.fillStyle = r() < 0.5 ? '#8dbf66' : '#66904a'; g.fillRect(s2.x - rad + r() * rad * 2, s2.y - rad * 0.6 + r() * rad * 1.2, 2, 2); }
     }
-    // ---- the creek ---------------------------------------------------------
-    let wx = -10, wy = 84;
-    const wpts = [];
-    for (let i = 0; i <= 40; i++) { wpts.push([wx, wy]); wx += 17; wy += Math.sin(i * 0.34) * 13 + 3.6; }
-    for (let i = 0; i < wpts.length - 1; i++) {
-      Art.line(g, wpts[i][0], wpts[i][1], wpts[i + 1][0], wpts[i + 1][1], '#2f5f78', 13);
-      Art.line(g, wpts[i][0], wpts[i][1], wpts[i + 1][0], wpts[i + 1][1], WATER, 9);
-      if (i % 2 === 0) Art.line(g, wpts[i][0], wpts[i][1] - 2, wpts[i + 1][0], wpts[i + 1][1] - 2, WATER2, 2);
+    // ---- water: a lake up north and a river down to the sea --------------
+    Art.ell(g, 586, 66, 52, 30, '#0d2237');
+    Art.ell(g, 586, 66, 48, 26, WATER);
+    Art.ell(g, 580, 62, 36, 17, WATER2);
+    Art.ell(g, 572, 58, 18, 8, WATER3);
+    const river = [[586, 88], [560, 126], [530, 160], [516, 200], [522, 250], [540, 300], [560, 358]];
+    poly(g, river, '#0d2237', 11); poly(g, river, WATER, 8);
+    dashed(g, river, WATER3, 1, 4, 5);
+    // ---- the street grid through town ------------------------------------
+    const T = TOWN;
+    for (let x = T.x0; x <= T.x1; x += T.gx) {
+      poly(g, [[x, T.y0], [x, T.y1]], ST0, 7);
+      poly(g, [[x, T.y0], [x, T.y1]], ST1, 5);
+      poly(g, [[x, T.y0], [x, T.y1]], ST2, 1);
     }
-    // ---- the canopy: crowns, thicker the further from a clearing -----------
-    for (let i = 0; i < 1100; i++) {
-      const x = r() * VW, y = r() * VH;
-      let near = 1e9;
-      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
-      if (near < 46 && r() < 0.94) continue;
-      const d = g.getImageData(Math.floor(U.clamp(x, 0, VW - 1)), Math.floor(U.clamp(y, 0, VH - 1)), 1, 1).data;
-      if (d[2] > 90 && d[2] > d[1]) continue;                   // keep out of the creek
-      const s3 = 7 + r() * 9;
-      Art.ell(g, x + 1, y + 2, s3, s3 * 0.86, CAN0);
-      Art.ell(g, x, y, s3, s3 * 0.86, r() < 0.45 ? CAN2 : CAN1);
-      Art.ell(g, x - s3 * 0.28, y - s3 * 0.3, s3 * 0.56, s3 * 0.46, r() < 0.3 ? CAN4 : CAN3);
-      if (r() < 0.14) Art.ell(g, x + s3 * 0.3, y + s3 * 0.2, s3 * 0.3, s3 * 0.24, CAN0);
+    for (let y = T.y0; y <= T.y1; y += T.gy) {
+      poly(g, [[T.x0, y], [T.x1, y]], ST0, 7);
+      poly(g, [[T.x0, y], [T.x1, y]], ST1, 5);
+      poly(g, [[T.x0, y], [T.x1, y]], ST2, 1);
     }
-    // ---- rocks, logs and ferns in the open ---------------------------------
-    for (let i = 0; i < 70; i++) {
-      const x = r() * VW, y = r() * VH;
-      let near = 1e9;
-      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
-      if (near > 52) continue;
-      if (r() < 0.4) { Art.ell(g, x, y + 1, 5, 4, '#5d5850'); Art.ell(g, x, y, 5, 4, ROCK); Art.ell(g, x - 1.4, y - 1.2, 2.4, 1.8, '#9a9286'); }
-      else if (r() < 0.5) { g.fillStyle = '#5d4430'; g.fillRect(x - 9, y, 18, 5); g.fillStyle = '#7d5f42'; g.fillRect(x - 9, y, 18, 2); }
-      else for (let f = -2; f <= 2; f++) Art.limb(g, x, y + 3, x + f * 5, y - 4, 2, 1, f % 2 ? '#3f7a2c' : '#58a04e');
-    }
-    // ---- things you would rather not have found ---------------------------
-    for (let i = 0; i < 26; i++) {
-      const x = r() * VW, y = r() * VH;
-      let near = 1e9;
-      for (const s2 of SITES) near = Math.min(near, Math.hypot(x - s2.x, (y - s2.y) * 1.25));
-      if (near < 40 || near > 120) continue;
-      if (r() < 0.45) {                                   // a ribcage in the leaf litter
-        Art.ell(g, x, y, 7, 4, '#10140f');
-        for (let k = -3; k <= 3; k++) {
-          g.fillStyle = k % 2 ? BONE2 : BONE;
-          g.fillRect(Math.round(x + k * 2), Math.round(y - 3 + Math.abs(k) * 0.5), 1, 6 - Math.abs(k));
+    // the blocks between the streets, built up
+    for (let x = T.x0; x < T.x1; x += T.gx) {
+      for (let y = T.y0; y < T.y1; y += T.gy) {
+        const n = 2 + Math.floor(r() * 3);
+        for (let i = 0; i < n; i++) {
+          const bw = 6 + r() * 9, bh = 5 + r() * 7;
+          const bx = x + 5 + r() * (T.gx - 10 - bw), by = y + 5 + r() * (T.gy - 10 - bh);
+          g.fillStyle = BLD0; g.fillRect(Math.round(bx), Math.round(by + 1), Math.round(bw), Math.round(bh));
+          g.fillStyle = r() < 0.4 ? BLD2 : BLD1; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), Math.round(bh));
+          g.fillStyle = BLD3; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), 1);
+          if (r() < 0.45) { g.fillStyle = LIT; g.fillRect(Math.round(bx + 1), Math.round(by + 2), 1, 1); }
         }
-        g.fillStyle = BONE; g.fillRect(Math.round(x - 8), Math.round(y - 1), 4, 3);
-      } else if (r() < 0.5) {                             // a burnt stump, still black
-        Art.ell(g, x, y + 2, 7, 3, '#060907');
-        Art.ell(g, x, y, 6, 4, '#171410');
-        Art.ell(g, x, y - 1, 4.6, 2.8, '#241d16');
-        for (let k = 0; k < 3; k++) g.fillStyle = '#0a0806', g.fillRect(Math.round(x - 3 + k * 3), Math.round(y - 6), 2, 6);
-      } else {                                            // a cairn someone stacked and left
-        for (let k = 0; k < 4; k++) Art.ell(g, x + (k % 2 ? 1 : -1), y - k * 3, 5 - k * 0.8, 2.4 - k * 0.3, k % 2 ? ROCK : '#4c4844');
       }
     }
-    // ---- a few place names, scratched into the canopy ---------------------
-    for (const [lx, ly, tx2] of [[112, 62, 'FERN GULLY'], [300, 200, 'THE SCRUB'],
-                                  [566, 292, 'BLACKWOOD'], [86, 316, 'STONE FLAT'], [470, 40, 'HIGH RIDGE']]) {
-      Font.draw(g, tx2, lx, ly, { scale: 1, color: '#5f7a52', align: 'center', shadow: 'rgba(4,8,4,0.95)' });
+    // ---- the secondary roads ---------------------------------------------
+    for (const p of ROADS) {
+      poly(g, p, RD0, 9);
+      poly(g, p, RD1, 7);
+      poly(g, p, RD2, 3);
+      dashed(g, p, RD3, 1, 3, 5);
+    }
+    // ---- the highway, over the top of everything -------------------------
+    poly(g, HIGHWAY, '#120e08', 15);
+    poly(g, HIGHWAY, HWY0, 13);
+    poly(g, HIGHWAY, HWY1, 11);
+    poly(g, HIGHWAY, HWY2, 8);
+    dashed(g, HIGHWAY, '#2a1f08', 2, 5, 6);
+    // ---- farms and sheds strung along the roads --------------------------
+    for (const p of ROADS) {
+      for (let i = 1; i < p.length - 1; i++) {
+        if (r() < 0.45) continue;
+        const sd = r() < 0.5 ? -1 : 1;
+        const bx = p[i][0] + sd * (9 + r() * 10), by = p[i][1] + (r() - 0.5) * 14;
+        const bw = 7 + r() * 6, bh = 6 + r() * 5;
+        g.fillStyle = BLD0; g.fillRect(Math.round(bx), Math.round(by + 1), Math.round(bw), Math.round(bh));
+        g.fillStyle = BLD1; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), Math.round(bh));
+        g.fillStyle = BLD2; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), 1);
+        if (r() < 0.5) { g.fillStyle = LIT; g.fillRect(Math.round(bx + bw - 2), Math.round(by + 2), 1, 1); }
+      }
+    }
+    // ---- the names on it --------------------------------------------------
+    for (const [lx, ly, tx2, col] of [
+      [330, 246, 'WOMBAT FLAT', '#9aa88a'], [112, 74, 'FERN GULLY', '#7a8a6e'],
+      [540, 48, 'STILL LAKE', '#6f9ab0'], [248, 128, 'THE SCRUB', '#7a8a6e'],
+      [560, 292, 'BLACKWOOD', '#7a8a6e'], [86, 330, 'STONE FLAT', '#7a8a6e'],
+      [470, 336, 'HIGHWAY 1', '#b39a52']]) {
+      Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center', shadow: 'rgba(4,8,4,0.95)' });
     }
     sheet = c;
     return c;
@@ -6975,41 +7450,28 @@ const Atlas = (() => {
     for (let i = 0; i < 22; i++) eyes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU, sp: 0.3 + r() * 0.6, on: 0 });
     for (let i = 0; i < 7; i++) bats.push({ x: r() * VW, y: 20 + r() * (VH - 60), ph: r() * TAU, sp: 16 + r() * 24, amp: 12 + r() * 26 });
     for (let i = 0; i < 40; i++) drift.push({ x: r() * VW, y: r() * VH, ph: r() * TAU, sp: 0.2 + r() * 0.5 });
+    TRAFFIC.length = 0;
+    for (let i = 0; i < 9; i++) TRAFFIC.push({ u: r(), sp: 0.012 + r() * 0.018, dir: r() < 0.5 ? 1 : -1 });
   }
   function enter() { hover = null; travel = null; Audio.setMode('pen'); }
 
-  // a track worn into the forest floor, with boot prints going along it
-  // Tracks join one place to the next, not everything to the grove. Each leg
-  // has its own sag so the web reads as a walked network, not a fan.
-  const TRAILS = [
-    ['grove', 'mart', 26], ['grove', 'quarry', -30], ['grove', 'ritual', -22],
-    ['ritual', 'deep', 24], ['ritual', 'lake', -18], ['ritual', 'stack', 30],
-    ['mart', 'stack', 22],
-  ];
-  function pathBetween(g, a, b, bend, t) {
-    const n = Math.max(12, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / 5));
-    const pt = (k) => {
-      const s2 = Math.sin(k * Math.PI), w2 = Math.sin(k * Math.PI * 3) * 4;
-      return {
-        x: U.lerp(a.x, b.x, k) - (b.y - a.y) / Math.hypot(b.x - a.x, b.y - a.y || 1) * s2 * bend + w2,
-        y: U.lerp(a.y, b.y, k) + (b.x - a.x) / Math.hypot(b.x - a.x, b.y - a.y || 1) * s2 * bend,
-      };
-    };
-    for (const [w, col] of [[8, '#5d4a33'], [6, '#8b6942'], [3, '#b9905c']]) {
-      let p = pt(0);
-      for (let i = 1; i <= n; i++) { const q = pt(i / n); Art.line(g, p.x, p.y, q.x, q.y, col, w); p = q; }
+  // Traffic, crawling the highway while you decide where to go.
+  const TRAFFIC = [];
+  function hwyAt(u) {
+    const P = HIGHWAY;
+    let tot = 0; const seg = [];
+    for (let i = 0; i < P.length - 1; i++) { const L = Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]); seg.push(L); tot += L; }
+    let d = u * tot;
+    for (let i = 0; i < seg.length; i++) {
+      if (d <= seg[i]) {
+        const k = d / seg[i];
+        return { x: U.lerp(P[i][0], P[i + 1][0], k), y: U.lerp(P[i][1], P[i + 1][1], k),
+          a: Math.atan2(P[i + 1][1] - P[i][1], P[i + 1][0] - P[i][0]) };
+      }
+      d -= seg[i];
     }
-    for (let i = 1; i < n; i += 3) {                      // grit worn into the middle
-      const p = pt(i / n);
-      g.fillStyle = DIRT3; g.fillRect(Math.round(p.x) + (i % 4 ? 0 : -1), Math.round(p.y) - 1, 1, 1);
-    }
-    for (let i = 0; i < 4; i++) {                         // boots, walking the track
-      const k = ((i / 4) + t * 0.09) % 1;
-      const p = pt(k);
-      g.fillStyle = 'rgba(26,18,10,0.7)';
-      g.fillRect(Math.round(p.x) - 2, Math.round(p.y) - 1, 2, 3);
-      g.fillRect(Math.round(p.x) + 1, Math.round(p.y) + 2, 2, 3);
-    }
+    const n = P.length - 1;
+    return { x: P[n][0], y: P[n][1], a: 0 };
   }
 
   function siteAt(x, y) {
@@ -7022,9 +7484,19 @@ const Atlas = (() => {
     if (!s) return;
     if (!unlocked(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return; }
     if (!s.mode) { Audio.play('error'); return; }
-    travel = { t: 0, site: s, from: whereAmI(), dust: [] };
-    Audio.play('whoosh');
+    const from = whereAmI();
+    travel = { site: s };
+    Audio.play('rumble');
     FX.shake(1.4);
+    Drive.start({
+      to: s.name, from: from.name, km: kmBetween(from, s), dur: 3.1,
+      onDone: () => {
+        const m = s.mode;
+        G.lastSite = m;
+        travel = null;
+        Main.setMode(m);
+      },
+    });
   }
   function hoverAt(x, y) {
     hover = siteAt(x, y);
@@ -7037,82 +7509,23 @@ const Atlas = (() => {
     const byMode = SITES.find((s) => s.mode === (G.lastSite || 'grove'));
     return byMode || SITES[0];
   }
-  // The route the truck takes: a trail leg if there is one, else a straight run.
-  function routeOf(a, b) {
-    for (const [ak, bk, bend] of TRAILS) {
-      if (ak === a.key && bk === b.key) return { a, b, bend };
-      if (bk === a.key && ak === b.key) return { a: b, b: a, bend, back: true };
-    }
-    return { a, b, bend: 14 };
-  }
-  const DRIVE = 1.5;                                  // how long the drive lasts
+  // How far it is, in the money of the map: a straight line scaled to km.
+  const kmBetween = (a, b) => Math.max(3, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / 11));
   function update(dt) {
-    if (!travel) return;
-    travel.t += dt;
-    for (let i = travel.dust.length - 1; i >= 0; i--) {
-      const d = travel.dust[i];
-      d.t += dt; d.x += d.vx * dt; d.y += d.vy * dt; d.vy += 14 * dt;
-      if (d.t > d.life) travel.dust.splice(i, 1);
-    }
-    if (travel.t > DRIVE + 0.5) {
-      const m = travel.site.mode;
-      G.lastSite = travel.site.mode;
-      travel = null;
-      Main.setMode(m);
-    }
-  }
-  // The truck, drawn small and driving the leg, nose pointing the way it goes.
-  function drawTravel(g, t) {
-    const k = U.clamp(travel.t / DRIVE, 0, 1);
-    const r = routeOf(travel.from, travel.site);
-    const pt = (u) => {
-      const s2 = Math.sin(u * Math.PI);
-      const dx = r.b.x - r.a.x, dy = r.b.y - r.a.y, L = Math.hypot(dx, dy) || 1;
-      return {
-        x: U.lerp(r.a.x, r.b.x, u) - (dy / L) * s2 * r.bend + Math.sin(u * Math.PI * 3) * 4,
-        y: U.lerp(r.a.y, r.b.y, u) + (dx / L) * s2 * r.bend,
-      };
-    };
-    const u = r.back ? 1 - U.easeInOut(k) : U.easeInOut(k);
-    const p = pt(u), q = pt(U.clamp(u + (r.back ? -0.02 : 0.02), 0, 1));
-    const facing = q.x >= p.x ? 1 : -1;
-    const bounce = Math.abs(Math.sin(travel.t * 15)) * 1.4;
-    // dust off the back wheels
-    if (k < 1 && Math.random() < 0.7) {
-      travel.dust.push({ x: p.x - facing * 8, y: p.y + 3, vx: -facing * U.rand(6, 20), vy: U.rand(-14, -4), t: 0, life: 0.6 + Math.random() * 0.4 });
-    }
-    for (const d of travel.dust) {
-      const a = (1 - d.t / d.life) * 0.5;
-      g.fillStyle = `rgba(150,132,104,${a.toFixed(2)})`;
-      Art.ell(g, d.x, d.y, 2 + d.t * 7, 1.5 + d.t * 5, g.fillStyle);
-    }
-    const img0 = Props.get('truck');
-    const img = facing > 0 ? Art.flip(img0) : img0;
-    const w = img.width * 0.33, h = img.height * 0.33;
-    g.fillStyle = 'rgba(0,0,0,0.4)'; Art.ell(g, p.x, p.y + 3, w * 0.42, 3);
-    g.drawImage(img, Math.round(p.x - w / 2), Math.round(p.y - h + 5 - bounce), Math.round(w), Math.round(h));
-    // headlights, since it is dark out here
-    const hx = p.x + facing * w * 0.5;
-    const beam = g.createRadialGradient(hx, p.y - 3, 2, hx, p.y - 3, 42);
-    beam.addColorStop(0, 'rgba(255,236,176,0.4)');
-    beam.addColorStop(1, 'rgba(255,236,176,0)');
-    g.fillStyle = beam; g.fillRect(hx - 44, p.y - 47, 88, 88);
-    // the name of where it is going, riding along above it
-    if (k < 0.98) {
-      Font.draw(g, travel.site.name.toUpperCase(), p.x, p.y - h - 6 - bounce, {
-        scale: 1, color: '#f5cd5c', align: 'center', shadow: '#120a06', shadowDist: 1,
-      });
-    }
+    Drive.update(dt);
   }
 
   function render(g) {
+    if (Drive.active()) { Drive.render(g); return; }
     const t = G.time;
     g.drawImage(sheetOf(), 0, 0);
-    // paths
-    const byKey = Object.fromEntries(SITES.map((s) => [s.key, s]));
-    for (const [ak, bk, bend] of TRAILS) {
-      const a = byKey[ak], b = byKey[bk];
-      if (a && b && unlocked(a) && unlocked(b)) pathBetween(g, a, b, bend, t);
+    // headlights crawling the highway
+    for (const v of TRAFFIC) {
+      const u = ((v.u + t * v.sp * v.dir) % 1 + 1) % 1;
+      const p = hwyAt(u);
+      const c = v.dir > 0 ? 'rgba(255,232,168,' : 'rgba(255,120,96,';
+      g.fillStyle = c + '0.22)'; Art.ell(g, p.x, p.y, 5, 5);
+      g.fillStyle = c + '0.85)'; g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2);
     }
 
     for (const s of SITES) {
@@ -7134,11 +7547,11 @@ const Atlas = (() => {
         if (d < 120) cover = Math.max(cover, 1 - d / 120);
       }
       const edge = Math.max(0, 1 - Math.min(x, VW - x, y, VH - y) / 70);
-      const a = Math.max(cover, edge * 0.85);
+      const a = Math.max(cover, edge * 0.5);
       if (a <= 0.02) continue;
       const gr = g.createRadialGradient(x, y, 0, x, y, f.r);
-      gr.addColorStop(0, `rgba(74,66,84,${(0.5 * a).toFixed(3)})`);
-      gr.addColorStop(1, 'rgba(74,66,84,0)');
+      gr.addColorStop(0, `rgba(58,54,70,${(0.42 * a).toFixed(3)})`);
+      gr.addColorStop(1, 'rgba(58,54,70,0)');
       g.fillStyle = gr;
       g.fillRect(x - f.r, y - f.r, f.r * 2, f.r * 2);
     }
@@ -7194,22 +7607,7 @@ const Atlas = (() => {
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);
 
-    if (travel) drawTravel(g, t);
-    if (travel && travel.t > DRIVE) {
-      const k = U.clamp((travel.t - DRIVE) / 0.5, 0, 1);
-      const s = travel.site;
-      const rad = U.lerp(Math.hypot(VW, VH), 0, U.easeIn(k));
-      g.save();
-      g.fillStyle = '#0b0810';
-      g.beginPath();
-      g.rect(0, 0, VW, VH);
-      g.arc(s.x, s.y, Math.max(0, rad), 0, TAU, true);
-      g.fill('evenodd');
-      g.restore();
-      g.globalAlpha = k * 0.6; g.fillStyle = PAL.gold3;
-      g.beginPath(); g.arc(s.x, s.y, Math.max(0, rad), 0, TAU); g.lineWidth = 3; g.strokeStyle = PAL.gold3; g.stroke();
-      g.globalAlpha = 1;
-    }
+
     FX.drawParticles(g, 0);
   }
 
@@ -7225,11 +7623,12 @@ const Atlas = (() => {
     g.fillRect(34, 26, 2, 2); g.fillRect(36, 28, 2, 2);
     Font.draw(g, text, 46, 16, { scale: 2, color: '#3c3a35', align: 'left' });
     // compass, top right
-    g.fillStyle = '#ffffff'; g.fillRect(VW - 44, 48, 26, 26);
-    g.fillStyle = '#1c1008'; g.fillRect(VW - 46, 46, 30, 2); g.fillRect(VW - 46, 74, 30, 2);
-    g.fillStyle = '#1c1008'; g.fillRect(VW - 46, 46, 2, 30); g.fillRect(VW - 18, 46, 2, 30);
-    g.fillStyle = '#e04a3c'; Art.poly(g, [[VW - 31, 52], [VW - 27, 62], [VW - 35, 62]], '#e04a3c');
-    g.fillStyle = '#5a5750'; Art.poly(g, [[VW - 31, 70], [VW - 27, 62], [VW - 35, 62]], '#5a5750');
+    const cy3 = VH - 92;
+    g.fillStyle = '#ffffff'; g.fillRect(VW - 44, cy3, 26, 26);
+    g.fillStyle = '#1c1008'; g.fillRect(VW - 46, cy3 - 2, 30, 2); g.fillRect(VW - 46, cy3 + 26, 30, 2);
+    g.fillStyle = '#1c1008'; g.fillRect(VW - 46, cy3 - 2, 2, 30); g.fillRect(VW - 18, cy3 - 2, 2, 30);
+    g.fillStyle = '#e04a3c'; Art.poly(g, [[VW - 31, cy3 + 4], [VW - 27, cy3 + 14], [VW - 35, cy3 + 14]], '#e04a3c');
+    g.fillStyle = '#5a5750'; Art.poly(g, [[VW - 31, cy3 + 22], [VW - 27, cy3 + 14], [VW - 35, cy3 + 14]], '#5a5750');
     // scale bar, bottom right
     g.fillStyle = 'rgba(255,255,255,0.85)'; g.fillRect(VW - 96, VH - 26, 84, 14);
     g.fillStyle = '#3c3a35'; g.fillRect(VW - 90, VH - 16, 60, 2); g.fillRect(VW - 90, VH - 20, 2, 6); g.fillRect(VW - 32, VH - 20, 2, 6);
@@ -7485,7 +7884,7 @@ const Shop = (() => {
       const p = cat.find((x) => x.id === o.id) || { name: '?', price: 0 };
       let sum = 0;
       for (let i = 0; i < o.n; i++) sum += priceOf(p, i);
-      return { p, n: o.n, sum };
+      return { p, n: o.n, sum, deal: onDeal(p) };
     });
   }
   function add(p) {
@@ -7501,6 +7900,16 @@ const Shop = (() => {
       FX.comic(s.x - scroll, s.y - 42, U.pick(['GRAB!', 'IN!', 'YOINK!']), { ink: '#ffe98a', edge: '#c9581f', life: 0.6 });
     }
     UI.refreshBasket();
+  }
+  // one off the pile, rather than the whole line
+  function removeOne(id) {
+    const i = basket.lastIndexOf(id);
+    if (i >= 0) basket.splice(i, 1);
+    UI.refreshBasket();
+  }
+  function addById(id) {
+    const p = catalogue().find((x) => x.id === id);
+    if (p) add(p);
   }
   function removeLine(id) {
     const i = basket.lastIndexOf(id);
@@ -7551,6 +7960,7 @@ const Shop = (() => {
     if (phase === 'door' && pt > 2.4) { phase = 'aisle'; pt = 0; }
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.0015, dt));
     keeper.t += dt;
+    shazTick(dt);
     if (till > 0) { till -= dt; if (till <= 0) keeper.pose = 'idle'; }
     if (gacha.spin > 0) {
       gacha.spin = Math.max(0, gacha.spin - dt * 0.8);
@@ -7594,7 +8004,7 @@ const Shop = (() => {
     if (keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h) {
       if (!basket.length) { Audio.play('error'); UI.toast('nothing in the basket yet', 'bad'); return; }
       UI.openBasket(); Audio.play('click');
-      FX.comic(x, y - 26, 'HI!', { ink: '#d8f0a0', edge: '#2f8f42', life: 0.5 });
+      FX.comic(x, y - 26, 'G\'DAY!', { ink: '#d8f0a0', edge: '#2f8f42', life: 0.5 });
       return;
     }
     if (overCounter(x) && y > 150) { UI.openBasket(); Audio.play('click'); return; }
@@ -7608,8 +8018,8 @@ const Shop = (() => {
     }
     const s = slotAt(x, y);
     hover = s;
-    if (keeperHot) return `<b>Baz</b> <span class="dim">shopkeeper</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'bring him a basket'}`;
-    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>ask the wombat' : null;
+    if (keeperHot) return `<b>Shaz</b> <span class="dim">nineteen years on this till</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'she would love to tell you about wombats'}`;
+    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>ask Shaz' : null;
     const p = s.p;
     const tag = p.locked ? '<span class="warn">a god must bless it</span>'
       : p.sold ? '<span class="good">owned</span>'
@@ -8396,75 +8806,118 @@ const Shop = (() => {
     g.fillStyle = '#8ad0a0'; g.fillRect(cx + 217, 271, 14, 8);
     g.fillStyle = '#5a6069'; g.fillRect(cx + 222, 280, 4, 6);
     // register
-    g.fillStyle = '#3d434e'; g.fillRect(cx + 150, 252, 52, 32);
-    g.fillStyle = '#525965'; g.fillRect(cx + 150, 252, 52, 6);
-    g.fillStyle = '#8ad0a0'; g.fillRect(cx + 156, 258, 40, 13);
-    FX.pixelText(g, till > 0 ? 'TA!' : 'W$', cx + 176, 260, { color: '#1d3324', size: 7, ink: false });
-    for (let i = 0; i < 3; i++) { g.fillStyle = '#d8d2c2'; g.fillRect(cx + 156 + i * 14, 275, 10, 5); }
+    g.fillStyle = '#3d434e'; g.fillRect(cx + 108, 252, 52, 32);
+    g.fillStyle = '#525965'; g.fillRect(cx + 108, 252, 52, 6);
+    g.fillStyle = '#8ad0a0'; g.fillRect(cx + 114, 258, 40, 13);
+    FX.pixelText(g, till > 0 ? 'TA!' : 'W$', cx + 134, 260, { color: '#1d3324', size: 7, ink: false });
+    for (let i = 0; i < 3; i++) { g.fillStyle = '#d8d2c2'; g.fillRect(cx + 114 + i * 14, 275, 10, 5); }
     // lollipop jar and a hot-dog roller
-    Art.rect(g, cx + 30, 256, 24, 28, 'rgba(210,236,244,0.6)');
-    for (let i = 0; i < 6; i++) Art.ell(g, cx + 36 + (i % 3) * 7, 266 + (i % 2) * 8, 4, 4, ['#e8708a', '#f5cd5c', '#79dced'][i % 3]);
-    Art.rect(g, cx + 30, 250, 24, 7, '#c9581f');
-    g.fillStyle = '#8e8a7c'; g.fillRect(cx + 66, 262, 68, 22);
-    for (let i = 0; i < 4; i++) { g.fillStyle = '#a8663a'; g.fillRect(cx + 70 + i * 16, 266 + Math.sin(t * 3 + i) * 1, 12, 5); }
-    g.fillStyle = '#d8d2c2'; g.fillRect(cx + 66, 258, 68, 5);
+    Art.rect(g, cx + 14, 256, 24, 28, 'rgba(210,236,244,0.6)');
+    for (let i = 0; i < 6; i++) Art.ell(g, cx + 20 + (i % 3) * 7, 266 + (i % 2) * 8, 4, 4, ['#e8708a', '#f5cd5c', '#79dced'][i % 3]);
+    Art.rect(g, cx + 14, 250, 24, 7, '#c9581f');
+    g.fillStyle = '#8e8a7c'; g.fillRect(cx + 46, 262, 56, 22);
+    for (let i = 0; i < 4; i++) { g.fillStyle = '#a8663a'; g.fillRect(cx + 50 + i * 13, 266 + Math.sin(t * 3 + i) * 1, 10, 5); }
+    g.fillStyle = '#d8d2c2'; g.fillRect(cx + 46, 258, 56, 5);
     // receipt
     if (till > 0) {
       const h = U.clamp((2 - till) * 40, 0, 48);
-      g.fillStyle = '#fffdf0'; g.fillRect(cx + 170, 252 - h, 14, h);
-      g.fillStyle = '#b9b3a2'; for (let y = 4; y < h; y += 6) g.fillRect(cx + 172, 252 - h + y, 10, 1);
+      g.fillStyle = '#fffdf0'; g.fillRect(cx + 128, 252 - h, 14, h);
+      g.fillStyle = '#b9b3a2'; for (let y = 4; y < h; y += 6) g.fillRect(cx + 130, 252 - h + y, 10, 1);
     }
     keeperWombat(g, cx, t);
-    sign(g, cx + 120, 104, 'PAY HERE', '#b8412c', 'ask the wombat');
+    sign(g, cx + 120, 104, 'PAY HERE', '#b8412c', 'ask Shaz');
   }
 
-  // The shopkeeper: a wombat sat on the counter in a little green visor. It is
-  // the checkout — you come to it, and it holds up what you owe.
+  // ---- Shaz, on the till ---------------------------------------------------
+  // Nineteen years at this counter and she has never once let a customer leave
+  // without a wombat fact. She stands at the right-hand end, where the till is.
+  const SHAZ_LINES = [
+    'Did you know a wombat does square poos? Square!',
+    'Three sets of them out the back. I feed them chips.',
+    'They can run twenty-five k an hour. Twenty-five!',
+    'My Kevin says I talk about them too much. Kevin is wrong.',
+    'Backwards into the burrow, see, so the bum blocks the door.',
+    'That bum is cartilage. Solid as a dinner plate.',
+    'A joey stays in the pouch six months. Six!',
+    'Pouch faces backwards so the dirt does not go in. Clever.',
+    'I have named every one on the Flat. There are forty-one.',
+    'They chew a hundred and fifty times a minute, love.',
+    'One came in here in ninety-eight. Knocked over the cordial.',
+    'A wombat can live thirty years. Longer than my marriage.',
+    'Their teeth never stop growing. Never!',
+    'You have the look of a wombat person. I can always tell.',
+    'Two hearts? No, that is the octopus. Sorry.',
+    'Sold out of wombat mugs. Bloke bought the lot.',
+    'They dig eight metres in a night. Eight metres!',
+    'Hairy-nosed, bare-nosed. I prefer the bare, myself.',
+    'The square poo is so it does not roll off the rock. Genius.',
+    'I have a tattoo. I will not show you where.',
+  ];
+  const shaz = { t: 0, line: 0, said: 0, pose: 'idle', poseT: 0 };
   let keeperR = null;
+  function shazTick(dt) {
+    shaz.t += dt;
+    shaz.said -= dt;
+    if (shaz.poseT > 0) { shaz.poseT -= dt; if (shaz.poseT <= 0) shaz.pose = 'idle'; }
+    if (shaz.said <= 0 && phase === 'aisle') {
+      shaz.said = 5.5 + Math.random() * 3.5;
+      shaz.line = (shaz.line + 1 + Math.floor(Math.random() * 3)) % SHAZ_LINES.length;
+      shaz.pose = 'talk'; shaz.poseT = 3.4;
+    }
+  }
   function keeperWombat(g, cx, t) {
     const n = basket.length;
-    const wx = cx + 66, wy = 288;
-    const hop = n ? Math.abs(Math.sin(t * 4)) * 3 : Math.abs(Math.sin(t * 1.6)) * 1.2;
+    const wx = cx + 198, wy = 302;
     const hot = keeperHot;
-    keeperR = { x: wx - 40, y: wy - 66, w: 80, h: 70 };
-    // the counter dips a little under it
-    g.fillStyle = 'rgba(0,0,0,0.16)'; Art.ell(g, wx, wy + 1, 22, 5);
-    const f = Math.floor(t * (till > 0 ? 9 : n ? 6 : 2.2));
-    const pose = till > 0 ? 'happy' : n ? 'sit' : 'idle';
-    g.save();
-    g.translate(0, -hop);
-    Sprites.blit(g, wx, wy, pose, f, 'sand', -1, 'adult', 2.6);
-    // a green visor, because it works here
-    g.fillStyle = '#12361c'; g.fillRect(wx - 16, wy - 62, 32, 7);
-    g.fillStyle = '#2f8f42'; g.fillRect(wx - 15, wy - 61, 30, 5);
-    g.fillStyle = '#5fc46c'; g.fillRect(wx - 15, wy - 61, 30, 1);
-    g.fillStyle = '#12361c'; g.fillRect(wx - 24, wy - 56, 32, 5);
-    g.fillStyle = '#3fa552'; g.fillRect(wx - 24, wy - 56, 32, 2);
-    // a name badge
-    g.fillStyle = '#fffdf0'; g.fillRect(wx - 14, wy - 30, 18, 8);
-    g.fillStyle = '#c9581f'; g.fillRect(wx - 14, wy - 30, 18, 2);
-    Font.draw(g, 'BAZ', wx - 5, wy - 26, { scale: 1, color: '#2a2f3a', align: 'center' });
-    g.restore();
-    // what it wants from you
-    const by = wy - 74 - hop;
-    if (till > 0) {
-      bubble(g, wx, by, 'TA!', '#3f8f4a', '#dff5d8');
-    } else if (n) {
-      bubble(g, wx, by, `${total()} W$`, '#c9581f', '#fff0dc');
+    keeperR = { x: wx - 34, y: wy - 92, w: 68, h: 86 };
+    const pose = till > 0 ? 'wave' : hot ? 'happy' : n ? 'happy' : shaz.pose;
+    const rate = pose === 'talk' ? 7 : pose === 'wave' ? 9 : 2.4;
+    const img = Sprites.cashier(Math.floor(shaz.t * rate), pose);
+    const sc = 1.2, w = img.width * sc, h = img.height * sc;
+    const bob = Math.sin(shaz.t * 1.6) * 1.2;
+    g.drawImage(img, Math.round(wx - w / 2), Math.round(wy - h + bob), Math.round(w), Math.round(h));
+    // her mug, parked on the counter beside her
+    const mx = wx - 40;
+    g.fillStyle = '#1d2230'; g.fillRect(mx - 7, 268, 14, 15);
+    g.fillStyle = '#d8d2c2'; g.fillRect(mx - 6, 269, 12, 13);
+    g.fillStyle = '#8a6a3a'; g.fillRect(mx - 6, 269, 12, 3);
+    Art.ell(g, mx + 8, 275, 3.4, 3.4, '#d8d2c2');
+    Art.ell(g, mx + 8, 275, 1.8, 1.8, '#efe9da');
+    if (Math.sin(t * 2) > 0.4) { g.fillStyle = 'rgba(255,255,255,0.3)'; g.fillRect(mx - 2, 262 - (t * 8) % 6, 2, 4); }
+    // what she is saying, which is always about wombats
+    const by = wy - h + bob - 6;
+    if (till > 0) bubble(g, wx, by, 'TA, LOVE!', '#3f8f4a', '#dff5d8');
+    else if (n) bubble(g, wx, by, `${total()} W$`, '#c9581f', '#fff0dc');
+    else if (shaz.pose === 'talk') chatBubble(g, wx, by, SHAZ_LINES[shaz.line]);
+    else if (hot) bubble(g, wx, by, 'G\'DAY', '#2f6f9f', '#d8ecff');
+    if (n && !till) {
       const a = 0.5 + 0.5 * Math.sin(t * 5);
-      Font.draw(g, 'CLICK ME', wx, by - 32, { scale: 1, color: `rgba(245,205,92,${a.toFixed(2)})`, align: 'center', shadow: '#2a1608' });
-    } else if (hot) {
-      bubble(g, wx, by, 'G\'DAY', '#2f6f9f', '#d8ecff');
+      Font.draw(g, 'CLICK HER', wx, wy + 16, { scale: 1, color: `rgba(245,205,92,${a.toFixed(2)})`, align: 'center', shadow: '#2a1608' });
     }
-    if (hot) {                                        // a ring so you know it is the button
+    if (hot) {
       g.strokeStyle = '#f5cd5c'; g.lineWidth = 1;
       g.setLineDash([4, 3]); g.lineDashOffset = -t * 10;
       g.strokeRect(keeperR.x + 0.5, keeperR.y + 0.5, keeperR.w - 1, keeperR.h - 1);
       g.setLineDash([]);
     }
   }
-  function bubble(g, x, y, text, col, ink) {
+  // her running commentary: a plain white box, wrapped, with a tail
+  function chatBubble(g, x, y, text) {
+    const lines = Font.wrap(text, 156, 1);
+    const w = Math.max(60, Math.max(...lines.map((l) => Font.width(l, 1))) + 14);
+    const h = lines.length * 11 + 9;
+    const bx = U.clamp(x - w * 0.66, 4, VW - w - 4);
+    g.fillStyle = '#0a0810'; g.fillRect(bx - 2, y - h - 2, w + 4, h + 4);
+    g.fillStyle = '#fffdf0'; g.fillRect(bx, y - h, w, h);
+    g.fillStyle = '#c9c2ad'; g.fillRect(bx, y - 4, w, 4);
+    Art.poly(g, [[x - 5, y], [x + 6, y], [x + 1, y + 8]], '#0a0810');
+    Art.poly(g, [[x - 4, y - 1], [x + 5, y - 1], [x + 1, y + 6]], '#fffdf0');
+    lines.forEach((l, i) => Font.draw(g, l, bx + 7, y - h + 5 + i * 11, { scale: 1, color: '#2a2f3a' }));
+  }
+
+  function bubble(g, x0, y, text, col, ink) {
     const w = Font.width(text, 2) + 16, h = 20;
+    const x = U.clamp(x0, w / 2 + 6, VW - w / 2 - 6);
     g.fillStyle = '#0a0810'; g.fillRect(x - w / 2 - 2, y - h - 2, w + 4, h + 4);
     g.fillStyle = col; g.fillRect(x - w / 2, y - h, w, h);
     g.fillStyle = U.shade(col, 0.35); g.fillRect(x - w / 2, y - h, w, 3);
@@ -8475,8 +8928,9 @@ const Shop = (() => {
 
   return {
     init(g) { G = g; }, open, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
-    add, removeLine, clear, checkout, total, lines, layout, catalogue,
+    add, addById, removeOne, removeLine, clear, checkout, total, lines, layout, catalogue,
     get gachaHit() { return gachaR; },
+    get shazTalking() { return shaz.pose === 'talk'; },
     setScroll(f) { tscroll = (worldW - VW) * U.clamp(f, 0, 1); scroll = tscroll; },
     get basket() { return basket; }, get phase() { return phase; }, get worldW() { return worldW; },
   };
@@ -8636,6 +9090,7 @@ const Intro = (() => {
     }
     for (let i = pops.length - 1; i >= 0; i--) { const p = pops[i]; p.t += dt; p.r += dt * 150; if (p.t > 0.4) pops.splice(i, 1); }
     if (phase === 'chat' && chatT > 0.85 && chatStep < CHAT.length) { chatStep++; chatT = 0; Audio.play('click'); }
+    if (phase === 'drive' || phase === 'arrive') driveTick(dt);
     if (phase === 'plane' && t > 4.4) { phase = 'drive'; t = 0; }
     if (phase === 'drive' && t > 5.6) { phase = 'arrive'; t = 0; }
     if (phase === 'arrive' && t > 2.0) finish();
@@ -9112,106 +9567,19 @@ const Intro = (() => {
     Font.draw(g, 'TASMANIA', 320, y + 16, { scale: 1, color: '#cfc4e0', align: 'center' });
   }
 
-  // ---- the drive: the truck, seen from the side ----------------------------
-  // The same vehicle that is parked in your grove, facing the way it travels.
-  function truckImg() { return Art.flip(Props.get('truck')); }
-
+  // ---- the drive: the same road every journey uses -------------------------
+  // The opening haul is the travel scene with the dash swapped for a title.
+  const driveState = { t: 0, dur: 5.6, to: 'WOMBAT GROVE', km: 5, cars: [], dust: [],
+    title: 'TASMANIA', sub: 'two hours from the airport', fade: false };
   function drive(g) {
-    const k = U.clamp(t / 5.6, 0, 1);
-    const sp = t * 108;
-    const sky = g.createLinearGradient(0, 0, 0, 250);
-    sky.addColorStop(0, '#3e2b62'); sky.addColorStop(0.5, '#9a5f7a'); sky.addColorStop(1, '#f0b070');
-    g.fillStyle = sky; g.fillRect(0, 0, VW, 250);
-    g.fillStyle = '#ffd9a0'; Art.ell(g, 470, 176, 34, 34, '#ffd9a0');
-    g.globalAlpha = 0.25; g.fillStyle = '#ffd9a0'; Art.ell(g, 470, 176, 54, 54, '#ffd9a0'); g.globalAlpha = 1;
-    // far hills
-    for (let i = 0; i < 9; i++) { const hx = ((i * 120 - sp * 0.06) % (VW + 260)) - 130; Art.ell(g, hx, 224, 110, 44, '#5b4a72'); }
-    g.fillStyle = '#5b4a72'; g.fillRect(0, 220, VW, 70);
-    g.fillStyle = '#4d3e62'; g.fillRect(0, 246, VW, 44);
-    g.fillStyle = '#3f3352'; g.fillRect(0, 266, VW, 24);
-    // three ranks of the grove's own trees, each at its own speed
-    const RANKS = [[0.22, 252, 0.8, 0.3], [0.5, 272, 1.1, 0.5], [1.0, 296, 1.5, 0.7]];
-    RANKS.forEach(([rate, yy, sc, sh], ri) => {
-      const n = 9 + ri * 3;
-      for (let i = 0; i < n; i++) {
-        const span = VW + 340;
-        const x = ((i * (span / n) - sp * rate) % span + span) % span - 170;
-        const kind = ['gnarl', 'oak', 'pine', 'birch'][(i + ri) % 4];
-        const img = Props.get('tree', `${kind}|${(i * 3 + ri) % 6}|${sh.toFixed(2)}`);
-        const w = img.width * sc, h = img.height * sc;
-        g.drawImage(img, Math.round(x - w / 2), Math.round(yy - h), Math.round(w), Math.round(h));
-      }
-    });
-    // the same scrub that chokes the grove, growing along the verge
-    for (let i = 0; i < 18; i++) {
-      const x = ((i * 60 - sp * 1.5) % (VW + 140) + VW + 140) % (VW + 140) - 70;
-      const img = Props.get('weed', i % 6);
-      const sc = 0.8 + (i % 3) * 0.12;
-      g.drawImage(img, Math.round(x - img.width * sc / 2), Math.round(298 - img.height * sc),
-                  Math.round(img.width * sc), Math.round(img.height * sc));
-    }
-    // the road
-    g.fillStyle = '#3a352f'; g.fillRect(0, 288, VW, VH - 288);
-    g.fillStyle = '#4a443c'; g.fillRect(0, 288, VW, 5);
-    g.fillStyle = '#2a251f'; g.fillRect(0, 340, VW, 20);
-    for (let i = 0; i < 14; i++) { const dx = ((i * 64 - sp * 2.2) % (VW + 80) + VW + 80) % (VW + 80) - 40; g.fillStyle = '#e8dfa8'; g.fillRect(dx, 318, 30, 4); }
-    for (let i = 0; i < 40; i++) { const dx = ((i * 31 - sp * 2.4) % VW + VW) % VW; g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(dx, 296 + (i * 13) % 40, 9, 2); }
-    // roadside marker posts, flicking past
-    for (let i = 0; i < 4; i++) {
-      const x = ((i * 240 - sp * 2.1) % (VW + 240) + VW + 240) % (VW + 240) - 120;
-      g.fillStyle = '#1a120c'; g.fillRect(x, 276, 5, 20);
-      g.fillStyle = '#cfc4a8'; g.fillRect(x + 1, 277, 3, 18);
-      g.fillStyle = '#e04a36'; g.fillRect(x + 1, 279, 3, 4);
-    }
-    // the sign going by
-    const sx = VW + 60 - k * 900;
-    if (sx > -120 && sx < VW + 60) {
-      g.fillStyle = '#3a2a18'; g.fillRect(sx + 26, 230, 8, 62);
-      g.fillStyle = '#1c1008'; g.fillRect(sx - 4, 192, 76, 42);
-      g.fillStyle = '#2f6f3a'; g.fillRect(sx, 196, 68, 34);
-      Font.draw(g, 'WOMBAT', sx + 34, 202, { scale: 1, color: '#ffffff', align: 'center' });
-      Font.draw(g, 'GROVE', sx + 34, 212, { scale: 1, color: '#ffffff', align: 'center' });
-      Font.draw(g, '5 km', sx + 34, 222, { scale: 1, color: '#bfe8c6', align: 'center' });
-    }
-    // the truck itself, bouncing down the road
-    const img = truckImg();
-    const tw = img.width * 1.5, th = img.height * 1.5;
-    const tx = 210 + Math.sin(t * 0.8) * 20, ty = 316 + Math.abs(Math.sin(t * 9)) * 3;
-    // exhaust, coughing out of the back of it
-    for (let i = 0; i < 12; i++) {
-      const k = ((t * 1.6 + i * 0.14) % 1);
-      const px = tx - tw / 2 - 6 - k * 90;
-      const py = ty - 10 - k * 22 + Math.sin(k * 7 + i) * 4;
-      const a = (1 - k) * 0.4;
-      if (a < 0.02) continue;
-      g.fillStyle = `rgba(150,146,140,${a.toFixed(2)})`;
-      Art.ell(g, px, py, 4 + k * 16, 3 + k * 12, g.fillStyle);
-      g.fillStyle = `rgba(196,192,186,${(a * 0.5).toFixed(2)})`;
-      Art.ell(g, px - 2, py - 2, 2 + k * 8, 1.6 + k * 6, g.fillStyle);
-    }
-    Art.castShadow(g, img, tx, ty + 10, tw, th, { alpha: 0.34, lean: 0.3, squash: 0.14 });
-    g.drawImage(img, Math.round(tx - tw / 2), Math.round(ty - th + 12), Math.round(tw), Math.round(th));
-    // dust kicked off the back wheels
-    for (let i = 0; i < 9; i++) {
-      const dx = tx - tw / 2 - i * 14 - (t * 60) % 14, a = (1 - i / 9) * 0.38;
-      g.fillStyle = `rgba(196,170,130,${a.toFixed(2)})`;
-      Art.ell(g, dx, ty + 6 - (i % 3) * 4, 8 + i, 4 + i * 0.6, g.fillStyle);
-    }
-    // the near verge tearing past the bottom of frame, same scrub, big
-    for (let i = 0; i < 10; i++) {
-      const x = ((i * 84 - sp * 3.4) % (VW + 220) + VW + 220) % (VW + 220) - 110;
-      const img = Props.get('weed', (i * 2) % 6);
-      const sc = 1.9 + (i % 3) * 0.35;
-      g.drawImage(img, Math.round(x - img.width * sc / 2), Math.round(378 - img.height * sc),
-                  Math.round(img.width * sc), Math.round(img.height * sc));
-    }
-    g.fillStyle = 'rgba(12,8,20,0.42)'; g.fillRect(0, 330, VW, VH - 330);
-    for (let i = 0; i < 7; i++) {
-      const ly = 236 + i * 14, lx = ((i * 90 - t * 420) % (VW + 160) + VW + 160) % (VW + 160) - 80;
-      g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(lx, ly, 40 + (i % 3) * 18, 2);
-    }
-    Font.draw(g, 'TASMANIA', 320, 22, { scale: 2, color: '#f0d2a0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
-    Font.draw(g, 'two hours from the airport', 320, 42, { scale: 1, color: '#c9a9c0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
+    driveState.t = t;
+    Drive.paint(g, driveState);
+  }
+  // the oncoming traffic is state, so it needs a tick of its own here
+  function driveTick(dt) {
+    const st = driveState;
+    if (st.cars.length < 2 && Math.random() < dt * 0.5) st.cars.push({ x: 760, sp: 260 + Math.random() * 180, lane: Math.random() < 0.5 ? 0 : 1 });
+    for (let i = st.cars.length - 1; i >= 0; i--) { st.cars[i].x -= st.cars[i].sp * dt; if (st.cars[i].x < -180) st.cars.splice(i, 1); }
   }
 
   function arrive(g) {
@@ -10458,29 +10826,42 @@ const UI = (() => {
   function openBasket() { openPanel('panel-basket'); }
   function renderBasket() {
     const rows = Shop.lines();
+    const t = Shop.total();
+    const afford = t <= G.wd;
     let h = '';
-    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>THE BASKET IS EMPTY</p></div>`;
+    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>THE BASKET IS EMPTY</p><span>swipe the aisles and click what you want</span></div>`;
     else {
       h = '<div class="blist">';
       for (const r of rows) {
-        h += `<div class="brow">${ic(r.p.icon, 'lg')}<span class="bn">${r.p.name}</span><span class="bq">x${r.n}</span>
-          <span class="bp">${ic('wdollar', 'sm')}${U.fmt(r.sum)}</span>
-          <button class="bx" data-id="${r.p.id}">${ic('close', 'sm')}</button></div>`;
+        const each = Math.round(r.sum / r.n);
+        h += `<div class="brow${r.deal ? ' deal' : ''}">
+          <span class="bico">${ic(r.p.icon, 'lg')}</span>
+          <span class="bn">${r.p.name}${r.deal ? '<em>HALF PRICE</em>' : `<em>${U.fmt(each)} each</em>`}</span>
+          <span class="bstep"><button class="bm" data-id="${r.p.id}">-</button><b>${r.n}</b><button class="bp2" data-id="${r.p.id}">+</button></span>
+          <span class="bp">${U.fmt(r.sum)}</span>
+          <button class="bx" data-id="${r.p.id}" title="remove">${ic('close', 'sm')}</button></div>`;
       }
       h += '</div>';
     }
-    const t = Shop.total();
-    h += `<div class="btotal">${ic('wdollar')}<b>${U.fmt(t)}</b><span class="dim">of ${U.fmt(G.wd)}</span></div>
+    const pct = G.wd > 0 ? Math.min(100, (t / G.wd) * 100) : 100;
+    h += `<div class="btotal">
+        <span class="tl">TOTAL</span>
+        <b class="${afford ? '' : 'over'}">${ic('wdollar', 'sm')}${U.fmt(t)}</b>
+        <span class="wallet">${U.fmt(G.wd)} in hand</span>
+        <span class="tbar"><i style="width:${pct.toFixed(0)}%" class="${afford ? '' : 'over'}"></i></span>
+      </div>
       <div class="brow2">
-        <button class="act go" id="b-pay" ${!rows.length || t > G.wd ? 'disabled' : ''}>${ic('check')}<span>PAY</span></button>
+        <button class="act go big" id="b-pay" ${!rows.length || !afford ? 'disabled' : ''}>${ic('check')}<span>${afford ? 'PAY ' + U.fmt(t) : 'NOT ENOUGH'}</span></button>
         <button class="wbtn" id="b-clear">${ic('close', 'sm')}CLEAR</button>
         <button class="wbtn" id="b-sell">${ic('wdollar', 'sm')}SELL</button>
       </div>`;
     $('basket-body').innerHTML = h;
-    $('basket-body').querySelectorAll('.bx').forEach((b) => b.onclick = () => { Shop.removeLine(b.dataset.id); renderBasket(); });
+    $('basket-body').querySelectorAll('.bx').forEach((b) => b.onclick = () => { Shop.removeLine(b.dataset.id); Audio.play('click'); renderBasket(); });
+    $('basket-body').querySelectorAll('.bm').forEach((b) => b.onclick = () => { Shop.removeOne(b.dataset.id); Audio.play('click'); renderBasket(); });
+    $('basket-body').querySelectorAll('.bp2').forEach((b) => b.onclick = () => { Shop.addById(b.dataset.id); renderBasket(); });
     const pay = $('b-pay');
     if (pay) pay.onclick = () => { Shop.checkout(); Audio.play('till'); closePanels(); renderBasket(); };
-    $('b-clear').onclick = () => { Shop.clear(); renderBasket(); };
+    $('b-clear').onclick = () => { Shop.clear(); Audio.play('click'); renderBasket(); };
     $('b-sell').onclick = () => { openPanel('panel-pawn'); };
   }
 

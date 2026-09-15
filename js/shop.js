@@ -203,7 +203,7 @@ const Shop = (() => {
       const p = cat.find((x) => x.id === o.id) || { name: '?', price: 0 };
       let sum = 0;
       for (let i = 0; i < o.n; i++) sum += priceOf(p, i);
-      return { p, n: o.n, sum };
+      return { p, n: o.n, sum, deal: onDeal(p) };
     });
   }
   function add(p) {
@@ -219,6 +219,16 @@ const Shop = (() => {
       FX.comic(s.x - scroll, s.y - 42, U.pick(['GRAB!', 'IN!', 'YOINK!']), { ink: '#ffe98a', edge: '#c9581f', life: 0.6 });
     }
     UI.refreshBasket();
+  }
+  // one off the pile, rather than the whole line
+  function removeOne(id) {
+    const i = basket.lastIndexOf(id);
+    if (i >= 0) basket.splice(i, 1);
+    UI.refreshBasket();
+  }
+  function addById(id) {
+    const p = catalogue().find((x) => x.id === id);
+    if (p) add(p);
   }
   function removeLine(id) {
     const i = basket.lastIndexOf(id);
@@ -269,6 +279,7 @@ const Shop = (() => {
     if (phase === 'door' && pt > 2.4) { phase = 'aisle'; pt = 0; }
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.0015, dt));
     keeper.t += dt;
+    shazTick(dt);
     if (till > 0) { till -= dt; if (till <= 0) keeper.pose = 'idle'; }
     if (gacha.spin > 0) {
       gacha.spin = Math.max(0, gacha.spin - dt * 0.8);
@@ -312,7 +323,7 @@ const Shop = (() => {
     if (keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h) {
       if (!basket.length) { Audio.play('error'); UI.toast('nothing in the basket yet', 'bad'); return; }
       UI.openBasket(); Audio.play('click');
-      FX.comic(x, y - 26, 'HI!', { ink: '#d8f0a0', edge: '#2f8f42', life: 0.5 });
+      FX.comic(x, y - 26, 'G\'DAY!', { ink: '#d8f0a0', edge: '#2f8f42', life: 0.5 });
       return;
     }
     if (overCounter(x) && y > 150) { UI.openBasket(); Audio.play('click'); return; }
@@ -326,8 +337,8 @@ const Shop = (() => {
     }
     const s = slotAt(x, y);
     hover = s;
-    if (keeperHot) return `<b>Baz</b> <span class="dim">shopkeeper</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'bring him a basket'}`;
-    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>ask the wombat' : null;
+    if (keeperHot) return `<b>Shaz</b> <span class="dim">nineteen years on this till</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'she would love to tell you about wombats'}`;
+    if (!s) return overCounter(x) && y > 150 ? '<b>Checkout</b><br>ask Shaz' : null;
     const p = s.p;
     const tag = p.locked ? '<span class="warn">a god must bless it</span>'
       : p.sold ? '<span class="good">owned</span>'
@@ -1114,75 +1125,118 @@ const Shop = (() => {
     g.fillStyle = '#8ad0a0'; g.fillRect(cx + 217, 271, 14, 8);
     g.fillStyle = '#5a6069'; g.fillRect(cx + 222, 280, 4, 6);
     // register
-    g.fillStyle = '#3d434e'; g.fillRect(cx + 150, 252, 52, 32);
-    g.fillStyle = '#525965'; g.fillRect(cx + 150, 252, 52, 6);
-    g.fillStyle = '#8ad0a0'; g.fillRect(cx + 156, 258, 40, 13);
-    FX.pixelText(g, till > 0 ? 'TA!' : 'W$', cx + 176, 260, { color: '#1d3324', size: 7, ink: false });
-    for (let i = 0; i < 3; i++) { g.fillStyle = '#d8d2c2'; g.fillRect(cx + 156 + i * 14, 275, 10, 5); }
+    g.fillStyle = '#3d434e'; g.fillRect(cx + 108, 252, 52, 32);
+    g.fillStyle = '#525965'; g.fillRect(cx + 108, 252, 52, 6);
+    g.fillStyle = '#8ad0a0'; g.fillRect(cx + 114, 258, 40, 13);
+    FX.pixelText(g, till > 0 ? 'TA!' : 'W$', cx + 134, 260, { color: '#1d3324', size: 7, ink: false });
+    for (let i = 0; i < 3; i++) { g.fillStyle = '#d8d2c2'; g.fillRect(cx + 114 + i * 14, 275, 10, 5); }
     // lollipop jar and a hot-dog roller
-    Art.rect(g, cx + 30, 256, 24, 28, 'rgba(210,236,244,0.6)');
-    for (let i = 0; i < 6; i++) Art.ell(g, cx + 36 + (i % 3) * 7, 266 + (i % 2) * 8, 4, 4, ['#e8708a', '#f5cd5c', '#79dced'][i % 3]);
-    Art.rect(g, cx + 30, 250, 24, 7, '#c9581f');
-    g.fillStyle = '#8e8a7c'; g.fillRect(cx + 66, 262, 68, 22);
-    for (let i = 0; i < 4; i++) { g.fillStyle = '#a8663a'; g.fillRect(cx + 70 + i * 16, 266 + Math.sin(t * 3 + i) * 1, 12, 5); }
-    g.fillStyle = '#d8d2c2'; g.fillRect(cx + 66, 258, 68, 5);
+    Art.rect(g, cx + 14, 256, 24, 28, 'rgba(210,236,244,0.6)');
+    for (let i = 0; i < 6; i++) Art.ell(g, cx + 20 + (i % 3) * 7, 266 + (i % 2) * 8, 4, 4, ['#e8708a', '#f5cd5c', '#79dced'][i % 3]);
+    Art.rect(g, cx + 14, 250, 24, 7, '#c9581f');
+    g.fillStyle = '#8e8a7c'; g.fillRect(cx + 46, 262, 56, 22);
+    for (let i = 0; i < 4; i++) { g.fillStyle = '#a8663a'; g.fillRect(cx + 50 + i * 13, 266 + Math.sin(t * 3 + i) * 1, 10, 5); }
+    g.fillStyle = '#d8d2c2'; g.fillRect(cx + 46, 258, 56, 5);
     // receipt
     if (till > 0) {
       const h = U.clamp((2 - till) * 40, 0, 48);
-      g.fillStyle = '#fffdf0'; g.fillRect(cx + 170, 252 - h, 14, h);
-      g.fillStyle = '#b9b3a2'; for (let y = 4; y < h; y += 6) g.fillRect(cx + 172, 252 - h + y, 10, 1);
+      g.fillStyle = '#fffdf0'; g.fillRect(cx + 128, 252 - h, 14, h);
+      g.fillStyle = '#b9b3a2'; for (let y = 4; y < h; y += 6) g.fillRect(cx + 130, 252 - h + y, 10, 1);
     }
     keeperWombat(g, cx, t);
-    sign(g, cx + 120, 104, 'PAY HERE', '#b8412c', 'ask the wombat');
+    sign(g, cx + 120, 104, 'PAY HERE', '#b8412c', 'ask Shaz');
   }
 
-  // The shopkeeper: a wombat sat on the counter in a little green visor. It is
-  // the checkout — you come to it, and it holds up what you owe.
+  // ---- Shaz, on the till ---------------------------------------------------
+  // Nineteen years at this counter and she has never once let a customer leave
+  // without a wombat fact. She stands at the right-hand end, where the till is.
+  const SHAZ_LINES = [
+    'Did you know a wombat does square poos? Square!',
+    'Three sets of them out the back. I feed them chips.',
+    'They can run twenty-five k an hour. Twenty-five!',
+    'My Kevin says I talk about them too much. Kevin is wrong.',
+    'Backwards into the burrow, see, so the bum blocks the door.',
+    'That bum is cartilage. Solid as a dinner plate.',
+    'A joey stays in the pouch six months. Six!',
+    'Pouch faces backwards so the dirt does not go in. Clever.',
+    'I have named every one on the Flat. There are forty-one.',
+    'They chew a hundred and fifty times a minute, love.',
+    'One came in here in ninety-eight. Knocked over the cordial.',
+    'A wombat can live thirty years. Longer than my marriage.',
+    'Their teeth never stop growing. Never!',
+    'You have the look of a wombat person. I can always tell.',
+    'Two hearts? No, that is the octopus. Sorry.',
+    'Sold out of wombat mugs. Bloke bought the lot.',
+    'They dig eight metres in a night. Eight metres!',
+    'Hairy-nosed, bare-nosed. I prefer the bare, myself.',
+    'The square poo is so it does not roll off the rock. Genius.',
+    'I have a tattoo. I will not show you where.',
+  ];
+  const shaz = { t: 0, line: 0, said: 0, pose: 'idle', poseT: 0 };
   let keeperR = null;
+  function shazTick(dt) {
+    shaz.t += dt;
+    shaz.said -= dt;
+    if (shaz.poseT > 0) { shaz.poseT -= dt; if (shaz.poseT <= 0) shaz.pose = 'idle'; }
+    if (shaz.said <= 0 && phase === 'aisle') {
+      shaz.said = 5.5 + Math.random() * 3.5;
+      shaz.line = (shaz.line + 1 + Math.floor(Math.random() * 3)) % SHAZ_LINES.length;
+      shaz.pose = 'talk'; shaz.poseT = 3.4;
+    }
+  }
   function keeperWombat(g, cx, t) {
     const n = basket.length;
-    const wx = cx + 66, wy = 288;
-    const hop = n ? Math.abs(Math.sin(t * 4)) * 3 : Math.abs(Math.sin(t * 1.6)) * 1.2;
+    const wx = cx + 198, wy = 302;
     const hot = keeperHot;
-    keeperR = { x: wx - 40, y: wy - 66, w: 80, h: 70 };
-    // the counter dips a little under it
-    g.fillStyle = 'rgba(0,0,0,0.16)'; Art.ell(g, wx, wy + 1, 22, 5);
-    const f = Math.floor(t * (till > 0 ? 9 : n ? 6 : 2.2));
-    const pose = till > 0 ? 'happy' : n ? 'sit' : 'idle';
-    g.save();
-    g.translate(0, -hop);
-    Sprites.blit(g, wx, wy, pose, f, 'sand', -1, 'adult', 2.6);
-    // a green visor, because it works here
-    g.fillStyle = '#12361c'; g.fillRect(wx - 16, wy - 62, 32, 7);
-    g.fillStyle = '#2f8f42'; g.fillRect(wx - 15, wy - 61, 30, 5);
-    g.fillStyle = '#5fc46c'; g.fillRect(wx - 15, wy - 61, 30, 1);
-    g.fillStyle = '#12361c'; g.fillRect(wx - 24, wy - 56, 32, 5);
-    g.fillStyle = '#3fa552'; g.fillRect(wx - 24, wy - 56, 32, 2);
-    // a name badge
-    g.fillStyle = '#fffdf0'; g.fillRect(wx - 14, wy - 30, 18, 8);
-    g.fillStyle = '#c9581f'; g.fillRect(wx - 14, wy - 30, 18, 2);
-    Font.draw(g, 'BAZ', wx - 5, wy - 26, { scale: 1, color: '#2a2f3a', align: 'center' });
-    g.restore();
-    // what it wants from you
-    const by = wy - 74 - hop;
-    if (till > 0) {
-      bubble(g, wx, by, 'TA!', '#3f8f4a', '#dff5d8');
-    } else if (n) {
-      bubble(g, wx, by, `${total()} W$`, '#c9581f', '#fff0dc');
+    keeperR = { x: wx - 34, y: wy - 92, w: 68, h: 86 };
+    const pose = till > 0 ? 'wave' : hot ? 'happy' : n ? 'happy' : shaz.pose;
+    const rate = pose === 'talk' ? 7 : pose === 'wave' ? 9 : 2.4;
+    const img = Sprites.cashier(Math.floor(shaz.t * rate), pose);
+    const sc = 1.2, w = img.width * sc, h = img.height * sc;
+    const bob = Math.sin(shaz.t * 1.6) * 1.2;
+    g.drawImage(img, Math.round(wx - w / 2), Math.round(wy - h + bob), Math.round(w), Math.round(h));
+    // her mug, parked on the counter beside her
+    const mx = wx - 40;
+    g.fillStyle = '#1d2230'; g.fillRect(mx - 7, 268, 14, 15);
+    g.fillStyle = '#d8d2c2'; g.fillRect(mx - 6, 269, 12, 13);
+    g.fillStyle = '#8a6a3a'; g.fillRect(mx - 6, 269, 12, 3);
+    Art.ell(g, mx + 8, 275, 3.4, 3.4, '#d8d2c2');
+    Art.ell(g, mx + 8, 275, 1.8, 1.8, '#efe9da');
+    if (Math.sin(t * 2) > 0.4) { g.fillStyle = 'rgba(255,255,255,0.3)'; g.fillRect(mx - 2, 262 - (t * 8) % 6, 2, 4); }
+    // what she is saying, which is always about wombats
+    const by = wy - h + bob - 6;
+    if (till > 0) bubble(g, wx, by, 'TA, LOVE!', '#3f8f4a', '#dff5d8');
+    else if (n) bubble(g, wx, by, `${total()} W$`, '#c9581f', '#fff0dc');
+    else if (shaz.pose === 'talk') chatBubble(g, wx, by, SHAZ_LINES[shaz.line]);
+    else if (hot) bubble(g, wx, by, 'G\'DAY', '#2f6f9f', '#d8ecff');
+    if (n && !till) {
       const a = 0.5 + 0.5 * Math.sin(t * 5);
-      Font.draw(g, 'CLICK ME', wx, by - 32, { scale: 1, color: `rgba(245,205,92,${a.toFixed(2)})`, align: 'center', shadow: '#2a1608' });
-    } else if (hot) {
-      bubble(g, wx, by, 'G\'DAY', '#2f6f9f', '#d8ecff');
+      Font.draw(g, 'CLICK HER', wx, wy + 16, { scale: 1, color: `rgba(245,205,92,${a.toFixed(2)})`, align: 'center', shadow: '#2a1608' });
     }
-    if (hot) {                                        // a ring so you know it is the button
+    if (hot) {
       g.strokeStyle = '#f5cd5c'; g.lineWidth = 1;
       g.setLineDash([4, 3]); g.lineDashOffset = -t * 10;
       g.strokeRect(keeperR.x + 0.5, keeperR.y + 0.5, keeperR.w - 1, keeperR.h - 1);
       g.setLineDash([]);
     }
   }
-  function bubble(g, x, y, text, col, ink) {
+  // her running commentary: a plain white box, wrapped, with a tail
+  function chatBubble(g, x, y, text) {
+    const lines = Font.wrap(text, 156, 1);
+    const w = Math.max(60, Math.max(...lines.map((l) => Font.width(l, 1))) + 14);
+    const h = lines.length * 11 + 9;
+    const bx = U.clamp(x - w * 0.66, 4, VW - w - 4);
+    g.fillStyle = '#0a0810'; g.fillRect(bx - 2, y - h - 2, w + 4, h + 4);
+    g.fillStyle = '#fffdf0'; g.fillRect(bx, y - h, w, h);
+    g.fillStyle = '#c9c2ad'; g.fillRect(bx, y - 4, w, 4);
+    Art.poly(g, [[x - 5, y], [x + 6, y], [x + 1, y + 8]], '#0a0810');
+    Art.poly(g, [[x - 4, y - 1], [x + 5, y - 1], [x + 1, y + 6]], '#fffdf0');
+    lines.forEach((l, i) => Font.draw(g, l, bx + 7, y - h + 5 + i * 11, { scale: 1, color: '#2a2f3a' }));
+  }
+
+  function bubble(g, x0, y, text, col, ink) {
     const w = Font.width(text, 2) + 16, h = 20;
+    const x = U.clamp(x0, w / 2 + 6, VW - w / 2 - 6);
     g.fillStyle = '#0a0810'; g.fillRect(x - w / 2 - 2, y - h - 2, w + 4, h + 4);
     g.fillStyle = col; g.fillRect(x - w / 2, y - h, w, h);
     g.fillStyle = U.shade(col, 0.35); g.fillRect(x - w / 2, y - h, w, 3);
@@ -1193,8 +1247,9 @@ const Shop = (() => {
 
   return {
     init(g) { G = g; }, open, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
-    add, removeLine, clear, checkout, total, lines, layout, catalogue,
+    add, addById, removeOne, removeLine, clear, checkout, total, lines, layout, catalogue,
     get gachaHit() { return gachaR; },
+    get shazTalking() { return shaz.pose === 'talk'; },
     setScroll(f) { tscroll = (worldW - VW) * U.clamp(f, 0, 1); scroll = tscroll; },
     get basket() { return basket; }, get phase() { return phase; }, get worldW() { return worldW; },
   };

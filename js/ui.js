@@ -227,29 +227,42 @@ const UI = (() => {
   function openBasket() { openPanel('panel-basket'); }
   function renderBasket() {
     const rows = Shop.lines();
+    const t = Shop.total();
+    const afford = t <= G.wd;
     let h = '';
-    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>THE BASKET IS EMPTY</p></div>`;
+    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>THE BASKET IS EMPTY</p><span>swipe the aisles and click what you want</span></div>`;
     else {
       h = '<div class="blist">';
       for (const r of rows) {
-        h += `<div class="brow">${ic(r.p.icon, 'lg')}<span class="bn">${r.p.name}</span><span class="bq">x${r.n}</span>
-          <span class="bp">${ic('wdollar', 'sm')}${U.fmt(r.sum)}</span>
-          <button class="bx" data-id="${r.p.id}">${ic('close', 'sm')}</button></div>`;
+        const each = Math.round(r.sum / r.n);
+        h += `<div class="brow${r.deal ? ' deal' : ''}">
+          <span class="bico">${ic(r.p.icon, 'lg')}</span>
+          <span class="bn">${r.p.name}${r.deal ? '<em>HALF PRICE</em>' : `<em>${U.fmt(each)} each</em>`}</span>
+          <span class="bstep"><button class="bm" data-id="${r.p.id}">-</button><b>${r.n}</b><button class="bp2" data-id="${r.p.id}">+</button></span>
+          <span class="bp">${U.fmt(r.sum)}</span>
+          <button class="bx" data-id="${r.p.id}" title="remove">${ic('close', 'sm')}</button></div>`;
       }
       h += '</div>';
     }
-    const t = Shop.total();
-    h += `<div class="btotal">${ic('wdollar')}<b>${U.fmt(t)}</b><span class="dim">of ${U.fmt(G.wd)}</span></div>
+    const pct = G.wd > 0 ? Math.min(100, (t / G.wd) * 100) : 100;
+    h += `<div class="btotal">
+        <span class="tl">TOTAL</span>
+        <b class="${afford ? '' : 'over'}">${ic('wdollar', 'sm')}${U.fmt(t)}</b>
+        <span class="wallet">${U.fmt(G.wd)} in hand</span>
+        <span class="tbar"><i style="width:${pct.toFixed(0)}%" class="${afford ? '' : 'over'}"></i></span>
+      </div>
       <div class="brow2">
-        <button class="act go" id="b-pay" ${!rows.length || t > G.wd ? 'disabled' : ''}>${ic('check')}<span>PAY</span></button>
+        <button class="act go big" id="b-pay" ${!rows.length || !afford ? 'disabled' : ''}>${ic('check')}<span>${afford ? 'PAY ' + U.fmt(t) : 'NOT ENOUGH'}</span></button>
         <button class="wbtn" id="b-clear">${ic('close', 'sm')}CLEAR</button>
         <button class="wbtn" id="b-sell">${ic('wdollar', 'sm')}SELL</button>
       </div>`;
     $('basket-body').innerHTML = h;
-    $('basket-body').querySelectorAll('.bx').forEach((b) => b.onclick = () => { Shop.removeLine(b.dataset.id); renderBasket(); });
+    $('basket-body').querySelectorAll('.bx').forEach((b) => b.onclick = () => { Shop.removeLine(b.dataset.id); Audio.play('click'); renderBasket(); });
+    $('basket-body').querySelectorAll('.bm').forEach((b) => b.onclick = () => { Shop.removeOne(b.dataset.id); Audio.play('click'); renderBasket(); });
+    $('basket-body').querySelectorAll('.bp2').forEach((b) => b.onclick = () => { Shop.addById(b.dataset.id); renderBasket(); });
     const pay = $('b-pay');
     if (pay) pay.onclick = () => { Shop.checkout(); Audio.play('till'); closePanels(); renderBasket(); };
-    $('b-clear').onclick = () => { Shop.clear(); renderBasket(); };
+    $('b-clear').onclick = () => { Shop.clear(); Audio.play('click'); renderBasket(); };
     $('b-sell').onclick = () => { openPanel('panel-pawn'); };
   }
 
