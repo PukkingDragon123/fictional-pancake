@@ -3,7 +3,7 @@ const Shop = (() => {
   let G = null;
   const VW = 640, VH = 360;
   const cache = new Map();
-  let phase = 'door', pt = 0, scroll = 0, tscroll = 0, till = 0, hover = null;
+  let phase = 'aisle', pt = 0, scroll = 0, tscroll = 0, till = 0, hover = null;
   let drag = null, moved = 0, keeper = { t: 0, pose: 'idle' }, keeperHot = false;
   const basket = [], flies = [], motes = [];
 
@@ -265,7 +265,7 @@ const Shop = (() => {
   function open() { Main.setMode('shop'); }
   function enter() {
     layout();
-    phase = 'door'; pt = 0; scroll = 0; tscroll = 0; till = 0; hover = null;
+    phase = 'aisle'; pt = 0; scroll = 0; tscroll = 0; till = 0; hover = null;
     basket.length = 0; flies.length = 0;
     if (!motes.length) { const r = Art.rng(99); for (let i = 0; i < 24; i++) motes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU }); }
     Audio.setMode('pen');
@@ -276,7 +276,6 @@ const Shop = (() => {
 
   function update(dt) {
     pt += dt;
-    if (phase === 'door' && pt > 2.4) { phase = 'aisle'; pt = 0; }
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.0015, dt));
     keeper.t += dt;
     shazTick(dt);
@@ -303,7 +302,6 @@ const Shop = (() => {
   }
   const overCounter = (x) => x + scroll > counterX - 30;
   function press(x, y) {
-    if (phase !== 'aisle') { phase = 'aisle'; pt = 0; return; }
     drag = { x, y, s: tscroll }; moved = 0;
   }
   function move(x, y) {
@@ -350,113 +348,11 @@ const Shop = (() => {
 
   // ---- render -------------------------------------------------------------
   function render(g) {
-    if (phase === 'door') { renderFront(g); return; }
     renderRoom(g);
   }
 
   // The storefront: a lit box at dusk, glass all along the front, automatic
   // doors sliding apart while the camera walks in.
-  function renderFront(g) {
-    const k = U.clamp(pt / 2.4, 0, 1);
-    const zoom = 1 + U.easeIn(k) * 2.8;
-    const slide = U.easeOut(U.clamp((pt - 0.5) / 0.9, 0, 1));
-    const dusk = g.createLinearGradient(0, 0, 0, VH);
-    dusk.addColorStop(0, '#161d33'); dusk.addColorStop(0.7, '#2e3550'); dusk.addColorStop(1, '#3c4038');
-    g.fillStyle = dusk; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 40; i++) { g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect((i * 137) % VW, (i * 61) % 90, 1, 1); }
-
-    g.save();
-    g.translate(VW / 2, 250); g.scale(zoom, zoom); g.translate(-VW / 2, -250);
-
-    // the lot
-    g.fillStyle = '#3a3a40'; g.fillRect(0, 250, VW, VH - 250);
-    g.fillStyle = '#4a4a52'; g.fillRect(0, 250, VW, 3);
-    for (let i = 0; i < 7; i++) { g.fillStyle = 'rgba(240,236,200,0.35)'; g.fillRect(30 + i * 90, 296, 44, 3); }
-
-    const bx = 150, by = 96, bw = 340, bh = 154;
-    // body
-    g.fillStyle = '#e9e4d6'; g.fillRect(bx, by, bw, bh);
-    g.fillStyle = '#d6d0c0'; g.fillRect(bx, by + bh - 10, bw, 10);
-    // the house band: orange, green, red, the way every mart on earth is striped
-    g.fillStyle = '#c9581f'; g.fillRect(bx, by, bw, 9);
-    g.fillStyle = '#3f8f4a'; g.fillRect(bx, by + 9, bw, 9);
-    g.fillStyle = '#b8412c'; g.fillRect(bx, by + 18, bw, 5);
-    // parapet and sign box
-    g.fillStyle = '#f4f0e4'; g.fillRect(bx - 8, by - 26, bw + 16, 28);
-    g.fillStyle = '#cfc8b6'; g.fillRect(bx - 8, by - 4, bw + 16, 6);
-    g.fillStyle = '#2a2f3a'; g.fillRect(bx + 40, by - 22, bw - 80, 20);
-    const buzz = 0.85 + 0.15 * Math.sin(pt * 30);
-    g.globalAlpha = buzz;
-    FX.pixelText(g, 'WOMBAT MART', bx + bw / 2, by - 18, { color: '#f6f2e2', size: 11, ink: 3, inkColor: '#1a2030' });
-    g.globalAlpha = 1;
-    g.fillStyle = '#3f8f4a'; g.fillRect(bx + 22, by - 20, 14, 16);
-    g.fillStyle = '#c9581f'; g.fillRect(bx + bw - 36, by - 20, 14, 16);
-
-    // glass front, lit from inside
-    const glass = g.createLinearGradient(0, by + 26, 0, by + bh - 12);
-    glass.addColorStop(0, 'rgba(255,246,214,0.95)'); glass.addColorStop(1, 'rgba(226,214,176,0.9)');
-    g.fillStyle = '#2a2f3a'; g.fillRect(bx + 10, by + 26, bw - 20, bh - 38);
-    g.fillStyle = glass; g.fillRect(bx + 14, by + 30, bw - 28, bh - 46);
-    // shelving seen through the window
-    for (let i = 0; i < 3; i++) {
-      g.fillStyle = 'rgba(120,104,74,0.4)'; g.fillRect(bx + 22, by + 52 + i * 24, 120, 4);
-      for (let k2 = 0; k2 < 6; k2++) { g.fillStyle = ['#7a9a5a', '#c9581f', '#4a6a9a', '#b8496a'][(i + k2) % 4]; g.fillRect(bx + 26 + k2 * 19, by + 42 + i * 24, 11, 10); }
-    }
-    // posters
-    g.fillStyle = '#d8402c'; g.fillRect(bx + 250, by + 44, 34, 26);
-    FX.pixelText(g, 'SALE', bx + 267, by + 52, { color: '#fff', size: 7, ink: false });
-    g.fillStyle = '#2f6f9f'; g.fillRect(bx + 292, by + 44, 34, 26);
-    FX.pixelText(g, 'OPEN', bx + 309, by + 52, { color: '#fff', size: 7, ink: false });
-    // mullions
-    g.fillStyle = '#2a2f3a';
-    for (let x2 = bx + 14; x2 < bx + bw - 14; x2 += 58) g.fillRect(x2, by + 30, 4, bh - 46);
-
-    // the automatic doors, sliding apart
-    const dW = 92, dX = bx + bw / 2 - dW / 2, dY = by + 34, dH = bh - 50;
-    g.fillStyle = '#1d2230'; g.fillRect(dX - 4, dY - 4, dW + 8, dH + 8);
-    // what you can see through the opening
-    g.save();
-    g.beginPath(); g.rect(dX, dY, dW, dH); g.clip();
-    const inner = g.createLinearGradient(0, dY, 0, dY + dH);
-    inner.addColorStop(0, '#fffbe8'); inner.addColorStop(1, '#e6d9b4');
-    g.fillStyle = inner; g.fillRect(dX, dY, dW, dH);
-    g.fillStyle = '#c9bd9a'; g.fillRect(dX, dY + dH - 22, dW, 22);
-    if (slide > 0.15) Sprites.blit(g, dX + dW * 0.5, dY + dH - 6, 'pray', Math.floor(pt * 3), 'sand', -1, 'adult', 1.5);
-    g.fillStyle = 'rgba(255,240,190,0.25)'; g.fillRect(dX, dY, dW, dH);
-    g.restore();
-    for (const s2 of [-1, 1]) {                     // the two glass leaves
-      const w2 = (dW / 2) * (1 - slide * 0.9);
-      const x2 = s2 < 0 ? dX : dX + dW - w2;
-      g.fillStyle = 'rgba(198,222,226,0.72)'; g.fillRect(x2, dY, w2, dH);
-      g.fillStyle = '#7f8b96'; g.fillRect(x2, dY, w2, 3); g.fillRect(x2, dY + dH - 3, w2, 3);
-      g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(x2 + (s2 < 0 ? 3 : w2 - 8), dY + 6, 4, dH - 14);
-      g.fillStyle = '#39414d'; g.fillRect(s2 < 0 ? x2 + w2 - 3 : x2, dY, 3, dH);
-    }
-    // light spilling over the kerb
-    if (slide > 0.05) {
-      const spill = g.createLinearGradient(0, dY + dH, 0, dY + dH + 70);
-      spill.addColorStop(0, `rgba(255,236,180,${(0.4 * slide).toFixed(2)})`);
-      spill.addColorStop(1, 'rgba(255,236,180,0)');
-      g.fillStyle = spill;
-      g.beginPath();
-      g.moveTo(dX, dY + dH); g.lineTo(dX + dW, dY + dH);
-      g.lineTo(dX + dW + 40 * slide, dY + dH + 64); g.lineTo(dX - 40 * slide, dY + dH + 64);
-      g.closePath(); g.fill();
-    }
-    // kerbside clutter
-    g.fillStyle = '#7f8b96'; g.fillRect(bx + 20, by + bh - 2, 34, 26);
-    g.fillStyle = '#b9c4cc'; g.fillRect(bx + 23, by + bh + 1, 28, 10);
-    FX.pixelText(g, 'ICE', bx + 37, by + bh + 12, { color: '#2f6f9f', size: 7, ink: false });
-    g.fillStyle = '#c9581f'; g.fillRect(bx + bw - 58, by + bh - 2, 26, 26);
-    g.fillStyle = '#e9e4d6'; g.fillRect(bx + bw - 55, by + bh + 2, 20, 8);
-    const m = Sprites.mascot(Math.floor(pt * 3));
-    g.drawImage(m, Math.round(bx + bw + 6), Math.round(by + bh + 22 - m.height));
-    g.restore();
-
-    const fade = U.clamp((pt - 1.8) / 0.6, 0, 1);
-    g.fillStyle = `rgba(250,244,224,${fade})`; g.fillRect(0, 0, VW, VH);
-  }
-
   function renderRoom(g) {
     const t = G.time, S = scroll;
     // ---- ceiling: tiles, cable trays, and warm tubes ----------------------
@@ -535,7 +431,7 @@ const Shop = (() => {
       if (x < -60 || x > VW + 60) continue;
       const img = pic(s.p);
       const hot = hover === s;
-      const bob = hot ? Math.sin(t * 7) * 1.5 : 0;
+      const bob = hot ? Math.sin(t * 9) * 3 - 1.5 : Math.sin(t * 1.9 + s.x * 0.05) * 1.1;
       g.globalAlpha = s.p.locked ? 0.45 : 1;
       g.drawImage(img, Math.round(x - img.width / 2), Math.round(s.y - img.height + 10 + bob));
       g.globalAlpha = 1;

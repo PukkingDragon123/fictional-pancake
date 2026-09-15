@@ -428,91 +428,100 @@ const Props = (() => {
   });
 
   // ---- buildings ----------------------------------------------------------
-  // ---- the Fortuner --------------------------------------------------------
-  // A big square-shouldered body-on-frame SUV, side on, facing left: long
-  // bonnet, three side windows stepping back to a chunky rear pillar, roof
-  // rails, flared arches, side steps and alloys. The bed behind the rear seats
-  // is what the cubes ride in, so the tailgate reads open.
+  // ---- the truck -----------------------------------------------------------
+  // A stubby 4x4 wagon, side on, facing left. Drawn as a silhouette first and
+  // then panelled in, so the shape reads before any of the detail does: short
+  // bonnet, tall glasshouse, a squared-off back with the tailgate down, and
+  // wheels that sit in their arches rather than under them.
   function fortuner(g, W, H, o) {
     const open = !!(o && o.open);
-    const BODY = '#4a6f8a', LIT = '#79a2ba', DK = '#33495c', DKR = '#24384a';
-    const GLASS = '#8fc2d8', GLASS2 = '#c2e6f2', GLASS0 = '#5d90ac';
-    const TRIM = '#2a3a46', CHR = '#b9c6cf', CHR2 = '#eef4f7';
-    const TYRE = '#141118', RIM = '#8d95a2', RIM2 = '#cfd6de';
-    const y0 = H - 26;                                  // the body's floor line
-    // --- lower body and sills ---
-    Art.rect(g, 8, y0 - 2, W - 16, 10, DKR);
-    Art.rect(g, 14, y0 + 7, W - 30, 3, TRIM);           // side steps
-    // --- the main body ---
-    Art.poly(g, [[6, y0], [W - 8, y0], [W - 8, y0 - 16], [6, y0 - 16]], BODY);
-    // bonnet: long, dropping toward the nose (nose is to the LEFT)
-    Art.poly(g, [[6, y0 - 16], [40, y0 - 16], [40, y0 - 27], [10, y0 - 25]], BODY);
-    Art.poly(g, [[6, y0 - 24], [40, y0 - 26], [40, y0 - 27], [10, y0 - 25]], LIT);
-    // cabin: windscreen rakes back, roof runs flat, rear pillar is thick
-    Art.poly(g, [[40, y0 - 27], [52, y0 - 41], [W - 20, y0 - 41], [W - 10, y0 - 27]], BODY);
-    Art.rect(g, 50, y0 - 43, W - 70, 3, DK);            // roof rails
-    Art.rect(g, 56, y0 - 45, 16, 2, TRIM);
-    Art.rect(g, W - 46, y0 - 45, 16, 2, TRIM);
-    // --- glass, three panes stepping back ---
-    Art.poly(g, [[46, y0 - 28], [55, y0 - 39], [74, y0 - 39], [74, y0 - 28]], GLASS0);
-    Art.poly(g, [[47, y0 - 28], [56, y0 - 38], [73, y0 - 38], [73, y0 - 29]], GLASS);
-    Art.poly(g, [[49, y0 - 30], [56, y0 - 37], [64, y0 - 37], [58, y0 - 30]], GLASS2);
-    Art.rect(g, 78, y0 - 39, 22, 11, GLASS0);
-    Art.rect(g, 79, y0 - 38, 20, 9, GLASS);
-    Art.rect(g, 80, y0 - 37, 8, 4, GLASS2);
-    Art.rect(g, 104, y0 - 39, 14, 11, GLASS0);
-    Art.rect(g, 105, y0 - 38, 12, 9, GLASS);
-    Art.rect(g, 74, y0 - 40, 4, 13, TRIM);              // B pillar
-    Art.rect(g, 100, y0 - 40, 4, 13, TRIM);             // C pillar
-    Art.rect(g, W - 22, y0 - 41, 5, 14, TRIM);          // thick rear pillar
-    // --- the tray behind the cabin: where the offerings ride ---
+    const BODY = '#456d8c', LIT = '#6f9ab8', HI = '#9cc4dc', DK = '#2f4a62', DKR = '#1e3344';
+    const GLASS0 = '#4a7d99', GLASS = '#84b8d2', GLASS2 = '#c6e8f6';
+    const TRIM = '#232f3a', CHR = '#b9c6cf', CHR2 = '#eef4f7';
+    const TYRE = '#131018', TYRE2 = '#241f2c', RIM = '#8d95a2', RIM2 = '#d4dbe3';
+    const GROUND = H - 8;                    // where the tyres touch
+    const SILL = GROUND - 15;                // the bottom of the bodywork
+    const BELT = SILL - 20;                  // the window line
+    const ROOF = BELT - 20;
+    const NOSE = 8, TAIL = W - 8;
+    const FW = 34, RW = W - 38;              // the wheel centres
+
+    // --- the shadow it sits in ---
+    Art.ell(g, W / 2, GROUND + 5, W * 0.44, 4, 'rgba(10,8,16,0.3)');
+    // --- the body: one silhouette, then the panels on top of it ---
+    const shell = [
+      [NOSE, SILL], [NOSE - 4, SILL - 6], [NOSE - 2, BELT - 2],      // the nose, leaning forward
+      [22, BELT - 3], [30, ROOF], [TAIL - 14, ROOF],                  // windscreen up to the roof
+      [TAIL - 2, BELT - 2], [TAIL, SILL], [TAIL, SILL + 9], [NOSE, SILL + 9],
+    ];
+    Art.poly(g, shell, TRIM);
+    Art.poly(g, shell.map(([x, y]) => [x + (x < W / 2 ? 1.4 : -1.4), y + (y < BELT ? 1.4 : -0.6)]), BODY);
+    // the upper body catches the light, the sill sits in shadow
+    Art.poly(g, [[NOSE, BELT + 1], [TAIL - 2, BELT + 1], [TAIL - 2, BELT + 6], [NOSE, BELT + 6]], LIT);
+    Art.poly(g, [[NOSE, BELT + 1], [TAIL - 2, BELT + 1], [TAIL - 2, BELT + 2.4], [NOSE, BELT + 2.4]], HI);
+    Art.poly(g, [[NOSE, SILL + 1], [TAIL, SILL + 1], [TAIL, SILL + 9], [NOSE, SILL + 9]], DK);
+    Art.rect(g, NOSE + 4, SILL + 7, W - 24, 3, DKR);                  // the side step
+    Art.rect(g, NOSE + 4, SILL + 7, W - 24, 1, '#3d5a72');
+    // --- the glasshouse ---
+    Art.poly(g, [[25, BELT - 4], [32, ROOF + 2], [TAIL - 16, ROOF + 2], [TAIL - 6, BELT - 4]], GLASS0);
+    Art.poly(g, [[27, BELT - 5], [33.5, ROOF + 3], [51, ROOF + 3], [51, BELT - 5]], GLASS);      // windscreen
+    Art.poly(g, [[28.5, BELT - 7], [34, ROOF + 4], [43, ROOF + 4], [37, BELT - 7]], GLASS2);
+    Art.rect(g, 54, ROOF + 3, 26, BELT - ROOF - 8, GLASS);            // front door glass
+    Art.rect(g, 55, ROOF + 4, 11, 5, GLASS2);
+    Art.rect(g, 83, ROOF + 3, 20, BELT - ROOF - 8, GLASS);            // rear door glass
+    Art.rect(g, 84, ROOF + 4, 8, 5, GLASS2);
+    Art.rect(g, 51, ROOF + 1, 3, BELT - ROOF - 5, BODY);              // pillars
+    Art.rect(g, 80, ROOF + 1, 3, BELT - ROOF - 5, BODY);
+    Art.rect(g, 103, ROOF + 1, TAIL - 16 - 103, BELT - ROOF - 5, BODY);
+    Art.rect(g, 25, ROOF + 1, W - 42, 2.4, DK);                       // the roof line
+    Art.rect(g, 26, ROOF + 1, W - 44, 1, LIT);
+    // roof rails, two thin ones
+    Art.rect(g, 34, ROOF - 4, W - 62, 2, TRIM);
+    Art.rect(g, 34, ROOF - 4, W - 62, 0.8, '#4a5a68');
+    Art.rect(g, 38, ROOF - 3, 2.4, 4, TRIM);
+    Art.rect(g, W - 46, ROOF - 3, 2.4, 4, TRIM);
+    // --- doors, handles, the crease down the flank ---
+    Art.rect(g, 51, BELT, 1.4, SILL - BELT + 1, DK);
+    Art.rect(g, 80, BELT, 1.4, SILL - BELT + 1, DK);
+    Art.rect(g, 103, BELT, 1.4, SILL - BELT + 1, DK);
+    Art.rect(g, 60, BELT + 8, 9, 2.4, CHR);
+    Art.rect(g, 89, BELT + 8, 9, 2.4, CHR);
+    Art.rect(g, 48, BELT - 2, 7, 4, TRIM);                            // the wing mirror
+    Art.rect(g, 46, BELT - 1, 3, 3, CHR);
+    // --- the nose ---
+    Art.poly(g, [[NOSE - 4, SILL - 6], [NOSE + 12, SILL - 6], [NOSE + 12, SILL + 2], [NOSE - 5, SILL + 2]], TRIM);
+    Art.rect(g, NOSE - 4, SILL - 5, 15, 1.4, CHR);                    // grille bars
+    Art.rect(g, NOSE - 4, SILL - 2.4, 15, 1.4, CHR);
+    Art.poly(g, [[NOSE - 5, SILL - 12], [NOSE + 9, SILL - 13], [NOSE + 9, SILL - 8], [NOSE - 5, SILL - 7]], '#f6e6a8');
+    Art.poly(g, [[NOSE - 3, SILL - 11], [NOSE + 6, SILL - 11.6], [NOSE + 6, SILL - 9.6], [NOSE - 3, SILL - 9]], '#fffdf0');
+    Art.rect(g, NOSE - 7, SILL + 2, 19, 6, DKR);                      // bumper
+    Art.rect(g, NOSE - 7, SILL + 7, 21, 3, CHR);                      // bash plate
+    Art.rect(g, NOSE - 6, SILL + 3, 5, 2, '#e07a3c');                 // indicator
+    // --- the back, with the tailgate down and the tray showing ---
+    Art.rect(g, TAIL - 3, BELT + 2, 4, SILL - BELT - 1, DK);
+    Art.rect(g, TAIL - 2, SILL + 1, 4, 7, DKR);
+    Art.rect(g, TAIL - 3, BELT + 3, 3, 4, '#c02c22');                 // tail lamp
     if (open) {
-      Art.rect(g, W - 20, y0 - 24, 16, 22, DKR);
-      Art.rect(g, W - 20, y0 - 24, 16, 2, DK);
+      Art.rect(g, TAIL - 1, BELT + 6, 9, 3, TRIM);                    // the tailgate, dropped
+      Art.rect(g, TAIL - 1, BELT + 6, 9, 1, '#4a5a68');
+      Art.rect(g, TAIL - 12, BELT + 2, 12, 5, '#12202c');             // the dark of the tray
     }
-    // --- doors, handles, a crease down the flank ---
-    Art.rect(g, 44, y0 - 16, 1, 16, DK);
-    Art.rect(g, 76, y0 - 16, 1, 16, DK);
-    Art.rect(g, 102, y0 - 16, 1, 16, DK);
-    Art.rect(g, 8, y0 - 9, W - 18, 2, LIT);             // the body crease catching light
-    Art.rect(g, 8, y0 - 7, W - 18, 1, DK);
-    Art.rect(g, 64, y0 - 21, 8, 2, CHR);                // handles
-    Art.rect(g, 90, y0 - 21, 8, 2, CHR);
-    Art.rect(g, 40, y0 - 26, 8, 4, TRIM);               // wing mirror
-    Art.rect(g, 38, y0 - 25, 3, 3, CHR);
-    // --- the nose: grille, lamp, bumper, bash plate ---
-    Art.poly(g, [[2, y0 - 2], [10, y0 - 24], [10, y0], [2, y0]], BODY);
-    Art.rect(g, 2, y0 - 20, 10, 7, TRIM);               // grille
-    Art.rect(g, 2, y0 - 19, 10, 1, CHR);
-    Art.rect(g, 2, y0 - 16, 10, 1, CHR);
-    Art.poly(g, [[3, y0 - 12], [14, y0 - 13], [14, y0 - 8], [3, y0 - 8]], '#f2e2a8');   // headlamp
-    Art.poly(g, [[4, y0 - 11], [12, y0 - 12], [12, y0 - 10], [4, y0 - 10]], '#fffdf0');
-    Art.rect(g, 0, y0 - 6, 14, 6, DKR);                 // bumper
-    Art.rect(g, 0, y0 - 1, 16, 3, CHR);                 // bash plate
-    Art.rect(g, 1, y0 - 5, 4, 2, '#e07a3c');            // indicator
-    // --- arches and wheels ---
-    for (const wx of [32, W - 36]) {
-      // the arch: a black plastic flare, then the hole it guards
-      Art.ell(g, wx, y0 - 1, 16, 14, TRIM);
-      Art.ell(g, wx, y0 - 1, 14, 12, '#0e0c12');
-      Art.rect(g, wx - 16, y0 - 1, 32, 12, '#0e0c12');
-      // the wheel, on top of everything so it always reads
-      Art.ell(g, wx, y0 + 4, 12.5, 12.5, '#0b0910');
-      Art.ell(g, wx, y0 + 4, 11.4, 11.4, TYRE);
-      Art.ell(g, wx, y0 + 4, 9.6, 9.6, '#221e2a');      // sidewall
-      Art.ell(g, wx, y0 + 4, 6.8, 6.8, RIM);
-      for (let i = 0; i < 5; i++) {                     // five spokes
-        const a2 = (i / 5) * TAU + 0.3;
-        Art.limb(g, wx, y0 + 4, wx + Math.cos(a2) * 6, y0 + 4 + Math.sin(a2) * 6, 2.2, 1.3, RIM2);
+    // --- arches and wheels, on top of everything so they always read ---
+    for (const wx of [FW, RW]) {
+      Art.ell(g, wx, GROUND - 4, 16, 15, TRIM);                       // the plastic flare
+      Art.ell(g, wx, GROUND - 4, 14.4, 13.4, '#0e0c12');              // the wheel well behind it
+      Art.rect(g, wx - 15, GROUND - 4, 30, 14, '#0e0c12');
+      Art.ell(g, wx, GROUND - 3, 12.6, 12.6, '#0b0910');              // the tyre
+      Art.ell(g, wx, GROUND - 3, 11.4, 11.4, TYRE);
+      Art.ell(g, wx, GROUND - 3, 9.4, 9.4, TYRE2);
+      Art.ell(g, wx, GROUND - 3, 6.6, 6.6, RIM);
+      for (let i = 0; i < 5; i++) {
+        const a2 = (i / 5) * TAU + 0.35;
+        Art.limb(g, wx, GROUND - 3, wx + Math.cos(a2) * 5.8, GROUND - 3 + Math.sin(a2) * 5.8, 2.2, 1.3, RIM2);
       }
-      Art.ell(g, wx, y0 + 4, 2.8, 2.8, '#5f6772');
-      Art.ell(g, wx - 1.4, y0 + 2.4, 1.2, 1.2, CHR2);
+      Art.ell(g, wx, GROUND - 3, 2.6, 2.6, '#5f6772');
+      Art.ell(g, wx - 1.3, GROUND - 4.6, 1.1, 1.1, CHR2);
     }
-    // --- the roof rack load, and a snorkel up the A pillar ---
-    Art.rect(g, 46, y0 - 44, 3, 18, TRIM);
-    Art.rect(g, 46, y0 - 44, 1, 18, CHR);
-    // No outline pass here: cached() already lays one black line round the
-    // whole prop, and a second one stipples every interior edge.
   }
   P.truck = () => cachedFlat('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: true }));
   P.fortuner = (spec) => cachedFlat('fortuner:' + spec, 140, 78, (g) => fortuner(g, 140, 78, { open: spec === 'open' }));

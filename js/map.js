@@ -113,11 +113,13 @@ const Atlas = (() => {
       dashed(g, p, RD3, 1, 3, 5);
     }
     // ---- the highway, over the top of everything -------------------------
-    poly(g, HIGHWAY, '#120e08', 15);
-    poly(g, HIGHWAY, HWY0, 13);
-    poly(g, HIGHWAY, HWY1, 11);
-    poly(g, HIGHWAY, HWY2, 8);
-    dashed(g, HIGHWAY, '#2a1f08', 2, 5, 6);
+    // Casing, then the white edge lines, then the tarmac over the top of them,
+    // then a dashed centre line. A solid gold band just reads as a gold band.
+    poly(g, HIGHWAY, '#141108', 15);
+    poly(g, HIGHWAY, '#ddd6c0', 12);
+    poly(g, HIGHWAY, '#4e4739', 10);
+    poly(g, HIGHWAY, '#5b533f', 8);
+    dashed(g, HIGHWAY, HWY3, 2, 6, 7);
     // ---- farms and sheds strung along the roads --------------------------
     for (const p of ROADS) {
       for (let i = 1; i < p.length - 1; i++) {
@@ -233,7 +235,8 @@ const Atlas = (() => {
     for (const s of SITES) {
       const open = unlocked(s);
       const hot = hover === s && open;
-      const bob = hot ? Math.sin(t * 6) * 1.6 : 0;
+      // every pin breathes; the one under the pointer bounces properly
+      const bob = hot ? Math.sin(t * 9) * 3.2 - 1.5 : Math.sin(t * 1.7 + s.x * 0.07) * 1.3;
       drawPin(g, s, open, hot, bob, t);
     }
 

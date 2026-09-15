@@ -94,7 +94,7 @@ const Tower = (() => {
       FX.dust(x, y, Math.min(12, Math.round(s * 5)), PAL.soil3);
       FX.shake(Math.min(5, s * 1.2));
       Audio.play('thud', Math.min(2, s));
-      for (const bd of [a, b]) if (bd.userData && !bd.userData.platform) bd.userData.sq = Math.min(0.3, s * 0.22);
+      for (const bd of [a, b]) if (bd.userData && !bd.userData.platform) bd.userData.sq = Math.min(0.42, s * 0.32);
       if (s > 0.7) FX.ring(x, y, Math.min(26, s * 16));
     }
     if (R.falling && (a === R.falling || b === R.falling)) landed(R.falling);
@@ -195,7 +195,7 @@ const Tower = (() => {
     earn(p, b.x, b.y - b.height / 2 - 8, true);
     R.excite = Math.min(2, R.excite + 0.9);
     Audio.play('place'); Audio.play('coin');
-    b.userData.sq = 0.2;
+    b.userData.sq = 0.34;
     if (R.combo >= 3) {
       FX.comic(b.x, b.y - b.height / 2 - 26, 'x' + R.combo, { ink: FX.COMIC_INK.yay, world: true });
     }
@@ -481,7 +481,8 @@ const Tower = (() => {
       const ud = b.userData; if (!ud || ud.platform) continue;
       const def = OFFERINGS[ud.type];
       const sq = ud.sq || 0;
-      g.save(); g.translate(b.x, b.y); g.rotate(b.angle); g.scale(1 + sq, 1 - sq);
+      const br = ud.settled ? Math.sin(G.time * 2.2 + (ud.eye || 0)) * 0.012 : 0;
+      g.save(); g.translate(b.x, b.y); g.rotate(b.angle); g.scale(1 + sq + br, 1 - sq - br);
       Sprites.drawCube(g, def, b.width, b.height, {
         blessed: ud.blessed,
         outline: b === R.falling ? PAL.cream : (ud.blessed ? PAL.div4 : null),

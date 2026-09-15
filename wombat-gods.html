@@ -51,6 +51,10 @@ img.ico.xl { width: 48px; height: 48px; }
 #frame { position: relative; line-height: 0;
   box-shadow: 0 0 0 5px var(--wd1), 0 0 0 9px var(--ol), 0 14px 0 6px rgba(0,0,0,0.45), 0 0 90px rgba(0,0,0,0.6); }
 #game { image-rendering: pixelated; display: block; cursor: crosshair; touch-action: none; width: 100%; height: 100%; }
+/* the forest growing back over the frame: drawn above the scene, under the
+   panels, and never in the way of the pointer */
+#vines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 8;
+  image-rendering: pixelated; }
 
 /* ---- the recipes, reused everywhere --------------------------------------
    PAGE    dark wood cover, parchment page, teal brackets in the corners
@@ -558,6 +562,27 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
   background: linear-gradient(180deg, var(--am3) 0 26%, var(--am2) 26% 64%, var(--am1) 64% 100%); border: 3px solid var(--ol); }
 .spoke .lk img { width: 20px; height: 20px; }
 
+/* ---- bounce ------------------------------------------------------------- */
+/* Nothing in here sits still. The chips breathe, the buttons squash when you
+   press them and overshoot on the way back, and panels arrive with a bump. */
+@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
+@keyframes bobx { 0%, 100% { transform: translateY(0) scale(1, 1) } 50% { transform: translateY(-2px) scale(1.015, 0.985) } }
+@keyframes popin { 0% { transform: translate(-50%, -50%) scale(0.86, 1.1) } 55% { transform: translate(-50%, -50%) scale(1.04, 0.96) } 80% { transform: translate(-50%, -50%) scale(0.99, 1.01) } 100% { transform: translate(-50%, -50%) scale(1, 1) } }
+@keyframes toastin { 0% { transform: translateY(14px) scale(0.8, 1.2) } 50% { transform: translateY(-3px) scale(1.06, 0.94) } 100% { transform: translateY(0) scale(1, 1) } }
+#money { animation: bobx 4.2s ease-in-out infinite; }
+.rbtn, .mbtn { animation: bob 3.4s ease-in-out infinite; }
+.rbtn:nth-child(2n), .mbtn:nth-child(2n) { animation-duration: 3.9s; animation-delay: -1.2s; }
+.zbtn { animation: bob 5s ease-in-out infinite; }
+#b-tool { animation: bobx 3s ease-in-out infinite; }
+.spoke, .rbtn, .mbtn, .zbtn, .hq, .x, .act, .wbtn, .chip {
+  transition: transform 0.12s cubic-bezier(0.34, 1.8, 0.5, 1), box-shadow 0.12s ease-out;
+}
+.spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover, .act:hover, .wbtn:hover, .chip:hover { transform: translateY(-2px) scale(1.05, 0.96); }
+.spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active, .act:active, .wbtn:active, .chip:active { transform: translateY(3px) scale(0.92, 1.08); }
+.panel { animation: popin 0.22s cubic-bezier(0.34, 1.7, 0.5, 1); }
+.toast { animation: toastin 0.26s cubic-bezier(0.34, 1.7, 0.5, 1); }
+.brow .bstep button { transition: transform 0.1s cubic-bezier(0.34, 1.9, 0.5, 1); }
+.brow .bstep button:active { transform: scale(0.8, 1.2); }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 @media (max-width: 760px) {
   #checklist { width: 158px; }
@@ -604,39 +629,47 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 .panel:not([hidden]), .tray:not([hidden]) { animation: pop-in .16s cubic-bezier(.34,1.56,.64,1); }
 
 
-/* ---- everything in the UI is cut into stone ---------------------------- */
+/* ---- the UI is built out of wood, with stone where it has to hold ------- */
+/* Boards and trays are planks. Headers, the coin chip, the tooltip and the
+   toast are cut stone, so the two materials read against each other. */
 .panel {
-  color: var(--stink) !important;
-  background: #6e6a66 var(--tex-stone, none) repeat !important;
-  border-color: #22201e !important;
+  color: #f4e6c4 !important;
+  background: #6b4526 var(--tex-darkwood, none) repeat !important;
+  border-color: #241708 !important;
   box-shadow:
-    inset 0 3px 0 rgba(232,228,220,0.3), inset 0 -4px 0 rgba(0,0,0,0.42),
-    0 6px 0 0 #201e1c, 0 6px 0 4px #12100f !important;
+    inset 0 3px 0 rgba(255,232,190,0.22), inset 0 -4px 0 rgba(0,0,0,0.44),
+    0 6px 0 0 #2e1d0d, 0 6px 0 4px #150d05 !important;
 }
 .phead {
-  background: #4a4744 var(--tex-stoned, none) repeat !important;
-  border-bottom: 3px solid #22201e !important;
-  box-shadow: inset 0 2px 0 rgba(214,208,198,0.26), inset 0 -3px 0 rgba(0,0,0,0.4) !important;
+  background: #5b5854 var(--tex-stoned, none) repeat !important;
+  border-bottom: 3px solid #241708 !important;
+  box-shadow: inset 0 2px 0 rgba(224,218,208,0.26), inset 0 -3px 0 rgba(0,0,0,0.44) !important;
 }
-.ptitle, .panel h3, .panel h2, .item h3 { color: #efe9dd !important; text-shadow: 0 2px 0 #17150f; }
-.panel p, .panel li, .panel .dim, .bigrow { color: #cfc6b4 !important; }
+.ptitle, .panel h3, .panel h2, .item h3 { color: #ffeecb !important; text-shadow: 0 2px 0 #17150f; }
+.panel p, .panel li, .panel .dim, .bigrow { color: #e0cba4 !important; }
 .tray, .trayhead {
-  background: #6e6a66 var(--tex-stone, none) repeat !important;
-  border-color: #22201e !important;
-  color: var(--stink) !important;
+  background: #8f6238 var(--tex-wood, none) repeat !important;
+  border-color: #241708 !important;
+  color: #2c1a0a !important;
 }
-.trayhead { background: #4a4744 var(--tex-stoned, none) repeat !important; color: #efe9dd !important; }
+.trayhead { background: #6b4526 var(--tex-darkwood, none) repeat !important; color: #ffeecb !important; }
+/* buttons: a plank with a stone rim under it, so they sit on the boards */
 .spoke, .rbtn, .mbtn, .zbtn, .hq, .x, kbd {
-  background: #6e6a66 var(--tex-stone, none) repeat !important;
-  border-color: #12100f !important;
-  color: #efe9dd !important;
-  box-shadow: 0 3px 0 #201e1c, inset 0 2px 0 rgba(232,228,220,0.28), inset 0 -2px 0 rgba(0,0,0,0.34) !important;
+  background: #8f6238 var(--tex-wood, none) repeat !important;
+  border-color: #241708 !important;
+  color: #2c1a0a !important;
+  box-shadow: 0 3px 0 #4a4744, 0 3px 0 2px #1a1816,
+    inset 0 2px 0 rgba(255,238,200,0.34), inset 0 -2px 0 rgba(0,0,0,0.3) !important;
 }
 .spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover {
-  box-shadow: 0 3px 0 #201e1c, inset 0 0 0 2px #f5cd5c, inset 0 2px 0 rgba(232,228,220,0.3) !important;
+  box-shadow: 0 3px 0 #4a4744, 0 3px 0 2px #1a1816,
+    inset 0 0 0 2px #f5cd5c, inset 0 2px 0 rgba(255,238,200,0.4) !important;
 }
-.spoke.on { box-shadow: 0 3px 0 #201e1c, inset 0 0 0 3px #f5cd5c, inset 0 2px 0 rgba(255,234,168,0.4) !important; }
-.rbtn b, .mbtn b { color: #ffe9a8 !important; }
+.spoke.on { box-shadow: 0 3px 0 #4a4744, 0 3px 0 2px #1a1816,
+  inset 0 0 0 3px #f5cd5c, inset 0 2px 0 rgba(255,244,210,0.46) !important; }
+.rbtn b, .mbtn b { color: #3a2208 !important; text-shadow: 0 1px 0 rgba(255,238,200,0.4) !important; }
+.x { background: #8a3a22 var(--tex-wood, none) repeat !important; color: #ffeecb !important; }
+/* the coin chip, the tooltip and the toast stay stone */
 #money {
   background: #4a4744 var(--tex-stoned, none) repeat !important;
   border-color: #12100f !important;
@@ -2184,7 +2217,7 @@ const Sprites = (() => {
     const mood = FACES[hurt > 0 ? 'shock' : pose === 'cast' ? 'proud' : pose === 'sleep' ? 'tired' : faceMood] || FACES.idle;
     const tip = U.clamp(mood.brow, -1, 1);
     const hx = (view === 'quarter' ? CX + 1.6 : CX) + tip * 0.9;
-    const domeY = hoodTop + 3 - tip * 1.2 + (mood.eye === 'shut' ? 1.4 : 0);
+    const domeY = hoodTop + 5 - tip * 1.2 + (mood.eye === 'shut' ? 1.4 : 0);
     const faceY = domeY + 3.8;
     for (const s2 of [-1, 1]) {                                            // ears, pricked
       const ex2 = hx + s2 * 9.2, ey2 = domeY - 5.6;
@@ -2192,6 +2225,18 @@ const Sprites = (() => {
       Art.ell(g, ex2, ey2, 3.8, 4, FUR1);
       Art.ell(g, ex2 - s2 * 0.5, ey2 + 0.5, 2, 2.1, '#2a1a12');
       Art.ell(g, ex2 - s2 * 1, ey2 - 1.4, 1.3, 1.2, FUR2);
+    }
+    // The cowl drapes onto the shoulders. Without this the head sits in the
+    // air above the mantle with a gap under it.
+    Art.poly(g, [[hx - 9, domeY + 2], [hx + 9, domeY + 2],
+                 [CX + shW + 1, shoulder + 3], [CX - shW - 1, shoulder + 3]], ROBE0);
+    Art.poly(g, [[hx - 8, domeY + 2], [hx + 8, domeY + 2],
+                 [CX + shW, shoulder + 2], [CX - shW, shoulder + 2]], ROBE1);
+    Art.poly(g, [[hx - 8, domeY + 2], [hx - 2, domeY + 2],
+                 [CX - 5, shoulder + 2], [CX - shW, shoulder + 2]], ROBE2);
+    for (let i = -2; i <= 2; i++) {                                        // folds down the back of it
+      if (!i) continue;
+      Art.limb(g, hx + i * 3.4, domeY + 4, CX + i * (shW * 0.42), shoulder + 1, 1.2, 1.8, i % 2 ? ROBE0 : ROBE2);
     }
     Art.ell(g, hx, domeY + 1.8, 11.8, 11, ROBE0);                          // the cowl
     Art.ell(g, hx, domeY + 0.8, 10.9, 9.9, FUR0);
@@ -2211,20 +2256,20 @@ const Sprites = (() => {
       // The opening: a hole cut in the front of the head. There is nothing in
       // it. Whatever mood he is in comes out of the set of his shoulders and
       // the tilt of the hood, because there is no face under there to read.
-      Art.ell(g, hx, faceY, 8.4, 7.2, FUR0);                               // the fur rim
-      Art.ell(g, hx, faceY + 0.3, 7.6, 6.5, ROBE0);
-      Art.ell(g, hx, faceY + 0.6, 6.8, 5.8, '#0a0610');
-      Art.ell(g, hx, faceY + 0.9, 6, 5.1, VOID);
-      Art.ell(g, hx, faceY + 1.4, 4.8, 3.9, '#000000');
+      Art.ell(g, hx, faceY, 8.6, 8, FUR0);                                 // the fur rim
+      Art.ell(g, hx, faceY + 0.3, 7.8, 7.2, ROBE0);
+      Art.ell(g, hx, faceY + 0.6, 7, 6.5, '#0a0610');
+      Art.ell(g, hx, faceY + 0.9, 6.2, 5.8, VOID);
+      Art.ell(g, hx, faceY + 1.4, 5, 4.6, '#000000');
       // one faint ring of light caught on the lip of it, and no more
       Art.ellBand(g, hx, faceY - 0.2, 8, 6.9, 'rgba(112,78,48,0.55)', 0.4, 0.62);
       Art.ellBand(g, hx, faceY, 8.2, 7, 'rgba(48,32,20,0.6)', 0.86, 1);
     }
     // the sides of the cowl, closing in on the opening
     for (const s2 of [-1, 1]) {
-      Art.ell(g, hx + s2 * 9.4, faceY - 1.4, 3, 6.2, ROBE0);
-      Art.ell(g, hx + s2 * 9.6, faceY - 1.8, 2.3, 5.4, FUR0);
-      Art.ell(g, hx + s2 * 9.8, faceY - 3.6, 1.2, 2.2, FUR1);
+      Art.ell(g, hx + s2 * 10.6, faceY - 1.4, 2.8, 6, ROBE0);
+      Art.ell(g, hx + s2 * 10.8, faceY - 1.8, 2.1, 5.2, FUR0);
+      Art.ell(g, hx + s2 * 11, faceY - 3.6, 1.1, 2.1, FUR1);
     }
     // two teeth of the skull hanging either side, on cords
     for (const s2 of [-1, 1]) {
@@ -2262,8 +2307,9 @@ const Sprites = (() => {
 
   // ---- Shaz, on the till ---------------------------------------------------
   // A woman in her fifties who has worked here nineteen years and has never
-  // once stopped talking about wombats. Seen from the counter up: polo shirt,
-  // apron, a lanyard she has covered in enamel pins, and a mug.
+  // once stopped talking about wombats. Drawn the way everything else in this
+  // game is drawn: a big round head, a small body, and no detail that does not
+  // survive being two pixels wide.
   const KW = 72, KH = 84;
   function cashier(frame, pose = 'idle') {
     const n = { idle: 4, talk: 6, happy: 4, wave: 6 }[pose] || 4;
@@ -2273,130 +2319,118 @@ const Sprites = (() => {
     const { c, g } = Art.cv(KW, KH);
     const S = Math.sin(t * TAU);
     const CXK = 36;
-    const SK0 = '#a87050', SK1 = '#d09a72', SK2 = '#e8bb92', SK3 = '#f7dcbc';
-    const HAIR0 = '#4a4650', HAIR1 = '#6f6a76', HAIR2 = '#9a95a2', HAIR3 = '#c4c0ca';
-    const POLO0 = '#14421f', POLO1 = '#1e6330', POLO2 = '#2f8f42', POLO3 = '#5fc46c';
-    const APR0 = '#7a2a12', APR1 = '#a83f1c', APR2 = '#d0632c';
-    const INK = '#1a1620';
-    let bob = 0, lean = 0, armR = 0, mouth = 'flat', brow = 0;
+    const SK0 = '#b87a56', SK1 = '#e0a578', SK2 = '#f3cda4';
+    const HR0 = '#575260', HR1 = '#7e7988', HR2 = '#a9a4b2', HR3 = '#d2ced8';
+    const POLO0 = '#10381a', POLO1 = '#1c6030', POLO2 = '#2f8f42', POLO3 = '#63c974';
+    const APR0 = '#6e2410', APR1 = '#a8451e', APR2 = '#d2743a';
+    const INK = '#20192a', LIP = '#b8556a';
+    let bob = 0, lean = 0, armR = 0, mouth = 'flat', eyes = 'open';
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 0][f]; mouth = f === 2 ? 'small' : 'flat'; break;
-      case 'talk': bob = [0, 1, 0, 1, 0, 1][f]; mouth = ['open', 'wide', 'small', 'open', 'wide', 'flat'][f];
-        lean = S * 0.6; armR = -2 - Math.abs(S) * 3; brow = 0.4; break;
-      case 'happy': bob = [0, 1, 2, 1][f]; mouth = 'grin'; brow = 0.6; armR = -4; break;
-      case 'wave': bob = [0, 1, 1, 0, 1, 1][f]; mouth = 'grin'; brow = 0.5;
-        armR = -12 - Math.abs(Math.sin(t * TAU * 2)) * 4; break;
+      case 'idle': bob = [0, 0, 1, 0][f]; eyes = f === 3 ? 'shut' : 'open'; break;
+      case 'talk': bob = [0, 1, 0, 1, 0, 1][f]; lean = S * 0.8; armR = -3 - Math.abs(S) * 4;
+        mouth = ['open', 'wide', 'small', 'open', 'wide', 'small'][f]; break;
+      case 'happy': bob = [0, 1, 2, 1][f]; mouth = 'grin'; eyes = 'happy'; armR = -5; break;
+      case 'wave': bob = [0, 1, 2, 1, 2, 1][f]; mouth = 'grin'; eyes = 'happy';
+        armR = -16 - Math.abs(Math.sin(t * TAU * 2)) * 5; break;
     }
     const y0 = -bob;
-    const shoulder = 40 + y0, chestY = shoulder + 10, waist = shoulder + 26;
-    const headY = shoulder - 16 + y0 * 0, faceY = headY;
-    // ---- the apron and the body ------------------------------------------
-    Art.poly(g, [[CXK - 22, shoulder], [CXK + 22, shoulder], [CXK + 26, waist + 16], [CXK - 26, waist + 16]], POLO0);
-    Art.poly(g, [[CXK - 20, shoulder + 1], [CXK + 20, shoulder + 1], [CXK + 24, waist + 16], [CXK - 24, waist + 16]], POLO1);
-    Art.poly(g, [[CXK - 20, shoulder + 1], [CXK - 6, shoulder + 1], [CXK - 10, waist + 16], [CXK - 24, waist + 16]], POLO2);
-    Art.rect(g, CXK - 21, shoulder + 1, 2, waist + 14 - shoulder, POLO3);
-    // the collar
-    Art.poly(g, [[CXK - 9, shoulder - 1], [CXK, shoulder + 7], [CXK + 9, shoulder - 1], [CXK + 5, shoulder - 4], [CXK - 5, shoulder - 4]], POLO0);
-    Art.poly(g, [[CXK - 7, shoulder - 1], [CXK, shoulder + 5], [CXK + 7, shoulder - 1]], SK1);
-    // the apron over the front of it
-    Art.poly(g, [[CXK - 15, chestY], [CXK + 15, chestY], [CXK + 20, waist + 16], [CXK - 20, waist + 16]], APR0);
-    Art.poly(g, [[CXK - 14, chestY + 1], [CXK + 14, chestY + 1], [CXK + 19, waist + 16], [CXK - 19, waist + 16]], APR1);
-    Art.poly(g, [[CXK - 14, chestY + 1], [CXK - 5, chestY + 1], [CXK - 9, waist + 16], [CXK - 19, waist + 16]], APR2);
-    Art.rect(g, CXK - 15, chestY, 30, 2, APR0);
-    for (const sd of [-1, 1]) Art.limb(g, CXK + sd * 7, chestY, CXK + sd * 16, shoulder + 1, 2.4, 1.8, APR1);
-    Art.rect(g, CXK - 11, waist + 2, 22, 9, APR0);                      // the pouch
-    Art.rect(g, CXK - 11, waist + 2, 22, 1.6, APR2);
-    Art.rect(g, CXK - 6, waist + 4, 3, 6, '#d8d2c2');                   // a pen and a docket in it
-    Art.rect(g, CXK + 2, waist + 3, 6, 7, '#fffdf0');
-    // ---- the lanyard, and the pins she has covered it with ---------------
-    for (const sd of [-1, 1]) Art.limb(g, CXK + sd * 6, shoulder + 2, CXK + sd * 2, chestY + 6, 2, 1.6, '#2a3a46');
-    Art.rect(g, CXK - 3, chestY + 5, 7, 9, '#1d2230');                  // the badge itself
-    Art.rect(g, CXK - 2, chestY + 6, 5, 7, '#fffdf0');
-    Art.rect(g, CXK - 2, chestY + 6, 5, 2, '#c9581f');
-    const PINS = ['#d8b23a', '#b8496a', '#2f6f9f', '#8a6a3a', '#7a4f9a'];
-    for (let i = 0; i < 5; i++) {
-      const px = CXK - 14 + (i % 3) * 5, py = chestY + 2 + Math.floor(i / 3) * 5;
-      Art.ell(g, px, py, 2.4, 2.4, '#1a1620');
-      Art.ell(g, px, py, 1.8, 1.8, PINS[i]);
-      Art.ell(g, px - 0.5, py - 0.5, 0.8, 0.6, '#fff8e0');
-    }
-    // a small wombat embroidered on the polo, because of course
-    Art.ell(g, CXK + 12, chestY + 4, 4, 2.8, POLO3);
-    Art.ell(g, CXK + 15, chestY + 2.6, 2.4, 2.2, POLO3);
-    Art.rect(g, CXK + 14, chestY + 0.6, 1, 1.2, POLO3);
-    Art.rect(g, CXK + 16.4, chestY + 0.6, 1, 1.2, POLO3);
-    Art.rect(g, CXK + 15.6, chestY + 2.4, 0.8, 0.8, POLO0);
-    // ---- arms: one on the counter, one doing whatever she is saying -------
-    Art.limb(g, CXK - 19, shoulder + 4, CXK - 26, waist + 12, 7, 5.4, POLO1);
-    Art.limb(g, CXK - 20, shoulder + 4, CXK - 26, waist + 10, 4, 3, POLO2);
-    Art.ell(g, CXK - 27, waist + 14, 4, 3.4, SK0);
-    Art.ell(g, CXK - 27, waist + 13, 3.2, 2.8, SK1);
-    const ex = CXK + 22, ey = waist + 10 + armR;
-    Art.limb(g, CXK + 19, shoulder + 4, ex, ey, 7, 5.4, POLO0);
-    Art.limb(g, CXK + 20, shoulder + 4, ex, ey, 4.4, 3.2, POLO1);
-    Art.ell(g, ex + 1, ey + 4, 4.2, 3.6, SK0);
-    Art.ell(g, ex + 1, ey + 3.4, 3.4, 2.9, SK1);
-    for (let k = 0; k < 3; k++) Art.rect(g, ex - 1.4 + k * 1.8, ey + 5.4, 1.2, 1.8, SK0);
-    // ---- neck and head ----------------------------------------------------
+    const neck = 44 + y0, shoulder = neck + 3, chestY = shoulder + 11, waist = shoulder + 26;
+    const hy = 24 + y0;                                    // the middle of the head
     const hx = CXK + lean;
-    Art.limb(g, hx, faceY + 10, hx, shoulder + 2, 5, 6, SK0);
-    Art.ell(g, hx, shoulder + 1, 6, 2.2, '#8a5a40');
-    Art.ell(g, hx, faceY + 12, 9.6, 6, SK0);                            // the jaw
-    Art.ell(g, hx, faceY + 6, 10.5, 11.5, SK0);                         // the skull
-    Art.ell(g, hx - 0.4, faceY + 5.6, 9.6, 10.6, SK1);
-    Art.ell(g, hx - 4, faceY + 2.4, 4.4, 4, SK2);                       // the lit temple
-    Art.ell(g, hx + 5, faceY + 4.4, 3, 3.4, SK1);
-    Art.ell(g, hx, faceY + 8, 2.6, 2.2, SK2);                           // the nose
-    Art.rect(g, hx - 1, faceY + 5.6, 2, 3.2, SK2);
-    Art.ell(g, hx - 10.4, faceY + 7, 2.4, 3, SK0);                      // ears, with studs in
-    Art.ell(g, hx + 10.4, faceY + 7, 2.4, 3, SK0);
-    Art.ell(g, hx - 10.4, faceY + 9.6, 1.1, 1.1, '#d8b23a');
-    Art.ell(g, hx + 10.4, faceY + 9.6, 1.1, 1.1, '#d8b23a');
-    // the hair: greying, pinned up, with a strand escaping
-    Art.ell(g, hx, faceY + 0.6, 11.4, 8.4, HAIR0);
-    Art.ell(g, hx - 0.6, faceY - 0.4, 10.4, 7.4, HAIR1);
-    Art.ell(g, hx - 4, faceY - 2.2, 5, 3.4, HAIR2);
-    Art.ell(g, hx - 5, faceY - 3, 2.4, 1.4, HAIR3);
-    Art.ell(g, hx + 2, faceY - 7.6, 6, 5, HAIR0);                       // the bun
-    Art.ell(g, hx + 2, faceY - 7.8, 5, 4, HAIR1);
-    Art.ell(g, hx + 0.6, faceY - 9, 2.4, 1.6, HAIR2);
-    Art.rect(g, hx + 4.4, faceY - 7.6, 5, 1.4, '#d8b23a');              // a clip through the bun
-    Art.limb(g, hx - 9.4, faceY + 0.6, hx - 11.6, faceY + 9, 2, 1.2, HAIR1);
-    Art.ell(g, hx - 10.6, faceY + 2.6, 2.6, 4.6, HAIR0);
-    Art.ell(g, hx + 10, faceY + 2.6, 2.4, 4.4, HAIR0);
-    // the glasses, on a chain
-    for (const sd of [-1, 1]) {
-      Art.ell(g, hx + sd * 4.4, faceY + 4.4, 4, 3.6, '#2a3038');
-      Art.ell(g, hx + sd * 4.4, faceY + 4.4, 3.2, 2.9, '#cfe2ea');
+
+    // ---- the body, which is mostly apron -----------------------------------
+    Art.poly(g, [[CXK - 20, shoulder - 2], [CXK + 20, shoulder - 2], [CXK + 25, waist + 16], [CXK - 25, waist + 16]], POLO0);
+    Art.poly(g, [[CXK - 18, shoulder - 1], [CXK + 18, shoulder - 1], [CXK + 23, waist + 16], [CXK - 23, waist + 16]], POLO1);
+    Art.poly(g, [[CXK - 18, shoulder - 1], [CXK - 7, shoulder - 1], [CXK - 11, waist + 16], [CXK - 23, waist + 16]], POLO2);
+    Art.rect(g, CXK - 19, shoulder - 1, 2.4, waist + 14 - shoulder, POLO3);
+    Art.ell(g, CXK - 18, shoulder + 1, 5, 4, POLO1);       // the shoulders, rounded off
+    Art.ell(g, CXK + 18, shoulder + 1, 5, 4, POLO0);
+    // the collar, a simple V
+    Art.poly(g, [[CXK - 8, shoulder - 3], [CXK, shoulder + 6], [CXK + 8, shoulder - 3]], POLO0);
+    Art.poly(g, [[CXK - 6, shoulder - 3], [CXK, shoulder + 4], [CXK + 6, shoulder - 3]], SK1);
+    // the apron
+    Art.poly(g, [[CXK - 14, chestY], [CXK + 14, chestY], [CXK + 19, waist + 16], [CXK - 19, waist + 16]], APR0);
+    Art.poly(g, [[CXK - 13, chestY + 1], [CXK + 13, chestY + 1], [CXK + 18, waist + 16], [CXK - 18, waist + 16]], APR1);
+    Art.poly(g, [[CXK - 13, chestY + 1], [CXK - 5, chestY + 1], [CXK - 9, waist + 16], [CXK - 18, waist + 16]], APR2);
+    for (const sd of [-1, 1]) Art.limb(g, CXK + sd * 7, chestY + 1, CXK + sd * 15, shoulder, 2.4, 1.8, APR1);
+    Art.rect(g, CXK - 10, waist + 4, 20, 9, APR0);         // the pouch
+    Art.rect(g, CXK - 10, waist + 4, 20, 1.6, APR2);
+    Art.rect(g, CXK - 5, waist + 6, 3, 6, '#e4dfd0');
+    Art.rect(g, CXK + 2, waist + 5, 6, 7, '#fffdf0');
+    // three enamel pins, which is as many as read at this size
+    for (let i = 0; i < 3; i++) {
+      const px = CXK - 10 + i * 5, py = chestY + 5;
+      Art.ell(g, px, py, 2.4, 2.4, INK);
+      Art.ell(g, px, py, 1.7, 1.7, ['#d8b23a', '#b8496a', '#2f6f9f'][i]);
     }
-    Art.rect(g, hx - 1.2, faceY + 4, 2.4, 1.2, '#2a3038');
-    Art.rect(g, hx - 10.4, faceY + 3.6, 2.6, 1.2, '#2a3038');
-    Art.rect(g, hx + 7.8, faceY + 3.6, 2.6, 1.2, '#2a3038');
-    for (const sd of [-1, 1]) Art.limb(g, hx + sd * 9.4, faceY + 6, hx + sd * 11.4, faceY + 12, 1, 0.8, '#8a95a0');
-    // the eyes behind them, and the brows over the top
+    Art.rect(g, CXK + 6, chestY + 2, 7, 9, INK);           // the name badge
+    Art.rect(g, CXK + 7, chestY + 3, 5, 7, '#fffdf0');
+    Art.rect(g, CXK + 7, chestY + 3, 5, 2, '#c9581f');
+    // ---- arms --------------------------------------------------------------
+    Art.limb(g, CXK - 17, shoulder + 3, CXK - 24, waist + 12, 8, 5.6, POLO1);
+    Art.ell(g, CXK - 25, waist + 14, 4.4, 3.8, SK0);
+    Art.ell(g, CXK - 25, waist + 13, 3.6, 3, SK1);
+    const ex = CXK + 21, ey = waist + 10 + armR;
+    Art.limb(g, CXK + 17, shoulder + 3, ex, ey, 8, 5.6, POLO0);
+    Art.limb(g, CXK + 18, shoulder + 3, ex, ey, 5, 3.6, POLO1);
+    Art.ell(g, ex + 1, ey + 4, 4.6, 4, SK0);
+    Art.ell(g, ex + 1, ey + 3.4, 3.8, 3.2, SK1);
+    // ---- the head: big, round, and doing all the work ----------------------
+    Art.limb(g, hx, hy + 12, hx, shoulder + 1, 6, 7, SK0);            // the neck
+    Art.ell(g, hx, shoulder, 7, 2.4, '#96603f');
+    Art.ell(g, hx, hy, 16, 15, SK0);                                  // the skull
+    Art.ell(g, hx - 0.6, hy - 0.6, 14.6, 13.6, SK1);
+    Art.ell(g, hx - 5, hy - 4, 6, 5, SK2);                            // the light on it
+    Art.ell(g, hx, hy + 5, 3.2, 2.6, SK2);                            // the nose
+    Art.ell(g, hx - 15.4, hy + 2, 3, 3.6, SK0);                       // ears
+    Art.ell(g, hx + 15.4, hy + 2, 3, 3.6, SK0);
+    Art.ell(g, hx - 15.4, hy + 4.6, 1.3, 1.3, '#d8b23a');
+    Art.ell(g, hx + 15.4, hy + 4.6, 1.3, 1.3, '#d8b23a');
+    // the hair: a soft grey cap with a bun on the back of it
+    Art.ell(g, hx + 9, hy - 12, 7.5, 6.5, HR0);                       // the bun
+    Art.ell(g, hx + 9, hy - 12.4, 6.2, 5.2, HR1);
+    Art.ell(g, hx + 7.6, hy - 13.8, 2.8, 1.8, HR2);
+    Art.rect(g, hx + 4, hy - 11, 6, 1.8, '#d8b23a');                  // the clip through it
+    Art.ellBand(g, hx, hy - 0.6, 16.4, 15.4, HR0, 0.5, 1);            // the cap of hair
+    Art.ellBand(g, hx, hy - 1.4, 15.4, 14.6, HR1, 0.54, 0.96);
+    Art.ell(g, hx - 6, hy - 10, 6.6, 3.4, HR2);                       // light across the top
+    Art.ell(g, hx - 7.4, hy - 11.4, 3, 1.6, HR3);
+    Art.ell(g, hx - 13.6, hy - 1, 3.4, 5.4, HR0);                     // and down past the ears
+    Art.ell(g, hx + 13.6, hy - 1, 3.2, 5, HR0);
+    Art.limb(g, hx - 12, hy - 7, hx - 15.4, hy + 5, 2.4, 1.4, HR1);   // one strand escaping
+    // the glasses: two big round lenses, on a chain
     for (const sd of [-1, 1]) {
-      const exx = hx + sd * 4.4;
-      if (pose === 'happy' || pose === 'wave') {
-        Art.poly(g, [[exx - 2.4, faceY + 5.4], [exx, faceY + 3], [exx + 2.4, faceY + 5.4], [exx, faceY + 4.4]], INK);
-      } else {
-        Art.ell(g, exx, faceY + 4.4, 1.8, 1.8, '#fdf6ea');
-        Art.ell(g, exx + sd * 0.3, faceY + 4.6, 1.1, 1.2, INK);
-        Art.rect(g, exx - 0.7, faceY + 3.6, 0.7, 0.7, '#fdf6ea');
+      const exx = hx + sd * 6;
+      Art.ell(g, exx, hy + 1, 5.6, 5.4, '#2b3140');
+      Art.ell(g, exx, hy + 1, 4.6, 4.4, '#dff0f8');
+      Art.ellBand(g, exx, hy + 1, 5.6, 5.4, '#ffffff', 0.55, 0.72);
+    }
+    Art.rect(g, hx - 1.6, hy + 0.4, 3.2, 1.4, '#2b3140');
+    Art.rect(g, hx - 14.4, hy - 0.4, 3.4, 1.4, '#2b3140');
+    Art.rect(g, hx + 11, hy - 0.4, 3.4, 1.4, '#2b3140');
+    for (const sd of [-1, 1]) Art.limb(g, hx + sd * 15, hy + 3, hx + sd * 13, hy + 12, 1, 0.8, '#8a95a0');
+    // the eyes behind them
+    for (const sd of [-1, 1]) {
+      const exx = hx + sd * 6;
+      if (eyes === 'happy') Art.poly(g, [[exx - 3, hy + 2.6], [exx, hy - 0.6], [exx + 3, hy + 2.6], [exx, hy + 1.2]], INK);
+      else if (eyes === 'shut') Art.rect(g, exx - 2.6, hy + 0.6, 5.2, 1.4, INK);
+      else {
+        Art.ell(g, exx + sd * 0.4, hy + 1, 2, 2.2, INK);
+        Art.ell(g, exx + sd * 0.4 - 0.7, hy + 0.2, 0.9, 0.9, '#ffffff');
       }
-      Art.poly(g, [[exx - 3, faceY + 0.6 - brow * sd * 0.6], [exx + 3, faceY + 0.6 + brow * sd * 0.6],
-                   [exx + 3, faceY + 2 + brow * sd * 0.6], [exx - 3, faceY + 2 - brow * sd * 0.6]], HAIR0);
+      Art.poly(g, [[exx - 3.4, hy - 5.4], [exx + 3.4, hy - 5.4], [exx + 3.4, hy - 4], [exx - 3.4, hy - 4]], HR0);
     }
-    // the mouth, always going
-    const my = faceY + 11;
-    if (mouth === 'open') { Art.ell(g, hx, my, 2.6, 2.4, '#5a2430'); Art.ell(g, hx, my - 0.8, 2, 1, '#fdf6ea'); }
-    else if (mouth === 'wide') { Art.ell(g, hx, my, 3.4, 3, '#5a2430'); Art.ell(g, hx, my - 1, 2.6, 1.1, '#fdf6ea'); Art.ell(g, hx, my + 1.8, 1.8, 0.9, '#c2607a'); }
+    // cheeks and mouth
+    Art.ell(g, hx - 9.4, hy + 6, 3.4, 2.2, 'rgba(214,116,124,0.4)');
+    Art.ell(g, hx + 9.4, hy + 6, 3.4, 2.2, 'rgba(214,116,124,0.4)');
+    const my = hy + 9.6;
+    if (mouth === 'open') { Art.ell(g, hx, my, 3, 2.8, '#6a2a34'); Art.ell(g, hx, my - 1, 2.2, 1.1, '#fdf6ea'); }
+    else if (mouth === 'wide') { Art.ell(g, hx, my + 0.4, 3.8, 3.4, '#6a2a34'); Art.ell(g, hx, my - 0.8, 3, 1.2, '#fdf6ea'); Art.ell(g, hx, my + 2.2, 2, 1, LIP); }
     else if (mouth === 'grin') {
-      Art.poly(g, [[hx - 4, my - 1.4], [hx + 4, my - 1.4], [hx + 2.6, my + 2.2], [hx - 2.6, my + 2.2]], '#5a2430');
-      Art.rect(g, hx - 3.4, my - 1.2, 6.8, 1.4, '#fdf6ea');
-    } else if (mouth === 'small') { Art.ell(g, hx, my, 1.6, 1.4, '#5a2430'); }
-    else { Art.rect(g, hx - 2.6, my - 0.4, 5.2, 1.2, '#8a4048'); }
-    Art.ell(g, hx - 5.4, my - 1, 2.2, 1.4, 'rgba(198,110,120,0.35)');    // a bit of colour
-    Art.ell(g, hx + 5.4, my - 1, 2.2, 1.4, 'rgba(198,110,120,0.35)');
+      Art.poly(g, [[hx - 4.6, my - 1.6], [hx + 4.6, my - 1.6], [hx + 3, my + 2.4], [hx - 3, my + 2.4]], '#6a2a34');
+      Art.rect(g, hx - 4, my - 1.4, 8, 1.6, '#fdf6ea');
+    } else if (mouth === 'small') { Art.ell(g, hx, my, 1.8, 1.6, '#6a2a34'); }
+    else { Art.rect(g, hx - 3, my - 0.6, 6, 1.4, LIP); }
     Art.outline(c, '#0a0810', 1);
     cache.set(key, c);
     return c;
@@ -3219,91 +3253,100 @@ const Props = (() => {
   });
 
   // ---- buildings ----------------------------------------------------------
-  // ---- the Fortuner --------------------------------------------------------
-  // A big square-shouldered body-on-frame SUV, side on, facing left: long
-  // bonnet, three side windows stepping back to a chunky rear pillar, roof
-  // rails, flared arches, side steps and alloys. The bed behind the rear seats
-  // is what the cubes ride in, so the tailgate reads open.
+  // ---- the truck -----------------------------------------------------------
+  // A stubby 4x4 wagon, side on, facing left. Drawn as a silhouette first and
+  // then panelled in, so the shape reads before any of the detail does: short
+  // bonnet, tall glasshouse, a squared-off back with the tailgate down, and
+  // wheels that sit in their arches rather than under them.
   function fortuner(g, W, H, o) {
     const open = !!(o && o.open);
-    const BODY = '#4a6f8a', LIT = '#79a2ba', DK = '#33495c', DKR = '#24384a';
-    const GLASS = '#8fc2d8', GLASS2 = '#c2e6f2', GLASS0 = '#5d90ac';
-    const TRIM = '#2a3a46', CHR = '#b9c6cf', CHR2 = '#eef4f7';
-    const TYRE = '#141118', RIM = '#8d95a2', RIM2 = '#cfd6de';
-    const y0 = H - 26;                                  // the body's floor line
-    // --- lower body and sills ---
-    Art.rect(g, 8, y0 - 2, W - 16, 10, DKR);
-    Art.rect(g, 14, y0 + 7, W - 30, 3, TRIM);           // side steps
-    // --- the main body ---
-    Art.poly(g, [[6, y0], [W - 8, y0], [W - 8, y0 - 16], [6, y0 - 16]], BODY);
-    // bonnet: long, dropping toward the nose (nose is to the LEFT)
-    Art.poly(g, [[6, y0 - 16], [40, y0 - 16], [40, y0 - 27], [10, y0 - 25]], BODY);
-    Art.poly(g, [[6, y0 - 24], [40, y0 - 26], [40, y0 - 27], [10, y0 - 25]], LIT);
-    // cabin: windscreen rakes back, roof runs flat, rear pillar is thick
-    Art.poly(g, [[40, y0 - 27], [52, y0 - 41], [W - 20, y0 - 41], [W - 10, y0 - 27]], BODY);
-    Art.rect(g, 50, y0 - 43, W - 70, 3, DK);            // roof rails
-    Art.rect(g, 56, y0 - 45, 16, 2, TRIM);
-    Art.rect(g, W - 46, y0 - 45, 16, 2, TRIM);
-    // --- glass, three panes stepping back ---
-    Art.poly(g, [[46, y0 - 28], [55, y0 - 39], [74, y0 - 39], [74, y0 - 28]], GLASS0);
-    Art.poly(g, [[47, y0 - 28], [56, y0 - 38], [73, y0 - 38], [73, y0 - 29]], GLASS);
-    Art.poly(g, [[49, y0 - 30], [56, y0 - 37], [64, y0 - 37], [58, y0 - 30]], GLASS2);
-    Art.rect(g, 78, y0 - 39, 22, 11, GLASS0);
-    Art.rect(g, 79, y0 - 38, 20, 9, GLASS);
-    Art.rect(g, 80, y0 - 37, 8, 4, GLASS2);
-    Art.rect(g, 104, y0 - 39, 14, 11, GLASS0);
-    Art.rect(g, 105, y0 - 38, 12, 9, GLASS);
-    Art.rect(g, 74, y0 - 40, 4, 13, TRIM);              // B pillar
-    Art.rect(g, 100, y0 - 40, 4, 13, TRIM);             // C pillar
-    Art.rect(g, W - 22, y0 - 41, 5, 14, TRIM);          // thick rear pillar
-    // --- the tray behind the cabin: where the offerings ride ---
+    const BODY = '#456d8c', LIT = '#6f9ab8', HI = '#9cc4dc', DK = '#2f4a62', DKR = '#1e3344';
+    const GLASS0 = '#4a7d99', GLASS = '#84b8d2', GLASS2 = '#c6e8f6';
+    const TRIM = '#232f3a', CHR = '#b9c6cf', CHR2 = '#eef4f7';
+    const TYRE = '#131018', TYRE2 = '#241f2c', RIM = '#8d95a2', RIM2 = '#d4dbe3';
+    const GROUND = H - 8;                    // where the tyres touch
+    const SILL = GROUND - 15;                // the bottom of the bodywork
+    const BELT = SILL - 20;                  // the window line
+    const ROOF = BELT - 20;
+    const NOSE = 8, TAIL = W - 8;
+    const FW = 34, RW = W - 38;              // the wheel centres
+
+    // --- the shadow it sits in ---
+    Art.ell(g, W / 2, GROUND + 5, W * 0.44, 4, 'rgba(10,8,16,0.3)');
+    // --- the body: one silhouette, then the panels on top of it ---
+    const shell = [
+      [NOSE, SILL], [NOSE - 4, SILL - 6], [NOSE - 2, BELT - 2],      // the nose, leaning forward
+      [22, BELT - 3], [30, ROOF], [TAIL - 14, ROOF],                  // windscreen up to the roof
+      [TAIL - 2, BELT - 2], [TAIL, SILL], [TAIL, SILL + 9], [NOSE, SILL + 9],
+    ];
+    Art.poly(g, shell, TRIM);
+    Art.poly(g, shell.map(([x, y]) => [x + (x < W / 2 ? 1.4 : -1.4), y + (y < BELT ? 1.4 : -0.6)]), BODY);
+    // the upper body catches the light, the sill sits in shadow
+    Art.poly(g, [[NOSE, BELT + 1], [TAIL - 2, BELT + 1], [TAIL - 2, BELT + 6], [NOSE, BELT + 6]], LIT);
+    Art.poly(g, [[NOSE, BELT + 1], [TAIL - 2, BELT + 1], [TAIL - 2, BELT + 2.4], [NOSE, BELT + 2.4]], HI);
+    Art.poly(g, [[NOSE, SILL + 1], [TAIL, SILL + 1], [TAIL, SILL + 9], [NOSE, SILL + 9]], DK);
+    Art.rect(g, NOSE + 4, SILL + 7, W - 24, 3, DKR);                  // the side step
+    Art.rect(g, NOSE + 4, SILL + 7, W - 24, 1, '#3d5a72');
+    // --- the glasshouse ---
+    Art.poly(g, [[25, BELT - 4], [32, ROOF + 2], [TAIL - 16, ROOF + 2], [TAIL - 6, BELT - 4]], GLASS0);
+    Art.poly(g, [[27, BELT - 5], [33.5, ROOF + 3], [51, ROOF + 3], [51, BELT - 5]], GLASS);      // windscreen
+    Art.poly(g, [[28.5, BELT - 7], [34, ROOF + 4], [43, ROOF + 4], [37, BELT - 7]], GLASS2);
+    Art.rect(g, 54, ROOF + 3, 26, BELT - ROOF - 8, GLASS);            // front door glass
+    Art.rect(g, 55, ROOF + 4, 11, 5, GLASS2);
+    Art.rect(g, 83, ROOF + 3, 20, BELT - ROOF - 8, GLASS);            // rear door glass
+    Art.rect(g, 84, ROOF + 4, 8, 5, GLASS2);
+    Art.rect(g, 51, ROOF + 1, 3, BELT - ROOF - 5, BODY);              // pillars
+    Art.rect(g, 80, ROOF + 1, 3, BELT - ROOF - 5, BODY);
+    Art.rect(g, 103, ROOF + 1, TAIL - 16 - 103, BELT - ROOF - 5, BODY);
+    Art.rect(g, 25, ROOF + 1, W - 42, 2.4, DK);                       // the roof line
+    Art.rect(g, 26, ROOF + 1, W - 44, 1, LIT);
+    // roof rails, two thin ones
+    Art.rect(g, 34, ROOF - 4, W - 62, 2, TRIM);
+    Art.rect(g, 34, ROOF - 4, W - 62, 0.8, '#4a5a68');
+    Art.rect(g, 38, ROOF - 3, 2.4, 4, TRIM);
+    Art.rect(g, W - 46, ROOF - 3, 2.4, 4, TRIM);
+    // --- doors, handles, the crease down the flank ---
+    Art.rect(g, 51, BELT, 1.4, SILL - BELT + 1, DK);
+    Art.rect(g, 80, BELT, 1.4, SILL - BELT + 1, DK);
+    Art.rect(g, 103, BELT, 1.4, SILL - BELT + 1, DK);
+    Art.rect(g, 60, BELT + 8, 9, 2.4, CHR);
+    Art.rect(g, 89, BELT + 8, 9, 2.4, CHR);
+    Art.rect(g, 48, BELT - 2, 7, 4, TRIM);                            // the wing mirror
+    Art.rect(g, 46, BELT - 1, 3, 3, CHR);
+    // --- the nose ---
+    Art.poly(g, [[NOSE - 4, SILL - 6], [NOSE + 12, SILL - 6], [NOSE + 12, SILL + 2], [NOSE - 5, SILL + 2]], TRIM);
+    Art.rect(g, NOSE - 4, SILL - 5, 15, 1.4, CHR);                    // grille bars
+    Art.rect(g, NOSE - 4, SILL - 2.4, 15, 1.4, CHR);
+    Art.poly(g, [[NOSE - 5, SILL - 12], [NOSE + 9, SILL - 13], [NOSE + 9, SILL - 8], [NOSE - 5, SILL - 7]], '#f6e6a8');
+    Art.poly(g, [[NOSE - 3, SILL - 11], [NOSE + 6, SILL - 11.6], [NOSE + 6, SILL - 9.6], [NOSE - 3, SILL - 9]], '#fffdf0');
+    Art.rect(g, NOSE - 7, SILL + 2, 19, 6, DKR);                      // bumper
+    Art.rect(g, NOSE - 7, SILL + 7, 21, 3, CHR);                      // bash plate
+    Art.rect(g, NOSE - 6, SILL + 3, 5, 2, '#e07a3c');                 // indicator
+    // --- the back, with the tailgate down and the tray showing ---
+    Art.rect(g, TAIL - 3, BELT + 2, 4, SILL - BELT - 1, DK);
+    Art.rect(g, TAIL - 2, SILL + 1, 4, 7, DKR);
+    Art.rect(g, TAIL - 3, BELT + 3, 3, 4, '#c02c22');                 // tail lamp
     if (open) {
-      Art.rect(g, W - 20, y0 - 24, 16, 22, DKR);
-      Art.rect(g, W - 20, y0 - 24, 16, 2, DK);
+      Art.rect(g, TAIL - 1, BELT + 6, 9, 3, TRIM);                    // the tailgate, dropped
+      Art.rect(g, TAIL - 1, BELT + 6, 9, 1, '#4a5a68');
+      Art.rect(g, TAIL - 12, BELT + 2, 12, 5, '#12202c');             // the dark of the tray
     }
-    // --- doors, handles, a crease down the flank ---
-    Art.rect(g, 44, y0 - 16, 1, 16, DK);
-    Art.rect(g, 76, y0 - 16, 1, 16, DK);
-    Art.rect(g, 102, y0 - 16, 1, 16, DK);
-    Art.rect(g, 8, y0 - 9, W - 18, 2, LIT);             // the body crease catching light
-    Art.rect(g, 8, y0 - 7, W - 18, 1, DK);
-    Art.rect(g, 64, y0 - 21, 8, 2, CHR);                // handles
-    Art.rect(g, 90, y0 - 21, 8, 2, CHR);
-    Art.rect(g, 40, y0 - 26, 8, 4, TRIM);               // wing mirror
-    Art.rect(g, 38, y0 - 25, 3, 3, CHR);
-    // --- the nose: grille, lamp, bumper, bash plate ---
-    Art.poly(g, [[2, y0 - 2], [10, y0 - 24], [10, y0], [2, y0]], BODY);
-    Art.rect(g, 2, y0 - 20, 10, 7, TRIM);               // grille
-    Art.rect(g, 2, y0 - 19, 10, 1, CHR);
-    Art.rect(g, 2, y0 - 16, 10, 1, CHR);
-    Art.poly(g, [[3, y0 - 12], [14, y0 - 13], [14, y0 - 8], [3, y0 - 8]], '#f2e2a8');   // headlamp
-    Art.poly(g, [[4, y0 - 11], [12, y0 - 12], [12, y0 - 10], [4, y0 - 10]], '#fffdf0');
-    Art.rect(g, 0, y0 - 6, 14, 6, DKR);                 // bumper
-    Art.rect(g, 0, y0 - 1, 16, 3, CHR);                 // bash plate
-    Art.rect(g, 1, y0 - 5, 4, 2, '#e07a3c');            // indicator
-    // --- arches and wheels ---
-    for (const wx of [32, W - 36]) {
-      // the arch: a black plastic flare, then the hole it guards
-      Art.ell(g, wx, y0 - 1, 16, 14, TRIM);
-      Art.ell(g, wx, y0 - 1, 14, 12, '#0e0c12');
-      Art.rect(g, wx - 16, y0 - 1, 32, 12, '#0e0c12');
-      // the wheel, on top of everything so it always reads
-      Art.ell(g, wx, y0 + 4, 12.5, 12.5, '#0b0910');
-      Art.ell(g, wx, y0 + 4, 11.4, 11.4, TYRE);
-      Art.ell(g, wx, y0 + 4, 9.6, 9.6, '#221e2a');      // sidewall
-      Art.ell(g, wx, y0 + 4, 6.8, 6.8, RIM);
-      for (let i = 0; i < 5; i++) {                     // five spokes
-        const a2 = (i / 5) * TAU + 0.3;
-        Art.limb(g, wx, y0 + 4, wx + Math.cos(a2) * 6, y0 + 4 + Math.sin(a2) * 6, 2.2, 1.3, RIM2);
+    // --- arches and wheels, on top of everything so they always read ---
+    for (const wx of [FW, RW]) {
+      Art.ell(g, wx, GROUND - 4, 16, 15, TRIM);                       // the plastic flare
+      Art.ell(g, wx, GROUND - 4, 14.4, 13.4, '#0e0c12');              // the wheel well behind it
+      Art.rect(g, wx - 15, GROUND - 4, 30, 14, '#0e0c12');
+      Art.ell(g, wx, GROUND - 3, 12.6, 12.6, '#0b0910');              // the tyre
+      Art.ell(g, wx, GROUND - 3, 11.4, 11.4, TYRE);
+      Art.ell(g, wx, GROUND - 3, 9.4, 9.4, TYRE2);
+      Art.ell(g, wx, GROUND - 3, 6.6, 6.6, RIM);
+      for (let i = 0; i < 5; i++) {
+        const a2 = (i / 5) * TAU + 0.35;
+        Art.limb(g, wx, GROUND - 3, wx + Math.cos(a2) * 5.8, GROUND - 3 + Math.sin(a2) * 5.8, 2.2, 1.3, RIM2);
       }
-      Art.ell(g, wx, y0 + 4, 2.8, 2.8, '#5f6772');
-      Art.ell(g, wx - 1.4, y0 + 2.4, 1.2, 1.2, CHR2);
+      Art.ell(g, wx, GROUND - 3, 2.6, 2.6, '#5f6772');
+      Art.ell(g, wx - 1.3, GROUND - 4.6, 1.1, 1.1, CHR2);
     }
-    // --- the roof rack load, and a snorkel up the A pillar ---
-    Art.rect(g, 46, y0 - 44, 3, 18, TRIM);
-    Art.rect(g, 46, y0 - 44, 1, 18, CHR);
-    // No outline pass here: cached() already lays one black line round the
-    // whole prop, and a second one stipples every interior edge.
   }
   P.truck = () => cachedFlat('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: true }));
   P.fortuner = (spec) => cachedFlat('fortuner:' + spec, 140, 78, (g) => fortuner(g, 140, 78, { open: spec === 'open' }));
@@ -4576,14 +4619,15 @@ const FX = (() => {
   function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
   function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
-  // ---- the pixel dissolve ---------------------------------------------------
-  // No trees. The screen eats itself in chunky blocks: 16px cells blacking out
-  // in a fixed scattered order, a beat of dark, then the same cells peeling
-  // back off in a different order. Cheap, unmistakably pixel-art, and there is
-  // nothing in it that can smear.
+  // ---- the dissolve ---------------------------------------------------------
+  // The screen goes out in chunky blocks, but the blocks do not simply appear:
+  // each one lights up gold first, sheds a spark, and only then goes dark. A
+  // ring of light sweeps out from the middle ahead of them, motes drift up
+  // through the dark, and the whole thing comes back the same way in reverse.
   let curtain = null;
   const CELL = 16;
   const ORD = new Map();                       // cell key -> its two shuffle keys
+  const MOTES = [];
   function cellOrder(cols, rows) {
     const k = cols + 'x' + rows;
     let o = ORD.get(k);
@@ -4592,10 +4636,11 @@ const FX = (() => {
     const cells = [];
     for (let cy = 0; cy < rows; cy++) {
       for (let cx = 0; cx < cols; cx++) {
-        // a soft bias out from the middle, jittered hard so it reads as noise
+        // a spiral out of the middle, jittered so it still reads as scattered
         const dx = (cx + 0.5) / cols - 0.5, dy = (cy + 0.5) / rows - 0.5;
         const d = Math.sqrt(dx * dx + dy * dy) / 0.72;
-        cells.push({ cx, cy, in: d * 0.55 + r() * 0.62, out: r() });
+        const a2 = (Math.atan2(dy, dx) + Math.PI) / TAU;
+        cells.push({ cx, cy, in: d * 0.62 + a2 * 0.24 + r() * 0.3, out: r() * 0.7 + (1 - d) * 0.4, ph: r() * TAU });
       }
     }
     const norm = (key) => {
@@ -4608,8 +4653,15 @@ const FX = (() => {
     return o;
   }
   function trees(onShut, onDone) {
-    curtain = { t: 0, shut: 0.62, hold: 0.22, open: 0.5, fired: false, onShut, onDone };
+    curtain = { t: 0, shut: 0.72, hold: 0.26, open: 0.6, fired: false, onShut, onDone };
+    MOTES.length = 0;
+    for (let i = 0; i < 46; i++) {
+      MOTES.push({ x: Math.random(), y: Math.random(), sp: 0.1 + Math.random() * 0.28,
+        ph: Math.random() * TAU, r: 1 + Math.random() * 2.4, hue: Math.random() < 0.35 ? 1 : 0 });
+    }
   }
+  const SPARK = ['#fff4c8', '#f5cd5c', '#d8a52f'];
+  const GLOW = ['#b98ef0', '#79dced', '#f5cd5c'];
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
@@ -4621,21 +4673,63 @@ const FX = (() => {
     if (cover <= 0) return;
     const cols = Math.ceil(W / CELL), rows = Math.ceil(H / CELL);
     const cells = cellOrder(cols, rows);
-    if (cover >= 1) { g.fillStyle = '#07090c'; g.fillRect(0, 0, W, H); return; }
     const e = phase === 'in' ? U.easeInOut(cover) : cover;
+    // the wavefront, running just ahead of the blocks
+    const cx0 = W / 2, cy0 = H / 2, maxR = Math.hypot(W, H) / 2;
+    if (cover < 1) {
+      const rad = (phase === 'in' ? e : 1 - e) * maxR * 1.25;
+      const ring = g.createRadialGradient(cx0, cy0, Math.max(0, rad - 40), cx0, cy0, rad + 18);
+      ring.addColorStop(0, 'rgba(185,142,240,0)');
+      ring.addColorStop(0.7, `rgba(185,142,240,${(0.16 * (1 - Math.abs(cover - 0.5) * 1.4)).toFixed(3)})`);
+      ring.addColorStop(1, 'rgba(121,220,237,0)');
+      g.fillStyle = ring; g.fillRect(0, 0, W, H);
+    }
     for (const cel of cells) {
       const k = cel[phase];
       const p = phase === 'in' ? e - k : (1 - e) - (1 - k);
       if (p <= 0) continue;
       const x = cel.cx * CELL, y = cel.cy * CELL;
-      if (p < 0.16) {                          // the half-second the block flickers in
-        g.fillStyle = '#1b2430';
-        const m = Math.round(CELL * 0.25);
+      if (p < 0.1) {                           // it lights up before it goes out
+        const q = p / 0.1;
+        const m = Math.round(CELL * (0.42 - q * 0.34));
+        g.fillStyle = SPARK[Math.floor(q * 3) % 3];
         g.fillRect(x + m, y + m, CELL - m * 2, CELL - m * 2);
-      } else {
-        g.fillStyle = '#07090c';
+      } else if (p < 0.2) {                    // then dims through violet
+        const q = (p - 0.1) / 0.1;
+        g.fillStyle = q < 0.5 ? '#6a4a9a' : '#2a1f3c';
         g.fillRect(x, y, CELL, CELL);
+      } else {
+        g.fillStyle = '#07060e';
+        g.fillRect(x, y, CELL, CELL);
+        // a few of them keep a single ember burning in the corner
+        if ((cel.cx * 7 + cel.cy * 5) % 11 === 0) {
+          const a2 = 0.25 + 0.25 * Math.sin(c.t * 7 + cel.ph);
+          g.fillStyle = `rgba(185,142,240,${a2.toFixed(2)})`;
+          g.fillRect(x + 6, y + 6, 2, 2);
+        }
       }
+    }
+    // motes rising through the dark of it
+    if (cover > 0.25) {
+      const a2 = Math.min(1, (cover - 0.25) / 0.3);
+      for (const m of MOTES) {
+        const my = ((m.y - c.t * m.sp) % 1 + 1) % 1;
+        const mx = m.x + Math.sin(c.t * 1.6 + m.ph) * 0.02;
+        const tw = 0.45 + 0.55 * Math.sin(c.t * 5 + m.ph);
+        g.fillStyle = `rgba(${m.hue ? '121,220,237' : '245,205,92'},${(a2 * tw * 0.85).toFixed(2)})`;
+        const px = Math.round(mx * W), py = Math.round(my * H);
+        g.fillRect(px, py, m.r, m.r);
+        g.fillStyle = `rgba(${m.hue ? '121,220,237' : '245,205,92'},${(a2 * tw * 0.22).toFixed(2)})`;
+        g.fillRect(px - 2, py - 2, m.r + 4, m.r + 4);
+      }
+    }
+    // and a soft bloom held over the whole thing at the darkest point
+    if (cover > 0.92) {
+      const b = (cover - 0.92) / 0.08;
+      const gr = g.createRadialGradient(cx0, cy0, 4, cx0, cy0, maxR);
+      gr.addColorStop(0, `rgba(94,66,140,${(b * 0.3).toFixed(2)})`);
+      gr.addColorStop(1, 'rgba(10,8,20,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
     }
   }
 
@@ -7050,6 +7144,186 @@ const Ritual = (() => {
 </script>
 
 <script>
+// ===== js/vines.js =====
+// ---- Vines over the frame --------------------------------------------------
+// The wood the interface is built out of has been in the forest a long time and
+// the forest has started taking it back. Each vine is a verlet chain pinned at
+// the top: gravity pulls it down, a slow wind pushes it sideways, and the
+// pointer shoves the segments it passes through. Purely decorative and
+// pointer-transparent, but it is real physics, so it settles and swings.
+const Vines = (() => {
+  let canvas = null, g = null, W = 0, H = 0, ready = false;
+  const vines = [];
+  let px = -999, py = -999, lastPX = -999, lastPY = -999, pvx = 0, pvy = 0;
+  let acc = 0;
+
+  const LEAF0 = '#1d3a1e', LEAF1 = '#2f6b32', LEAF2 = '#4d9a45', LEAF3 = '#7fc55f';
+  const STEM0 = '#23351d', STEM1 = '#3c5c2c', STEM2 = '#587f3c';
+  const FLOW = ['#c98ad8', '#e8a0b8', '#f0d07a'];
+
+  function makeVine(ax, ay, n, len, seed, side) {
+    const r = Art.rng(seed);
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      pts.push({ x: ax + (r() - 0.5) * 2, y: ay + i * len, ox: ax, oy: ay + i * len });
+    }
+    const leaves = [];
+    for (let i = 2; i < n; i++) {
+      if (r() < 0.85) leaves.push({ i, side: r() < 0.5 ? -1 : 1, s: 0.95 + r() * 0.75, ph: r() * TAU });
+      if (r() < 0.4) leaves.push({ i, side: r() < 0.5 ? 1 : -1, s: 0.7 + r() * 0.5, ph: r() * TAU });
+    }
+    return {
+      pts, len, leaves, side, sway: r() * TAU, rate: 0.5 + r() * 0.5,
+      flower: r() < 0.45 ? { col: FLOW[Math.floor(r() * FLOW.length)], s: 0.8 + r() * 0.5 } : null,
+      thick: 4 + Math.round(r() * 2),
+    };
+  }
+
+  function build() {
+    vines.length = 0;
+    if (!W || !H) return;
+    // along the top edge, thickest in the corners where the frame is heaviest
+    // The two top corners belong to the coin chip and the to-do tablet, so
+    // nothing is hung over them.
+    const KEEP_L = 200, KEEP_R = 256;
+    const n = Math.max(7, Math.round(W / 110));
+    for (let i = 0; i < n; i++) {
+      const u = (i + 0.5) / n;
+      const ax = u * W + (i % 2 ? 9 : -9);
+      const edge = Math.min(u, 1 - u);
+      const clear = ax > KEEP_L && ax < W - KEEP_R;
+      const segs = clear ? 8 + Math.round((1 - edge * 1.8) * 9) : 4;
+      vines.push(makeVine(ax, -6, U.clamp(segs, 4, 16), 13, 9001 + i * 37, 0));
+    }
+    // and long ones down each side, hugging the very edge of the frame
+    for (const sd of [-1, 1]) {
+      const ax = sd < 0 ? 7 : W - 7;
+      vines.push(makeVine(ax, -6, 24, 14, sd < 0 ? 733 : 977, sd));
+      vines.push(makeVine(ax + sd * -18, -6, 9, 13, sd < 0 ? 611 : 823, sd));
+    }
+  }
+
+  function resize() {
+    if (!canvas) return;
+    const st = canvas.parentElement.getBoundingClientRect();
+    const w = Math.max(1, Math.round(st.width)), h = Math.max(1, Math.round(st.height));
+    if (w === W && h === H) return;
+    W = w; H = h;
+    canvas.width = W; canvas.height = H;
+    g = canvas.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    build();
+  }
+
+  function init() {
+    const frame = document.getElementById('frame');
+    if (!frame) return;
+    canvas = document.createElement('canvas');
+    canvas.id = 'vines';
+    frame.appendChild(canvas);
+    resize();
+    window.addEventListener('resize', resize);
+    // the pointer is tracked in frame space, so the vines feel attached to it
+    frame.addEventListener('pointermove', (e) => {
+      const r = frame.getBoundingClientRect();
+      px = e.clientX - r.left; py = e.clientY - r.top;
+    });
+    frame.addEventListener('pointerleave', () => { px = -999; py = -999; });
+    ready = true;
+  }
+
+  // one fixed step, so the chains behave the same whatever the frame rate
+  function step(h) {
+    const grav = 900 * h * h;
+    for (const v of vines) {
+      v.sway += h * v.rate;
+      const wind = Math.sin(v.sway) * 26 * h * h + Math.sin(v.sway * 2.7) * 9 * h * h;
+      for (let i = 1; i < v.pts.length; i++) {
+        const p = v.pts[i];
+        let vx = (p.x - p.ox) * 0.985, vy = (p.y - p.oy) * 0.985;
+        p.ox = p.x; p.oy = p.y;
+        p.x += vx + wind * (i / v.pts.length);
+        p.y += vy + grav;
+        // the pointer shoves anything it runs through, and drags it along
+        const dx = p.x - px, dy = p.y - py;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 3600) {
+          const d = Math.sqrt(d2) || 1;
+          const k = (1 - d / 60);
+          p.x += (dx / d) * k * 9 + pvx * k * 0.22;
+          p.y += (dy / d) * k * 9 + pvy * k * 0.22;
+        }
+      }
+      // hold the links together; the first point is pinned to the frame
+      for (let pass = 0; pass < 4; pass++) {
+        for (let i = 0; i < v.pts.length - 1; i++) {
+          const a = v.pts[i], b = v.pts[i + 1];
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const d = Math.hypot(dx, dy) || 1;
+          const diff = (d - v.len) / d * 0.5;
+          const ox = dx * diff, oy = dy * diff;
+          if (i > 0) { a.x += ox; a.y += oy; }
+          b.x -= ox; b.y -= oy;
+        }
+      }
+    }
+  }
+
+  function update(dt) {
+    if (!ready || !g) return;
+    pvx = px - lastPX; pvy = py - lastPY;
+    if (lastPX < -900) { pvx = 0; pvy = 0; }
+    lastPX = px; lastPY = py;
+    acc += Math.min(0.05, dt);
+    let n = 0;
+    while (acc >= 1 / 60 && n < 3) { step(1 / 60); acc -= 1 / 60; n++; }
+    if (n >= 3) acc = 0;
+    draw();
+  }
+
+  function draw() {
+    g.clearRect(0, 0, W, H);
+    for (const v of vines) {
+      const p = v.pts;
+      // the stem, three passes so it has a dark edge and a lit side
+      for (const [w, col] of [[v.thick + 2, STEM0], [v.thick, STEM1], [Math.max(1, v.thick - 3), STEM2]]) {
+        for (let i = 0; i < p.length - 1; i++) {
+          const taper = 1 - (i / p.length) * 0.45;
+          Art.line(g, p[i].x, p[i].y, p[i + 1].x, p[i + 1].y, col, Math.max(1, w * taper));
+        }
+      }
+      // leaves, hanging off alternate joints
+      for (const lf of v.leaves) {
+        const a = p[lf.i], b = p[Math.min(p.length - 1, lf.i + 1)];
+        const ang = Math.atan2(b.y - a.y, b.x - a.x) + lf.side * 1.05;
+        const L = 8 * lf.s, Wd = 5 * lf.s;
+        const mx = a.x + Math.cos(ang) * L * 0.6, my = a.y + Math.sin(ang) * L * 0.6;
+        g.save(); g.translate(mx, my); g.rotate(ang);
+        Art.ell(g, 0, 0, L, Wd, LEAF0);
+        Art.ell(g, 0, 0, L - 1.2, Wd - 1.2, LEAF1);
+        Art.ell(g, -L * 0.25, -Wd * 0.25, L * 0.5, Wd * 0.45, LEAF2);
+        Art.ell(g, -L * 0.35, -Wd * 0.35, L * 0.22, Wd * 0.22, LEAF3);
+        g.restore();
+      }
+      // and a flower on the tip of the ones that have one
+      if (v.flower) {
+        const e = p[p.length - 1];
+        for (let i = 0; i < 5; i++) {
+          const a2 = (i / 5) * TAU + v.sway * 0.2;
+          Art.ell(g, e.x + Math.cos(a2) * 3.4 * v.flower.s, e.y + Math.sin(a2) * 3.4 * v.flower.s,
+            2.6 * v.flower.s, 2.6 * v.flower.s, v.flower.col);
+        }
+        Art.ell(g, e.x, e.y, 2.2 * v.flower.s, 2.2 * v.flower.s, '#f5e6a8');
+        Art.ell(g, e.x - 0.6, e.y - 0.6, 1 * v.flower.s, 1 * v.flower.s, '#fffdf0');
+      }
+    }
+  }
+
+  return { init, update, resize, get ready() { return ready; } };
+})();
+</script>
+
+<script>
 // ===== js/drive.js =====
 // ---- The drive: the road between one place and the next --------------------
 // Every journey on the map is actually driven. The same scene serves the
@@ -7411,11 +7685,13 @@ const Atlas = (() => {
       dashed(g, p, RD3, 1, 3, 5);
     }
     // ---- the highway, over the top of everything -------------------------
-    poly(g, HIGHWAY, '#120e08', 15);
-    poly(g, HIGHWAY, HWY0, 13);
-    poly(g, HIGHWAY, HWY1, 11);
-    poly(g, HIGHWAY, HWY2, 8);
-    dashed(g, HIGHWAY, '#2a1f08', 2, 5, 6);
+    // Casing, then the white edge lines, then the tarmac over the top of them,
+    // then a dashed centre line. A solid gold band just reads as a gold band.
+    poly(g, HIGHWAY, '#141108', 15);
+    poly(g, HIGHWAY, '#ddd6c0', 12);
+    poly(g, HIGHWAY, '#4e4739', 10);
+    poly(g, HIGHWAY, '#5b533f', 8);
+    dashed(g, HIGHWAY, HWY3, 2, 6, 7);
     // ---- farms and sheds strung along the roads --------------------------
     for (const p of ROADS) {
       for (let i = 1; i < p.length - 1; i++) {
@@ -7531,7 +7807,8 @@ const Atlas = (() => {
     for (const s of SITES) {
       const open = unlocked(s);
       const hot = hover === s && open;
-      const bob = hot ? Math.sin(t * 6) * 1.6 : 0;
+      // every pin breathes; the one under the pointer bounces properly
+      const bob = hot ? Math.sin(t * 9) * 3.2 - 1.5 : Math.sin(t * 1.7 + s.x * 0.07) * 1.3;
       drawPin(g, s, open, hot, bob, t);
     }
 
@@ -7684,7 +7961,7 @@ const Shop = (() => {
   let G = null;
   const VW = 640, VH = 360;
   const cache = new Map();
-  let phase = 'door', pt = 0, scroll = 0, tscroll = 0, till = 0, hover = null;
+  let phase = 'aisle', pt = 0, scroll = 0, tscroll = 0, till = 0, hover = null;
   let drag = null, moved = 0, keeper = { t: 0, pose: 'idle' }, keeperHot = false;
   const basket = [], flies = [], motes = [];
 
@@ -7946,7 +8223,7 @@ const Shop = (() => {
   function open() { Main.setMode('shop'); }
   function enter() {
     layout();
-    phase = 'door'; pt = 0; scroll = 0; tscroll = 0; till = 0; hover = null;
+    phase = 'aisle'; pt = 0; scroll = 0; tscroll = 0; till = 0; hover = null;
     basket.length = 0; flies.length = 0;
     if (!motes.length) { const r = Art.rng(99); for (let i = 0; i < 24; i++) motes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU }); }
     Audio.setMode('pen');
@@ -7957,7 +8234,6 @@ const Shop = (() => {
 
   function update(dt) {
     pt += dt;
-    if (phase === 'door' && pt > 2.4) { phase = 'aisle'; pt = 0; }
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.0015, dt));
     keeper.t += dt;
     shazTick(dt);
@@ -7984,7 +8260,6 @@ const Shop = (() => {
   }
   const overCounter = (x) => x + scroll > counterX - 30;
   function press(x, y) {
-    if (phase !== 'aisle') { phase = 'aisle'; pt = 0; return; }
     drag = { x, y, s: tscroll }; moved = 0;
   }
   function move(x, y) {
@@ -8031,113 +8306,11 @@ const Shop = (() => {
 
   // ---- render -------------------------------------------------------------
   function render(g) {
-    if (phase === 'door') { renderFront(g); return; }
     renderRoom(g);
   }
 
   // The storefront: a lit box at dusk, glass all along the front, automatic
   // doors sliding apart while the camera walks in.
-  function renderFront(g) {
-    const k = U.clamp(pt / 2.4, 0, 1);
-    const zoom = 1 + U.easeIn(k) * 2.8;
-    const slide = U.easeOut(U.clamp((pt - 0.5) / 0.9, 0, 1));
-    const dusk = g.createLinearGradient(0, 0, 0, VH);
-    dusk.addColorStop(0, '#161d33'); dusk.addColorStop(0.7, '#2e3550'); dusk.addColorStop(1, '#3c4038');
-    g.fillStyle = dusk; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 40; i++) { g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect((i * 137) % VW, (i * 61) % 90, 1, 1); }
-
-    g.save();
-    g.translate(VW / 2, 250); g.scale(zoom, zoom); g.translate(-VW / 2, -250);
-
-    // the lot
-    g.fillStyle = '#3a3a40'; g.fillRect(0, 250, VW, VH - 250);
-    g.fillStyle = '#4a4a52'; g.fillRect(0, 250, VW, 3);
-    for (let i = 0; i < 7; i++) { g.fillStyle = 'rgba(240,236,200,0.35)'; g.fillRect(30 + i * 90, 296, 44, 3); }
-
-    const bx = 150, by = 96, bw = 340, bh = 154;
-    // body
-    g.fillStyle = '#e9e4d6'; g.fillRect(bx, by, bw, bh);
-    g.fillStyle = '#d6d0c0'; g.fillRect(bx, by + bh - 10, bw, 10);
-    // the house band: orange, green, red, the way every mart on earth is striped
-    g.fillStyle = '#c9581f'; g.fillRect(bx, by, bw, 9);
-    g.fillStyle = '#3f8f4a'; g.fillRect(bx, by + 9, bw, 9);
-    g.fillStyle = '#b8412c'; g.fillRect(bx, by + 18, bw, 5);
-    // parapet and sign box
-    g.fillStyle = '#f4f0e4'; g.fillRect(bx - 8, by - 26, bw + 16, 28);
-    g.fillStyle = '#cfc8b6'; g.fillRect(bx - 8, by - 4, bw + 16, 6);
-    g.fillStyle = '#2a2f3a'; g.fillRect(bx + 40, by - 22, bw - 80, 20);
-    const buzz = 0.85 + 0.15 * Math.sin(pt * 30);
-    g.globalAlpha = buzz;
-    FX.pixelText(g, 'WOMBAT MART', bx + bw / 2, by - 18, { color: '#f6f2e2', size: 11, ink: 3, inkColor: '#1a2030' });
-    g.globalAlpha = 1;
-    g.fillStyle = '#3f8f4a'; g.fillRect(bx + 22, by - 20, 14, 16);
-    g.fillStyle = '#c9581f'; g.fillRect(bx + bw - 36, by - 20, 14, 16);
-
-    // glass front, lit from inside
-    const glass = g.createLinearGradient(0, by + 26, 0, by + bh - 12);
-    glass.addColorStop(0, 'rgba(255,246,214,0.95)'); glass.addColorStop(1, 'rgba(226,214,176,0.9)');
-    g.fillStyle = '#2a2f3a'; g.fillRect(bx + 10, by + 26, bw - 20, bh - 38);
-    g.fillStyle = glass; g.fillRect(bx + 14, by + 30, bw - 28, bh - 46);
-    // shelving seen through the window
-    for (let i = 0; i < 3; i++) {
-      g.fillStyle = 'rgba(120,104,74,0.4)'; g.fillRect(bx + 22, by + 52 + i * 24, 120, 4);
-      for (let k2 = 0; k2 < 6; k2++) { g.fillStyle = ['#7a9a5a', '#c9581f', '#4a6a9a', '#b8496a'][(i + k2) % 4]; g.fillRect(bx + 26 + k2 * 19, by + 42 + i * 24, 11, 10); }
-    }
-    // posters
-    g.fillStyle = '#d8402c'; g.fillRect(bx + 250, by + 44, 34, 26);
-    FX.pixelText(g, 'SALE', bx + 267, by + 52, { color: '#fff', size: 7, ink: false });
-    g.fillStyle = '#2f6f9f'; g.fillRect(bx + 292, by + 44, 34, 26);
-    FX.pixelText(g, 'OPEN', bx + 309, by + 52, { color: '#fff', size: 7, ink: false });
-    // mullions
-    g.fillStyle = '#2a2f3a';
-    for (let x2 = bx + 14; x2 < bx + bw - 14; x2 += 58) g.fillRect(x2, by + 30, 4, bh - 46);
-
-    // the automatic doors, sliding apart
-    const dW = 92, dX = bx + bw / 2 - dW / 2, dY = by + 34, dH = bh - 50;
-    g.fillStyle = '#1d2230'; g.fillRect(dX - 4, dY - 4, dW + 8, dH + 8);
-    // what you can see through the opening
-    g.save();
-    g.beginPath(); g.rect(dX, dY, dW, dH); g.clip();
-    const inner = g.createLinearGradient(0, dY, 0, dY + dH);
-    inner.addColorStop(0, '#fffbe8'); inner.addColorStop(1, '#e6d9b4');
-    g.fillStyle = inner; g.fillRect(dX, dY, dW, dH);
-    g.fillStyle = '#c9bd9a'; g.fillRect(dX, dY + dH - 22, dW, 22);
-    if (slide > 0.15) Sprites.blit(g, dX + dW * 0.5, dY + dH - 6, 'pray', Math.floor(pt * 3), 'sand', -1, 'adult', 1.5);
-    g.fillStyle = 'rgba(255,240,190,0.25)'; g.fillRect(dX, dY, dW, dH);
-    g.restore();
-    for (const s2 of [-1, 1]) {                     // the two glass leaves
-      const w2 = (dW / 2) * (1 - slide * 0.9);
-      const x2 = s2 < 0 ? dX : dX + dW - w2;
-      g.fillStyle = 'rgba(198,222,226,0.72)'; g.fillRect(x2, dY, w2, dH);
-      g.fillStyle = '#7f8b96'; g.fillRect(x2, dY, w2, 3); g.fillRect(x2, dY + dH - 3, w2, 3);
-      g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(x2 + (s2 < 0 ? 3 : w2 - 8), dY + 6, 4, dH - 14);
-      g.fillStyle = '#39414d'; g.fillRect(s2 < 0 ? x2 + w2 - 3 : x2, dY, 3, dH);
-    }
-    // light spilling over the kerb
-    if (slide > 0.05) {
-      const spill = g.createLinearGradient(0, dY + dH, 0, dY + dH + 70);
-      spill.addColorStop(0, `rgba(255,236,180,${(0.4 * slide).toFixed(2)})`);
-      spill.addColorStop(1, 'rgba(255,236,180,0)');
-      g.fillStyle = spill;
-      g.beginPath();
-      g.moveTo(dX, dY + dH); g.lineTo(dX + dW, dY + dH);
-      g.lineTo(dX + dW + 40 * slide, dY + dH + 64); g.lineTo(dX - 40 * slide, dY + dH + 64);
-      g.closePath(); g.fill();
-    }
-    // kerbside clutter
-    g.fillStyle = '#7f8b96'; g.fillRect(bx + 20, by + bh - 2, 34, 26);
-    g.fillStyle = '#b9c4cc'; g.fillRect(bx + 23, by + bh + 1, 28, 10);
-    FX.pixelText(g, 'ICE', bx + 37, by + bh + 12, { color: '#2f6f9f', size: 7, ink: false });
-    g.fillStyle = '#c9581f'; g.fillRect(bx + bw - 58, by + bh - 2, 26, 26);
-    g.fillStyle = '#e9e4d6'; g.fillRect(bx + bw - 55, by + bh + 2, 20, 8);
-    const m = Sprites.mascot(Math.floor(pt * 3));
-    g.drawImage(m, Math.round(bx + bw + 6), Math.round(by + bh + 22 - m.height));
-    g.restore();
-
-    const fade = U.clamp((pt - 1.8) / 0.6, 0, 1);
-    g.fillStyle = `rgba(250,244,224,${fade})`; g.fillRect(0, 0, VW, VH);
-  }
-
   function renderRoom(g) {
     const t = G.time, S = scroll;
     // ---- ceiling: tiles, cable trays, and warm tubes ----------------------
@@ -8216,7 +8389,7 @@ const Shop = (() => {
       if (x < -60 || x > VW + 60) continue;
       const img = pic(s.p);
       const hot = hover === s;
-      const bob = hot ? Math.sin(t * 7) * 1.5 : 0;
+      const bob = hot ? Math.sin(t * 9) * 3 - 1.5 : Math.sin(t * 1.9 + s.x * 0.05) * 1.1;
       g.globalAlpha = s.p.locked ? 0.45 : 1;
       g.drawImage(img, Math.round(x - img.width / 2), Math.round(s.y - img.height + 10 + bob));
       g.globalAlpha = 1;
@@ -10084,7 +10257,7 @@ const Tower = (() => {
       FX.dust(x, y, Math.min(12, Math.round(s * 5)), PAL.soil3);
       FX.shake(Math.min(5, s * 1.2));
       Audio.play('thud', Math.min(2, s));
-      for (const bd of [a, b]) if (bd.userData && !bd.userData.platform) bd.userData.sq = Math.min(0.3, s * 0.22);
+      for (const bd of [a, b]) if (bd.userData && !bd.userData.platform) bd.userData.sq = Math.min(0.42, s * 0.32);
       if (s > 0.7) FX.ring(x, y, Math.min(26, s * 16));
     }
     if (R.falling && (a === R.falling || b === R.falling)) landed(R.falling);
@@ -10185,7 +10358,7 @@ const Tower = (() => {
     earn(p, b.x, b.y - b.height / 2 - 8, true);
     R.excite = Math.min(2, R.excite + 0.9);
     Audio.play('place'); Audio.play('coin');
-    b.userData.sq = 0.2;
+    b.userData.sq = 0.34;
     if (R.combo >= 3) {
       FX.comic(b.x, b.y - b.height / 2 - 26, 'x' + R.combo, { ink: FX.COMIC_INK.yay, world: true });
     }
@@ -10471,7 +10644,8 @@ const Tower = (() => {
       const ud = b.userData; if (!ud || ud.platform) continue;
       const def = OFFERINGS[ud.type];
       const sq = ud.sq || 0;
-      g.save(); g.translate(b.x, b.y); g.rotate(b.angle); g.scale(1 + sq, 1 - sq);
+      const br = ud.settled ? Math.sin(G.time * 2.2 + (ud.eye || 0)) * 0.012 : 0;
+      g.save(); g.translate(b.x, b.y); g.rotate(b.angle); g.scale(1 + sq + br, 1 - sq - br);
       Sprites.drawCube(g, def, b.width, b.height, {
         blessed: ud.blessed,
         outline: b === R.falling ? PAL.cream : (ud.blessed ? PAL.div4 : null),
@@ -11896,6 +12070,7 @@ const Main = (() => {
     }
     FX.drawCinema(g, W, H);
     FX.drawTrees(g, W, H);            // the curtain sits above everything
+    Vines.update(real);               // and the forest grows over the frame itself
 
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
@@ -11928,12 +12103,13 @@ const Main = (() => {
     window.G = G;
     World.init(G);
     Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
+    Vines.init();
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();
     UI.setMode('menu');
     window.addEventListener('resize', resize);
-    resize(); setTimeout(resize, 60);
+    resize(); setTimeout(resize, 60); setTimeout(() => Vines.resize(), 80);
     bind();
     requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
   }

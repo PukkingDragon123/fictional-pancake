@@ -339,6 +339,7 @@ const Main = (() => {
     }
     FX.drawCinema(g, W, H);
     FX.drawTrees(g, W, H);            // the curtain sits above everything
+    Vines.update(real);               // and the forest grows over the frame itself
 
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
@@ -371,12 +372,13 @@ const Main = (() => {
     window.G = G;
     World.init(G);
     Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
+    Vines.init();
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();
     UI.setMode('menu');
     window.addEventListener('resize', resize);
-    resize(); setTimeout(resize, 60);
+    resize(); setTimeout(resize, 60); setTimeout(() => Vines.resize(), 80);
     bind();
     requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
   }

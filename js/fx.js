@@ -29,14 +29,15 @@ const FX = (() => {
   function hearts(x, y, n = 3) { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-8, 8), y: y + U.rand(-4, 4), vx: U.rand(-15, 15), vy: U.rand(-50, -25), life: U.rand(0.7, 1.1), size: U.rand(3, 5), color: U.pick(['#ff5c8a', '#ff8fb0', '#ff3366']), gravity: -10, drag: 1, type: 'heart' }); }
   function sparkle(x, y, n = 6, color = '#fff2a8') { for (let i = 0; i < n; i++) spawn({ x: x + U.rand(-10, 10), y: y + U.rand(-10, 10), vx: U.rand(-20, 20), vy: U.rand(-40, -10), life: U.rand(0.4, 0.8), size: U.rand(2, 4), color, gravity: 0, type: 'star' }); }
   function float(x, y, text, o = {}) { floaters.push({ x, y, text, life: o.life || 1.2, maxLife: o.life || 1.2, color: o.color || '#fff', size: o.size || 8, vy: o.vy ?? -30, vx: o.vx || 0, world: o.world ?? false, outline: o.outline ?? true }); }
-  // ---- the pixel dissolve ---------------------------------------------------
-  // No trees. The screen eats itself in chunky blocks: 16px cells blacking out
-  // in a fixed scattered order, a beat of dark, then the same cells peeling
-  // back off in a different order. Cheap, unmistakably pixel-art, and there is
-  // nothing in it that can smear.
+  // ---- the dissolve ---------------------------------------------------------
+  // The screen goes out in chunky blocks, but the blocks do not simply appear:
+  // each one lights up gold first, sheds a spark, and only then goes dark. A
+  // ring of light sweeps out from the middle ahead of them, motes drift up
+  // through the dark, and the whole thing comes back the same way in reverse.
   let curtain = null;
   const CELL = 16;
   const ORD = new Map();                       // cell key -> its two shuffle keys
+  const MOTES = [];
   function cellOrder(cols, rows) {
     const k = cols + 'x' + rows;
     let o = ORD.get(k);
@@ -45,10 +46,11 @@ const FX = (() => {
     const cells = [];
     for (let cy = 0; cy < rows; cy++) {
       for (let cx = 0; cx < cols; cx++) {
-        // a soft bias out from the middle, jittered hard so it reads as noise
+        // a spiral out of the middle, jittered so it still reads as scattered
         const dx = (cx + 0.5) / cols - 0.5, dy = (cy + 0.5) / rows - 0.5;
         const d = Math.sqrt(dx * dx + dy * dy) / 0.72;
-        cells.push({ cx, cy, in: d * 0.55 + r() * 0.62, out: r() });
+        const a2 = (Math.atan2(dy, dx) + Math.PI) / TAU;
+        cells.push({ cx, cy, in: d * 0.62 + a2 * 0.24 + r() * 0.3, out: r() * 0.7 + (1 - d) * 0.4, ph: r() * TAU });
       }
     }
     const norm = (key) => {
@@ -61,8 +63,15 @@ const FX = (() => {
     return o;
   }
   function trees(onShut, onDone) {
-    curtain = { t: 0, shut: 0.62, hold: 0.22, open: 0.5, fired: false, onShut, onDone };
+    curtain = { t: 0, shut: 0.72, hold: 0.26, open: 0.6, fired: false, onShut, onDone };
+    MOTES.length = 0;
+    for (let i = 0; i < 46; i++) {
+      MOTES.push({ x: Math.random(), y: Math.random(), sp: 0.1 + Math.random() * 0.28,
+        ph: Math.random() * TAU, r: 1 + Math.random() * 2.4, hue: Math.random() < 0.35 ? 1 : 0 });
+    }
   }
+  const SPARK = ['#fff4c8', '#f5cd5c', '#d8a52f'];
+  const GLOW = ['#b98ef0', '#79dced', '#f5cd5c'];
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
@@ -74,21 +83,63 @@ const FX = (() => {
     if (cover <= 0) return;
     const cols = Math.ceil(W / CELL), rows = Math.ceil(H / CELL);
     const cells = cellOrder(cols, rows);
-    if (cover >= 1) { g.fillStyle = '#07090c'; g.fillRect(0, 0, W, H); return; }
     const e = phase === 'in' ? U.easeInOut(cover) : cover;
+    // the wavefront, running just ahead of the blocks
+    const cx0 = W / 2, cy0 = H / 2, maxR = Math.hypot(W, H) / 2;
+    if (cover < 1) {
+      const rad = (phase === 'in' ? e : 1 - e) * maxR * 1.25;
+      const ring = g.createRadialGradient(cx0, cy0, Math.max(0, rad - 40), cx0, cy0, rad + 18);
+      ring.addColorStop(0, 'rgba(185,142,240,0)');
+      ring.addColorStop(0.7, `rgba(185,142,240,${(0.16 * (1 - Math.abs(cover - 0.5) * 1.4)).toFixed(3)})`);
+      ring.addColorStop(1, 'rgba(121,220,237,0)');
+      g.fillStyle = ring; g.fillRect(0, 0, W, H);
+    }
     for (const cel of cells) {
       const k = cel[phase];
       const p = phase === 'in' ? e - k : (1 - e) - (1 - k);
       if (p <= 0) continue;
       const x = cel.cx * CELL, y = cel.cy * CELL;
-      if (p < 0.16) {                          // the half-second the block flickers in
-        g.fillStyle = '#1b2430';
-        const m = Math.round(CELL * 0.25);
+      if (p < 0.1) {                           // it lights up before it goes out
+        const q = p / 0.1;
+        const m = Math.round(CELL * (0.42 - q * 0.34));
+        g.fillStyle = SPARK[Math.floor(q * 3) % 3];
         g.fillRect(x + m, y + m, CELL - m * 2, CELL - m * 2);
-      } else {
-        g.fillStyle = '#07090c';
+      } else if (p < 0.2) {                    // then dims through violet
+        const q = (p - 0.1) / 0.1;
+        g.fillStyle = q < 0.5 ? '#6a4a9a' : '#2a1f3c';
         g.fillRect(x, y, CELL, CELL);
+      } else {
+        g.fillStyle = '#07060e';
+        g.fillRect(x, y, CELL, CELL);
+        // a few of them keep a single ember burning in the corner
+        if ((cel.cx * 7 + cel.cy * 5) % 11 === 0) {
+          const a2 = 0.25 + 0.25 * Math.sin(c.t * 7 + cel.ph);
+          g.fillStyle = `rgba(185,142,240,${a2.toFixed(2)})`;
+          g.fillRect(x + 6, y + 6, 2, 2);
+        }
       }
+    }
+    // motes rising through the dark of it
+    if (cover > 0.25) {
+      const a2 = Math.min(1, (cover - 0.25) / 0.3);
+      for (const m of MOTES) {
+        const my = ((m.y - c.t * m.sp) % 1 + 1) % 1;
+        const mx = m.x + Math.sin(c.t * 1.6 + m.ph) * 0.02;
+        const tw = 0.45 + 0.55 * Math.sin(c.t * 5 + m.ph);
+        g.fillStyle = `rgba(${m.hue ? '121,220,237' : '245,205,92'},${(a2 * tw * 0.85).toFixed(2)})`;
+        const px = Math.round(mx * W), py = Math.round(my * H);
+        g.fillRect(px, py, m.r, m.r);
+        g.fillStyle = `rgba(${m.hue ? '121,220,237' : '245,205,92'},${(a2 * tw * 0.22).toFixed(2)})`;
+        g.fillRect(px - 2, py - 2, m.r + 4, m.r + 4);
+      }
+    }
+    // and a soft bloom held over the whole thing at the darkest point
+    if (cover > 0.92) {
+      const b = (cover - 0.92) / 0.08;
+      const gr = g.createRadialGradient(cx0, cy0, 4, cx0, cy0, maxR);
+      gr.addColorStop(0, `rgba(94,66,140,${(b * 0.3).toFixed(2)})`);
+      gr.addColorStop(1, 'rgba(10,8,20,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
     }
   }
 
