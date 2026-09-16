@@ -522,9 +522,14 @@ const Nursery = (() => {
   // one plant in a terracotta pot, with its price on a stake
   function drawPlant(g, s, x) {
     const hot = hover === s;
-    const bob = hot ? Math.sin(t * 8) * 2.4 : Math.sin(t * 1.5 + s.x * 0.05) * 1.1;
+    // a proper hop when hovered: up on the sine, squashed at the bottom
+    const hopT = t * (hot ? 7 : 1.5) + s.x * 0.05;
+    const raw = Math.abs(Math.sin(hopT));
+    const bob = hot ? -raw * 6 : Math.sin(hopT) * 1.6;
+    const sqz = hot ? (1 - raw) * 0.22 : 0;
     const y = s.y + bob;
-    if (s.p.kind !== 'seed') { drawGood(g, s, x, y, hot); return; }
+    if (sqz > 0.001) { g.save(); g.translate(x, s.y + 13); g.scale(1 + sqz, 1 - sqz); g.translate(-x, -(s.y + 13)); }
+    if (s.p.kind !== 'seed') { drawGood(g, s, x, y, hot); if (sqz > 0.001) g.restore(); return; }
     // the pot
     g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, x, s.y + 13, 17, 5);
     Art.poly(g, [[x - 14, y - 10], [x + 14, y - 10], [x + 10, y + 12], [x - 10, y + 12]], '#7a3a1c');
@@ -561,8 +566,9 @@ const Nursery = (() => {
       Art.ell(g, x + 16, y - 24, 8, 8, '#2f8f42');
       FX.pixelText(g, String(n), x + 16, y - 27, { color: '#fff', size: 7 });
     }
+    if (sqz > 0.001) g.restore();
     if (hot) {
-      Font.draw(g, s.p.name.toUpperCase(), x, y - 56, { scale: 1, color: '#e8f4d8', align: 'center', shadow: '#12200e' });
+      Font.draw(g, s.p.name.toUpperCase(), x, s.y - 56, { scale: 1, color: '#e8f4d8', align: 'center', shadow: '#12200e' });
     }
   }
 

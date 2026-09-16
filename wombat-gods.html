@@ -574,28 +574,37 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 /* ---- panels arrive with one short step ----------------------------------- */
 /* No sigil, no motes. A panel just steps in: a quick fade and a few pixels of
    travel, done before you have finished looking at it. */
-@keyframes bodyin { 0% { opacity: 0; transform: translateY(4px) } 100% { opacity: 1; transform: none } }
-.panel .pbody, .panel .phead { animation: bodyin 0.14s ease-out backwards; }
-@keyframes ping { 0% { transform: scale(1, 1) } 35% { transform: scale(1.14, 0.88) } 70% { transform: scale(0.96, 1.05) } 100% { transform: scale(1, 1) } }
-#money.ping { animation: ping 0.3s cubic-bezier(0.34, 1.7, 0.5, 1); }
-@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
-@keyframes bobx { 0%, 100% { transform: translateY(0) scale(1, 1) } 50% { transform: translateY(-2px) scale(1.015, 0.985) } }
-@keyframes popin { 0% { transform: translate(-50%, -48%) scale(0.98); opacity: 0 } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1 } }
-@keyframes toastin { 0% { transform: translateY(14px) scale(0.8, 1.2) } 50% { transform: translateY(-3px) scale(1.06, 0.94) } 100% { transform: translateY(0) scale(1, 1) } }
+@keyframes bodyin {
+  0%   { opacity: 0; transform: translateY(7px) scale(0.98) }
+  60%  { opacity: 1; transform: translateY(-2px) scale(1.01) }
+  100% { opacity: 1; transform: none }
+}
+.panel .pbody, .panel .phead { animation: bodyin 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) backwards; }
+@keyframes ping { 0% { transform: scale(1, 1) } 28% { transform: scale(1.26, 0.8) } 56% { transform: scale(0.9, 1.12) } 78% { transform: scale(1.04, 0.97) } 100% { transform: scale(1, 1) } }
+#money.ping { animation: ping 0.44s cubic-bezier(0.34, 1.8, 0.5, 1); }
+@keyframes bob { 0%, 100% { transform: translateY(0) scale(1, 1) } 42% { transform: translateY(-5px) scale(0.96, 1.05) } 70% { transform: translateY(1px) scale(1.04, 0.96) } }
+@keyframes bobx { 0%, 100% { transform: translateY(0) scale(1, 1) } 45% { transform: translateY(-4px) scale(0.98, 1.04) } 72% { transform: translateY(1px) scale(1.03, 0.97) } }
+@keyframes popin {
+  0%   { transform: translate(-50%, -46%) scale(0.9, 1.08); opacity: 0 }
+  55%  { transform: translate(-50%, -51%) scale(1.05, 0.95); opacity: 1 }
+  80%  { transform: translate(-50%, -50%) scale(0.98, 1.02) }
+  100% { transform: translate(-50%, -50%) scale(1, 1); opacity: 1 }
+}
+@keyframes toastin { 0% { transform: translateY(20px) scale(0.68, 1.3) } 44% { transform: translateY(-7px) scale(1.14, 0.88) } 72% { transform: translateY(2px) scale(0.96, 1.05) } 100% { transform: translateY(0) scale(1, 1) } }
 #money { animation: bobx 4.2s ease-in-out infinite; }
 .rbtn, .mbtn { animation: bob 3.4s ease-in-out infinite; }
 .rbtn:nth-child(2n), .mbtn:nth-child(2n) { animation-duration: 3.9s; animation-delay: -1.2s; }
 .zbtn { animation: bob 5s ease-in-out infinite; }
 #b-tool { animation: bobx 3s ease-in-out infinite; }
 .spoke, .rbtn, .mbtn, .zbtn, .hq, .x, .act, .wbtn, .chip {
-  transition: transform 0.12s cubic-bezier(0.34, 1.8, 0.5, 1), box-shadow 0.12s ease-out;
+  transition: transform 0.2s cubic-bezier(0.2, 2.2, 0.4, 1), box-shadow 0.12s ease-out;
 }
-.spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover, .act:hover, .wbtn:hover, .chip:hover { transform: translateY(-2px) scale(1.05, 0.96); }
-.spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active, .act:active, .wbtn:active, .chip:active { transform: translateY(3px) scale(0.92, 1.08); }
-.panel { animation: popin 0.14s ease-out; }
-.toast { animation: toastin 0.26s cubic-bezier(0.34, 1.7, 0.5, 1); }
+.spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover, .act:hover, .wbtn:hover, .chip:hover { transform: translateY(-4px) scale(1.1, 0.92); }
+.spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active, .act:active, .wbtn:active, .chip:active { transform: translateY(5px) scale(0.84, 1.16); }
+.panel { animation: popin 0.26s cubic-bezier(0.3, 1.5, 0.5, 1); }
+.toast { animation: toastin 0.4s cubic-bezier(0.34, 1.8, 0.5, 1); }
 .brow .bstep button { transition: transform 0.1s cubic-bezier(0.34, 1.9, 0.5, 1); }
-.brow .bstep button:active { transform: scale(0.8, 1.2); }
+.brow .bstep button:active { transform: scale(0.7, 1.32); }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 @media (max-width: 760px) {
   #checklist { width: 158px; }
@@ -635,11 +644,11 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 }
 
 /* A little bounce on anything you can press: the whole UI should feel springy. */
-.spoke, .rbtn, .mbtn, .zbtn, .hq { transition: transform .09s cubic-bezier(.34,1.56,.64,1), filter .09s ease; }
-.spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover { transform: translateY(-2px) scale(1.04); }
-.spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active { transform: translateY(1px) scale(.96); }
-@keyframes pop-in { 0% { transform: scale(.86); opacity: 0 } 60% { transform: scale(1.04); opacity: 1 } 100% { transform: scale(1) } }
-.tray:not([hidden]) { animation: pop-in .12s ease-out; }
+.spoke, .rbtn, .mbtn, .zbtn, .hq { transition: transform .18s cubic-bezier(.2,2.2,.4,1), filter .09s ease; }
+.spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover { transform: translateY(-4px) scale(1.1, 0.92); }
+.spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active { transform: translateY(4px) scale(.86, 1.14); }
+@keyframes pop-in { 0% { transform: scale(.8, 1.16); opacity: 0 } 55% { transform: scale(1.08, 0.94); opacity: 1 } 80% { transform: scale(.98, 1.02) } 100% { transform: scale(1, 1) } }
+.tray:not([hidden]) { animation: pop-in .24s cubic-bezier(.3,1.7,.5,1); }
 
 
 /* ---- the UI is built out of wood, with stone where it has to hold ------- */
@@ -2486,215 +2495,201 @@ const Sprites = (() => {
   }
 
   // ---- Shaz, on the till ---------------------------------------------------
-  // Nineteen years on this counter. Store cap, store tie, navy jacket over the
-  // polo, and a head two sizes too big for her, like everything else here.
-  // Drawn from the chest up: the counter takes care of the rest.
-  const KW = 76, KH = 78;
-  // She works the floor as well as the till, so she needs a walk, and she has
-  // an opinion about everything, so she needs a face for each of them.
+  // A chibi shark in a store cap and a navy suit, drawn small on purpose: the
+  // whole sprite is 36x46 art pixels and the shop blows it up, so every pixel
+  // is a fat block and the shapes have to be simple enough to read that way.
+  // Full body now — head, suit, arms, little legs, and a tail that wags.
+  const KW = 36, KH = 46, CXK = 18, KGY = 45;
+  const SH0 = '#3f7ba6', SH1 = '#63a6cf', SH2 = '#93c9e6', SH3 = '#cdeaf6';   // hide
+  const BEL = '#f4f8f2', BEL2 = '#ccdad6';                                    // belly
+  const SU0 = '#0f2238', SU1 = '#1a3a58', SU2 = '#2a5478';                    // suit
+  const TI0 = '#8f2230', TI1 = '#c0392f';                                     // tie
+  const CP0 = '#10381a', CP1 = '#1c6030', CP2 = '#2f8f42', CP3 = '#63c974';   // cap
+  const KINK = '#0d1a26';
+
   function cashier(frame, pose = 'idle') {
-    const n = { idle: 4, talk: 6, happy: 4, wave: 6, walk: 6, think: 4, cross: 6,
-      cheer: 6, surprise: 4, sleepy: 4, sad: 4 }[pose] || 4;
+    const n = { idle: 6, talk: 6, happy: 6, wave: 6, walk: 6, think: 4, cross: 6,
+      cheer: 6, surprise: 4, sleepy: 4, sad: 4 }[pose] || 6;
     const f = ((frame % n) + n) % n, t = f / n;
     const key = `shaz:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(KW, KH);
     const S = Math.sin(t * TAU);
-    const CXK = 38;
-    const SK0 = '#3d6b8e', SK1 = '#5d92b6', SK2 = '#8cbcd8';          // shark, top to belly
-    const HR0 = '#575260', HR1 = '#7e7988', HR2 = '#a9a4b2';
-    const SUIT0 = '#16304a', SUIT1 = '#234a६e'.replace('६', '6'), SUIT2 = '#2f6088', SUIT3 = '#4b86b4';
-    const SHIRT = '#f2ece0', SHIRT2 = '#d6cfc0';
-    const TIE0 = '#8f2230', TIE1 = '#c0392f', TIE2 = '#e0664f';
-    const CAP0 = '#10381a', CAP1 = '#1c6030', CAP2 = '#2f8f42', CAP3 = '#63c974';
-    const INK = '#20192a', LIP = '#b8556a';
-    let bob = 0, lean = 0, armR = 0, armL = 0, mouth = 'flat', eyes = 'open';
-    let brow = 0, tilt = 0;
+
+    // Everything is driven off five numbers so the whole body squashes and
+    // stretches together. That is the entire secret of a bouncy sprite.
+    let bob = 0, sq = 0, lean = 0, armL = 0, armR = 0, step = 0, tail = 0;
+    let eyes = 'open', mouth = 'flat', brow = 0, tilt = 0;
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 0][f]; eyes = f === 3 ? 'shut' : 'open'; break;
-      case 'talk': bob = [0, 1, 0, 1, 0, 1][f]; lean = S * 0.8; armR = -3 - Math.abs(S) * 4;
-        mouth = ['open', 'wide', 'small', 'open', 'wide', 'small'][f]; break;
-      case 'happy': bob = [0, 1, 2, 1][f]; mouth = 'grin'; eyes = 'happy'; armR = -5; break;
-      case 'wave': bob = [0, 1, 2, 1, 2, 1][f]; mouth = 'grin'; eyes = 'happy';
-        armR = -17 - Math.abs(Math.sin(t * TAU * 2)) * 5; break;
-      // she is only ever visible from the counter up, so the walk is all in
-      // the shoulders: a two-beat roll with the arms swinging against it
-      case 'walk': bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.2; lean = S * 1.1;
-        armR = S * 5; armL = -S * 5; mouth = 'flat'; break;
-      case 'think': bob = [0, 0, 1, 1][f]; eyes = 'narrow'; brow = 0.8; tilt = -2;
-        mouth = 'small'; armR = -20; break;
-      case 'cross': bob = [0, 0, 1, 1, 0, 0][f]; eyes = 'narrow'; brow = -1.4;
-        mouth = 'flat'; lean = S * 0.7; armR = -7; armL = -7; break;
-      case 'cheer': bob = [0, 2, 3, 3, 2, 0][f]; eyes = 'happy'; mouth = 'wide';
-        armR = -24; armL = -24; break;
-      case 'surprise': bob = [0, 2, 1, 1][f]; eyes = 'wide'; brow = 1.4;
-        mouth = 'open'; armR = -10; armL = -10; break;
-      case 'sleepy': bob = [0, 0, 1, 1][f]; eyes = 'shut'; brow = -0.3; tilt = 2.4;
-        mouth = 'small'; break;
-      case 'sad': bob = [1, 1, 0, 0][f]; eyes = 'droop'; brow = -0.5; tilt = 1.6;
-        mouth = 'frown'; armR = 3; armL = 3; break;
+      case 'idle':                                   // a slow breath, ears to tail
+        bob = [0, -1, -1, 0, 0, 0][f]; sq = [0, -0.06, -0.04, 0, 0.04, 0.02][f];
+        tail = S * 2; eyes = f === 4 ? 'shut' : 'open'; break;
+      case 'walk':                                   // two-beat bounce, feet alternating
+        bob = [-2, -3, -1, -2, -3, -1][f]; sq = [0.06, -0.08, 0.1, 0.06, -0.08, 0.1][f];
+        step = [1, 0, -1, -1, 0, 1][f]; lean = 0.6; tail = S * 3;
+        armL = -S * 4; armR = S * 4; break;
+      case 'talk':
+        bob = [0, -1, 0, -1, 0, -1][f]; sq = [0, -0.05, 0, -0.05, 0, -0.05][f];
+        mouth = ['open', 'wide', 'small', 'open', 'wide', 'small'][f];
+        armR = -3 - Math.abs(S) * 3; lean = S * 0.5; tail = S * 3; brow = 0.5; break;
+      case 'happy':
+        bob = [0, -2, -3, -3, -2, 0][f]; sq = [0.1, -0.1, -0.06, -0.06, -0.1, 0.1][f];
+        mouth = 'grin'; eyes = 'happy'; armL = -3; armR = -3; tail = S * 4; break;
+      case 'wave':
+        bob = [0, -1, -2, -2, -1, 0][f]; sq = [0.05, -0.06, -0.04, -0.04, -0.06, 0.05][f];
+        mouth = 'grin'; eyes = 'happy'; tail = S * 4;
+        armR = -8 - Math.abs(Math.sin(t * TAU * 2)) * 4; break;
+      case 'cheer':
+        bob = [0, -3, -5, -5, -3, 0][f]; sq = [0.16, -0.14, -0.08, -0.08, -0.14, 0.16][f];
+        mouth = 'wide'; eyes = 'happy'; armL = -12; armR = -12; tail = S * 5; break;
+      case 'think':
+        bob = [0, 0, -1, -1][f]; eyes = 'narrow'; brow = 0.8; tilt = -2;
+        mouth = 'small'; armR = -9; tail = S * 1.4; break;
+      case 'cross':
+        bob = [0, 0, -1, -1, 0, 0][f]; eyes = 'narrow'; brow = -1.4; mouth = 'flat';
+        lean = S * 0.5; armL = -4; armR = -4; tail = S * 4; sq = Math.abs(S) * 0.05; break;
+      case 'surprise':
+        bob = [0, -3, -1, -1][f]; sq = [0.1, -0.16, -0.04, -0.04][f];
+        eyes = 'wide'; brow = 1.4; mouth = 'open'; armL = -6; armR = -6; tail = 4; break;
+      case 'sleepy':
+        bob = [0, 0, 1, 1][f]; sq = [0, 0, 0.05, 0.05][f];
+        eyes = 'shut'; brow = -0.3; tilt = 2; mouth = 'small'; tail = S * 0.8; break;
+      case 'sad':
+        bob = [1, 1, 0, 0][f]; sq = [0.06, 0.06, 0.03, 0.03][f];
+        eyes = 'droop'; brow = -0.5; tilt = 1.6; mouth = 'frown';
+        armL = 2; armR = 2; tail = -1; break;
     }
-    const y0 = -bob;
-    const shoulder = 46 + y0, chestY = shoulder + 10, bot = KH - 1;
-    const hy = 27 + y0;
-    const hx = CXK + lean + tilt * 0.3;
+    // squash is applied about the feet: wider and shorter, or thinner and taller
+    const XS = 1 + sq, YS = 1 - sq;
+    const at = (x, y) => [CXK + (x - CXK) * XS + lean, KGY - (KGY - y) * YS + bob];
+    const R = (x, y, w, h, col) => { const [ax, ay] = at(x, y); Art.rect(g, ax, ay, w * XS, h * YS, col); };
+    const E = (x, y, rx, ry, col) => { const [ax, ay] = at(x, y); Art.ell(g, ax, ay, rx * XS, ry * YS, col); };
+    const P = (pts, col) => Art.poly(g, pts.map(([x, y]) => at(x, y)), col);
+
+    const hipY = 34, footY = KGY;
+
+    // ---- the tail, behind everything ---------------------------------------
+    P([[CXK + 5, 26], [CXK + 13 + tail, 20 + tail * 0.4], [CXK + 15 + tail, 27 + tail * 0.4], [CXK + 6, 31]], SH0);
+    P([[CXK + 6, 26.6], [CXK + 12 + tail, 21.6 + tail * 0.4], [CXK + 13 + tail, 26 + tail * 0.4], [CXK + 7, 30]], SH1);
+
+    // ---- legs and shoes ----------------------------------------------------
+    for (const sd of [-1, 1]) {
+      const lift = step * sd > 0 ? 2 : 0;
+      const lx = CXK + sd * 4;
+      R(lx - 2.6, hipY - 1, 5.2, 5, SU0);                       // trouser
+      R(lx - 2.6, hipY - 1, 2.2, 5, SU1);
+      R(lx - 2, hipY + 4, 4, footY - hipY - 7 - lift, SH1);     // a bare blue shin
+      R(lx - 2, hipY + 4, 1.6, footY - hipY - 7 - lift, SH2);
+      R(lx - 4, footY - 3 - lift, 8, 3, KINK);                  // the shoe
+      R(lx - 4, footY - 3 - lift, 8, 1.2, '#43505e');
+      R(lx - 4, footY - 3 - lift, 5, 1, '#6b7a8a');
+    }
 
     // ---- the suit ----------------------------------------------------------
-    Art.poly(g, [[CXK - 23, shoulder - 3], [CXK + 23, shoulder - 3], [CXK + 27, bot], [CXK - 27, bot]], SUIT0);
-    Art.ell(g, CXK - 21, shoulder + 1, 7, 5.6, SUIT1);                 // shoulders, padded
-    Art.ell(g, CXK + 21, shoulder + 1, 7, 5.6, SUIT0);
-    // the shirt in the middle
-    Art.poly(g, [[CXK - 8, shoulder - 2], [CXK + 8, shoulder - 2], [CXK + 10, bot], [CXK - 10, bot]], SHIRT2);
-    Art.poly(g, [[CXK - 7, shoulder - 2], [CXK + 7, shoulder - 2], [CXK + 9, bot], [CXK - 9, bot]], SHIRT);
-    // the jacket's two front panels, open in a V
-    Art.poly(g, [[CXK - 23, shoulder - 3], [CXK - 8, shoulder - 3], [CXK - 3, chestY + 6], [CXK - 11, bot], [CXK - 27, bot]], SUIT1);
-    Art.poly(g, [[CXK + 23, shoulder - 3], [CXK + 8, shoulder - 3], [CXK + 3, chestY + 6], [CXK + 11, bot], [CXK + 27, bot]], SUIT0);
-    Art.poly(g, [[CXK - 23, shoulder - 3], [CXK - 15, shoulder - 3], [CXK - 19, bot], [CXK - 27, bot]], SUIT2);
-    Art.rect(g, CXK - 22.4, shoulder - 3, 2.2, bot - shoulder + 3, SUIT3);
-    // lapels
-    Art.poly(g, [[CXK - 8, shoulder - 3], [CXK - 15, shoulder + 1], [CXK - 4, chestY + 5]], SUIT2);
-    Art.poly(g, [[CXK + 8, shoulder - 3], [CXK + 15, shoulder + 1], [CXK + 4, chestY + 5]], SUIT1);
-    // collar and tie
-    Art.poly(g, [[CXK - 8, shoulder - 4], [CXK, shoulder + 5], [CXK + 8, shoulder - 4], [CXK + 4, shoulder - 6], [CXK - 4, shoulder - 6]], SHIRT2);
-    Art.poly(g, [[CXK - 6, shoulder - 4], [CXK, shoulder + 3], [CXK + 6, shoulder - 4]], SK1);
-    Art.poly(g, [[CXK - 3.4, shoulder + 1], [CXK + 3.4, shoulder + 1], [CXK + 2, shoulder + 5], [CXK - 2, shoulder + 5]], TIE0);
-    Art.poly(g, [[CXK - 3, shoulder + 1.4], [CXK + 3, shoulder + 1.4], [CXK + 1.6, shoulder + 4.6], [CXK - 1.6, shoulder + 4.6]], TIE1);
-    Art.ell(g, CXK - 1, shoulder + 2, 1.4, 0.9, TIE2);
-    Art.poly(g, [[CXK - 2.6, shoulder + 5], [CXK + 2.6, shoulder + 5], [CXK + 4.4, chestY + 10], [CXK, chestY + 14], [CXK - 4.4, chestY + 10]], TIE0);
-    Art.poly(g, [[CXK - 2, shoulder + 5.4], [CXK + 2, shoulder + 5.4], [CXK + 3.4, chestY + 9.6], [CXK, chestY + 12.6], [CXK - 3.4, chestY + 9.6]], TIE1);
-    Art.rect(g, CXK - 1.8, shoulder + 6, 1.4, chestY + 4 - shoulder, TIE2);
-    // the name badge, pinned to the lapel
-    Art.rect(g, CXK + 11, chestY - 1, 9, 11, INK);
-    Art.rect(g, CXK + 12, chestY, 7, 9, '#fffdf0');
-    Art.rect(g, CXK + 12, chestY, 7, 2.4, '#c9581f');
-    // and a row of pins on the other one
-    for (let i = 0; i < 3; i++) {
-      Art.ell(g, CXK - 19 + i * 5, chestY + 1, 2.4, 2.4, INK);
-      Art.ell(g, CXK - 19 + i * 5, chestY + 1, 1.7, 1.7, ['#d8b23a', '#b8496a', '#63c974'][i]);
-    }
+    P([[CXK - 8, 19], [CXK + 8, 19], [CXK + 9, hipY + 1], [CXK - 9, hipY + 1]], SU0);
+    P([[CXK - 3, 19], [CXK + 3, 19], [CXK + 3, hipY + 1], [CXK - 3, hipY + 1]], BEL);   // the shirt
+    P([[CXK - 8, 19], [CXK - 3, 19], [CXK - 1, 25], [CXK - 4, hipY + 1], [CXK - 9, hipY + 1]], SU1);
+    P([[CXK + 8, 19], [CXK + 3, 19], [CXK + 1, 25], [CXK + 4, hipY + 1], [CXK + 9, hipY + 1]], SU0);
+    R(CXK - 8, 19, 2, hipY - 18, SU2);                          // the lapel light
+    P([[CXK - 2, 19], [CXK + 2, 19], [CXK + 1, 22], [CXK - 1, 22]], TI0);   // the tie
+    P([[CXK - 1.6, 22], [CXK + 1.6, 22], [CXK + 2.4, 30], [CXK, 32], [CXK - 2.4, 30]], TI0);
+    P([[CXK - 1.2, 22.4], [CXK + 1.2, 22.4], [CXK + 1.8, 29.6], [CXK, 31], [CXK - 1.8, 29.6]], TI1);
+    R(CXK + 4, 23, 4, 5, '#1d2230');                            // her name badge
+    R(CXK + 4.6, 23.6, 2.8, 3.8, '#fffdf0');
+    R(CXK + 4.6, 23.6, 2.8, 1.2, '#c9581f');
+
     // ---- arms --------------------------------------------------------------
-    const lx2 = CXK - 27, ly2 = bot - 2 + armL;
-    Art.limb(g, CXK - 20, shoulder + 4, lx2, ly2, 9, 6.4, SUIT1);
-    Art.rect(g, lx2 - 4, ly2 - 6, 8, 3, SHIRT);                        // a cuff
-    Art.ell(g, lx2 - 1, ly2 + 2, 4.6, 4, SK0);
-    Art.ell(g, lx2 - 1, ly2 + 1.4, 3.8, 3.2, SK1);
-    const ex = CXK + 24, ey = bot - 4 + armR;
-    Art.limb(g, CXK + 20, shoulder + 4, ex, ey, 9, 6.4, SUIT0);
-    Art.limb(g, CXK + 21, shoulder + 4, ex, ey, 5.6, 4, SUIT1);
-    Art.rect(g, ex - 4, ey - 2, 8, 3, SHIRT);
-    Art.ell(g, ex + 1, ey + 4, 4.8, 4.2, SK0);
-    Art.ell(g, ex + 1, ey + 3.4, 4, 3.4, SK1);
-    // ---- the head: Shaz is a shark ----------------------------------------
-    // Chibi proportions: one big rounded head, a blunt snout, a belly-pale jaw,
-    // gills cut into the cheek and a dorsal fin standing up behind the cap.
-    // Everything is laid in hard tones — no soft edges anywhere on her.
-    const FIN0 = '#2c4f6e';
-    Art.poly(g, [[hx + 3, hy - 12], [hx + 16, hy - 24], [hx + 12, hy - 6]], FIN0);   // dorsal fin
-    Art.poly(g, [[hx + 4.4, hy - 12], [hx + 14, hy - 22], [hx + 11, hy - 7]], SK0);
-    Art.limb(g, hx, hy + 13, hx, shoulder + 1, 7, 8.4, SK0);                         // neck
-    Art.ell(g, hx, shoulder, 8, 2.6, '#2f5878');
-    Art.ell(g, hx, hy + 1, 19, 13.6, SK0);                                           // the skull
-    Art.ell(g, hx - 0.6, hy + 0.2, 17.8, 12.6, SK1);
-    Art.ellBand(g, hx - 1, hy - 2.4, 13.6, 8.4, SK2, 0, 0.5);                          // top light
-    Art.ell(g, hx - 7, hy - 4.6, 5.4, 2.8, '#a8cfe4');
-    // the snout, pushed out and down, with the pale underside under it
-    Art.poly(g, [[hx - 16.4, hy + 6], [hx + 16.4, hy + 6], [hx + 11.4, hy + 14.6], [hx - 11.4, hy + 14.6]], SK1);
-    Art.poly(g, [[hx - 15, hy + 8], [hx + 15, hy + 8], [hx + 10.6, hy + 15], [hx - 10.6, hy + 15]], '#e8f0ec');
-    Art.poly(g, [[hx - 15, hy + 8], [hx + 15, hy + 8], [hx + 14.2, hy + 9.4], [hx - 14.2, hy + 9.4]], '#c2d4d0');
-    Art.ell(g, hx - 3.6, hy + 7, 1.3, 1, '#2c4050');                                  // nostrils
-    Art.ell(g, hx + 3.6, hy + 7, 1.3, 1, '#2c4050');
-    // gills, three cut into each cheek
-    for (const sd of [-1, 1]) for (let i = 0; i < 3; i++) {
-      Art.limb(g, hx + sd * (12.4 + i * 2.6), hy + 0.4, hx + sd * (13 + i * 2.6), hy + 5.4, 1.5, 1.2, '#2c4f6e');
-      Art.limb(g, hx + sd * (12.4 + i * 2.6) - sd * 0.6, hy + 0.4, hx + sd * (13 + i * 2.6) - sd * 0.6, hy + 5, 0.7, 0.6, '#7fb0cc');
-    }
-    // side fins, standing in for ears
     for (const sd of [-1, 1]) {
-      Art.poly(g, [[hx + sd * 16, hy - 1], [hx + sd * 25, hy + 4], [hx + sd * 15, hy + 8]], FIN0);
-      Art.poly(g, [[hx + sd * 16, hy + 0.6], [hx + sd * 22.6, hy + 4.2], [hx + sd * 15, hy + 6.6]], SK1);
+      const sw = sd < 0 ? armL : armR;
+      const ax0 = CXK + sd * 7, ay0 = 21;
+      const ax1 = CXK + sd * 10, ay1 = 31 + sw;
+      const [p0, p1] = [at(ax0, ay0), at(ax1, ay1)];
+      Art.limb(g, p0[0], p0[1], p1[0], p1[1], 5 * XS, 4 * XS, sd < 0 ? SU1 : SU0);
+      E(ax1, ay1 + 2, 2.6, 2.4, SH1);                           // the hand
+      E(ax1 - sd * 0.6, ay1 + 1.6, 2, 1.8, SH2);
     }
-    // ---- the store cap -----------------------------------------------------
-    // It rides high on a shark's skull, tipped back, with the peak clear of the
-    // eyes. The dorsal fin pokes out through a slot cut in the back of it.
-    Art.ell(g, hx, hy - 11.6, 17.4, 8, CAP0);                          // the crown, low and flat
-    Art.ell(g, hx, hy - 12.2, 16.2, 7.2, CAP1);
-    Art.ell(g, hx - 6, hy - 15, 6.2, 2.8, CAP2);                       // the light on it
-    Art.ell(g, hx - 7.4, hy - 15.8, 2.8, 1.2, CAP3);
-    for (let i = -2; i <= 2; i++) Art.limb(g, hx, hy - 19, hx + i * 7.6, hy - 7.4, 0.8, 0.5, CAP0);
-    Art.ell(g, hx, hy - 19.2, 2.4, 1.6, CAP2);                         // the button on top
-    // the store's wombat, embroidered on the front
-    Art.ell(g, hx - 1, hy - 11.8, 4, 2.6, CAP3);
-    Art.ell(g, hx + 2.4, hy - 12.8, 2.4, 2.2, CAP3);
-    Art.rect(g, hx + 1.4, hy - 14.4, 1.1, 1.4, CAP3);
-    Art.rect(g, hx + 3.4, hy - 14.4, 1.1, 1.4, CAP3);
-    Art.rect(g, hx + 2.8, hy - 12.9, 1, 1, CAP0);
-    Art.rect(g, hx - 17.4, hy - 8.4, 34.8, 3.6, CAP0);                 // the band
-    Art.rect(g, hx - 17.4, hy - 8.4, 34.8, 1.3, CAP2);
-    Art.rect(g, hx - 17.4, hy - 5.8, 34.8, 1, '#08240f');
-    // the peak, out in front and down, its underside in shadow
-    Art.poly(g, [[hx - 19.4, hy - 5.4], [hx + 19.4, hy - 5.4],
-                 [hx + 14.4, hy - 1.2], [hx - 14.4, hy - 1.2]], '#08240f');
-    Art.poly(g, [[hx - 18.6, hy - 6], [hx + 18.6, hy - 6],
-                 [hx + 13.8, hy - 2.4], [hx - 13.8, hy - 2.4]], CAP1);
-    Art.poly(g, [[hx - 18.6, hy - 6], [hx + 18.6, hy - 6],
-                 [hx + 16, hy - 4.6], [hx - 16, hy - 4.6]], CAP2);
-    Art.poly(g, [[hx - 13.8, hy - 2.4], [hx + 13.8, hy - 2.4], [hx + 14.4, hy - 1.2], [hx - 14.4, hy - 1.2]], '#05190a');
-    // ---- eyes and that grin ------------------------------------------------
+
+    // ---- the head: one big block with a snout under it ---------------------
+    const hy = 11 + tilt * 0.2, hx = CXK + tilt * 0.3;
+    P([[hx + 4, hy - 4], [hx + 13, hy - 13], [hx + 10, hy - 2]], SH0);        // dorsal fin
+    P([[hx + 5, hy - 4], [hx + 11.6, hy - 11], [hx + 9.2, hy - 3]], SH1);
+    for (const sd of [-1, 1]) {                                              // side fins
+      P([[hx + sd * 9, hy - 1], [hx + sd * 14, hy + 2], [hx + sd * 9, hy + 5]], SH0);
+      P([[hx + sd * 9, hy - 0.2], [hx + sd * 12.6, hy + 2], [hx + sd * 9, hy + 4]], SH1);
+    }
+    E(hx, hy, 10, 8, SH0);                                                   // skull
+    E(hx, hy - 0.4, 9, 7.2, SH1);
+    Art.ellBand(g, ...at(hx - 0.6, hy - 2.2), 7 * XS, 5 * YS, SH2, 0, 0.55);
+    E(hx - 4, hy - 4, 2.6, 1.6, SH3);                                        // the shine
+    // the snout and the pale jaw under it
+    P([[hx - 9, hy + 3], [hx + 9, hy + 3], [hx + 6, hy + 9], [hx - 6, hy + 9]], SH1);
+    P([[hx - 8, hy + 4.6], [hx + 8, hy + 4.6], [hx + 5.6, hy + 9.2], [hx - 5.6, hy + 9.2]], BEL);
+    P([[hx - 8, hy + 4.6], [hx + 8, hy + 4.6], [hx + 7.6, hy + 5.6], [hx - 7.6, hy + 5.6]], BEL2);
+    R(hx - 2.4, hy + 4, 1.2, 1, KINK); R(hx + 1.2, hy + 4, 1.2, 1, KINK);    // nostrils
+    for (const sd of [-1, 1]) for (let i = 0; i < 3; i++) {                  // gills
+      R(hx + sd * (6 + i * 1.6) - (sd < 0 ? 1 : 0), hy - 0.4, 1, 3, '#27486a');
+    }
+
+    // ---- the cap -----------------------------------------------------------
+    E(hx, hy - 7, 9.6, 4.4, CP0);
+    E(hx, hy - 7.6, 8.8, 3.8, CP1);
+    E(hx - 3, hy - 9.4, 3.4, 1.4, CP2);
+    R(hx - 9.6, hy - 5.4, 19.2, 2.2, CP0);                                   // the band
+    R(hx - 9.6, hy - 5.4, 19.2, 0.9, CP2);
+    P([[hx - 10.6, hy - 3.4], [hx + 10.6, hy - 3.4], [hx + 8, hy - 1], [hx - 8, hy - 1]], '#08240f');
+    P([[hx - 10, hy - 3.8], [hx + 10, hy - 3.8], [hx + 7.6, hy - 1.8], [hx - 7.6, hy - 1.8]], CP1);
+    P([[hx - 10, hy - 3.8], [hx + 10, hy - 3.8], [hx + 8.8, hy - 2.8], [hx - 8.8, hy - 2.8]], CP2);
+    E(hx, hy - 7.4, 2.4, 1.5, CP3);                                          // the store wombat
+    E(hx + 1.8, hy - 8.2, 1.5, 1.3, CP3);
+    R(hx + 1.1, hy - 9.4, 0.8, 1, CP3); R(hx + 2.4, hy - 9.4, 0.8, 1, CP3);
+
+    // ---- eyes --------------------------------------------------------------
     for (const sd of [-1, 1]) {
-      const exx = hx + sd * 8, eyy = hy + 2.4;
-      const rw = eyes === 'wide' ? 6.2 : eyes === 'narrow' ? 5.2 : 5.6;
-      const rh = eyes === 'wide' ? 6 : eyes === 'narrow' ? 2.6 : eyes === 'droop' ? 4 : 5.4;
-      Art.ell(g, exx, eyy, rw, rh, SK2);                               // a pale rim round it
-      Art.ell(g, exx, eyy, rw - 0.8, rh - 0.8, '#0d1620');             // big glossy eye
+      const ex = hx + sd * 4.2, ey = hy + 0.6;
+      const rw = eyes === 'wide' ? 3.6 : eyes === 'narrow' ? 3 : 3.2;
+      const rh = eyes === 'wide' ? 3.8 : eyes === 'narrow' ? 1.4 : eyes === 'droop' ? 2.2 : 3.2;
       if (eyes === 'happy') {
-        Art.ell(g, exx, eyy, 5.4, 5.6, SK1);
-        Art.poly(g, [[exx - 4, eyy + 2.4], [exx, eyy - 2], [exx + 4, eyy + 2.4], [exx, eyy + 0.4]], '#0d1620');
+        P([[ex - 2.8, ey + 1.4], [ex, ey - 1.8], [ex + 2.8, ey + 1.4], [ex, ey - 0.2]], KINK);
       } else if (eyes === 'shut') {
-        Art.ell(g, exx, eyy, 5.4, 5.6, SK1);
-        Art.rect(g, exx - 4, eyy - 0.6, 8, 1.6, '#0d1620');
-        Art.rect(g, exx - 3, eyy + 1.2, 6, 1, '#3d5a6e');
+        R(ex - 2.6, ey - 0.4, 5.2, 1.2, KINK);
+        R(ex - 1.6, ey + 1, 3.2, 0.8, '#3d5a6e');
       } else {
-        const look = eyes === 'droop' ? 1.2 : 0;
-        Art.ell(g, exx + sd * 0.5, eyy - 0.4 + look, 2.6, Math.min(2.8, rh - 0.8), '#2a3c4e');
-        Art.ell(g, exx - 1.4, eyy - 1.8 + look, 1.7, 1.5, '#ffffff');  // the catchlight
-        Art.ell(g, exx + 1.6, eyy + 2, 0.9, 0.8, 'rgba(255,255,255,0.6)');
+        E(ex, ey, rw, rh, BEL);
+        E(ex + sd * 0.4, ey + (eyes === 'droop' ? 0.8 : 0), rw - 1.1, Math.min(rh - 0.8, 2.4), KINK);
+        E(ex - 0.8, ey - 1, 1, 0.9, '#ffffff');
       }
-      if (brow) {                                                      // a brow ridge in the hide
-        const b0 = eyy - rh - 1.6 - brow * 1.6, bt = sd * brow * 1.8;
-        Art.poly(g, [[exx - 5, b0 - bt], [exx + 5, b0 + bt],
-                     [exx + 5, b0 + bt + 1.6], [exx - 5, b0 - bt + 1.6]], '#2c4f6e');
+      if (brow) {
+        const b0 = ey - rh - 1.4 - brow * 1.2, bt = sd * brow * 1.4;
+        P([[ex - 3.4, b0 - bt], [ex + 3.4, b0 + bt], [ex + 3.4, b0 + bt + 1.2], [ex - 3.4, b0 - bt + 1.2]], '#27486a');
       }
     }
-    Art.ell(g, hx - 13.4, hy + 8, 3.4, 2, 'rgba(226,132,140,0.4)');    // blush
-    Art.ell(g, hx + 13.4, hy + 8, 3.4, 2, 'rgba(226,132,140,0.4)');
-    // the mouth, wide across the pale jaw, with a row of blunt little teeth
-    const my = hy + 11.6;
+    E(hx - 7, hy + 3.4, 2.2, 1.2, 'rgba(232,132,140,0.5)');                  // blush
+    E(hx + 7, hy + 3.4, 2.2, 1.2, 'rgba(232,132,140,0.5)');
+
+    // ---- the mouth, across the pale jaw ------------------------------------
+    const my = hy + 6.6;
     const teeth = (x0m, x1m, yTop, down) => {
-      for (let x = x0m; x < x1m - 1; x += 2.4) {
-        Art.poly(g, [[x, yTop], [x + 2.2, yTop], [x + 1.1, yTop + (down ? 2 : -2)]], '#fdf6ea');
-      }
+      for (let x = x0m; x < x1m - 1; x += 2) P([[x, yTop], [x + 1.8, yTop], [x + 0.9, yTop + (down ? 1.4 : -1.4)]], '#fdf6ea');
     };
     if (mouth === 'open' || mouth === 'wide') {
-      const w2 = mouth === 'wide' ? 8 : 6.2, h2 = mouth === 'wide' ? 4.4 : 3.2;
-      Art.poly(g, [[hx - w2, my - h2], [hx + w2, my - h2], [hx + w2 * 0.7, my + h2], [hx - w2 * 0.7, my + h2]], '#5a2430');
-      teeth(hx - w2 + 0.4, hx + w2 - 0.4, my - h2, true);
-      teeth(hx - w2 * 0.7 + 0.4, hx + w2 * 0.7 - 0.4, my + h2, false);
-      Art.ell(g, hx, my + h2 - 1, w2 * 0.4, 1, '#c4566a');              // tongue
+      const w2 = mouth === 'wide' ? 5 : 3.8, h2 = mouth === 'wide' ? 2.6 : 1.8;
+      P([[hx - w2, my - h2], [hx + w2, my - h2], [hx + w2 * 0.7, my + h2], [hx - w2 * 0.7, my + h2]], '#5a2430');
+      teeth(hx - w2 + 0.3, hx + w2 - 0.3, my - h2, true);
+      E(hx, my + h2 - 0.6, w2 * 0.4, 0.7, '#c4566a');
     } else if (mouth === 'grin') {
-      Art.poly(g, [[hx - 9, my - 2.4], [hx + 9, my - 2.4], [hx + 6.4, my + 2.6], [hx - 6.4, my + 2.6]], '#5a2430');
-      teeth(hx - 8.6, hx + 8.6, my - 2.4, true);
-      Art.rect(g, hx - 6.4, my + 1.8, 12.8, 1, '#fdf6ea');
+      P([[hx - 5.4, my - 1.4], [hx + 5.4, my - 1.4], [hx + 3.8, my + 1.6], [hx - 3.8, my + 1.6]], '#5a2430');
+      teeth(hx - 5.1, hx + 5.1, my - 1.4, true);
+      R(hx - 3.8, my + 1, 7.6, 0.7, '#fdf6ea');
     } else if (mouth === 'small') {
-      Art.poly(g, [[hx - 3.4, my - 1.4], [hx + 3.4, my - 1.4], [hx + 2.4, my + 1.6], [hx - 2.4, my + 1.6]], '#5a2430');
-      teeth(hx - 3.2, hx + 3.2, my - 1.4, true);
+      E(hx, my, 1.2, 1, '#5a2430');
     } else if (mouth === 'frown') {
-      Art.poly(g, [[hx - 7, my + 2], [hx, my - 2], [hx + 7, my + 2], [hx, my + 0.2]], '#3d5a6e');
+      P([[hx - 4, my + 1.2], [hx, my - 1.2], [hx + 4, my + 1.2], [hx, my + 0.2]], '#3d5a6e');
     } else {
-      Art.rect(g, hx - 7.4, my - 0.7, 14.8, 1.5, '#3d5a6e');            // resting: a long line
-      Art.poly(g, [[hx + 5.4, my - 0.7], [hx + 8.4, my - 0.7], [hx + 7, my + 1.6]], '#fdf6ea');
-      Art.poly(g, [[hx - 8.4, my - 0.7], [hx - 5.4, my - 0.7], [hx - 7, my + 1.6]], '#fdf6ea');
+      R(hx - 4.4, my - 0.4, 8.8, 1, '#3d5a6e');
+      P([[hx + 3.2, my - 0.4], [hx + 5, my - 0.4], [hx + 4.1, my + 1]], '#fdf6ea');
+      P([[hx - 5, my - 0.4], [hx - 3.2, my - 0.4], [hx - 4.1, my + 1]], '#fdf6ea');
     }
-    Art.outline(c, '#0a0810', 1);
+    Art.outline(c, '#0a1018', 1);
     cache.set(key, c);
     return c;
   }
@@ -6574,6 +6569,8 @@ const Grove = (() => {
       }
       if (w.state === 'graze') { if (Math.random() < dt * 0.4) w.hap = Math.min(cap, w.hap + 0.6); World.disturb(w.x + w.dir * 14, w.y, 12, 0.5); }
       w.sq = U.lerp(w.sq, 0, 1 - Math.pow(0.001, dt));
+      // every wombat on the move bounces: a two-beat squash on each footfall
+      if (w.state === 'walk' || w.state === 'run') w.sq += Math.sin(w.anim * TAU * 2) * 0.07;
       const rm2 = roam(); w.x = U.clamp(w.x, rm2.x0, rm2.x1); w.y = U.clamp(w.y, WALK.y0, WALK.y1);
     }
     for (let i = 0; i < G.wombats.length; i++) for (let j = i + 1; j < G.wombats.length; j++) {
@@ -6586,11 +6583,15 @@ const Grove = (() => {
     // poop cubes settle
     for (const d of drops) {
       d.t += dt;
+      // the impact squash unwinds as a damped spring: flatten, overshoot, settle
+      if (d.sq0) { d.sqT += dt; if (d.sqT > 1.2) d.sq0 = 0; }
       if (d === dragging) continue;
       if (d.z > 0 || d.vz > 0) {
         d.vz -= 600 * dt; d.z += d.vz * dt; d.x += d.vx * dt; d.spin += d.vs * dt;
         if (d.z <= 0) {
           d.z = 0;
+          // squash on impact, harder the faster it came down, then spring back
+          d.sq0 = Math.min(0.4, Math.abs(d.vz) / 420 + 0.12); d.sqT = 0;
           if (Math.abs(d.vz) > 55) { d.vz = -d.vz * 0.34; d.vx *= 0.5; d.vs *= 0.4; FX.dust(d.x, d.y, 3); World.disturb(d.x, d.y, 14, 0.7); }
           else { d.vz = 0; d.vx = 0; d.vs = 0; d.spin = 0; }
         }
@@ -7533,7 +7534,11 @@ const Grove = (() => {
     g.save();
     g.translate(Math.round(d.x), Math.round(d.y - d.z - h / 2));
     g.rotate(d.spin * 0.4 + (held ? Math.sin(G.time * 8) * 0.06 : 0));
-    if (d.t > 0 && d.z === 0) { const p = 1 + Math.sin(d.t * 4.5) * 0.035; g.scale(p, 1 / p); }
+    if (d.t > 0 && d.z === 0) { const p = 1 + Math.sin(d.t * 4.5) * 0.05; g.scale(p, 1 / p); }
+    if (d.sq0) {
+      const k = d.sq0 * Math.exp(-7 * d.sqT) * Math.cos(d.sqT * 24);
+      g.translate(0, (h / 2) * k); g.scale(1 + k, 1 - k);
+    }
     Sprites.drawCube(g, def, w, h, { blessed: d.blessed, outline: held ? PAL.gold4 : d.blessed ? PAL.div4 : null,
       face: held ? 'ready' : (((G.time + d.t) % 6) < 0.16 ? 'blink' : 'happy') });
     g.restore();
@@ -8224,279 +8229,342 @@ const Atlas = (() => {
   }
 
   // ---- the sheet -----------------------------------------------------------
-  // It is a map somebody drew by hand: aged paper, ink that wobbles, hills put
-  // in with hachures, forest drawn tree by tree, hatching in the water. Nothing
-  // on it is ruler-straight and nothing on it is a flat fill.
-  const PAPER0 = '#c8b58c', PAPER1 = '#d8c69e', PAPER2 = '#b9a37a', PAPER3 = '#e6d7b2';
-  const INK = '#2e2418', INK2 = '#4a3a26', INK3 = '#6b5740';
-  const SEA0 = '#7d9aa2', SEA1 = '#9dbac0', SEA2 = '#5f7f8a';
-  const LEAF = '#4f6b3a', LEAF2 = '#3c5530', LEAF3 = '#6b8a4c';
-  const ROOF = '#9a5236', ROOF2 = '#7a3c26';
+  // The whole map is drawn on a 320x180 canvas and blown up 2x, so one art
+  // pixel is a fat 2x2 block and everything has to be a simple, chunky, cute
+  // shape. Soft greens, round trees, little red roofs, and as many small
+  // living things tucked into it as will fit.
+  const HW = 320, HH = 180;
+  const G0 = '#5d8a48', G1 = '#6fa254', G2 = '#84b866', G3 = '#9ccc7c';   // grass
+  const GD = '#456b36', GD2 = '#35552a';                                  // grass shade
+  const W0 = '#3f7fb0', W1 = '#58a0cc', W2 = '#8ccfe8', W3 = '#c8eef8';   // water
+  const SAND = '#e2cf9a', SAND2 = '#c9b276';
+  const RD = '#e6d3a4', RDE = '#b79a68';                                  // paths
+  const OUT = '#2d3d24';                                                  // the one dark line
+  const TR0 = '#2f5a2c', TR1 = '#427a38', TR2 = '#5c9c48', TR3 = '#7cbe60';
+  const BLOS = '#f0a0c0', BLOS2 = '#ffc8dd';
+  const PIN0 = '#2a4a30', PIN1 = '#3d6b3a', PIN2 = '#558c4c';
+  const RF = ['#d2564a', '#e0764a', '#c98ad8', '#5c9cd8', '#e0b84a'];     // roof colours
+  const WALL = '#f2e4c8', WALL2 = '#d6c2a0';
 
-  // a hand's worth of wobble: the same point always wobbles the same way
-  function wob(x, y, amp, seed) {
-    const n = Math.sin((x * 12.9898 + y * 78.233 + seed * 3.17)) * 43758.5453;
-    return (n - Math.floor(n) - 0.5) * 2 * amp;
-  }
-  // an inked line: walked a pixel at a time, drifting off true the way a nib does
-  function ink(g, x0, y0, x1, y1, col, w, amp, seed) {
-    const L = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0)));
-    for (let i = 0; i <= L; i++) {
-      const u = i / L;
-      const x = U.lerp(x0, x1, u) + wob(i * 0.7, seed, amp, seed);
-      const y = U.lerp(y0, y1, u) + wob(seed, i * 0.7, amp, seed + 9);
-      g.fillStyle = col;
-      g.fillRect(Math.round(x), Math.round(y), w, w);
-    }
-  }
-  function inkPath(g, pts, col, w, amp, seed) {
-    for (let i = 0; i < pts.length - 1; i++) ink(g, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], col, w, amp, seed + i * 5);
-  }
-  // hatching: parallel strokes at 45 degrees inside a test function
-  function hatch(g, x0, y0, x1, y1, step, col, inside, jitter, seed) {
-    const r2 = Art.rng(seed);
-    for (let d = -(y1 - y0); d < (x1 - x0); d += step) {
-      let run = 0;
-      for (let k = 0; k < (x1 - x0) + (y1 - y0); k++) {
-        const x = Math.round(x0 + d + k * 0.7), y = Math.round(y0 + k * 0.7);
-        if (x < x0 || x > x1 || y > y1) break;
-        if (!inside(x, y)) { run = 0; continue; }
-        run++;
-        if (jitter && (run % 9) === 0) continue;     // the nib skips
-        g.fillStyle = col;
-        g.fillRect(x + Math.round((r2() - 0.5) * 1.2), y, 1, 1);
+  // a chunky round tree: outline, body, a lit cap and a stubby trunk
+  function cuteTree(q, x, y, s, kind, seed) {
+    x = Math.round(x); y = Math.round(y);
+    q.fillStyle = 'rgba(40,58,32,0.25)';                       // the shadow it sits in
+    Art.ell(q, x + 1, y + 1, s * 0.9, s * 0.34, 'rgba(40,58,32,0.25)');
+    Art.rect(q, x - 1, y - s * 0.7, 2, s * 0.8, '#6b4a2c');     // trunk
+    Art.rect(q, x - 1, y - s * 0.7, 1, s * 0.8, '#8a6440');
+    if (kind === 'pine') {
+      for (let i = 0; i < 3; i++) {
+        const w = s * (1.1 - i * 0.28), yy = y - s * (0.7 + i * 0.62);
+        Art.poly(q, [[x - w, yy], [x + w, yy], [x, yy - s * 0.85]], PIN0);
+        Art.poly(q, [[x - w + 1, yy - 0.6], [x + w - 1, yy - 0.6], [x, yy - s * 0.72]], PIN1);
+        Art.poly(q, [[x - w * 0.5, yy - 0.8], [x - 0.2, yy - 0.8], [x - 0.6, yy - s * 0.6]], PIN2);
       }
+      return;
+    }
+    const lob = kind === 'blossom' ? BLOS : TR2;
+    const lob2 = kind === 'blossom' ? BLOS2 : TR3;
+    Art.ell(q, x, y - s * 1.25, s * 1.15, s * 1.05, kind === 'blossom' ? '#b86a90' : TR0);
+    Art.ell(q, x, y - s * 1.3, s * 1.0, s * 0.9, kind === 'blossom' ? '#d888ac' : TR1);
+    Art.ell(q, x - s * 0.22, y - s * 1.55, s * 0.68, s * 0.55, lob);
+    Art.ell(q, x - s * 0.36, y - s * 1.7, s * 0.4, s * 0.3, lob2);
+    if (kind === 'fruit') {                                    // a few berries
+      const r2 = Art.rng(seed);
+      for (let i = 0; i < 3; i++) Art.rect(q, x + (r2() - 0.5) * s * 1.4, y - s * (0.9 + r2() * 0.8), 2, 2, '#e05a5a');
     }
   }
-  // a cartographer's tree: a trunk and three lobes of scribble
-  function mapTree(g, x, y, s, seed) {
+  // a rounded green hill with a lit crown and a couple of tufts on it
+  function cuteHill(q, x, y, w, h, seed) {
     const r2 = Art.rng(seed);
-    g.fillStyle = INK2;
-    g.fillRect(Math.round(x), Math.round(y - s * 0.4), 1, Math.round(s * 0.8));
-    for (let i = 0; i < 3; i++) {
-      const cx = x + (i - 1) * s * 0.52, cy = y - s * (0.55 + (i === 1 ? 0.35 : 0));
-      const rr = s * (i === 1 ? 0.62 : 0.48);
-      Art.ell(g, cx, cy, rr, rr * 0.86, LEAF2);
-      Art.ell(g, cx - rr * 0.2, cy - rr * 0.2, rr * 0.7, rr * 0.6, r2() < 0.5 ? LEAF : LEAF3);
-    }
-    // a few scratches over it so it reads as drawn, not stamped
-    for (let i = 0; i < 4; i++) {
-      g.fillStyle = LEAF2;
-      g.fillRect(Math.round(x + (r2() - 0.5) * s * 1.8), Math.round(y - s * (0.3 + r2() * 0.9)), 1 + Math.round(r2() * 2), 1);
+    Art.ell(q, x, y, w, h, GD);
+    Art.ell(q, x, y - 1, w - 1, h - 1, G1);
+    Art.ellBand(q, x - 1, y - 1, w - 2, h - 2, G2, 0, 0.5);
+    Art.ell(q, x - w * 0.3, y - h * 0.6, w * 0.3, h * 0.28, G3);
+    for (let i = 0; i < 5; i++) {                              // tufts on the slope
+      const tx = x + (r2() - 0.5) * w * 1.5, ty = y - h * 0.2 + r2() * h * 0.7;
+      Art.rect(q, tx, ty, 1, 2, GD2); Art.rect(q, tx + 1, ty - 1, 1, 2, GD2); Art.rect(q, tx + 2, ty, 1, 2, GD2);
     }
   }
-  // a hill, drawn as hachures: short strokes fanning down from a ridge line
-  function hill(g, x, y, w, h, seed) {
-    const r2 = Art.rng(seed);
-    for (let i = -w; i <= w; i += 3) {
-      const u = i / w;
-      const top = y - h * Math.sqrt(Math.max(0, 1 - u * u));
-      const len = 3 + (1 - Math.abs(u)) * h * 0.55;
-      g.fillStyle = INK2;
-      for (let k = 0; k < len; k++) g.fillRect(Math.round(x + i + k * 0.18 * Math.sign(u || 1)), Math.round(top + k), 1, 1);
-      if (r2() < 0.5) { g.fillStyle = INK3; g.fillRect(Math.round(x + i + 1), Math.round(top + 1), 1, Math.round(len * 0.5)); }
+  // a tiny house: walls, a coloured roof, a door, a window, and smoke
+  function cuteHouse(q, x, y, w, h, ri, seed) {
+    x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+    const roof = RF[ri % RF.length];
+    Art.rect(q, x - 1, y - 1, w + 2, h + 2, OUT);
+    Art.rect(q, x, y, w, h, WALL);
+    Art.rect(q, x, y + h - 2, w, 2, WALL2);
+    Art.poly(q, [[x - 2, y], [x + w + 2, y], [x + w - 1, y - h * 0.75 - 1], [x + 1, y - h * 0.75 - 1]], OUT);
+    Art.poly(q, [[x - 1, y - 1], [x + w + 1, y - 1], [x + w - 1, y - h * 0.75], [x + 1, y - h * 0.75]], roof);
+    Art.poly(q, [[x - 1, y - 1], [x + w + 1, y - 1], [x + w, y - 2], [x, y - 2]], U.shade(roof, -0.25));
+    Art.rect(q, x + 1, y - h * 0.75, w - 2, 1, U.shade(roof, 0.28));
+    Art.rect(q, x + 1, y + h - 3, 2, 3, '#7a4a2a');             // the door
+    Art.rect(q, x + w - 4, y + 1, 2, 2, '#8cd8f0');             // the window
+    Art.rect(q, x + w - 3, y - h * 0.75 - 3, 2, 3, '#6b5a4a');  // the chimney
+    for (let i = 0; i < 3; i++) {                              // smoke going up
+      const sx = x + w - 3 + ((i % 2) ? 1 : -1), sy = y - h * 0.75 - 5 - i * 3;
+      Art.ell(q, sx, sy, 1.4 + i * 0.5, 1.2 + i * 0.4, 'rgba(244,238,226,0.75)');
     }
-    // the ridge itself, inked over the top of the strokes
-    let px = x - w, py = y;
-    for (let i = -w; i <= w; i += 2) {
-      const u = i / w, nx = x + i, ny = y - h * Math.sqrt(Math.max(0, 1 - u * u));
-      ink(g, px, py, nx, ny, INK, 1, 0.5, seed + i);
-      px = nx; py = ny;
-    }
+  }
+  // the animals. Each one is four or five pixels and that is all it needs.
+  function sheep(q, x, y) {
+    Art.ell(q, x, y, 4, 3, '#f4efe2'); Art.ell(q, x - 1, y - 1, 2.6, 1.8, '#ffffff');
+    Art.rect(q, x + 3, y - 1, 3, 3, '#3a3430'); Art.rect(q, x + 4, y, 1, 1, '#ffffff');
+    Art.rect(q, x - 2, y + 2, 1, 2, '#3a3430'); Art.rect(q, x + 1, y + 2, 1, 2, '#3a3430');
+  }
+  function wombat(q, x, y) {
+    Art.ell(q, x, y, 4.4, 3.2, '#a8764e'); Art.ell(q, x - 1, y - 1, 3, 1.8, '#c99268');
+    Art.rect(q, x + 3, y - 2, 3, 3, '#a8764e'); Art.rect(q, x + 3, y - 3, 1, 1, '#8a5c3c');
+    Art.rect(q, x + 5, y - 1, 1, 1, '#2a1a14');
+    Art.rect(q, x - 2, y + 2, 1, 2, '#8a5c3c'); Art.rect(q, x + 2, y + 2, 1, 2, '#8a5c3c');
+  }
+  function duck(q, x, y) {
+    Art.ell(q, x, y, 3.4, 2.4, '#f4f0e4'); Art.rect(q, x + 2, y - 3, 2, 3, '#f4f0e4');
+    Art.rect(q, x + 4, y - 2, 2, 1, '#e8a83a'); Art.rect(q, x + 3, y - 3, 1, 1, '#2a1a14');
+  }
+  function bird(q, x, y) {
+    Art.rect(q, x, y, 2, 1, '#4a4438'); Art.rect(q, x + 2, y - 1, 2, 1, '#4a4438');
+    Art.rect(q, x + 4, y, 2, 1, '#4a4438');
+  }
+  function mushroom(q, x, y, col) {
+    Art.rect(q, x, y, 2, 2, '#f0e2c4'); Art.ell(q, x + 1, y - 1, 2.6, 1.8, col);
+    Art.rect(q, x, y - 2, 1, 1, '#ffffff');
+  }
+  function flower(q, x, y, col) {
+    Art.rect(q, x, y, 1, 2, '#3f7a38');
+    Art.rect(q, x - 1, y - 1, 3, 1, col); Art.rect(q, x, y - 2, 1, 2, col);
+    Art.rect(q, x, y - 1, 1, 1, '#ffeaa8');
   }
 
   function sheetOf() {
     if (sheet) return sheet;
     const { c, g } = Art.cv(VW, VH);
+    const hc = Art.cv(HW, HH), q = hc.g;
     const r = Art.rng(4242);
-    // ---- the paper --------------------------------------------------------
-    g.fillStyle = PAPER0; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 9000; i++) {                    // the tooth of the stock
-      const x = Math.floor(r() * VW), y = Math.floor(r() * VH), k = r();
-      g.fillStyle = k < 0.42 ? PAPER1 : k < 0.72 ? PAPER2 : k < 0.92 ? PAPER3 : '#a8916a';
-      g.fillRect(x, y, 1, 1);
+    const H = (v) => v / 2;                       // full-map coords -> half-res coords
+
+    // ---- the grass, in soft patches ---------------------------------------
+    q.fillStyle = G1; q.fillRect(0, 0, HW, HH);
+    for (let i = 0; i < 90; i++) {                // meadows of a lighter green
+      const x = r() * HW, y = r() * HH, w = 10 + r() * 34;
+      Art.ell(q, x, y, w, w * (0.4 + r() * 0.3), r() < 0.55 ? G2 : G0);
     }
-    for (let i = 0; i < 40; i++) {                      // fibres in the pulp
-      const x = r() * VW, y = r() * VH, L = 5 + r() * 16, a = r() * TAU;
-      g.fillStyle = r() < 0.5 ? '#efe0bc' : '#9c8663';
-      for (let k = 0; k < L; k++) g.fillRect(Math.round(x + Math.cos(a) * k), Math.round(y + Math.sin(a) * k), 1, 1);
+    for (let i = 0; i < 26; i++) Art.ell(q, r() * HW, r() * HH, 8 + r() * 18, 5 + r() * 8, G3);
+    for (let i = 0; i < 1600; i++) {              // grass blades, everywhere
+      const x = Math.floor(r() * HW), y = Math.floor(r() * HH), k = r();
+      if (k < 0.5) { q.fillStyle = GD; q.fillRect(x, y, 1, 2); q.fillRect(x + 1, y + 1, 1, 1); }
+      else if (k < 0.82) { q.fillStyle = G3; q.fillRect(x, y, 2, 1); }
+      else { q.fillStyle = GD2; q.fillRect(x, y, 1, 1); }
     }
-    for (let i = 0; i < 16; i++) {                      // tea stains and foxing
-      const x = r() * VW, y = r() * VH, rr = 12 + r() * 40;
-      const oa = g.globalAlpha;
-      for (let k = 4; k >= 1; k--) { g.globalAlpha = oa * 0.05; Art.ell(g, x, y, rr * (k / 4), rr * (k / 4) * 0.7, '#8a6f45'); }
-      g.globalAlpha = oa;
-    }
-    for (let i = 0; i < 70; i++) {                      // specks of age
-      g.fillStyle = 'rgba(96,74,44,0.35)';
-      g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 1 + (r() < 0.2 ? 1 : 0), 1);
-    }
-    // two folds, where the sheet lived in somebody's pocket
-    for (const fx of [VW / 3, (VW * 2) / 3]) {
-      for (let y = 0; y < VH; y++) {
-        g.fillStyle = 'rgba(120,98,62,0.2)'; g.fillRect(Math.round(fx + wob(y, 3, 1.4, 7)), y, 1, 1);
-        g.fillStyle = 'rgba(248,238,212,0.22)'; g.fillRect(Math.round(fx + wob(y, 3, 1.4, 7)) + 1, y, 1, 1);
+    // hedgerows: short dark dashes that wander, so the fields read without a grid
+    for (let i = 0; i < 22; i++) {
+      let x = r() * HW, y = r() * HH, a = r() * TAU;
+      for (let k = 0; k < 40; k++) {
+        a += (r() - 0.5) * 0.5;
+        x += Math.cos(a) * 2; y += Math.sin(a) * 2;
+        Art.ell(q, x, y, 1.8, 1.4, GD2);
+        if (k % 3 === 0) Art.ell(q, x, y - 1, 1.4, 1, TR2);
       }
     }
-    for (let x = 0; x < VW; x++) {
-      const fy = VH / 2 + wob(x, 11, 1.4, 13);
-      g.fillStyle = 'rgba(120,98,62,0.16)'; g.fillRect(x, Math.round(fy), 1, 1);
-      g.fillStyle = 'rgba(248,238,212,0.18)'; g.fillRect(x, Math.round(fy) + 1, 1, 1);
-    }
-    // ---- the ground under it all: hachured hills and scratchy heath --------
-    const HILLS = [[92, 118, 58, 26], [196, 88, 44, 20], [470, 96, 52, 24],
-                   [552, 268, 46, 22], [300, 190, 40, 18], [122, 268, 38, 17]];
-    for (let i = 0; i < HILLS.length; i++) hill(g, HILLS[i][0], HILLS[i][1], HILLS[i][2], HILLS[i][3], 300 + i * 97);
-    // grass tufts and heather scribbled over the open ground
-    for (let i = 0; i < 900; i++) {
-      const x = Math.floor(r() * VW), y = Math.floor(r() * VH), k = r();
-      if (k < 0.55) { g.fillStyle = INK3; g.fillRect(x, y, 2, 1); g.fillRect(x + 1, y - 1, 1, 1); }
-      else if (k < 0.82) { g.fillStyle = '#7c8a5c'; g.fillRect(x, y, 1, 1); g.fillRect(x + 2, y, 1, 1); }
-      else { g.fillStyle = '#8a7a58'; g.fillRect(x, y, 1, 1); }
-    }
-    // field boundaries: dry-stone walls drawn as broken ink, never a grid
-    for (let i = 0; i < 26; i++) {
-      const x0 = r() * VW, y0 = r() * VH;
-      let x = x0, y = y0, a = r() * TAU;
-      const segs = 2 + Math.floor(r() * 3);
-      for (let k = 0; k < segs; k++) {
-        const L = 24 + r() * 52;
-        const nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
-        for (let d = 0; d < L; d += 3) {               // broken, the way a wall reads
-          const u = d / L;
-          g.fillStyle = INK2;
-          g.fillRect(Math.round(U.lerp(x, nx, u) + wob(d, k, 0.9, i)), Math.round(U.lerp(y, ny, u) + wob(k, d, 0.9, i + 3)), 2, 1);
-        }
-        x = nx; y = ny; a += (r() - 0.5) * 1.2;
-      }
-    }
-    // ---- forest, drawn tree by tree ---------------------------------------
+    // ---- rolling hills -----------------------------------------------------
+    const HILLS = [[92, 118, 34, 15], [196, 88, 26, 12], [470, 96, 30, 14],
+                   [552, 268, 26, 12], [300, 190, 24, 11], [122, 268, 22, 10]];
+    for (let i = 0; i < HILLS.length; i++) cuteHill(q, H(HILLS[i][0]), H(HILLS[i][1]) + 6, HILLS[i][2], HILLS[i][3], 300 + i * 97);
+
+    // ---- woods, drawn tree by tree ----------------------------------------
     const BLOCKS = [[60, 40, 150, 90], [250, 20, 130, 70], [470, 30, 160, 80],
                     [20, 150, 120, 110], [400, 120, 120, 90], [520, 250, 140, 100],
                     [120, 280, 110, 70], [300, 160, 90, 70]];
+    const canopy = [];
     for (let bi = 0; bi < BLOCKS.length; bi++) {
-      const [bx, by, bw, bh] = BLOCKS[bi];
-      // a wobbly ink outline round the wood, the way a surveyor rings one
-      const pts = [];
-      for (let a = 0; a < TAU; a += 0.42) {
-        pts.push([bx + bw / 2 + Math.cos(a) * bw * 0.56, by + bh / 2 + Math.sin(a) * bh * 0.6]);
-      }
-      pts.push(pts[0]);
-      inkPath(g, pts, INK2, 1, 1.6, 40 + bi * 13);
-      const n = Math.round((bw * bh) / 420);
-      const trees = [];
-      for (let i = 0; i < n; i++) trees.push([bx + r() * bw, by + r() * bh, 5 + r() * 4]);
-      trees.sort((p, q) => p[1] - q[1]);               // draw back to front
-      for (let i = 0; i < trees.length; i++) mapTree(g, trees[i][0], trees[i][1], trees[i][2], bi * 100 + i);
-    }
-    // ---- water: an inked shore with hatching inside it ---------------------
-    const lake = (x, y) => { const dx = (x - 586) / 50, dy = (y - 66) / 28; return dx * dx + dy * dy < 1; };
-    for (let y = 36; y < 96; y++) for (let x = 534; x < 640; x++) {
-      if (!lake(x, y)) continue;
-      g.fillStyle = ((x + y) % 7 === 0) ? SEA1 : SEA0;
-      g.fillRect(x, y, 1, 1);
-    }
-    hatch(g, 534, 36, 639, 96, 5, SEA2, lake, true, 61);
-    for (let a = 0; a < TAU; a += 0.06) {              // the shoreline, inked
-      const x = 586 + Math.cos(a) * 50, y = 66 + Math.sin(a) * 28;
-      g.fillStyle = INK; g.fillRect(Math.round(x + wob(a * 30, 1, 1.5, 21)), Math.round(y + wob(1, a * 30, 1.5, 22)), 1, 1);
-    }
-    for (let i = 0; i < 5; i++) {                      // ripple ticks, drawn in
-      const y = 48 + i * 9;
-      for (let x = 548; x < 626; x += 9) {
-        if (!lake(x, y)) continue;
-        g.fillStyle = SEA2; g.fillRect(x, y, 4, 1); g.fillRect(x + 5, y + 1, 3, 1);
+      const bx = H(BLOCKS[bi][0]), by = H(BLOCKS[bi][1]), bw = H(BLOCKS[bi][2]), bh = H(BLOCKS[bi][3]);
+      const n = Math.round((bw * bh) / 54);
+      for (let i = 0; i < n; i++) {
+        const k = r();
+        canopy.push([bx + r() * bw, by + r() * bh, 3.4 + r() * 2.4,
+          k < 0.16 ? 'pine' : k < 0.26 ? 'blossom' : k < 0.34 ? 'fruit' : 'round', bi * 100 + i]);
       }
     }
+    for (let i = 0; i < 40; i++) {                // a few standing on their own
+      const k = r();
+      canopy.push([r() * HW, r() * HH, 3 + r() * 2, k < 0.3 ? 'blossom' : k < 0.5 ? 'pine' : 'round', 9000 + i]);
+    }
+    canopy.sort((p2, q2) => p2[1] - q2[1]);       // back to front, so they overlap right
+    for (const [x, y, s2, kind, seed] of canopy) cuteTree(q, x, y, s2, kind, seed);
+
+    // ---- the lake, with a beach and things living on it --------------------
+    const LX2 = H(586), LY2 = H(66), LRX = 27, LRY = 16;
+    Art.ell(q, LX2, LY2, LRX + 3, LRY + 2, SAND2);
+    Art.ell(q, LX2, LY2, LRX + 2, LRY + 1, SAND);
+    Art.ell(q, LX2, LY2, LRX, LRY, W0);
+    Art.ell(q, LX2, LY2 - 1, LRX - 2, LRY - 2, W1);
+    Art.ell(q, LX2 - 4, LY2 - 3, LRX * 0.5, LRY * 0.4, W2);
+    for (let y = LY2 - LRY + 2; y < LY2 + LRY - 1; y += 3) {     // ripple ticks
+      for (let x = LX2 - LRX + 3; x < LX2 + LRX - 3; x += 7) {
+        const dx = (x - LX2) / LRX, dy = (y - LY2) / LRY;
+        if (dx * dx + dy * dy > 0.7) continue;
+        Art.rect(q, x + ((y % 6) ? 2 : 0), y, 3, 1, W3);
+      }
+    }
+    for (let i = 0; i < 5; i++) {                                // lily pads
+      const a = (i / 5) * TAU, lx = LX2 + Math.cos(a) * LRX * 0.6, ly = LY2 + Math.sin(a) * LRY * 0.6;
+      Art.ell(q, lx, ly, 3, 2, TR1); Art.ell(q, lx, ly, 2.2, 1.4, TR2);
+      if (i % 2) Art.rect(q, lx, ly - 1, 2, 2, BLOS2);
+    }
+    duck(q, LX2 - 8, LY2 + 3);
+    duck(q, LX2 + 6, LY2 - 4);
+    // a little jetty with a boat tied to it
+    Art.rect(q, LX2 - LRX - 2, LY2 + 6, 10, 2, '#9a7448');
+    Art.rect(q, LX2 - LRX - 2, LY2 + 6, 10, 1, '#c29a66');
+    Art.poly(q, [[LX2 - LRX + 8, LY2 + 9], [LX2 - LRX + 16, LY2 + 9], [LX2 - LRX + 14, LY2 + 12], [LX2 - LRX + 10, LY2 + 12]], '#b06a3a');
+    Art.rect(q, LX2 - LRX + 11, LY2 + 4, 1, 5, '#8a6440');
+    Art.poly(q, [[LX2 - LRX + 12, LY2 + 4], [LX2 - LRX + 17, LY2 + 7], [LX2 - LRX + 12, LY2 + 8]], '#f4f0e4');
+
+    // ---- the river, with stepping stones and a bridge ----------------------
     const river = [[586, 88], [560, 126], [530, 160], [516, 200], [522, 250], [540, 300], [560, 358]];
-    inkPath(g, river, INK, 3, 1.1, 71);                // banks
     for (let i = 0; i < river.length - 1; i++) {
-      const [x0, y0] = river[i], [x1, y1] = river[i + 1], L = Math.hypot(x1 - x0, y1 - y0);
-      for (let d = 0; d < L; d++) {
-        const u = d / L, x = U.lerp(x0, x1, u), y = U.lerp(y0, y1, u);
-        g.fillStyle = SEA0; g.fillRect(Math.round(x + wob(d, 2, 1, 71)) - 1, Math.round(y), 3, 1);
-        if (d % 6 < 3) { g.fillStyle = SEA1; g.fillRect(Math.round(x + wob(d, 2, 1, 71)), Math.round(y), 1, 1); }
+      const [x0, y0] = river[i], [x1, y1] = river[i + 1];
+      const L = Math.hypot(H(x1 - x0), H(y1 - y0));
+      for (let d = 0; d <= L; d++) {
+        const u = d / L, x = U.lerp(H(x0), H(x1), u), y = U.lerp(H(y0), H(y1), u);
+        Art.ell(q, x, y, 4, 2.4, SAND2);
       }
     }
-    // ---- the town, drawn as little roofs -----------------------------------
+    for (let i = 0; i < river.length - 1; i++) {
+      const [x0, y0] = river[i], [x1, y1] = river[i + 1];
+      const L = Math.hypot(H(x1 - x0), H(y1 - y0));
+      for (let d = 0; d <= L; d++) {
+        const u = d / L, x = U.lerp(H(x0), H(x1), u), y = U.lerp(H(y0), H(y1), u);
+        Art.ell(q, x, y, 2.6, 1.6, W0);
+        Art.ell(q, x, y - 0.4, 1.8, 1, W1);
+        if ((d + i * 7) % 9 === 0) Art.rect(q, x - 1, y, 2, 1, W3);
+      }
+    }
+    Art.rect(q, H(546) - 8, H(378) / 2, 16, 4, '#9a7448');        // the bridge on the main road
+    Art.rect(q, H(546) - 8, H(378) / 2, 16, 1, '#c29a66');
+    for (let i = 0; i < 4; i++) Art.rect(q, H(546) - 7 + i * 4, H(378) / 2 - 2, 1, 2, '#7a5636');
+
+    // ---- the roads: cream tracks with a soft dark edge ---------------------
+    const roadPath = (p, w, col) => {
+      for (let i = 0; i < p.length - 1; i++) {
+        const [x0, y0] = p[i], [x1, y1] = p[i + 1];
+        const L = Math.max(1, Math.hypot(H(x1 - x0), H(y1 - y0)));
+        for (let d = 0; d <= L; d++) {
+          const u = d / L;
+          Art.ell(q, U.lerp(H(x0), H(x1), u), U.lerp(H(y0), H(y1), u), w, w * 0.8, col);
+        }
+      }
+    };
+    for (const p of ROADS.concat([HIGHWAY])) { roadPath(p, 3.4, RDE); roadPath(p, 2.4, RD); }
+    for (const p of ROADS.concat([HIGHWAY])) {   // little stones set in the track
+      for (let i = 0; i < p.length - 1; i++) {
+        const [x0, y0] = p[i], [x1, y1] = p[i + 1], L = Math.hypot(H(x1 - x0), H(y1 - y0));
+        for (let d = 0; d < L; d += 5) {
+          const u = d / L;
+          Art.rect(q, U.lerp(H(x0), H(x1), u), U.lerp(H(y0), H(y1), u) + ((d / 5) % 2 ? 1 : -1), 2, 1, '#f4e8c8');
+        }
+      }
+    }
+    // ---- the town: a huddle of little houses -------------------------------
     const T = TOWN;
-    for (let x = T.x0; x <= T.x1; x += T.gx) inkPath(g, [[x, T.y0], [x, T.y1]], INK2, 1, 1.2, x);
-    for (let y = T.y0; y <= T.y1; y += T.gy) inkPath(g, [[T.x0, y], [T.x1, y]], INK2, 1, 1.2, y + 400);
+    for (let x = T.x0; x <= T.x1; x += T.gx) roadPath([[x, T.y0], [x, T.y1]], 1.8, RD);
+    for (let y = T.y0; y <= T.y1; y += T.gy) roadPath([[T.x0, y], [T.x1, y]], 1.8, RD);
+    let hi = 0;
     for (let x = T.x0; x < T.x1; x += T.gx) {
       for (let y = T.y0; y < T.y1; y += T.gy) {
-        const n = 2 + Math.floor(r() * 3);
+        const n = 1 + Math.floor(r() * 2);
         for (let i = 0; i < n; i++) {
-          const bw = 6 + r() * 6, bh = 4 + r() * 4;
-          const bx = Math.round(x + 5 + r() * (T.gx - 10 - bw)), by = Math.round(y + 5 + r() * (T.gy - 10 - bh));
-          const W2 = Math.round(bw), H2 = Math.round(bh);
-          g.fillStyle = INK2; g.fillRect(bx - 1, by - 1, W2 + 2, H2 + 2);      // the ink round it
-          g.fillStyle = r() < 0.4 ? ROOF : ROOF2; g.fillRect(bx, by, W2, H2);
-          g.fillStyle = '#c47a52'; g.fillRect(bx, by, W2, 1);                  // sun on the ridge
-          for (let k = 2; k < H2; k += 2) { g.fillStyle = 'rgba(46,36,24,0.35)'; g.fillRect(bx, by + k, W2, 1); }
+          const bw = 7 + Math.floor(r() * 4), bh = 5 + Math.floor(r() * 3);
+          cuteHouse(q, H(x) + 3 + r() * (H(T.gx) - 4 - bw), H(y) + 5 + r() * (H(T.gy) - 6 - bh), bw, bh, hi++, i);
         }
       }
     }
-    // ---- the roads: two inked edges with a pale metalled middle ------------
-    for (const p of ROADS.concat([HIGHWAY])) {
-      inkPath(g, p, INK, 5, 1.1, 800);
-      inkPath(g, p, '#e0d2ae', 3, 1.1, 800);
-      for (let i = 0; i < p.length - 1; i++) {         // the centre line, ticked in by hand
-        const [x0, y0] = p[i], [x1, y1] = p[i + 1], L = Math.hypot(x1 - x0, y1 - y0);
-        for (let d = 0; d < L; d += 9) {
-          const u = d / L;
-          g.fillStyle = INK3;
-          g.fillRect(Math.round(U.lerp(x0, x1, u) + wob(d, i, 1, 800)), Math.round(U.lerp(y0, y1, u) + wob(i, d, 1, 809)), 3, 1);
-        }
-      }
-    }
-    // farmsteads strung along them, each one a roof with a yard wall
+    // farmsteads along the roads, each with a little fenced paddock
     for (const p of ROADS) {
       for (let i = 1; i < p.length - 1; i++) {
-        if (r() < 0.45) continue;
+        if (r() < 0.5) continue;
         const sd = r() < 0.5 ? -1 : 1;
-        const bx = Math.round(p[i][0] + sd * (10 + r() * 11)), by = Math.round(p[i][1] + (r() - 0.5) * 16);
-        const bw = Math.round(8 + r() * 6), bh = Math.round(6 + r() * 5);
-        g.fillStyle = INK; g.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
-        g.fillStyle = r() < 0.5 ? ROOF : ROOF2; g.fillRect(bx, by, bw, bh);
-        g.fillStyle = '#c47a52'; g.fillRect(bx, by, bw, 1);
-        for (let k = 0; k < 10; k++) {                 // the yard wall round it
+        const bx = H(p[i][0]) + sd * (7 + r() * 6), by = H(p[i][1]) + (r() - 0.5) * 9;
+        cuteHouse(q, bx, by, 8 + Math.floor(r() * 3), 6, hi++, i);
+        for (let k = 0; k < 10; k++) {                            // the paddock fence
           const a = (k / 10) * TAU;
-          g.fillStyle = INK2;
-          g.fillRect(Math.round(bx + bw / 2 + Math.cos(a) * (bw * 0.9 + 4)), Math.round(by + bh / 2 + Math.sin(a) * (bh * 0.9 + 4)), 2, 1);
+          Art.rect(q, bx + 4 + Math.cos(a) * 12, by + 3 + Math.sin(a) * 8, 1, 2, '#a58050');
         }
+        sheep(q, bx + 4 + (r() - 0.5) * 12, by + 4 + (r() - 0.5) * 8);
+        if (r() < 0.5) sheep(q, bx + 2 + (r() - 0.5) * 12, by + 6 + (r() - 0.5) * 6);
       }
     }
-    // ---- the names, hand-lettered with a ruled underline -------------------
+    // ---- the small living things -------------------------------------------
+    // they graze in the open, never on top of a wood
+    const inWood = (x, y) => BLOCKS.some(([bx, by, bw, bh]) =>
+      x > H(bx) - 4 && x < H(bx + bw) + 4 && y > H(by) - 4 && y < H(by + bh) + 4);
+    const openSpot = () => {
+      for (let k = 0; k < 24; k++) {
+        const x = 12 + r() * (HW - 24), y = 12 + r() * (HH - 24);
+        if (!inWood(x, y)) return [x, y];
+      }
+      return null;
+    };
+    for (let i = 0; i < 11; i++) { const p2 = openSpot(); if (p2) sheep(q, p2[0], p2[1]); }
+    for (let i = 0; i < 8; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
+    for (let i = 0; i < 26; i++) mushroom(q, r() * HW, r() * HH, ['#d2564a', '#e0904a', '#c98ad8'][i % 3]);
+    for (let i = 0; i < 80; i++) flower(q, r() * HW, r() * HH, ['#f0a0c0', '#f4dc6a', '#c8a0e8', '#f4f0e4'][i % 4]);
+    for (let i = 0; i < 14; i++) bird(q, r() * HW, 4 + r() * (HH * 0.5));
+    // a campfire out in the scrub, with somebody's tent next to it
+    {
+      const cx3 = 118, cy3 = 70;
+      Art.poly(q, [[cx3 - 7, cy3 + 4], [cx3, cy3 - 5], [cx3 + 7, cy3 + 4]], '#e0a84a');
+      Art.poly(q, [[cx3 - 5, cy3 + 4], [cx3, cy3 - 3], [cx3 + 5, cy3 + 4]], '#f4d888');
+      Art.rect(q, cx3 - 7, cy3 + 4, 14, 1, '#8a6440');
+      Art.rect(q, cx3 + 10, cy3 + 2, 6, 1, '#7a5636');
+      Art.poly(q, [[cx3 + 10, cy3 + 2], [cx3 + 13, cy3 - 3], [cx3 + 16, cy3 + 2]], '#e0764a');
+      Art.rect(q, cx3 + 12, cy3 - 1, 2, 3, '#a03a2a');
+    }
+    // clouds drifting over the whole thing, so there is sky in it
+    for (let i = 0; i < 7; i++) {
+      const cx3 = r() * HW, cy3 = r() * HH, cw = 9 + r() * 12;
+      const oa = q.globalAlpha; q.globalAlpha = 0.3;
+      Art.ell(q, cx3, cy3, cw, cw * 0.4, '#ffffff');
+      Art.ell(q, cx3 - cw * 0.4, cy3 - 1.4, cw * 0.5, cw * 0.3, '#ffffff');
+      Art.ell(q, cx3 + cw * 0.35, cy3 - 1, cw * 0.4, cw * 0.26, '#ffffff');
+      q.globalAlpha = oa * 0.14;
+      Art.ell(q, cx3 + 3, cy3 + 4, cw, cw * 0.4, '#2a3a20');       // and their shadow on the grass
+      q.globalAlpha = oa;
+    }
+
+    // ---- blow it up ---------------------------------------------------------
+    g.imageSmoothingEnabled = false;
+    g.drawImage(hc.c, 0, 0, VW, VH);
+
+    // ---- the names, at full resolution so they stay readable ---------------
     for (const [lx, ly, tx2, col] of [
-      [330, 246, 'WOMBAT FLAT', '#3a2c1c'], [112, 74, 'FERN GULLY', '#46351f'],
-      [512, 44, 'STILL LAKE', '#2d4a52'], [248, 128, 'THE SCRUB', '#46351f'],
-      [560, 292, 'BLACKWOOD', '#46351f'], [128, 320, 'STONE FLAT', '#46351f'],
-      [452, 340, 'THE FLATS', '#46351f']]) {
+      [330, 246, 'WOMBAT FLAT', '#3d5a2c'], [112, 74, 'FERN GULLY', '#3d5a2c'],
+      [512, 44, 'STILL LAKE', '#2d5a72'], [248, 128, 'THE SCRUB', '#3d5a2c'],
+      [560, 292, 'BLACKWOOD', '#3d5a2c'], [128, 320, 'STONE FLAT', '#3d5a2c'],
+      [452, 340, 'THE FLATS', '#3d5a2c']]) {
       const w = Font.width(tx2, 1);
-      const oa = g.globalAlpha; g.globalAlpha = 0.5;
-      Art.rect(g, lx - w / 2 - 4, ly - 3, w + 8, 12, '#e4d6b2');      // paper cleared behind it
-      g.globalAlpha = oa;
+      Art.rect(g, lx - w / 2 - 5, ly - 4, w + 10, 14, 'rgba(24,34,18,0.35)');
+      Art.rect(g, lx - w / 2 - 4, ly - 4, w + 8, 13, '#f6eccc');
+      Art.rect(g, lx - w / 2 - 4, ly - 4, w + 8, 2, '#ffffff');
+      Art.rect(g, lx - w / 2 - 4, ly + 7, w + 8, 2, '#d8c8a0');
       Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center' });
-      ink(g, lx - w / 2, ly + 9, lx + w / 2, ly + 9, col, 1, 0.8, lx);
     }
-    // ---- the chrome a drawn map wears -------------------------------------
-    // a compass, as a four-point star cut with a diamond rose. No circles.
-    const cx2 = 52, cy2 = 86;
+    // a four-point compass rose, chunky enough to match the rest
+    const cx2 = 52, cy2 = 274;
+    Art.rect(g, cx2 - 30, cy2 - 42, 60, 74, 'rgba(24,34,18,0.3)');
+    Art.rect(g, cx2 - 29, cy2 - 42, 58, 72, '#f6eccc');
+    Art.rect(g, cx2 - 29, cy2 - 42, 58, 3, '#ffffff');
+    Art.rect(g, cx2 - 29, cy2 + 27, 58, 3, '#d8c8a0');
     for (let k = 0; k < 4; k++) {
-      const a = (k / 4) * TAU - Math.PI / 2, b2 = a + Math.PI / 4;
-      Art.poly(g, [[cx2 + Math.cos(a) * 26, cy2 + Math.sin(a) * 26],
-                   [cx2 + Math.cos(b2) * 8, cy2 + Math.sin(b2) * 8],
-                   [cx2 + Math.cos(a + Math.PI / 2) * 26, cy2 + Math.sin(a + Math.PI / 2) * 26],
-                   [cx2, cy2]], k % 2 ? INK2 : '#e0d2ae');
+      const a = (k / 4) * TAU - Math.PI / 2;
+      Art.poly(g, [[cx2 + Math.cos(a) * 22, cy2 + Math.sin(a) * 22],
+                   [cx2 + Math.cos(a + 2.2) * 7, cy2 + Math.sin(a + 2.2) * 7],
+                   [cx2 + Math.cos(a - 2.2) * 7, cy2 + Math.sin(a - 2.2) * 7]], k ? '#c9b78c' : '#c04a3c');
+      Art.poly(g, [[cx2 + Math.cos(a) * 19, cy2 + Math.sin(a) * 19],
+                   [cx2 + Math.cos(a + 2.2) * 4.6, cy2 + Math.sin(a + 2.2) * 4.6],
+                   [cx2 + Math.cos(a - 2.2) * 4.6, cy2 + Math.sin(a - 2.2) * 4.6]], k ? '#ffffff' : '#f2867a');
     }
-    inkPath(g, [[cx2, cy2 - 30], [cx2 - 6, cy2 - 18], [cx2 + 6, cy2 - 18], [cx2, cy2 - 30]], INK, 1, 0.6, 5);
-    Art.poly(g, [[cx2, cy2 - 29], [cx2 - 4, cy2 - 19], [cx2 + 4, cy2 - 19]], '#a8402c');
-    Font.draw(g, 'N', cx2, cy2 - 42, { scale: 1, color: INK, align: 'center' });
-    // a ruled border with a torn inner edge
-    for (let i = 0; i < 2; i++) {
-      const m = 4 + i * 4;
-      inkPath(g, [[m, m], [VW - m, m], [VW - m, VH - m], [m, VH - m], [m, m]], i ? INK2 : INK, 1, 0.9, 900 + i * 7);
-    }
+    Art.rect(g, cx2 - 4, cy2 - 4, 8, 8, '#3d5a2c');
+    Art.rect(g, cx2 - 3, cy2 - 3, 6, 6, '#f6eccc');
+    Font.draw(g, 'N', cx2, cy2 - 38, { scale: 1, color: '#3d5a2c', align: 'center' });
     sheet = c;
     return c;
   }
@@ -8592,8 +8660,13 @@ const Atlas = (() => {
       const open = unlocked(s);
       const hot = hover === s && open;
       // every pin breathes; the one under the pointer bounces properly
-      const bob = hot ? Math.sin(t * 9) * 3.2 - 1.5 : Math.sin(t * 1.7 + s.x * 0.07) * 1.3;
-      drawPin(g, s, open, hot, bob, t);
+      // a fat hop when you point at one, a slow float when you do not, and a
+      // squash at the bottom of each so the whole board feels springy
+      const ph = t * (hot ? 7 : 1.7) + s.x * 0.07;
+      const raw = Math.abs(Math.sin(ph));
+      const bob = hot ? -raw * 7 : Math.sin(ph) * 1.8;
+      const sq = hot ? (1 - raw) * 0.26 : 0;
+      drawPin(g, s, open, hot, bob, t, sq);
     }
 
     // fog over the locked half
@@ -8645,7 +8718,7 @@ const Atlas = (() => {
     // ---- the grade: a cold wood, lit only where you have been -------------
     g.save();
     g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = '#16346a'; g.globalAlpha = 0.5; g.fillRect(0, 0, VW, VH);
+    g.fillStyle = '#f0c86a'; g.globalAlpha = 0.28; g.fillRect(0, 0, VW, VH);
     g.restore();
     g.save();
     g.globalCompositeOperation = 'screen';
@@ -8662,7 +8735,7 @@ const Atlas = (() => {
     }
     g.restore();
     // the vignette, dithered so the falloff bands instead of blurring
-    Art.vignette(g, VW, VH, '#020403', 0.66, 2.2, 0.34);
+    Art.vignette(g, VW, VH, '#14280e', 0.34, 2.6, 0.42);
 
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);
@@ -8695,8 +8768,12 @@ const Atlas = (() => {
     Font.draw(g, '2 km', VW - 26, VH - 24, { scale: 1, color: '#3c3a35', align: 'left' });
   }
 
-  function drawPin(g, s, open, hot, bob, t) {
+  function drawPin(g, s, open, hot, bob, t, sq = 0) {
     const x = Math.round(s.x), y = Math.round(s.y + bob);
+    if (sq > 0.001) {                          // squash about the pin's point
+      g.save();
+      g.translate(x, s.y + 16); g.scale(1 + sq, 1 - sq); g.translate(-x, -(s.y + 16));
+    }
     const col = open ? (s.mode === 'grove' ? '#3f8f4a' : s.mode === 'shop' ? '#2f7ad0' : '#e04a3c') : '#8b8780';
     const dark = open ? (s.mode === 'grove' ? '#286633' : s.mode === 'shop' ? '#1c56a0' : '#a52f26') : '#66635d';
     g.fillStyle = 'rgba(40,40,44,0.22)';                     // the marker's shadow on the paper
@@ -8725,12 +8802,15 @@ const Atlas = (() => {
       g.fillStyle = PAL.div4; g.fillRect(x - 15 - p * 2, y - 20 - p * 2, 30 + p * 4, 4);
       g.globalAlpha = 1;
     }
-    // the label sits on a white chip, like a place name on a phone map
+    if (sq > 0.001) g.restore();
+    // the label sits on a little card, and it does not squash with the pin
+    const ly = Math.round(s.y) + 18;
     const label = s.name.toUpperCase();
-    const w = Font.width(label, 1) + 8;
-    g.fillStyle = 'rgba(255,255,255,0.92)'; g.fillRect(x - w / 2, y + 18, w, 11);
-    g.fillStyle = '#c9c4b6'; g.fillRect(x - w / 2, y + 28, w, 1);
-    Font.draw(g, label, x, y + 21, { scale: 1, color: open ? '#3c3a35' : '#8b8780', align: 'center' });
+    const w = Font.width(label, 1) + 10;
+    Art.rect(g, x - w / 2 - 1, ly - 1, w + 2, 14, 'rgba(24,34,18,0.35)');
+    Art.rect(g, x - w / 2, ly, w, 12, '#ffffff');
+    Art.rect(g, x - w / 2, ly + 10, w, 2, '#d0cabc');
+    Font.draw(g, label, x, ly + 3, { scale: 1, color: open ? '#3c3a35' : '#8b8780', align: 'center' });
   }
 
   return { init, enter, update, render, click, hover: hoverAt, get busy() { return !!travel; } };
@@ -9157,7 +9237,9 @@ const Shop = (() => {
       if (x < -60 || x > VW + 60) continue;
       const img = pic(s.p);
       const hot = hover === s;
-      const bob = hot ? Math.sin(t * 9) * 3 - 1.5 : Math.sin(t * 1.9 + s.x * 0.05) * 1.1;
+      const hopT = t * (hot ? 8 : 1.9) + s.x * 0.05;
+      const raw = Math.abs(Math.sin(hopT));
+      const bob = hot ? -raw * 6 : Math.sin(hopT) * 1.6;
       g.globalAlpha = s.p.locked ? 0.45 : 1;
       g.drawImage(img, Math.round(x - img.width / 2), Math.round(s.y - img.height + 10 + bob));
       g.globalAlpha = 1;
@@ -9850,38 +9932,18 @@ const Shop = (() => {
   function keeperWombat(g, cx, t) {
     const n = basket.length;
     const atTill = Math.abs(shaz.x - SHAZ_HOME) < 6;
-    const wx = cx + shaz.x, wy = 302;
+    const wx = cx + shaz.x, wy = 328;
     const hot = keeperHot;
-    keeperR = { x: wx - 34, y: wy - 92, w: 68, h: 86 };
+    keeperR = { x: wx - 40, y: wy - 100, w: 80, h: 100 };
     const pose = shaz.walking ? 'walk'
       : till > 0 ? 'cheer' : hot ? 'happy' : n ? 'happy' : shaz.pose;
     const rate = pose === 'talk' ? 7 : pose === 'wave' || pose === 'cheer' ? 9 : pose === 'walk' ? 8 : 2.4;
     let img = Sprites.cashier(Math.floor(shaz.t * rate), pose);
     if (shaz.dir < 0 && pose === 'walk') img = Art.flip(img);
-    const sc = 1.2, w = img.width * sc, h = img.height * sc;
+    const sc = 2.2, w = img.width * sc, h = img.height * sc;
     const bob = Math.sin(shaz.t * 1.6) * 1.2;
+    g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, wx, wy + 2, w * 0.3, 5);
     g.drawImage(img, Math.round(wx - w / 2), Math.round(wy - h + bob), Math.round(w), Math.round(h));
-    // Off the till she is drawn from the counter up, so she pushes a stock
-    // trolley: it covers the cut and explains what she is doing out here.
-    if (!atTill) {
-      const tx2 = wx + shaz.dir * 4, ty2 = wy + 2;
-      g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, tx2, ty2 + 12, 28, 5);
-      Art.rect(g, tx2 - 26, ty2 - 24, 52, 4, '#6d7681');          // the push bar
-      Art.rect(g, tx2 - 26, ty2 - 24, 52, 1.6, '#a4adb8');
-      Art.rect(g, tx2 - 24, ty2 - 22, 3, 24, '#5a6270');
-      Art.rect(g, tx2 + 21, ty2 - 22, 3, 24, '#5a6270');
-      Art.rect(g, tx2 - 27, ty2 - 2, 54, 16, '#3a3f48');          // the tray
-      Art.rect(g, tx2 - 25, ty2, 50, 12, '#7d8892');
-      for (let i = 0; i < 6; i++) Art.rect(g, tx2 - 24 + i * 8.4, ty2, 1.6, 12, '#5a6270');
-      for (let i = 0; i < 4; i++) {                                // boxes on it
-        const bx2 = tx2 - 22 + i * 12, col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#d8b23a'][i];
-        Art.rect(g, bx2, ty2 - 9, 10, 10, U.shade(col, -0.3));
-        Art.rect(g, bx2, ty2 - 9, 10, 9, col);
-        Art.rect(g, bx2, ty2 - 9, 10, 2, U.shade(col, 0.3));
-      }
-      Art.rect(g, tx2 - 22, ty2 + 14, 5, 5, '#22262e');            // castors
-      Art.rect(g, tx2 + 17, ty2 + 14, 5, 5, '#22262e');
-    }
     // her mug, parked on the counter where the till is
     const mx = cx + SHAZ_HOME - 40;
     g.fillStyle = '#1d2230'; g.fillRect(mx - 7, 268, 14, 15);
@@ -10470,9 +10532,14 @@ const Nursery = (() => {
   // one plant in a terracotta pot, with its price on a stake
   function drawPlant(g, s, x) {
     const hot = hover === s;
-    const bob = hot ? Math.sin(t * 8) * 2.4 : Math.sin(t * 1.5 + s.x * 0.05) * 1.1;
+    // a proper hop when hovered: up on the sine, squashed at the bottom
+    const hopT = t * (hot ? 7 : 1.5) + s.x * 0.05;
+    const raw = Math.abs(Math.sin(hopT));
+    const bob = hot ? -raw * 6 : Math.sin(hopT) * 1.6;
+    const sqz = hot ? (1 - raw) * 0.22 : 0;
     const y = s.y + bob;
-    if (s.p.kind !== 'seed') { drawGood(g, s, x, y, hot); return; }
+    if (sqz > 0.001) { g.save(); g.translate(x, s.y + 13); g.scale(1 + sqz, 1 - sqz); g.translate(-x, -(s.y + 13)); }
+    if (s.p.kind !== 'seed') { drawGood(g, s, x, y, hot); if (sqz > 0.001) g.restore(); return; }
     // the pot
     g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, x, s.y + 13, 17, 5);
     Art.poly(g, [[x - 14, y - 10], [x + 14, y - 10], [x + 10, y + 12], [x - 10, y + 12]], '#7a3a1c');
@@ -10509,8 +10576,9 @@ const Nursery = (() => {
       Art.ell(g, x + 16, y - 24, 8, 8, '#2f8f42');
       FX.pixelText(g, String(n), x + 16, y - 27, { color: '#fff', size: 7 });
     }
+    if (sqz > 0.001) g.restore();
     if (hot) {
-      Font.draw(g, s.p.name.toUpperCase(), x, y - 56, { scale: 1, color: '#e8f4d8', align: 'center', shadow: '#12200e' });
+      Font.draw(g, s.p.name.toUpperCase(), x, s.y - 56, { scale: 1, color: '#e8f4d8', align: 'center', shadow: '#12200e' });
     }
   }
 

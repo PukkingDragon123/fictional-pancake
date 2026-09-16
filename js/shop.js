@@ -416,7 +416,9 @@ const Shop = (() => {
       if (x < -60 || x > VW + 60) continue;
       const img = pic(s.p);
       const hot = hover === s;
-      const bob = hot ? Math.sin(t * 9) * 3 - 1.5 : Math.sin(t * 1.9 + s.x * 0.05) * 1.1;
+      const hopT = t * (hot ? 8 : 1.9) + s.x * 0.05;
+      const raw = Math.abs(Math.sin(hopT));
+      const bob = hot ? -raw * 6 : Math.sin(hopT) * 1.6;
       g.globalAlpha = s.p.locked ? 0.45 : 1;
       g.drawImage(img, Math.round(x - img.width / 2), Math.round(s.y - img.height + 10 + bob));
       g.globalAlpha = 1;
@@ -1109,38 +1111,18 @@ const Shop = (() => {
   function keeperWombat(g, cx, t) {
     const n = basket.length;
     const atTill = Math.abs(shaz.x - SHAZ_HOME) < 6;
-    const wx = cx + shaz.x, wy = 302;
+    const wx = cx + shaz.x, wy = 328;
     const hot = keeperHot;
-    keeperR = { x: wx - 34, y: wy - 92, w: 68, h: 86 };
+    keeperR = { x: wx - 40, y: wy - 100, w: 80, h: 100 };
     const pose = shaz.walking ? 'walk'
       : till > 0 ? 'cheer' : hot ? 'happy' : n ? 'happy' : shaz.pose;
     const rate = pose === 'talk' ? 7 : pose === 'wave' || pose === 'cheer' ? 9 : pose === 'walk' ? 8 : 2.4;
     let img = Sprites.cashier(Math.floor(shaz.t * rate), pose);
     if (shaz.dir < 0 && pose === 'walk') img = Art.flip(img);
-    const sc = 1.2, w = img.width * sc, h = img.height * sc;
+    const sc = 2.2, w = img.width * sc, h = img.height * sc;
     const bob = Math.sin(shaz.t * 1.6) * 1.2;
+    g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, wx, wy + 2, w * 0.3, 5);
     g.drawImage(img, Math.round(wx - w / 2), Math.round(wy - h + bob), Math.round(w), Math.round(h));
-    // Off the till she is drawn from the counter up, so she pushes a stock
-    // trolley: it covers the cut and explains what she is doing out here.
-    if (!atTill) {
-      const tx2 = wx + shaz.dir * 4, ty2 = wy + 2;
-      g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, tx2, ty2 + 12, 28, 5);
-      Art.rect(g, tx2 - 26, ty2 - 24, 52, 4, '#6d7681');          // the push bar
-      Art.rect(g, tx2 - 26, ty2 - 24, 52, 1.6, '#a4adb8');
-      Art.rect(g, tx2 - 24, ty2 - 22, 3, 24, '#5a6270');
-      Art.rect(g, tx2 + 21, ty2 - 22, 3, 24, '#5a6270');
-      Art.rect(g, tx2 - 27, ty2 - 2, 54, 16, '#3a3f48');          // the tray
-      Art.rect(g, tx2 - 25, ty2, 50, 12, '#7d8892');
-      for (let i = 0; i < 6; i++) Art.rect(g, tx2 - 24 + i * 8.4, ty2, 1.6, 12, '#5a6270');
-      for (let i = 0; i < 4; i++) {                                // boxes on it
-        const bx2 = tx2 - 22 + i * 12, col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#d8b23a'][i];
-        Art.rect(g, bx2, ty2 - 9, 10, 10, U.shade(col, -0.3));
-        Art.rect(g, bx2, ty2 - 9, 10, 9, col);
-        Art.rect(g, bx2, ty2 - 9, 10, 2, U.shade(col, 0.3));
-      }
-      Art.rect(g, tx2 - 22, ty2 + 14, 5, 5, '#22262e');            // castors
-      Art.rect(g, tx2 + 17, ty2 + 14, 5, 5, '#22262e');
-    }
     // her mug, parked on the counter where the till is
     const mx = cx + SHAZ_HOME - 40;
     g.fillStyle = '#1d2230'; g.fillRect(mx - 7, 268, 14, 15);

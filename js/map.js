@@ -53,279 +53,342 @@ const Atlas = (() => {
   }
 
   // ---- the sheet -----------------------------------------------------------
-  // It is a map somebody drew by hand: aged paper, ink that wobbles, hills put
-  // in with hachures, forest drawn tree by tree, hatching in the water. Nothing
-  // on it is ruler-straight and nothing on it is a flat fill.
-  const PAPER0 = '#c8b58c', PAPER1 = '#d8c69e', PAPER2 = '#b9a37a', PAPER3 = '#e6d7b2';
-  const INK = '#2e2418', INK2 = '#4a3a26', INK3 = '#6b5740';
-  const SEA0 = '#7d9aa2', SEA1 = '#9dbac0', SEA2 = '#5f7f8a';
-  const LEAF = '#4f6b3a', LEAF2 = '#3c5530', LEAF3 = '#6b8a4c';
-  const ROOF = '#9a5236', ROOF2 = '#7a3c26';
+  // The whole map is drawn on a 320x180 canvas and blown up 2x, so one art
+  // pixel is a fat 2x2 block and everything has to be a simple, chunky, cute
+  // shape. Soft greens, round trees, little red roofs, and as many small
+  // living things tucked into it as will fit.
+  const HW = 320, HH = 180;
+  const G0 = '#5d8a48', G1 = '#6fa254', G2 = '#84b866', G3 = '#9ccc7c';   // grass
+  const GD = '#456b36', GD2 = '#35552a';                                  // grass shade
+  const W0 = '#3f7fb0', W1 = '#58a0cc', W2 = '#8ccfe8', W3 = '#c8eef8';   // water
+  const SAND = '#e2cf9a', SAND2 = '#c9b276';
+  const RD = '#e6d3a4', RDE = '#b79a68';                                  // paths
+  const OUT = '#2d3d24';                                                  // the one dark line
+  const TR0 = '#2f5a2c', TR1 = '#427a38', TR2 = '#5c9c48', TR3 = '#7cbe60';
+  const BLOS = '#f0a0c0', BLOS2 = '#ffc8dd';
+  const PIN0 = '#2a4a30', PIN1 = '#3d6b3a', PIN2 = '#558c4c';
+  const RF = ['#d2564a', '#e0764a', '#c98ad8', '#5c9cd8', '#e0b84a'];     // roof colours
+  const WALL = '#f2e4c8', WALL2 = '#d6c2a0';
 
-  // a hand's worth of wobble: the same point always wobbles the same way
-  function wob(x, y, amp, seed) {
-    const n = Math.sin((x * 12.9898 + y * 78.233 + seed * 3.17)) * 43758.5453;
-    return (n - Math.floor(n) - 0.5) * 2 * amp;
-  }
-  // an inked line: walked a pixel at a time, drifting off true the way a nib does
-  function ink(g, x0, y0, x1, y1, col, w, amp, seed) {
-    const L = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0)));
-    for (let i = 0; i <= L; i++) {
-      const u = i / L;
-      const x = U.lerp(x0, x1, u) + wob(i * 0.7, seed, amp, seed);
-      const y = U.lerp(y0, y1, u) + wob(seed, i * 0.7, amp, seed + 9);
-      g.fillStyle = col;
-      g.fillRect(Math.round(x), Math.round(y), w, w);
-    }
-  }
-  function inkPath(g, pts, col, w, amp, seed) {
-    for (let i = 0; i < pts.length - 1; i++) ink(g, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], col, w, amp, seed + i * 5);
-  }
-  // hatching: parallel strokes at 45 degrees inside a test function
-  function hatch(g, x0, y0, x1, y1, step, col, inside, jitter, seed) {
-    const r2 = Art.rng(seed);
-    for (let d = -(y1 - y0); d < (x1 - x0); d += step) {
-      let run = 0;
-      for (let k = 0; k < (x1 - x0) + (y1 - y0); k++) {
-        const x = Math.round(x0 + d + k * 0.7), y = Math.round(y0 + k * 0.7);
-        if (x < x0 || x > x1 || y > y1) break;
-        if (!inside(x, y)) { run = 0; continue; }
-        run++;
-        if (jitter && (run % 9) === 0) continue;     // the nib skips
-        g.fillStyle = col;
-        g.fillRect(x + Math.round((r2() - 0.5) * 1.2), y, 1, 1);
+  // a chunky round tree: outline, body, a lit cap and a stubby trunk
+  function cuteTree(q, x, y, s, kind, seed) {
+    x = Math.round(x); y = Math.round(y);
+    q.fillStyle = 'rgba(40,58,32,0.25)';                       // the shadow it sits in
+    Art.ell(q, x + 1, y + 1, s * 0.9, s * 0.34, 'rgba(40,58,32,0.25)');
+    Art.rect(q, x - 1, y - s * 0.7, 2, s * 0.8, '#6b4a2c');     // trunk
+    Art.rect(q, x - 1, y - s * 0.7, 1, s * 0.8, '#8a6440');
+    if (kind === 'pine') {
+      for (let i = 0; i < 3; i++) {
+        const w = s * (1.1 - i * 0.28), yy = y - s * (0.7 + i * 0.62);
+        Art.poly(q, [[x - w, yy], [x + w, yy], [x, yy - s * 0.85]], PIN0);
+        Art.poly(q, [[x - w + 1, yy - 0.6], [x + w - 1, yy - 0.6], [x, yy - s * 0.72]], PIN1);
+        Art.poly(q, [[x - w * 0.5, yy - 0.8], [x - 0.2, yy - 0.8], [x - 0.6, yy - s * 0.6]], PIN2);
       }
+      return;
+    }
+    const lob = kind === 'blossom' ? BLOS : TR2;
+    const lob2 = kind === 'blossom' ? BLOS2 : TR3;
+    Art.ell(q, x, y - s * 1.25, s * 1.15, s * 1.05, kind === 'blossom' ? '#b86a90' : TR0);
+    Art.ell(q, x, y - s * 1.3, s * 1.0, s * 0.9, kind === 'blossom' ? '#d888ac' : TR1);
+    Art.ell(q, x - s * 0.22, y - s * 1.55, s * 0.68, s * 0.55, lob);
+    Art.ell(q, x - s * 0.36, y - s * 1.7, s * 0.4, s * 0.3, lob2);
+    if (kind === 'fruit') {                                    // a few berries
+      const r2 = Art.rng(seed);
+      for (let i = 0; i < 3; i++) Art.rect(q, x + (r2() - 0.5) * s * 1.4, y - s * (0.9 + r2() * 0.8), 2, 2, '#e05a5a');
     }
   }
-  // a cartographer's tree: a trunk and three lobes of scribble
-  function mapTree(g, x, y, s, seed) {
+  // a rounded green hill with a lit crown and a couple of tufts on it
+  function cuteHill(q, x, y, w, h, seed) {
     const r2 = Art.rng(seed);
-    g.fillStyle = INK2;
-    g.fillRect(Math.round(x), Math.round(y - s * 0.4), 1, Math.round(s * 0.8));
-    for (let i = 0; i < 3; i++) {
-      const cx = x + (i - 1) * s * 0.52, cy = y - s * (0.55 + (i === 1 ? 0.35 : 0));
-      const rr = s * (i === 1 ? 0.62 : 0.48);
-      Art.ell(g, cx, cy, rr, rr * 0.86, LEAF2);
-      Art.ell(g, cx - rr * 0.2, cy - rr * 0.2, rr * 0.7, rr * 0.6, r2() < 0.5 ? LEAF : LEAF3);
-    }
-    // a few scratches over it so it reads as drawn, not stamped
-    for (let i = 0; i < 4; i++) {
-      g.fillStyle = LEAF2;
-      g.fillRect(Math.round(x + (r2() - 0.5) * s * 1.8), Math.round(y - s * (0.3 + r2() * 0.9)), 1 + Math.round(r2() * 2), 1);
+    Art.ell(q, x, y, w, h, GD);
+    Art.ell(q, x, y - 1, w - 1, h - 1, G1);
+    Art.ellBand(q, x - 1, y - 1, w - 2, h - 2, G2, 0, 0.5);
+    Art.ell(q, x - w * 0.3, y - h * 0.6, w * 0.3, h * 0.28, G3);
+    for (let i = 0; i < 5; i++) {                              // tufts on the slope
+      const tx = x + (r2() - 0.5) * w * 1.5, ty = y - h * 0.2 + r2() * h * 0.7;
+      Art.rect(q, tx, ty, 1, 2, GD2); Art.rect(q, tx + 1, ty - 1, 1, 2, GD2); Art.rect(q, tx + 2, ty, 1, 2, GD2);
     }
   }
-  // a hill, drawn as hachures: short strokes fanning down from a ridge line
-  function hill(g, x, y, w, h, seed) {
-    const r2 = Art.rng(seed);
-    for (let i = -w; i <= w; i += 3) {
-      const u = i / w;
-      const top = y - h * Math.sqrt(Math.max(0, 1 - u * u));
-      const len = 3 + (1 - Math.abs(u)) * h * 0.55;
-      g.fillStyle = INK2;
-      for (let k = 0; k < len; k++) g.fillRect(Math.round(x + i + k * 0.18 * Math.sign(u || 1)), Math.round(top + k), 1, 1);
-      if (r2() < 0.5) { g.fillStyle = INK3; g.fillRect(Math.round(x + i + 1), Math.round(top + 1), 1, Math.round(len * 0.5)); }
+  // a tiny house: walls, a coloured roof, a door, a window, and smoke
+  function cuteHouse(q, x, y, w, h, ri, seed) {
+    x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+    const roof = RF[ri % RF.length];
+    Art.rect(q, x - 1, y - 1, w + 2, h + 2, OUT);
+    Art.rect(q, x, y, w, h, WALL);
+    Art.rect(q, x, y + h - 2, w, 2, WALL2);
+    Art.poly(q, [[x - 2, y], [x + w + 2, y], [x + w - 1, y - h * 0.75 - 1], [x + 1, y - h * 0.75 - 1]], OUT);
+    Art.poly(q, [[x - 1, y - 1], [x + w + 1, y - 1], [x + w - 1, y - h * 0.75], [x + 1, y - h * 0.75]], roof);
+    Art.poly(q, [[x - 1, y - 1], [x + w + 1, y - 1], [x + w, y - 2], [x, y - 2]], U.shade(roof, -0.25));
+    Art.rect(q, x + 1, y - h * 0.75, w - 2, 1, U.shade(roof, 0.28));
+    Art.rect(q, x + 1, y + h - 3, 2, 3, '#7a4a2a');             // the door
+    Art.rect(q, x + w - 4, y + 1, 2, 2, '#8cd8f0');             // the window
+    Art.rect(q, x + w - 3, y - h * 0.75 - 3, 2, 3, '#6b5a4a');  // the chimney
+    for (let i = 0; i < 3; i++) {                              // smoke going up
+      const sx = x + w - 3 + ((i % 2) ? 1 : -1), sy = y - h * 0.75 - 5 - i * 3;
+      Art.ell(q, sx, sy, 1.4 + i * 0.5, 1.2 + i * 0.4, 'rgba(244,238,226,0.75)');
     }
-    // the ridge itself, inked over the top of the strokes
-    let px = x - w, py = y;
-    for (let i = -w; i <= w; i += 2) {
-      const u = i / w, nx = x + i, ny = y - h * Math.sqrt(Math.max(0, 1 - u * u));
-      ink(g, px, py, nx, ny, INK, 1, 0.5, seed + i);
-      px = nx; py = ny;
-    }
+  }
+  // the animals. Each one is four or five pixels and that is all it needs.
+  function sheep(q, x, y) {
+    Art.ell(q, x, y, 4, 3, '#f4efe2'); Art.ell(q, x - 1, y - 1, 2.6, 1.8, '#ffffff');
+    Art.rect(q, x + 3, y - 1, 3, 3, '#3a3430'); Art.rect(q, x + 4, y, 1, 1, '#ffffff');
+    Art.rect(q, x - 2, y + 2, 1, 2, '#3a3430'); Art.rect(q, x + 1, y + 2, 1, 2, '#3a3430');
+  }
+  function wombat(q, x, y) {
+    Art.ell(q, x, y, 4.4, 3.2, '#a8764e'); Art.ell(q, x - 1, y - 1, 3, 1.8, '#c99268');
+    Art.rect(q, x + 3, y - 2, 3, 3, '#a8764e'); Art.rect(q, x + 3, y - 3, 1, 1, '#8a5c3c');
+    Art.rect(q, x + 5, y - 1, 1, 1, '#2a1a14');
+    Art.rect(q, x - 2, y + 2, 1, 2, '#8a5c3c'); Art.rect(q, x + 2, y + 2, 1, 2, '#8a5c3c');
+  }
+  function duck(q, x, y) {
+    Art.ell(q, x, y, 3.4, 2.4, '#f4f0e4'); Art.rect(q, x + 2, y - 3, 2, 3, '#f4f0e4');
+    Art.rect(q, x + 4, y - 2, 2, 1, '#e8a83a'); Art.rect(q, x + 3, y - 3, 1, 1, '#2a1a14');
+  }
+  function bird(q, x, y) {
+    Art.rect(q, x, y, 2, 1, '#4a4438'); Art.rect(q, x + 2, y - 1, 2, 1, '#4a4438');
+    Art.rect(q, x + 4, y, 2, 1, '#4a4438');
+  }
+  function mushroom(q, x, y, col) {
+    Art.rect(q, x, y, 2, 2, '#f0e2c4'); Art.ell(q, x + 1, y - 1, 2.6, 1.8, col);
+    Art.rect(q, x, y - 2, 1, 1, '#ffffff');
+  }
+  function flower(q, x, y, col) {
+    Art.rect(q, x, y, 1, 2, '#3f7a38');
+    Art.rect(q, x - 1, y - 1, 3, 1, col); Art.rect(q, x, y - 2, 1, 2, col);
+    Art.rect(q, x, y - 1, 1, 1, '#ffeaa8');
   }
 
   function sheetOf() {
     if (sheet) return sheet;
     const { c, g } = Art.cv(VW, VH);
+    const hc = Art.cv(HW, HH), q = hc.g;
     const r = Art.rng(4242);
-    // ---- the paper --------------------------------------------------------
-    g.fillStyle = PAPER0; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 9000; i++) {                    // the tooth of the stock
-      const x = Math.floor(r() * VW), y = Math.floor(r() * VH), k = r();
-      g.fillStyle = k < 0.42 ? PAPER1 : k < 0.72 ? PAPER2 : k < 0.92 ? PAPER3 : '#a8916a';
-      g.fillRect(x, y, 1, 1);
+    const H = (v) => v / 2;                       // full-map coords -> half-res coords
+
+    // ---- the grass, in soft patches ---------------------------------------
+    q.fillStyle = G1; q.fillRect(0, 0, HW, HH);
+    for (let i = 0; i < 90; i++) {                // meadows of a lighter green
+      const x = r() * HW, y = r() * HH, w = 10 + r() * 34;
+      Art.ell(q, x, y, w, w * (0.4 + r() * 0.3), r() < 0.55 ? G2 : G0);
     }
-    for (let i = 0; i < 40; i++) {                      // fibres in the pulp
-      const x = r() * VW, y = r() * VH, L = 5 + r() * 16, a = r() * TAU;
-      g.fillStyle = r() < 0.5 ? '#efe0bc' : '#9c8663';
-      for (let k = 0; k < L; k++) g.fillRect(Math.round(x + Math.cos(a) * k), Math.round(y + Math.sin(a) * k), 1, 1);
+    for (let i = 0; i < 26; i++) Art.ell(q, r() * HW, r() * HH, 8 + r() * 18, 5 + r() * 8, G3);
+    for (let i = 0; i < 1600; i++) {              // grass blades, everywhere
+      const x = Math.floor(r() * HW), y = Math.floor(r() * HH), k = r();
+      if (k < 0.5) { q.fillStyle = GD; q.fillRect(x, y, 1, 2); q.fillRect(x + 1, y + 1, 1, 1); }
+      else if (k < 0.82) { q.fillStyle = G3; q.fillRect(x, y, 2, 1); }
+      else { q.fillStyle = GD2; q.fillRect(x, y, 1, 1); }
     }
-    for (let i = 0; i < 16; i++) {                      // tea stains and foxing
-      const x = r() * VW, y = r() * VH, rr = 12 + r() * 40;
-      const oa = g.globalAlpha;
-      for (let k = 4; k >= 1; k--) { g.globalAlpha = oa * 0.05; Art.ell(g, x, y, rr * (k / 4), rr * (k / 4) * 0.7, '#8a6f45'); }
-      g.globalAlpha = oa;
-    }
-    for (let i = 0; i < 70; i++) {                      // specks of age
-      g.fillStyle = 'rgba(96,74,44,0.35)';
-      g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 1 + (r() < 0.2 ? 1 : 0), 1);
-    }
-    // two folds, where the sheet lived in somebody's pocket
-    for (const fx of [VW / 3, (VW * 2) / 3]) {
-      for (let y = 0; y < VH; y++) {
-        g.fillStyle = 'rgba(120,98,62,0.2)'; g.fillRect(Math.round(fx + wob(y, 3, 1.4, 7)), y, 1, 1);
-        g.fillStyle = 'rgba(248,238,212,0.22)'; g.fillRect(Math.round(fx + wob(y, 3, 1.4, 7)) + 1, y, 1, 1);
+    // hedgerows: short dark dashes that wander, so the fields read without a grid
+    for (let i = 0; i < 22; i++) {
+      let x = r() * HW, y = r() * HH, a = r() * TAU;
+      for (let k = 0; k < 40; k++) {
+        a += (r() - 0.5) * 0.5;
+        x += Math.cos(a) * 2; y += Math.sin(a) * 2;
+        Art.ell(q, x, y, 1.8, 1.4, GD2);
+        if (k % 3 === 0) Art.ell(q, x, y - 1, 1.4, 1, TR2);
       }
     }
-    for (let x = 0; x < VW; x++) {
-      const fy = VH / 2 + wob(x, 11, 1.4, 13);
-      g.fillStyle = 'rgba(120,98,62,0.16)'; g.fillRect(x, Math.round(fy), 1, 1);
-      g.fillStyle = 'rgba(248,238,212,0.18)'; g.fillRect(x, Math.round(fy) + 1, 1, 1);
-    }
-    // ---- the ground under it all: hachured hills and scratchy heath --------
-    const HILLS = [[92, 118, 58, 26], [196, 88, 44, 20], [470, 96, 52, 24],
-                   [552, 268, 46, 22], [300, 190, 40, 18], [122, 268, 38, 17]];
-    for (let i = 0; i < HILLS.length; i++) hill(g, HILLS[i][0], HILLS[i][1], HILLS[i][2], HILLS[i][3], 300 + i * 97);
-    // grass tufts and heather scribbled over the open ground
-    for (let i = 0; i < 900; i++) {
-      const x = Math.floor(r() * VW), y = Math.floor(r() * VH), k = r();
-      if (k < 0.55) { g.fillStyle = INK3; g.fillRect(x, y, 2, 1); g.fillRect(x + 1, y - 1, 1, 1); }
-      else if (k < 0.82) { g.fillStyle = '#7c8a5c'; g.fillRect(x, y, 1, 1); g.fillRect(x + 2, y, 1, 1); }
-      else { g.fillStyle = '#8a7a58'; g.fillRect(x, y, 1, 1); }
-    }
-    // field boundaries: dry-stone walls drawn as broken ink, never a grid
-    for (let i = 0; i < 26; i++) {
-      const x0 = r() * VW, y0 = r() * VH;
-      let x = x0, y = y0, a = r() * TAU;
-      const segs = 2 + Math.floor(r() * 3);
-      for (let k = 0; k < segs; k++) {
-        const L = 24 + r() * 52;
-        const nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
-        for (let d = 0; d < L; d += 3) {               // broken, the way a wall reads
-          const u = d / L;
-          g.fillStyle = INK2;
-          g.fillRect(Math.round(U.lerp(x, nx, u) + wob(d, k, 0.9, i)), Math.round(U.lerp(y, ny, u) + wob(k, d, 0.9, i + 3)), 2, 1);
-        }
-        x = nx; y = ny; a += (r() - 0.5) * 1.2;
-      }
-    }
-    // ---- forest, drawn tree by tree ---------------------------------------
+    // ---- rolling hills -----------------------------------------------------
+    const HILLS = [[92, 118, 34, 15], [196, 88, 26, 12], [470, 96, 30, 14],
+                   [552, 268, 26, 12], [300, 190, 24, 11], [122, 268, 22, 10]];
+    for (let i = 0; i < HILLS.length; i++) cuteHill(q, H(HILLS[i][0]), H(HILLS[i][1]) + 6, HILLS[i][2], HILLS[i][3], 300 + i * 97);
+
+    // ---- woods, drawn tree by tree ----------------------------------------
     const BLOCKS = [[60, 40, 150, 90], [250, 20, 130, 70], [470, 30, 160, 80],
                     [20, 150, 120, 110], [400, 120, 120, 90], [520, 250, 140, 100],
                     [120, 280, 110, 70], [300, 160, 90, 70]];
+    const canopy = [];
     for (let bi = 0; bi < BLOCKS.length; bi++) {
-      const [bx, by, bw, bh] = BLOCKS[bi];
-      // a wobbly ink outline round the wood, the way a surveyor rings one
-      const pts = [];
-      for (let a = 0; a < TAU; a += 0.42) {
-        pts.push([bx + bw / 2 + Math.cos(a) * bw * 0.56, by + bh / 2 + Math.sin(a) * bh * 0.6]);
-      }
-      pts.push(pts[0]);
-      inkPath(g, pts, INK2, 1, 1.6, 40 + bi * 13);
-      const n = Math.round((bw * bh) / 420);
-      const trees = [];
-      for (let i = 0; i < n; i++) trees.push([bx + r() * bw, by + r() * bh, 5 + r() * 4]);
-      trees.sort((p, q) => p[1] - q[1]);               // draw back to front
-      for (let i = 0; i < trees.length; i++) mapTree(g, trees[i][0], trees[i][1], trees[i][2], bi * 100 + i);
-    }
-    // ---- water: an inked shore with hatching inside it ---------------------
-    const lake = (x, y) => { const dx = (x - 586) / 50, dy = (y - 66) / 28; return dx * dx + dy * dy < 1; };
-    for (let y = 36; y < 96; y++) for (let x = 534; x < 640; x++) {
-      if (!lake(x, y)) continue;
-      g.fillStyle = ((x + y) % 7 === 0) ? SEA1 : SEA0;
-      g.fillRect(x, y, 1, 1);
-    }
-    hatch(g, 534, 36, 639, 96, 5, SEA2, lake, true, 61);
-    for (let a = 0; a < TAU; a += 0.06) {              // the shoreline, inked
-      const x = 586 + Math.cos(a) * 50, y = 66 + Math.sin(a) * 28;
-      g.fillStyle = INK; g.fillRect(Math.round(x + wob(a * 30, 1, 1.5, 21)), Math.round(y + wob(1, a * 30, 1.5, 22)), 1, 1);
-    }
-    for (let i = 0; i < 5; i++) {                      // ripple ticks, drawn in
-      const y = 48 + i * 9;
-      for (let x = 548; x < 626; x += 9) {
-        if (!lake(x, y)) continue;
-        g.fillStyle = SEA2; g.fillRect(x, y, 4, 1); g.fillRect(x + 5, y + 1, 3, 1);
+      const bx = H(BLOCKS[bi][0]), by = H(BLOCKS[bi][1]), bw = H(BLOCKS[bi][2]), bh = H(BLOCKS[bi][3]);
+      const n = Math.round((bw * bh) / 54);
+      for (let i = 0; i < n; i++) {
+        const k = r();
+        canopy.push([bx + r() * bw, by + r() * bh, 3.4 + r() * 2.4,
+          k < 0.16 ? 'pine' : k < 0.26 ? 'blossom' : k < 0.34 ? 'fruit' : 'round', bi * 100 + i]);
       }
     }
+    for (let i = 0; i < 40; i++) {                // a few standing on their own
+      const k = r();
+      canopy.push([r() * HW, r() * HH, 3 + r() * 2, k < 0.3 ? 'blossom' : k < 0.5 ? 'pine' : 'round', 9000 + i]);
+    }
+    canopy.sort((p2, q2) => p2[1] - q2[1]);       // back to front, so they overlap right
+    for (const [x, y, s2, kind, seed] of canopy) cuteTree(q, x, y, s2, kind, seed);
+
+    // ---- the lake, with a beach and things living on it --------------------
+    const LX2 = H(586), LY2 = H(66), LRX = 27, LRY = 16;
+    Art.ell(q, LX2, LY2, LRX + 3, LRY + 2, SAND2);
+    Art.ell(q, LX2, LY2, LRX + 2, LRY + 1, SAND);
+    Art.ell(q, LX2, LY2, LRX, LRY, W0);
+    Art.ell(q, LX2, LY2 - 1, LRX - 2, LRY - 2, W1);
+    Art.ell(q, LX2 - 4, LY2 - 3, LRX * 0.5, LRY * 0.4, W2);
+    for (let y = LY2 - LRY + 2; y < LY2 + LRY - 1; y += 3) {     // ripple ticks
+      for (let x = LX2 - LRX + 3; x < LX2 + LRX - 3; x += 7) {
+        const dx = (x - LX2) / LRX, dy = (y - LY2) / LRY;
+        if (dx * dx + dy * dy > 0.7) continue;
+        Art.rect(q, x + ((y % 6) ? 2 : 0), y, 3, 1, W3);
+      }
+    }
+    for (let i = 0; i < 5; i++) {                                // lily pads
+      const a = (i / 5) * TAU, lx = LX2 + Math.cos(a) * LRX * 0.6, ly = LY2 + Math.sin(a) * LRY * 0.6;
+      Art.ell(q, lx, ly, 3, 2, TR1); Art.ell(q, lx, ly, 2.2, 1.4, TR2);
+      if (i % 2) Art.rect(q, lx, ly - 1, 2, 2, BLOS2);
+    }
+    duck(q, LX2 - 8, LY2 + 3);
+    duck(q, LX2 + 6, LY2 - 4);
+    // a little jetty with a boat tied to it
+    Art.rect(q, LX2 - LRX - 2, LY2 + 6, 10, 2, '#9a7448');
+    Art.rect(q, LX2 - LRX - 2, LY2 + 6, 10, 1, '#c29a66');
+    Art.poly(q, [[LX2 - LRX + 8, LY2 + 9], [LX2 - LRX + 16, LY2 + 9], [LX2 - LRX + 14, LY2 + 12], [LX2 - LRX + 10, LY2 + 12]], '#b06a3a');
+    Art.rect(q, LX2 - LRX + 11, LY2 + 4, 1, 5, '#8a6440');
+    Art.poly(q, [[LX2 - LRX + 12, LY2 + 4], [LX2 - LRX + 17, LY2 + 7], [LX2 - LRX + 12, LY2 + 8]], '#f4f0e4');
+
+    // ---- the river, with stepping stones and a bridge ----------------------
     const river = [[586, 88], [560, 126], [530, 160], [516, 200], [522, 250], [540, 300], [560, 358]];
-    inkPath(g, river, INK, 3, 1.1, 71);                // banks
     for (let i = 0; i < river.length - 1; i++) {
-      const [x0, y0] = river[i], [x1, y1] = river[i + 1], L = Math.hypot(x1 - x0, y1 - y0);
-      for (let d = 0; d < L; d++) {
-        const u = d / L, x = U.lerp(x0, x1, u), y = U.lerp(y0, y1, u);
-        g.fillStyle = SEA0; g.fillRect(Math.round(x + wob(d, 2, 1, 71)) - 1, Math.round(y), 3, 1);
-        if (d % 6 < 3) { g.fillStyle = SEA1; g.fillRect(Math.round(x + wob(d, 2, 1, 71)), Math.round(y), 1, 1); }
+      const [x0, y0] = river[i], [x1, y1] = river[i + 1];
+      const L = Math.hypot(H(x1 - x0), H(y1 - y0));
+      for (let d = 0; d <= L; d++) {
+        const u = d / L, x = U.lerp(H(x0), H(x1), u), y = U.lerp(H(y0), H(y1), u);
+        Art.ell(q, x, y, 4, 2.4, SAND2);
       }
     }
-    // ---- the town, drawn as little roofs -----------------------------------
+    for (let i = 0; i < river.length - 1; i++) {
+      const [x0, y0] = river[i], [x1, y1] = river[i + 1];
+      const L = Math.hypot(H(x1 - x0), H(y1 - y0));
+      for (let d = 0; d <= L; d++) {
+        const u = d / L, x = U.lerp(H(x0), H(x1), u), y = U.lerp(H(y0), H(y1), u);
+        Art.ell(q, x, y, 2.6, 1.6, W0);
+        Art.ell(q, x, y - 0.4, 1.8, 1, W1);
+        if ((d + i * 7) % 9 === 0) Art.rect(q, x - 1, y, 2, 1, W3);
+      }
+    }
+    Art.rect(q, H(546) - 8, H(378) / 2, 16, 4, '#9a7448');        // the bridge on the main road
+    Art.rect(q, H(546) - 8, H(378) / 2, 16, 1, '#c29a66');
+    for (let i = 0; i < 4; i++) Art.rect(q, H(546) - 7 + i * 4, H(378) / 2 - 2, 1, 2, '#7a5636');
+
+    // ---- the roads: cream tracks with a soft dark edge ---------------------
+    const roadPath = (p, w, col) => {
+      for (let i = 0; i < p.length - 1; i++) {
+        const [x0, y0] = p[i], [x1, y1] = p[i + 1];
+        const L = Math.max(1, Math.hypot(H(x1 - x0), H(y1 - y0)));
+        for (let d = 0; d <= L; d++) {
+          const u = d / L;
+          Art.ell(q, U.lerp(H(x0), H(x1), u), U.lerp(H(y0), H(y1), u), w, w * 0.8, col);
+        }
+      }
+    };
+    for (const p of ROADS.concat([HIGHWAY])) { roadPath(p, 3.4, RDE); roadPath(p, 2.4, RD); }
+    for (const p of ROADS.concat([HIGHWAY])) {   // little stones set in the track
+      for (let i = 0; i < p.length - 1; i++) {
+        const [x0, y0] = p[i], [x1, y1] = p[i + 1], L = Math.hypot(H(x1 - x0), H(y1 - y0));
+        for (let d = 0; d < L; d += 5) {
+          const u = d / L;
+          Art.rect(q, U.lerp(H(x0), H(x1), u), U.lerp(H(y0), H(y1), u) + ((d / 5) % 2 ? 1 : -1), 2, 1, '#f4e8c8');
+        }
+      }
+    }
+    // ---- the town: a huddle of little houses -------------------------------
     const T = TOWN;
-    for (let x = T.x0; x <= T.x1; x += T.gx) inkPath(g, [[x, T.y0], [x, T.y1]], INK2, 1, 1.2, x);
-    for (let y = T.y0; y <= T.y1; y += T.gy) inkPath(g, [[T.x0, y], [T.x1, y]], INK2, 1, 1.2, y + 400);
+    for (let x = T.x0; x <= T.x1; x += T.gx) roadPath([[x, T.y0], [x, T.y1]], 1.8, RD);
+    for (let y = T.y0; y <= T.y1; y += T.gy) roadPath([[T.x0, y], [T.x1, y]], 1.8, RD);
+    let hi = 0;
     for (let x = T.x0; x < T.x1; x += T.gx) {
       for (let y = T.y0; y < T.y1; y += T.gy) {
-        const n = 2 + Math.floor(r() * 3);
+        const n = 1 + Math.floor(r() * 2);
         for (let i = 0; i < n; i++) {
-          const bw = 6 + r() * 6, bh = 4 + r() * 4;
-          const bx = Math.round(x + 5 + r() * (T.gx - 10 - bw)), by = Math.round(y + 5 + r() * (T.gy - 10 - bh));
-          const W2 = Math.round(bw), H2 = Math.round(bh);
-          g.fillStyle = INK2; g.fillRect(bx - 1, by - 1, W2 + 2, H2 + 2);      // the ink round it
-          g.fillStyle = r() < 0.4 ? ROOF : ROOF2; g.fillRect(bx, by, W2, H2);
-          g.fillStyle = '#c47a52'; g.fillRect(bx, by, W2, 1);                  // sun on the ridge
-          for (let k = 2; k < H2; k += 2) { g.fillStyle = 'rgba(46,36,24,0.35)'; g.fillRect(bx, by + k, W2, 1); }
+          const bw = 7 + Math.floor(r() * 4), bh = 5 + Math.floor(r() * 3);
+          cuteHouse(q, H(x) + 3 + r() * (H(T.gx) - 4 - bw), H(y) + 5 + r() * (H(T.gy) - 6 - bh), bw, bh, hi++, i);
         }
       }
     }
-    // ---- the roads: two inked edges with a pale metalled middle ------------
-    for (const p of ROADS.concat([HIGHWAY])) {
-      inkPath(g, p, INK, 5, 1.1, 800);
-      inkPath(g, p, '#e0d2ae', 3, 1.1, 800);
-      for (let i = 0; i < p.length - 1; i++) {         // the centre line, ticked in by hand
-        const [x0, y0] = p[i], [x1, y1] = p[i + 1], L = Math.hypot(x1 - x0, y1 - y0);
-        for (let d = 0; d < L; d += 9) {
-          const u = d / L;
-          g.fillStyle = INK3;
-          g.fillRect(Math.round(U.lerp(x0, x1, u) + wob(d, i, 1, 800)), Math.round(U.lerp(y0, y1, u) + wob(i, d, 1, 809)), 3, 1);
-        }
-      }
-    }
-    // farmsteads strung along them, each one a roof with a yard wall
+    // farmsteads along the roads, each with a little fenced paddock
     for (const p of ROADS) {
       for (let i = 1; i < p.length - 1; i++) {
-        if (r() < 0.45) continue;
+        if (r() < 0.5) continue;
         const sd = r() < 0.5 ? -1 : 1;
-        const bx = Math.round(p[i][0] + sd * (10 + r() * 11)), by = Math.round(p[i][1] + (r() - 0.5) * 16);
-        const bw = Math.round(8 + r() * 6), bh = Math.round(6 + r() * 5);
-        g.fillStyle = INK; g.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
-        g.fillStyle = r() < 0.5 ? ROOF : ROOF2; g.fillRect(bx, by, bw, bh);
-        g.fillStyle = '#c47a52'; g.fillRect(bx, by, bw, 1);
-        for (let k = 0; k < 10; k++) {                 // the yard wall round it
+        const bx = H(p[i][0]) + sd * (7 + r() * 6), by = H(p[i][1]) + (r() - 0.5) * 9;
+        cuteHouse(q, bx, by, 8 + Math.floor(r() * 3), 6, hi++, i);
+        for (let k = 0; k < 10; k++) {                            // the paddock fence
           const a = (k / 10) * TAU;
-          g.fillStyle = INK2;
-          g.fillRect(Math.round(bx + bw / 2 + Math.cos(a) * (bw * 0.9 + 4)), Math.round(by + bh / 2 + Math.sin(a) * (bh * 0.9 + 4)), 2, 1);
+          Art.rect(q, bx + 4 + Math.cos(a) * 12, by + 3 + Math.sin(a) * 8, 1, 2, '#a58050');
         }
+        sheep(q, bx + 4 + (r() - 0.5) * 12, by + 4 + (r() - 0.5) * 8);
+        if (r() < 0.5) sheep(q, bx + 2 + (r() - 0.5) * 12, by + 6 + (r() - 0.5) * 6);
       }
     }
-    // ---- the names, hand-lettered with a ruled underline -------------------
+    // ---- the small living things -------------------------------------------
+    // they graze in the open, never on top of a wood
+    const inWood = (x, y) => BLOCKS.some(([bx, by, bw, bh]) =>
+      x > H(bx) - 4 && x < H(bx + bw) + 4 && y > H(by) - 4 && y < H(by + bh) + 4);
+    const openSpot = () => {
+      for (let k = 0; k < 24; k++) {
+        const x = 12 + r() * (HW - 24), y = 12 + r() * (HH - 24);
+        if (!inWood(x, y)) return [x, y];
+      }
+      return null;
+    };
+    for (let i = 0; i < 11; i++) { const p2 = openSpot(); if (p2) sheep(q, p2[0], p2[1]); }
+    for (let i = 0; i < 8; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
+    for (let i = 0; i < 26; i++) mushroom(q, r() * HW, r() * HH, ['#d2564a', '#e0904a', '#c98ad8'][i % 3]);
+    for (let i = 0; i < 80; i++) flower(q, r() * HW, r() * HH, ['#f0a0c0', '#f4dc6a', '#c8a0e8', '#f4f0e4'][i % 4]);
+    for (let i = 0; i < 14; i++) bird(q, r() * HW, 4 + r() * (HH * 0.5));
+    // a campfire out in the scrub, with somebody's tent next to it
+    {
+      const cx3 = 118, cy3 = 70;
+      Art.poly(q, [[cx3 - 7, cy3 + 4], [cx3, cy3 - 5], [cx3 + 7, cy3 + 4]], '#e0a84a');
+      Art.poly(q, [[cx3 - 5, cy3 + 4], [cx3, cy3 - 3], [cx3 + 5, cy3 + 4]], '#f4d888');
+      Art.rect(q, cx3 - 7, cy3 + 4, 14, 1, '#8a6440');
+      Art.rect(q, cx3 + 10, cy3 + 2, 6, 1, '#7a5636');
+      Art.poly(q, [[cx3 + 10, cy3 + 2], [cx3 + 13, cy3 - 3], [cx3 + 16, cy3 + 2]], '#e0764a');
+      Art.rect(q, cx3 + 12, cy3 - 1, 2, 3, '#a03a2a');
+    }
+    // clouds drifting over the whole thing, so there is sky in it
+    for (let i = 0; i < 7; i++) {
+      const cx3 = r() * HW, cy3 = r() * HH, cw = 9 + r() * 12;
+      const oa = q.globalAlpha; q.globalAlpha = 0.3;
+      Art.ell(q, cx3, cy3, cw, cw * 0.4, '#ffffff');
+      Art.ell(q, cx3 - cw * 0.4, cy3 - 1.4, cw * 0.5, cw * 0.3, '#ffffff');
+      Art.ell(q, cx3 + cw * 0.35, cy3 - 1, cw * 0.4, cw * 0.26, '#ffffff');
+      q.globalAlpha = oa * 0.14;
+      Art.ell(q, cx3 + 3, cy3 + 4, cw, cw * 0.4, '#2a3a20');       // and their shadow on the grass
+      q.globalAlpha = oa;
+    }
+
+    // ---- blow it up ---------------------------------------------------------
+    g.imageSmoothingEnabled = false;
+    g.drawImage(hc.c, 0, 0, VW, VH);
+
+    // ---- the names, at full resolution so they stay readable ---------------
     for (const [lx, ly, tx2, col] of [
-      [330, 246, 'WOMBAT FLAT', '#3a2c1c'], [112, 74, 'FERN GULLY', '#46351f'],
-      [512, 44, 'STILL LAKE', '#2d4a52'], [248, 128, 'THE SCRUB', '#46351f'],
-      [560, 292, 'BLACKWOOD', '#46351f'], [128, 320, 'STONE FLAT', '#46351f'],
-      [452, 340, 'THE FLATS', '#46351f']]) {
+      [330, 246, 'WOMBAT FLAT', '#3d5a2c'], [112, 74, 'FERN GULLY', '#3d5a2c'],
+      [512, 44, 'STILL LAKE', '#2d5a72'], [248, 128, 'THE SCRUB', '#3d5a2c'],
+      [560, 292, 'BLACKWOOD', '#3d5a2c'], [128, 320, 'STONE FLAT', '#3d5a2c'],
+      [452, 340, 'THE FLATS', '#3d5a2c']]) {
       const w = Font.width(tx2, 1);
-      const oa = g.globalAlpha; g.globalAlpha = 0.5;
-      Art.rect(g, lx - w / 2 - 4, ly - 3, w + 8, 12, '#e4d6b2');      // paper cleared behind it
-      g.globalAlpha = oa;
+      Art.rect(g, lx - w / 2 - 5, ly - 4, w + 10, 14, 'rgba(24,34,18,0.35)');
+      Art.rect(g, lx - w / 2 - 4, ly - 4, w + 8, 13, '#f6eccc');
+      Art.rect(g, lx - w / 2 - 4, ly - 4, w + 8, 2, '#ffffff');
+      Art.rect(g, lx - w / 2 - 4, ly + 7, w + 8, 2, '#d8c8a0');
       Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center' });
-      ink(g, lx - w / 2, ly + 9, lx + w / 2, ly + 9, col, 1, 0.8, lx);
     }
-    // ---- the chrome a drawn map wears -------------------------------------
-    // a compass, as a four-point star cut with a diamond rose. No circles.
-    const cx2 = 52, cy2 = 86;
+    // a four-point compass rose, chunky enough to match the rest
+    const cx2 = 52, cy2 = 274;
+    Art.rect(g, cx2 - 30, cy2 - 42, 60, 74, 'rgba(24,34,18,0.3)');
+    Art.rect(g, cx2 - 29, cy2 - 42, 58, 72, '#f6eccc');
+    Art.rect(g, cx2 - 29, cy2 - 42, 58, 3, '#ffffff');
+    Art.rect(g, cx2 - 29, cy2 + 27, 58, 3, '#d8c8a0');
     for (let k = 0; k < 4; k++) {
-      const a = (k / 4) * TAU - Math.PI / 2, b2 = a + Math.PI / 4;
-      Art.poly(g, [[cx2 + Math.cos(a) * 26, cy2 + Math.sin(a) * 26],
-                   [cx2 + Math.cos(b2) * 8, cy2 + Math.sin(b2) * 8],
-                   [cx2 + Math.cos(a + Math.PI / 2) * 26, cy2 + Math.sin(a + Math.PI / 2) * 26],
-                   [cx2, cy2]], k % 2 ? INK2 : '#e0d2ae');
+      const a = (k / 4) * TAU - Math.PI / 2;
+      Art.poly(g, [[cx2 + Math.cos(a) * 22, cy2 + Math.sin(a) * 22],
+                   [cx2 + Math.cos(a + 2.2) * 7, cy2 + Math.sin(a + 2.2) * 7],
+                   [cx2 + Math.cos(a - 2.2) * 7, cy2 + Math.sin(a - 2.2) * 7]], k ? '#c9b78c' : '#c04a3c');
+      Art.poly(g, [[cx2 + Math.cos(a) * 19, cy2 + Math.sin(a) * 19],
+                   [cx2 + Math.cos(a + 2.2) * 4.6, cy2 + Math.sin(a + 2.2) * 4.6],
+                   [cx2 + Math.cos(a - 2.2) * 4.6, cy2 + Math.sin(a - 2.2) * 4.6]], k ? '#ffffff' : '#f2867a');
     }
-    inkPath(g, [[cx2, cy2 - 30], [cx2 - 6, cy2 - 18], [cx2 + 6, cy2 - 18], [cx2, cy2 - 30]], INK, 1, 0.6, 5);
-    Art.poly(g, [[cx2, cy2 - 29], [cx2 - 4, cy2 - 19], [cx2 + 4, cy2 - 19]], '#a8402c');
-    Font.draw(g, 'N', cx2, cy2 - 42, { scale: 1, color: INK, align: 'center' });
-    // a ruled border with a torn inner edge
-    for (let i = 0; i < 2; i++) {
-      const m = 4 + i * 4;
-      inkPath(g, [[m, m], [VW - m, m], [VW - m, VH - m], [m, VH - m], [m, m]], i ? INK2 : INK, 1, 0.9, 900 + i * 7);
-    }
+    Art.rect(g, cx2 - 4, cy2 - 4, 8, 8, '#3d5a2c');
+    Art.rect(g, cx2 - 3, cy2 - 3, 6, 6, '#f6eccc');
+    Font.draw(g, 'N', cx2, cy2 - 38, { scale: 1, color: '#3d5a2c', align: 'center' });
     sheet = c;
     return c;
   }
@@ -421,8 +484,13 @@ const Atlas = (() => {
       const open = unlocked(s);
       const hot = hover === s && open;
       // every pin breathes; the one under the pointer bounces properly
-      const bob = hot ? Math.sin(t * 9) * 3.2 - 1.5 : Math.sin(t * 1.7 + s.x * 0.07) * 1.3;
-      drawPin(g, s, open, hot, bob, t);
+      // a fat hop when you point at one, a slow float when you do not, and a
+      // squash at the bottom of each so the whole board feels springy
+      const ph = t * (hot ? 7 : 1.7) + s.x * 0.07;
+      const raw = Math.abs(Math.sin(ph));
+      const bob = hot ? -raw * 7 : Math.sin(ph) * 1.8;
+      const sq = hot ? (1 - raw) * 0.26 : 0;
+      drawPin(g, s, open, hot, bob, t, sq);
     }
 
     // fog over the locked half
@@ -474,7 +542,7 @@ const Atlas = (() => {
     // ---- the grade: a cold wood, lit only where you have been -------------
     g.save();
     g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = '#16346a'; g.globalAlpha = 0.5; g.fillRect(0, 0, VW, VH);
+    g.fillStyle = '#f0c86a'; g.globalAlpha = 0.28; g.fillRect(0, 0, VW, VH);
     g.restore();
     g.save();
     g.globalCompositeOperation = 'screen';
@@ -491,7 +559,7 @@ const Atlas = (() => {
     }
     g.restore();
     // the vignette, dithered so the falloff bands instead of blurring
-    Art.vignette(g, VW, VH, '#020403', 0.66, 2.2, 0.34);
+    Art.vignette(g, VW, VH, '#14280e', 0.34, 2.6, 0.42);
 
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);
@@ -524,8 +592,12 @@ const Atlas = (() => {
     Font.draw(g, '2 km', VW - 26, VH - 24, { scale: 1, color: '#3c3a35', align: 'left' });
   }
 
-  function drawPin(g, s, open, hot, bob, t) {
+  function drawPin(g, s, open, hot, bob, t, sq = 0) {
     const x = Math.round(s.x), y = Math.round(s.y + bob);
+    if (sq > 0.001) {                          // squash about the pin's point
+      g.save();
+      g.translate(x, s.y + 16); g.scale(1 + sq, 1 - sq); g.translate(-x, -(s.y + 16));
+    }
     const col = open ? (s.mode === 'grove' ? '#3f8f4a' : s.mode === 'shop' ? '#2f7ad0' : '#e04a3c') : '#8b8780';
     const dark = open ? (s.mode === 'grove' ? '#286633' : s.mode === 'shop' ? '#1c56a0' : '#a52f26') : '#66635d';
     g.fillStyle = 'rgba(40,40,44,0.22)';                     // the marker's shadow on the paper
@@ -554,12 +626,15 @@ const Atlas = (() => {
       g.fillStyle = PAL.div4; g.fillRect(x - 15 - p * 2, y - 20 - p * 2, 30 + p * 4, 4);
       g.globalAlpha = 1;
     }
-    // the label sits on a white chip, like a place name on a phone map
+    if (sq > 0.001) g.restore();
+    // the label sits on a little card, and it does not squash with the pin
+    const ly = Math.round(s.y) + 18;
     const label = s.name.toUpperCase();
-    const w = Font.width(label, 1) + 8;
-    g.fillStyle = 'rgba(255,255,255,0.92)'; g.fillRect(x - w / 2, y + 18, w, 11);
-    g.fillStyle = '#c9c4b6'; g.fillRect(x - w / 2, y + 28, w, 1);
-    Font.draw(g, label, x, y + 21, { scale: 1, color: open ? '#3c3a35' : '#8b8780', align: 'center' });
+    const w = Font.width(label, 1) + 10;
+    Art.rect(g, x - w / 2 - 1, ly - 1, w + 2, 14, 'rgba(24,34,18,0.35)');
+    Art.rect(g, x - w / 2, ly, w, 12, '#ffffff');
+    Art.rect(g, x - w / 2, ly + 10, w, 2, '#d0cabc');
+    Font.draw(g, label, x, ly + 3, { scale: 1, color: open ? '#3c3a35' : '#8b8780', align: 'center' });
   }
 
   return { init, enter, update, render, click, hover: hoverAt, get busy() { return !!travel; } };

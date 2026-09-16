@@ -608,215 +608,201 @@ const Sprites = (() => {
   }
 
   // ---- Shaz, on the till ---------------------------------------------------
-  // Nineteen years on this counter. Store cap, store tie, navy jacket over the
-  // polo, and a head two sizes too big for her, like everything else here.
-  // Drawn from the chest up: the counter takes care of the rest.
-  const KW = 76, KH = 78;
-  // She works the floor as well as the till, so she needs a walk, and she has
-  // an opinion about everything, so she needs a face for each of them.
+  // A chibi shark in a store cap and a navy suit, drawn small on purpose: the
+  // whole sprite is 36x46 art pixels and the shop blows it up, so every pixel
+  // is a fat block and the shapes have to be simple enough to read that way.
+  // Full body now — head, suit, arms, little legs, and a tail that wags.
+  const KW = 36, KH = 46, CXK = 18, KGY = 45;
+  const SH0 = '#3f7ba6', SH1 = '#63a6cf', SH2 = '#93c9e6', SH3 = '#cdeaf6';   // hide
+  const BEL = '#f4f8f2', BEL2 = '#ccdad6';                                    // belly
+  const SU0 = '#0f2238', SU1 = '#1a3a58', SU2 = '#2a5478';                    // suit
+  const TI0 = '#8f2230', TI1 = '#c0392f';                                     // tie
+  const CP0 = '#10381a', CP1 = '#1c6030', CP2 = '#2f8f42', CP3 = '#63c974';   // cap
+  const KINK = '#0d1a26';
+
   function cashier(frame, pose = 'idle') {
-    const n = { idle: 4, talk: 6, happy: 4, wave: 6, walk: 6, think: 4, cross: 6,
-      cheer: 6, surprise: 4, sleepy: 4, sad: 4 }[pose] || 4;
+    const n = { idle: 6, talk: 6, happy: 6, wave: 6, walk: 6, think: 4, cross: 6,
+      cheer: 6, surprise: 4, sleepy: 4, sad: 4 }[pose] || 6;
     const f = ((frame % n) + n) % n, t = f / n;
     const key = `shaz:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(KW, KH);
     const S = Math.sin(t * TAU);
-    const CXK = 38;
-    const SK0 = '#3d6b8e', SK1 = '#5d92b6', SK2 = '#8cbcd8';          // shark, top to belly
-    const HR0 = '#575260', HR1 = '#7e7988', HR2 = '#a9a4b2';
-    const SUIT0 = '#16304a', SUIT1 = '#234a६e'.replace('६', '6'), SUIT2 = '#2f6088', SUIT3 = '#4b86b4';
-    const SHIRT = '#f2ece0', SHIRT2 = '#d6cfc0';
-    const TIE0 = '#8f2230', TIE1 = '#c0392f', TIE2 = '#e0664f';
-    const CAP0 = '#10381a', CAP1 = '#1c6030', CAP2 = '#2f8f42', CAP3 = '#63c974';
-    const INK = '#20192a', LIP = '#b8556a';
-    let bob = 0, lean = 0, armR = 0, armL = 0, mouth = 'flat', eyes = 'open';
-    let brow = 0, tilt = 0;
+
+    // Everything is driven off five numbers so the whole body squashes and
+    // stretches together. That is the entire secret of a bouncy sprite.
+    let bob = 0, sq = 0, lean = 0, armL = 0, armR = 0, step = 0, tail = 0;
+    let eyes = 'open', mouth = 'flat', brow = 0, tilt = 0;
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 0][f]; eyes = f === 3 ? 'shut' : 'open'; break;
-      case 'talk': bob = [0, 1, 0, 1, 0, 1][f]; lean = S * 0.8; armR = -3 - Math.abs(S) * 4;
-        mouth = ['open', 'wide', 'small', 'open', 'wide', 'small'][f]; break;
-      case 'happy': bob = [0, 1, 2, 1][f]; mouth = 'grin'; eyes = 'happy'; armR = -5; break;
-      case 'wave': bob = [0, 1, 2, 1, 2, 1][f]; mouth = 'grin'; eyes = 'happy';
-        armR = -17 - Math.abs(Math.sin(t * TAU * 2)) * 5; break;
-      // she is only ever visible from the counter up, so the walk is all in
-      // the shoulders: a two-beat roll with the arms swinging against it
-      case 'walk': bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.2; lean = S * 1.1;
-        armR = S * 5; armL = -S * 5; mouth = 'flat'; break;
-      case 'think': bob = [0, 0, 1, 1][f]; eyes = 'narrow'; brow = 0.8; tilt = -2;
-        mouth = 'small'; armR = -20; break;
-      case 'cross': bob = [0, 0, 1, 1, 0, 0][f]; eyes = 'narrow'; brow = -1.4;
-        mouth = 'flat'; lean = S * 0.7; armR = -7; armL = -7; break;
-      case 'cheer': bob = [0, 2, 3, 3, 2, 0][f]; eyes = 'happy'; mouth = 'wide';
-        armR = -24; armL = -24; break;
-      case 'surprise': bob = [0, 2, 1, 1][f]; eyes = 'wide'; brow = 1.4;
-        mouth = 'open'; armR = -10; armL = -10; break;
-      case 'sleepy': bob = [0, 0, 1, 1][f]; eyes = 'shut'; brow = -0.3; tilt = 2.4;
-        mouth = 'small'; break;
-      case 'sad': bob = [1, 1, 0, 0][f]; eyes = 'droop'; brow = -0.5; tilt = 1.6;
-        mouth = 'frown'; armR = 3; armL = 3; break;
+      case 'idle':                                   // a slow breath, ears to tail
+        bob = [0, -1, -1, 0, 0, 0][f]; sq = [0, -0.06, -0.04, 0, 0.04, 0.02][f];
+        tail = S * 2; eyes = f === 4 ? 'shut' : 'open'; break;
+      case 'walk':                                   // two-beat bounce, feet alternating
+        bob = [-2, -3, -1, -2, -3, -1][f]; sq = [0.06, -0.08, 0.1, 0.06, -0.08, 0.1][f];
+        step = [1, 0, -1, -1, 0, 1][f]; lean = 0.6; tail = S * 3;
+        armL = -S * 4; armR = S * 4; break;
+      case 'talk':
+        bob = [0, -1, 0, -1, 0, -1][f]; sq = [0, -0.05, 0, -0.05, 0, -0.05][f];
+        mouth = ['open', 'wide', 'small', 'open', 'wide', 'small'][f];
+        armR = -3 - Math.abs(S) * 3; lean = S * 0.5; tail = S * 3; brow = 0.5; break;
+      case 'happy':
+        bob = [0, -2, -3, -3, -2, 0][f]; sq = [0.1, -0.1, -0.06, -0.06, -0.1, 0.1][f];
+        mouth = 'grin'; eyes = 'happy'; armL = -3; armR = -3; tail = S * 4; break;
+      case 'wave':
+        bob = [0, -1, -2, -2, -1, 0][f]; sq = [0.05, -0.06, -0.04, -0.04, -0.06, 0.05][f];
+        mouth = 'grin'; eyes = 'happy'; tail = S * 4;
+        armR = -8 - Math.abs(Math.sin(t * TAU * 2)) * 4; break;
+      case 'cheer':
+        bob = [0, -3, -5, -5, -3, 0][f]; sq = [0.16, -0.14, -0.08, -0.08, -0.14, 0.16][f];
+        mouth = 'wide'; eyes = 'happy'; armL = -12; armR = -12; tail = S * 5; break;
+      case 'think':
+        bob = [0, 0, -1, -1][f]; eyes = 'narrow'; brow = 0.8; tilt = -2;
+        mouth = 'small'; armR = -9; tail = S * 1.4; break;
+      case 'cross':
+        bob = [0, 0, -1, -1, 0, 0][f]; eyes = 'narrow'; brow = -1.4; mouth = 'flat';
+        lean = S * 0.5; armL = -4; armR = -4; tail = S * 4; sq = Math.abs(S) * 0.05; break;
+      case 'surprise':
+        bob = [0, -3, -1, -1][f]; sq = [0.1, -0.16, -0.04, -0.04][f];
+        eyes = 'wide'; brow = 1.4; mouth = 'open'; armL = -6; armR = -6; tail = 4; break;
+      case 'sleepy':
+        bob = [0, 0, 1, 1][f]; sq = [0, 0, 0.05, 0.05][f];
+        eyes = 'shut'; brow = -0.3; tilt = 2; mouth = 'small'; tail = S * 0.8; break;
+      case 'sad':
+        bob = [1, 1, 0, 0][f]; sq = [0.06, 0.06, 0.03, 0.03][f];
+        eyes = 'droop'; brow = -0.5; tilt = 1.6; mouth = 'frown';
+        armL = 2; armR = 2; tail = -1; break;
     }
-    const y0 = -bob;
-    const shoulder = 46 + y0, chestY = shoulder + 10, bot = KH - 1;
-    const hy = 27 + y0;
-    const hx = CXK + lean + tilt * 0.3;
+    // squash is applied about the feet: wider and shorter, or thinner and taller
+    const XS = 1 + sq, YS = 1 - sq;
+    const at = (x, y) => [CXK + (x - CXK) * XS + lean, KGY - (KGY - y) * YS + bob];
+    const R = (x, y, w, h, col) => { const [ax, ay] = at(x, y); Art.rect(g, ax, ay, w * XS, h * YS, col); };
+    const E = (x, y, rx, ry, col) => { const [ax, ay] = at(x, y); Art.ell(g, ax, ay, rx * XS, ry * YS, col); };
+    const P = (pts, col) => Art.poly(g, pts.map(([x, y]) => at(x, y)), col);
+
+    const hipY = 34, footY = KGY;
+
+    // ---- the tail, behind everything ---------------------------------------
+    P([[CXK + 5, 26], [CXK + 13 + tail, 20 + tail * 0.4], [CXK + 15 + tail, 27 + tail * 0.4], [CXK + 6, 31]], SH0);
+    P([[CXK + 6, 26.6], [CXK + 12 + tail, 21.6 + tail * 0.4], [CXK + 13 + tail, 26 + tail * 0.4], [CXK + 7, 30]], SH1);
+
+    // ---- legs and shoes ----------------------------------------------------
+    for (const sd of [-1, 1]) {
+      const lift = step * sd > 0 ? 2 : 0;
+      const lx = CXK + sd * 4;
+      R(lx - 2.6, hipY - 1, 5.2, 5, SU0);                       // trouser
+      R(lx - 2.6, hipY - 1, 2.2, 5, SU1);
+      R(lx - 2, hipY + 4, 4, footY - hipY - 7 - lift, SH1);     // a bare blue shin
+      R(lx - 2, hipY + 4, 1.6, footY - hipY - 7 - lift, SH2);
+      R(lx - 4, footY - 3 - lift, 8, 3, KINK);                  // the shoe
+      R(lx - 4, footY - 3 - lift, 8, 1.2, '#43505e');
+      R(lx - 4, footY - 3 - lift, 5, 1, '#6b7a8a');
+    }
 
     // ---- the suit ----------------------------------------------------------
-    Art.poly(g, [[CXK - 23, shoulder - 3], [CXK + 23, shoulder - 3], [CXK + 27, bot], [CXK - 27, bot]], SUIT0);
-    Art.ell(g, CXK - 21, shoulder + 1, 7, 5.6, SUIT1);                 // shoulders, padded
-    Art.ell(g, CXK + 21, shoulder + 1, 7, 5.6, SUIT0);
-    // the shirt in the middle
-    Art.poly(g, [[CXK - 8, shoulder - 2], [CXK + 8, shoulder - 2], [CXK + 10, bot], [CXK - 10, bot]], SHIRT2);
-    Art.poly(g, [[CXK - 7, shoulder - 2], [CXK + 7, shoulder - 2], [CXK + 9, bot], [CXK - 9, bot]], SHIRT);
-    // the jacket's two front panels, open in a V
-    Art.poly(g, [[CXK - 23, shoulder - 3], [CXK - 8, shoulder - 3], [CXK - 3, chestY + 6], [CXK - 11, bot], [CXK - 27, bot]], SUIT1);
-    Art.poly(g, [[CXK + 23, shoulder - 3], [CXK + 8, shoulder - 3], [CXK + 3, chestY + 6], [CXK + 11, bot], [CXK + 27, bot]], SUIT0);
-    Art.poly(g, [[CXK - 23, shoulder - 3], [CXK - 15, shoulder - 3], [CXK - 19, bot], [CXK - 27, bot]], SUIT2);
-    Art.rect(g, CXK - 22.4, shoulder - 3, 2.2, bot - shoulder + 3, SUIT3);
-    // lapels
-    Art.poly(g, [[CXK - 8, shoulder - 3], [CXK - 15, shoulder + 1], [CXK - 4, chestY + 5]], SUIT2);
-    Art.poly(g, [[CXK + 8, shoulder - 3], [CXK + 15, shoulder + 1], [CXK + 4, chestY + 5]], SUIT1);
-    // collar and tie
-    Art.poly(g, [[CXK - 8, shoulder - 4], [CXK, shoulder + 5], [CXK + 8, shoulder - 4], [CXK + 4, shoulder - 6], [CXK - 4, shoulder - 6]], SHIRT2);
-    Art.poly(g, [[CXK - 6, shoulder - 4], [CXK, shoulder + 3], [CXK + 6, shoulder - 4]], SK1);
-    Art.poly(g, [[CXK - 3.4, shoulder + 1], [CXK + 3.4, shoulder + 1], [CXK + 2, shoulder + 5], [CXK - 2, shoulder + 5]], TIE0);
-    Art.poly(g, [[CXK - 3, shoulder + 1.4], [CXK + 3, shoulder + 1.4], [CXK + 1.6, shoulder + 4.6], [CXK - 1.6, shoulder + 4.6]], TIE1);
-    Art.ell(g, CXK - 1, shoulder + 2, 1.4, 0.9, TIE2);
-    Art.poly(g, [[CXK - 2.6, shoulder + 5], [CXK + 2.6, shoulder + 5], [CXK + 4.4, chestY + 10], [CXK, chestY + 14], [CXK - 4.4, chestY + 10]], TIE0);
-    Art.poly(g, [[CXK - 2, shoulder + 5.4], [CXK + 2, shoulder + 5.4], [CXK + 3.4, chestY + 9.6], [CXK, chestY + 12.6], [CXK - 3.4, chestY + 9.6]], TIE1);
-    Art.rect(g, CXK - 1.8, shoulder + 6, 1.4, chestY + 4 - shoulder, TIE2);
-    // the name badge, pinned to the lapel
-    Art.rect(g, CXK + 11, chestY - 1, 9, 11, INK);
-    Art.rect(g, CXK + 12, chestY, 7, 9, '#fffdf0');
-    Art.rect(g, CXK + 12, chestY, 7, 2.4, '#c9581f');
-    // and a row of pins on the other one
-    for (let i = 0; i < 3; i++) {
-      Art.ell(g, CXK - 19 + i * 5, chestY + 1, 2.4, 2.4, INK);
-      Art.ell(g, CXK - 19 + i * 5, chestY + 1, 1.7, 1.7, ['#d8b23a', '#b8496a', '#63c974'][i]);
-    }
+    P([[CXK - 8, 19], [CXK + 8, 19], [CXK + 9, hipY + 1], [CXK - 9, hipY + 1]], SU0);
+    P([[CXK - 3, 19], [CXK + 3, 19], [CXK + 3, hipY + 1], [CXK - 3, hipY + 1]], BEL);   // the shirt
+    P([[CXK - 8, 19], [CXK - 3, 19], [CXK - 1, 25], [CXK - 4, hipY + 1], [CXK - 9, hipY + 1]], SU1);
+    P([[CXK + 8, 19], [CXK + 3, 19], [CXK + 1, 25], [CXK + 4, hipY + 1], [CXK + 9, hipY + 1]], SU0);
+    R(CXK - 8, 19, 2, hipY - 18, SU2);                          // the lapel light
+    P([[CXK - 2, 19], [CXK + 2, 19], [CXK + 1, 22], [CXK - 1, 22]], TI0);   // the tie
+    P([[CXK - 1.6, 22], [CXK + 1.6, 22], [CXK + 2.4, 30], [CXK, 32], [CXK - 2.4, 30]], TI0);
+    P([[CXK - 1.2, 22.4], [CXK + 1.2, 22.4], [CXK + 1.8, 29.6], [CXK, 31], [CXK - 1.8, 29.6]], TI1);
+    R(CXK + 4, 23, 4, 5, '#1d2230');                            // her name badge
+    R(CXK + 4.6, 23.6, 2.8, 3.8, '#fffdf0');
+    R(CXK + 4.6, 23.6, 2.8, 1.2, '#c9581f');
+
     // ---- arms --------------------------------------------------------------
-    const lx2 = CXK - 27, ly2 = bot - 2 + armL;
-    Art.limb(g, CXK - 20, shoulder + 4, lx2, ly2, 9, 6.4, SUIT1);
-    Art.rect(g, lx2 - 4, ly2 - 6, 8, 3, SHIRT);                        // a cuff
-    Art.ell(g, lx2 - 1, ly2 + 2, 4.6, 4, SK0);
-    Art.ell(g, lx2 - 1, ly2 + 1.4, 3.8, 3.2, SK1);
-    const ex = CXK + 24, ey = bot - 4 + armR;
-    Art.limb(g, CXK + 20, shoulder + 4, ex, ey, 9, 6.4, SUIT0);
-    Art.limb(g, CXK + 21, shoulder + 4, ex, ey, 5.6, 4, SUIT1);
-    Art.rect(g, ex - 4, ey - 2, 8, 3, SHIRT);
-    Art.ell(g, ex + 1, ey + 4, 4.8, 4.2, SK0);
-    Art.ell(g, ex + 1, ey + 3.4, 4, 3.4, SK1);
-    // ---- the head: Shaz is a shark ----------------------------------------
-    // Chibi proportions: one big rounded head, a blunt snout, a belly-pale jaw,
-    // gills cut into the cheek and a dorsal fin standing up behind the cap.
-    // Everything is laid in hard tones — no soft edges anywhere on her.
-    const FIN0 = '#2c4f6e';
-    Art.poly(g, [[hx + 3, hy - 12], [hx + 16, hy - 24], [hx + 12, hy - 6]], FIN0);   // dorsal fin
-    Art.poly(g, [[hx + 4.4, hy - 12], [hx + 14, hy - 22], [hx + 11, hy - 7]], SK0);
-    Art.limb(g, hx, hy + 13, hx, shoulder + 1, 7, 8.4, SK0);                         // neck
-    Art.ell(g, hx, shoulder, 8, 2.6, '#2f5878');
-    Art.ell(g, hx, hy + 1, 19, 13.6, SK0);                                           // the skull
-    Art.ell(g, hx - 0.6, hy + 0.2, 17.8, 12.6, SK1);
-    Art.ellBand(g, hx - 1, hy - 2.4, 13.6, 8.4, SK2, 0, 0.5);                          // top light
-    Art.ell(g, hx - 7, hy - 4.6, 5.4, 2.8, '#a8cfe4');
-    // the snout, pushed out and down, with the pale underside under it
-    Art.poly(g, [[hx - 16.4, hy + 6], [hx + 16.4, hy + 6], [hx + 11.4, hy + 14.6], [hx - 11.4, hy + 14.6]], SK1);
-    Art.poly(g, [[hx - 15, hy + 8], [hx + 15, hy + 8], [hx + 10.6, hy + 15], [hx - 10.6, hy + 15]], '#e8f0ec');
-    Art.poly(g, [[hx - 15, hy + 8], [hx + 15, hy + 8], [hx + 14.2, hy + 9.4], [hx - 14.2, hy + 9.4]], '#c2d4d0');
-    Art.ell(g, hx - 3.6, hy + 7, 1.3, 1, '#2c4050');                                  // nostrils
-    Art.ell(g, hx + 3.6, hy + 7, 1.3, 1, '#2c4050');
-    // gills, three cut into each cheek
-    for (const sd of [-1, 1]) for (let i = 0; i < 3; i++) {
-      Art.limb(g, hx + sd * (12.4 + i * 2.6), hy + 0.4, hx + sd * (13 + i * 2.6), hy + 5.4, 1.5, 1.2, '#2c4f6e');
-      Art.limb(g, hx + sd * (12.4 + i * 2.6) - sd * 0.6, hy + 0.4, hx + sd * (13 + i * 2.6) - sd * 0.6, hy + 5, 0.7, 0.6, '#7fb0cc');
-    }
-    // side fins, standing in for ears
     for (const sd of [-1, 1]) {
-      Art.poly(g, [[hx + sd * 16, hy - 1], [hx + sd * 25, hy + 4], [hx + sd * 15, hy + 8]], FIN0);
-      Art.poly(g, [[hx + sd * 16, hy + 0.6], [hx + sd * 22.6, hy + 4.2], [hx + sd * 15, hy + 6.6]], SK1);
+      const sw = sd < 0 ? armL : armR;
+      const ax0 = CXK + sd * 7, ay0 = 21;
+      const ax1 = CXK + sd * 10, ay1 = 31 + sw;
+      const [p0, p1] = [at(ax0, ay0), at(ax1, ay1)];
+      Art.limb(g, p0[0], p0[1], p1[0], p1[1], 5 * XS, 4 * XS, sd < 0 ? SU1 : SU0);
+      E(ax1, ay1 + 2, 2.6, 2.4, SH1);                           // the hand
+      E(ax1 - sd * 0.6, ay1 + 1.6, 2, 1.8, SH2);
     }
-    // ---- the store cap -----------------------------------------------------
-    // It rides high on a shark's skull, tipped back, with the peak clear of the
-    // eyes. The dorsal fin pokes out through a slot cut in the back of it.
-    Art.ell(g, hx, hy - 11.6, 17.4, 8, CAP0);                          // the crown, low and flat
-    Art.ell(g, hx, hy - 12.2, 16.2, 7.2, CAP1);
-    Art.ell(g, hx - 6, hy - 15, 6.2, 2.8, CAP2);                       // the light on it
-    Art.ell(g, hx - 7.4, hy - 15.8, 2.8, 1.2, CAP3);
-    for (let i = -2; i <= 2; i++) Art.limb(g, hx, hy - 19, hx + i * 7.6, hy - 7.4, 0.8, 0.5, CAP0);
-    Art.ell(g, hx, hy - 19.2, 2.4, 1.6, CAP2);                         // the button on top
-    // the store's wombat, embroidered on the front
-    Art.ell(g, hx - 1, hy - 11.8, 4, 2.6, CAP3);
-    Art.ell(g, hx + 2.4, hy - 12.8, 2.4, 2.2, CAP3);
-    Art.rect(g, hx + 1.4, hy - 14.4, 1.1, 1.4, CAP3);
-    Art.rect(g, hx + 3.4, hy - 14.4, 1.1, 1.4, CAP3);
-    Art.rect(g, hx + 2.8, hy - 12.9, 1, 1, CAP0);
-    Art.rect(g, hx - 17.4, hy - 8.4, 34.8, 3.6, CAP0);                 // the band
-    Art.rect(g, hx - 17.4, hy - 8.4, 34.8, 1.3, CAP2);
-    Art.rect(g, hx - 17.4, hy - 5.8, 34.8, 1, '#08240f');
-    // the peak, out in front and down, its underside in shadow
-    Art.poly(g, [[hx - 19.4, hy - 5.4], [hx + 19.4, hy - 5.4],
-                 [hx + 14.4, hy - 1.2], [hx - 14.4, hy - 1.2]], '#08240f');
-    Art.poly(g, [[hx - 18.6, hy - 6], [hx + 18.6, hy - 6],
-                 [hx + 13.8, hy - 2.4], [hx - 13.8, hy - 2.4]], CAP1);
-    Art.poly(g, [[hx - 18.6, hy - 6], [hx + 18.6, hy - 6],
-                 [hx + 16, hy - 4.6], [hx - 16, hy - 4.6]], CAP2);
-    Art.poly(g, [[hx - 13.8, hy - 2.4], [hx + 13.8, hy - 2.4], [hx + 14.4, hy - 1.2], [hx - 14.4, hy - 1.2]], '#05190a');
-    // ---- eyes and that grin ------------------------------------------------
+
+    // ---- the head: one big block with a snout under it ---------------------
+    const hy = 11 + tilt * 0.2, hx = CXK + tilt * 0.3;
+    P([[hx + 4, hy - 4], [hx + 13, hy - 13], [hx + 10, hy - 2]], SH0);        // dorsal fin
+    P([[hx + 5, hy - 4], [hx + 11.6, hy - 11], [hx + 9.2, hy - 3]], SH1);
+    for (const sd of [-1, 1]) {                                              // side fins
+      P([[hx + sd * 9, hy - 1], [hx + sd * 14, hy + 2], [hx + sd * 9, hy + 5]], SH0);
+      P([[hx + sd * 9, hy - 0.2], [hx + sd * 12.6, hy + 2], [hx + sd * 9, hy + 4]], SH1);
+    }
+    E(hx, hy, 10, 8, SH0);                                                   // skull
+    E(hx, hy - 0.4, 9, 7.2, SH1);
+    Art.ellBand(g, ...at(hx - 0.6, hy - 2.2), 7 * XS, 5 * YS, SH2, 0, 0.55);
+    E(hx - 4, hy - 4, 2.6, 1.6, SH3);                                        // the shine
+    // the snout and the pale jaw under it
+    P([[hx - 9, hy + 3], [hx + 9, hy + 3], [hx + 6, hy + 9], [hx - 6, hy + 9]], SH1);
+    P([[hx - 8, hy + 4.6], [hx + 8, hy + 4.6], [hx + 5.6, hy + 9.2], [hx - 5.6, hy + 9.2]], BEL);
+    P([[hx - 8, hy + 4.6], [hx + 8, hy + 4.6], [hx + 7.6, hy + 5.6], [hx - 7.6, hy + 5.6]], BEL2);
+    R(hx - 2.4, hy + 4, 1.2, 1, KINK); R(hx + 1.2, hy + 4, 1.2, 1, KINK);    // nostrils
+    for (const sd of [-1, 1]) for (let i = 0; i < 3; i++) {                  // gills
+      R(hx + sd * (6 + i * 1.6) - (sd < 0 ? 1 : 0), hy - 0.4, 1, 3, '#27486a');
+    }
+
+    // ---- the cap -----------------------------------------------------------
+    E(hx, hy - 7, 9.6, 4.4, CP0);
+    E(hx, hy - 7.6, 8.8, 3.8, CP1);
+    E(hx - 3, hy - 9.4, 3.4, 1.4, CP2);
+    R(hx - 9.6, hy - 5.4, 19.2, 2.2, CP0);                                   // the band
+    R(hx - 9.6, hy - 5.4, 19.2, 0.9, CP2);
+    P([[hx - 10.6, hy - 3.4], [hx + 10.6, hy - 3.4], [hx + 8, hy - 1], [hx - 8, hy - 1]], '#08240f');
+    P([[hx - 10, hy - 3.8], [hx + 10, hy - 3.8], [hx + 7.6, hy - 1.8], [hx - 7.6, hy - 1.8]], CP1);
+    P([[hx - 10, hy - 3.8], [hx + 10, hy - 3.8], [hx + 8.8, hy - 2.8], [hx - 8.8, hy - 2.8]], CP2);
+    E(hx, hy - 7.4, 2.4, 1.5, CP3);                                          // the store wombat
+    E(hx + 1.8, hy - 8.2, 1.5, 1.3, CP3);
+    R(hx + 1.1, hy - 9.4, 0.8, 1, CP3); R(hx + 2.4, hy - 9.4, 0.8, 1, CP3);
+
+    // ---- eyes --------------------------------------------------------------
     for (const sd of [-1, 1]) {
-      const exx = hx + sd * 8, eyy = hy + 2.4;
-      const rw = eyes === 'wide' ? 6.2 : eyes === 'narrow' ? 5.2 : 5.6;
-      const rh = eyes === 'wide' ? 6 : eyes === 'narrow' ? 2.6 : eyes === 'droop' ? 4 : 5.4;
-      Art.ell(g, exx, eyy, rw, rh, SK2);                               // a pale rim round it
-      Art.ell(g, exx, eyy, rw - 0.8, rh - 0.8, '#0d1620');             // big glossy eye
+      const ex = hx + sd * 4.2, ey = hy + 0.6;
+      const rw = eyes === 'wide' ? 3.6 : eyes === 'narrow' ? 3 : 3.2;
+      const rh = eyes === 'wide' ? 3.8 : eyes === 'narrow' ? 1.4 : eyes === 'droop' ? 2.2 : 3.2;
       if (eyes === 'happy') {
-        Art.ell(g, exx, eyy, 5.4, 5.6, SK1);
-        Art.poly(g, [[exx - 4, eyy + 2.4], [exx, eyy - 2], [exx + 4, eyy + 2.4], [exx, eyy + 0.4]], '#0d1620');
+        P([[ex - 2.8, ey + 1.4], [ex, ey - 1.8], [ex + 2.8, ey + 1.4], [ex, ey - 0.2]], KINK);
       } else if (eyes === 'shut') {
-        Art.ell(g, exx, eyy, 5.4, 5.6, SK1);
-        Art.rect(g, exx - 4, eyy - 0.6, 8, 1.6, '#0d1620');
-        Art.rect(g, exx - 3, eyy + 1.2, 6, 1, '#3d5a6e');
+        R(ex - 2.6, ey - 0.4, 5.2, 1.2, KINK);
+        R(ex - 1.6, ey + 1, 3.2, 0.8, '#3d5a6e');
       } else {
-        const look = eyes === 'droop' ? 1.2 : 0;
-        Art.ell(g, exx + sd * 0.5, eyy - 0.4 + look, 2.6, Math.min(2.8, rh - 0.8), '#2a3c4e');
-        Art.ell(g, exx - 1.4, eyy - 1.8 + look, 1.7, 1.5, '#ffffff');  // the catchlight
-        Art.ell(g, exx + 1.6, eyy + 2, 0.9, 0.8, 'rgba(255,255,255,0.6)');
+        E(ex, ey, rw, rh, BEL);
+        E(ex + sd * 0.4, ey + (eyes === 'droop' ? 0.8 : 0), rw - 1.1, Math.min(rh - 0.8, 2.4), KINK);
+        E(ex - 0.8, ey - 1, 1, 0.9, '#ffffff');
       }
-      if (brow) {                                                      // a brow ridge in the hide
-        const b0 = eyy - rh - 1.6 - brow * 1.6, bt = sd * brow * 1.8;
-        Art.poly(g, [[exx - 5, b0 - bt], [exx + 5, b0 + bt],
-                     [exx + 5, b0 + bt + 1.6], [exx - 5, b0 - bt + 1.6]], '#2c4f6e');
+      if (brow) {
+        const b0 = ey - rh - 1.4 - brow * 1.2, bt = sd * brow * 1.4;
+        P([[ex - 3.4, b0 - bt], [ex + 3.4, b0 + bt], [ex + 3.4, b0 + bt + 1.2], [ex - 3.4, b0 - bt + 1.2]], '#27486a');
       }
     }
-    Art.ell(g, hx - 13.4, hy + 8, 3.4, 2, 'rgba(226,132,140,0.4)');    // blush
-    Art.ell(g, hx + 13.4, hy + 8, 3.4, 2, 'rgba(226,132,140,0.4)');
-    // the mouth, wide across the pale jaw, with a row of blunt little teeth
-    const my = hy + 11.6;
+    E(hx - 7, hy + 3.4, 2.2, 1.2, 'rgba(232,132,140,0.5)');                  // blush
+    E(hx + 7, hy + 3.4, 2.2, 1.2, 'rgba(232,132,140,0.5)');
+
+    // ---- the mouth, across the pale jaw ------------------------------------
+    const my = hy + 6.6;
     const teeth = (x0m, x1m, yTop, down) => {
-      for (let x = x0m; x < x1m - 1; x += 2.4) {
-        Art.poly(g, [[x, yTop], [x + 2.2, yTop], [x + 1.1, yTop + (down ? 2 : -2)]], '#fdf6ea');
-      }
+      for (let x = x0m; x < x1m - 1; x += 2) P([[x, yTop], [x + 1.8, yTop], [x + 0.9, yTop + (down ? 1.4 : -1.4)]], '#fdf6ea');
     };
     if (mouth === 'open' || mouth === 'wide') {
-      const w2 = mouth === 'wide' ? 8 : 6.2, h2 = mouth === 'wide' ? 4.4 : 3.2;
-      Art.poly(g, [[hx - w2, my - h2], [hx + w2, my - h2], [hx + w2 * 0.7, my + h2], [hx - w2 * 0.7, my + h2]], '#5a2430');
-      teeth(hx - w2 + 0.4, hx + w2 - 0.4, my - h2, true);
-      teeth(hx - w2 * 0.7 + 0.4, hx + w2 * 0.7 - 0.4, my + h2, false);
-      Art.ell(g, hx, my + h2 - 1, w2 * 0.4, 1, '#c4566a');              // tongue
+      const w2 = mouth === 'wide' ? 5 : 3.8, h2 = mouth === 'wide' ? 2.6 : 1.8;
+      P([[hx - w2, my - h2], [hx + w2, my - h2], [hx + w2 * 0.7, my + h2], [hx - w2 * 0.7, my + h2]], '#5a2430');
+      teeth(hx - w2 + 0.3, hx + w2 - 0.3, my - h2, true);
+      E(hx, my + h2 - 0.6, w2 * 0.4, 0.7, '#c4566a');
     } else if (mouth === 'grin') {
-      Art.poly(g, [[hx - 9, my - 2.4], [hx + 9, my - 2.4], [hx + 6.4, my + 2.6], [hx - 6.4, my + 2.6]], '#5a2430');
-      teeth(hx - 8.6, hx + 8.6, my - 2.4, true);
-      Art.rect(g, hx - 6.4, my + 1.8, 12.8, 1, '#fdf6ea');
+      P([[hx - 5.4, my - 1.4], [hx + 5.4, my - 1.4], [hx + 3.8, my + 1.6], [hx - 3.8, my + 1.6]], '#5a2430');
+      teeth(hx - 5.1, hx + 5.1, my - 1.4, true);
+      R(hx - 3.8, my + 1, 7.6, 0.7, '#fdf6ea');
     } else if (mouth === 'small') {
-      Art.poly(g, [[hx - 3.4, my - 1.4], [hx + 3.4, my - 1.4], [hx + 2.4, my + 1.6], [hx - 2.4, my + 1.6]], '#5a2430');
-      teeth(hx - 3.2, hx + 3.2, my - 1.4, true);
+      E(hx, my, 1.2, 1, '#5a2430');
     } else if (mouth === 'frown') {
-      Art.poly(g, [[hx - 7, my + 2], [hx, my - 2], [hx + 7, my + 2], [hx, my + 0.2]], '#3d5a6e');
+      P([[hx - 4, my + 1.2], [hx, my - 1.2], [hx + 4, my + 1.2], [hx, my + 0.2]], '#3d5a6e');
     } else {
-      Art.rect(g, hx - 7.4, my - 0.7, 14.8, 1.5, '#3d5a6e');            // resting: a long line
-      Art.poly(g, [[hx + 5.4, my - 0.7], [hx + 8.4, my - 0.7], [hx + 7, my + 1.6]], '#fdf6ea');
-      Art.poly(g, [[hx - 8.4, my - 0.7], [hx - 5.4, my - 0.7], [hx - 7, my + 1.6]], '#fdf6ea');
+      R(hx - 4.4, my - 0.4, 8.8, 1, '#3d5a6e');
+      P([[hx + 3.2, my - 0.4], [hx + 5, my - 0.4], [hx + 4.1, my + 1]], '#fdf6ea');
+      P([[hx - 5, my - 0.4], [hx - 3.2, my - 0.4], [hx - 4.1, my + 1]], '#fdf6ea');
     }
-    Art.outline(c, '#0a0810', 1);
+    Art.outline(c, '#0a1018', 1);
     cache.set(key, c);
     return c;
   }

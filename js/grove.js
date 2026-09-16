@@ -350,6 +350,8 @@ const Grove = (() => {
       }
       if (w.state === 'graze') { if (Math.random() < dt * 0.4) w.hap = Math.min(cap, w.hap + 0.6); World.disturb(w.x + w.dir * 14, w.y, 12, 0.5); }
       w.sq = U.lerp(w.sq, 0, 1 - Math.pow(0.001, dt));
+      // every wombat on the move bounces: a two-beat squash on each footfall
+      if (w.state === 'walk' || w.state === 'run') w.sq += Math.sin(w.anim * TAU * 2) * 0.07;
       const rm2 = roam(); w.x = U.clamp(w.x, rm2.x0, rm2.x1); w.y = U.clamp(w.y, WALK.y0, WALK.y1);
     }
     for (let i = 0; i < G.wombats.length; i++) for (let j = i + 1; j < G.wombats.length; j++) {
@@ -362,11 +364,15 @@ const Grove = (() => {
     // poop cubes settle
     for (const d of drops) {
       d.t += dt;
+      // the impact squash unwinds as a damped spring: flatten, overshoot, settle
+      if (d.sq0) { d.sqT += dt; if (d.sqT > 1.2) d.sq0 = 0; }
       if (d === dragging) continue;
       if (d.z > 0 || d.vz > 0) {
         d.vz -= 600 * dt; d.z += d.vz * dt; d.x += d.vx * dt; d.spin += d.vs * dt;
         if (d.z <= 0) {
           d.z = 0;
+          // squash on impact, harder the faster it came down, then spring back
+          d.sq0 = Math.min(0.4, Math.abs(d.vz) / 420 + 0.12); d.sqT = 0;
           if (Math.abs(d.vz) > 55) { d.vz = -d.vz * 0.34; d.vx *= 0.5; d.vs *= 0.4; FX.dust(d.x, d.y, 3); World.disturb(d.x, d.y, 14, 0.7); }
           else { d.vz = 0; d.vx = 0; d.vs = 0; d.spin = 0; }
         }
@@ -1309,7 +1315,11 @@ const Grove = (() => {
     g.save();
     g.translate(Math.round(d.x), Math.round(d.y - d.z - h / 2));
     g.rotate(d.spin * 0.4 + (held ? Math.sin(G.time * 8) * 0.06 : 0));
-    if (d.t > 0 && d.z === 0) { const p = 1 + Math.sin(d.t * 4.5) * 0.035; g.scale(p, 1 / p); }
+    if (d.t > 0 && d.z === 0) { const p = 1 + Math.sin(d.t * 4.5) * 0.05; g.scale(p, 1 / p); }
+    if (d.sq0) {
+      const k = d.sq0 * Math.exp(-7 * d.sqT) * Math.cos(d.sqT * 24);
+      g.translate(0, (h / 2) * k); g.scale(1 + k, 1 - k);
+    }
     Sprites.drawCube(g, def, w, h, { blessed: d.blessed, outline: held ? PAL.gold4 : d.blessed ? PAL.div4 : null,
       face: held ? 'ready' : (((G.time + d.t) % 6) < 0.16 ? 'blink' : 'happy') });
     g.restore();
