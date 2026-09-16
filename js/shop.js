@@ -125,12 +125,18 @@ const Shop = (() => {
   ];
   const SHELF_Y = [190, 242, 294];        // board tops, three to a gondola
   const COLW = 96;                        // one product slot
-  const AISLE0 = 470;                     // the doors and the cooler take the first stretch
+  // You come in, you pass the till, then you walk the aisles. The counter used
+  // to be at the far end; it is the first thing you meet now.
+  const COUNTER_X = 430;                  // the doors and the cooler take the first stretch
+  const AISLE0 = 940;                     // and the till and its machines take the next
   const GAP = 64;                         // between gondolas
-  let slots = [], bays = [], counterX = 1200, worldW = 1500;
-  // The prize machine by the till, and the one item on special this visit.
-  const gacha = { x: 0, t: 0, spin: 0, prize: null, showT: 0, shake: 0 };
-  let gachaR = null, deal = null;
+  let slots = [], bays = [], counterX = COUNTER_X, worldW = 1500;
+  // The two machines by the till, and the one item on special this visit.
+  // gum: a 1 W$ gumball that rolls down a spiral chute before it drops.
+  // lotto: three reels that stop one at a time.
+  const gum = { x: 0, state: 'idle', t: 0, prize: null, shake: 0, crank: 0 };
+  const lotto = { x: 0, state: 'idle', t: 0, reels: [0, 0, 0], spun: [0, 0, 0], res: null, win: 0, flash: 0 };
+  let gumR = null, lottoR = null, deal = null;
 
   function layout() {
     const list = catalogue();
@@ -150,9 +156,10 @@ const Shop = (() => {
       });
       x += w + GAP;
     }
-    counterX = x + 30;
-    worldW = counterX + 330;
-    gacha.x = counterX - 152;
+    counterX = COUNTER_X;
+    worldW = x + 180;
+    gum.x = counterX + 330;
+    lotto.x = counterX + 424;
     // one line on special every visit, picked from whatever is actually for sale
     const buyable = slots.filter((sl) => !sl.p.sold && !sl.p.locked);
     deal = buyable.length ? buyable[Math.floor(Math.random() * buyable.length)].p.id : null;
@@ -267,12 +274,8 @@ const Shop = (() => {
     keeper.t += dt;
     shazTick(dt);
     if (till > 0) { till -= dt; if (till <= 0) keeper.pose = 'idle'; }
-    if (gacha.spin > 0) {
-      gacha.spin = Math.max(0, gacha.spin - dt * 0.8);
-      if (gacha.spin === 0) { gacha.prize = rollPrize(); gacha.showT = 2.2; award(gacha.prize); }
-    }
-    gacha.shake = Math.max(0, gacha.shake - dt * 3);
-    if (gacha.showT > 0) gacha.showT = Math.max(0, gacha.showT - dt);
+    gumTick(dt);
+    lottoTick(dt);
     for (let i = flies.length - 1; i >= 0; i--) {
       const f = flies[i]; f.t += dt * 1.6;
       if (f.t >= 1) flies.splice(i, 1);
@@ -287,7 +290,7 @@ const Shop = (() => {
     }
     return null;
   }
-  const overCounter = (x) => x + scroll > counterX - 30;
+  const overCounter = (x) => { const w = x + scroll; return w > counterX - 90 && w < counterX + 300; };
   function press(x, y) {
     drag = { x, y, s: tscroll }; moved = 0;
   }
@@ -304,7 +307,8 @@ const Shop = (() => {
     if (wasDrag) return;
     const s = slotAt(x, y);
     if (s) { add(s.p); return; }
-    if (gachaR && x > gachaR.x && x < gachaR.x + gachaR.w && y > gachaR.y && y < gachaR.y + gachaR.h) { spinGacha(); return; }
+    if (gumR && x > gumR.x && x < gumR.x + gumR.w && y > gumR.y && y < gumR.y + gumR.h) { turnGum(); return; }
+    if (lottoR && x > lottoR.x && x < lottoR.x + lottoR.w && y > lottoR.y && y < lottoR.y + lottoR.h) { playLotto(); return; }
     if (keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h) {
       if (!basket.length) { Audio.play('error'); UI.toast('nothing in the basket yet', 'bad'); return; }
       UI.openBasket(); Audio.play('click');
@@ -316,9 +320,13 @@ const Shop = (() => {
   function hoverAt(x, y) {
     if (phase !== 'aisle') return null;
     keeperHot = !!(keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h);
-    if (gachaR && x > gachaR.x && x < gachaR.x + gachaR.w && y > gachaR.y && y < gachaR.y + gachaR.h) {
+    if (gumR && x > gumR.x && x < gumR.x + gumR.w && y > gumR.y && y < gumR.y + gumR.h) {
       hover = null;
-      return `<b>Prize Machine</b><br>${U.fmt(PRIZE_COST)} W$ a go<br><span class="dim">seed, coin, cubes &mdash; or a Golden Wombat</span>`;
+      return `<b>Gumball Machine</b><br>${GUM_COST} W$ a turn<br><span class="dim">mostly rubbish. one in fifty is gold.</span>`;
+    }
+    if (lottoR && x > lottoR.x && x < lottoR.x + lottoR.w && y > lottoR.y && y < lottoR.y + lottoR.h) {
+      hover = null;
+      return `<b>Wombat Lotto</b><br>${U.fmt(LOTTO_COST)} W$ a ticket<br><span class="dim">two alike pays, three alike pays properly</span>`;
     }
     const s = slotAt(x, y);
     hover = s;
@@ -410,7 +418,8 @@ const Shop = (() => {
     for (const b of bays) drawBay(g, b, S);
     fixtures(g, S, t);
     floorProps(g, S, t);
-    drawGacha(g, S, t);
+    drawGum(g, S, t);
+    drawLotto(g, S, t);
     for (const s of slots) {
       const x = s.x - S;
       if (x < -60 || x > VW + 60) continue;
@@ -457,16 +466,16 @@ const Shop = (() => {
       g.fillRect(Math.round((m.x + Math.sin(t * 0.4 + m.ph) * 20) % VW), Math.round(m.y + Math.cos(t * 0.3 + m.ph) * 14), 1, 1);
     }
     // once you have something, point the way to the counter
-    if (basket.length && counterX - scroll > VW - 40) {
+    if (basket.length && counterX - scroll < 40) {
       const a = 0.5 + 0.5 * Math.sin(t * 4);
-      const ax = VW - 96, ay = 96;
+      const ax = 96, ay = 96;
       g.fillStyle = `rgba(201,88,31,${(0.5 + a * 0.4).toFixed(2)})`;
-      g.fillRect(ax - 44, ay - 11, 84, 22);
-      g.fillStyle = '#fff0dc'; g.fillRect(ax - 44, ay - 11, 84, 2);
-      Font.draw(g, 'TO THE TILL', ax - 6, ay - 4, { scale: 1, color: '#fff0dc', align: 'center' });
-      for (let i = 0; i < 3; i++) {
+      g.fillRect(ax - 40, ay - 11, 84, 22);
+      g.fillStyle = '#fff0dc'; g.fillRect(ax - 40, ay - 11, 84, 2);
+      Font.draw(g, 'TO THE TILL', ax + 6, ay - 4, { scale: 1, color: '#fff0dc', align: 'center' });
+      for (let i = 0; i < 3; i++) {                            // arrows, pointing back
         g.fillStyle = `rgba(255,240,220,${(0.3 + a * 0.6 - i * 0.15).toFixed(2)})`;
-        for (let k = 0; k < 5; k++) g.fillRect(ax + 26 + i * 7 + k, ay - 5 + k, 1, 11 - k * 2);
+        for (let k = 0; k < 5; k++) g.fillRect(ax - 48 - i * 7 - k, ay - 5 + k, 1, 11 - k * 2);
       }
     }
     // swipe hint
@@ -486,10 +495,11 @@ const Shop = (() => {
   // The wall above the aisles: the strip of a real shop that tells you where
   // you are. A house banner, promo posters, a clock, vents.
   const POSTERS = [
-    { x: 236,  w: 116, top: 'NO SEED', mid: 'SORRY',   bot: 'TRY GROOT', col: '#3f8f4a' },
-    { x: 620,  w: 112, top: 'NEW IN',  mid: 'CRANES',  bot: 'STEADIER',  col: '#c9581f' },
-    { x: 1004, w: 118, top: 'ADOPT',   mid: 'WOMBATS', bot: 'ASK SHAZ',  col: '#b8496a' },
-    { x: 1388, w: 104, top: 'SAVE',    mid: '20 W$',   bot: 'ON DECOR',  col: '#2f6f9f' },
+    { x: 250,  w: 116, top: 'PAY AT',  mid: 'THE TILL', bot: 'SHAZ IS IN', col: '#b8342c' },
+    { x: 640,  w: 112, top: 'ONLY',    mid: '1 W$',     bot: 'A GUMBALL',  col: '#e0764a' },
+    { x: 1010, w: 118, top: 'NEW IN',  mid: 'CRANES',   bot: 'STEADIER',   col: '#c9581f' },
+    { x: 1380, w: 118, top: 'ADOPT',   mid: 'WOMBATS',  bot: 'ASK SHAZ',   col: '#b8496a' },
+    { x: 1760, w: 104, top: 'SAVE',    mid: '20 W$',    bot: 'ON DECOR',   col: '#2f6f9f' },
   ];
   function wallDressing(g, S, t) {
     // the house banner along the top of the wall
@@ -682,7 +692,7 @@ const Shop = (() => {
     for (let i = 0; i < bays.length - 1; i++) {
       spots.push((bays[i].x + bays[i].w + bays[i + 1].x) / 2 - 20);
     }
-    spots.push(AISLE0 - 96);
+    spots.push(AISLE0 - 60);   // and one in the gap before the first gondola
     spots.forEach((sx, i) => {
       const x = sx - S;
       if (x < -80 || x > VW + 80) return;
@@ -815,103 +825,339 @@ const Shop = (() => {
     }
   }
 
-  // ---- the prize machine ---------------------------------------------------
-  // A capsule machine by the till. Put a coin in, the drum turns, something
-  // falls out. It is the only thing in the shop that can hand you a trophy.
-  function drawGacha(g, S, t) {
-    const x = gacha.x - S;
-    gachaR = { x: x - 26, y: 168, w: 52, h: 148 };
-    if (x < -70 || x > VW + 70) { gachaR = null; return; }
-    const sh = gacha.shake > 0 ? Math.sin(t * 60) * gacha.shake : 0;
-    g.save(); g.translate(sh, 0);
-    g.fillStyle = 'rgba(0,0,0,0.22)'; Art.ell(g, x, 318, 30, 6);
-    // the pedestal
-    g.fillStyle = '#2a2f3a'; g.fillRect(x - 22, 256, 44, 60);
-    g.fillStyle = '#c9581f'; g.fillRect(x - 20, 258, 40, 56);
-    Tex.fill(g, 'shelfmet', x - 20, 258, 40, 56, 0.32);
-    g.fillStyle = '#e2762c'; g.fillRect(x - 20, 258, 40, 3);
-    g.fillStyle = '#8f3a10'; g.fillRect(x - 20, 310, 40, 4);
-    // the coin slot and the knob
-    g.fillStyle = '#1d2230'; g.fillRect(x - 12, 266, 24, 16);
-    g.fillStyle = '#d8b23a'; g.fillRect(x - 9, 269, 18, 3);
-    Art.rect(g, x - 8, 282, 16, 16, '#8d96a0');
-    Art.rect(g, x - 6, 284, 12, 12, '#c9c2ad');
-    Art.rect(g, x - 6, 284, 12, 2, '#e6e0cc');
-    g.save(); g.translate(x, 290); g.rotate(gacha.spin * 3.4);
-    g.fillStyle = '#3a3f48'; g.fillRect(-1.5, -5, 3, 10);
-    g.restore();
-    // the delivery flap
-    g.fillStyle = '#1d2230'; g.fillRect(x - 14, 296, 28, 14);
-    g.fillStyle = '#3a3f48'; g.fillRect(x - 12, 298, 24, 10);
-    // the glass drum: a six-sided tank, because nothing in here is a circle
-    const tank = (rw, rh) => {
-      const p2 = [];
-      for (let k = 0; k < 6; k++) { const a2 = (k / 6) * TAU + Math.PI / 6; p2.push([x + Math.cos(a2) * rw, 224 + Math.sin(a2) * rh]); }
-      return p2;
-    };
-    Art.poly(g, tank(27, 30), '#2a2f3a');
-    Art.poly(g, tank(24, 27), '#cfe4ee');
-    const r = Art.rng(7);
-    for (let i = 0; i < 22; i++) {
-      const a = r() * TAU + gacha.spin * 2, d = r();
-      const cxp = x + Math.cos(a) * 17 * d, cyp = 224 + Math.sin(a) * 19 * d + (gacha.spin ? Math.sin(t * 24 + i) * 2 : 0);
-      const col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#b8496a', '#d8b23a', '#7a4f9a'][i % 6];
-      Art.ell(g, cxp, cyp, 4.4, 4.4, col);
-      Art.ell(g, cxp - 1.2, cyp - 1.4, 1.8, 1.4, U.shade(col, 0.45));
+  // ---- the gumball machine -------------------------------------------------
+  // One wombat dollar. You turn the handle, a ball drops out of the hopper,
+  // rolls twice round the spiral chute behind the glass, clunks through the
+  // flap and bounces on the lino. Most of them are worth about what you paid.
+  // ---------------------------------------------------------------------------
+  const GUM_COL = ['#d2564a', '#3f8f4a', '#2f6f9f', '#b8496a', '#e0a83a', '#7a4f9a', '#e0764a', '#f0f0e8'];
+  const GUM_TOP = 222, GUM_BOT = 300;     // the hopper's middle and the delivery flap
+  const GUM_RX = 26, GUM_RY = 24;         // the hopper's half-width and half-height
+  // where the ball is at u=0..1 of its journey: two loops of a cone, then a drop
+  function gumPath(u) {
+    if (u < 0.78) {
+      const k = u / 0.78;
+      const a = k * TAU * 2 - Math.PI / 2;            // two turns
+      const rad = 19 * (1 - k * 0.74);                // spiralling inward
+      return [Math.cos(a) * rad, GUM_TOP - 14 + k * 32 + Math.sin(a) * 4 * (1 - k * 0.6)];
     }
-    Art.poly(g, [[x - 14, 208], [x - 6, 206], [x - 3, 224], [x - 11, 226]], 'rgba(255,255,255,0.4)');
-    Art.poly(g, tank(24, 27), 'rgba(120,150,170,0.2)');
-    for (let k = 0; k < 6; k++) {                 // the frame between the panes
-      const a2 = (k / 6) * TAU + Math.PI / 6, a3 = ((k + 1) / 6) * TAU + Math.PI / 6;
-      Art.line(g, x + Math.cos(a2) * 25, 224 + Math.sin(a2) * 28,
-                  x + Math.cos(a3) * 25, 224 + Math.sin(a3) * 28, '#6d7681', 2);
-    }
-    g.fillStyle = '#8d96a0'; Art.rect(g, x - 26, 247, 52, 8, '#8d96a0'); Art.rect(g, x - 26, 247, 52, 2, '#b4bcc6');
-    // the header card
-    g.fillStyle = '#1d2230'; g.fillRect(x - 30, 172, 60, 32);
-    g.fillStyle = '#f2cf3a'; g.fillRect(x - 28, 174, 56, 28);
-    Font.draw(g, 'PRIZE', x, 178, { scale: 1, color: '#7a3a10', align: 'center' });
-    Font.draw(g, U.fmt(PRIZE_COST) + ' W$', x, 190, { scale: 1, color: '#7a3a10', align: 'center' });
-    g.restore();
-    // what just came out, floating up
-    if (gacha.showT > 0 && gacha.prize) {
-      const k = 1 - gacha.showT / 2.2;
-      const py = 300 - k * 90;
-      g.globalAlpha = Math.min(1, gacha.showT * 2);
-      Art.ell(g, x, py, 13, 13, '#f2cf3a');
-      Art.ell(g, x, py, 11, 11, '#fff0b8');
-      Icons.blit(g, gacha.prize.icon, x - 9, py - 9, 1.1);
-      g.globalAlpha = 1;
+    const k = (u - 0.78) / 0.22;                      // then straight down the neck
+    return [0, GUM_TOP + 18 + k * (GUM_BOT - GUM_TOP - 20)];
+  }
+  function gumTick(dt) {
+    gum.shake = Math.max(0, gum.shake - dt * 3);
+    if (gum.state === 'idle') return;
+    gum.t += dt;
+    if (gum.state === 'crank') {
+      gum.crank = U.clamp(gum.t / 0.4, 0, 1);
+      if (gum.t >= 0.4) { gum.state = 'roll'; gum.t = 0; Audio.play('whoosh'); }
+    } else if (gum.state === 'roll') {
+      if (gum.t >= 1.5) { gum.state = 'drop'; gum.t = 0; Audio.play('pop'); }
+    } else if (gum.state === 'drop') {
+      if (gum.t >= 0.5) { gum.state = 'show'; gum.t = 0; awardGum(gum.prize); }
+    } else if (gum.state === 'show') {
+      if (gum.t >= 1.8) { gum.state = 'idle'; gum.crank = 0; gum.prize = null; }
     }
   }
-  function spinGacha() {
-    if (gacha.spin > 0) return;
-    if (G.wd < PRIZE_COST) { Audio.play('error'); UI.toast('not enough for the machine', 'bad'); return; }
-    G.wd -= PRIZE_COST; G.spins = (G.spins || 0) + 1;
-    gacha.spin = 1; gacha.shake = 2;
+  function turnGum() {
+    if (gum.state !== 'idle') return;
+    if (G.wd < GUM_COST) { Audio.play('error'); UI.toast('you cannot afford a gumball', 'bad'); return; }
+    G.wd -= GUM_COST; G.gums = (G.gums || 0) + 1;
+    gum.prize = rollGum();
+    gum.state = 'crank'; gum.t = 0; gum.shake = 1.2;
+    Audio.play('coin');
+    UI.refreshHUD();
+  }
+  function awardGum(p) {
+    if (!p) return;
+    const wx = gum.x - scroll;
+    if (p.key === 'change') { const n = 2 + Math.floor(Math.random() * 5); G.wd += n; FX.coinBurst(wx, 300, 3); UI.toast(`${p.name} &middot; <b>${n} W$</b>`, 'good'); }
+    else if (p.key === 'silver') { const n = 40 + Math.floor(Math.random() * 60); G.wd += n; FX.coinBurst(wx, 300, 6); UI.toast(`${p.name} &middot; <b>${n} W$</b>`, 'good'); }
+    else if (p.key === 'gold') {
+      const n = 400 + Math.floor(Math.random() * 600); G.wd += n;
+      FX.coinBurst(wx, 300, 12); FX.confettiBurst(wx, 240, 60); FX.flash('rgba(242,207,58,0.3)', 0.3);
+      FX.comic(wx, 190, 'GOLD!', { ink: FX.COMIC_INK.pow, life: 1.1 });
+      UI.toast(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); Audio.play('chime');
+    } else if (p.key === 'seed') { const c = U.pick(CROPS.slice(0, 5)); G.seeds[c.key] = (G.seeds[c.key] || 0) + 2; UI.toast(`${p.name} &middot; <b>2 ${c.name}</b>`, 'good'); }
+    else if (p.key === 'cube') { G.offerings.plain = (G.offerings.plain || 0) + 1; UI.toast(p.name, 'good'); }
+    else if (p.key === 'sweet') { UI.toast(`${p.name}`, 'good'); FX.hearts(wx, 280, 3); }
+    else { UI.toast(`${p.name} <span class="dim">&mdash; ${p.say}</span>`, 'bad'); }
+    if (p.key !== 'gold') Audio.play('pop');
+    UI.refreshTray(); UI.refreshHUD();
+    Main.save();
+  }
+  function drawGum(g, S, t) {
+    const x = Math.round(gum.x - S);
+    gumR = { x: x - 28, y: 178, w: 56, h: 146 };
+    if (x < -80 || x > VW + 80) { gumR = null; return; }
+    const sh = gum.shake > 0 ? Math.sin(t * 52) * gum.shake : 0;
+    g.save(); g.translate(sh, 0);
+    g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, x, 324, 28, 6);
+    // ---- the pedestal ------------------------------------------------------
+    Art.rect(g, x - 24, 318, 48, 6, '#1d2230');                 // foot
+    Art.rect(g, x - 22, 319, 44, 4, '#6d7681');
+    Art.rect(g, x - 20, 284, 40, 36, '#1d2230');                // body
+    Art.rect(g, x - 18, 286, 36, 32, '#a8402c');
+    Tex.fill(g, 'shelfmet', x - 18, 286, 36, 32, 0.3);
+    Art.rect(g, x - 18, 286, 36, 3, '#cf5a44');
+    Art.rect(g, x - 18, 314, 36, 3, '#7a2418');
+    // the coin slot, the price plate and the handle you turn
+    Art.rect(g, x - 13, 290, 26, 10, '#1d2230');
+    Art.rect(g, x - 8, 294, 16, 2, '#d8b23a');
+    Art.rect(g, x - 15, 303, 30, 10, '#f4e8d0');
+    Font.draw(g, GUM_COST + ' W$', x, 305, { scale: 1, color: '#7a3a10', align: 'center' });
+    {                                        // the crank, a half turn per go
+      const a = gum.crank * Math.PI;
+      const hx2 = x + 16, hy2 = 295;
+      Art.rect(g, hx2 - 4, hy2 - 4, 8, 8, '#3a3f48');
+      Art.limb(g, hx2, hy2, hx2 + Math.cos(a) * 8, hy2 + Math.sin(a) * 8, 4, 4, '#c9c2ad');
+      Art.rect(g, hx2 + Math.cos(a) * 8 - 2.5, hy2 + Math.sin(a) * 8 - 2.5, 5, 5, '#8d96a0');
+    }
+    // the delivery flap, cut into the front of the pedestal
+    Art.rect(g, x - 13, GUM_BOT - 14, 26, 16, '#12181f');
+    Art.rect(g, x - 11, GUM_BOT - 12, 22, 12, '#2f3640');
+    const flap = (gum.state === 'drop' || gum.state === 'show') ? 6 : 0;
+    Art.poly(g, [[x - 11, GUM_BOT + 0], [x + 11, GUM_BOT + 0],
+                 [x + 11 - flap, GUM_BOT + flap], [x - 11 + flap, GUM_BOT + flap]], '#8d96a0');
+    // ---- the neck ----------------------------------------------------------
+    Art.rect(g, x - 10, GUM_TOP + 20, 20, 66, '#1d2230');
+    Art.rect(g, x - 8, GUM_TOP + 20, 16, 64, '#b8c2cc');
+    Art.rect(g, x - 8, GUM_TOP + 20, 4, 64, '#e0e8ee');
+    Art.rect(g, x + 4, GUM_TOP + 20, 3, 64, '#7b8792');
+    // the collar the hopper sits in
+    Art.rect(g, x - 28, GUM_TOP + 16, 56, 8, '#1d2230');
+    Art.rect(g, x - 26, GUM_TOP + 17, 52, 6, '#8d96a0');
+    Art.rect(g, x - 26, GUM_TOP + 17, 52, 2, '#c0c8d0');
+    // ---- the glass hopper: a six-sided tank, never a circle -----------------
+    const tank = (rw, rh) => {
+      const p2 = [];
+      for (let k = 0; k < 6; k++) { const a2 = (k / 6) * TAU + Math.PI / 6; p2.push([x + Math.cos(a2) * rw, GUM_TOP + Math.sin(a2) * rh]); }
+      return p2;
+    };
+    Art.poly(g, tank(GUM_RX + 2, GUM_RY + 2), '#1d2230');
+    Art.poly(g, tank(GUM_RX, GUM_RY), '#e8f4fa');
+    // the spiral chute, behind the sweets, so the roll has a visible groove
+    for (let u = 0; u < 0.78; u += 0.01) {
+      const [px, py] = gumPath(u);
+      Art.rect(g, x + px - 1, py + 4, 3, 1, 'rgba(146,176,196,0.4)');
+    }
+    // the gumballs, packed right up to the glass
+    const rg = Art.rng(19);
+    for (let row = 0; row < 8; row++) {
+      const dy = GUM_TOP - 18 + row * 5.6;
+      const half = Math.floor(Math.sqrt(Math.max(0, 1 - Math.pow((dy - GUM_TOP) / (GUM_RY - 2), 2))) * (GUM_RX - 4) / 5.6);
+      for (let i = -half; i <= half; i++) {
+        const gx = x + i * 5.6 + (row % 2 ? 2.8 : 0);
+        if (Math.abs(gx - x) > GUM_RX - 5) continue;
+        const wob = gum.state === 'crank' ? Math.sin(t * 30 + i + row) * 1.4 : 0;
+        const col = GUM_COL[Math.floor(rg() * GUM_COL.length)];
+        Art.ell(g, gx, dy + wob, 3.2, 3.2, U.shade(col, -0.32));
+        Art.ell(g, gx, dy + wob - 0.4, 2.5, 2.5, col);
+        Art.ell(g, gx - 0.9, dy + wob - 1.1, 1, 0.9, U.shade(col, 0.55));
+      }
+    }
+    Art.poly(g, tank(GUM_RX, GUM_RY), 'rgba(150,190,210,0.12)');
+    for (let k = 0; k < 6; k++) {                    // the frame between the panes
+      const a2 = (k / 6) * TAU + Math.PI / 6, a3 = ((k + 1) / 6) * TAU + Math.PI / 6;
+      Art.line(g, x + Math.cos(a2) * (GUM_RX + 1), GUM_TOP + Math.sin(a2) * (GUM_RY + 1),
+                  x + Math.cos(a3) * (GUM_RX + 1), GUM_TOP + Math.sin(a3) * (GUM_RY + 1), '#6d7681', 2);
+    }
+    Art.poly(g, [[x - 15, GUM_TOP - 18], [x - 7, GUM_TOP - 20], [x - 3, GUM_TOP + 2], [x - 11, GUM_TOP + 4]], 'rgba(255,255,255,0.32)');
+    // the ball on its way round and down
+    if ((gum.state === 'roll' || gum.state === 'drop') && gum.prize) {
+      const u = gum.state === 'roll' ? U.clamp(gum.t / 1.5, 0, 0.78)
+        : 0.78 + U.clamp(gum.t / 0.34, 0, 1) * 0.22;
+      const [px, py] = gumPath(u);
+      const col = gum.prize.col;
+      Art.ell(g, x + px, py + 3, 4, 1.6, 'rgba(40,60,70,0.35)');
+      Art.ell(g, x + px, py, 4.6, 4.6, U.shade(col, -0.35));
+      Art.ell(g, x + px, py - 0.4, 3.7, 3.7, col);
+      Art.ell(g, x + px - 1.2, py - 1.3, 1.4, 1.2, U.shade(col, 0.55));
+      if (Math.random() < 0.4) FX.spawn(x + px, py, 1, { color: ['#e4ecf2'], speed: 20, gravity: 60, life: 0.3, size: 1 });
+    }
+    // ---- the header card on top --------------------------------------------
+    Art.rect(g, x - 26, GUM_TOP - GUM_RY - 20, 52, 20, '#1d2230');
+    Art.rect(g, x - 24, GUM_TOP - GUM_RY - 18, 48, 16, '#e0764a');
+    Art.rect(g, x - 24, GUM_TOP - GUM_RY - 18, 48, 3, '#f2a46a');
+    Font.draw(g, 'GUM', x, GUM_TOP - GUM_RY - 15, { scale: 1, color: '#fff0dc', align: 'center' });
+    Font.draw(g, GUM_COST + ' W$', x, GUM_TOP - GUM_RY - 7, { scale: 1, color: '#7a2a10', align: 'center' });
+    // ---- what fell into the tray -------------------------------------------
+    if (gum.state === 'show' && gum.prize) {
+      const k = U.clamp(gum.t / 0.34, 0, 1);
+      const by = GUM_BOT + 4 - Math.abs(Math.sin(k * Math.PI * 2)) * 9 * (1 - k);
+      const col = gum.prize.col;
+      Art.ell(g, x, GUM_BOT + 6, 5.4, 2, 'rgba(0,0,0,0.3)');
+      Art.ell(g, x, by, 5.4, 5.4, U.shade(col, -0.35));
+      Art.ell(g, x, by - 0.5, 4.3, 4.3, col);
+      Art.ell(g, x - 1.5, by - 1.7, 1.6, 1.4, U.shade(col, 0.55));
+      g.globalAlpha = Math.min(1, gum.t * 3);
+      const w = Font.width(gum.prize.name, 1) + 10;
+      Art.rect(g, x - w / 2, 158, w, 13, '#1d2230');
+      Art.rect(g, x - w / 2 + 1, 159, w - 2, 11, gum.prize.key === 'gold' ? '#f2cf3a' : '#fffdf0');
+      Font.draw(g, gum.prize.name, x, 162, { scale: 1, color: '#2a2f3a', align: 'center' });
+      g.globalAlpha = 1;
+    }
+    g.restore();
+  }
+
+  // ---- the lottery -----------------------------------------------------------
+  // Three reels in a red cabinet. Press it, they all blur, then they stop one
+  // at a time from the left with a clunk, and the lights go round if you win.
+  // ---------------------------------------------------------------------------
+  function lottoTick(dt) {
+    lotto.flash = Math.max(0, lotto.flash - dt);
+    if (lotto.state === 'idle') return;
+    lotto.t += dt;
+    if (lotto.state === 'spin') {
+      for (let i = 0; i < 3; i++) if (lotto.t < lotto.spun[i]) lotto.reels[i] += dt * 26;
+      // each reel lands in turn, with a clunk
+      for (let i = 0; i < 3; i++) {
+        if (!lotto.res[i].landed && lotto.t >= lotto.spun[i]) { lotto.res[i].landed = true; Audio.play('place'); FX.punch && FX.punch(0.4); }
+      }
+      if (lotto.t >= lotto.spun[2] + 0.35) { lotto.state = 'show'; lotto.t = 0; payLotto(); }
+    } else if (lotto.state === 'show') {
+      if (lotto.t >= 2.2) { lotto.state = 'idle'; lotto.res = null; }
+    }
+  }
+  function playLotto() {
+    if (lotto.state !== 'idle') return;
+    if (G.wd < LOTTO_COST) { Audio.play('error'); UI.toast('not enough for a ticket', 'bad'); return; }
+    G.wd -= LOTTO_COST; G.tickets = (G.tickets || 0) + 1;
+    lotto.res = [rollLotto(), rollLotto(), rollLotto()].map((sy) => ({ sy, landed: false }));
+    lotto.spun = [0.9, 1.4, 1.95];
+    lotto.state = 'spin'; lotto.t = 0; lotto.win = 0;
     Audio.play('coin'); Audio.play('whoosh');
     UI.refreshHUD();
   }
-  function award(p) {
-    const say = (txt, kind) => UI.toast(txt, kind);
-    if (p.key === 'seed') { const c = U.pick(CROPS.slice(0, 5)); G.seeds[c.key] = (G.seeds[c.key] || 0) + 6; say(`${p.name} &middot; <b>6 ${c.name}</b>`, 'good'); }
-    else if (p.key === 'coin') { const n = 120 + Math.floor(Math.random() * 180); G.wd += n; FX.coinBurst(gacha.x - scroll, 300, 5); say(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); }
-    else if (p.key === 'purse') { const n = 900 + Math.floor(Math.random() * 1400); G.wd += n; FX.coinBurst(gacha.x - scroll, 300, 9); say(`${p.name} &middot; <b>${U.fmt(n)} W$</b>`, 'good'); }
-    else if (p.key === 'blessed') { const k = U.pick(OFFER_ORDER.slice(0, 5)); G.blessed[k] = (G.blessed[k] || 0) + 1; say(`${p.name} &middot; <b>blessed ${OFFERINGS[k].name}</b>`, 'good'); }
-    else if (p.key === 'trophy') {
-      G.trophies = (G.trophies || 0) + 1;
-      say(`<b>GOLDEN WOMBAT</b> &middot; every stack tips +8%`, 'good');
-      FX.confettiBurst(VW / 2, 120, 120); FX.flash('rgba(242,207,58,0.45)', 0.4); Audio.play('record');
-    } else {
-      const n = p.key === 'plain' ? 3 : p.key === 'rich' ? 2 : 1;
-      G.offerings[p.key] = (G.offerings[p.key] || 0) + n;
-      say(`${p.name}`, 'good');
+  function payLotto() {
+    const [a, b, c] = lotto.res.map((r2) => r2.sy);
+    const x = lotto.x - scroll;
+    let win = 0, txt = '';
+    if (a.key === b.key && b.key === c.key) { win = a.pay * LOTTO_COST; txt = 'THREE ' + a.key.toUpperCase(); }
+    else if (a.key === b.key || b.key === c.key || a.key === c.key) {
+      const pair = a.key === b.key ? a : b.key === c.key ? b : a;
+      win = Math.max(LOTTO_COST, Math.round(pair.pay * LOTTO_COST * 0.22));
+      txt = 'a pair of ' + pair.key;
     }
-    Audio.play(p.tier >= 2 ? 'chime' : 'pop');
-    if (p.tier >= 2) { FX.comic(VW / 2, 150, p.tier >= 3 ? 'JACKPOT' : 'RARE!', { ink: FX.COMIC_INK.pow, life: 1.1 }); }
-    UI.refreshHUD(); UI.refreshTray();
+    lotto.win = win;
+    if (win > 0) {
+      G.wd += win;
+      lotto.flash = 1.6;
+      FX.coinBurst(x, 250, Math.min(14, 3 + Math.round(win / 60)));
+      UI.toast(`${txt} &middot; <b>${U.fmt(win)} W$</b>`, 'good');
+      if (win >= LOTTO_COST * 10) {
+        FX.confettiBurst(x, 200, 110); FX.flash('rgba(242,207,58,0.4)', 0.4);
+        FX.comic(x, 170, 'JACKPOT', { ink: FX.COMIC_INK.pow, life: 1.2 });
+        Audio.play('record');
+      } else Audio.play('chime');
+    } else { UI.toast('no luck. next one, eh?', 'bad'); Audio.play('error'); }
+    UI.refreshHUD();
     Main.save();
   }
+  function drawLotto(g, S, t) {
+    const x = Math.round(lotto.x - S);
+    lottoR = { x: x - 38, y: 172, w: 76, h: 152 };
+    if (x < -80 || x > VW + 80) { lottoR = null; return; }
+    const shake = lotto.state === 'spin' ? Math.sin(t * 44) * 0.8 : 0;
+    g.save(); g.translate(shake, 0);
+    g.fillStyle = 'rgba(0,0,0,0.24)'; Art.ell(g, x, 322, 30, 5);
+    // the cabinet
+    Art.rect(g, x - 38, 172, 76, 152, '#1d2230');
+    Art.rect(g, x - 36, 174, 72, 148, '#b8342c');
+    Tex.fill(g, 'shelfmet', x - 36, 174, 72, 148, 0.24);
+    Art.rect(g, x - 36, 174, 72, 3, '#e05a4a');
+    Art.rect(g, x - 36, 318, 72, 4, '#7a1e18');
+    // the header, with lamps round it that chase when you win
+    Art.rect(g, x - 36, 174, 72, 24, '#12181f');
+    Art.rect(g, x - 34, 176, 68, 20, '#f2cf3a');
+    Font.draw(g, 'LOTTO', x, 179, { scale: 1, color: '#7a3a10', align: 'center' });
+    Font.draw(g, U.fmt(LOTTO_COST) + ' W$', x, 188, { scale: 1, color: '#7a3a10', align: 'center' });
+    for (let i = 0; i < 14; i++) {                   // a ring of lamps round the header
+      const on = lotto.flash > 0 ? ((Math.floor(t * 14) + i) % 3 === 0) : ((Math.floor(t * 2) + i) % 4 === 0);
+      let px, py;
+      if (i < 6) { px = x - 33 + i * 13; py = 171; }
+      else if (i < 8) { px = x + 34; py = 182 + (i - 6) * 12; }
+      else if (i < 13) { px = x + 34 - (i - 8) * 13; py = 200; }
+      else { px = x - 33; py = 186; }
+      Art.rect(g, px - 2, py - 2, 5, 5, '#5a1410');
+      Art.rect(g, px - 1, py - 1, 3, 3, on ? '#fff0a8' : '#8a5a20');
+    }
+    // the three reel windows
+    for (let i = 0; i < 3; i++) {
+      const rx = x - 23 + i * 23, ry = 222;
+      Art.rect(g, rx - 11, ry - 20, 22, 42, '#12181f');
+      Art.rect(g, rx - 10, ry - 19, 20, 40, '#2a3440');
+      g.save();
+      g.beginPath(); g.rect(rx - 10, ry - 19, 20, 40); g.clip();
+      const spinning = lotto.state === 'spin' && !(lotto.res && lotto.res[i].landed);
+      if (spinning) {
+        // a blur: streaks of the symbol colours running up the window
+        const off = (lotto.reels[i] * 34) % 20;
+        for (let k = -2; k < 4; k++) {
+          const sy2 = ry - 19 + k * 20 + off;
+          const sym = LOTTO_SYMS[(i * 3 + k + 40) % LOTTO_SYMS.length];
+          g.globalAlpha = 0.8;
+          Icons.blit(g, sym.icon, rx - 8, sy2, 1);
+          g.globalAlpha = 1;
+          Art.rect(g, rx - 10, sy2 + 6, 20, 2, 'rgba(180,210,230,0.45)');
+          Art.rect(g, rx - 10, sy2 + 13, 20, 1, 'rgba(180,210,230,0.3)');
+        }
+      } else if (lotto.res) {
+        // it lands with a small overshoot, then settles
+        const since = Math.max(0, lotto.t - lotto.spun[i]);
+        const k = U.clamp(since / 0.22, 0, 1);
+        const dy = (1 - k) * 7 * Math.cos(k * Math.PI * 2);
+        Icons.blit(g, lotto.res[i].sy.icon, rx - 8, ry - 8 + dy, 1);
+      } else {
+        Icons.blit(g, LOTTO_SYMS[i].icon, rx - 8, ry - 8, 1);
+      }
+      g.restore();
+      Art.rect(g, rx - 10, ry - 19, 20, 4, 'rgba(0,0,0,0.45)');    // glass shading
+      Art.rect(g, rx - 10, ry + 17, 20, 4, 'rgba(0,0,0,0.45)');
+      Art.rect(g, rx - 10, ry - 19, 3, 40, 'rgba(255,255,255,0.12)');
+    }
+    // the win line across the middle of them
+    Art.rect(g, x - 34, 221, 68, 1, lotto.flash > 0 && Math.floor(t * 12) % 2 ? '#fff0a8' : '#7a1e18');
+    // the plunger you press
+    const pressed = lotto.state === 'spin' ? 5 : 0;
+    Art.rect(g, x - 16, 258 + pressed, 32, 16 - pressed, '#12181f');
+    Art.rect(g, x - 14, 259 + pressed, 28, 13 - pressed, lotto.state === 'idle' ? '#e0764a' : '#8a4020');
+    Art.rect(g, x - 14, 259 + pressed, 28, 3, lotto.state === 'idle' ? '#f2a46a' : '#a0562c');
+    Font.draw(g, 'GO', x, 262 + pressed, { scale: 1, color: '#fff0dc', align: 'center' });
+    // the payout table down the front
+    Art.rect(g, x - 32, 278, 64, 34, '#12181f');
+    Art.rect(g, x - 31, 279, 62, 32, '#f4e8d0');
+    for (let i = 0; i < 3; i++) {
+      const sy2 = LOTTO_SYMS[5 - i];
+      Icons.blit(g, sy2.icon, x - 30, 280 + i * 10, 0.62);
+      Font.draw(g, 'x3', x - 14, 283 + i * 10, { scale: 1, color: '#9a7a56' });
+      Font.draw(g, 'x' + sy2.pay, x + 28, 283 + i * 10, { scale: 1, color: '#5a3a20', align: 'right' });
+    }
+    // the tray, and what fell into it
+    Art.rect(g, x - 20, 312, 40, 8, '#12181f');
+    Art.rect(g, x - 18, 313, 36, 6, '#3a3040');
+    if (lotto.state === 'show' && lotto.win > 0) {
+      const k = U.clamp(lotto.t / 0.4, 0, 1);
+      for (let i = 0; i < 5; i++) {
+        const cx3 = x - 10 + i * 5, cy3 = 316 - Math.abs(Math.sin(k * Math.PI + i)) * 10 * (1 - k * 0.6);
+        Art.ell(g, cx3, cy3, 3, 3, '#a97c1e');
+        Art.ell(g, cx3, cy3 - 0.5, 2.2, 2.2, '#f5cd5c');
+      }
+      g.globalAlpha = Math.min(1, lotto.t * 3);
+      const label = '+' + U.fmt(lotto.win) + ' W$';
+      const w = Font.width(label, 1) + 10;
+      Art.rect(g, x - w / 2, 160, w, 13, '#1d2230');
+      Art.rect(g, x - w / 2 + 1, 161, w - 2, 11, '#f2cf3a');
+      Font.draw(g, label, x, 164, { scale: 1, color: '#5a3a10', align: 'center' });
+      g.globalAlpha = 1;
+    } else if (lotto.state === 'show') {
+      g.globalAlpha = Math.max(0, 1 - lotto.t);
+      Font.draw(g, 'NO LUCK', x, 164, { scale: 1, color: '#f0d0c0', align: 'center', shadow: '#2a1008' });
+      g.globalAlpha = 1;
+    }
+    g.restore();
+  }
+
 
   // A hanging aisle plaque, the thing that makes a shop legible at a glance.
   function sign(g, cx, cy, text, color, sub) {
@@ -1100,7 +1346,7 @@ const Shop = (() => {
       shaz.wait -= dt;
       if (shaz.wait <= 0) {
         shaz.wait = 3.4 + Math.random() * 4.5;
-        shaz.tx = SHAZ_HOME - Math.random() * 300;       // somewhere along the aisle
+        shaz.tx = SHAZ_HOME + 60 + Math.random() * 300;  // out into the aisles and back
         if (shaz.poseT <= 0 && Math.random() < 0.6) {
           shaz.mood = (shaz.mood + 1 + Math.floor(Math.random() * 3)) % SHAZ_MOODS.length;
           shaz.pose = SHAZ_MOODS[shaz.mood]; shaz.poseT = 2.6 + Math.random() * 2;
@@ -1177,7 +1423,9 @@ const Shop = (() => {
   return {
     init(g) { G = g; }, open, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
     add, addById, removeOne, removeLine, clear, checkout, total, lines, layout, catalogue,
-    get gachaHit() { return gachaR; },
+    turnGum, playLotto,
+    get gumHit() { return gumR; },
+    get lottoHit() { return lottoR; },
     get shazTalking() { return shaz.pose === 'talk'; },
     setScroll(f) { tscroll = (worldW - VW) * U.clamp(f, 0, 1); scroll = tscroll; },
     get basket() { return basket; }, get phase() { return phase; }, get worldW() { return worldW; },

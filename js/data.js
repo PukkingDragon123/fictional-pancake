@@ -278,24 +278,43 @@ function tipBonus(g) {
 // ---- The Mart's prize machine --------------------------------------------
 // A capsule machine by the till. You put a coin in, the drum turns, and you
 // get whatever it feels like giving you. Weights are relative, not percentages.
-const PRIZE_COST = 250;
-const PRIZES = [
-  { key: 'seed',   w: 22, name: 'A fistful of seed',  icon: 't_seed',   tier: 0 },
-  { key: 'coin',   w: 20, name: 'Loose change',       icon: 'wdollar',  tier: 0 },
-  { key: 'plain',  w: 18, name: 'Three plain cubes',  icon: 'o_plain',  tier: 0 },
-  { key: 'rich',   w: 12, name: 'Two rich cubes',     icon: 'o_rich',   tier: 1 },
-  { key: 'blessed', w: 10, name: 'A blessed cube',    icon: 'o_resin',  tier: 1 },
-  { key: 'purse',  w: 8,  name: 'A fat purse',        icon: 'wdollar',  tier: 1 },
-  { key: 'gold',   w: 5,  name: 'A gilded cube',      icon: 'o_gold',   tier: 2 },
-  { key: 'rune',   w: 3,  name: 'A rune cube',        icon: 'o_rune',   tier: 2 },
-  { key: 'trophy', w: 2,  name: 'GOLDEN WOMBAT',      icon: 'wombat',   tier: 3 },
+// ---- the two machines by the till ----------------------------------------
+// The gumball machine is a 1 W$ habit. Most of what comes out is worth about
+// what you paid; once in a while it is not, and that is the whole appeal.
+const GUM_COST = 1;
+const GUMBALLS = [
+  { key: 'dud',    w: 34, name: 'A chewed one',   col: '#8d8577', say: 'someone already had this' },
+  { key: 'change', w: 26, name: 'A few coins',    col: '#d8b23a', say: '' },
+  { key: 'sweet',  w: 16, name: 'Actually nice',  col: '#e0764a', say: '' },
+  { key: 'seed',   w: 10, name: 'A seed inside',  col: '#4f9a42', say: '' },
+  { key: 'cube',   w: 8,  name: 'A plain cube',   col: '#7a5636', say: '' },
+  { key: 'silver', w: 4,  name: 'A silver one',   col: '#b4c0cc', say: '' },
+  { key: 'gold',   w: 2,  name: 'A GOLD one',     col: '#f2cf3a', say: '' },
 ];
-const PRIZE_TOTAL = PRIZES.reduce((a, p) => a + p.w, 0);
-function rollPrize() {
-  let n = Math.random() * PRIZE_TOTAL;
-  for (const p of PRIZES) { n -= p.w; if (n <= 0) return p; }
-  return PRIZES[0];
+const GUM_TOTAL = GUMBALLS.reduce((a, p) => a + p.w, 0);
+function rollGum() {
+  let n = Math.random() * GUM_TOTAL;
+  for (const p of GUMBALLS) { n -= p.w; if (n <= 0) return p; }
+  return GUMBALLS[0];
 }
+// The lottery is three reels. Two alike pays a little, three alike pays what
+// the symbol is worth, and three wombats is the roof.
+const LOTTO_COST = 40;
+const LOTTO_SYMS = [
+  { key: 'grass',  w: 30, icon: 'c_ashgrass', pay: 3 },
+  { key: 'seed',   w: 24, icon: 't_seed',     pay: 5 },
+  { key: 'poop',   w: 18, icon: 'o_plain',    pay: 10 },
+  { key: 'sickle', w: 13, icon: 't_sickle',   pay: 18 },
+  { key: 'coin',   w: 9,  icon: 'wdollar',    pay: 40 },
+  { key: 'wombat', w: 4,  icon: 'wombat',     pay: 150 },
+];
+const LOTTO_TOTAL = LOTTO_SYMS.reduce((a, p) => a + p.w, 0);
+function rollLotto() {
+  let n = Math.random() * LOTTO_TOTAL;
+  for (const p of LOTTO_SYMS) { n -= p.w; if (n <= 0) return p; }
+  return LOTTO_SYMS[0];
+}
+
 // Every Golden Wombat on the shelf pays a little more at the stack, for good.
 const trophyBonus = (g) => (g.trophies || 0) * 0.08;
 

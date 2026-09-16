@@ -58,17 +58,20 @@ const Atlas = (() => {
   // shape. Soft greens, round trees, little red roofs, and as many small
   // living things tucked into it as will fit.
   const HW = 320, HH = 180;
-  const G0 = '#5d8a48', G1 = '#6fa254', G2 = '#84b866', G3 = '#9ccc7c';   // grass
-  const GD = '#456b36', GD2 = '#35552a';                                  // grass shade
-  const W0 = '#3f7fb0', W1 = '#58a0cc', W2 = '#8ccfe8', W3 = '#c8eef8';   // water
-  const SAND = '#e2cf9a', SAND2 = '#c9b276';
-  const RD = '#e6d3a4', RDE = '#b79a68';                                  // paths
-  const OUT = '#2d3d24';                                                  // the one dark line
-  const TR0 = '#2f5a2c', TR1 = '#427a38', TR2 = '#5c9c48', TR3 = '#7cbe60';
-  const BLOS = '#f0a0c0', BLOS2 = '#ffc8dd';
-  const PIN0 = '#2a4a30', PIN1 = '#3d6b3a', PIN2 = '#558c4c';
-  const RF = ['#d2564a', '#e0764a', '#c98ad8', '#5c9cd8', '#e0b84a'];     // roof colours
-  const WALL = '#f2e4c8', WALL2 = '#d6c2a0';
+  // The wood at night, drawn from above: everything is a deep cold green and
+  // the only warm light on the sheet comes out of a window or a lamp.
+  const G0 = '#20361f', G1 = '#28401f', G2 = '#2f4c26', G3 = '#39592c';   // grass
+  const GD = '#182a17', GD2 = '#0f1d10';                                  // grass shade
+  const W0 = '#14384e', W1 = '#1e5068', W2 = '#2f7288', W3 = '#5fa0b4';   // water
+  const SAND = '#4a4636', SAND2 = '#343224';
+  const RD = '#5a5340', RDE = '#2e2b1e';                                  // paths
+  const OUT = '#0b1409';                                                  // the one dark line
+  const TR0 = '#0f1f10', TR1 = '#183018', TR2 = '#224222', TR3 = '#315c2d';
+  const BLOS = '#6a4a62', BLOS2 = '#9e7a92';                              // pale ghost blossom
+  const PIN0 = '#0c1a12', PIN1 = '#142a1a', PIN2 = '#1e3d26';
+  const RF = ['#5a2a24', '#5c3826', '#43304e', '#26405c', '#5c4a24'];     // roof colours
+  const WALL = '#4a4234', WALL2 = '#332e24';
+  const LAMP = '#ffcf6a', LAMP2 = '#f0a83a';                              // lamplight
 
   // a chunky round tree: outline, body, a lit cap and a stubby trunk
   function cuteTree(q, x, y, s, kind, seed) {
@@ -88,13 +91,13 @@ const Atlas = (() => {
     }
     const lob = kind === 'blossom' ? BLOS : TR2;
     const lob2 = kind === 'blossom' ? BLOS2 : TR3;
-    Art.ell(q, x, y - s * 1.25, s * 1.15, s * 1.05, kind === 'blossom' ? '#b86a90' : TR0);
-    Art.ell(q, x, y - s * 1.3, s * 1.0, s * 0.9, kind === 'blossom' ? '#d888ac' : TR1);
+    Art.ell(q, x, y - s * 1.25, s * 1.15, s * 1.05, kind === 'blossom' ? '#3d2a3c' : TR0);
+    Art.ell(q, x, y - s * 1.3, s * 1.0, s * 0.9, kind === 'blossom' ? '#4f3a50' : TR1);
     Art.ell(q, x - s * 0.22, y - s * 1.55, s * 0.68, s * 0.55, lob);
     Art.ell(q, x - s * 0.36, y - s * 1.7, s * 0.4, s * 0.3, lob2);
     if (kind === 'fruit') {                                    // a few berries
       const r2 = Art.rng(seed);
-      for (let i = 0; i < 3; i++) Art.rect(q, x + (r2() - 0.5) * s * 1.4, y - s * (0.9 + r2() * 0.8), 2, 2, '#e05a5a');
+      for (let i = 0; i < 3; i++) Art.rect(q, x + (r2() - 0.5) * s * 1.4, y - s * (0.9 + r2() * 0.8), 2, 2, '#8a2f38');
     }
   }
   // a rounded green hill with a lit crown and a couple of tufts on it
@@ -120,42 +123,48 @@ const Atlas = (() => {
     Art.poly(q, [[x - 1, y - 1], [x + w + 1, y - 1], [x + w - 1, y - h * 0.75], [x + 1, y - h * 0.75]], roof);
     Art.poly(q, [[x - 1, y - 1], [x + w + 1, y - 1], [x + w, y - 2], [x, y - 2]], U.shade(roof, -0.25));
     Art.rect(q, x + 1, y - h * 0.75, w - 2, 1, U.shade(roof, 0.28));
-    Art.rect(q, x + 1, y + h - 3, 2, 3, '#7a4a2a');             // the door
-    Art.rect(q, x + w - 4, y + 1, 2, 2, '#8cd8f0');             // the window
-    Art.rect(q, x + w - 3, y - h * 0.75 - 3, 2, 3, '#6b5a4a');  // the chimney
+    Art.rect(q, x + 1, y + h - 3, 2, 3, '#241a12');             // the door
+    // the windows are the only warm thing out here, so they glow
+    Art.rect(q, x + w - 4, y + 1, 2, 2, LAMP);
+    Art.rect(q, x + w - 5, y, 4, 4, 'rgba(255,207,106,0.22)');
+    Art.rect(q, x + w - 6, y - 1, 6, 6, 'rgba(255,207,106,0.1)');
+    if (w > 8) { Art.rect(q, x + 1, y + 1, 2, 2, LAMP2); Art.rect(q, x, y, 4, 4, 'rgba(240,168,58,0.18)'); }
+    Art.rect(q, x + w - 3, y - h * 0.75 - 3, 2, 3, '#1e1810');  // the chimney
     for (let i = 0; i < 3; i++) {                              // smoke going up
       const sx = x + w - 3 + ((i % 2) ? 1 : -1), sy = y - h * 0.75 - 5 - i * 3;
-      Art.ell(q, sx, sy, 1.4 + i * 0.5, 1.2 + i * 0.4, 'rgba(244,238,226,0.75)');
+      Art.ell(q, sx, sy, 1.4 + i * 0.5, 1.2 + i * 0.4, 'rgba(180,186,190,0.45)');
     }
   }
   // the animals. Each one is four or five pixels and that is all it needs.
   function sheep(q, x, y) {
-    Art.ell(q, x, y, 4, 3, '#f4efe2'); Art.ell(q, x - 1, y - 1, 2.6, 1.8, '#ffffff');
-    Art.rect(q, x + 3, y - 1, 3, 3, '#3a3430'); Art.rect(q, x + 4, y, 1, 1, '#ffffff');
-    Art.rect(q, x - 2, y + 2, 1, 2, '#3a3430'); Art.rect(q, x + 1, y + 2, 1, 2, '#3a3430');
+    Art.ell(q, x, y, 4, 3, '#a8a698'); Art.ell(q, x - 1, y - 1, 2.6, 1.8, '#c8c6b8');
+    Art.rect(q, x + 3, y - 1, 3, 3, '#1a1814'); Art.rect(q, x + 4, y, 1, 1, '#c8c6b8');
+    Art.rect(q, x - 2, y + 2, 1, 2, '#1a1814'); Art.rect(q, x + 1, y + 2, 1, 2, '#1a1814');
   }
   function wombat(q, x, y) {
-    Art.ell(q, x, y, 4.4, 3.2, '#a8764e'); Art.ell(q, x - 1, y - 1, 3, 1.8, '#c99268');
-    Art.rect(q, x + 3, y - 2, 3, 3, '#a8764e'); Art.rect(q, x + 3, y - 3, 1, 1, '#8a5c3c');
-    Art.rect(q, x + 5, y - 1, 1, 1, '#2a1a14');
+    Art.ell(q, x, y, 4.4, 3.2, '#5e442e'); Art.ell(q, x - 1, y - 1, 3, 1.8, '#7a5a3c');
+    Art.rect(q, x + 3, y - 2, 3, 3, '#5e442e'); Art.rect(q, x + 3, y - 3, 1, 1, '#4a3424');
+    Art.rect(q, x + 5, y - 1, 1, 1, '#ffcf6a');                 // one eye catching the light
     Art.rect(q, x - 2, y + 2, 1, 2, '#8a5c3c'); Art.rect(q, x + 2, y + 2, 1, 2, '#8a5c3c');
   }
   function duck(q, x, y) {
-    Art.ell(q, x, y, 3.4, 2.4, '#f4f0e4'); Art.rect(q, x + 2, y - 3, 2, 3, '#f4f0e4');
-    Art.rect(q, x + 4, y - 2, 2, 1, '#e8a83a'); Art.rect(q, x + 3, y - 3, 1, 1, '#2a1a14');
+    Art.ell(q, x, y, 3.4, 2.4, '#b4b0a2'); Art.rect(q, x + 2, y - 3, 2, 3, '#b4b0a2');
+    Art.rect(q, x + 4, y - 2, 2, 1, '#c08a2a'); Art.rect(q, x + 3, y - 3, 1, 1, '#141008');
   }
   function bird(q, x, y) {
     Art.rect(q, x, y, 2, 1, '#4a4438'); Art.rect(q, x + 2, y - 1, 2, 1, '#4a4438');
     Art.rect(q, x + 4, y, 2, 1, '#4a4438');
   }
+  // the toadstools glow out here, which is either lovely or a warning
   function mushroom(q, x, y, col) {
-    Art.rect(q, x, y, 2, 2, '#f0e2c4'); Art.ell(q, x + 1, y - 1, 2.6, 1.8, col);
-    Art.rect(q, x, y - 2, 1, 1, '#ffffff');
+    Art.rect(q, x - 1, y - 3, 6, 6, 'rgba(120,200,180,0.08)');
+    Art.rect(q, x, y, 2, 2, '#9c9480'); Art.ell(q, x + 1, y - 1, 2.6, 1.8, col);
+    Art.rect(q, x, y - 2, 1, 1, '#d8f4e8');
   }
   function flower(q, x, y, col) {
-    Art.rect(q, x, y, 1, 2, '#3f7a38');
+    Art.rect(q, x, y, 1, 2, '#1d3a1c');
     Art.rect(q, x - 1, y - 1, 3, 1, col); Art.rect(q, x, y - 2, 1, 2, col);
-    Art.rect(q, x, y - 1, 1, 1, '#ffeaa8');
+    Art.rect(q, x, y - 1, 1, 1, '#8ad8c0');
   }
 
   function sheetOf() {
@@ -231,9 +240,17 @@ const Atlas = (() => {
     for (let i = 0; i < 5; i++) {                                // lily pads
       const a = (i / 5) * TAU, lx = LX2 + Math.cos(a) * LRX * 0.6, ly = LY2 + Math.sin(a) * LRY * 0.6;
       Art.ell(q, lx, ly, 3, 2, TR1); Art.ell(q, lx, ly, 2.2, 1.4, TR2);
-      if (i % 2) Art.rect(q, lx, ly - 1, 2, 2, BLOS2);
+      if (i % 2) Art.rect(q, lx, ly - 1, 2, 2, '#7a6a80');
     }
     duck(q, LX2 - 8, LY2 + 3);
+    // a lamp on the end of the jetty, and its reflection on the water
+    Art.rect(q, LX2 - LRX + 2, LY2 + 1, 1, 6, '#2a2418');
+    Art.rect(q, LX2 - LRX + 1, LY2 - 1, 3, 3, '#ffcf6a');
+    for (let k = 4; k >= 1; k--) {
+      const oa = q.globalAlpha; q.globalAlpha = 0.09 * (1 - (k - 1) / 4.4);
+      Art.ell(q, LX2 - LRX + 2, LY2 + 1, 5 * k, 3.4 * k, '#ffcf6a');
+      q.globalAlpha = oa;
+    }
     duck(q, LX2 + 6, LY2 - 4);
     // a little jetty with a boat tied to it
     Art.rect(q, LX2 - LRX - 2, LY2 + 6, 10, 2, '#9a7448');
@@ -329,28 +346,40 @@ const Atlas = (() => {
     };
     for (let i = 0; i < 11; i++) { const p2 = openSpot(); if (p2) sheep(q, p2[0], p2[1]); }
     for (let i = 0; i < 8; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
-    for (let i = 0; i < 26; i++) mushroom(q, r() * HW, r() * HH, ['#d2564a', '#e0904a', '#c98ad8'][i % 3]);
-    for (let i = 0; i < 80; i++) flower(q, r() * HW, r() * HH, ['#f0a0c0', '#f4dc6a', '#c8a0e8', '#f4f0e4'][i % 4]);
+    for (let i = 0; i < 26; i++) mushroom(q, r() * HW, r() * HH, ['#7a3a4a', '#6a5a2a', '#5a4a72'][i % 3]);
+    for (let i = 0; i < 80; i++) flower(q, r() * HW, r() * HH, ['#7a5a72', '#6a6a3a', '#5a4a72', '#8a9088'][i % 4]);
     for (let i = 0; i < 14; i++) bird(q, r() * HW, 4 + r() * (HH * 0.5));
     // a campfire out in the scrub, with somebody's tent next to it
     {
       const cx3 = 118, cy3 = 70;
+      for (let k = 4; k >= 1; k--) {                              // the light it throws
+        const oa = q.globalAlpha; q.globalAlpha = 0.09 * (1 - (k - 1) / 4.4);
+        Art.ell(q, cx3, cy3 + 1, 6 * k, 4.4 * k, '#e0a84a');
+        q.globalAlpha = oa;
+      }
       Art.poly(q, [[cx3 - 7, cy3 + 4], [cx3, cy3 - 5], [cx3 + 7, cy3 + 4]], '#e0a84a');
-      Art.poly(q, [[cx3 - 5, cy3 + 4], [cx3, cy3 - 3], [cx3 + 5, cy3 + 4]], '#f4d888');
-      Art.rect(q, cx3 - 7, cy3 + 4, 14, 1, '#8a6440');
-      Art.rect(q, cx3 + 10, cy3 + 2, 6, 1, '#7a5636');
-      Art.poly(q, [[cx3 + 10, cy3 + 2], [cx3 + 13, cy3 - 3], [cx3 + 16, cy3 + 2]], '#e0764a');
-      Art.rect(q, cx3 + 12, cy3 - 1, 2, 3, '#a03a2a');
+      Art.poly(q, [[cx3 - 5, cy3 + 4], [cx3, cy3 - 3], [cx3 + 5, cy3 + 4]], '#ffeaa8');
+      Art.rect(q, cx3 - 7, cy3 + 4, 14, 1, '#3a2a18');
+      Art.rect(q, cx3 + 10, cy3 + 2, 6, 1, '#2a1e12');
+      Art.poly(q, [[cx3 + 10, cy3 + 2], [cx3 + 13, cy3 - 3], [cx3 + 16, cy3 + 2]], '#5a3226');
+      Art.rect(q, cx3 + 12, cy3 - 1, 2, 3, '#ffcf6a');
+    }
+    // mist pooling in the low ground between the woods
+    for (let i = 0; i < 30; i++) {
+      const mx = r() * HW, my = r() * HH, mw = 12 + r() * 26;
+      const oa = q.globalAlpha; q.globalAlpha = 0.12 + r() * 0.1;
+      Art.ell(q, mx, my, mw, mw * 0.3, '#8aa8a0');
+      Art.ell(q, mx - mw * 0.3, my + 1.4, mw * 0.5, mw * 0.2, '#a4c0b8');
+      q.globalAlpha = oa;
     }
     // clouds drifting over the whole thing, so there is sky in it
     for (let i = 0; i < 7; i++) {
       const cx3 = r() * HW, cy3 = r() * HH, cw = 9 + r() * 12;
-      const oa = q.globalAlpha; q.globalAlpha = 0.3;
-      Art.ell(q, cx3, cy3, cw, cw * 0.4, '#ffffff');
-      Art.ell(q, cx3 - cw * 0.4, cy3 - 1.4, cw * 0.5, cw * 0.3, '#ffffff');
-      Art.ell(q, cx3 + cw * 0.35, cy3 - 1, cw * 0.4, cw * 0.26, '#ffffff');
-      q.globalAlpha = oa * 0.14;
-      Art.ell(q, cx3 + 3, cy3 + 4, cw, cw * 0.4, '#2a3a20');       // and their shadow on the grass
+      const oa = q.globalAlpha; q.globalAlpha = 0.16;
+      Art.ell(q, cx3, cy3, cw, cw * 0.4, '#8f9cb4');
+      Art.ell(q, cx3 - cw * 0.4, cy3 - 1.4, cw * 0.5, cw * 0.3, '#a8b4c8');
+      q.globalAlpha = oa * 0.3;
+      Art.ell(q, cx3 + 3, cy3 + 4, cw, cw * 0.4, '#070c08');       // and their shadow on the grass
       q.globalAlpha = oa;
     }
 
@@ -360,35 +389,35 @@ const Atlas = (() => {
 
     // ---- the names, at full resolution so they stay readable ---------------
     for (const [lx, ly, tx2, col] of [
-      [330, 246, 'WOMBAT FLAT', '#3d5a2c'], [112, 74, 'FERN GULLY', '#3d5a2c'],
-      [512, 44, 'STILL LAKE', '#2d5a72'], [248, 128, 'THE SCRUB', '#3d5a2c'],
-      [560, 292, 'BLACKWOOD', '#3d5a2c'], [128, 320, 'STONE FLAT', '#3d5a2c'],
-      [452, 340, 'THE FLATS', '#3d5a2c']]) {
+      [330, 246, 'WOMBAT FLAT', '#9cb88a'], [112, 74, 'FERN GULLY', '#9cb88a'],
+      [512, 44, 'STILL LAKE', '#8ab4c8'], [248, 128, 'THE SCRUB', '#9cb88a'],
+      [560, 292, 'BLACKWOOD', '#9cb88a'], [128, 320, 'STONE FLAT', '#9cb88a'],
+      [452, 340, 'THE FLATS', '#9cb88a']]) {
       const w = Font.width(tx2, 1);
-      Art.rect(g, lx - w / 2 - 5, ly - 4, w + 10, 14, 'rgba(24,34,18,0.35)');
-      Art.rect(g, lx - w / 2 - 4, ly - 4, w + 8, 13, '#f6eccc');
-      Art.rect(g, lx - w / 2 - 4, ly - 4, w + 8, 2, '#ffffff');
-      Art.rect(g, lx - w / 2 - 4, ly + 7, w + 8, 2, '#d8c8a0');
+      Art.rect(g, lx - w / 2 - 5, ly - 4, w + 10, 14, 'rgba(2,8,4,0.5)');
+      Art.rect(g, lx - w / 2 - 4, ly - 4, w + 8, 13, '#22301e');
+      Art.rect(g, lx - w / 2 - 4, ly - 4, w + 8, 2, '#3a4c33');
+      Art.rect(g, lx - w / 2 - 4, ly + 7, w + 8, 2, '#131c11');
       Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center' });
     }
     // a four-point compass rose, chunky enough to match the rest
     const cx2 = 52, cy2 = 274;
-    Art.rect(g, cx2 - 30, cy2 - 42, 60, 74, 'rgba(24,34,18,0.3)');
-    Art.rect(g, cx2 - 29, cy2 - 42, 58, 72, '#f6eccc');
-    Art.rect(g, cx2 - 29, cy2 - 42, 58, 3, '#ffffff');
-    Art.rect(g, cx2 - 29, cy2 + 27, 58, 3, '#d8c8a0');
+    Art.rect(g, cx2 - 30, cy2 - 42, 60, 74, 'rgba(2,8,4,0.5)');
+    Art.rect(g, cx2 - 29, cy2 - 42, 58, 72, '#22301e');
+    Art.rect(g, cx2 - 29, cy2 - 42, 58, 3, '#3a4c33');
+    Art.rect(g, cx2 - 29, cy2 + 27, 58, 3, '#131c11');
     for (let k = 0; k < 4; k++) {
       const a = (k / 4) * TAU - Math.PI / 2;
       Art.poly(g, [[cx2 + Math.cos(a) * 22, cy2 + Math.sin(a) * 22],
                    [cx2 + Math.cos(a + 2.2) * 7, cy2 + Math.sin(a + 2.2) * 7],
-                   [cx2 + Math.cos(a - 2.2) * 7, cy2 + Math.sin(a - 2.2) * 7]], k ? '#c9b78c' : '#c04a3c');
+                   [cx2 + Math.cos(a - 2.2) * 7, cy2 + Math.sin(a - 2.2) * 7]], k ? '#4e6244' : '#8a3028');
       Art.poly(g, [[cx2 + Math.cos(a) * 19, cy2 + Math.sin(a) * 19],
                    [cx2 + Math.cos(a + 2.2) * 4.6, cy2 + Math.sin(a + 2.2) * 4.6],
-                   [cx2 + Math.cos(a - 2.2) * 4.6, cy2 + Math.sin(a - 2.2) * 4.6]], k ? '#ffffff' : '#f2867a');
+                   [cx2 + Math.cos(a - 2.2) * 4.6, cy2 + Math.sin(a - 2.2) * 4.6]], k ? '#9cb88a' : '#d05a4a');
     }
-    Art.rect(g, cx2 - 4, cy2 - 4, 8, 8, '#3d5a2c');
-    Art.rect(g, cx2 - 3, cy2 - 3, 6, 6, '#f6eccc');
-    Font.draw(g, 'N', cx2, cy2 - 38, { scale: 1, color: '#3d5a2c', align: 'center' });
+    Art.rect(g, cx2 - 4, cy2 - 4, 8, 8, '#131c11');
+    Art.rect(g, cx2 - 3, cy2 - 3, 6, 6, '#9cb88a');
+    Font.draw(g, 'N', cx2, cy2 - 38, { scale: 1, color: '#9cb88a', align: 'center' });
     sheet = c;
     return c;
   }
@@ -542,7 +571,7 @@ const Atlas = (() => {
     // ---- the grade: a cold wood, lit only where you have been -------------
     g.save();
     g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = '#f0c86a'; g.globalAlpha = 0.28; g.fillRect(0, 0, VW, VH);
+    g.fillStyle = '#1a3a6a'; g.globalAlpha = 0.46; g.fillRect(0, 0, VW, VH);
     g.restore();
     g.save();
     g.globalCompositeOperation = 'screen';
@@ -559,7 +588,7 @@ const Atlas = (() => {
     }
     g.restore();
     // the vignette, dithered so the falloff bands instead of blurring
-    Art.vignette(g, VW, VH, '#14280e', 0.34, 2.6, 0.42);
+    Art.vignette(g, VW, VH, '#04100a', 0.72, 2.2, 0.3);
 
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);

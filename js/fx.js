@@ -36,42 +36,14 @@ const FX = (() => {
   // through the dark, and the whole thing comes back the same way in reverse.
   let curtain = null;
   const CELL = 16;
-  const ORD = new Map();                       // cell key -> its two shuffle keys
-  const MOTES = [];
-  function cellOrder(cols, rows) {
-    const k = cols + 'x' + rows;
-    let o = ORD.get(k);
-    if (o) return o;
-    const r = Art.rng(4211 + cols * 131 + rows);
-    const cells = [];
-    for (let cy = 0; cy < rows; cy++) {
-      for (let cx = 0; cx < cols; cx++) {
-        // a spiral out of the middle, jittered so it still reads as scattered
-        const dx = (cx + 0.5) / cols - 0.5, dy = (cy + 0.5) / rows - 0.5;
-        const d = Math.sqrt(dx * dx + dy * dy) / 0.72;
-        const a2 = (Math.atan2(dy, dx) + Math.PI) / TAU;
-        cells.push({ cx, cy, in: d * 0.62 + a2 * 0.24 + r() * 0.3, out: r() * 0.7 + (1 - d) * 0.4, ph: r() * TAU });
-      }
-    }
-    const norm = (key) => {
-      const s2 = cells.slice().sort((a, b) => a[key] - b[key]);
-      s2.forEach((c, i) => { c[key] = i / (s2.length - 1 || 1); });
-    };
-    norm('in'); norm('out');
-    o = cells;
-    ORD.set(k, o);
-    return o;
-  }
+  // ---- the transition ------------------------------------------------------
+  // It used to be a spiral of lighting cells with motes rising through it. It
+  // is now a plain two-step wipe: chunky columns drop in from the top to cover
+  // the screen, hold, then drop out the bottom. Nothing to read, nothing to
+  // wait for — it is over in under half a second each way.
   function trees(onShut, onDone) {
-    curtain = { t: 0, shut: 0.72, hold: 0.26, open: 0.6, fired: false, onShut, onDone };
-    MOTES.length = 0;
-    for (let i = 0; i < 46; i++) {
-      MOTES.push({ x: Math.random(), y: Math.random(), sp: 0.1 + Math.random() * 0.28,
-        ph: Math.random() * TAU, r: 1 + Math.random() * 2.4, hue: Math.random() < 0.35 ? 1 : 0 });
-    }
+    curtain = { t: 0, shut: 0.28, hold: 0.1, open: 0.24, fired: false, onShut, onDone };
   }
-  const SPARK = ['#fff4c8', '#f5cd5c', '#d8a52f'];
-  const GLOW = ['#b98ef0', '#79dced', '#f5cd5c'];
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
@@ -81,65 +53,19 @@ const FX = (() => {
     else { cover = 1 - (c.t - c.shut - c.hold) / c.open; phase = 'out'; }
     cover = U.clamp(cover, 0, 1);
     if (cover <= 0) return;
-    const cols = Math.ceil(W / CELL), rows = Math.ceil(H / CELL);
-    const cells = cellOrder(cols, rows);
-    const e = phase === 'in' ? U.easeInOut(cover) : cover;
-    // the wavefront, running just ahead of the blocks
-    const cx0 = W / 2, cy0 = H / 2, maxR = Math.hypot(W, H) / 2;
-    if (cover < 1) {
-      const rad = (phase === 'in' ? e : 1 - e) * maxR * 1.25;
-      const ra = 0.2 * (1 - Math.abs(cover - 0.5) * 1.4);
-      if (ra > 0.02) {                            // the wavefront, as dithered pixel rings
-        for (let i = 0; i < 4; i++) {
-          const rr = rad - 24 + i * 14;
-          if (rr <= 2) continue;
-          Art.ring(g, cx0, cy0, rr, rr, i < 2 ? '#b98ef0' : '#79dced', 2 + i);
-        }
-      }
-    }
-    for (const cel of cells) {
-      const k = cel[phase];
-      const p = phase === 'in' ? e - k : (1 - e) - (1 - k);
-      if (p <= 0) continue;
-      const x = cel.cx * CELL, y = cel.cy * CELL;
-      if (p < 0.1) {                           // it lights up before it goes out
-        const q = p / 0.1;
-        const m = Math.round(CELL * (0.42 - q * 0.34));
-        g.fillStyle = SPARK[Math.floor(q * 3) % 3];
-        g.fillRect(x + m, y + m, CELL - m * 2, CELL - m * 2);
-      } else if (p < 0.2) {                    // then dims through violet
-        const q = (p - 0.1) / 0.1;
-        g.fillStyle = q < 0.5 ? '#6a4a9a' : '#2a1f3c';
-        g.fillRect(x, y, CELL, CELL);
-      } else {
-        g.fillStyle = '#07060e';
-        g.fillRect(x, y, CELL, CELL);
-        // a few of them keep a single ember burning in the corner
-        if ((cel.cx * 7 + cel.cy * 5) % 11 === 0) {
-          const a2 = 0.25 + 0.25 * Math.sin(c.t * 7 + cel.ph);
-          g.fillStyle = `rgba(185,142,240,${a2.toFixed(2)})`;
-          g.fillRect(x + 6, y + 6, 2, 2);
-        }
-      }
-    }
-    // motes rising through the dark of it
-    if (cover > 0.25) {
-      const a2 = Math.min(1, (cover - 0.25) / 0.3);
-      for (const m of MOTES) {
-        const my = ((m.y - c.t * m.sp) % 1 + 1) % 1;
-        const mx = m.x + Math.sin(c.t * 1.6 + m.ph) * 0.02;
-        const tw = 0.45 + 0.55 * Math.sin(c.t * 5 + m.ph);
-        g.fillStyle = `rgba(${m.hue ? '121,220,237' : '245,205,92'},${(a2 * tw * 0.85).toFixed(2)})`;
-        const px = Math.round(mx * W), py = Math.round(my * H);
-        g.fillRect(px, py, m.r, m.r);
-        g.fillStyle = `rgba(${m.hue ? '121,220,237' : '245,205,92'},${(a2 * tw * 0.22).toFixed(2)})`;
-        g.fillRect(px - 2, py - 2, m.r + 4, m.r + 4);
-      }
-    }
-    // and a soft bloom held over the whole thing at the darkest point
-    if (cover > 0.92) {
-      const b = (cover - 0.92) / 0.08;
-      Art.glow(g, cx0, cy0, maxR, '#5e428c', b * 0.34, 6);
+    const e = phase === 'in' ? U.easeOut(cover) : U.easeIn(cover);
+    const cols = Math.ceil(W / CELL);
+    for (let i = 0; i < cols; i++) {
+      // each column is a beat behind its neighbour, so the edge is a stair
+      const lag = ((i * 5) % cols) / cols * 0.22;
+      const k = U.clamp((e - lag) / (1 - 0.22), 0, 1);
+      if (k <= 0) continue;
+      const h = Math.ceil(H * k);
+      const y = phase === 'in' ? 0 : H - h;
+      g.fillStyle = '#07060e';
+      g.fillRect(i * CELL, y, CELL, h);
+      g.fillStyle = '#241a34';                 // one lit pixel row on the leading edge
+      g.fillRect(i * CELL, phase === 'in' ? y + h - 3 : y, CELL, 3);
     }
   }
 
