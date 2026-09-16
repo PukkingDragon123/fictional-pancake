@@ -380,9 +380,7 @@ const World = (() => {
       g.globalAlpha = 1;
     }
     // the treeline throws a band of shade across the back of the plot
-    const sh = g.createLinearGradient(0, GROUND - 2, 0, GROUND + 46);
-    sh.addColorStop(0, 'rgba(14,12,18,0.5)'); sh.addColorStop(1, 'rgba(14,12,18,0)');
-    g.fillStyle = sh; g.fillRect(0, GROUND - 2, W, 48);
+    for (let i = 0; i < 8; i++) Art.dither(g, 0, GROUND - 2 + i * 6, W, 6, '#0e0c12', 0.5 * (1 - i / 8));
     g.drawImage(grass, 0, 0);
     g.drawImage(soil, 0, 0);
   }
@@ -460,9 +458,16 @@ const World = (() => {
     if (r <= 0) return;
     g.save();
     g.globalAlpha = 0.5 + 0.2 * Math.sin(G.time * 6);
-    g.strokeStyle = col; g.lineWidth = 1; g.setLineDash([3, 4]);
-    g.beginPath(); g.ellipse(x, y, r, r * 0.74, 0, 0, TAU); g.stroke();
-    g.setLineDash([]); g.restore();
+    // a square tool footprint with corner brackets — no circles anywhere in the game
+    const hw = Math.round(r), hh = Math.round(r * 0.74), c = Math.max(3, Math.round(r * 0.42));
+    const x0 = Math.round(x) - hw, x1 = Math.round(x) + hw, y0 = Math.round(y) - hh, y1 = Math.round(y) + hh;
+    g.fillStyle = col;
+    for (const [bx, sx] of [[x0, 1], [x1, -1]]) for (const [by, sy] of [[y0, 1], [y1, -1]]) {
+      g.fillRect(sx > 0 ? bx : bx - c, by, c, 1);
+      g.fillRect(bx - (sx > 0 ? 0 : 1), sy > 0 ? by : by - c, 1, c);
+    }
+    for (let d = -hw + c + 2; d < hw - c; d += 5) { g.fillRect(Math.round(x) + d, y0, 2, 1); g.fillRect(Math.round(x) + d, y1, 2, 1); }
+    g.restore();
   }
 
   return {

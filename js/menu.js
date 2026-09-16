@@ -273,10 +273,7 @@ const Menu = (() => {
     g.restore();
     // the light it throws when the eyes take
     if (flick > 0.02) {
-      const gl = g.createRadialGradient(x, y - 128, 6, x, y - 128, 150 * flick);
-      gl.addColorStop(0, `rgba(255,50,36,${(0.24 * flick).toFixed(2)})`);
-      gl.addColorStop(1, 'rgba(255,50,36,0)');
-      g.fillStyle = gl; g.fillRect(x - 160, y - 290, 320, 320);
+      Art.glow(g, x, y - 128, 54 * flick, '#ff3224', 0.3 * flick, 4);
     }
     // the name, cut into the plinth
   }
@@ -285,17 +282,13 @@ const Menu = (() => {
   const LX = 128, LY = 78;                              // the lantern
   function scene(g) {
     const flick = 0.82 + 0.18 * Math.sin(t * 9) + 0.06 * Math.sin(t * 23);
-    const sky = g.createLinearGradient(0, 0, 0, HORIZON);
-    sky.addColorStop(0, '#04060a'); sky.addColorStop(0.6, '#080e14'); sky.addColorStop(1, '#10181a');
-    g.fillStyle = sky; g.fillRect(0, 0, VW, HORIZON);
+    Art.vramp(g, 0, 0, VW, HORIZON, [[0, '#04060a'], [0.6, '#080e14'], [1, '#10181a']], 9);
     for (let i = 0; i < 30; i++) {
       const sx = (i * 173) % VW, sy = (i * 61) % 96;
       g.fillStyle = `rgba(180,206,232,${(0.1 + 0.18 * Math.abs(Math.sin(t * 0.7 + i))).toFixed(2)})`;
       g.fillRect(sx, sy, 1, 1);
     }
-    const grd = g.createLinearGradient(0, HORIZON - 8, 0, VH);
-    grd.addColorStop(0, '#172016'); grd.addColorStop(0.5, '#101810'); grd.addColorStop(1, '#070b08');
-    g.fillStyle = grd; g.fillRect(0, HORIZON - 8, VW, VH - HORIZON + 8);
+    Art.vramp(g, 0, HORIZON - 8, VW, VH - HORIZON + 8, [[0, '#172016'], [0.5, '#101810'], [1, '#070b08']], 8);
 
     // the wood, back to front, using the grove's own trees
     for (let d = 0; d < RANKS.length; d++) {
@@ -343,22 +336,27 @@ const Menu = (() => {
     for (let i = 0; i < 7; i++) {
       const mx = ((i * 130 + t * 5) % (VW + 300)) - 150;
       const a = 0.05 + 0.035 * Math.sin(t * 0.4 + i);
-      const mg = g.createLinearGradient(0, HORIZON - 30, 0, HORIZON + 70);
-      mg.addColorStop(0, MIST + '0)'); mg.addColorStop(0.55, MIST + a.toFixed(3) + ')'); mg.addColorStop(1, MIST + '0)');
-      g.fillStyle = mg; g.fillRect(mx, HORIZON - 30, 210, 104);
+      const oa0 = g.globalAlpha;              // mist, banded from the middle out
+      for (let j = 0; j < 9; j++) {
+        g.globalAlpha = oa0 * a * 2.6 * Math.max(0, 1 - Math.abs(j - 4) / 4.4);
+        Art.rect(g, mx, HORIZON - 30 + j * 12, 210, 13, '#92ac92');
+      }
+      g.globalAlpha = oa0;
     }
     g.save();                                   // warm light thrown onto the wood
     g.globalCompositeOperation = 'screen';
-    const moon = g.createRadialGradient(VW * 0.82, 10, 10, VW * 0.82, 10, 320);   // cold moonlight, upper right
-    moon.addColorStop(0, 'rgba(128,168,214,0.3)');
-    moon.addColorStop(0.5, 'rgba(90,124,170,0.09)');
-    moon.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = moon; g.fillRect(0, 0, VW, VH);
-    const warm = g.createRadialGradient(LX, LY + 30, 8, LX, LY + 30, 250 * flick);
-    warm.addColorStop(0, 'rgba(255,206,130,0.5)');
-    warm.addColorStop(0.4, 'rgba(210,150,80,0.2)');
-    warm.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = warm; g.fillRect(0, 0, VW, VH);
+    // Cold moonlight from the upper right and the lantern's warmth from the
+    // left, laid as broad diagonal washes. A radial glow this big reads as a
+    // painted circle on the sky, which is what it looked like.
+    const oa = g.globalAlpha;
+    for (let i = 0; i < 7; i++) {
+      g.globalAlpha = oa * 0.1 * (1 - i / 7);
+      Art.rect(g, VW - 60 - i * 92, 0, 60 + i * 92, 46 + i * 34, '#80a8d6');
+      g.globalAlpha = oa * 0.13 * (1 - i / 7) * flick;
+      Art.rect(g, 0, 0, 90 + i * 64, 60 + i * 42, '#ffce82');
+    }
+    g.globalAlpha = oa;
+    Art.glow(g, LX, LY + 24, 96 * flick, '#ffce82', 0.34, 9);
     g.restore();
     lantern(g, flick);
     godStatue(g);
@@ -376,19 +374,13 @@ const Menu = (() => {
     g.fillStyle = '#14305a'; g.globalAlpha = 0.44; g.fillRect(0, 0, VW, VH);
     g.restore();
     g.fillStyle = 'rgba(6,10,14,0.14)'; g.fillRect(0, 0, VW, VH);     // the night on top of it all
-    const vg = g.createRadialGradient(LX, VH * 0.4, VH * 0.16, VW / 2, VH * 0.5, VH * 1.08);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(0.55, 'rgba(0,0,0,0.28)'); vg.addColorStop(1, 'rgba(0,0,0,0.86)');
-    g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
+    Art.vignette(g, VW, VH, '#000000', 0.88, 2.4, 0.26);
   }
   function wombatShadowPass(g) {
     for (const c of cubes) { g.fillStyle = 'rgba(0,0,0,0.35)'; Art.ell(g, c.x, c.y + 2, 9, 3); }
   }
   function lantern(g, flick) {
-    const glow = g.createRadialGradient(LX, LY + 10, 6, LX, LY + 10, 230 * flick);
-    glow.addColorStop(0, `rgba(255,216,140,${(0.36 * flick).toFixed(2)})`);
-    glow.addColorStop(0.45, 'rgba(240,170,90,0.1)');
-    glow.addColorStop(1, 'rgba(240,170,90,0)');
-    g.fillStyle = glow; g.fillRect(LX - 240, LY - 200, 480, 460);
+    Art.glow(g, LX, LY + 10, 92 * flick, '#ffd88c', 0.34 * flick, 9);
     g.fillStyle = '#1a1410'; g.fillRect(LX - 1, 0, 2, LY - 14);
     for (let i = 0; i < 5; i++) { g.fillStyle = '#4a4038'; g.fillRect(LX - 2, 10 + i * 22, 4, 3); }
     g.fillStyle = '#0c0a08'; g.fillRect(LX - 9, LY - 15, 18, 4);
@@ -526,12 +518,13 @@ const Menu = (() => {
     for (const d of DRIFT) {
       const x = ((d.x + t * d.sp) % (VW + 300)) - 150;
       const y = d.y + Math.sin(t * 0.4 + d.x) * 3;
-      const gr = g.createRadialGradient(x, y, 0, x, y, d.w);
-      gr.addColorStop(0, MIST + (d.a * 0.55).toFixed(3) + ')');
-      gr.addColorStop(1, MIST + '0)');
-      g.save(); g.translate(x, y); g.scale(1, d.h / d.w); g.translate(-x, -y);
-      g.fillStyle = gr; g.fillRect(x - d.w, y - d.w, d.w * 2, d.w * 2);
-      g.restore();
+      const oa2 = g.globalAlpha;              // a mist puff, as four flat pixel ovals
+      for (let i = 4; i >= 1; i--) {
+        const k = i / 4;
+        g.globalAlpha = oa2 * d.a * 0.55 * (1 - (i - 1) / 4) * 0.85;
+        Art.ell(g, x, y, d.w * k, d.h * k, '#92ac92');
+      }
+      g.globalAlpha = oa2;
     }
     // and the fireflies through it
     for (const f of FLIES) {
@@ -540,10 +533,7 @@ const Menu = (() => {
       const on = Math.sin((t + f.off) * (TAU / f.blink));
       if (on < 0.2) continue;
       const a = (on - 0.2) / 0.8;
-      const gr = g.createRadialGradient(x, y, 0, x, y, 9);
-      gr.addColorStop(0, `rgba(226,244,150,${(a * 0.4).toFixed(2)})`);
-      gr.addColorStop(1, 'rgba(226,244,150,0)');
-      g.fillStyle = gr; g.fillRect(x - 10, y - 10, 20, 20);
+      Art.glow(g, x, y, 9, '#e2f496', a * 0.4, 3);
       g.fillStyle = `rgba(244,255,190,${a.toFixed(2)})`;
       g.fillRect(Math.round(x), Math.round(y), 2, 2);
     }

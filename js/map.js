@@ -56,9 +56,53 @@ const Atlas = (() => {
     if (sheet) return sheet;
     const { c, g } = Art.cv(VW, VH);
     const r = Art.rng(4242);
-    // ---- the land ---------------------------------------------------------
+    // ---- the land: patchwork farmland, textured everywhere -----------------
+    // A survey map has no empty paper on it. The whole sheet is broken into
+    // 16px fields on a coarse grid, each one a different crop tone with its own
+    // furrows, hedged off from its neighbours. Nothing is left flat.
+    const FIELDS = ['#3a4232', '#414a36', '#354030', '#48513a', '#3d4733', '#323c2c', '#4d543c', '#414434'];
     g.fillStyle = LAND; g.fillRect(0, 0, VW, VH);
-    for (let i = 0; i < 2600; i++) { g.fillStyle = r() < 0.5 ? SCRUB : LAND2; g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 2, 2); }
+    const CELL = 24, GC = Math.ceil(VW / CELL), GR = Math.ceil(VH / CELL);
+    const plot = [];                       // which field each cell belongs to
+    for (let cy = 0; cy < GR; cy++) {
+      plot[cy] = [];
+      for (let cx = 0; cx < GC; cx++) {
+        // grow fields out of seeds so they come in ragged blocks, not a grid
+        const up = cy > 0 ? plot[cy - 1][cx] : -1, lf = cx > 0 ? plot[cy][cx - 1] : -1;
+        let f = Math.floor(r() * FIELDS.length);
+        if (up >= 0 && r() < 0.58) f = up; else if (lf >= 0 && r() < 0.58) f = lf;
+        plot[cy][cx] = f;
+        const x = cx * CELL, y = cy * CELL;
+        g.fillStyle = FIELDS[f]; g.fillRect(x, y, CELL, CELL);
+        // furrows, ploughed the way the field lies
+        const dir = (f + cx + cy) % 3;
+        g.fillStyle = U.shade(FIELDS[f], dir === 2 ? 0.1 : -0.12);
+        if (dir === 0) for (let i = 1; i < CELL; i += 4) g.fillRect(x, y + i, CELL, 1);
+        else if (dir === 1) for (let i = 1; i < CELL; i += 4) g.fillRect(x + i, y, 1, CELL);
+        else for (let i = 0; i < 26; i++) g.fillRect(x + Math.floor(r() * CELL), y + Math.floor(r() * CELL), 1, 1);
+      }
+    }
+    // hedgerows on the seams where two different fields meet
+    for (let cy = 0; cy < GR; cy++) {
+      for (let cx = 0; cx < GC; cx++) {
+        const f = plot[cy][cx];
+        if (cx > 0 && plot[cy][cx - 1] !== f) {
+          g.fillStyle = '#2a3422'; g.fillRect(cx * CELL, cy * CELL, 1, CELL);
+          g.fillStyle = '#3c4a30'; for (let i = 0; i < CELL; i += 3) g.fillRect(cx * CELL - 1, cy * CELL + i, 1, 1);
+        }
+        if (cy > 0 && plot[cy - 1][cx] !== f) {
+          g.fillStyle = '#2a3422'; g.fillRect(cx * CELL, cy * CELL, CELL, 1);
+          g.fillStyle = '#3c4a30'; for (let i = 0; i < CELL; i += 3) g.fillRect(cx * CELL + i, cy * CELL - 1, 1, 1);
+        }
+      }
+    }
+    // tussocks, boulders and dry scrub scattered over the top of all of it
+    for (let i = 0; i < 620; i++) {
+      const x = Math.floor(r() * VW), y = Math.floor(r() * VH), k = r();
+      if (k < 0.55) { g.fillStyle = '#313b28'; g.fillRect(x, y, 2, 1); g.fillRect(x + 1, y - 1, 1, 1); }
+      else if (k < 0.86) { g.fillStyle = '#4e553e'; g.fillRect(x, y, 1, 1); }
+      else { g.fillStyle = '#5a5a4a'; g.fillRect(x, y, 2, 2); g.fillStyle = '#6e6d5c'; g.fillRect(x, y, 2, 1); }
+    }
     // ---- forest, in blocks, the way a map shows it ------------------------
     const BLOCKS = [[60, 40, 150, 90], [250, 20, 130, 70], [470, 30, 160, 80],
                     [20, 150, 120, 110], [400, 120, 120, 90], [520, 250, 140, 100],
@@ -73,13 +117,29 @@ const Atlas = (() => {
       }
     }
     // ---- water: a lake up north and a river down to the sea --------------
-    Art.ell(g, 586, 66, 52, 30, '#0d2237');
+    Art.ell(g, 586, 66, 53, 31, '#6a6858');              // shingle beach
+    for (let i = 0; i < 160; i++) {
+      const a = r() * TAU, k = 0.86 + r() * 0.16;
+      g.fillStyle = r() < 0.5 ? '#87866f' : '#575642';
+      g.fillRect(Math.round(586 + Math.cos(a) * 52 * k), Math.round(66 + Math.sin(a) * 30 * k), 1, 1);
+    }
+    Art.ell(g, 586, 66, 50, 28, '#0d2237');
     Art.ell(g, 586, 66, 48, 26, WATER);
-    Art.ell(g, 580, 62, 36, 17, WATER2);
-    Art.ell(g, 572, 58, 18, 8, WATER3);
+    Art.ell(g, 583, 64, 40, 20, WATER2);
+    // ripple rows: every third scanline gets broken dashes of the lighter blue
+    for (let y = 44; y < 92; y += 3) {
+      for (let x = 540; x < 634; x += 4) {
+        if (((x + y * 7) % 11) > 5) continue;
+        const dx = (x - 586) / 48, dy = (y - 66) / 26;
+        if (dx * dx + dy * dy > 0.86) continue;
+        g.fillStyle = (y % 6) ? WATER3 : '#8fcfe4';
+        g.fillRect(x, y, 2 + ((x + y) % 2), 1);
+      }
+    }
     const river = [[586, 88], [560, 126], [530, 160], [516, 200], [522, 250], [540, 300], [560, 358]];
-    poly(g, river, '#0d2237', 11); poly(g, river, WATER, 8);
-    dashed(g, river, WATER3, 1, 4, 5);
+    poly(g, river, '#6a6858', 13);                       // its gravel banks
+    poly(g, river, '#0d2237', 11); poly(g, river, WATER, 8); poly(g, river, WATER2, 4);
+    dashed(g, river, WATER3, 1, 3, 4);
     // ---- the street grid through town ------------------------------------
     const T = TOWN;
     for (let x = T.x0; x <= T.x1; x += T.gx) {
@@ -99,10 +159,16 @@ const Atlas = (() => {
         for (let i = 0; i < n; i++) {
           const bw = 6 + r() * 9, bh = 5 + r() * 7;
           const bx = x + 5 + r() * (T.gx - 10 - bw), by = y + 5 + r() * (T.gy - 10 - bh);
-          g.fillStyle = BLD0; g.fillRect(Math.round(bx), Math.round(by + 1), Math.round(bw), Math.round(bh));
-          g.fillStyle = r() < 0.4 ? BLD2 : BLD1; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), Math.round(bh));
-          g.fillStyle = BLD3; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), 1);
-          if (r() < 0.45) { g.fillStyle = LIT; g.fillRect(Math.round(bx + 1), Math.round(by + 2), 1, 1); }
+          const X = Math.round(bx), Y = Math.round(by), W2 = Math.round(bw), H2 = Math.round(bh);
+          g.fillStyle = '#2f3428'; g.fillRect(X - 1, Y - 1, W2 + 2, H2 + 2);   // the yard round it
+          g.fillStyle = BLD0; g.fillRect(X, Y + 1, W2, H2);
+          g.fillStyle = r() < 0.4 ? BLD2 : BLD1; g.fillRect(X, Y, W2, H2);
+          for (let ry = 1; ry < H2 - 1; ry += 2) {                             // corrugated roof
+            g.fillStyle = U.shade(r() < 0.4 ? BLD2 : BLD1, -0.18); g.fillRect(X, Y + ry, W2, 1);
+          }
+          g.fillStyle = BLD3; g.fillRect(X, Y, W2, 1);                         // the ridge
+          g.fillStyle = '#171a13'; g.fillRect(X, Y + H2 - 1, W2, 1);           // the eaves shadow
+          if (r() < 0.45) { g.fillStyle = LIT; g.fillRect(X + 1, Y + 2, 1, 1); }
         }
       }
     }
@@ -249,11 +315,7 @@ const Atlas = (() => {
       const edge = Math.max(0, 1 - Math.min(x, VW - x, y, VH - y) / 70);
       const a = Math.max(cover, edge * 0.5);
       if (a <= 0.02) continue;
-      const gr = g.createRadialGradient(x, y, 0, x, y, f.r);
-      gr.addColorStop(0, `rgba(58,54,70,${(0.42 * a).toFixed(3)})`);
-      gr.addColorStop(1, 'rgba(58,54,70,0)');
-      g.fillStyle = gr;
-      g.fillRect(x - f.r, y - f.r, f.r * 2, f.r * 2);
+      Art.glow(g, x, y, f.r, '#3a3646', 0.5 * a, 4);
     }
     g.restore();
 
@@ -294,15 +356,18 @@ const Atlas = (() => {
     g.globalCompositeOperation = 'screen';
     for (const s2 of SITES) {
       if (!unlocked(s2)) continue;
-      const wl = g.createRadialGradient(s2.x, s2.y, 4, s2.x, s2.y, 92);
-      wl.addColorStop(0, 'rgba(255,206,130,0.24)');
-      wl.addColorStop(1, 'rgba(0,0,0,0)');
-      g.fillStyle = wl; g.fillRect(s2.x - 96, s2.y - 96, 192, 192);
+      // a dithered warm patch, not a bullseye: hard rings read as targets here
+      const oa = g.globalAlpha;
+      for (let i = 5; i >= 1; i--) {
+        const k = i / 5;
+        g.globalAlpha = oa * 0.085 * (1 - (i - 1) / 5.5);
+        Art.ell(g, s2.x, s2.y, 62 * k, 54 * k, '#ffce82');
+      }
+      g.globalAlpha = oa;
     }
     g.restore();
-    const vg = g.createRadialGradient(VW / 2, VH / 2, VH * 0.32, VW / 2, VH / 2, VH * 1.06);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(2,4,3,0.88)');
-    g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
+    // the vignette, dithered so the falloff bands instead of blurring
+    Art.vignette(g, VW, VH, '#020403', 0.66, 2.2, 0.34);
 
     // title banner
     banner(g, 'THE GROVE AND BEYOND', 320, 24);

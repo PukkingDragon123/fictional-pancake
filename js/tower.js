@@ -355,6 +355,18 @@ const Tower = (() => {
     for (let i = 0; i < 8; i++) {
       g.fillStyle = U.mix('#0f0b1c', '#2f2246', i / 7);
       g.fillRect(vx0, vy0 + (vh * i) / 8, vw, vh / 8 + 2);
+      if (i < 7) Art.dither(g, vx0, vy0 + (vh * (i + 0.62)) / 8, vw, vh / 20, U.mix('#0f0b1c', '#2f2246', (i + 1) / 7), 0.5);
+    }
+    // cloud banks, so the sky is not an empty wash
+    {
+      const cr = Art.rng(771);
+      for (let i = 0; i < 22; i++) {
+        const cx3 = vx0 + cr() * vw, cy3 = vy0 + cr() * vh * 0.8, cw = 60 + cr() * 150;
+        g.globalAlpha = 0.05 + cr() * 0.07;
+        Art.ell(g, cx3, cy3, cw, 7 + cr() * 9, '#6a5a86');
+        Art.ell(g, cx3 - cw * 0.3, cy3 - 5, cw * 0.5, 5 + cr() * 6, '#8a78a8');
+      }
+      g.globalAlpha = 1;
     }
     g.fillStyle = PAL.cream;
     for (let i = 0; i < 70; i++) {
@@ -385,11 +397,31 @@ const Tower = (() => {
       g.drawImage(img, tx, GROUND - img.height * sc + 16, img.width * sc, img.height * sc);
     }
     // one cold wash to sink the whole treeline behind the yard
-    const haze = g.createLinearGradient(0, GROUND - 150, 0, GROUND + 10);
-    haze.addColorStop(0, 'rgba(28,20,46,0.55)'); haze.addColorStop(1, 'rgba(44,28,58,0.18)');
-    g.fillStyle = haze; g.fillRect(vx0, GROUND - 150, vw, 162);
+    {                                      // the cold wash, as eight flat bands
+      const oa = g.globalAlpha;
+      for (let i = 0; i < 8; i++) {
+        g.globalAlpha = oa * 0.55 * (1 - i / 8);
+        Art.rect(g, vx0, GROUND - 150 + i * 20, vw, 21, '#1c142e');
+        g.globalAlpha = oa * 0.2 * (i / 8);
+        Art.rect(g, vx0, GROUND - 150 + i * 20, vw, 21, '#2c1c3a');
+      }
+      g.globalAlpha = oa;
+    }
     // ground
     g.fillStyle = '#140f1e'; g.fillRect(vx0, GROUND, vw, vh);
+    {                                      // packed dirt: grit, ruts and gravel
+      const gr2 = Art.rng(4180);
+      for (let i = 0; i < 1400; i++) {
+        const x2 = vx0 + gr2() * vw, y2 = GROUND + gr2() * Math.min(vh, 260), k = gr2();
+        g.fillStyle = k < 0.45 ? '#1b1526' : k < 0.78 ? '#241c32' : '#2f2540';
+        g.fillRect(Math.round(x2), Math.round(y2), 1 + (k > 0.9 ? 1 : 0), 1);
+      }
+      for (let i = 0; i < 16; i++) {       // cart ruts scraped across the yard
+        const y2 = GROUND + 8 + gr2() * 230, w2 = 60 + gr2() * 200;
+        g.fillStyle = '#100c1a'; g.fillRect(Math.round(vx0 + gr2() * vw), Math.round(y2), Math.round(w2), 1);
+        g.fillStyle = '#2b2340'; g.fillRect(Math.round(vx0 + gr2() * vw), Math.round(y2 + 1), Math.round(w2 * 0.7), 1);
+      }
+    }
     g.fillStyle = '#1d1728'; Art.ell(g, PX, GROUND + 12, 300, 34);
     for (let i = -10; i <= 10; i++) {
       const cx2 = PX + i * 34;
@@ -405,9 +437,7 @@ const Tower = (() => {
       const img = Props.get('brazier');
       g.drawImage(img, bx - img.width / 2, GROUND - img.height + 4);
       const fl = 0.5 + 0.5 * Math.sin(G.time * 6 + s);
-      const gr = g.createRadialGradient(bx, GROUND - 30, 3, bx, GROUND - 30, 92 + fl * 20);
-      gr.addColorStop(0, `rgba(224,112,90,${0.36 + fl * 0.16})`); gr.addColorStop(1, 'rgba(224,112,90,0)');
-      g.fillStyle = gr; g.fillRect(bx - 116, GROUND - 140, 232, 200);
+      Art.glow(g, bx, GROUND - 30, 92 + fl * 20, '#e0705a', 0.36 + fl * 0.16, 5);
     }
     // The stands you paid for: stepped timber bleachers either side, one more
     // tier for every level, so the upgrade is something you can see.
@@ -436,22 +466,26 @@ const Tower = (() => {
       }
     }
     // a moonlit pool of light on the pavement, so the plinth has a stage
-    const pool = g.createRadialGradient(PX, GROUND - 8, 10, PX, GROUND - 8, 210);
-    pool.addColorStop(0, 'rgba(180,204,255,0.16)'); pool.addColorStop(1, 'rgba(180,204,255,0)');
-    g.fillStyle = pool; g.fillRect(PX - 220, GROUND - 120, 440, 150);
+    {                                      // the stage pool, as flat pixel ovals
+      const oa = g.globalAlpha;
+      for (let i = 5; i >= 1; i--) {
+        g.globalAlpha = oa * 0.13 * (1 - (i - 1) / 5);
+        Art.ell(g, PX, GROUND - 8, 210 * (i / 5), 52 * (i / 5), '#b4ccff');
+      }
+      g.globalAlpha = oa;
+    }
     // height rungs, and the next rank marked in gold
     const nx = nextRank(Math.max(Math.floor(R.peak), G.record || 0));
     for (let h = 5; h <= Math.max(15, R.peak + 10); h += 5) {
       const y = PLAT_Y - h * CUBE_SIZE;
-      g.strokeStyle = h <= R.height ? 'rgba(132,187,89,0.4)' : 'rgba(253,243,220,0.14)';
-      g.setLineDash([5, 8]); g.lineWidth = 1;
-      g.beginPath(); g.moveTo(PX - 170, y); g.lineTo(PX + 170, y); g.stroke(); g.setLineDash([]);
+      g.fillStyle = h <= R.height ? 'rgba(132,187,89,0.4)' : 'rgba(253,243,220,0.14)';
+      for (let x = PX - 170; x < PX + 170; x += 13) g.fillRect(Math.round(x), Math.round(y), 5, 1);
       Font.draw(g, String(h), PX - 178, y - 4, { scale: 1, align: 'right', color: 'rgba(253,243,220,0.45)' });
     }
     if (nx) {
       const y = PLAT_Y - nx.h * CUBE_SIZE;
-      g.strokeStyle = 'rgba(216,165,47,0.6)'; g.setLineDash([9, 6]); g.lineWidth = 2;
-      g.beginPath(); g.moveTo(PX - 176, y); g.lineTo(PX + 176, y); g.stroke(); g.setLineDash([]);
+      g.fillStyle = 'rgba(216,165,47,0.6)';
+      for (let x = PX - 176; x < PX + 176; x += 15) g.fillRect(Math.round(x), Math.round(y) - 1, 9, 2);
       Font.draw(g, nx.name.toUpperCase() + '  ' + nx.h, PX - 176, y - 6, { scale: 1, color: PAL.gold4, shadow: '#120c18' });
     }
     // plinth
@@ -476,11 +510,11 @@ const Tower = (() => {
         const bb = b.aabb();
         if (bb.maxX > R.craneX - hw && bb.minX < R.craneX + hw) hy = Math.min(hy, bb.minY);
       }
-      g.strokeStyle = 'rgba(121,220,237,0.5)'; g.setLineDash([3, 5]); g.lineWidth = 1;
-      g.beginPath();
-      g.moveTo(R.craneX - hw, craneY() + 24); g.lineTo(R.craneX - hw, hy);
-      g.moveTo(R.craneX + hw, craneY() + 24); g.lineTo(R.craneX + hw, hy);
-      g.stroke(); g.setLineDash([]);
+      g.fillStyle = 'rgba(121,220,237,0.5)';
+      for (let y2 = craneY() + 24; y2 < hy; y2 += 8) {
+        g.fillRect(Math.round(R.craneX - hw), Math.round(y2), 1, 3);
+        g.fillRect(Math.round(R.craneX + hw), Math.round(y2), 1, 3);
+      }
       g.fillStyle = 'rgba(121,220,237,0.35)'; g.fillRect(R.craneX - hw, hy - 2, hw * 2, 2);
     }
     // the pile

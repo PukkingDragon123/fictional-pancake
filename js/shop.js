@@ -376,17 +376,17 @@ const Shop = (() => {
       g.fillStyle = '#8e8a7c'; g.fillRect(x - 2, 0, 4, 14); g.fillRect(x + 64, 0, 4, 14);
       g.fillStyle = '#cfcabb'; g.fillRect(x - 8, 14, 82, 10);
       g.fillStyle = '#fffdf0'; g.fillRect(x - 4, 16, 74, 6);
-      const gl = g.createLinearGradient(0, 24, 0, 170);
-      gl.addColorStop(0, 'rgba(255,246,214,0.42)'); gl.addColorStop(1, 'rgba(255,246,214,0)');
-      g.fillStyle = gl; g.fillRect(x - 34, 24, 134, 150);
+      for (let i = 0; i < 7; i++) Art.dither(g, x - 34, 24 + i * 22, 134, 22, '#fff6d6', 0.44 * (1 - i / 7));
     }
     ceilingPromos(g, S, t);
     // ---- wall: warm cream, with a dado rail and a skirting ----------------
     g.fillStyle = '#efe2c6'; g.fillRect(0, 96, VW, 214);
     Tex.fill(g, 'plaster', -S % 56, 96, VW + 56, 214, 0.85);
-    const wg = g.createLinearGradient(0, 96, 0, 310);
-    wg.addColorStop(0, 'rgba(255,244,214,0.5)'); wg.addColorStop(1, 'rgba(150,124,80,0.22)');
-    g.fillStyle = wg; g.fillRect(0, 96, VW, 214);
+    for (let i = 0; i < 7; i++) {          // wall shading, top-lit, dithered
+      const y = 96 + i * 31;
+      Art.dither(g, 0, y, VW, 31, '#fff4d6', 0.5 * (1 - i / 6.5));
+      Art.dither(g, 0, y, VW, 31, '#967c50', 0.22 * (i / 6.5));
+    }
     for (let x = -(S) % 64; x < VW; x += 64) { g.fillStyle = 'rgba(90,60,20,0.05)'; g.fillRect(x, 96, 1, 214); }
     g.fillStyle = '#c9b892'; g.fillRect(0, 300, VW, 4);
     g.fillStyle = '#8d7a56'; g.fillRect(0, 304, VW, 6);
@@ -404,9 +404,7 @@ const Shop = (() => {
       }
     }
     for (let x = -(S * 0.7) % 190 + 40; x < VW + 60; x += 190) {  // the tube's reflection
-      const fl = g.createLinearGradient(0, 310, 0, VH);
-      fl.addColorStop(0, 'rgba(255,250,224,0.3)'); fl.addColorStop(1, 'rgba(255,250,224,0)');
-      g.fillStyle = fl; g.fillRect(x - 26, 310, 118, 50);
+      for (let i = 0; i < 5; i++) Art.dither(g, x - 26, 310 + i * 10, 118, 10, '#fffae0', 0.32 * (1 - i / 5));
     }
     for (let i = 0; i < 26; i++) {                                // scuffs and a dropped receipt
       const x = ((i * 137 - S * 1.02) % (VW + 120) + VW + 120) % (VW + 120) - 60;
@@ -561,9 +559,7 @@ const Shop = (() => {
     if (x > VW + 60 || x < -360) return;
     // the doors behind you
     g.fillStyle = '#2a2f3a'; g.fillRect(x - 60, 120, 118, 190);
-    const outside = g.createLinearGradient(0, 124, 0, 306);
-    outside.addColorStop(0, '#38415e'); outside.addColorStop(1, '#4c5348');
-    g.fillStyle = outside; g.fillRect(x - 56, 124, 110, 182);
+    Art.vband(g, x - 56, 124, 110, 182, '#38415e', '#4c5348', 7);
     g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(x - 50, 132, 18, 168);
     g.fillStyle = '#7f8b96'; g.fillRect(x - 4, 124, 6, 182);
     g.fillStyle = '#c9581f'; g.fillRect(x - 60, 112, 118, 10);
@@ -589,9 +585,7 @@ const Shop = (() => {
     for (let d = 0; d < 3; d++) {
       const dx = cx + 6 + d * 58;
       g.fillStyle = '#27323a'; g.fillRect(dx, 128, 52, 174);
-      const cold = g.createLinearGradient(0, 130, 0, 300);
-      cold.addColorStop(0, '#cfeaf2'); cold.addColorStop(1, '#8fc0d2');
-      g.fillStyle = cold; g.fillRect(dx + 3, 131, 46, 168);
+      Art.vband(g, dx + 3, 131, 46, 168, '#cfeaf2', '#8fc0d2', 6);
       for (let r = 0; r < 4; r++) {
         g.fillStyle = '#b8c6cc'; g.fillRect(dx + 3, 168 + r * 34, 46, 4);
         for (let b = 0; b < 5; b++) {
@@ -768,9 +762,12 @@ const Shop = (() => {
         // a convex security mirror, hung above the gap
         g.fillStyle = '#2a2f3a'; Art.ell(g, x, 148, 27, 27);
         g.fillStyle = '#8d96a0'; Art.ell(g, x, 148, 24, 24);
-        const mg = g.createRadialGradient(x - 7, 141, 3, x, 148, 26);
-        mg.addColorStop(0, 'rgba(240,246,250,0.9)'); mg.addColorStop(1, 'rgba(90,104,120,0.9)');
-        g.fillStyle = mg; Art.ell(g, x, 148, 22, 22);
+        Art.ell(g, x, 148, 22, 22, '#5a6878');    // the mirror, banded in four hard steps
+        for (let i = 0; i < 4; i++) {
+          const k = 1 - i / 4;
+          Art.ell(g, x - 7 * k * 0.6, 148 - 7 * k * 0.6, 22 * k, 22 * k,
+            U.mix('#f0f6fa', '#5a6878', i / 3.4));
+        }
         g.fillStyle = 'rgba(255,255,255,0.55)'; Art.ell(g, x - 8, 140, 6, 4);
         g.fillStyle = '#6c6759'; g.fillRect(x - 2, 122, 4, 8);
         // a wet-floor cone under it

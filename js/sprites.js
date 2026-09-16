@@ -620,7 +620,7 @@ const Sprites = (() => {
     const { c, g } = Art.cv(KW, KH);
     const S = Math.sin(t * TAU);
     const CXK = 38;
-    const SK0 = '#b87a56', SK1 = '#e0a578', SK2 = '#f3cda4';
+    const SK0 = '#3d6b8e', SK1 = '#5d92b6', SK2 = '#8cbcd8';          // shark, top to belly
     const HR0 = '#575260', HR1 = '#7e7988', HR2 = '#a9a4b2';
     const SUIT0 = '#16304a', SUIT1 = '#234a६e'.replace('६', '6'), SUIT2 = '#2f6088', SUIT3 = '#4b86b4';
     const SHIRT = '#f2ece0', SHIRT2 = '#d6cfc0';
@@ -685,81 +685,105 @@ const Sprites = (() => {
     Art.rect(g, ex - 4, ey - 2, 8, 3, SHIRT);
     Art.ell(g, ex + 1, ey + 4, 4.8, 4.2, SK0);
     Art.ell(g, ex + 1, ey + 3.4, 4, 3.4, SK1);
-    // ---- the head ----------------------------------------------------------
-    Art.limb(g, hx, hy + 13, hx, shoulder + 1, 6.4, 7.4, SK0);
-    Art.ell(g, hx, shoulder, 7.4, 2.4, '#96603f');
-    Art.ell(g, hx, hy, 17, 15.6, SK0);
-    Art.ell(g, hx - 0.6, hy - 0.6, 15.6, 14.2, SK1);
-    Art.ell(g, hx - 5.4, hy - 3.6, 6.4, 5.2, SK2);
-    Art.ell(g, hx, hy + 10, 2.4, 1.9, SK2);                            // the nose
-    Art.ell(g, hx - 16.4, hy + 2.4, 3.2, 3.8, SK0);                    // ears
-    Art.ell(g, hx + 16.4, hy + 2.4, 3.2, 3.8, SK0);
-    Art.ell(g, hx - 16.4, hy + 5.2, 1.3, 1.3, '#d8b23a');
-    Art.ell(g, hx + 16.4, hy + 5.2, 1.3, 1.3, '#d8b23a');
-    // grey hair coming out under the cap, and the bun behind it
-    Art.ell(g, hx + 10, hy - 8, 7.4, 6.6, HR0);
-    Art.ell(g, hx + 10, hy - 8.4, 6.2, 5.4, HR1);
-    Art.ell(g, hx + 8.6, hy - 9.8, 2.8, 1.8, HR2);
-    Art.ell(g, hx - 14.4, hy + 0.4, 4, 5.6, HR0);
-    Art.ell(g, hx + 14.4, hy + 0.4, 3.8, 5.2, HR0);
-    Art.ell(g, hx - 14.8, hy - 0.6, 2.6, 3.8, HR1);
-    Art.ellBand(g, hx, hy - 3.4, 16.2, 13.6, HR0, 0.5, 1);
-    // ---- the store cap -----------------------------------------------------
-    // Crown, band, then a peak that sticks out in front of it. If the peak sits
-    // level with the crown it reads as a helmet.
-    Art.ell(g, hx, hy - 11, 16.6, 10.4, CAP0);                         // the crown
-    Art.ell(g, hx, hy - 11.8, 15.4, 9.4, CAP1);
-    Art.ell(g, hx - 5.4, hy - 15, 6.2, 3.6, CAP2);                     // the light on it
-    Art.ell(g, hx - 6.8, hy - 16.2, 2.8, 1.5, CAP3);
-    for (let i = -2; i <= 2; i++) Art.limb(g, hx, hy - 21, hx + i * 7.2, hy - 6, 0.8, 0.5, CAP0);
-    Art.ell(g, hx, hy - 21.2, 2.4, 1.8, CAP2);                         // the button on top
-    // the store's wombat, embroidered on the front
-    Art.ell(g, hx, hy - 11.6, 4.4, 3, CAP3);
-    Art.ell(g, hx + 3.2, hy - 12.8, 2.6, 2.4, CAP3);
-    Art.rect(g, hx + 2.1, hy - 14.8, 1.2, 1.6, CAP3);
-    Art.rect(g, hx + 4.3, hy - 14.8, 1.2, 1.6, CAP3);
-    Art.rect(g, hx + 3.6, hy - 12.9, 1, 1, CAP0);
-    Art.rect(g, hx - 16.6, hy - 5.4, 33.2, 4.6, CAP0);                 // the band
-    Art.rect(g, hx - 16.6, hy - 5.4, 33.2, 1.5, CAP2);
-    Art.rect(g, hx - 16.6, hy - 1.6, 33.2, 1.2, '#08240f');
-    // the peak, out in front and down, with its underside in shadow
-    Art.poly(g, [[hx - 18.4, hy - 1.4], [hx + 18.4, hy - 1.4],
-                 [hx + 13.6, hy + 4.4], [hx - 13.6, hy + 4.4]], '#08240f');
-    Art.poly(g, [[hx - 17.6, hy - 2], [hx + 17.6, hy - 2],
-                 [hx + 13, hy + 3], [hx - 13, hy + 3]], CAP1);
-    Art.poly(g, [[hx - 17.6, hy - 2], [hx + 17.6, hy - 2],
-                 [hx + 15, hy - 0.2], [hx - 15, hy - 0.2]], CAP2);
-    Art.poly(g, [[hx - 13, hy + 3], [hx + 13, hy + 3], [hx + 13.6, hy + 4.4], [hx - 13.6, hy + 4.4]], '#05190a');
-    // ---- glasses, eyes, mouth ----------------------------------------------
-    for (const sd of [-1, 1]) {
-      const exx = hx + sd * 6.4;
-      Art.ell(g, exx, hy + 6.4, 5.6, 5.4, '#2b3140');
-      Art.ell(g, exx, hy + 6.4, 4.6, 4.4, '#dff0f8');
-      Art.ellBand(g, exx, hy + 6.4, 5.6, 5.4, '#ffffff', 0.55, 0.72);
+    // ---- the head: Shaz is a shark ----------------------------------------
+    // Chibi proportions: one big rounded head, a blunt snout, a belly-pale jaw,
+    // gills cut into the cheek and a dorsal fin standing up behind the cap.
+    // Everything is laid in hard tones — no soft edges anywhere on her.
+    const FIN0 = '#2c4f6e';
+    Art.poly(g, [[hx + 3, hy - 12], [hx + 16, hy - 24], [hx + 12, hy - 6]], FIN0);   // dorsal fin
+    Art.poly(g, [[hx + 4.4, hy - 12], [hx + 14, hy - 22], [hx + 11, hy - 7]], SK0);
+    Art.limb(g, hx, hy + 13, hx, shoulder + 1, 7, 8.4, SK0);                         // neck
+    Art.ell(g, hx, shoulder, 8, 2.6, '#2f5878');
+    Art.ell(g, hx, hy + 1, 19, 13.6, SK0);                                           // the skull
+    Art.ell(g, hx - 0.6, hy + 0.2, 17.8, 12.6, SK1);
+    Art.ellBand(g, hx - 1, hy - 2.4, 13.6, 8.4, SK2, 0, 0.5);                          // top light
+    Art.ell(g, hx - 7, hy - 4.6, 5.4, 2.8, '#a8cfe4');
+    // the snout, pushed out and down, with the pale underside under it
+    Art.poly(g, [[hx - 16.4, hy + 6], [hx + 16.4, hy + 6], [hx + 11.4, hy + 14.6], [hx - 11.4, hy + 14.6]], SK1);
+    Art.poly(g, [[hx - 15, hy + 8], [hx + 15, hy + 8], [hx + 10.6, hy + 15], [hx - 10.6, hy + 15]], '#e8f0ec');
+    Art.poly(g, [[hx - 15, hy + 8], [hx + 15, hy + 8], [hx + 14.2, hy + 9.4], [hx - 14.2, hy + 9.4]], '#c2d4d0');
+    Art.ell(g, hx - 3.6, hy + 7, 1.3, 1, '#2c4050');                                  // nostrils
+    Art.ell(g, hx + 3.6, hy + 7, 1.3, 1, '#2c4050');
+    // gills, three cut into each cheek
+    for (const sd of [-1, 1]) for (let i = 0; i < 3; i++) {
+      Art.limb(g, hx + sd * (12.4 + i * 2.6), hy + 0.4, hx + sd * (13 + i * 2.6), hy + 5.4, 1.5, 1.2, '#2c4f6e');
+      Art.limb(g, hx + sd * (12.4 + i * 2.6) - sd * 0.6, hy + 0.4, hx + sd * (13 + i * 2.6) - sd * 0.6, hy + 5, 0.7, 0.6, '#7fb0cc');
     }
-    Art.rect(g, hx - 1.8, hy + 5.8, 3.6, 1.4, '#2b3140');
-    Art.rect(g, hx - 15, hy + 5, 3.6, 1.4, '#2b3140');
-    Art.rect(g, hx + 11.4, hy + 5, 3.6, 1.4, '#2b3140');
-    for (const sd of [-1, 1]) Art.limb(g, hx + sd * 15.6, hy + 8, hx + sd * 13.6, hy + 14, 1, 0.8, '#8a95a0');
+    // side fins, standing in for ears
     for (const sd of [-1, 1]) {
-      const exx = hx + sd * 6.4;
-      if (eyes === 'happy') Art.poly(g, [[exx - 3.2, hy + 8], [exx, hy + 4.6], [exx + 3.2, hy + 8], [exx, hy + 6.4]], INK);
-      else if (eyes === 'shut') Art.rect(g, exx - 2.8, hy + 6, 5.6, 1.4, INK);
-      else {
-        Art.ell(g, exx + sd * 0.4, hy + 6.4, 2.1, 2.3, INK);
-        Art.ell(g, exx + sd * 0.4 - 0.8, hy + 5.5, 0.9, 0.9, '#ffffff');
+      Art.poly(g, [[hx + sd * 16, hy - 1], [hx + sd * 25, hy + 4], [hx + sd * 15, hy + 8]], FIN0);
+      Art.poly(g, [[hx + sd * 16, hy + 0.6], [hx + sd * 22.6, hy + 4.2], [hx + sd * 15, hy + 6.6]], SK1);
+    }
+    // ---- the store cap -----------------------------------------------------
+    // It rides high on a shark's skull, tipped back, with the peak clear of the
+    // eyes. The dorsal fin pokes out through a slot cut in the back of it.
+    Art.ell(g, hx, hy - 11.6, 17.4, 8, CAP0);                          // the crown, low and flat
+    Art.ell(g, hx, hy - 12.2, 16.2, 7.2, CAP1);
+    Art.ell(g, hx - 6, hy - 15, 6.2, 2.8, CAP2);                       // the light on it
+    Art.ell(g, hx - 7.4, hy - 15.8, 2.8, 1.2, CAP3);
+    for (let i = -2; i <= 2; i++) Art.limb(g, hx, hy - 19, hx + i * 7.6, hy - 7.4, 0.8, 0.5, CAP0);
+    Art.ell(g, hx, hy - 19.2, 2.4, 1.6, CAP2);                         // the button on top
+    // the store's wombat, embroidered on the front
+    Art.ell(g, hx - 1, hy - 11.8, 4, 2.6, CAP3);
+    Art.ell(g, hx + 2.4, hy - 12.8, 2.4, 2.2, CAP3);
+    Art.rect(g, hx + 1.4, hy - 14.4, 1.1, 1.4, CAP3);
+    Art.rect(g, hx + 3.4, hy - 14.4, 1.1, 1.4, CAP3);
+    Art.rect(g, hx + 2.8, hy - 12.9, 1, 1, CAP0);
+    Art.rect(g, hx - 17.4, hy - 8.4, 34.8, 3.6, CAP0);                 // the band
+    Art.rect(g, hx - 17.4, hy - 8.4, 34.8, 1.3, CAP2);
+    Art.rect(g, hx - 17.4, hy - 5.8, 34.8, 1, '#08240f');
+    // the peak, out in front and down, its underside in shadow
+    Art.poly(g, [[hx - 19.4, hy - 5.4], [hx + 19.4, hy - 5.4],
+                 [hx + 14.4, hy - 1.2], [hx - 14.4, hy - 1.2]], '#08240f');
+    Art.poly(g, [[hx - 18.6, hy - 6], [hx + 18.6, hy - 6],
+                 [hx + 13.8, hy - 2.4], [hx - 13.8, hy - 2.4]], CAP1);
+    Art.poly(g, [[hx - 18.6, hy - 6], [hx + 18.6, hy - 6],
+                 [hx + 16, hy - 4.6], [hx - 16, hy - 4.6]], CAP2);
+    Art.poly(g, [[hx - 13.8, hy - 2.4], [hx + 13.8, hy - 2.4], [hx + 14.4, hy - 1.2], [hx - 14.4, hy - 1.2]], '#05190a');
+    // ---- eyes and that grin ------------------------------------------------
+    for (const sd of [-1, 1]) {
+      const exx = hx + sd * 8, eyy = hy + 2.4;
+      Art.ell(g, exx, eyy, 5.6, 5.4, SK2);                             // a pale rim round it
+      Art.ell(g, exx, eyy, 4.8, 4.6, '#0d1620');                       // big glossy eye
+      if (eyes === 'happy') {
+        Art.ell(g, exx, eyy, 5.4, 5.6, SK1);
+        Art.poly(g, [[exx - 4, eyy + 2.4], [exx, eyy - 2], [exx + 4, eyy + 2.4], [exx, eyy + 0.4]], '#0d1620');
+      } else if (eyes === 'shut') {
+        Art.ell(g, exx, eyy, 5.4, 5.6, SK1);
+        Art.rect(g, exx - 4, eyy - 0.6, 8, 1.6, '#0d1620');
+      } else {
+        Art.ell(g, exx + sd * 0.5, eyy - 0.4, 2.6, 2.8, '#2a3c4e');
+        Art.ell(g, exx - 1.4, eyy - 1.8, 1.7, 1.5, '#ffffff');         // the catchlight
+        Art.ell(g, exx + 1.6, eyy + 2, 0.9, 0.8, 'rgba(255,255,255,0.6)');
       }
     }
-    Art.ell(g, hx - 10.4, hy + 10.6, 3.4, 2.2, 'rgba(214,116,124,0.44)');
-    Art.ell(g, hx + 10.4, hy + 10.6, 3.4, 2.2, 'rgba(214,116,124,0.44)');
-    const my = hy + 13.2;
-    if (mouth === 'open') { Art.ell(g, hx, my, 3, 2.8, '#6a2a34'); Art.ell(g, hx, my - 1, 2.2, 1.1, '#fdf6ea'); }
-    else if (mouth === 'wide') { Art.ell(g, hx, my + 0.3, 3.8, 3.3, '#6a2a34'); Art.ell(g, hx, my - 0.9, 3, 1.2, '#fdf6ea'); Art.ell(g, hx, my + 2.2, 2, 1, LIP); }
-    else if (mouth === 'grin') {
-      Art.poly(g, [[hx - 4.6, my - 1.6], [hx + 4.6, my - 1.6], [hx + 3, my + 2.4], [hx - 3, my + 2.4]], '#6a2a34');
-      Art.rect(g, hx - 4, my - 1.4, 8, 1.7, '#fdf6ea');
-    } else if (mouth === 'small') { Art.ell(g, hx, my, 1.9, 1.6, '#6a2a34'); }
-    else { Art.rect(g, hx - 3, my - 0.6, 6, 1.4, LIP); }
+    Art.ell(g, hx - 13.4, hy + 8, 3.4, 2, 'rgba(226,132,140,0.4)');    // blush
+    Art.ell(g, hx + 13.4, hy + 8, 3.4, 2, 'rgba(226,132,140,0.4)');
+    // the mouth, wide across the pale jaw, with a row of blunt little teeth
+    const my = hy + 11.6;
+    const teeth = (x0m, x1m, yTop, down) => {
+      for (let x = x0m; x < x1m - 1; x += 2.4) {
+        Art.poly(g, [[x, yTop], [x + 2.2, yTop], [x + 1.1, yTop + (down ? 2 : -2)]], '#fdf6ea');
+      }
+    };
+    if (mouth === 'open' || mouth === 'wide') {
+      const w2 = mouth === 'wide' ? 8 : 6.2, h2 = mouth === 'wide' ? 4.4 : 3.2;
+      Art.poly(g, [[hx - w2, my - h2], [hx + w2, my - h2], [hx + w2 * 0.7, my + h2], [hx - w2 * 0.7, my + h2]], '#5a2430');
+      teeth(hx - w2 + 0.4, hx + w2 - 0.4, my - h2, true);
+      teeth(hx - w2 * 0.7 + 0.4, hx + w2 * 0.7 - 0.4, my + h2, false);
+      Art.ell(g, hx, my + h2 - 1, w2 * 0.4, 1, '#c4566a');              // tongue
+    } else if (mouth === 'grin') {
+      Art.poly(g, [[hx - 9, my - 2.4], [hx + 9, my - 2.4], [hx + 6.4, my + 2.6], [hx - 6.4, my + 2.6]], '#5a2430');
+      teeth(hx - 8.6, hx + 8.6, my - 2.4, true);
+      Art.rect(g, hx - 6.4, my + 1.8, 12.8, 1, '#fdf6ea');
+    } else if (mouth === 'small') {
+      Art.poly(g, [[hx - 3.4, my - 1.4], [hx + 3.4, my - 1.4], [hx + 2.4, my + 1.6], [hx - 2.4, my + 1.6]], '#5a2430');
+      teeth(hx - 3.2, hx + 3.2, my - 1.4, true);
+    } else {
+      Art.rect(g, hx - 7.4, my - 0.7, 14.8, 1.5, '#3d5a6e');            // resting: a long line
+      Art.poly(g, [[hx + 5.4, my - 0.7], [hx + 8.4, my - 0.7], [hx + 7, my + 1.6]], '#fdf6ea');
+      Art.poly(g, [[hx - 8.4, my - 0.7], [hx - 5.4, my - 0.7], [hx - 7, my + 1.6]], '#fdf6ea');
+    }
     Art.outline(c, '#0a0810', 1);
     cache.set(key, c);
     return c;
@@ -1237,8 +1261,37 @@ const Sprites = (() => {
     g.fillStyle = U.shade(col, 0.3); g.fillRect(x0, y0, w, px); g.fillRect(x0, y0, px, h);
     g.fillStyle = U.shade(col, 0.5); g.fillRect(x0, y0, px * 2, px);
     g.fillStyle = U.shade(col, -0.34); g.fillRect(x0, y0 + h - px, w, px); g.fillRect(x0 + w - px, y0, px, h);
-    g.fillStyle = U.shade(col, -0.16);
-    for (let i = 0; i < 4; i++) g.fillRect(Math.round(x0 + px * 2 + ((i * 13) % Math.max(1, w - px * 4))), Math.round(y0 + px * 2 + ((i * 7) % Math.max(1, h - px * 4))), px, px);
+    // ---- surface: it is a compressed brick of chewed grass, so it says so ----
+    // A stable per-cube noise (no Math.random, the thing has to hold still) laid
+    // down in four passes: grain, fibres, pits and crumbs off the edges.
+    const seed = Math.round(w * 31 + h * 7 + (def.mark ? def.mark.length * 97 : 0));
+    let n = seed | 0;
+    const rnd = () => { n = (n * 1664525 + 1013904223) & 0x7fffffff; return n / 0x7fffffff; };
+    const iw = Math.max(1, Math.round(w - px * 2)), ih = Math.max(1, Math.round(h - px * 2));
+    const GRAIN = [U.shade(col, -0.2), U.shade(col, -0.1), U.shade(col, 0.14), U.shade(col, 0.24)];
+    for (let i = 0; i < Math.round(iw * ih * 0.3); i++) {   // grain
+      g.fillStyle = GRAIN[(rnd() * 4) | 0];
+      g.fillRect(Math.round(x0 + px + rnd() * iw), Math.round(y0 + px + rnd() * ih), 1, 1);
+    }
+    for (let i = 0; i < Math.max(5, Math.round(iw * 0.55)); i++) {   // straw and leaf fibres
+      const fx = Math.round(x0 + px + rnd() * (iw - 3)), fy = Math.round(y0 + px + rnd() * (ih - 2));
+      const len = 2 + ((rnd() * 3) | 0), k = rnd();
+      g.fillStyle = k < 0.42 ? '#6f7a3e' : k < 0.72 ? '#8d8a52' : U.shade(col, 0.34);
+      if (rnd() < 0.62) g.fillRect(fx, fy, len, 1); else g.fillRect(fx, fy, 1, len);
+      if (rnd() < 0.4) { g.fillStyle = U.shade(col, -0.34); g.fillRect(fx, fy + 1, len, 1); }
+    }
+    for (let i = 0; i < 5; i++) {                            // pits, each with a lit lower lip
+      const pw = px * (1 + ((rnd() * 2) | 0)), ph2 = px;
+      const dx2 = Math.round(x0 + px * 1.5 + rnd() * Math.max(1, iw - pw - px));
+      const dy2 = Math.round(y0 + px * 1.5 + rnd() * Math.max(1, ih - ph2 * 2 - px));
+      g.fillStyle = U.shade(col, -0.4); g.fillRect(dx2, dy2, pw, ph2);
+      g.fillStyle = U.shade(col, 0.3); g.fillRect(dx2, dy2 + ph2, pw, 1);
+    }
+    g.fillStyle = U.shade(col, -0.5);                        // knocked-off lower corners
+    g.fillRect(Math.round(x0), Math.round(y0 + h - px), px, px);
+    g.fillRect(Math.round(x0 + w - px), Math.round(y0 + h - px), px, px);
+    g.fillStyle = U.shade(col, 0.42);                        // and a lit chip off the top right
+    g.fillRect(Math.round(x0 + w - px * 2), Math.round(y0), px, px);
     switch (def.mark) {
       case 'sticky':
         g.fillStyle = U.shade(col, 0.45);
@@ -1275,7 +1328,12 @@ const Sprites = (() => {
     }
     // every cube has a little face on it. It is a lump of poop and it is happy.
     if (opts.face) cubeFace(g, opts.face, w, h, px);
-    if (opts.outline) { g.strokeStyle = opts.outline; g.lineWidth = Math.max(1, px); g.strokeRect(x0, y0, w, h); }
+    if (opts.outline) {                                      // a pixel border, never a stroke
+      const o = Math.max(1, Math.round(px));
+      g.fillStyle = opts.outline;
+      g.fillRect(x0, y0, w, o); g.fillRect(x0, y0 + h - o, w, o);
+      g.fillRect(x0, y0, o, h); g.fillRect(x0 + w - o, y0, o, h);
+    }
   }
   function cubeFace(g, mood, w, h, px) {
     const e = Math.max(1.4, px * 1.15);

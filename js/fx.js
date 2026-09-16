@@ -88,11 +88,14 @@ const FX = (() => {
     const cx0 = W / 2, cy0 = H / 2, maxR = Math.hypot(W, H) / 2;
     if (cover < 1) {
       const rad = (phase === 'in' ? e : 1 - e) * maxR * 1.25;
-      const ring = g.createRadialGradient(cx0, cy0, Math.max(0, rad - 40), cx0, cy0, rad + 18);
-      ring.addColorStop(0, 'rgba(185,142,240,0)');
-      ring.addColorStop(0.7, `rgba(185,142,240,${(0.16 * (1 - Math.abs(cover - 0.5) * 1.4)).toFixed(3)})`);
-      ring.addColorStop(1, 'rgba(121,220,237,0)');
-      g.fillStyle = ring; g.fillRect(0, 0, W, H);
+      const ra = 0.2 * (1 - Math.abs(cover - 0.5) * 1.4);
+      if (ra > 0.02) {                            // the wavefront, as dithered pixel rings
+        for (let i = 0; i < 4; i++) {
+          const rr = rad - 24 + i * 14;
+          if (rr <= 2) continue;
+          Art.ring(g, cx0, cy0, rr, rr, i < 2 ? '#b98ef0' : '#79dced', 2 + i);
+        }
+      }
     }
     for (const cel of cells) {
       const k = cel[phase];
@@ -136,10 +139,7 @@ const FX = (() => {
     // and a soft bloom held over the whole thing at the darkest point
     if (cover > 0.92) {
       const b = (cover - 0.92) / 0.08;
-      const gr = g.createRadialGradient(cx0, cy0, 4, cx0, cy0, maxR);
-      gr.addColorStop(0, `rgba(94,66,140,${(b * 0.3).toFixed(2)})`);
-      gr.addColorStop(1, 'rgba(10,8,20,0)');
-      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      Art.glow(g, cx0, cy0, maxR, '#5e428c', b * 0.34, 6);
     }
   }
 
@@ -180,7 +180,7 @@ const FX = (() => {
       g.fillStyle = '#120c18'; g.translate(2, 3); g.fill(); g.translate(-2, -3);
       g.fillStyle = c.edge; g.fill();
       g.save(); g.scale(0.78, 0.78); g.fillStyle = c.ink; g.fill(); g.restore();
-      g.lineJoin = 'miter'; g.lineWidth = 2; g.strokeStyle = '#120c18'; g.stroke();
+      Art.stroke(g, pts.concat([pts[0]]), '#120c18', 2);
       Font.draw(g, c.text, 0, -3, { scale: 1, color: '#120c18', align: 'center' });
       g.restore();
     }
@@ -284,7 +284,7 @@ const FX = (() => {
       g.globalAlpha = a;
       g.fillStyle = p.color;
       const s = p.size;
-      if (p.type === 'circle') { g.beginPath(); g.arc(p.x, p.y, s, 0, TAU); g.fill(); }
+      if (p.type === 'circle') Art.ell(g, p.x, p.y, s, s, p.color);
       else if (p.type === 'heart') { g.fillRect(p.x - s, p.y - s / 2, s, s); g.fillRect(p.x, p.y - s / 2, s, s); g.fillRect(p.x - s / 2, p.y + s / 2, s, s / 2); g.fillRect(p.x - s, p.y, s * 2, s / 2); }
       else if (p.type === 'star') { g.fillRect(p.x - s, p.y - 1, s * 2, 2); g.fillRect(p.x - 1, p.y - s, 2, s * 2); }
       else if (p.type === 'leaf') { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.fillRect(-s, -s / 3, s * 2, s / 1.5); g.restore(); }
@@ -298,12 +298,9 @@ const FX = (() => {
       g.save();
       g.lineCap = 'round'; g.lineJoin = 'round';
       for (const pass of [{ c: b.glow, w: b.w * 4, al: a * 0.5 }, { c: b.color, w: b.w, al: a }]) {
-        g.globalAlpha = pass.al; g.strokeStyle = pass.c; g.lineWidth = pass.w;
-        g.beginPath();
-        g.moveTo(b.pts[0][0], b.pts[0][1]);
-        for (const p of b.pts) g.lineTo(p[0], p[1]);
-        for (const f of b.forks) { g.moveTo(f[0][0], f[0][1]); for (const p of f) g.lineTo(p[0], p[1]); }
-        g.stroke();
+        g.globalAlpha = pass.al;
+        Art.stroke(g, b.pts, pass.c, Math.max(1, Math.round(pass.w)));
+        for (const f of b.forks) Art.stroke(g, f, pass.c, Math.max(1, Math.round(pass.w * 0.7)));
       }
       g.restore();
       g.globalAlpha = 1;
@@ -332,8 +329,8 @@ const FX = (() => {
     for (const r of rings) {
       const t = 1 - r.life / r.maxLife;
       g.globalAlpha = (1 - t) * 0.8;
-      g.strokeStyle = r.color; g.lineWidth = Math.max(1, 3 * (1 - t));
-      g.beginPath(); g.ellipse(r.x, r.y, U.lerp(r.r0, r.r1, t), U.lerp(r.r0, r.r1, t) * 0.4, 0, 0, TAU); g.stroke();
+      const rr = U.lerp(r.r0, r.r1, t);
+      Art.ring(g, r.x, r.y, rr, rr * 0.4, r.color, Math.max(1, Math.round(3 * (1 - t))));
     }
     g.globalAlpha = 1;
   }
@@ -402,9 +399,9 @@ const FX = (() => {
   // Screen-space cinematic overlay
   function drawCinema(g, W, H) {
     if (cine.vignette > 0.01) {
-      const grd = g.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.85);
-      grd.addColorStop(0, 'rgba(0,0,0,0)'); grd.addColorStop(1, `rgba(0,0,0,${0.85 * cine.vignette})`);
-      g.fillStyle = grd; g.fillRect(0, 0, W, H);
+      g.globalAlpha = cine.vignette;
+      Art.vignette(g, W, H, '#000000', 0.9, 2.2, 0.3);
+      g.globalAlpha = 1;
     }
     if (cine.desat > 0.01) { g.fillStyle = `rgba(90,90,110,${0.35 * cine.desat})`; g.fillRect(0, 0, W, H); }
     if (cine.letterbox > 0.01) {

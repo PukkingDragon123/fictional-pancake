@@ -361,9 +361,7 @@ const Main = (() => {
   // store answers over a channel, and that takes a moment.
   function splash() {
     g.fillStyle = '#241230'; g.fillRect(0, 0, W, H);
-    const gr = g.createLinearGradient(0, 0, 0, H);
-    gr.addColorStop(0, '#533070'); gr.addColorStop(1, '#241230');
-    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    Art.vband(g, 0, 0, W, H, '#533070', '#241230', 8);
     FX.pixelText(g, 'WOMBAT GODS', W / 2, H / 2 - 22, { color: '#f2cf62', size: 26, ink: 3, inkColor: 'rgba(0,0,0,0.6)' });
     FX.pixelText(g, 'opening the grove', W / 2, H / 2 + 14, { color: '#c2a176', size: 14, ink: false });
   }

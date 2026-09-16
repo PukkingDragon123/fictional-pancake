@@ -183,14 +183,35 @@ const Ritual = (() => {
     g.globalAlpha = 1;
     g.fillStyle = U.mix('#2e2a1c', '#31502a', f); g.fillRect(0, 250, W, H - 250);
     g.fillStyle = U.mix('#3a3324', '#3f5a2c', f); g.fillRect(0, 250, W, 4);
-    g.fillStyle = 'rgba(0,0,0,0.2)'; for (let i = 0; i < 30; i++) g.fillRect((i * 71) % W, 258 + ((i * 53) % 90), 8, 2);
+    // the ground it is built on: grit, tufts, flat stones and a few cracks, so
+    // there is no bare paint anywhere between the treeline and the frame edge
+    {
+      const gr2 = Art.rng(5150);
+      const G0 = U.mix('#262216', '#294620', f), G1 = U.mix('#38321f', '#3d5a2b', f), G2 = U.mix('#4a4229', '#527a38', f);
+      for (let i = 0; i < 1500; i++) {
+        const x = Math.round(gr2() * W), y = 250 + Math.round(gr2() * (H - 250)), k = gr2();
+        g.fillStyle = k < 0.45 ? G0 : k < 0.8 ? G1 : G2;
+        g.fillRect(x, y, 1 + (k > 0.92 ? 1 : 0), 1);
+      }
+      for (let i = 0; i < 46; i++) {                       // tufts of dry grass
+        const x = Math.round(gr2() * W), y = 256 + Math.round(gr2() * (H - 262));
+        g.fillStyle = gr2() < 0.5 ? G1 : G2;
+        for (let k = -2; k <= 2; k++) g.fillRect(x + k, y - Math.abs(k === 0 ? 3 : 2 - Math.abs(k)), 1, 2 + (k === 0 ? 2 : 1));
+      }
+      for (let i = 0; i < 24; i++) {                       // flat stones pressed into it
+        const x = Math.round(gr2() * W), y = 262 + Math.round(gr2() * (H - 272));
+        const sw = 4 + Math.round(gr2() * 9);
+        g.fillStyle = '#1a1712'; g.fillRect(x, y + 1, sw, 3);
+        g.fillStyle = U.mix('#4c4736', '#55604a', gr2()); g.fillRect(x, y, sw, 3);
+        g.fillStyle = U.mix('#6a6450', '#77836a', gr2()); g.fillRect(x, y, sw, 1);
+      }
+      g.fillStyle = 'rgba(0,0,0,0.22)';
+      for (let i = 0; i < 30; i++) g.fillRect((i * 71) % W, 258 + ((i * 53) % 90), 8, 2);
+    }
     // rune circle
     g.save();
+    for (const r of [96, 74]) Art.ring(g, CX, BASE + 6, r, r * 0.34, U.rgba(PAL.div3, 0.5), 2);
     g.translate(CX, BASE + 6); g.scale(1, 0.34); g.rotate(G.time * 0.24);
-    for (const r of [96, 74]) {
-      g.strokeStyle = U.rgba(PAL.div3, 0.5); g.lineWidth = 2;
-      g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke();
-    }
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * TAU;
       g.fillStyle = U.rgba(PAL.div4, 0.6);
@@ -221,9 +242,7 @@ const Ritual = (() => {
       const p = 0.5 + 0.5 * Math.sin(G.time * 3);
       const gy = BASE - 96;
       const rad = 52 + p * 12;
-      const grd = g.createRadialGradient(CX, gy, 3, CX, gy, rad);
-      grd.addColorStop(0, U.rgba(god.color, 0.4 + p * 0.2)); grd.addColorStop(1, U.rgba(god.color, 0));
-      g.fillStyle = grd; g.fillRect(CX - rad, gy - rad, rad * 2, rad * 2);
+      Art.glow(g, CX, gy, rad, god.color, 0.4 + p * 0.2, 5);
       Icons.blit(g, god.glyph, CX - 12, gy - 12 - p * 3, 1.5);
       for (let k = 0; k < 3; k++) {
         const a = G.time * 1.2 + k * 2.1;
@@ -254,11 +273,8 @@ const Ritual = (() => {
     // rune circle brightening through the rite
     const heat = beat === 'dark' ? p * 0.3 : beat === 'roots' ? 0.3 + p * 0.3 : beat === 'charge' ? 0.6 + p * 0.4 : 1;
     g.save();
+    for (const r of [110, 84, 58]) Art.ring(g, CX, BASE + 8, r, r * 0.34, U.rgba(god.color, 0.35 * heat), 3);
     g.translate(CX, BASE + 8); g.scale(1, 0.34); g.rotate(scene.rune);
-    for (const r of [110, 84, 58]) {
-      g.strokeStyle = U.rgba(god.color, 0.35 * heat); g.lineWidth = 3;
-      g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke();
-    }
     for (let i = 0; i < 16; i++) {
       const a = (i / 16) * TAU;
       g.fillStyle = U.rgba(PAL.div5, 0.6 * heat);
@@ -266,9 +282,7 @@ const Ritual = (() => {
     }
     g.restore();
     // ground glow
-    const gg = g.createRadialGradient(CX, BASE, 6, CX, BASE, 190);
-    gg.addColorStop(0, U.rgba(god.color, 0.4 * heat)); gg.addColorStop(1, U.rgba(god.color, 0));
-    g.fillStyle = gg; g.fillRect(CX - 190, BASE - 190, 380, 380);
+    Art.glow(g, CX, BASE, 190, god.color, 0.4 * heat, 6);
 
     // shrine
     const img = Props.get('shrine', G.up.shrine || 0);
@@ -283,9 +297,7 @@ const Ritual = (() => {
       const gw = gi.width * gs, gh = gi.height * gs;
       const gy = U.lerp(BASE + 50, BASE - 74, rise);
       // aura
-      const ag = g.createRadialGradient(CX, gy - gh / 2, 10, CX, gy - gh / 2, 150);
-      ag.addColorStop(0, U.rgba(god.color, 0.45)); ag.addColorStop(1, U.rgba(god.color, 0));
-      g.fillStyle = ag; g.fillRect(CX - 150, gy - gh / 2 - 150, 300, 300);
+      Art.glow(g, CX, gy - gh / 2, 150, god.color, 0.45, 6);
       // shafts
       g.save();
       g.globalAlpha = 0.22 + 0.1 * Math.sin(G.time * 3);
@@ -304,9 +316,7 @@ const Ritual = (() => {
         const ap = U.easeOut(Math.min(1, p * 2));
         const ay = U.lerp(gy - gh * 0.5, BASE - 30, ap);
         const glow = 0.5 + 0.5 * Math.sin(G.time * 6);
-        const ag2 = g.createRadialGradient(CX, ay, 2, CX, ay, 34);
-        ag2.addColorStop(0, U.rgba(PAL.gold4, 0.6 * glow)); ag2.addColorStop(1, U.rgba(PAL.gold4, 0));
-        g.fillStyle = ag2; g.fillRect(CX - 34, ay - 34, 68, 68);
+        Art.glow(g, CX, ay, 34, PAL.gold4, 0.6 * glow, 4);
         Icons.blit(g, god.artIcon, CX - 16, ay - 16, 2);
       }
     }
@@ -322,10 +332,9 @@ const Ritual = (() => {
     FX.drawComics(g, false);
     // rain of light during the strike
     if (beat === 'strike') {
-      g.strokeStyle = U.rgba(PAL.cream, 0.35); g.lineWidth = 1;
       for (let i = 0; i < 30; i++) {
         const x = (i * 97 + G.time * 900) % W;
-        g.beginPath(); g.moveTo(x, 0); g.lineTo(x - 6, H); g.stroke();
+        Art.line(g, x, 0, x - 6, H, U.rgba(PAL.cream, 0.35), 1);
       }
     }
   }

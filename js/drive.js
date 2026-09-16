@@ -54,11 +54,11 @@ const Drive = (() => {
     const sp = t * 128;
     // ---- sky: dusk going over to night as the drive goes on ---------------
     const night = U.clamp(k * 1.15, 0, 1);
-    const sky = g.createLinearGradient(0, 0, 0, HORIZON + 20);
-    sky.addColorStop(0, U.mix('#3e2b62', '#0b0a1e', night));
-    sky.addColorStop(0.52, U.mix('#9a5f7a', '#221a3e', night));
-    sky.addColorStop(1, U.mix('#f0b070', '#4a3358', night));
-    g.fillStyle = sky; g.fillRect(0, 0, VW, HORIZON + 20);
+    Art.vramp(g, 0, 0, VW, HORIZON + 20, [
+      [0, U.mix('#3e2b62', '#0b0a1e', night)],
+      [0.52, U.mix('#9a5f7a', '#221a3e', night)],
+      [1, U.mix('#f0b070', '#4a3358', night)],
+    ], 10);
     // stars coming out behind it
     if (night > 0.25) {
       g.fillStyle = `rgba(255,248,224,${((night - 0.25) * 0.9).toFixed(2)})`;
@@ -101,9 +101,8 @@ const Drive = (() => {
       g.fillStyle = pole; g.fillRect(px, 176, 4, 82);
       g.fillStyle = pole; g.fillRect(px - 12, 182, 28, 3); g.fillRect(px - 9, 192, 22, 3);
       for (const [o, y0] of [[-11, 184], [13, 184], [-8, 194], [11, 194]]) {
-        g.strokeStyle = `rgba(30,24,44,${(0.5 + night * 0.4).toFixed(2)})`;
-        g.lineWidth = 1; g.beginPath();
-        g.moveTo(px + o, y0); g.quadraticCurveTo(px + o + 85, y0 + 14, px + o + 170, y0); g.stroke();
+        Art.curve(g, px + o, y0, px + o + 85, y0 + 14, px + o + 170, y0,
+          `rgba(30,24,44,${(0.5 + night * 0.4).toFixed(2)})`, 1, 14);
       }
     }
     // ---- three ranks of the grove's own trees -----------------------------
@@ -154,9 +153,7 @@ const Drive = (() => {
       // coming the other way, and not all of them are this one's colour
       const img = Art.flip(Art.tinted(Props.get('truck'), c.col, 0.45));
       const w = img.width * sc, h = img.height * sc;
-      const beam = g.createRadialGradient(c.x - w * 0.4, y - 4, 2, c.x - w * 0.4, y - 4, 54);
-      beam.addColorStop(0, `rgba(255,240,196,${(0.18 + night * 0.3).toFixed(2)})`); beam.addColorStop(1, 'rgba(255,240,196,0)');
-      g.fillStyle = beam; g.fillRect(c.x - w * 0.4 - 56, y - 60, 112, 112);
+      Art.glow(g, c.x - w * 0.4, y - 4, 54, '#fff0c4', 0.18 + night * 0.3, 5);
       g.fillStyle = 'rgba(0,0,0,0.3)'; Art.ell(g, c.x, y + 3, w * 0.42, 3);
       g.drawImage(img, Math.round(c.x - w / 2), Math.round(y - h + 6), Math.round(w), Math.round(h));
     }
@@ -190,11 +187,16 @@ const Drive = (() => {
     }
     // its own headlights, reaching down the road
     const hx = tx + tw * 0.46;
-    const hb = g.createLinearGradient(hx, ty - 8, hx + 210, ty + 16);
-    hb.addColorStop(0, `rgba(255,238,184,${(0.14 + night * 0.28).toFixed(2)})`);
-    hb.addColorStop(1, 'rgba(255,238,184,0)');
-    g.fillStyle = hb;
-    Art.poly(g, [[hx, ty - 12], [hx + 230, ty - 34], [hx + 230, ty + 30], [hx, ty - 2]], hb);
+    {                                            // the beam, as four dithered wedges
+      const oa = g.globalAlpha, a0 = 0.1 + night * 0.16;
+      for (let i = 5; i >= 1; i--) {         // the beam, as five flat wedges
+        const r = i / 5;
+        g.globalAlpha = oa * a0 * (1 - (i - 1) / 5);
+        Art.poly(g, [[hx, ty - 12], [hx + 230 * r, ty - 12 - 22 * r],
+                     [hx + 230 * r, ty - 2 + 32 * r], [hx, ty - 2]], '#ffeeb8');
+      }
+      g.globalAlpha = oa;
+    }
     Art.castShadow(g, img, tx, ty + 10, tw, th, { alpha: 0.34, lean: 0.3, squash: 0.14 });
     g.drawImage(img, Math.round(tx - tw / 2), Math.round(ty - th + 12), Math.round(tw), Math.round(th));
     for (let i = 0; i < 9; i++) {                                 // dust off the back wheels

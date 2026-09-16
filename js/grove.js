@@ -736,9 +736,7 @@ const Grove = (() => {
     }
     // a cold sun, low and pale, parked behind the canopy
     const sunX = W * 0.22 + drift * 0.8, sunY = 40;
-    const sg = g.createRadialGradient(sunX, sunY, 4, sunX, sunY, 110);
-    sg.addColorStop(0, `rgba(255,238,196,${(0.12 + f * 0.3).toFixed(2)})`); sg.addColorStop(1, 'rgba(255,238,196,0)');
-    g.fillStyle = sg; g.fillRect(sunX - 110, sunY - 110, 220, 220);
+    Art.glow(g, sunX, sunY, 110, '#ffeec4', 0.12 + f * 0.3, 6);
     g.fillStyle = U.mix('#5f5a68', '#ffeeb0', f); Art.ell(g, sunX, sunY, 8, 8);
 
     // clouds, drifting the other way to the parallax so the sky feels deep
@@ -775,21 +773,23 @@ const Grove = (() => {
       }
       // haze thickens toward the back of the wood
       const hz = 0.4 - d * 0.06 - f * 0.1;
-      const hg = g.createLinearGradient(0, SKY - 56 + d * 13, 0, SKY + 8);
-      hg.addColorStop(0, `rgba(${d < 2 ? '12,14,22' : '46,50,62'},${Math.max(0, hz).toFixed(3)})`);
-      hg.addColorStop(1, `rgba(${d < 2 ? '12,14,22' : '46,50,62'},0)`);
-      g.fillStyle = hg; g.fillRect(L, SKY - 56 + d * 13, R - L, 70);
+      {                                       // haze, as five dithered steps
+        const hc = d < 2 ? '#0c0e16' : '#2e323e', hy0 = SKY - 56 + d * 13;
+        for (let i = 0; i < 5; i++) {
+          const aa = Math.max(0, hz) * (1 - i / 5);
+          Art.dither(g, L, hy0 + i * 14, R - L, 15, hc, aa);
+        }
+      }
       // fog banks caught between the trunks
       for (const m of mist) {
         if (m.d !== Math.min(2, d)) continue;
         const mx = m.x + drift * PAR[d];
         if (mx > R || mx + m.w < L) continue;
         const a = (0.08 + (1 - f) * 0.16) * (0.6 + 0.4 * Math.sin(G.time * 0.4 + m.x));
-        const gr = g.createLinearGradient(0, m.y - 14, 0, m.y + 14);
-        gr.addColorStop(0, 'rgba(198,196,204,0)');
-        gr.addColorStop(0.5, `rgba(198,196,204,${a.toFixed(3)})`);
-        gr.addColorStop(1, 'rgba(198,196,204,0)');
-        g.fillStyle = gr; g.fillRect(mx, m.y - 14, m.w, 28);
+        for (let i = 0; i < 7; i++) {         // fog bank, banded from the middle out
+          const aa = a * (1 - Math.abs(i - 3) / 3.4);
+          Art.dither(g, mx, m.y - 14 + i * 4, m.w, 4, '#c6c4cc', aa);
+        }
       }
     }
     // ---- light falling through the canopy ---------------------------------
@@ -797,14 +797,14 @@ const Grove = (() => {
       const x = sh.x + drift * 0.2;
       if (x < L - 120 || x > R + 120) continue;
       const a = sh.a * (0.55 + 0.45 * Math.sin(G.time * 0.3 + sh.x)) * (0.5 + f * 0.9);
-      const gr = g.createLinearGradient(x, SKY - 60, x + sh.lean, GROUND + 90);
-      gr.addColorStop(0, `rgba(255,240,200,${a.toFixed(3)})`);
-      gr.addColorStop(1, 'rgba(255,240,200,0)');
-      g.fillStyle = gr;
+      g.save();                               // the shaft, clipped then dither-banded
       g.beginPath();
       g.moveTo(x - sh.w / 2, SKY - 60); g.lineTo(x + sh.w / 2, SKY - 60);
       g.lineTo(x + sh.lean + sh.w, GROUND + 90); g.lineTo(x + sh.lean - sh.w, GROUND + 90);
-      g.closePath(); g.fill();
+      g.closePath(); g.clip();
+      const sy0 = SKY - 60, sh2 = (GROUND + 90) - sy0;
+      for (let i = 0; i < 8; i++) Art.dither(g, x - sh.w - 40, sy0 + (sh2 / 8) * i, sh.w * 2 + Math.abs(sh.lean) + 80, sh2 / 8 + 1, '#fff0c8', a * (1 - i / 8));
+      g.restore();
     }
     // owls on the near boughs
     for (const o of owls) {
@@ -819,10 +819,7 @@ const Grove = (() => {
       if (m.d !== 2) continue;
       const mx = m.x * 0.7 + 60;
       const a = (0.07 + (1 - f) * 0.1) * (0.6 + 0.4 * Math.sin(G.time * 0.3 + m.x));
-      const gr = g.createLinearGradient(0, GROUND - 4, 0, GROUND + 30);
-      gr.addColorStop(0, `rgba(206,204,212,${a.toFixed(3)})`);
-      gr.addColorStop(1, 'rgba(206,204,212,0)');
-      g.fillStyle = gr; g.fillRect(mx, GROUND - 4, m.w * 1.4, 34);
+      for (let i = 0; i < 6; i++) Art.dither(g, mx, GROUND - 4 + i * 6, m.w * 1.4, 6, '#ceccd4', a * (1 - i / 6));
     }
     World.drawSprouts(g);
     World.drawBlades(g);
@@ -870,10 +867,12 @@ const Grove = (() => {
       const k = sl.t / 0.18, a = 1 - k;
       g.save();
       g.translate(sl.x, sl.y); g.scale(1, 0.55); g.rotate(-0.6 + k * 1.8);
-      g.strokeStyle = `rgba(253,243,220,${(a * 0.9).toFixed(2)})`; g.lineWidth = 5;
-      g.beginPath(); g.arc(0, 0, sl.r * (0.6 + k * 0.5), -0.9, 0.9); g.stroke();
-      g.strokeStyle = `rgba(10,8,16,${(a * 0.9).toFixed(2)})`; g.lineWidth = 2;
-      g.beginPath(); g.arc(0, 0, sl.r * (0.6 + k * 0.5) + 3, -0.9, 0.9); g.stroke();
+      const rr = sl.r * (0.6 + k * 0.5);
+      const arc = (rad, n) => { const pts = []; for (let i = 0; i <= n; i++) { const th = -0.9 + (1.8 * i) / n; pts.push([Math.cos(th) * rad, Math.sin(th) * rad]); } return pts; };
+      g.globalAlpha = a * 0.9;
+      Art.stroke(g, arc(rr, 9), '#fdf3dc', 5);
+      Art.stroke(g, arc(rr + 3, 9), '#0a0810', 2);
+      g.globalAlpha = 1;
       g.restore();
     }
     // leaves torn off and carried across the plot
@@ -911,17 +910,13 @@ const Grove = (() => {
     g.save();
     g.globalCompositeOperation = 'soft-light';
     g.fillStyle = '#7a4d94'; g.globalAlpha = 0.34 - f * 0.12; g.fillRect(0, 0, VW, VH);
-    const warm = g.createRadialGradient(VW * 0.3, VH * 0.14, 10, VW * 0.3, VH * 0.14, VH * 1.1);
-    warm.addColorStop(0, 'rgba(255,226,150,0.5)'); warm.addColorStop(1, 'rgba(255,226,150,0)');
-    g.globalAlpha = 0.5 + f * 0.2; g.fillStyle = warm; g.fillRect(0, 0, VW, VH);
+    g.globalAlpha = 0.5 + f * 0.2;
+    Art.glow(g, VW * 0.3, VH * 0.14, VH * 1.1, '#ffe296', 0.5, 6);
     g.restore();
     if (f < 0.95) { g.fillStyle = `rgba(48,30,74,${(0.15 * (1 - f)).toFixed(3)})`; g.fillRect(0, 0, VW, VH); }
     // the whole grove sits inside a soft violet frame
-    const vg = g.createRadialGradient(VW / 2, VH * 0.52, VH * 0.4, VW / 2, VH * 0.52, VH * 1.02);
-    vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(0.62, `rgba(36,18,48,${(0.2 - f * 0.08).toFixed(2)})`);
-    vg.addColorStop(1, `rgba(16,8,26,${(0.62 - f * 0.24).toFixed(2)})`);
-    g.fillStyle = vg; g.fillRect(0, 0, VW, VH);
+    Art.vignette(g, VW, VH, '#241230', 0.3 - f * 0.1, 1.8, 0.4);
+    Art.vignette(g, VW, VH, '#10081a', 0.62 - f * 0.24, 3.2, 0.5);
     edgeArrows(g);
   }
 
@@ -1187,9 +1182,7 @@ const Grove = (() => {
     g.drawImage(img, Math.round(SEED.x - img.width / 2), Math.round(SEED.y - img.height + 4));
     const p = 0.5 + 0.5 * Math.sin(G.time * 2.2);
     const rad = 22 + p * 8;
-    const gr = g.createRadialGradient(SEED.x, SEED.y - 14, 2, SEED.x, SEED.y - 14, rad);
-    gr.addColorStop(0, `rgba(185,142,240,${0.24 + p * 0.2})`); gr.addColorStop(1, 'rgba(185,142,240,0)');
-    g.fillStyle = gr; g.fillRect(SEED.x - rad, SEED.y - 14 - rad, rad * 2, rad * 2);
+    Art.glow(g, SEED.x, SEED.y - 14, rad, '#b98ef0', 0.24 + p * 0.2, 5);
     for (let i = 0; i < 3; i++) {
       const a = G.time * 1.1 + i * 2.1;
       g.fillStyle = PAL.div4;
@@ -1227,9 +1220,7 @@ const Grove = (() => {
     Sprites.shadow(g, w.x, w.y, p, Math.floor(w.anim * rate), w.pelt, w.dir, w.age, Sprites.S, w.sq);
     const fur = Sprites.furOf(w.pelt);
     if (fur.glow) {
-      const gr = g.createRadialGradient(w.x, w.y - 18 * k, 2, w.x, w.y - 18 * k, 36 * k);
-      gr.addColorStop(0, U.rgba(fur.glow, 0.3)); gr.addColorStop(1, U.rgba(fur.glow, 0));
-      g.fillStyle = gr; g.fillRect(w.x - 36 * k, w.y - 54 * k, 72 * k, 72 * k);
+      Art.glow(g, w.x, w.y - 18 * k, 36 * k, fur.glow, 0.3, 5);
     }
     Sprites.blit(g, w.x, w.y, p, Math.floor(w.anim * rate), w.pelt, w.dir, w.age, Sprites.S, w.sq);
     if (w.grump > 0 && Math.floor(w.anim * 6) % 2) { g.fillStyle = PAL.red2; g.fillRect(w.x - 8, w.y - 50 * k, 3, 3); g.fillRect(w.x + 6, w.y - 54 * k, 3, 3); }
@@ -1313,10 +1304,7 @@ const Grove = (() => {
     g.fillStyle = 'rgba(12,9,16,0.4)'; Art.ell(g, d.x, d.y - 1, w * 0.62, 5);
     if (d.z <= 0.5 && !held) {
       const pulse = 0.5 + 0.5 * Math.sin(G.time * 3 + d.x * 0.1);
-      const gr = g.createRadialGradient(d.x, d.y - h * 0.4, 2, d.x, d.y - h * 0.4, 26 + pulse * 6);
-      gr.addColorStop(0, `rgba(245,205,92,${(0.13 + pulse * 0.09).toFixed(2)})`);
-      gr.addColorStop(1, 'rgba(245,205,92,0)');
-      g.fillStyle = gr; g.fillRect(d.x - 34, d.y - h - 30, 68, 68);
+      Art.glow(g, d.x, d.y - h * 0.4, 26 + pulse * 6, '#f5cd5c', 0.13 + pulse * 0.09, 4);
     }
     g.save();
     g.translate(Math.round(d.x), Math.round(d.y - d.z - h / 2));

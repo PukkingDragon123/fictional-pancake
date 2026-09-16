@@ -218,10 +218,7 @@ const Guide = (() => {
     g.drawImage(draw2, Math.round(cult.x - dw / 2), Math.round(cult.y - dh + 4 - lift), Math.round(dw), Math.round(dh));
     // the glow of her lantern-charm, and a nudge toward the job
     const p = 0.5 + 0.5 * Math.sin(cult.t * 3);
-    const gr = g.createRadialGradient(cult.x, cult.y - 24, 2, cult.x, cult.y - 24, 40 + p * 8);
-    gr.addColorStop(0, `rgba(185,142,240,${(0.14 + p * 0.1).toFixed(2)})`);
-    gr.addColorStop(1, 'rgba(185,142,240,0)');
-    g.fillStyle = gr; g.fillRect(cult.x - 48, cult.y - 72, 96, 96);
+    Art.glow(g, cult.x, cult.y - 24, 40 + p * 8, '#b98ef0', 0.14 + p * 0.1, 5);
     drawBubble(g);
     const s = step();
     if (s && cult.pose !== 'walk' && cult.pose !== 'run') {

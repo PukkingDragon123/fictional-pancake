@@ -200,9 +200,7 @@ const Nursery = (() => {
   function render(g) {
     const S = scroll;
     // ---- sky through the glass --------------------------------------------
-    const sky = g.createLinearGradient(0, 0, 0, FLOOR);
-    sky.addColorStop(0, '#1c2f3e'); sky.addColorStop(0.5, '#2b4a52'); sky.addColorStop(1, '#3d5f4a');
-    g.fillStyle = sky; g.fillRect(0, 0, VW, FLOOR);
+    Art.vramp(g, 0, 0, VW, FLOOR, [[0, '#1c2f3e'], [0.5, '#2b4a52'], [1, '#3d5f4a']], 10);
     // the forest outside, seen through it
     for (let i = 0; i < 12; i++) {
       const x = ((i * 92 - S * 0.12) % (VW + 200) + VW + 200) % (VW + 200) - 100;
@@ -234,6 +232,20 @@ const Nursery = (() => {
       g.fillStyle = 'rgba(190,232,240,0.35)'; g.fillRect(x, FLOOR + 32, 14, 1);
     }
     // ---- the benches and what is on them -----------------------------------
+    {                                      // the back wall, glazed and running with damp
+      const wr = Art.rng(9031);
+      for (let x = -((S * 0.9) % 34) - 34; x < VW + 34; x += 34) {
+        Art.rect(g, x, BEAM, 2, FLOOR - BEAM, '#2f4a40');       // glazing bars
+        Art.rect(g, x + 2, BEAM, 1, FLOOR - BEAM, '#5c7d6c');
+      }
+      for (let y = BEAM + 26; y < FLOOR; y += 38) Art.rect(g, 0, y, VW, 1, '#2f4a40');
+      const oa = g.globalAlpha; g.globalAlpha = 0.5;
+      for (let i = 0; i < 150; i++) {                            // condensation runs
+        const x = Math.round(wr() * VW), y = BEAM + Math.round(wr() * (FLOOR - BEAM));
+        Art.rect(g, x, y, 1, 2 + Math.round(wr() * 8), wr() < 0.5 ? '#7fa894' : '#26413a');
+      }
+      g.globalAlpha = oa;
+    }
     drawBeds(g, S);
     for (const s of slots) {
       const x = s.x - S;
@@ -250,9 +262,11 @@ const Nursery = (() => {
       g.fillRect(Math.round(mx), Math.round((my + VH) % VH), 2, 2);
     }
     // glass is warm in here: one pass of light down through the ribs
-    const warm = g.createLinearGradient(0, 0, 0, FLOOR);
-    warm.addColorStop(0, 'rgba(226,240,170,0.16)'); warm.addColorStop(1, 'rgba(226,240,170,0)');
-    g.fillStyle = warm; g.fillRect(0, 0, VW, FLOOR);
+    {                                      // sunlight down through the ribs, in flat steps
+      const oa = g.globalAlpha;
+      for (let i = 0; i < 7; i++) { g.globalAlpha = oa * 0.16 * (1 - i / 7); Art.rect(g, 0, (FLOOR / 7) * i, VW, FLOOR / 7 + 1, '#e2f0aa'); }
+      g.globalAlpha = oa;
+    }
     if (tscroll < 24 && t < 7) {
       const a = 0.4 + 0.4 * Math.sin(t * 4);
       g.globalAlpha = a;
@@ -273,25 +287,23 @@ const Nursery = (() => {
     g.save();
     g.beginPath(); g.rect(0, 0, VW, BEAM); g.clip();
     // the glass itself, tinted and lit from above
-    const gl = g.createLinearGradient(0, -20, 0, BEAM);
-    gl.addColorStop(0, 'rgba(190,226,210,0.3)'); gl.addColorStop(1, 'rgba(190,226,210,0.05)');
-    g.fillStyle = gl; g.fillRect(0, 0, VW, BEAM);
+    {                                      // the glass tint, in flat steps
+      const oa = g.globalAlpha;
+      for (let i = 0; i < 6; i++) { g.globalAlpha = oa * (0.28 - i * 0.04); Art.rect(g, 0, (BEAM / 6) * i, VW, BEAM / 6 + 1, '#bee2d2'); }
+      g.globalAlpha = oa;
+    }
     // glazing bars, converging on an apex off the top of the frame
     const apexX = VW / 2, apexY = -150;
     for (let i = 0; i <= 7; i++) {
       const bx = -60 + i * ((VW + 120) / 7);
-      g.strokeStyle = 'rgba(58,70,52,0.7)'; g.lineWidth = 3;
-      g.beginPath(); g.moveTo(bx, BEAM); g.lineTo(U.lerp(bx, apexX, 0.9), apexY + 40); g.stroke();
-      g.strokeStyle = 'rgba(150,168,140,0.6)'; g.lineWidth = 1;
-      g.beginPath(); g.moveTo(bx + 1.2, BEAM); g.lineTo(U.lerp(bx, apexX, 0.9) + 1.2, apexY + 40); g.stroke();
+      Art.line(g, bx, BEAM, U.lerp(bx, apexX, 0.9), apexY + 40, '#3a4634', 3);
+      Art.line(g, bx + 2, BEAM, U.lerp(bx, apexX, 0.9) + 2, apexY + 40, '#96a88c', 1);
     }
     // purlins: three shallow arcs across them
     for (let r = 0; r < 2; r++) {
       const y = 44 + r * 62;
-      g.strokeStyle = 'rgba(58,70,52,0.7)'; g.lineWidth = 3;
-      g.beginPath(); g.moveTo(-20, y + 14); g.quadraticCurveTo(VW / 2, y - 24, VW + 20, y + 14); g.stroke();
-      g.strokeStyle = 'rgba(150,168,140,0.55)'; g.lineWidth = 1;
-      g.beginPath(); g.moveTo(-20, y + 12); g.quadraticCurveTo(VW / 2, y - 26, VW + 20, y + 12); g.stroke();
+      Art.curve(g, -20, y + 14, VW / 2, y - 24, VW + 20, y + 14, '#3a4634', 3, 16);
+      Art.curve(g, -20, y + 11, VW / 2, y - 27, VW + 20, y + 11, '#96a88c', 1, 16);
     }
     // birds in the rafters, which is a problem Groot has given up on
     for (let i = 0; i < 4; i++) {
@@ -325,9 +337,16 @@ const Nursery = (() => {
       Art.poly(g, [[x - 17, BEAM + 40], [x + 17, BEAM + 40], [x + 9, BEAM + 26], [x - 9, BEAM + 26]], '#3f4a3a');
       Art.poly(g, [[x - 15, BEAM + 39], [x + 15, BEAM + 39], [x + 8, BEAM + 27], [x - 8, BEAM + 27]], '#6f7f66');
       Art.ell(g, x, BEAM + 40, 13, 3.4, '#ffe9a8');
-      const lamp = g.createRadialGradient(x, BEAM + 42, 4, x, BEAM + 42, 76);
-      lamp.addColorStop(0, 'rgba(255,233,168,0.24)'); lamp.addColorStop(1, 'rgba(255,233,168,0)');
-      g.fillStyle = lamp; g.fillRect(x - 80, BEAM + 40, 160, 150);
+      {                                    // a cone of light, not a halo
+        const oa = g.globalAlpha;
+        for (let k = 5; k >= 1; k--) {
+          const r2 = k / 5;
+          g.globalAlpha = oa * 0.07 * (1 - (k - 1) / 5.2);
+          Art.poly(g, [[x - 13, BEAM + 41], [x + 13, BEAM + 41],
+                       [x + 13 + 30 * r2, BEAM + 41 + 96 * r2], [x - 13 - 30 * r2, BEAM + 41 + 96 * r2]], '#ffe9a8');
+        }
+        g.globalAlpha = oa;
+      }
     }
     // hanging baskets, behind everything on the bench
     for (let i = 0; i < 9; i++) {
@@ -402,10 +421,7 @@ const Nursery = (() => {
       Math.round(img.width * sc), Math.round(ph));
     if (s.p.magic) {                                              // the odd ones glow
       const p = 0.5 + 0.5 * Math.sin(t * 2.4 + s.x);
-      const gr = g.createRadialGradient(x, y - 26, 3, x, y - 26, 34 + p * 8);
-      gr.addColorStop(0, `rgba(185,142,240,${(0.16 + p * 0.1).toFixed(2)})`);
-      gr.addColorStop(1, 'rgba(185,142,240,0)');
-      g.fillStyle = gr; g.fillRect(x - 44, y - 70, 88, 88);
+      Art.glow(g, x, y - 26, 34 + p * 8, '#b98ef0', 0.16 + p * 0.1, 4);
       for (let i = 0; i < 3; i++) {
         const a = t * 1.4 + i * 2.1;
         g.fillStyle = 'rgba(226,214,255,0.6)';

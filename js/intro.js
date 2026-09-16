@@ -255,9 +255,9 @@ const Intro = (() => {
     plush(g, 96, 350, 1.9, FUR1, null);
     plush(g, 560, 348, 1.6, FUR3, '#e04a3c');
     // the glow of the screen over everything
-    const gr = g.createLinearGradient(0, 70, 0, 350);
-    gr.addColorStop(0, 'rgba(140,190,255,0)'); gr.addColorStop(0.5, 'rgba(150,200,255,0.16)'); gr.addColorStop(1, 'rgba(140,190,255,0)');
-    g.fillStyle = gr; g.fillRect(0, 70, VW, 280);
+    for (let i = 0; i < 8; i++) {          // screen-glow, dithered from the middle out
+      Art.dither(g, 0, 70 + i * 35, VW, 35, '#96c8ff', 0.18 * (1 - Math.abs(i - 3.5) / 4));
+    }
     g.fillStyle = 'rgba(12,7,22,0.4)'; g.fillRect(0, 0, VW, VH);
   }
 
@@ -572,9 +572,7 @@ const Intro = (() => {
   // ---- the flight ----------------------------------------------------------
   function plane(g) {
     const k = U.clamp(t / 4.4, 0, 1);
-    const sky = g.createLinearGradient(0, 0, 0, VH);
-    sky.addColorStop(0, '#222a5e'); sky.addColorStop(0.45, '#8a5a8e'); sky.addColorStop(0.75, '#e08a5a'); sky.addColorStop(1, '#f6cf8a');
-    g.fillStyle = sky; g.fillRect(0, 0, VW, VH);
+    Art.vramp(g, 0, 0, VW, VH, [[0, '#222a5e'], [0.45, '#8a5a8e'], [0.75, '#e08a5a'], [1, '#f6cf8a']], 12);
     g.fillStyle = '#ffe9a8'; Art.ell(g, 110, 236, 26, 26, '#ffe9a8');
     for (let i = 0; i < 40; i++) { const sx = (i * 79) % VW, sy = (i * 37) % 120; g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(sx, sy, 1, 1); }
     for (const [sp, yy, col, h] of [[36, 200, 'rgba(255,214,190,0.75)', 16], [70, 246, 'rgba(255,236,214,0.9)', 22]]) {

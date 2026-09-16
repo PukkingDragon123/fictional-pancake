@@ -115,6 +115,158 @@ const Art = (() => {
       [x0 - (nx * w0) / 2, y0 - (ny * w0) / 2],
     ], col);
   }
+  // ---- pixel-art stand-ins for the smooth canvas primitives ----------------
+  // Canvas gradients and arcs are the only things in here that are not made of
+  // whole pixels, and they are what stops the game reading as pixel art. These
+  // replace them: hard bands with a checker seam between, which is how a
+  // gradient is drawn by hand.
+  const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
+  // a dithered fill: every pixel whose bayer threshold is under `a` is painted
+  function dither(g, x, y, w, h, col, a) {
+    if (a <= 0.02) return;
+    if (a >= 0.99) { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); return; }
+    g.fillStyle = col;
+    const x0 = Math.round(x), y0 = Math.round(y), x1 = x0 + Math.round(w), y1 = y0 + Math.round(h);
+    const lvl = Math.round(a * 16);
+    for (let yy = y0; yy < y1; yy++) {
+      for (let xx = x0; xx < x1; xx++) {
+        if (BAYER[((yy % 4) + 4) % 4][((xx % 4) + 4) % 4] < lvl) g.fillRect(xx, yy, 1, 1);
+      }
+    }
+  }
+  // a dithered vignette, cached: darkness grows with distance from centre,
+  // laid down as bayer pixels so the falloff reads as banding, never a blur
+  const VIGN = {};
+  function vignette(g, w, h, col = '#020403', a0 = 0.62, power = 2.4, inner = 0.38, steps = 7) {
+    w = Math.round(w); h = Math.round(h);
+    const key = w + 'x' + h + col + a0 + power + inner + steps;
+    let c = VIGN[key];
+    if (!c) {
+      const cc = cv(w, h); c = cc.c; const q = cc.g;
+      const cx = w / 2, cy = h / 2;
+      // alpha quantised into hard steps, so the falloff reads as concentric
+      // bands of shade rather than a smooth wash. Rows are run-length filled.
+      for (let y = 0; y < h; y++) {
+        const dy = (y - cy) / cy;
+        let runA = -1, runX = 0;
+        for (let x = 0; x <= w; x++) {
+          let lv = 0;
+          if (x < w) {
+            const dx = (x - cx) / cx;
+            const d = Math.sqrt(dx * dx + dy * dy) / Math.SQRT2;
+            const t = (d - inner) / (1 - inner);
+            lv = t <= 0 ? 0 : Math.round(Math.pow(t > 1 ? 1 : t, power) * steps);
+          }
+          if (lv !== runA) {
+            if (runA > 0) { q.fillStyle = col; q.globalAlpha = (a0 * runA) / steps; q.fillRect(runX, y, x - runX, 1); }
+            runA = lv; runX = x;
+          }
+        }
+      }
+      q.globalAlpha = 1;
+      VIGN[key] = c;
+    }
+    g.drawImage(c, 0, 0);
+  }
+  // a glow: concentric pixel rings, the outer ones dithered away
+  function glow(g, cx, cy, r, col, a0 = 0.5, bands = 5) {
+    // More steps the bigger it is: five hard rings on a 200px glow reads as a
+    // painted bullseye, where the same five on a 30px lamp reads as a lamp.
+    bands = Math.max(bands, Math.min(14, Math.round(r / 11)));
+    const oa = g.globalAlpha;
+    for (let i = bands - 1; i >= 0; i--) {
+      const rr = r * ((i + 1) / bands);
+      const a = a0 * Math.pow(1 - i / bands, 1.7);
+      if (a <= 0.015) continue;
+      g.globalAlpha = oa * a;                    // hard concentric steps, no noise
+      ell(g, cx, cy, rr, rr, col);
+    }
+    g.globalAlpha = oa;
+  }
+  // the same, but elliptical and with the dither applied per scanline
+  function ditherEll(g, cx, cy, rx, ry, col, a) {
+    if (a <= 0.02) return;
+    g.fillStyle = col;
+    const lvl = Math.round(U.clamp(a, 0, 1) * 16);
+    const y0 = Math.floor(cy - ry), y1 = Math.ceil(cy + ry);
+    for (let y = y0; y <= y1; y++) {
+      const dy = (y + 0.5 - cy) / ry;
+      if (dy < -1 || dy > 1) continue;
+      const w = Math.sqrt(1 - dy * dy) * rx;
+      const xa = Math.round(cx - w), xb = Math.round(cx + w);
+      if (lvl >= 16) { if (xb > xa) g.fillRect(xa, y, xb - xa, 1); continue; }
+      const row = BAYER[((y % 4) + 4) % 4];
+      for (let x = xa; x < xb; x++) if (row[((x % 4) + 4) % 4] < lvl) g.fillRect(x, y, 1, 1);
+    }
+  }
+  // a vertical ramp drawn as n hard bands with a dithered seam between each
+  // a multi-stop vertical ramp, painted as n hard bands with dithered seams.
+  // stops: [[t, '#rrggbb'], ...] with t from 0 (top) to 1 (bottom)
+  function sampleStops(stops, t) {
+    if (t <= stops[0][0]) return stops[0][1];
+    for (let i = 1; i < stops.length; i++) {
+      if (t <= stops[i][0]) {
+        const a = stops[i - 1], b = stops[i];
+        const u = b[0] === a[0] ? 0 : (t - a[0]) / (b[0] - a[0]);
+        return U.mix(a[1], b[1], u);
+      }
+    }
+    return stops[stops.length - 1][1];
+  }
+  function vramp(g, x, y, w, h, stops, n = 8) {
+    const bh = h / n;
+    for (let i = 0; i < n; i++) {
+      const by = y + i * bh;
+      g.fillStyle = sampleStops(stops, (i + 0.5) / n);
+      g.fillRect(Math.round(x), Math.round(by), Math.round(w), Math.ceil(bh) + 1);
+      if (i < n - 1) dither(g, x, by + bh * 0.6, w, bh * 0.45, sampleStops(stops, (i + 1.5) / n), 0.5);
+    }
+  }
+
+  function vband(g, x, y, w, h, c0, c1, n = 6) {
+    const bh = h / n;
+    for (let i = 0; i < n; i++) {
+      const by = y + i * bh;
+      g.fillStyle = U.mix(c0, c1, n === 1 ? 0 : i / (n - 1));
+      g.fillRect(Math.round(x), Math.round(by), Math.round(w), Math.ceil(bh) + 1);
+      if (i < n - 1) {                                  // the seam, half a band of the next colour
+        dither(g, x, by + bh * 0.62, w, bh * 0.4, U.mix(c0, c1, (i + 1) / (n - 1)), 0.5);
+      }
+    }
+  }
+  // a horizontal one, for skies that run sideways
+  function hband(g, x, y, w, h, c0, c1, n = 6) {
+    const bw = w / n;
+    for (let i = 0; i < n; i++) {
+      const bx = x + i * bw;
+      g.fillStyle = U.mix(c0, c1, n === 1 ? 0 : i / (n - 1));
+      g.fillRect(Math.round(bx), Math.round(y), Math.ceil(bw) + 1, Math.round(h));
+      if (i < n - 1) dither(g, bx + bw * 0.62, y, bw * 0.4, h, U.mix(c0, c1, (i + 1) / (n - 1)), 0.5);
+    }
+  }
+  // a pixel polyline, so nothing has to reach for g.stroke()
+  function stroke(g, pts, col, w = 1) {
+    for (let i = 0; i < pts.length - 1; i++) line(g, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], col, w);
+  }
+  // a quadratic, walked as line segments
+  function curve(g, x0, y0, cx, cy, x1, y1, col, w = 1, n = 18) {
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+      const u = i / n, v = 1 - u;
+      pts.push([v * v * x0 + 2 * v * u * cx + u * u * x1, v * v * y0 + 2 * v * u * cy + u * u * y1]);
+    }
+    stroke(g, pts, col, w);
+  }
+  // the outline of an ellipse, one pixel thick
+  function ring(g, cx, cy, rx, ry, col, w = 1) {
+    g.fillStyle = col;
+    const n = Math.max(12, Math.round((rx + ry) * 1.6));
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * TAU;
+      g.fillRect(Math.round(cx + Math.cos(a) * rx), Math.round(cy + Math.sin(a) * ry), w, w);
+    }
+  }
+
   // Dither speckle inside an elliptical mask
   function speckle(g, cx, cy, rx, ry, col, n, seed = 1) {
     g.fillStyle = col;
@@ -240,5 +392,6 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng, silhouette, castShadow };
+  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng, silhouette, castShadow,
+    dither, ditherEll, glow, vignette, vramp, sampleStops, vband, hband, stroke, curve, ring };
 })();
