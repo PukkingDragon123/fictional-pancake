@@ -147,12 +147,113 @@ const Guide = (() => {
     lastChat = line;
     say(line, 'chat', pick.mood);
   }
-  function poke() {                          // click her and she repeats the order
-    const s = step(); if (!s) return;
-    say(s.say, 'order', s.mood); cult.still = 0; cult.pose = 'idle';
+  function poke() {                          // click him and he actually talks
+    cult.still = 0; cult.pose = 'idle';
     FX.burst(cult.x, cult.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
     Audio.play('squeak');
+    Talk.open('cultist', TREE);
   }
+  // ---- what he will talk about --------------------------------------------
+  // The first node always leads with whatever the current order is, so asking
+  // him a question is never a detour away from knowing what to do next.
+  const TREE = {
+    start: 'hub',
+    nodes: {
+      hub: {
+        mood: 'sly',
+        say: () => {
+          const s = step();
+          return s ? s.say : 'The grove is green and the gods have answered. You did that. I only pointed.';
+        },
+        sub: () => 'he found you first',
+        opts: [
+          { q: 'Say that again, slower.', to: 'order', if: () => !!step() },
+          { q: 'What is this place?', to: 'place' },
+          { q: 'Who are you, really?', to: 'who' },
+          { q: 'Tell me about the gods.', to: 'gods' },
+          { q: 'Why wombats?', to: 'wombats' },
+          { q: 'Where do I spend money?', to: 'money' },
+          { q: 'Nothing. Carry on.', end: true },
+        ],
+      },
+      order: {
+        mood: 'talk',
+        say: () => { const s = step(); return s ? s.note || s.say : 'Nothing left to do but enjoy it.'; },
+        opts: [{ q: 'Got it.', to: 'hub' }],
+      },
+      place: {
+        mood: 'think',
+        say: 'Wombat Grove. It was a wood once. Then it was a quarry, then it was nothing, and then it was for sale. You bought it. Congratulations, I suppose.',
+        opts: [
+          { q: 'Why was it for sale so cheap?', to: 'cheap' },
+          { q: 'Back up a bit.', to: 'hub' },
+        ],
+      },
+      cheap: {
+        mood: 'worry',
+        say: 'Because the last three owners left in a hurry and one of them left sideways. But the soil is very good. The soil is honestly excellent.',
+        opts: [{ q: 'That is not reassuring.', to: 'hub' }],
+      },
+      who: {
+        mood: 'sly',
+        say: 'I keep the grove. I have kept it a long while. Longer than the fence, longer than the road. You will not get a name out of me and you do not need one.',
+        opts: [
+          { q: 'What is under the hood?', to: 'hood' },
+          { q: 'Fine. Something else.', to: 'hub' },
+        ],
+      },
+      hood: {
+        mood: 'happy',
+        say: 'A wombat skull and about four hundred years of patience. Do not put your hand in.',
+        opts: [{ q: 'Noted.', to: 'hub' }],
+      },
+      gods: {
+        mood: 'proud',
+        say: 'There are nine. They are all wombats. They do not want prayer, they want a tower of dung tall enough to be rude, and they pay in miracles. I did not design the arrangement.',
+        opts: [
+          { q: 'How do I call one?', to: 'call' },
+          { q: 'What do they give me?', to: 'boon' },
+          { q: 'Back.', to: 'hub' },
+        ],
+      },
+      call: {
+        mood: 'talk',
+        say: 'Take what she leaves to the ritual site, stack it on the plinth, and summon. Each one wants its own pile and its own kind. The board on the right tells you what.',
+        opts: [{ q: 'Right.', to: 'gods' }],
+      },
+      boon: {
+        mood: 'sly',
+        say: 'A blessing on the soil, or the seed, or your luck. They stack. Nobody has ever collected all nine. You could be tiresome about it and try.',
+        opts: [{ q: 'I might.', to: 'gods' }],
+      },
+      wombats: {
+        mood: 'happy',
+        say: 'Because a wombat eats anything, sleeps anywhere, and produces a perfect cube. There is no other animal on this earth that ships its own building material.',
+        opts: [
+          { q: 'They really do cubes?', to: 'cubes' },
+          { q: 'Back.', to: 'hub' },
+        ],
+      },
+      cubes: {
+        mood: 'proud',
+        say: 'Square. Every one. It is so the pile does not roll off the rock, and the gods find it very tidy. Stack it high enough and a crowd gathers and pays you by the second.',
+        opts: [{ q: 'Beautiful.', to: 'hub' }],
+      },
+      money: {
+        mood: 'talk',
+        say: 'The mart, for hardware and furniture and the pet counter. Groot, for seed and garden tools. The Stack pays you. The gumball machine takes one coin and is a disgrace.',
+        opts: [
+          { q: 'Is the lottery worth it?', to: 'lotto' },
+          { q: 'Back.', to: 'hub' },
+        ],
+      },
+      lotto: {
+        mood: 'cross',
+        say: 'No. It is never worth it. I have put in four hundred and I have won one hundred and twenty and I will be going back tonight.',
+        opts: [{ q: 'Understood.', to: 'hub' }],
+      },
+    },
+  };
   function hit(x, y) { return !finished() && !hidden && Math.abs(x - cult.x) < 18 && y > cult.y - 66 && y < cult.y + 6; }
   function check() {
     const s = step();

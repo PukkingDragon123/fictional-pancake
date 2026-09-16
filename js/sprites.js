@@ -248,7 +248,8 @@ const Sprites = (() => {
   // Human proportions, not a cone: narrow shoulders, a long straight robe with
   // a slight flare, arms that hang and swing, bare hands at the cuffs, and a
   // face you can half see in the shadow of the hood.
-  const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 3 };
+  const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 4,
+    laugh: 6, shrug: 4, clap: 6, point: 4, nod: 6, shake: 6, bow: 5, wave: 6, cheer: 6, sulk: 4 };
   const CW = 52, CH = 84, CX = 26, CGY = 81;   // wide enough for the robe, tall enough for the cowl
   // ---- what the face is doing --------------------------------------------
   // One place for every expression the guide can wear, so new dialogue can ask
@@ -312,16 +313,21 @@ const Sprites = (() => {
       Art.ell(g, ex + off, ey, rw * 0.66, rh * 0.62, GL3);
       Art.ell(g, ex + off - rw * 0.32, ey - rh * 0.3, rw * 0.32, rh * 0.32, '#ffffff');
     }
-    // the brow is a bar of shadow biting down over the lights
+    // Each eye gets its own short brow, angled by the mood. It used to be one
+    // bar across both of them, which made him look like a man in ski goggles.
     for (const s2 of [-1, 1]) {
       const bx = hx + s2 * sep;
-      const tilt = m.brow * s2 * 1.5;
-      Art.poly(g, [[bx - 2.8, ey - 4.2 - tilt], [bx + 2.8, ey - 4.2 + tilt],
-                   [bx + 2.8, ey - 2.6 + tilt], [bx - 2.8, ey - 2.6 - tilt]], 'rgba(4,3,8,0.9)');
+      const tilt = m.brow * s2 * 1.1;
+      Art.poly(g, [[bx - 1.9, ey - 3.4 - tilt], [bx + 1.9, ey - 3.4 + tilt],
+                   [bx + 1.9, ey - 2.5 + tilt], [bx - 1.9, ey - 2.5 - tilt]], 'rgba(140,166,214,0.55)');
     }
     // and a thin mouth of light, when the mood has one
-    if (m.mouth === 'o' || m.mouth === 'open') Art.ell(g, hx, ey + 5, 1.4, 1.6, 'rgba(160,184,230,0.5)');
-    else if (m.mouth === 'grin') Art.rect(g, hx - 2.2, ey + 5, 4.4, 1, 'rgba(160,184,230,0.45)');
+    if (m.mouth === 'o' || m.mouth === 'open') Art.ell(g, hx, ey + 4.6, 1.3, 1.5, 'rgba(160,184,230,0.5)');
+    else if (m.mouth === 'grin') {
+      Art.poly(g, [[hx - 2.6, ey + 3.9], [hx + 2.6, ey + 3.9], [hx + 1.6, ey + 5.4], [hx - 1.6, ey + 5.4]], 'rgba(160,184,230,0.45)');
+    } else if (m.mouth === 'smirk') Art.rect(g, hx - 0.6, ey + 4.6, 2.8, 1, 'rgba(150,176,222,0.4)');
+    else if (m.mouth === 'frown') Art.poly(g, [[hx - 2.2, ey + 5.2], [hx, ey + 3.9], [hx + 2.2, ey + 5.2], [hx, ey + 4.6]], 'rgba(150,176,222,0.4)');
+    else if (m.mouth === 'wobble') { for (let i = -1; i <= 1; i++) Art.rect(g, hx + i * 1.6 - 0.7, ey + 4.4 + (i % 2 ? 0.9 : 0), 1.4, 1, 'rgba(150,176,222,0.4)'); }
   }
 
   function cultist(frame, pose = 'idle') {
@@ -356,20 +362,50 @@ const Sprites = (() => {
       case 'hurt': hurt = [1, 0.6, 0.2][f]; lean = -3.5 * hurt; bob = hurt * 1.8; clasp = 0; break;
       case 'sit': sit = 1; bob = [0, 0.5, 0][f]; clasp = 1; break;
       case 'sleep': lie = 1; break;
+      // ---- the cuter half of him -------------------------------------------
+      case 'laugh': bob = [0, -2, -3, -3, -2, 0][f]; lean = S * 1.4;
+        armL = -4 - Math.abs(S) * 3; armR = -4 - Math.abs(S) * 3; clasp = 0; break;
+      case 'shrug': bob = [0, -1, -1, 0][f]; armL = [0, -6, -7, -2][f]; armR = [0, -6, -7, -2][f];
+        flare = [0, 0.6, 0.8, 0.2][f]; clasp = 0; break;
+      case 'clap': bob = [0, -1, 0, -1, 0, -1][f];
+        armL = [-6, -3, -6, -3, -6, -3][f]; armR = [-6, -3, -6, -3, -6, -3][f]; clasp = 0; break;
+      case 'point': armR = -16; armL = 0; bob = [0, -1, -1, 0][f]; clasp = 0; break;
+      case 'nod': bob = [0, 1.6, 2.4, 2.4, 1.6, 0][f]; break;
+      case 'shake': lean = Math.sin(t * TAU * 2) * 2.2; bob = [0, 0, 1, 1, 0, 0][f]; break;
+      case 'bow': bob = [0, 3, 5, 3, 0][f]; lean = [0, 2, 3.4, 2, 0][f]; hemUp = [0, 1, 2, 1, 0][f]; break;
+      case 'wave': armR = -14 - Math.abs(Math.sin(t * TAU * 2)) * 6; bob = [0, -1, -1, 0, -1, -1][f]; clasp = 0; break;
+      case 'cheer': bob = [0, -4, -7, -7, -4, 0][f]; armL = -18; armR = -18;
+        flare = [0, 1.4, 2.2, 2.2, 1.4, 0][f]; hemUp = [0, 2, 4, 4, 2, 0][f]; clasp = 0; break;
+      case 'sulk': bob = [1.4, 1.4, 2, 2][f]; lean = -1.2; armL = 2; armR = 2; clasp = 1; break;
     }
     g.save();
     if (lean) { g.translate(CX, CGY); g.transform(1, 0, lean * 0.05, 1, 0, 0); g.translate(-CX, -CGY); }
 
-    if (lie) {                                        // curled on her side, hood to the left
-      Art.ell(g, 24, 56, 15, 5.5, R1); Art.ell(g, 24, 55, 13.5, 4.6, R2); Art.ell(g, 22, 53.5, 8, 3, R3);
-      for (let i = 0; i < 6; i++) Art.rect(g, 12 + i * 4.6, 59, 2.6, 2, GOLD);
-      Art.ell(g, 10, 53, 7.5, 6.4, R2); Art.ell(g, 10, 52, 6.4, 5.4, R1); Art.ell(g, 9, 54, 3.8, 3.6, VOID);
-      Art.rect(g, 7, 54, 1.8, 1, GOLD2); Art.rect(g, 10.2, 54, 1.8, 1, GOLD2);
-      Art.ell(g, 10, 48, 3.2, 2.2, R3);
-      Art.ell(g, 17, 57.5, 2.6, 1.8, SK2);                                  // a hand tucked under
-      const zx = 22 + f * 2, zy = 40 - f * 4;
-      Art.rect(g, zx, zy, 4, 1, GOLD2); Art.rect(g, zx + 2, zy + 1, 1, 1, GOLD2);
-      Art.rect(g, zx + 1, zy + 2, 1, 1, GOLD2); Art.rect(g, zx, zy + 3, 4, 1, GOLD2);
+    if (lie) {
+      // curled up on his side with the cowl for a pillow, which is the single
+      // cutest thing a seven-foot hooded stranger can do
+      const by = CGY - 10 + Math.sin(f * 1.6) * 0.6;
+      Art.ell(g, 30, by + 5, 17, 5, 'rgba(0,0,0,0.3)');                      // shadow
+      Art.ell(g, 30, by, 17, 8, ROBE0);                                      // the heap of robe
+      Art.ell(g, 30, by - 1, 15.4, 6.8, ROBE1);
+      Art.ellBand(g, 30, by - 2, 14, 6, ROBE2, 0, 0.5);
+      for (let i = 0; i < 5; i++) Art.rect(g, 20 + i * 5, by + 2, 2.4, 2, SASH1);   // the sash folds
+      Art.ell(g, 44, by + 2, 6, 3.4, ROBE1);                                 // the hem trailing off
+      Art.ell(g, 14, by - 3, 10, 8.4, FUR0);                                 // the cowl, as a pillow
+      Art.ell(g, 14, by - 4, 8.8, 7.2, FUR1);
+      Art.ell(g, 12, by - 6, 4, 2.6, FUR2);
+      Art.ell(g, 13, by - 1.5, 5.4, 4.4, '#05030a');                         // the dark inside it
+      for (const s2 of [-1, 1]) {                                            // two lights, shut
+        Art.rect(g, 12.4 + s2 * 2.2 - 1.2, by - 2, 2.4, 1, '#6d86bc');
+        Art.rect(g, 12.4 + s2 * 2.2 - 0.8, by - 2, 1.6, 1, '#dfeaff');
+      }
+      Art.ell(g, 12, by - 9, 3.6, 2.4, FUR2);                                // an ear flopped over
+      Art.ell(g, 22, by + 3, 3, 2.2, SK1);                                   // a hand tucked under
+      const zs = [[26, 16], [31, 10], [36, 5]][f % 3];                       // and three sleepy Zs
+      const za = 0.85 - (f % 3) * 0.2;
+      g.globalAlpha = za;
+      Font.draw(g, 'z', zs[0], zs[1], { scale: 1, color: '#dfeaff' });
+      g.globalAlpha = 1;
       g.restore(); Art.outline(c, '#0a0810', 1); cache.set(key, c); return c;
     }
 
@@ -520,12 +556,12 @@ const Sprites = (() => {
     const hx = (view === 'quarter' ? CX + 1.6 : CX) + tip * 0.9;
     const domeY = hoodTop + 5 - tip * 1.2 + (mood.eye === 'shut' ? 1.4 : 0);
     const faceY = domeY + 3.8;
-    for (const s2 of [-1, 1]) {                                            // ears, pricked
-      const ex2 = hx + s2 * 9.2, ey2 = domeY - 5.6;
-      Art.ell(g, ex2, ey2, 4.8, 5.2, ROBE0);
-      Art.ell(g, ex2, ey2, 3.8, 4, FUR1);
-      Art.ell(g, ex2 - s2 * 0.5, ey2 + 0.5, 2, 2.1, '#2a1a12');
-      Art.ell(g, ex2 - s2 * 1, ey2 - 1.4, 1.3, 1.2, FUR2);
+    for (const s2 of [-1, 1]) {                    // ears: small, round, set on top
+      const ex2 = hx + s2 * 8, ey2 = domeY - 6.8;
+      Art.ell(g, ex2, ey2, 3.6, 3.8, ROBE0);
+      Art.ell(g, ex2, ey2 - 0.2, 2.8, 2.9, FUR1);
+      Art.ell(g, ex2 - s2 * 0.4, ey2 + 0.4, 1.5, 1.5, '#2a1a12');
+      Art.ell(g, ex2 - s2 * 0.8, ey2 - 1, 1, 0.9, FUR2);
     }
     // The cowl drapes onto the shoulders. Without this the head sits in the
     // air above the mantle with a gap under it.
@@ -573,12 +609,15 @@ const Sprites = (() => {
       Art.ell(g, hx + s2 * 10.8, faceY - 1.8, 2.1, 5.2, FUR0);
       Art.ell(g, hx + s2 * 11, faceY - 3.6, 1.1, 2.1, FUR1);
     }
-    // two teeth of the skull hanging either side, on cords
+    // a little carved wombat on a cord either side of the opening, instead of
+    // the two hanging teeth, which read as drips coming off his chin
     for (const s2 of [-1, 1]) {
-      const tx2 = hx + s2 * 10.4, ty2 = faceY + 2.6;
-      Art.rect(g, tx2 - 0.4, ty2 - 3, 0.8, 3.4, '#6a5a3a');
-      Art.poly(g, [[tx2 - 1.4, ty2 + 0.4], [tx2 + 1.4, ty2 + 0.4], [tx2, ty2 + 4.4]], '#d8cfae');
-      Art.poly(g, [[tx2 - 0.8, ty2 + 0.8], [tx2 + 0.2, ty2 + 0.8], [tx2 - 0.2, ty2 + 3]], '#f2ead0');
+      const tx2 = hx + s2 * 10.2, ty2 = faceY + 3.4;
+      Art.rect(g, tx2 - 0.4, ty2 - 4, 0.8, 4, '#6a5a3a');
+      Art.ell(g, tx2, ty2 + 1.4, 2, 1.6, '#8a6440');
+      Art.ell(g, tx2 - s2 * 1.2, ty2 + 0.4, 1.3, 1.1, '#a8804e');
+      Art.rect(g, tx2 - s2 * 1.8, ty2 - 0.4, 0.9, 0.9, '#8a6440');
+      Art.rect(g, tx2 - s2 * 1.7, ty2 + 0.4, 0.6, 0.6, '#2a1a14');
     }
 
     // ---- casting: a bone stave crowned with a wombat skull -----------------

@@ -700,3 +700,68 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   border-color: #12100f !important; color: #efe9dd !important;
 }
 #zbar { background: #211f1d; border-color: #12100f; }
+
+/* ---- the talk panel ------------------------------------------------------ */
+/* A portrait on the left, what they just said on the right, and the things you
+   can ask them back underneath. The portrait is a live canvas, so they keep
+   breathing at you while you decide. */
+.panel.talk { width: min(620px, 94vw); }
+.panel.talk .trow { display: flex; gap: 16px; align-items: stretch; }
+.tface {
+  flex: 0 0 auto; padding: 5px; line-height: 0;
+  background: #1a1208 var(--tex-darkwood) repeat; background-size: 72px 40px;
+  border: 3px solid var(--ol);
+  box-shadow: inset 0 0 0 2px #4a2f18, 0 4px 0 rgba(0,0,0,0.45);
+}
+#talk-face { image-rendering: pixelated; display: block; width: 128px; height: 150px; }
+.tside { flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.tsub { font-size: 13px; color: var(--pg4); opacity: 0.75; letter-spacing: 1px; }
+.tline {
+  flex: 1 1 auto; padding: 11px 12px; line-height: 1.6; font-size: 17px; color: #f6e8c6;
+  background: rgba(20,12,6,0.42);
+  border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px rgba(120,86,48,0.5);
+  min-height: 92px;
+}
+.tline.typing::after { content: '_'; opacity: 0.7; }
+.topts { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+.topt {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px;
+  text-align: left; font-family: var(--f); font-size: 16px; color: #f6e8c6;
+  background: #4a2c1a var(--tex-wood) repeat; background-size: 72px 40px;
+  border: 3px solid var(--ol);
+  box-shadow: inset 0 2px 0 rgba(210,160,100,0.3), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
+  transition: transform .18s cubic-bezier(.2,2.2,.4,1), filter .1s ease;
+}
+.topt:hover { transform: translateX(5px) scale(1.02, 0.97); filter: brightness(1.2); }
+.topt:active { transform: translateY(4px) scale(0.96, 1.06); box-shadow: inset 0 2px 0 rgba(210,160,100,0.3), 0 1px 0 0 var(--wd0), 0 1px 0 3px var(--ol); }
+.topt .tnum {
+  flex: 0 0 auto; width: 20px; height: 20px; display: grid; place-items: center;
+  font-size: 13px; color: #3d2606; background: linear-gradient(180deg, var(--gd3), var(--gd1));
+  border: 2px solid var(--ol);
+}
+.topt.end { background: #2f2a26 var(--tex-stone) repeat; background-size: 64px 64px; color: #cfc6b4; }
+.topt.end .tnum { background: linear-gradient(180deg, #8d96a0, #5a6270); color: #f0f0f0; }
+
+/* ---- the adoption dossier ------------------------------------------------ */
+.panel.dossier { width: min(560px, 94vw); }
+.dossier .drow { display: flex; gap: 16px; }
+.dpic {
+  flex: 0 0 auto; padding: 5px; line-height: 0;
+  background: #1a1208 var(--tex-darkwood) repeat; background-size: 72px 40px;
+  border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px #4a2f18;
+}
+#wombat-pic { image-rendering: pixelated; display: block; width: 150px; height: 132px; }
+.dinfo { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.dname { font-size: 24px; color: var(--gd4); text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
+.dtag { font-size: 14px; color: var(--pg4); font-style: italic; opacity: 0.85; }
+.dstat { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.dstat .dk { flex: 0 0 62px; color: var(--pg4); }
+.dbar { flex: 1 1 auto; height: 11px; padding: 2px; background: #211f1d; border: 2px solid var(--ol); }
+.dbar i { display: block; height: 100%; background: linear-gradient(180deg, var(--gd4), var(--gd2)); }
+.dbar.hi i { background: linear-gradient(180deg, #a8d878, #5d9440); }
+.dbar.lo i { background: linear-gradient(180deg, #e0906a, #a8462c); }
+.dstat .dv { flex: 0 0 34px; text-align: right; color: var(--cream); font-variant-numeric: tabular-nums; }
+.dnote { margin-top: 10px; padding: 9px 11px; font-size: 14px; line-height: 1.55; color: #f0e2bc;
+  background: rgba(20,12,6,0.35); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px rgba(120,86,48,0.4); }
+.drow2 { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+.dprice { margin-right: auto; display: flex; align-items: center; gap: 7px; font-size: 22px; color: var(--gd4); }

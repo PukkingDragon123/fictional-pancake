@@ -136,11 +136,6 @@ const Atlas = (() => {
     }
   }
   // the animals. Each one is four or five pixels and that is all it needs.
-  function sheep(q, x, y) {
-    Art.ell(q, x, y, 4, 3, '#a8a698'); Art.ell(q, x - 1, y - 1, 2.6, 1.8, '#c8c6b8');
-    Art.rect(q, x + 3, y - 1, 3, 3, '#1a1814'); Art.rect(q, x + 4, y, 1, 1, '#c8c6b8');
-    Art.rect(q, x - 2, y + 2, 1, 2, '#1a1814'); Art.rect(q, x + 1, y + 2, 1, 2, '#1a1814');
-  }
   function wombat(q, x, y) {
     Art.ell(q, x, y, 4.4, 3.2, '#5e442e'); Art.ell(q, x - 1, y - 1, 3, 1.8, '#7a5a3c');
     Art.rect(q, x + 3, y - 2, 3, 3, '#5e442e'); Art.rect(q, x + 3, y - 3, 1, 1, '#4a3424');
@@ -329,8 +324,8 @@ const Atlas = (() => {
           const a = (k / 10) * TAU;
           Art.rect(q, bx + 4 + Math.cos(a) * 12, by + 3 + Math.sin(a) * 8, 1, 2, '#a58050');
         }
-        sheep(q, bx + 4 + (r() - 0.5) * 12, by + 4 + (r() - 0.5) * 8);
-        if (r() < 0.5) sheep(q, bx + 2 + (r() - 0.5) * 12, by + 6 + (r() - 0.5) * 6);
+        wombat(q, bx + 4 + (r() - 0.5) * 12, by + 4 + (r() - 0.5) * 8);
+        if (r() < 0.5) wombat(q, bx + 2 + (r() - 0.5) * 12, by + 6 + (r() - 0.5) * 6);
       }
     }
     // ---- the small living things -------------------------------------------
@@ -344,8 +339,7 @@ const Atlas = (() => {
       }
       return null;
     };
-    for (let i = 0; i < 11; i++) { const p2 = openSpot(); if (p2) sheep(q, p2[0], p2[1]); }
-    for (let i = 0; i < 8; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
+    for (let i = 0; i < 16; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
     for (let i = 0; i < 26; i++) mushroom(q, r() * HW, r() * HH, ['#7a3a4a', '#6a5a2a', '#5a4a72'][i % 3]);
     for (let i = 0; i < 80; i++) flower(q, r() * HW, r() * HH, ['#7a5a72', '#6a6a3a', '#5a4a72', '#8a9088'][i % 4]);
     for (let i = 0; i < 14; i++) bird(q, r() * HW, 4 + r() * (HH * 0.5));

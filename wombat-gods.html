@@ -709,6 +709,71 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   border-color: #12100f !important; color: #efe9dd !important;
 }
 #zbar { background: #211f1d; border-color: #12100f; }
+
+/* ---- the talk panel ------------------------------------------------------ */
+/* A portrait on the left, what they just said on the right, and the things you
+   can ask them back underneath. The portrait is a live canvas, so they keep
+   breathing at you while you decide. */
+.panel.talk { width: min(620px, 94vw); }
+.panel.talk .trow { display: flex; gap: 16px; align-items: stretch; }
+.tface {
+  flex: 0 0 auto; padding: 5px; line-height: 0;
+  background: #1a1208 var(--tex-darkwood) repeat; background-size: 72px 40px;
+  border: 3px solid var(--ol);
+  box-shadow: inset 0 0 0 2px #4a2f18, 0 4px 0 rgba(0,0,0,0.45);
+}
+#talk-face { image-rendering: pixelated; display: block; width: 128px; height: 150px; }
+.tside { flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.tsub { font-size: 13px; color: var(--pg4); opacity: 0.75; letter-spacing: 1px; }
+.tline {
+  flex: 1 1 auto; padding: 11px 12px; line-height: 1.6; font-size: 17px; color: #f6e8c6;
+  background: rgba(20,12,6,0.42);
+  border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px rgba(120,86,48,0.5);
+  min-height: 92px;
+}
+.tline.typing::after { content: '_'; opacity: 0.7; }
+.topts { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+.topt {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px;
+  text-align: left; font-family: var(--f); font-size: 16px; color: #f6e8c6;
+  background: #4a2c1a var(--tex-wood) repeat; background-size: 72px 40px;
+  border: 3px solid var(--ol);
+  box-shadow: inset 0 2px 0 rgba(210,160,100,0.3), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
+  transition: transform .18s cubic-bezier(.2,2.2,.4,1), filter .1s ease;
+}
+.topt:hover { transform: translateX(5px) scale(1.02, 0.97); filter: brightness(1.2); }
+.topt:active { transform: translateY(4px) scale(0.96, 1.06); box-shadow: inset 0 2px 0 rgba(210,160,100,0.3), 0 1px 0 0 var(--wd0), 0 1px 0 3px var(--ol); }
+.topt .tnum {
+  flex: 0 0 auto; width: 20px; height: 20px; display: grid; place-items: center;
+  font-size: 13px; color: #3d2606; background: linear-gradient(180deg, var(--gd3), var(--gd1));
+  border: 2px solid var(--ol);
+}
+.topt.end { background: #2f2a26 var(--tex-stone) repeat; background-size: 64px 64px; color: #cfc6b4; }
+.topt.end .tnum { background: linear-gradient(180deg, #8d96a0, #5a6270); color: #f0f0f0; }
+
+/* ---- the adoption dossier ------------------------------------------------ */
+.panel.dossier { width: min(560px, 94vw); }
+.dossier .drow { display: flex; gap: 16px; }
+.dpic {
+  flex: 0 0 auto; padding: 5px; line-height: 0;
+  background: #1a1208 var(--tex-darkwood) repeat; background-size: 72px 40px;
+  border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px #4a2f18;
+}
+#wombat-pic { image-rendering: pixelated; display: block; width: 150px; height: 132px; }
+.dinfo { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.dname { font-size: 24px; color: var(--gd4); text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
+.dtag { font-size: 14px; color: var(--pg4); font-style: italic; opacity: 0.85; }
+.dstat { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.dstat .dk { flex: 0 0 62px; color: var(--pg4); }
+.dbar { flex: 1 1 auto; height: 11px; padding: 2px; background: #211f1d; border: 2px solid var(--ol); }
+.dbar i { display: block; height: 100%; background: linear-gradient(180deg, var(--gd4), var(--gd2)); }
+.dbar.hi i { background: linear-gradient(180deg, #a8d878, #5d9440); }
+.dbar.lo i { background: linear-gradient(180deg, #e0906a, #a8462c); }
+.dstat .dv { flex: 0 0 34px; text-align: right; color: var(--cream); font-variant-numeric: tabular-nums; }
+.dnote { margin-top: 10px; padding: 9px 11px; font-size: 14px; line-height: 1.55; color: #f0e2bc;
+  background: rgba(20,12,6,0.35); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px rgba(120,86,48,0.4); }
+.drow2 { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+.dprice { margin-right: auto; display: flex; align-items: center; gap: 7px; font-size: 22px; color: var(--gd4); }
 </style>
 
 <div id="app">
@@ -774,17 +839,36 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
     <div class="pbody" id="pawn-body"></div>
   </div>
 
+  <div id="panel-talk" class="panel talk" hidden>
+    <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle" id="talk-name">TALK</span><button class="x" data-close="panel-talk"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="pbody">
+      <div class="trow">
+        <div class="tface"><canvas id="talk-face" width="128" height="150"></canvas></div>
+        <div class="tside">
+          <div class="tsub" id="talk-sub"></div>
+          <div class="tline" id="talk-line"></div>
+        </div>
+      </div>
+      <div class="topts" id="talk-opts"></div>
+    </div>
+  </div>
+
+  <div id="panel-wombat" class="panel dossier" hidden>
+    <div class="phead"><img class="ico" data-ico="wombat" alt=""><span class="ptitle">ADOPTION PAPERS</span><button class="x" data-close="panel-wombat"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="pbody" id="wombat-body"></div>
+  </div>
+
   <div id="panel-help" class="panel" hidden>
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
         <li>Right-click (or press Tab) and a tool tray opens beside the cursor; pick one and it rides with the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
-        <li>The hooded one tells you what to do next in a speech bubble; click him to hear it again. Finish an order and he pays you in coin.</li>
+        <li>The hooded one tells you what to do next in a speech bubble. Click him and you can actually talk to him &mdash; he will repeat the order or answer whatever you ask. Shaz and Groot will talk too.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
         <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck parked at the edge of the clearing.</li>
-        <li>Click the truck for the map. Wombat Mart sells seed and stock, the Ritual Site calls the gods, and the Great Stack is where the money is.</li>
+        <li>Click the truck for the map. Wombat Mart is the corner shop, Groot's Cellar sells seed and garden tools, the Ritual Site calls the gods, and the Great Stack is where the money is.</li>
         <li>At the Great Stack, drop poop on the plinth. Every cube pays when it lands and the higher the tower goes the more it pays. The crowd tips by the second for as long as it stands &mdash; and it stays standing while you are away. Nothing is ever lost: a cube that falls off is caught and handed back.</li>
-        <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the counter. One line is half price every visit, and the prize machine by the till takes 250 W$ a go.</li>
+        <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the till on the left. One line is half price every visit. By the counter there is a gumball machine at 1 W$ a turn and a lottery at 40 W$ a ticket, and at the far end a cage with three wombats in it &mdash; click one to read its papers before you take it home.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
@@ -2135,7 +2219,8 @@ const Sprites = (() => {
   // Human proportions, not a cone: narrow shoulders, a long straight robe with
   // a slight flare, arms that hang and swing, bare hands at the cuffs, and a
   // face you can half see in the shadow of the hood.
-  const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 3 };
+  const CULT_POSES = { idle: 6, walk: 6, run: 6, turn: 6, jump: 5, cast: 6, hurt: 3, sit: 3, sleep: 4,
+    laugh: 6, shrug: 4, clap: 6, point: 4, nod: 6, shake: 6, bow: 5, wave: 6, cheer: 6, sulk: 4 };
   const CW = 52, CH = 84, CX = 26, CGY = 81;   // wide enough for the robe, tall enough for the cowl
   // ---- what the face is doing --------------------------------------------
   // One place for every expression the guide can wear, so new dialogue can ask
@@ -2199,16 +2284,21 @@ const Sprites = (() => {
       Art.ell(g, ex + off, ey, rw * 0.66, rh * 0.62, GL3);
       Art.ell(g, ex + off - rw * 0.32, ey - rh * 0.3, rw * 0.32, rh * 0.32, '#ffffff');
     }
-    // the brow is a bar of shadow biting down over the lights
+    // Each eye gets its own short brow, angled by the mood. It used to be one
+    // bar across both of them, which made him look like a man in ski goggles.
     for (const s2 of [-1, 1]) {
       const bx = hx + s2 * sep;
-      const tilt = m.brow * s2 * 1.5;
-      Art.poly(g, [[bx - 2.8, ey - 4.2 - tilt], [bx + 2.8, ey - 4.2 + tilt],
-                   [bx + 2.8, ey - 2.6 + tilt], [bx - 2.8, ey - 2.6 - tilt]], 'rgba(4,3,8,0.9)');
+      const tilt = m.brow * s2 * 1.1;
+      Art.poly(g, [[bx - 1.9, ey - 3.4 - tilt], [bx + 1.9, ey - 3.4 + tilt],
+                   [bx + 1.9, ey - 2.5 + tilt], [bx - 1.9, ey - 2.5 - tilt]], 'rgba(140,166,214,0.55)');
     }
     // and a thin mouth of light, when the mood has one
-    if (m.mouth === 'o' || m.mouth === 'open') Art.ell(g, hx, ey + 5, 1.4, 1.6, 'rgba(160,184,230,0.5)');
-    else if (m.mouth === 'grin') Art.rect(g, hx - 2.2, ey + 5, 4.4, 1, 'rgba(160,184,230,0.45)');
+    if (m.mouth === 'o' || m.mouth === 'open') Art.ell(g, hx, ey + 4.6, 1.3, 1.5, 'rgba(160,184,230,0.5)');
+    else if (m.mouth === 'grin') {
+      Art.poly(g, [[hx - 2.6, ey + 3.9], [hx + 2.6, ey + 3.9], [hx + 1.6, ey + 5.4], [hx - 1.6, ey + 5.4]], 'rgba(160,184,230,0.45)');
+    } else if (m.mouth === 'smirk') Art.rect(g, hx - 0.6, ey + 4.6, 2.8, 1, 'rgba(150,176,222,0.4)');
+    else if (m.mouth === 'frown') Art.poly(g, [[hx - 2.2, ey + 5.2], [hx, ey + 3.9], [hx + 2.2, ey + 5.2], [hx, ey + 4.6]], 'rgba(150,176,222,0.4)');
+    else if (m.mouth === 'wobble') { for (let i = -1; i <= 1; i++) Art.rect(g, hx + i * 1.6 - 0.7, ey + 4.4 + (i % 2 ? 0.9 : 0), 1.4, 1, 'rgba(150,176,222,0.4)'); }
   }
 
   function cultist(frame, pose = 'idle') {
@@ -2243,20 +2333,50 @@ const Sprites = (() => {
       case 'hurt': hurt = [1, 0.6, 0.2][f]; lean = -3.5 * hurt; bob = hurt * 1.8; clasp = 0; break;
       case 'sit': sit = 1; bob = [0, 0.5, 0][f]; clasp = 1; break;
       case 'sleep': lie = 1; break;
+      // ---- the cuter half of him -------------------------------------------
+      case 'laugh': bob = [0, -2, -3, -3, -2, 0][f]; lean = S * 1.4;
+        armL = -4 - Math.abs(S) * 3; armR = -4 - Math.abs(S) * 3; clasp = 0; break;
+      case 'shrug': bob = [0, -1, -1, 0][f]; armL = [0, -6, -7, -2][f]; armR = [0, -6, -7, -2][f];
+        flare = [0, 0.6, 0.8, 0.2][f]; clasp = 0; break;
+      case 'clap': bob = [0, -1, 0, -1, 0, -1][f];
+        armL = [-6, -3, -6, -3, -6, -3][f]; armR = [-6, -3, -6, -3, -6, -3][f]; clasp = 0; break;
+      case 'point': armR = -16; armL = 0; bob = [0, -1, -1, 0][f]; clasp = 0; break;
+      case 'nod': bob = [0, 1.6, 2.4, 2.4, 1.6, 0][f]; break;
+      case 'shake': lean = Math.sin(t * TAU * 2) * 2.2; bob = [0, 0, 1, 1, 0, 0][f]; break;
+      case 'bow': bob = [0, 3, 5, 3, 0][f]; lean = [0, 2, 3.4, 2, 0][f]; hemUp = [0, 1, 2, 1, 0][f]; break;
+      case 'wave': armR = -14 - Math.abs(Math.sin(t * TAU * 2)) * 6; bob = [0, -1, -1, 0, -1, -1][f]; clasp = 0; break;
+      case 'cheer': bob = [0, -4, -7, -7, -4, 0][f]; armL = -18; armR = -18;
+        flare = [0, 1.4, 2.2, 2.2, 1.4, 0][f]; hemUp = [0, 2, 4, 4, 2, 0][f]; clasp = 0; break;
+      case 'sulk': bob = [1.4, 1.4, 2, 2][f]; lean = -1.2; armL = 2; armR = 2; clasp = 1; break;
     }
     g.save();
     if (lean) { g.translate(CX, CGY); g.transform(1, 0, lean * 0.05, 1, 0, 0); g.translate(-CX, -CGY); }
 
-    if (lie) {                                        // curled on her side, hood to the left
-      Art.ell(g, 24, 56, 15, 5.5, R1); Art.ell(g, 24, 55, 13.5, 4.6, R2); Art.ell(g, 22, 53.5, 8, 3, R3);
-      for (let i = 0; i < 6; i++) Art.rect(g, 12 + i * 4.6, 59, 2.6, 2, GOLD);
-      Art.ell(g, 10, 53, 7.5, 6.4, R2); Art.ell(g, 10, 52, 6.4, 5.4, R1); Art.ell(g, 9, 54, 3.8, 3.6, VOID);
-      Art.rect(g, 7, 54, 1.8, 1, GOLD2); Art.rect(g, 10.2, 54, 1.8, 1, GOLD2);
-      Art.ell(g, 10, 48, 3.2, 2.2, R3);
-      Art.ell(g, 17, 57.5, 2.6, 1.8, SK2);                                  // a hand tucked under
-      const zx = 22 + f * 2, zy = 40 - f * 4;
-      Art.rect(g, zx, zy, 4, 1, GOLD2); Art.rect(g, zx + 2, zy + 1, 1, 1, GOLD2);
-      Art.rect(g, zx + 1, zy + 2, 1, 1, GOLD2); Art.rect(g, zx, zy + 3, 4, 1, GOLD2);
+    if (lie) {
+      // curled up on his side with the cowl for a pillow, which is the single
+      // cutest thing a seven-foot hooded stranger can do
+      const by = CGY - 10 + Math.sin(f * 1.6) * 0.6;
+      Art.ell(g, 30, by + 5, 17, 5, 'rgba(0,0,0,0.3)');                      // shadow
+      Art.ell(g, 30, by, 17, 8, ROBE0);                                      // the heap of robe
+      Art.ell(g, 30, by - 1, 15.4, 6.8, ROBE1);
+      Art.ellBand(g, 30, by - 2, 14, 6, ROBE2, 0, 0.5);
+      for (let i = 0; i < 5; i++) Art.rect(g, 20 + i * 5, by + 2, 2.4, 2, SASH1);   // the sash folds
+      Art.ell(g, 44, by + 2, 6, 3.4, ROBE1);                                 // the hem trailing off
+      Art.ell(g, 14, by - 3, 10, 8.4, FUR0);                                 // the cowl, as a pillow
+      Art.ell(g, 14, by - 4, 8.8, 7.2, FUR1);
+      Art.ell(g, 12, by - 6, 4, 2.6, FUR2);
+      Art.ell(g, 13, by - 1.5, 5.4, 4.4, '#05030a');                         // the dark inside it
+      for (const s2 of [-1, 1]) {                                            // two lights, shut
+        Art.rect(g, 12.4 + s2 * 2.2 - 1.2, by - 2, 2.4, 1, '#6d86bc');
+        Art.rect(g, 12.4 + s2 * 2.2 - 0.8, by - 2, 1.6, 1, '#dfeaff');
+      }
+      Art.ell(g, 12, by - 9, 3.6, 2.4, FUR2);                                // an ear flopped over
+      Art.ell(g, 22, by + 3, 3, 2.2, SK1);                                   // a hand tucked under
+      const zs = [[26, 16], [31, 10], [36, 5]][f % 3];                       // and three sleepy Zs
+      const za = 0.85 - (f % 3) * 0.2;
+      g.globalAlpha = za;
+      Font.draw(g, 'z', zs[0], zs[1], { scale: 1, color: '#dfeaff' });
+      g.globalAlpha = 1;
       g.restore(); Art.outline(c, '#0a0810', 1); cache.set(key, c); return c;
     }
 
@@ -2407,12 +2527,12 @@ const Sprites = (() => {
     const hx = (view === 'quarter' ? CX + 1.6 : CX) + tip * 0.9;
     const domeY = hoodTop + 5 - tip * 1.2 + (mood.eye === 'shut' ? 1.4 : 0);
     const faceY = domeY + 3.8;
-    for (const s2 of [-1, 1]) {                                            // ears, pricked
-      const ex2 = hx + s2 * 9.2, ey2 = domeY - 5.6;
-      Art.ell(g, ex2, ey2, 4.8, 5.2, ROBE0);
-      Art.ell(g, ex2, ey2, 3.8, 4, FUR1);
-      Art.ell(g, ex2 - s2 * 0.5, ey2 + 0.5, 2, 2.1, '#2a1a12');
-      Art.ell(g, ex2 - s2 * 1, ey2 - 1.4, 1.3, 1.2, FUR2);
+    for (const s2 of [-1, 1]) {                    // ears: small, round, set on top
+      const ex2 = hx + s2 * 8, ey2 = domeY - 6.8;
+      Art.ell(g, ex2, ey2, 3.6, 3.8, ROBE0);
+      Art.ell(g, ex2, ey2 - 0.2, 2.8, 2.9, FUR1);
+      Art.ell(g, ex2 - s2 * 0.4, ey2 + 0.4, 1.5, 1.5, '#2a1a12');
+      Art.ell(g, ex2 - s2 * 0.8, ey2 - 1, 1, 0.9, FUR2);
     }
     // The cowl drapes onto the shoulders. Without this the head sits in the
     // air above the mantle with a gap under it.
@@ -2460,12 +2580,15 @@ const Sprites = (() => {
       Art.ell(g, hx + s2 * 10.8, faceY - 1.8, 2.1, 5.2, FUR0);
       Art.ell(g, hx + s2 * 11, faceY - 3.6, 1.1, 2.1, FUR1);
     }
-    // two teeth of the skull hanging either side, on cords
+    // a little carved wombat on a cord either side of the opening, instead of
+    // the two hanging teeth, which read as drips coming off his chin
     for (const s2 of [-1, 1]) {
-      const tx2 = hx + s2 * 10.4, ty2 = faceY + 2.6;
-      Art.rect(g, tx2 - 0.4, ty2 - 3, 0.8, 3.4, '#6a5a3a');
-      Art.poly(g, [[tx2 - 1.4, ty2 + 0.4], [tx2 + 1.4, ty2 + 0.4], [tx2, ty2 + 4.4]], '#d8cfae');
-      Art.poly(g, [[tx2 - 0.8, ty2 + 0.8], [tx2 + 0.2, ty2 + 0.8], [tx2 - 0.2, ty2 + 3]], '#f2ead0');
+      const tx2 = hx + s2 * 10.2, ty2 = faceY + 3.4;
+      Art.rect(g, tx2 - 0.4, ty2 - 4, 0.8, 4, '#6a5a3a');
+      Art.ell(g, tx2, ty2 + 1.4, 2, 1.6, '#8a6440');
+      Art.ell(g, tx2 - s2 * 1.2, ty2 + 0.4, 1.3, 1.1, '#a8804e');
+      Art.rect(g, tx2 - s2 * 1.8, ty2 - 0.4, 0.9, 0.9, '#8a6440');
+      Art.rect(g, tx2 - s2 * 1.7, ty2 + 0.4, 0.6, 0.6, '#2a1a14');
     }
 
     // ---- casting: a bone stave crowned with a wombat skull -----------------
@@ -5239,6 +5362,37 @@ function tipBonus(g) {
 // ---- The Mart's prize machine --------------------------------------------
 // A capsule machine by the till. You put a coin in, the drum turns, and you
 // get whatever it feels like giving you. Weights are relative, not percentages.
+// ---- what a corner shop actually sells ------------------------------------
+// Real products with real labels, because a shelf of coloured rectangles is a
+// placeholder and not a shop. Each one does a small thing when you get it home.
+const SNACKS = [
+  { key: 'cola',   name: 'Burrow Cola',      price: 14, form: 'can',    col: '#c02030', cap: '#f2cf3a',
+    blurb: 'The original. 1.1 litres of sugar in a 375ml can, somehow.', effect: 'hap', amt: 9 },
+  { key: 'lemon',  name: 'Dig Fizz Lemon',   price: 14, form: 'can',    col: '#d8b23a', cap: '#f4ec9a',
+    blurb: 'Cloudy lemon. Shaz drinks four a shift and has never sat down.', effect: 'hap', amt: 9 },
+  { key: 'dirt',   name: 'Dirt Water',       price: 9,  form: 'bottle', col: '#6a5030', cap: '#3a2a18',
+    blurb: 'Mineral water, unfiltered, from the quarry. It is brown on purpose.', effect: 'hap', amt: 5 },
+  { key: 'milk',   name: 'Flat Milk 2L',     price: 22, form: 'bottle', col: '#eef2f4', cap: '#2f6f9f',
+    blurb: 'From the Flats. The date on the lid is a suggestion.', effect: 'hap', amt: 14 },
+  { key: 'chips',  name: 'Bark Chips S&V',   price: 16, form: 'bag',    col: '#3f8f4a', cap: '#d8f0a0',
+    blurb: 'Salt and vinegar. Ninety percent air, and that is the good part.', effect: 'hap', amt: 10 },
+  { key: 'crisps', name: 'Root Crisps BBQ',  price: 16, form: 'bag',    col: '#c9581f', cap: '#ffd0a8',
+    blurb: 'Barbecue. Turns your fingers orange for two days.', effect: 'hap', amt: 10 },
+  { key: 'pie',    name: 'Hot Wombat Pie',   price: 28, form: 'pie',    col: '#c9a15c', cap: '#8a4520',
+    blurb: 'No wombat in it. It is a shape of pie. It has been hot since Tuesday.', effect: 'cube', amt: 1 },
+  { key: 'sausage', name: 'Sausage Roll x2', price: 24, form: 'pie',    col: '#d8b880', cap: '#a8462c',
+    blurb: 'Two in the bag. The second one is for the drive home, which is four minutes.', effect: 'cube', amt: 1 },
+  { key: 'bar',    name: 'Gumnut Bar',       price: 11, form: 'box',    col: '#7a4f9a', cap: '#c9a0e8',
+    blurb: 'Nougat, caramel, and something the wrapper calls "gumnut crunch".', effect: 'hap', amt: 7 },
+  { key: 'mints',  name: 'Bush Mints',       price: 8,  form: 'box',    col: '#2f6f9f', cap: '#bfe4f4',
+    blurb: 'Eucalyptus mints. Clears the sinuses of everyone in the room but you.', effect: 'hap', amt: 5 },
+  { key: 'biccy',  name: 'Scrub Biscuits',   price: 19, form: 'box',    col: '#8a4520', cap: '#e8c898',
+    blurb: 'A whole packet. Nobody in this district has ever eaten fewer than a whole packet.', effect: 'hap', amt: 12 },
+  { key: 'ticket', name: 'Scratchie',        price: 20, form: 'card',   col: '#b8342c', cap: '#f2cf3a',
+    blurb: 'Scratch three matching wombats and win. You will not.', effect: 'scratch', amt: 0 },
+];
+const SNACK_BY_KEY = Object.fromEntries(SNACKS.map((s) => [s.key, s]));
+
 // ---- the two machines by the till ----------------------------------------
 // The gumball machine is a 1 W$ habit. Most of what comes out is worth about
 // what you paid; once in a while it is not, and that is the whole appeal.
@@ -8257,11 +8411,6 @@ const Atlas = (() => {
     }
   }
   // the animals. Each one is four or five pixels and that is all it needs.
-  function sheep(q, x, y) {
-    Art.ell(q, x, y, 4, 3, '#a8a698'); Art.ell(q, x - 1, y - 1, 2.6, 1.8, '#c8c6b8');
-    Art.rect(q, x + 3, y - 1, 3, 3, '#1a1814'); Art.rect(q, x + 4, y, 1, 1, '#c8c6b8');
-    Art.rect(q, x - 2, y + 2, 1, 2, '#1a1814'); Art.rect(q, x + 1, y + 2, 1, 2, '#1a1814');
-  }
   function wombat(q, x, y) {
     Art.ell(q, x, y, 4.4, 3.2, '#5e442e'); Art.ell(q, x - 1, y - 1, 3, 1.8, '#7a5a3c');
     Art.rect(q, x + 3, y - 2, 3, 3, '#5e442e'); Art.rect(q, x + 3, y - 3, 1, 1, '#4a3424');
@@ -8450,8 +8599,8 @@ const Atlas = (() => {
           const a = (k / 10) * TAU;
           Art.rect(q, bx + 4 + Math.cos(a) * 12, by + 3 + Math.sin(a) * 8, 1, 2, '#a58050');
         }
-        sheep(q, bx + 4 + (r() - 0.5) * 12, by + 4 + (r() - 0.5) * 8);
-        if (r() < 0.5) sheep(q, bx + 2 + (r() - 0.5) * 12, by + 6 + (r() - 0.5) * 6);
+        wombat(q, bx + 4 + (r() - 0.5) * 12, by + 4 + (r() - 0.5) * 8);
+        if (r() < 0.5) wombat(q, bx + 2 + (r() - 0.5) * 12, by + 6 + (r() - 0.5) * 6);
       }
     }
     // ---- the small living things -------------------------------------------
@@ -8465,8 +8614,7 @@ const Atlas = (() => {
       }
       return null;
     };
-    for (let i = 0; i < 11; i++) { const p2 = openSpot(); if (p2) sheep(q, p2[0], p2[1]); }
-    for (let i = 0; i < 8; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
+    for (let i = 0; i < 16; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
     for (let i = 0; i < 26; i++) mushroom(q, r() * HW, r() * HH, ['#7a3a4a', '#6a5a2a', '#5a4a72'][i % 3]);
     for (let i = 0; i < 80; i++) flower(q, r() * HW, r() * HH, ['#7a5a72', '#6a6a3a', '#5a4a72', '#8a9088'][i % 4]);
     for (let i = 0; i < 14; i++) bird(q, r() * HW, 4 + r() * (HH * 0.5));
@@ -8819,10 +8967,77 @@ const Shop = (() => {
     else if (p.sprite === 'scroll') scroll_(g, tint, p.icon);
     else if (p.sprite === 'stock') stock(g);
     else if (p.sprite === 'tool') toolCard(g, p.icon);
+    else if (p.sprite === 'snack') product(g, p.snack);
     else jar(g, tint, p.icon);
     Art.outline(c, PAL.ink, 1);
     return c;
   }
+  // ---- a real product on the shelf ----------------------------------------
+  // Five shapes cover a corner shop: a can, a bottle, a bag, a pie box, a
+  // carton. Each gets a label band with the brand's colour and a bit of print
+  // on it, so from across the aisle you can tell a cola from a milk.
+  function product(g, d) {
+    const cx = 20;
+    const label = (x, y, w, h) => {                 // the printed band they all share
+      Art.rect(g, x, y, w, h, d.col);
+      Art.rect(g, x, y, w, 2, U.shade(d.col, 0.34));
+      Art.rect(g, x, y + h - 2, w, 2, U.shade(d.col, -0.35));
+      Art.rect(g, x + 2, y + 3, w - 4, 2, d.cap);
+      for (let i = 0; i < 3; i++) Art.rect(g, x + 3, y + 7 + i * 3, w - 6 - (i % 2) * 5, 1.4, 'rgba(255,255,255,0.55)');
+    };
+    if (d.form === 'can') {
+      Art.rect(g, cx - 8, 14, 16, 32, U.shade(d.col, -0.5));
+      Art.rect(g, cx - 7, 14, 14, 32, '#c9ccd2');
+      Art.rect(g, cx - 7, 14, 4, 32, '#eef2f6');
+      label(cx - 7, 20, 14, 20);
+      Art.rect(g, cx - 8, 12, 16, 3, '#9aa0a8');   // the lid
+      Art.rect(g, cx - 8, 11, 16, 2, '#c9ccd2');
+      Art.rect(g, cx - 3, 12, 6, 1.4, '#7a8088');
+      Art.rect(g, cx - 8, 45, 16, 2, '#9aa0a8');
+    } else if (d.form === 'bottle') {
+      Art.rect(g, cx - 4, 8, 8, 8, U.shade(d.col, -0.4));
+      Art.rect(g, cx - 4, 6, 8, 4, d.cap);         // the cap
+      Art.poly(g, [[cx - 4, 14], [cx + 4, 14], [cx + 9, 22], [cx - 9, 22]], U.shade(d.col, -0.5));
+      Art.rect(g, cx - 9, 21, 18, 26, U.shade(d.col, -0.5));
+      Art.rect(g, cx - 8, 21, 16, 25, d.key === 'milk' ? '#eef2f4' : '#b8cfd8');
+      Art.rect(g, cx - 8, 21, 4, 25, '#ffffff');
+      label(cx - 8, 26, 16, 16);
+    } else if (d.form === 'bag') {
+      Art.poly(g, [[cx - 11, 12], [cx + 11, 12], [cx + 13, 46], [cx - 13, 46]], U.shade(d.col, -0.5));
+      Art.poly(g, [[cx - 10, 13], [cx + 10, 13], [cx + 12, 45], [cx - 12, 45]], d.col);
+      for (let i = 0; i < 6; i++) Art.rect(g, cx - 11 + i * 4, 10, 2, 4, U.shade(d.col, -0.3));  // the crimped top
+      Art.rect(g, cx - 9, 22, 18, 14, U.shade(d.col, 0.4));
+      Art.rect(g, cx - 8, 23, 16, 12, d.cap);
+      for (let i = 0; i < 3; i++) Art.rect(g, cx - 6, 25 + i * 4, 12 - i * 3, 1.6, U.shade(d.col, -0.2));
+      Art.rect(g, cx + 6, 14, 2, 30, 'rgba(255,255,255,0.3)');
+    } else if (d.form === 'pie') {
+      Art.rect(g, cx - 13, 24, 26, 22, '#6a4a30');  // the box
+      Art.rect(g, cx - 12, 25, 24, 20, d.col);
+      Art.rect(g, cx - 12, 25, 24, 3, U.shade(d.col, 0.3));
+      Art.rect(g, cx - 13, 20, 26, 5, U.shade(d.col, -0.3));
+      label(cx - 10, 29, 20, 13);
+      Art.ell(g, cx, 20, 11, 4, '#e0b060');         // it steams a bit
+      Art.ell(g, cx, 19, 9, 3, '#f0cc8a');
+      for (let i = 0; i < 3; i++) Art.ell(g, cx - 5 + i * 5, 13 - i, 2.4, 1.8, 'rgba(255,255,255,0.35)');
+    } else if (d.form === 'card') {
+      Art.rect(g, cx - 12, 16, 24, 30, '#241a12');  // a scratchie
+      Art.rect(g, cx - 11, 17, 22, 28, '#f4e8d0');
+      Art.rect(g, cx - 11, 17, 22, 7, d.col);
+      Art.rect(g, cx - 11, 17, 22, 2, U.shade(d.col, 0.35));
+      for (let r = 0; r < 2; r++) for (let i = 0; i < 3; i++) {
+        Art.rect(g, cx - 9 + i * 7, 27 + r * 9, 5, 7, '#b4bcc6');
+        Art.rect(g, cx - 9 + i * 7, 27 + r * 9, 5, 2, '#d8dee4');
+      }
+    } else {                                        // a carton
+      Art.rect(g, cx - 11, 16, 22, 30, U.shade(d.col, -0.5));
+      Art.rect(g, cx - 10, 17, 20, 28, d.col);
+      Art.rect(g, cx - 10, 17, 20, 3, U.shade(d.col, 0.32));
+      Art.rect(g, cx - 10, 17, 6, 28, U.shade(d.col, 0.18));
+      Art.rect(g, cx - 7, 24, 14, 14, d.cap);
+      for (let i = 0; i < 3; i++) Art.rect(g, cx - 5, 27 + i * 4, 10 - i * 3, 1.6, U.shade(d.col, -0.3));
+    }
+  }
+
   function packet(g, tint, icon) {
     const x = 7, y = 10, w = 26, h = 36;
     Art.rect(g, x, y, w, h, PAL.parch1);                       // paper
@@ -8898,11 +9113,14 @@ const Shop = (() => {
     // A corner shop, not a garden centre: hardware, homewares and the pet
     // counter. Seed and garden tools moved down the road to Groot.
     const out = [];
-    out.push({ id: 'wombat', kind: 'wombat', key: 'wombat', name: 'Wombat', price: WOMBAT_PRICE(G.wombats.length), sprite: 'stock', icon: 'wombat', note: `${G.wombats.length}/${Grove.capacity()}` });
     for (const u of UPGRADES) {
       if (GARDEN_UP[u.key]) continue;                 // Groot stocks the garden half
       const l = G.up[u.key] || 0;
       out.push({ id: 'up:' + u.key, kind: 'up', key: u.key, name: u.name, price: Math.round(u.base * Math.pow(u.mult, l)), sprite: 'scroll', tint: PAL.stone3, icon: u.icon, note: `${l}/${u.max}`, sold: l >= u.max });
+    }
+    for (const d of SNACKS) {
+      out.push({ id: 'snk:' + d.key, kind: 'snack', key: d.key, name: d.name, price: d.price,
+        sprite: 'snack', snack: d, tint: d.col, note: d.blurb });
     }
     for (const d of DECOR) {
       if (GARDEN_DEC[d.key]) continue;                // ditto for the garden pieces
@@ -8914,9 +9132,9 @@ const Shop = (() => {
   // Each section is a gondola of three shelves under a coloured header sign,
   // laid out left to right; the player swipes sideways to walk the aisle.
   const SECTIONS = [
+    { key: 'snack',  name: 'SNACKS',    color: '#3f8f4a', sub: 'eat it now' },
     { key: 'up',     name: 'HARDWARE',  color: '#2f6f9f', sub: 'build it' },
     { key: 'dec',    name: 'FURNITURE', color: '#c97a25', sub: 'set it out' },
-    { key: 'wombat', name: 'ADOPT',     color: '#b8496a', sub: 'love it' },
   ];
   const SHELF_Y = [190, 242, 294];        // board tops, three to a gondola
   const COLW = 96;                        // one product slot
@@ -8930,6 +9148,9 @@ const Shop = (() => {
   // gum: a 1 W$ gumball that rolls down a spiral chute before it drops.
   // lotto: three reels that stop one at a time.
   const gum = { x: 0, state: 'idle', t: 0, prize: null, shake: 0, crank: 0 };
+  // The pet counter: a lit cage with three wombats in it, restocked each visit.
+  const cage = { x: 0, pups: [], hot: -1, t: 0 };
+  let cageR = null, pupR = [];
   const lotto = { x: 0, state: 'idle', t: 0, reels: [0, 0, 0], spun: [0, 0, 0], res: null, win: 0, flash: 0 };
   let gumR = null, lottoR = null, deal = null;
 
@@ -8952,9 +9173,10 @@ const Shop = (() => {
       x += w + GAP;
     }
     counterX = COUNTER_X;
-    worldW = x + 180;
     gum.x = counterX + 330;
     lotto.x = counterX + 424;
+    cage.x = x + 130;              // the pet counter sits at the end of the aisles
+    worldW = cage.x + 220;
     // one line on special every visit, picked from whatever is actually for sale
     const buyable = slots.filter((sl) => !sl.p.sold && !sl.p.locked);
     deal = buyable.length ? buyable[Math.floor(Math.random() * buyable.length)].p.id : null;
@@ -9039,6 +9261,7 @@ const Shop = (() => {
       else if (p.kind === 'wombat') { if (G.wombats.length < Grove.capacity()) Grove.addWombat(); }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = true;
+      else if (p.kind === 'snack') eatSnack(SNACK_BY_KEY[p.key]);
     }
     basket.length = 0;
     till = 2;
@@ -9057,6 +9280,7 @@ const Shop = (() => {
     phase = 'aisle'; pt = 0; scroll = 0; tscroll = 0; till = 0; hover = null;
     basket.length = 0; flies.length = 0;
     if (!motes.length) { const r = Art.rng(99); for (let i = 0; i < 24; i++) motes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU }); }
+    restockCage();
     Audio.setMode('pen');
     Audio.play('door');
     UI.refreshBasket();
@@ -9071,6 +9295,7 @@ const Shop = (() => {
     if (till > 0) { till -= dt; if (till <= 0) keeper.pose = 'idle'; }
     gumTick(dt);
     lottoTick(dt);
+    cageTick(dt);
     for (let i = flies.length - 1; i >= 0; i--) {
       const f = flies[i]; f.t += dt * 1.6;
       if (f.t >= 1) flies.splice(i, 1);
@@ -9102,12 +9327,15 @@ const Shop = (() => {
     if (wasDrag) return;
     const s = slotAt(x, y);
     if (s) { add(s.p); return; }
+    for (let i = 0; i < pupR.length; i++) {
+      const r2 = pupR[i];
+      if (r2 && x > r2.x && x < r2.x + r2.w && y > r2.y && y < r2.y + r2.h) { UI.openWombat(cage.pups[i], i); Audio.play('squeak'); return; }
+    }
     if (gumR && x > gumR.x && x < gumR.x + gumR.w && y > gumR.y && y < gumR.y + gumR.h) { turnGum(); return; }
     if (lottoR && x > lottoR.x && x < lottoR.x + lottoR.w && y > lottoR.y && y < lottoR.y + lottoR.h) { playLotto(); return; }
     if (keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h) {
-      if (!basket.length) { Audio.play('error'); UI.toast('nothing in the basket yet', 'bad'); return; }
-      UI.openBasket(); Audio.play('click');
       FX.comic(x, y - 26, 'G\'DAY!', { ink: '#d8f0a0', edge: '#2f8f42', life: 0.5 });
+      Talk.open('shaz', SHAZ_TREE);
       return;
     }
     if (overCounter(x) && y > 150) { UI.openBasket(); Audio.play('click'); return; }
@@ -9115,6 +9343,15 @@ const Shop = (() => {
   function hoverAt(x, y) {
     if (phase !== 'aisle') return null;
     keeperHot = !!(keeperR && x > keeperR.x && x < keeperR.x + keeperR.w && y > keeperR.y && y < keeperR.y + keeperR.h);
+    cage.hot = -1;
+    for (let i = 0; i < pupR.length; i++) {
+      const r2 = pupR[i];
+      if (r2 && x > r2.x && x < r2.x + r2.w && y > r2.y && y < r2.y + r2.h) {
+        cage.hot = i; hover = null;
+        const p2 = cage.pups[i];
+        return `<b>${p2.name}</b> <span class="dim">${p2.tag}</span><br>${Icons.img('wdollar', 'sm')} ${U.fmt(p2.price)}<br><span class="dim">click for the adoption papers</span>`;
+      }
+    }
     if (gumR && x > gumR.x && x < gumR.x + gumR.w && y > gumR.y && y < gumR.y + gumR.h) {
       hover = null;
       return `<b>Gumball Machine</b><br>${GUM_COST} W$ a turn<br><span class="dim">mostly rubbish. one in fifty is gold.</span>`;
@@ -9131,6 +9368,13 @@ const Shop = (() => {
     const tag = p.locked ? '<span class="warn">a god must bless it</span>'
       : p.sold ? '<span class="good">owned</span>'
         : `${Icons.img('wdollar', 'sm')} ${U.fmt(priceOf(p, countOf(p.id)))}`;
+    if (p.kind === 'snack') {
+      const d = p.snack;
+      const eff = d.effect === 'hap' ? `every wombat cheers up by <b>${d.amt}</b>`
+        : d.effect === 'cube' ? 'she gets the crust &mdash; <b>+1 plain cube</b>'
+          : 'three matching wombats pays <b>900 W$</b>';
+      return `<b>${d.name}</b><br><span class="dim">${d.blurb}</span><br>${eff}<br>${tag}`;
+    }
     const extra = p.kind === 'seed' ? '<br>6 seeds a packet' : p.note ? '<br>' + p.note : '';
     return `<b>${p.name}</b>${extra}<br>${tag}`;
   }
@@ -9215,6 +9459,7 @@ const Shop = (() => {
     floorProps(g, S, t);
     drawGum(g, S, t);
     drawLotto(g, S, t);
+    drawCage(g, S, t);
     for (const s of slots) {
       const x = s.x - S;
       if (x < -60 || x > VW + 60) continue;
@@ -9618,6 +9863,279 @@ const Shop = (() => {
       const x = wx - S; if (x < -60 || x > VW + 60) continue;
       g.fillStyle = 'rgba(216,178,58,0.3)'; g.fillRect(x, 347, 34, 3);
     }
+  }
+
+  // ---- what a snack actually does ------------------------------------------
+  // You buy it, you get in the truck, and by the time you are home it is gone.
+  // The effect lands the moment you pay, which is honest about what it is.
+  function eatSnack(d) {
+    if (!d) return;
+    if (d.effect === 'hap') {
+      for (const w of G.wombats) w.hap = Math.min(100, w.hap + d.amt);
+      if (G.wombats.length) UI.toast(`${d.name} &middot; <b>+${d.amt} happy</b> all round`, 'good');
+      else UI.toast(`${d.name} &middot; <span class="dim">you ate it in the car park</span>`, '');
+    } else if (d.effect === 'cube') {
+      G.offerings.plain = (G.offerings.plain || 0) + d.amt;
+      for (const w of G.wombats) w.hap = Math.min(100, w.hap + 4);
+      UI.toast(`${d.name} &middot; <b>she had a bite</b>`, 'good');
+    } else if (d.effect === 'scratch') {
+      // three panels, three symbols. Matching all three pays properly.
+      const roll = [0, 0, 0].map(() => Math.floor(Math.random() * 7));
+      const win = roll[0] === roll[1] && roll[1] === roll[2] ? 900
+        : (roll[0] === roll[1] || roll[1] === roll[2] || roll[0] === roll[2]) ? 26 : 0;
+      if (win) { G.wd += win; FX.coinBurst(VW / 2, 240, win > 100 ? 12 : 4); UI.toast(`Scratchie &middot; <b>${U.fmt(win)} W$</b>`, 'good'); Audio.play('chime'); }
+      else UI.toast('Scratchie &middot; <span class="dim">no wombats. next time.</span>', 'bad');
+    }
+  }
+
+  // ---- the pet counter -----------------------------------------------------
+  // A lit, glass-fronted cage with three wombats in it, each one rolled fresh
+  // when you come in. Straw, a log tunnel, a water bowl, a hammock and a heat
+  // lamp, because a wombat in a bare box is a sad advertisement.
+  // ---------------------------------------------------------------------------
+  // Flavour written off whatever the dice gave the animal, so the card reads as
+  // if a person who likes them wrote it.
+  const PUP_TAGS = {
+    gut: ['eats like a landslide', 'a truly professional eater', 'bottomless'],
+    calm: ['unbotherable', 'sleeps through anything', 'has never once panicked'],
+    luck: ['finds things', 'suspiciously fortunate', 'born under a good sign'],
+  };
+  const PUP_QUIRK = [
+    'Answers to a whistle. Ignores its name.',
+    'Will not walk over a grate. Not ever.',
+    'Has opinions about where the food bowl goes.',
+    'Sleeps upside down, which is not a thing wombats do.',
+    'Hums. Nobody here has explained the humming.',
+    'Rearranges its straw every single morning.',
+    'Once got into the stockroom and did not take anything.',
+    'Follows the tallest person in the room.',
+    'Afraid of the slush machine. Only that one.',
+    'Chews the cage bars in 4/4 time.',
+    'Came in with a hat. We do not know whose hat.',
+    'Will sit on your boots if you stand still long enough.',
+  ];
+  function pupPrice(w) {
+    const base = WOMBAT_PRICE(G.wombats.length);
+    const fur = Sprites.furOf(w.pelt);
+    const rare = 1 + (fur.rare || 0) * 0.85;
+    const t = (w.traits.gut + w.traits.calm + w.traits.luck) / 3;    // ~1.0 average
+    return Math.max(40, Math.round(base * rare * (0.6 + t * 0.55)));
+  }
+  function restockCage() {
+    cage.pups = [];
+    cage.hot = -1;
+    const used = new Set(G.wombats.map((w) => w.name));
+    for (let i = 0; i < 3; i++) {
+      const w = Grove.newWombat({ age: Math.random() < 0.3 ? 'juvenile' : 'adult' });
+      while (used.has(w.name)) w.name = NAMES[Math.floor(Math.random() * NAMES.length)];
+      used.add(w.name);
+      // the trait it is proudest of becomes the line on its card
+      const best = ['gut', 'calm', 'luck'].sort((a, b) => w.traits[b] - w.traits[a])[0];
+      w.best = best;
+      w.tag = PUP_TAGS[best][Math.floor(Math.random() * 3)];
+      w.quirk = PUP_QUIRK[Math.floor(Math.random() * PUP_QUIRK.length)];
+      w.price = pupPrice(w);
+      w.px = 42 + i * 62; w.py = 0; w.dir = i === 1 ? -1 : 1;
+      w.act = i === 2 ? 'sleep' : 'idle'; w.actT = 1 + Math.random() * 3;
+      w.anim = Math.random() * 9;
+      cage.pups.push(w);
+    }
+  }
+  function adoptPup(i) {
+    const w = cage.pups[i];
+    if (!w) return false;
+    if (G.wombats.length >= Grove.capacity()) { Audio.play('error'); UI.toast('no room in the burrow', 'bad'); return false; }
+    if (G.wd < w.price) { Audio.play('error'); UI.toast('not enough', 'bad'); return false; }
+    G.wd -= w.price;
+    Grove.addWombat({ pelt: w.pelt, traits: w.traits, age: w.age, name: w.name });
+    cage.pups.splice(i, 1);
+    cage.hot = -1;
+    Audio.play('till'); Audio.play('chime');
+    const cx2 = cage.x - scroll;
+    FX.confettiBurst(cx2, 220, 70);
+    FX.hearts(cx2, 250, 6);
+    UI.toast(`<b>${w.name}</b> is coming home with you`, 'good');
+    UI.refreshHUD(); UI.refreshTray();
+    Main.save();
+    return true;
+  }
+  function cageTick(dt) {
+    cage.t += dt;
+    for (const w of cage.pups) {
+      w.anim += dt * (w.act === 'walk' ? 9 : 4);
+      w.actT -= dt;
+      if (w.actT <= 0) {
+        const r = Math.random();
+        w.act = r < 0.34 ? 'walk' : r < 0.52 ? 'sleep' : r < 0.68 ? 'eat' : 'idle';
+        w.actT = w.act === 'walk' ? 1 + Math.random() * 2 : 2 + Math.random() * 3;
+        if (w.act === 'walk') w.dir = Math.random() < 0.5 ? -1 : 1;
+      }
+      if (w.act === 'walk') {
+        w.px += w.dir * 13 * dt;
+        if (w.px < 24) { w.px = 24; w.dir = 1; }
+        if (w.px > 172) { w.px = 172; w.dir = -1; }
+      }
+    }
+  }
+  const CAGE_W = 200, CAGE_H = 132, CAGE_TOP = 178;
+  function drawCage(g, S, t) {
+    const x = Math.round(cage.x - S), y0 = CAGE_TOP;
+    cageR = { x: x - CAGE_W / 2, y: y0, w: CAGE_W, h: CAGE_H };
+    pupR = [];
+    if (x < -CAGE_W || x > VW + CAGE_W) { cageR = null; return; }
+    const L = x - CAGE_W / 2, R = x + CAGE_W / 2, B = y0 + CAGE_H;
+    // ---- the cabinet the cage sits in ---------------------------------------
+    g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, x, B + 26, CAGE_W * 0.45, 7);
+    Art.rect(g, L - 10, B, CAGE_W + 20, 26, '#3a2a18');       // the plinth
+    Art.rect(g, L - 8, B + 2, CAGE_W + 16, 22, '#6b4526');
+    Tex.fill(g, 'wood', L - 8, B + 2, CAGE_W + 16, 22, 0.45);
+    Art.rect(g, L - 8, B + 2, CAGE_W + 16, 3, '#8a5c33');
+    Art.rect(g, L - 8, B + 20, CAGE_W + 16, 4, '#3a2a18');
+    for (let i = 0; i < 4; i++) Art.rect(g, L + 6 + i * 52, B + 6, 2, 14, '#4a3420');
+    // ---- inside: warm and strawy --------------------------------------------
+    Art.rect(g, L - 6, y0 - 6, CAGE_W + 12, CAGE_H + 8, '#241a12');     // the frame
+    Art.rect(g, L, y0, CAGE_W, CAGE_H, '#8a6a44');
+    Art.vband(g, L, y0, CAGE_W, CAGE_H - 30, '#6a4f34', '#8a6a48', 5);  // the back board
+    for (let i = 0; i < 120; i++) {                                      // wood grain on it
+      const gx = L + ((i * 29) % CAGE_W), gy = y0 + ((i * 47) % (CAGE_H - 28));
+      Art.rect(g, gx, gy, 3 + (i % 3), 1, i % 2 ? '#7a5a3c' : '#9a7a52');
+    }
+    // ---- the back wall, kitted out like a keeper's pen ----------------------
+    // a hay net hung in the left corner
+    Art.rect(g, L + 10, y0 + 12, 30, 26, '#8a6c2e');
+    Art.rect(g, L + 10, y0 + 12, 30, 3, '#c2a15c');
+    for (let i = 0; i < 6; i++) { Art.line(g, L + 10 + i * 6, y0 + 12, L + 4 + i * 6, y0 + 38, '#4a3420', 1); Art.line(g, L + 10 + i * 6, y0 + 38, L + 4 + i * 6, y0 + 12, '#4a3420', 1); }
+    for (let i = 0; i < 9; i++) Art.rect(g, L + 12 + ((i * 7) % 26), y0 + 34 + (i % 3), 4, 1, '#d8bd7a');
+    // a clipboard with a feeding chart on it
+    Art.rect(g, R - 44, y0 + 10, 26, 32, '#241a12');
+    Art.rect(g, R - 43, y0 + 11, 24, 30, '#f4e8d0');
+    Art.rect(g, R - 38, y0 + 8, 14, 5, '#8d96a0');
+    for (let i = 0; i < 6; i++) { Art.rect(g, R - 40, y0 + 17 + i * 4, 12, 1, '#a89878'); Art.rect(g, R - 26, y0 + 16 + i * 4, 3, 3, i % 3 ? '#a89878' : '#3f8f4a'); }
+    // a shelf across the middle with spare bowls and a water bottle on it
+    Art.rect(g, L + 48, y0 + 52, 104, 4, '#4a3420');
+    Art.rect(g, L + 48, y0 + 52, 104, 1.5, '#7a5a3c');
+    for (let i = 0; i < 3; i++) { Art.ell(g, L + 60 + i * 13, y0 + 51, 5, 2.4, '#3a3f48'); Art.ell(g, L + 60 + i * 13, y0 + 50, 4, 1.8, '#8d96a0'); }
+    Art.rect(g, L + 116, y0 + 40, 8, 12, '#bfe4f4');
+    Art.rect(g, L + 116, y0 + 40, 3, 12, '#e4f4fc');
+    Art.rect(g, L + 118, y0 + 52, 3, 5, '#8d96a0');
+    Art.rect(g, L + 128, y0 + 42, 18, 10, '#c9581f');           // a sack of pellets
+    Art.rect(g, L + 128, y0 + 42, 18, 3, '#e2762c');
+    Font.draw(g, 'FEED', L + 137, y0 + 45, { scale: 1, color: '#fff0dc', align: 'center' });
+    // the heat lamp, and the cone it throws down the back board
+    Art.poly(g, [[x - 16, y0 + 2], [x + 16, y0 + 2], [x + 9, y0 + 14], [x - 9, y0 + 14]], '#2a2018');
+    Art.poly(g, [[x - 14, y0 + 3], [x + 14, y0 + 3], [x + 8, y0 + 13], [x - 8, y0 + 13]], '#7a5a3c');
+    Art.ell(g, x, y0 + 14, 8, 2.6, '#ffdc8a');
+    {
+      const oa = g.globalAlpha;
+      for (let k = 5; k >= 1; k--) {
+        const r2 = k / 5;
+        g.globalAlpha = oa * 0.07 * (1 - (k - 1) / 5.2);
+        Art.poly(g, [[x - 9, y0 + 15], [x + 9, y0 + 15],
+                     [x + 9 + 44 * r2, y0 + 15 + 110 * r2], [x - 9 - 44 * r2, y0 + 15 + 110 * r2]], '#ffdc8a');
+      }
+      g.globalAlpha = oa;
+    }
+    // the straw floor, laid in three tones so it reads as loose bedding
+    const FY = B - 44;
+    Art.rect(g, L, FY, CAGE_W, 44, '#a8873f');
+    const rr = Art.rng(55);
+    for (let i = 0; i < 420; i++) {
+      const sx = L + rr() * CAGE_W, sy = FY + rr() * 44, k = rr();
+      const col = k < 0.36 ? '#c2a15c' : k < 0.68 ? '#8a6c2e' : k < 0.88 ? '#d8bd7a' : '#6a5220';
+      Art.rect(g, sx, sy, 3 + Math.round(rr() * 4), 1, col);
+    }
+    Art.rect(g, L, FY, CAGE_W, 2, '#d8bd7a');
+    // a little paw print trail across the straw
+    for (let i = 0; i < 6; i++) {
+      const px = L + 12 + i * 32, py = FY + 6 + (i % 2) * 5;
+      Art.ell(g, px, py, 2.4, 1.8, 'rgba(90,66,26,0.45)');
+      for (let k = -1; k <= 1; k++) Art.ell(g, px + k * 2.2, py - 2.4, 0.9, 0.9, 'rgba(90,66,26,0.45)');
+    }
+    // ---- the furniture -------------------------------------------------------
+    // a hollow log to hide in, at the left
+    Art.ell(g, L + 30, FY + 14, 24, 15, '#4a3420');
+    Art.ell(g, L + 30, FY + 13, 22, 13, '#6b4526');
+    Art.ell(g, L + 22, FY + 13, 11, 10, '#2a1c10');
+    Art.ell(g, L + 22, FY + 13, 9, 8, '#140d08');
+    for (let i = 0; i < 6; i++) Art.rect(g, L + 34 + i * 3, FY + 2 + i, 2, 14, '#5a3a22');
+    Art.ell(g, L + 34, FY + 1, 10, 3, '#2f6b34');          // moss on the top of it
+    Art.ell(g, L + 40, FY, 6, 2.4, '#4f9a42');
+    // a water bowl and a food dish
+    Art.ell(g, R - 34, FY + 16, 13, 5, '#3a3f48');
+    Art.ell(g, R - 34, FY + 15, 11, 4, '#7fb0cc');
+    Art.ell(g, R - 34 + Math.sin(t * 2) * 1.4, FY + 14.4, 6, 2, '#bfe4f4');
+    Art.ell(g, R - 60, FY + 18, 11, 4, '#5a3a22');
+    Art.ell(g, R - 60, FY + 17, 9, 3, '#8a6440');
+    for (let i = 0; i < 5; i++) Art.ell(g, R - 64 + i * 2.4, FY + 16, 2, 1.4, ['#7a9a5a', '#c9a15c', '#8a6a3a'][i % 3]);
+    // a hammock slung across the right-hand corner
+    Art.line(g, R - 46, y0 + 34, R - 6, y0 + 26, '#4a3420', 1);
+    Art.line(g, R - 46, y0 + 34, R - 30, y0 + 52, '#4a3420', 1);
+    Art.line(g, R - 6, y0 + 26, R - 20, y0 + 52, '#4a3420', 1);
+    Art.poly(g, [[R - 46, y0 + 34], [R - 6, y0 + 26], [R - 18, y0 + 54], [R - 34, y0 + 56]], '#a8465e');
+    Art.poly(g, [[R - 44, y0 + 36], [R - 10, y0 + 29], [R - 20, y0 + 51], [R - 32, y0 + 52]], '#c85f7a');
+    // a chew toy and a ball on the floor
+    Art.ell(g, x + 6, FY + 22, 5, 3, '#3f8f4a');
+    Art.ell(g, x + 6, FY + 21, 4, 2.2, '#63c974');
+    Art.rect(g, x - 26, FY + 20, 10, 4, '#7a4f9a');
+    Art.rect(g, x - 26, FY + 20, 10, 1.4, '#a880c8');
+    // ---- the wombats ---------------------------------------------------------
+    cage.pups.forEach((w, i) => {
+      const wx = L + w.px, wy = FY + 38;
+      const hot = cage.hot === i;
+      const pose = w.act === 'sleep' ? 'sleep' : w.act === 'eat' ? 'eat' : w.act === 'walk' ? 'walk' : 'idle';
+      const sc = w.age === 'adult' ? 1.45 : 1.15;
+      const hop = hot ? -Math.abs(Math.sin(t * 7 + i)) * 5 : 0;
+      const sq = hot ? (1 - Math.abs(Math.sin(t * 7 + i))) * 0.16 : 0;
+      Sprites.shadow(g, wx, wy, pose, Math.floor(w.anim), w.pelt, w.dir, w.age, sc, 0);
+      Sprites.blit(g, wx, wy + hop, pose, Math.floor(w.anim), w.pelt, w.dir, w.age, sc, sq);
+      if (w.act === 'sleep') {                             // a z or two
+        const k = (t * 0.8 + i) % 1;
+        g.globalAlpha = 1 - k;
+        Font.draw(g, 'z', wx + 12 + k * 6, wy - 26 - k * 10, { scale: 1, color: '#f0e2bc' });
+        g.globalAlpha = 1;
+      }
+      pupR.push({ x: wx - 18, y: wy - 34, w: 36, h: 38 });
+      // its card, clipped to the glass right under it
+      // its card is screwed to the plinth under the glass, out of its way
+      const cw = Math.max(48, Font.width(w.name.toUpperCase(), 1) + 12);
+      Art.rect(g, wx - cw / 2 - 1, B + 3, cw + 2, 20, '#241a12');
+      Art.rect(g, wx - cw / 2, B + 4, cw, 18, hot ? '#ffeaa8' : '#f4e8d0');
+      Art.rect(g, wx - cw / 2, B + 4, cw, 2, '#ffffff');
+      Art.rect(g, wx - cw / 2, B + 20, cw, 2, '#d0c6a8');
+      Font.draw(g, w.name.toUpperCase(), wx, B + 6, { scale: 1, color: '#5a3a20', align: 'center' });
+      Font.draw(g, U.fmt(w.price) + ' W$', wx, B + 14, { scale: 1, color: '#9a7038', align: 'center' });
+      if (hot) {                                           // a marching dash round the one you point at
+        g.fillStyle = '#f5cd5c';
+        const r2 = pupR[i], off = Math.round(t * 10) % 6;
+        for (let px = 0; px < r2.w; px += 6) { g.fillRect(r2.x + ((px + off) % r2.w), r2.y, 3, 1); g.fillRect(r2.x + ((px + off) % r2.w), r2.y + r2.h - 1, 3, 1); }
+        for (let py = 0; py < r2.h; py += 6) { g.fillRect(r2.x, r2.y + ((py + off) % r2.h), 1, 3); g.fillRect(r2.x + r2.w - 1, r2.y + ((py + off) % r2.h), 1, 3); }
+      }
+    });
+    if (!cage.pups.length) {
+      Font.draw(g, 'ALL ADOPTED', x, FY - 6, { scale: 1, color: '#f0e2bc', align: 'center', shadow: '#2a1c10' });
+      Font.draw(g, 'come back tomorrow', x, FY + 6, { scale: 1, color: '#c2a176', align: 'center' });
+    }
+    // ---- the glass ------------------------------------------------------------
+    {
+      const oa = g.globalAlpha; g.globalAlpha = 0.1;
+      Art.poly(g, [[L + 10, y0], [L + 52, y0], [L + 18, B], [L - 4, B]], '#dff0f8');
+      Art.poly(g, [[L + 74, y0], [L + 94, y0], [L + 60, B], [L + 44, B]], '#dff0f8');
+      g.globalAlpha = oa;
+    }
+    Art.rect(g, L - 6, y0 - 6, CAGE_W + 12, 4, '#241a12');   // the frame over the glass
+    Art.rect(g, L - 6, B - 2, CAGE_W + 12, 5, '#241a12');
+    Art.rect(g, L - 6, y0 - 6, 5, CAGE_H + 8, '#241a12');
+    Art.rect(g, R + 1, y0 - 6, 5, CAGE_H + 8, '#241a12');
+    Art.rect(g, L - 5, y0 - 5, 2, CAGE_H + 6, '#4a3420');
+    Art.rect(g, x - 2, y0 - 4, 4, CAGE_H + 4, '#241a12');    // the centre mullion
+    Art.rect(g, x - 1, y0 - 4, 1, CAGE_H + 4, '#4a3420');
+    // ---- the sign over it ------------------------------------------------------
+    Art.rect(g, x - 58, y0 - 34, 116, 26, '#1d2230');
+    Art.rect(g, x - 56, y0 - 32, 112, 22, '#b8496a');
+    Art.rect(g, x - 56, y0 - 32, 112, 3, '#d87290');
+    Font.draw(g, 'ADOPT A WOMBAT', x, y0 - 30, { scale: 1, color: '#ffe0ea', align: 'center' });
+    Font.draw(g, 'ask at the counter', x, y0 - 20, { scale: 1, color: '#f0b8c8', align: 'center' });
+    for (let i = 0; i < 2; i++) Art.rect(g, x - 40 + i * 80, y0 - 38, 2, 6, '#3a3f48');
   }
 
   // ---- the gumball machine -------------------------------------------------
@@ -10117,6 +10635,85 @@ const Shop = (() => {
   const SHAZ_MOODS = ['idle', 'idle', 'think', 'cross', 'sleepy', 'surprise', 'sad', 'happy'];
   // She does not stand still all day. Left of the till is the floor: she walks
   // it, stops, faces the shelves, and comes back the moment you have a basket.
+  // ---- what Shaz will talk about ------------------------------------------
+  const SHAZ_TREE = {
+    start: 'hub',
+    nodes: {
+      hub: {
+        mood: 'talk',
+        say: () => basket.length
+          ? `Right then, that is ${U.fmt(total())} in the basket. Want me to ring it through?`
+          : 'G\'day love. Nineteen years behind this counter and I have never had a customer I could not talk at.',
+        opts: [
+          { q: () => 'Ring it up.', to: null, act: () => { UI.openBasket(); }, if: () => basket.length > 0 },
+          { q: 'Tell me a wombat fact.', to: 'fact' },
+          { q: 'What do you sell here?', to: 'stock' },
+          { q: 'Where is the seed gone?', to: 'seed' },
+          { q: 'Are you a shark?', to: 'shark' },
+          { q: 'Who is Kevin?', to: 'kevin' },
+          { q: 'Just browsing, thanks.', end: true },
+        ],
+      },
+      fact: {
+        mood: 'happy',
+        say: () => SHAZ_LINES[Math.floor(Math.random() * SHAZ_LINES.length)],
+        opts: [
+          { q: 'Another one.', to: 'fact' },
+          { q: 'That is enough facts.', to: 'hub' },
+        ],
+      },
+      stock: {
+        mood: 'talk',
+        say: 'Hardware down the first aisle, furniture after it, and the pet counter at the far end. Snacks and drinks are on the wall behind me. Gumballs are a quid and the lotto is forty.',
+        opts: [
+          { q: 'What is good in the fridge?', to: 'fridge' },
+          { q: 'Back.', to: 'hub' },
+        ],
+      },
+      fridge: {
+        mood: 'proud',
+        say: 'The Burrow Cola if you like your teeth. The Dirt Water is for people who have given up. The pies are hot, in the sense that they were hot on Tuesday.',
+        opts: [{ q: 'Lovely.', to: 'hub' }],
+      },
+      seed: {
+        mood: 'cross',
+        say: 'Head office. Said seed was "not core convenience". Twenty years I sold seed. Now you have to walk down to Groot in his cellar, and he will not even talk to you properly.',
+        opts: [
+          { q: 'He only says one thing.', to: 'groot' },
+          { q: 'Back.', to: 'hub' },
+        ],
+      },
+      groot: {
+        mood: 'think',
+        say: 'I know. I have been going down there Thursdays for six years. I think he said something about my hair once. Lovely grower though. Best mandrakes in the district.',
+        opts: [{ q: 'I will pass it on.', to: 'hub' }],
+      },
+      shark: {
+        mood: 'surprise',
+        say: 'Course I am a shark, love, what did you think? Bull shark, freshwater, came up the river as a pup and never went back. The suit is my own. The cap is head office.',
+        opts: [
+          { q: 'Do you miss the sea?', to: 'sea' },
+          { q: 'Sorry I asked.', to: 'hub' },
+        ],
+      },
+      sea: {
+        mood: 'sad',
+        say: 'Sometimes. But the sea has no wombats in it, so on balance, no.',
+        opts: [{ q: 'Fair enough.', to: 'hub' }],
+      },
+      kevin: {
+        mood: 'cross',
+        say: 'My Kevin. Says I talk about wombats too much. Kevin has never once looked at a wombat properly. Kevin is wrong.',
+        opts: [{ q: 'Kevin is wrong.', to: 'kevinyes' }],
+      },
+      kevinyes: {
+        mood: 'happy',
+        say: 'See? SEE? That is what I have been saying. You are my favourite customer and I am giving you nothing off, but you are my favourite.',
+        opts: [{ q: 'Worth it.', to: 'hub' }],
+      },
+    },
+  };
+
   const shaz = { t: 0, line: 0, said: 0, pose: 'idle', poseT: 0, x: 198, tx: 198, dir: 1, wait: 2, mood: 0 };
   const SHAZ_HOME = 198;                  // her offset from the counter, at the till
   let keeperR = null;
@@ -10218,7 +10815,9 @@ const Shop = (() => {
   return {
     init(g) { G = g; }, open, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
     add, addById, removeOne, removeLine, clear, checkout, total, lines, layout, catalogue,
-    turnGum, playLotto,
+    turnGum, playLotto, adoptPup, restockCage,
+    get cagePups() { return cage.pups; },
+    get keeperHit() { return keeperR; },
     get gumHit() { return gumR; },
     get lottoHit() { return lottoR; },
     get shazTalking() { return shaz.pose === 'talk'; },
@@ -10374,6 +10973,65 @@ const Nursery = (() => {
     Main.save();
   }
 
+  // ---- talking to a tree ---------------------------------------------------
+  // He says the same three words whatever you ask, so the conversation is
+  // really you working out what he means from his face. The subtitle under his
+  // name is the translation, which is the joke.
+  const GROOT_TREE = {
+    start: 'hub',
+    nodes: {
+      hub: {
+        mood: 'talk', sub: () => basket.length ? 'that will be ' + U.fmt(total()) + ' W$' : 'welcome to the cellar',
+        say: 'I am Groot.',
+        opts: [
+          { q: () => `Pay for the basket (${U.fmt(total())} W$).`, act: () => { UI.openBasket(); }, if: () => basket.length > 0 },
+          { q: 'What is good this week?', to: 'good' },
+          { q: 'Is the mandrake safe?', to: 'mandrake' },
+          { q: 'Why a cellar and not a greenhouse?', to: 'cellar' },
+          { q: 'Are the vines yours?', to: 'vines' },
+          { q: 'Shaz says hello.', to: 'shaz' },
+          { q: 'Are you all right, Groot?', to: 'okay' },
+          { q: 'I am Groot.', to: 'same' },
+          { q: 'Thanks, Groot.', end: true },
+        ],
+      },
+      good: { mood: 'proud', sub: 'the goldwheat, obviously', say: 'I. Am. Groot.',
+        opts: [{ q: 'The goldwheat?', to: 'good2' }, { q: 'Back.', to: 'hub' }] },
+      good2: { mood: 'happy', sub: 'yes, the goldwheat, it is very good', say: 'I am Groot!',
+        opts: [{ q: 'I will take some.', to: 'hub' }] },
+      mandrake: { mood: 'worry', sub: 'absolutely not', say: 'I am Groot...',
+        opts: [{ q: 'What happens if I pick one?', to: 'mandrake2' }, { q: 'Back.', to: 'hub' }] },
+      mandrake2: { mood: 'cross', sub: 'it screams and you fall over', say: 'I AM GROOT.',
+        opts: [{ q: 'Ear plugs?', to: 'mandrake3' }] },
+      mandrake3: { mood: 'happy', sub: 'behind the till, take two', say: 'I am Groot :)',
+        opts: [{ q: 'You are a good tree.', to: 'hub' }] },
+      cellar: { mood: 'curious', sub: 'glass is expensive and the possums got in', say: 'I am Groot?',
+        opts: [{ q: 'Possums?', to: 'possum' }, { q: 'Back.', to: 'hub' }] },
+      possum: { mood: 'cross', sub: 'do not talk to me about possums', say: 'I AM GROOT!',
+        opts: [{ q: 'Sorry.', to: 'hub' }] },
+      vines: { mood: 'proud', sub: 'they came in through the mortar and stayed', say: 'I am. Groot.',
+        opts: [{ q: 'You let them?', to: 'vines2' }, { q: 'Back.', to: 'hub' }] },
+      vines2: { mood: 'happy', sub: 'they are family', say: 'I am Groot~',
+        opts: [{ q: 'That is lovely.', to: 'hub' }] },
+      shaz: { mood: 'curious', sub: 'the shark? from the mart?', say: 'I am Groot?',
+        opts: [{ q: 'She comes down on Thursdays.', to: 'shaz2' }] },
+      shaz2: { mood: 'happy', sub: 'he knows. he waters the good pots on Thursdays.', say: 'I am Groot!!',
+        opts: [{ q: 'You two should talk.', to: 'shaz3' }] },
+      shaz3: { mood: 'sad', sub: 'he only knows the one sentence', say: 'I... am Groot.',
+        opts: [{ q: 'She would not mind.', to: 'shaz4' }] },
+      shaz4: { mood: 'happy', sub: 'he is going to think about it', say: 'I am Groot.',
+        opts: [{ q: 'Good.', to: 'hub' }] },
+      okay: { mood: 'sleepy', sub: 'a bit tired. it is always Thursday down here.', say: 'i am groot',
+        opts: [{ q: 'Get some light on you.', to: 'okay2' }] },
+      okay2: { mood: 'happy', sub: 'he will, in a bit', say: 'I am Groot!',
+        opts: [{ q: 'Good lad.', to: 'hub' }] },
+      same: { mood: 'laugh', sub: 'he thinks that is the funniest thing he has ever heard', say: 'I AM GROOT!',
+        opts: [{ q: 'I am Groot.', to: 'same2' }] },
+      same2: { mood: 'laugh', sub: 'he is wheezing', say: 'I AM GROOT!!',
+        opts: [{ q: 'Right, back to business.', to: 'hub' }] },
+    },
+  };
+
   // ---- Groot's patter ------------------------------------------------------
   function grootSay(line) {
     groot.text = line.say; groot.say = 3.4;
@@ -10449,18 +11107,12 @@ const Nursery = (() => {
     if (wasDrag) return;
     const s = slotAt(x, y);
     if (s) { add(s.p); return; }
-    if (overGroot(x) && y > 150) {
-      if (basket.length) { UI.openBasket(); Audio.play('click'); return; }
-      groot.line = (groot.line + 1) % LINES.length;
-      grootSay(LINES[groot.line]);
-      Audio.play('click');
-      return;
-    }
+    if (overGroot(x) && y > 150) { Talk.open('groot', GROOT_TREE); return; }
   }
   function hoverAt(x, y) {
     const s = slotAt(x, y);
     hover = s;
-    if (overGroot(x) && y > 150) return `<b>Groot</b> <span class="dim">he grows all of it</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'he only says the one thing'}`;
+    if (overGroot(x) && y > 150) return `<b>Groot</b> <span class="dim">he grows all of it</span><br>click to talk to him${basket.length ? ' &middot; ' + total() + ' W$ in the basket' : ''}`;
     if (!s) return null;
     const p = s.p;
     if (p.kind === 'seed') {
@@ -10572,29 +11224,78 @@ const Nursery = (() => {
       g.fillStyle = MORT; g.fillRect(bx + bw - 2, y, 2, h); g.fillRect(bx, y + h - 1, bw, 1);
     }
   }
-  // a vine: a pixel stem that wanders, with leaves paired off it
+  // ---- a vine ---------------------------------------------------------------
+  // A proper one: a stem that thickens at the top and tapers to nothing, leaves
+  // in opposite pairs with a midrib and a lit edge, curling tendrils reaching
+  // off the node, and the odd flower cluster. It sways as one piece.
+  function leaf(g, x, y, len, sd, tone) {
+    // the blade: a tapered lens, drawn as two scanline halves off the midrib
+    const W = len * 0.42;
+    for (let i = 0; i <= len; i++) {
+      const u = i / len;
+      const w = Math.sin(u * Math.PI) * W;
+      const lx = Math.round(x + sd * i * 0.92);
+      const ly = Math.round(y + i * 0.34 - Math.sin(u * Math.PI) * 1.2);
+      if (w < 0.5) continue;
+      g.fillStyle = tone[0];
+      g.fillRect(lx, ly - Math.round(w), 1, Math.round(w) * 2);
+      g.fillStyle = tone[1];
+      g.fillRect(lx, ly - Math.round(w) + 1, 1, Math.max(1, Math.round(w)));
+      if (u > 0.18 && u < 0.8 && i % 3 === 0) { g.fillStyle = tone[2]; g.fillRect(lx, ly - Math.round(w) + 1, 1, 1); }
+    }
+    g.fillStyle = tone[3];                                  // the midrib
+    for (let i = 0; i <= len; i++) g.fillRect(Math.round(x + sd * i * 0.92), Math.round(y + i * 0.34 - Math.sin((i / len) * Math.PI) * 1.2), 1, 1);
+  }
+  const VINE_TONE = [
+    ['#1d3a1c', '#2f5a26', '#6fb851', '#153016'],
+    ['#24421f', '#3a6a2c', '#84c862', '#18341a'],
+    ['#1a3520', '#2a4f2c', '#5da85a', '#122a18'],
+  ];
   function vine(g, x, y0, y1, seed, lean) {
     const r = Art.rng(seed);
+    const tone = VINE_TONE[seed % VINE_TONE.length];
+    const L = y1 - y0;
     let x2 = x;
+    const nodes = [];
     for (let y = y0; y < y1; y++) {
-      x2 += (r() - 0.5) * 0.9 + lean * 0.06;
+      const u = (y - y0) / L;
+      x2 += (r() - 0.5) * 0.7 + lean * 0.05 * (1 - u);
       const ix = Math.round(x2);
-      g.fillStyle = VINE0; g.fillRect(ix, y, 3, 1);
-      g.fillStyle = VINE1; g.fillRect(ix, y, 2, 1);
-      if ((y - y0) % 9 === 0) {
-        const sd = ((y - y0) / 9) % 2 ? 1 : -1;
-        const lw = 4 + Math.round(r() * 4);
-        Art.ell(g, ix + sd * (lw - 1), y + 1, lw, 2.6, VINE0);
-        Art.ell(g, ix + sd * (lw - 1), y, lw - 1, 2, r() < 0.4 ? VINE3 : VINE2);
-        Art.rect(g, ix + sd * 2, y, sd > 0 ? lw - 2 : -(lw - 2), 1, VINE1);
-      }
-      if ((y - y0) % 31 === 14) {           // the odd flower
-        const col = ['#e8768f', '#f0c04a', '#c98ad8'][Math.floor(r() * 3)];
-        Art.ell(g, ix + 1, y, 2.2, 2.2, col);
-        Art.ell(g, ix + 1, y, 1, 1, '#fff2c4');
-      }
+      const th = Math.max(1, Math.round(3 * (1 - u * 0.75)));   // thick at the top, thin at the tip
+      g.fillStyle = VINE0; g.fillRect(ix, y, th + 1, 1);
+      g.fillStyle = VINE1; g.fillRect(ix, y, th, 1);
+      g.fillStyle = tone[2]; g.fillRect(ix, y, 1, 1);           // the lit side of the stem
+      if ((y - y0) % 11 === 0 && u < 0.94) nodes.push([ix, y, u]);
     }
+    // the leaves, in opposite pairs, alternating which way the pair leans
+    nodes.forEach(([nx, ny, u], i) => {
+      const len = Math.round((7 - u * 3) * (0.8 + r() * 0.5));
+      const sd = i % 2 ? 1 : -1;
+      leaf(g, nx + (sd > 0 ? 1 : 0), ny, len, sd, tone);
+      if (i % 2 === (seed % 2)) leaf(g, nx + (sd > 0 ? 0 : 1), ny + 2, Math.round(len * 0.7), -sd, tone);
+      // a tendril curling off every third node
+      if (i % 3 === 1) {
+        const td = -sd;
+        for (let k = 0; k < 9; k++) {
+          const a = k * 0.55;
+          g.fillStyle = k > 5 ? tone[2] : tone[0];
+          g.fillRect(Math.round(nx + td * (3 + Math.sin(a) * 3.4)), Math.round(ny + 2 + k * 0.9 + Math.cos(a) * 1.6), 1, 1);
+        }
+      }
+      // and a little cluster of flowers now and then
+      if (i % 4 === 2) {
+        const col = ['#e8768f', '#f0c04a', '#c98ad8', '#f2ece0'][Math.floor(r() * 4)];
+        const fx = nx + sd * 4, fy = ny + 4;
+        for (let k = 0; k < 4; k++) {
+          const a = (k / 4) * TAU;
+          Art.ell(g, fx + Math.cos(a) * 1.6, fy + Math.sin(a) * 1.4, 1.5, 1.3, col);
+        }
+        Art.ell(g, fx, fy, 1.1, 1, '#fff2c4');
+        g.fillStyle = U.shade(col, -0.3); g.fillRect(Math.round(fx), Math.round(fy + 2), 1, 2);
+      }
+    });
   }
+
   function drawVault(g, S) {
     g.save();
     g.beginPath(); g.rect(0, 0, VW, BEAM); g.clip();
@@ -10928,6 +11629,7 @@ const Nursery = (() => {
   }
 
   return {
+    grootX: () => Math.round(groot.x - scroll),
     init(g) { G = g; }, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
     add, addById, removeOne, removeLine, clear, checkout, total, lines, layout, catalogue,
     setScroll(f) { tscroll = (worldW - VW) * U.clamp(f, 0, 1); scroll = tscroll; },
@@ -11783,12 +12485,113 @@ const Guide = (() => {
     lastChat = line;
     say(line, 'chat', pick.mood);
   }
-  function poke() {                          // click her and she repeats the order
-    const s = step(); if (!s) return;
-    say(s.say, 'order', s.mood); cult.still = 0; cult.pose = 'idle';
+  function poke() {                          // click him and he actually talks
+    cult.still = 0; cult.pose = 'idle';
     FX.burst(cult.x, cult.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
     Audio.play('squeak');
+    Talk.open('cultist', TREE);
   }
+  // ---- what he will talk about --------------------------------------------
+  // The first node always leads with whatever the current order is, so asking
+  // him a question is never a detour away from knowing what to do next.
+  const TREE = {
+    start: 'hub',
+    nodes: {
+      hub: {
+        mood: 'sly',
+        say: () => {
+          const s = step();
+          return s ? s.say : 'The grove is green and the gods have answered. You did that. I only pointed.';
+        },
+        sub: () => 'he found you first',
+        opts: [
+          { q: 'Say that again, slower.', to: 'order', if: () => !!step() },
+          { q: 'What is this place?', to: 'place' },
+          { q: 'Who are you, really?', to: 'who' },
+          { q: 'Tell me about the gods.', to: 'gods' },
+          { q: 'Why wombats?', to: 'wombats' },
+          { q: 'Where do I spend money?', to: 'money' },
+          { q: 'Nothing. Carry on.', end: true },
+        ],
+      },
+      order: {
+        mood: 'talk',
+        say: () => { const s = step(); return s ? s.note || s.say : 'Nothing left to do but enjoy it.'; },
+        opts: [{ q: 'Got it.', to: 'hub' }],
+      },
+      place: {
+        mood: 'think',
+        say: 'Wombat Grove. It was a wood once. Then it was a quarry, then it was nothing, and then it was for sale. You bought it. Congratulations, I suppose.',
+        opts: [
+          { q: 'Why was it for sale so cheap?', to: 'cheap' },
+          { q: 'Back up a bit.', to: 'hub' },
+        ],
+      },
+      cheap: {
+        mood: 'worry',
+        say: 'Because the last three owners left in a hurry and one of them left sideways. But the soil is very good. The soil is honestly excellent.',
+        opts: [{ q: 'That is not reassuring.', to: 'hub' }],
+      },
+      who: {
+        mood: 'sly',
+        say: 'I keep the grove. I have kept it a long while. Longer than the fence, longer than the road. You will not get a name out of me and you do not need one.',
+        opts: [
+          { q: 'What is under the hood?', to: 'hood' },
+          { q: 'Fine. Something else.', to: 'hub' },
+        ],
+      },
+      hood: {
+        mood: 'happy',
+        say: 'A wombat skull and about four hundred years of patience. Do not put your hand in.',
+        opts: [{ q: 'Noted.', to: 'hub' }],
+      },
+      gods: {
+        mood: 'proud',
+        say: 'There are nine. They are all wombats. They do not want prayer, they want a tower of dung tall enough to be rude, and they pay in miracles. I did not design the arrangement.',
+        opts: [
+          { q: 'How do I call one?', to: 'call' },
+          { q: 'What do they give me?', to: 'boon' },
+          { q: 'Back.', to: 'hub' },
+        ],
+      },
+      call: {
+        mood: 'talk',
+        say: 'Take what she leaves to the ritual site, stack it on the plinth, and summon. Each one wants its own pile and its own kind. The board on the right tells you what.',
+        opts: [{ q: 'Right.', to: 'gods' }],
+      },
+      boon: {
+        mood: 'sly',
+        say: 'A blessing on the soil, or the seed, or your luck. They stack. Nobody has ever collected all nine. You could be tiresome about it and try.',
+        opts: [{ q: 'I might.', to: 'gods' }],
+      },
+      wombats: {
+        mood: 'happy',
+        say: 'Because a wombat eats anything, sleeps anywhere, and produces a perfect cube. There is no other animal on this earth that ships its own building material.',
+        opts: [
+          { q: 'They really do cubes?', to: 'cubes' },
+          { q: 'Back.', to: 'hub' },
+        ],
+      },
+      cubes: {
+        mood: 'proud',
+        say: 'Square. Every one. It is so the pile does not roll off the rock, and the gods find it very tidy. Stack it high enough and a crowd gathers and pays you by the second.',
+        opts: [{ q: 'Beautiful.', to: 'hub' }],
+      },
+      money: {
+        mood: 'talk',
+        say: 'The mart, for hardware and furniture and the pet counter. Groot, for seed and garden tools. The Stack pays you. The gumball machine takes one coin and is a disgrace.',
+        opts: [
+          { q: 'Is the lottery worth it?', to: 'lotto' },
+          { q: 'Back.', to: 'hub' },
+        ],
+      },
+      lotto: {
+        mood: 'cross',
+        say: 'No. It is never worth it. I have put in four hundred and I have won one hundred and twenty and I will be going back tonight.',
+        opts: [{ q: 'Understood.', to: 'hub' }],
+      },
+    },
+  };
   function hit(x, y) { return !finished() && !hidden && Math.abs(x - cult.x) < 18 && y > cult.y - 66 && y < cult.y + 6; }
   function check() {
     const s = step();
@@ -12632,6 +13435,183 @@ const Tower = (() => {
 </script>
 
 <script>
+// ===== js/talk.js =====
+// ---- Conversations ---------------------------------------------------------
+// Everybody in this game used to say one line at you and stop. This is a real
+// dialogue panel: a portrait of whoever is speaking, what they just said, and
+// a list of things you can ask them back. Pick one and they answer, which
+// usually opens another few questions.
+//
+// A conversation is a plain object of nodes:
+//   { start: 'hello', nodes: { hello: { say, mood, opts: [{ q, to, act, if }] } } }
+// `to` moves to another node, `act` runs something, and a node with no options
+// gets a single "Right." that closes the panel. Nothing here knows about any
+// particular character: the speakers table at the bottom says how to draw a
+// portrait and each scene hands in its own tree.
+const Talk = (() => {
+  let G = null;
+  let cur = null;                 // { who, tree, node, onClose }
+  let typed = 0;                  // characters of the current line revealed
+  let full = '';
+  let portraitT = 0;
+  let raf = 0;
+
+  const $ = (id) => document.getElementById(id);
+
+  // ---- who can talk, and how their portrait is drawn ----------------------
+  // Each returns a canvas for a given mood. They are cached by the sprite
+  // modules already, so this is cheap to call every frame.
+  const SPEAKERS = {
+    cultist: {
+      name: 'The Hooded One', sub: 'he found you first',
+      bg: ['#2a1c34', '#160f1e'],
+      draw(mood, t) {
+        Sprites.setFace(mood || 'sly');
+        const pose = mood === 'happy' ? 'laugh' : mood === 'cross' ? 'shake'
+          : mood === 'shock' ? 'jump' : mood === 'proud' ? 'cheer'
+            : mood === 'think' ? 'idle' : mood === 'tired' ? 'sulk' : 'idle';
+        return { img: Sprites.cultist(Math.floor(t * 5), pose), sc: 1.7, dy: 0 };
+      },
+    },
+    shaz: {
+      name: 'Shaz', sub: 'nineteen years on this till',
+      bg: ['#1b3a52', '#0e1e2c'],
+      draw(mood, t) {
+        const pose = { happy: 'happy', talk: 'talk', cross: 'cross', think: 'think',
+          shock: 'surprise', proud: 'cheer', tired: 'sleepy', worry: 'sad' }[mood] || 'talk';
+        return { img: Sprites.cashier(Math.floor(t * 6), pose), sc: 2.1, dy: 0 };
+      },
+    },
+    groot: {
+      name: 'Groot', sub: 'he grows all of it',
+      bg: ['#233318', '#121c0d'],
+      draw(mood, t) {
+        const pose = { happy: 'happy', talk: 'talk', cross: 'cross', think: 'curious',
+          shock: 'worry', proud: 'proud', tired: 'sleepy', worry: 'sad' }[mood] || 'talk';
+        return { img: Sprites.groot(Math.floor(t * 5), pose), sc: 1.6, dy: 0 };
+      },
+    },
+  };
+
+  function init(g) { G = g; }
+
+  // ---- opening and closing ------------------------------------------------
+  function open(who, tree, onClose) {
+    if (!SPEAKERS[who] || !tree) return;
+    UI.closePanels();                       // this can close a conversation, so it goes first
+    cur = { who, tree, node: tree.start, onClose };
+    $('panel-talk').hidden = false;
+    G.paused = true;
+    Audio.play('click');
+    go(tree.start);
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+  function close() {
+    if (!cur) return;
+    const cb = cur.onClose;
+    cur = null;
+    $('panel-talk').hidden = true;
+    G.paused = false;
+    cancelAnimationFrame(raf); raf = 0;
+    Audio.play('click');
+    if (cb) cb();
+  }
+  const isOpen = () => !!cur;
+
+  // ---- walking the tree ---------------------------------------------------
+  function go(key) {
+    if (!cur) return;
+    const n = cur.tree.nodes[key];
+    if (!n) { close(); return; }
+    cur.node = key;
+    full = typeof n.say === 'function' ? n.say() : n.say;
+    typed = 0;
+    if (n.enter) n.enter();
+    render();
+  }
+  function choose(opt) {
+    if (!cur) return;
+    if (typed < full.length) { typed = full.length; render(); return; }   // skip the type-on
+    Audio.play('click');
+    if (opt.act) opt.act();
+    if (opt.to) go(opt.to); else close();
+  }
+
+  // ---- drawing ------------------------------------------------------------
+  function render() {
+    if (!cur) return;
+    const sp = SPEAKERS[cur.who];
+    const n = cur.tree.nodes[cur.node] || {};
+    $('talk-name').textContent = sp.name;
+    $('talk-sub').textContent = (typeof n.sub === 'function' ? n.sub() : n.sub) || sp.sub;
+    $('talk-line').textContent = full.slice(0, typed);
+    $('talk-line').classList.toggle('typing', typed < full.length);
+    const list = $('talk-opts');
+    list.innerHTML = '';
+    const opts = (n.opts || []).filter((o) => !o.if || o.if());
+    const shown = opts.length ? opts : [{ q: 'Right. Thanks.', end: true }];
+    shown.forEach((o, i) => {
+      const b = document.createElement('button');
+      b.className = 'topt' + (o.end || (!o.to && !o.act) ? ' end' : '');
+      const q = typeof o.q === 'function' ? o.q() : o.q;
+      b.innerHTML = `<span class="tnum">${i + 1}</span><span class="tq">${q}</span>`;
+      b.onclick = () => choose(o);
+      list.appendChild(b);
+    });
+  }
+  function tick(ms) {
+    if (!cur) { raf = 0; return; }
+    raf = requestAnimationFrame(tick);
+    portraitT = ms / 1000;
+    // the line types itself on, which is what makes it feel like talking
+    if (typed < full.length) {
+      typed = Math.min(full.length, typed + 2);
+      $('talk-line').textContent = full.slice(0, typed);
+      if (typed >= full.length) $('talk-line').classList.remove('typing');
+    }
+    paintPortrait();
+  }
+  function paintPortrait() {
+    const cv = $('talk-face');
+    if (!cv || !cur) return;
+    const sp = SPEAKERS[cur.who];
+    const n = cur.tree.nodes[cur.node] || {};
+    const g = cv.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    const W = cv.width, H = cv.height;
+    // the backdrop: two flat bands and a floor, so the portrait has a room
+    Art.vband(g, 0, 0, W, H, sp.bg[0], sp.bg[1], 6);
+    Art.rect(g, 0, H - 18, W, 18, sp.bg[1]);
+    Art.rect(g, 0, H - 18, W, 2, 'rgba(255,255,255,0.08)');
+    for (let i = 0; i < 26; i++) {              // dust in the light
+      const dx = (i * 37) % W, dy = (H - ((i * 53 + portraitT * 14) % H)) | 0;
+      g.fillStyle = 'rgba(255,244,214,0.18)';
+      g.fillRect(dx, dy, 1, 1);
+    }
+    const d = sp.draw(n.mood || 'talk', portraitT);
+    const w = d.img.width * d.sc, h = d.img.height * d.sc;
+    g.fillStyle = 'rgba(0,0,0,0.3)';
+    Art.ell(g, W / 2, H - 14, w * 0.3, 4);
+    g.drawImage(d.img, Math.round(W / 2 - w / 2), Math.round(H - 12 - h + d.dy), Math.round(w), Math.round(h));
+  }
+
+  // ---- keys ---------------------------------------------------------------
+  function key(e) {
+    if (!cur) return false;
+    if (e.key === 'Escape') { close(); return true; }
+    const n = cur.tree.nodes[cur.node] || {};
+    const opts = (n.opts || []).filter((o) => !o.if || o.if());
+    const i = parseInt(e.key, 10) - 1;
+    if (i >= 0 && i < Math.max(1, opts.length)) { choose(opts[i] || { end: true }); return true; }
+    if (e.key === ' ' || e.key === 'Enter') { if (typed < full.length) { typed = full.length; render(); } return true; }
+    return false;
+  }
+
+  return { init, open, close, isOpen, key, SPEAKERS };
+})();
+</script>
+
+<script>
 // ===== js/ui.js =====
 // ---- Interface: money, a tool dock, and almost nothing else --------------
 const UI = (() => {
@@ -12946,15 +13926,108 @@ const UI = (() => {
   function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help'];
+  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat'];
   function openPanel(id) {
     closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click');
     if (id === 'panel-basket') renderBasket();
     if (id === 'panel-pawn') renderPawn();
   }
   function closePanels() {
+    if (Talk.isOpen()) Talk.close();
     for (const id of PANELS) $(id).hidden = true;
     if ($('modal').hidden && !Ritual.active) G.paused = false;
+  }
+
+  // ---- the adoption papers ------------------------------------------------
+  // What you get before you spend three hundred dollars on an animal: a big
+  // portrait that keeps moving, its traits as bars against the average, and
+  // one line of whatever is wrong with it.
+  let pupI = -1, pupRaf = 0, pupT = 0;
+  const TRAIT_BLURB = {
+    gut: ['slow to digest — fewer cubes', 'ordinary appetite', 'digests fast — more cubes'],
+    calm: ['loses heart quickly', 'even-tempered', 'contented, whatever happens'],
+    luck: ['nothing ever goes its way', 'average fortune', 'turns up the good stuff'],
+  };
+  function openWombat(w, i) {
+    pupI = i;
+    openPanel('panel-wombat');
+    renderWombat(w);
+    if (!pupRaf) pupRaf = requestAnimationFrame(pupTick);
+  }
+  function pupTick(ms) {
+    if ($('panel-wombat').hidden) { pupRaf = 0; return; }
+    pupRaf = requestAnimationFrame(pupTick);
+    pupT = ms / 1000;
+    paintPup();
+  }
+  function paintPup() {
+    const cv = $('wombat-pic');
+    const list = Shop.cagePups;
+    const w = list && list[pupI];
+    if (!cv || !w) return;
+    const g = cv.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    const W = cv.width, H = cv.height;
+    // a corner of its pen, so the portrait has somewhere to stand
+    Art.vband(g, 0, 0, W, H, '#6a4f34', '#8a6a48', 5);
+    Art.rect(g, 0, H - 30, W, 30, '#a8873f');
+    const rr = Art.rng(12);
+    for (let i = 0; i < 180; i++) {
+      const sx = rr() * W, sy = H - 30 + rr() * 30, k = rr();
+      Art.rect(g, sx, sy, 3 + Math.round(rr() * 4), 1, k < 0.4 ? '#c2a15c' : k < 0.7 ? '#8a6c2e' : '#d8bd7a');
+    }
+    Art.rect(g, 0, H - 30, W, 2, '#d8bd7a');
+    {                                        // a lamp cone down the back board
+      const oa = g.globalAlpha;
+      for (let k = 5; k >= 1; k--) {
+        const r2 = k / 5;
+        g.globalAlpha = oa * 0.07 * (1 - (k - 1) / 5.2);
+        Art.poly(g, [[W / 2 - 10, 0], [W / 2 + 10, 0], [W / 2 + 10 + 50 * r2, 130 * r2], [W / 2 - 10 - 50 * r2, 130 * r2]], '#ffdc8a');
+      }
+      g.globalAlpha = oa;
+    }
+    const dir = Math.sin(pupT * 0.5) > 0 ? 1 : -1;
+    const f = Math.floor(pupT * 4);
+    const bob = Math.abs(Math.sin(pupT * 2)) * 2;
+    Sprites.shadow(g, W / 2, H - 14, 'idle', f, w.pelt, dir, w.age, 1.9, 0);
+    Sprites.blit(g, W / 2, H - 14 - bob, 'idle', f, w.pelt, dir, w.age, 1.9, 0);
+    if (Math.sin(pupT * 1.3) > 0.9) FX.pixelText && null;
+  }
+  function traitRow(key, v) {
+    const pct = Math.round(((v - 0.6) / 0.9) * 100);
+    const cls = v > 1.15 ? ' hi' : v < 0.85 ? ' lo' : '';
+    const blurb = TRAIT_BLURB[key][v > 1.15 ? 2 : v < 0.85 ? 0 : 1];
+    const name = (TRAITS.find((t) => t.key === key) || { name: key }).name;
+    return `<div class="dstat" title="${blurb}"><span class="dk">${name}</span>`
+      + `<span class="dbar${cls}"><i style="width:${U.clamp(pct, 4, 100)}%"></i></span>`
+      + `<span class="dv">${v.toFixed(2)}</span></div>`
+      + `<div class="dtag" style="margin:-2px 0 4px 70px">${blurb}</div>`;
+  }
+  function renderWombat(w) {
+    const fur = Sprites.furOf(w.pelt);
+    const room = G.wombats.length < Grove.capacity();
+    const afford = G.wd >= w.price;
+    const age = w.age === 'adult' ? 'Adult' : w.age === 'juvenile' ? 'Juvenile' : 'Baby';
+    $('wombat-body').innerHTML = `
+      <div class="drow">
+        <div class="dpic"><canvas id="wombat-pic" width="150" height="132"></canvas></div>
+        <div class="dinfo">
+          <div class="dname">${w.name}</div>
+          <div class="dtag">${fur.name} &middot; ${age} &middot; ${w.tag}</div>
+          ${traitRow('gut', w.traits.gut)}
+          ${traitRow('calm', w.traits.calm)}
+          ${traitRow('luck', w.traits.luck)}
+        </div>
+      </div>
+      <div class="dnote"><b>Note from the keeper:</b> ${w.quirk}${fur.rare ? ' <span class="warn">Rare coat &mdash; priced accordingly.</span>' : ''}</div>
+      <div class="drow2">
+        <span class="dprice">${Icons.img('wdollar')} ${U.fmt(w.price)}</span>
+        <button class="wbtn" id="b-pup-back">BACK</button>
+        <button class="act go" id="b-pup-take"${room && afford ? '' : ' disabled'}>${!room ? 'NO ROOM' : !afford ? 'TOO DEAR' : 'TAKE ' + w.name.toUpperCase() + ' HOME'}</button>
+      </div>`;
+    $('b-pup-back').onclick = () => { closePanels(); Audio.play('click'); };
+    $('b-pup-take').onclick = () => { if (Shop.adoptPup(pupI)) closePanels(); };
+    paintPup();
   }
 
   function renderPawn() {
@@ -13047,7 +14120,10 @@ const UI = (() => {
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
     $('b-summon').onclick = () => Ritual.summon();
     $('b-unstage').onclick = () => Ritual.clearStage();
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); } });
+    document.addEventListener('keydown', (e) => {
+      if (Talk.isOpen() && Talk.key(e)) { e.preventDefault(); return; }
+      if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
+    });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {
@@ -13078,7 +14154,7 @@ const UI = (() => {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, pingPurse,
-    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom,
+    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom, openWombat,
   };
 })();
 </script>
@@ -13196,7 +14272,7 @@ const Menu = (() => {
 
   function init(settings, saved, act) { G = settings; hasSave = !!saved; onAct = act; }
   function setSave(v) { hasSave = !!v; }
-  function enter() { t = 0; page = 'home'; confirm = null; hover = null; Audio.setMode('menu'); }
+  function enter() { t = 0; page = 'home'; confirm = null; hover = null; rumour = Math.floor(Math.random() * RUMOURS.length); Audio.setMode('menu'); }
 
   // The name of the game, cut into a stone lintel the god is holding up. The
   // letters are chiselled: a dark inset with a lit lower lip, the way carved
@@ -13512,13 +14588,111 @@ const Menu = (() => {
     }
   }
 
+  // ---- the things living on the title screen ------------------------------
+  // An owl on a bough that blinks and turns its head, a lantern that swings on
+  // its chain, a signpost at the edge of the clearing, and one line of rumour
+  // under the buttons that changes every time you come back.
+  const RUMOURS = [
+    'they say the soil out there remembers things',
+    'nobody has ever counted all nine of them',
+    'the mart shuts at six but Shaz never leaves',
+    'a wombat can dig eight metres in one night',
+    'the tall one in the hood was here before the road',
+    'something in the deepwood answers if you stack high enough',
+    'Groot has not said a second sentence in forty years',
+    'the lottery has paid out twice. both times to the same man.',
+    'square. every single one of them. square.',
+    'the quarry closed for a reason nobody writes down',
+  ];
+  let rumour = 0;
+  function owl(g, x, y, t2) {
+    const blink = (t2 % 4.4) > 4.1;
+    const turn = Math.sin(t2 * 0.35) > 0.6 ? 1 : Math.sin(t2 * 0.35) < -0.6 ? -1 : 0;
+    Art.rect(g, x - 26, y + 9, 52, 3, '#2a2218');                  // the bough
+    Art.rect(g, x - 26, y + 9, 52, 1, '#4a3c28');
+    Art.ell(g, x, y, 8, 10, '#2e2a26');                            // body
+    Art.ell(g, x, y + 1, 6.6, 8.4, '#4a4238');
+    Art.ellBand(g, x, y, 6, 7.4, '#665c4e', 0, 0.5);
+    for (let i = 0; i < 5; i++) Art.rect(g, x - 4 + i * 2, y + 3 + (i % 2), 1, 3, '#332c24');
+    Art.poly(g, [[x - 6, y - 7], [x - 2, y - 11], [x - 1, y - 6]], '#4a4238');   // horns
+    Art.poly(g, [[x + 6, y - 7], [x + 2, y - 11], [x + 1, y - 6]], '#4a4238');
+    for (const sd of [-1, 1]) {
+      const ex = x + sd * 3 + turn * 1.4;
+      if (blink) { Art.rect(g, ex - 2, y - 4, 4, 1, '#2a2218'); continue; }
+      Art.ell(g, ex, y - 4, 2.6, 2.6, '#f2cf3a');
+      Art.ell(g, ex + turn * 0.8, y - 4, 1.2, 1.4, '#120c08');
+    }
+    Art.poly(g, [[x - 1 + turn, y - 2], [x + 1 + turn, y - 2], [x + turn, y]], '#c9903a');
+    Art.rect(g, x - 3, y + 10, 2, 2, '#c9903a');                   // feet on the bough
+    Art.rect(g, x + 1, y + 10, 2, 2, '#c9903a');
+  }
+  function signpost(g, x, y, t2) {
+    Art.rect(g, x - 2, y - 44, 4, 46, '#2a2018');
+    Art.rect(g, x - 2, y - 44, 1.6, 46, '#4a3c28');
+    const sway = Math.sin(t2 * 0.9) * 0.8;
+    for (let i = 0; i < 2; i++) {
+      const sy = y - 40 + i * 13, sd = i ? -1 : 1;
+      Art.poly(g, [[x, sy + sway], [x + sd * 42, sy - 2 + sway], [x + sd * 42, sy + 8 + sway], [x, sy + 10 + sway]], '#241a10');
+      Art.poly(g, [[x, sy + 1 + sway], [x + sd * 40, sy - 1 + sway], [x + sd * 40, sy + 7 + sway], [x, sy + 9 + sway]], '#5a3f24');
+      Art.poly(g, [[x, sy + 1 + sway], [x + sd * 40, sy - 1 + sway], [x + sd * 40, sy + 1 + sway], [x, sy + 3 + sway]], '#7a5836');
+      Font.draw(g, i ? 'MART' : 'GROVE', x + sd * 21, sy + 2 + sway, { scale: 1, color: '#e0cda4', align: 'center' });
+    }
+    Art.rect(g, x - 5, y, 10, 3, '#1d1610');
+  }
   function drawHome(g) {
     buttons = [];
+    owl(g, 92, 126, t);
+    signpost(g, 168, 352, t);
     const BW = 250, BX = VW - BW - 30;
-    buttons.push({ id: 'enter', x: BX, y: 214, w: BW, h: 50 });
-    buttons.push({ id: 'settings', x: BX, y: 274, w: BW, h: 36 });
-    bigButton(g, buttons[0], hasSave ? 'ENTER THE GROVE' : 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
+    buttons.push({ id: 'enter', x: BX, y: 196, w: BW, h: 50 });
+    buttons.push({ id: 'settings', x: BX, y: 256, w: BW, h: 36 });
+    buttons.push({ id: 'help', x: BX, y: 300, w: BW, h: 30 });
+    bigButton(g, buttons[0], 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
     bigButton(g, buttons[1], 'SETTINGS', null, 2);
+    bigButton(g, buttons[2], 'HOW TO PLAY', null, 2);
+    // the rumour, on a torn strip of paper pinned under the buttons
+    const line = RUMOURS[rumour % RUMOURS.length];
+    const w = Font.width(line, 1) + 18;
+    const rx = BX + BW / 2, ry = 344;
+    g.globalAlpha = 0.8;
+    Art.rect(g, rx - w / 2, ry - 4, w, 15, 'rgba(8,6,4,0.55)');
+    Art.rect(g, rx - w / 2 + 1, ry - 3, w - 2, 13, '#2a2418');
+    g.globalAlpha = 1;
+    Font.draw(g, line, rx, ry, { scale: 1, color: '#a8a08a', align: 'center' });
+    // and the wombats you have, if there are any to come back to
+    if (hasSave) {
+      Font.draw(g, 'A SAVE IS WAITING', BX + BW / 2, 182, { scale: 1, color: '#84bb59', align: 'center', shadow: '#0e1a08' });
+    }
+  }
+
+  // a short page of how it works, so the title screen can answer the question
+  const HELP = [
+    ['t_sickle', 'Clear the weeds', 'Right-click opens the tool tray. Pick one and it rides with the pointer.'],
+    ['t_hoe', 'Break a bed, sow it', 'Hoe bare soil, drop seed on it, water it while it grows, pick it when it glows.'],
+    ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, she walks off, and she leaves a cube.'],
+    ['truck', 'Load the truck', 'Drag the cubes to the truck at the edge of the clearing. Click it for the map.'],
+    ['u_seats', 'Stack it high', 'The Great Stack pays per cube and the crowd tips by the second while it stands.'],
+    ['shrine', 'Call one down', 'Stack what she leaves at the ritual site and a god answers. There are nine.'],
+  ];
+  function drawHelp(g) {
+    buttons = [];
+    const PW = 470, PX = (VW - PW) / 2, PY = 44, PH = 272;
+    plaque(g, PX, PY, PW, PH, false);
+    Font.draw(g, 'HOW TO PLAY', VW / 2, PY + 12, { scale: 2, color: '#f5cd5c', align: 'center', shadow: '#160c06' });
+    HELP.forEach(([ico, title, body], i) => {
+      const ry = PY + 42 + i * 34;
+      g.fillStyle = i % 2 ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.12)';
+      g.fillRect(PX + 12, ry - 2, PW - 24, 32);
+      Icons.blit(g, ico, PX + 16, ry, 1.2);
+      Font.draw(g, title, PX + 44, ry, { scale: 1, color: '#f5cd5c' });
+      Font.draw(g, body, PX + 44, ry + 11, { scale: 1, color: '#cfc2a2' });
+    });
+    const by = PY + PH - 34;
+    buttons.push({ id: 'back', x: PX + 14, y: by, w: PW - 28, h: 26 });
+    const bh = hover === 'back';
+    g.fillStyle = bh ? 'rgba(255,216,140,0.18)' : 'rgba(0,0,0,0.3)';
+    g.fillRect(PX + 14, by, PW - 28, 26);
+    Font.draw(g, 'BACK', VW / 2, by + 8, { scale: 1, color: bh ? '#ffe9a8' : '#cfc2a2', align: 'center' });
   }
 
   const SETTINGS = [
@@ -13553,7 +14727,10 @@ const Menu = (() => {
     buttons.push({ id: 'wipe', x: PX + 14, y: dy, w: PW - 28, h: 28, kind: 'wipe' });
     const wh = hover === 'wipe';
     g.fillStyle = wh ? '#8a2f24' : '#2a1a16'; g.fillRect(PX + 14, dy, PW - 28, 28);
-    g.strokeStyle = wh ? '#e07a6a' : '#4a3028'; g.lineWidth = 1; g.strokeRect(PX + 14.5, dy + 0.5, PW - 29, 27);
+    Art.rect(g, PX + 14, dy, PW - 28, 1, wh ? '#e07a6a' : '#4a3028');
+    Art.rect(g, PX + 14, dy + 27, PW - 28, 1, wh ? '#e07a6a' : '#4a3028');
+    Art.rect(g, PX + 14, dy, 1, 28, wh ? '#e07a6a' : '#4a3028');
+    Art.rect(g, PX + PW - 15, dy, 1, 28, wh ? '#e07a6a' : '#4a3028');
     Font.draw(g, 'RESET ALL DATA', VW / 2, dy + 6, { scale: 1, color: wh ? '#ffd9cf' : '#9a7a70', align: 'center' });
     Font.draw(g, hasSave ? 'ERASES YOUR GROVE AND STARTS OVER' : 'NOTHING SAVED YET', VW / 2, dy + 17, {
       scale: 1, color: wh ? '#e0a89c' : '#6a534c', align: 'center',
@@ -13636,6 +14813,7 @@ const Menu = (() => {
     seedAir();
     drawAir(g);
     if (page === 'home') drawHome(g);
+    else if (page === 'help') drawHelp(g);
     else drawSettings(g);
     if (confirm) drawConfirm(g);
   }
@@ -13654,6 +14832,7 @@ const Menu = (() => {
       return;
     }
     if (h.id === 'settings') { page = 'settings'; return; }
+    if (h.id === 'help') { page = 'help'; return; }
     if (h.id === 'back') { page = 'home'; return; }
     if (h.id === 'enter') onAct({ play: true });
   }
@@ -13767,7 +14946,7 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G);
+      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
@@ -14048,7 +15227,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

@@ -278,6 +278,37 @@ function tipBonus(g) {
 // ---- The Mart's prize machine --------------------------------------------
 // A capsule machine by the till. You put a coin in, the drum turns, and you
 // get whatever it feels like giving you. Weights are relative, not percentages.
+// ---- what a corner shop actually sells ------------------------------------
+// Real products with real labels, because a shelf of coloured rectangles is a
+// placeholder and not a shop. Each one does a small thing when you get it home.
+const SNACKS = [
+  { key: 'cola',   name: 'Burrow Cola',      price: 14, form: 'can',    col: '#c02030', cap: '#f2cf3a',
+    blurb: 'The original. 1.1 litres of sugar in a 375ml can, somehow.', effect: 'hap', amt: 9 },
+  { key: 'lemon',  name: 'Dig Fizz Lemon',   price: 14, form: 'can',    col: '#d8b23a', cap: '#f4ec9a',
+    blurb: 'Cloudy lemon. Shaz drinks four a shift and has never sat down.', effect: 'hap', amt: 9 },
+  { key: 'dirt',   name: 'Dirt Water',       price: 9,  form: 'bottle', col: '#6a5030', cap: '#3a2a18',
+    blurb: 'Mineral water, unfiltered, from the quarry. It is brown on purpose.', effect: 'hap', amt: 5 },
+  { key: 'milk',   name: 'Flat Milk 2L',     price: 22, form: 'bottle', col: '#eef2f4', cap: '#2f6f9f',
+    blurb: 'From the Flats. The date on the lid is a suggestion.', effect: 'hap', amt: 14 },
+  { key: 'chips',  name: 'Bark Chips S&V',   price: 16, form: 'bag',    col: '#3f8f4a', cap: '#d8f0a0',
+    blurb: 'Salt and vinegar. Ninety percent air, and that is the good part.', effect: 'hap', amt: 10 },
+  { key: 'crisps', name: 'Root Crisps BBQ',  price: 16, form: 'bag',    col: '#c9581f', cap: '#ffd0a8',
+    blurb: 'Barbecue. Turns your fingers orange for two days.', effect: 'hap', amt: 10 },
+  { key: 'pie',    name: 'Hot Wombat Pie',   price: 28, form: 'pie',    col: '#c9a15c', cap: '#8a4520',
+    blurb: 'No wombat in it. It is a shape of pie. It has been hot since Tuesday.', effect: 'cube', amt: 1 },
+  { key: 'sausage', name: 'Sausage Roll x2', price: 24, form: 'pie',    col: '#d8b880', cap: '#a8462c',
+    blurb: 'Two in the bag. The second one is for the drive home, which is four minutes.', effect: 'cube', amt: 1 },
+  { key: 'bar',    name: 'Gumnut Bar',       price: 11, form: 'box',    col: '#7a4f9a', cap: '#c9a0e8',
+    blurb: 'Nougat, caramel, and something the wrapper calls "gumnut crunch".', effect: 'hap', amt: 7 },
+  { key: 'mints',  name: 'Bush Mints',       price: 8,  form: 'box',    col: '#2f6f9f', cap: '#bfe4f4',
+    blurb: 'Eucalyptus mints. Clears the sinuses of everyone in the room but you.', effect: 'hap', amt: 5 },
+  { key: 'biccy',  name: 'Scrub Biscuits',   price: 19, form: 'box',    col: '#8a4520', cap: '#e8c898',
+    blurb: 'A whole packet. Nobody in this district has ever eaten fewer than a whole packet.', effect: 'hap', amt: 12 },
+  { key: 'ticket', name: 'Scratchie',        price: 20, form: 'card',   col: '#b8342c', cap: '#f2cf3a',
+    blurb: 'Scratch three matching wombats and win. You will not.', effect: 'scratch', amt: 0 },
+];
+const SNACK_BY_KEY = Object.fromEntries(SNACKS.map((s) => [s.key, s]));
+
 // ---- the two machines by the till ----------------------------------------
 // The gumball machine is a 1 W$ habit. Most of what comes out is worth about
 // what you paid; once in a while it is not, and that is the whole appeal.

@@ -73,17 +73,36 @@
     <div class="pbody" id="pawn-body"></div>
   </div>
 
+  <div id="panel-talk" class="panel talk" hidden>
+    <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle" id="talk-name">TALK</span><button class="x" data-close="panel-talk"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="pbody">
+      <div class="trow">
+        <div class="tface"><canvas id="talk-face" width="128" height="150"></canvas></div>
+        <div class="tside">
+          <div class="tsub" id="talk-sub"></div>
+          <div class="tline" id="talk-line"></div>
+        </div>
+      </div>
+      <div class="topts" id="talk-opts"></div>
+    </div>
+  </div>
+
+  <div id="panel-wombat" class="panel dossier" hidden>
+    <div class="phead"><img class="ico" data-ico="wombat" alt=""><span class="ptitle">ADOPTION PAPERS</span><button class="x" data-close="panel-wombat"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="pbody" id="wombat-body"></div>
+  </div>
+
   <div id="panel-help" class="panel" hidden>
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
         <li>Right-click (or press Tab) and a tool tray opens beside the cursor; pick one and it rides with the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
-        <li>The hooded one tells you what to do next in a speech bubble; click him to hear it again. Finish an order and he pays you in coin.</li>
+        <li>The hooded one tells you what to do next in a speech bubble. Click him and you can actually talk to him &mdash; he will repeat the order or answer whatever you ask. Shaz and Groot will talk too.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
         <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck parked at the edge of the clearing.</li>
-        <li>Click the truck for the map. Wombat Mart sells seed and stock, the Ritual Site calls the gods, and the Great Stack is where the money is.</li>
+        <li>Click the truck for the map. Wombat Mart is the corner shop, Groot's Cellar sells seed and garden tools, the Ritual Site calls the gods, and the Great Stack is where the money is.</li>
         <li>At the Great Stack, drop poop on the plinth. Every cube pays when it lands and the higher the tower goes the more it pays. The crowd tips by the second for as long as it stands &mdash; and it stays standing while you are away. Nothing is ever lost: a cube that falls off is caught and handed back.</li>
-        <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the counter. One line is half price every visit, and the prize machine by the till takes 250 W$ a go.</li>
+        <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the till on the left. One line is half price every visit. By the counter there is a gumball machine at 1 W$ a turn and a lottery at 40 W$ a ticket, and at the far end a cage with three wombats in it &mdash; click one to read its papers before you take it home.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
@@ -115,6 +134,7 @@
 <script src="js/intro.js"></script>
 <script src="js/guide.js"></script>
 <script src="js/tower.js"></script>
+<script src="js/talk.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/main.js"></script>

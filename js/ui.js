@@ -311,15 +311,108 @@ const UI = (() => {
   function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help'];
+  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat'];
   function openPanel(id) {
     closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click');
     if (id === 'panel-basket') renderBasket();
     if (id === 'panel-pawn') renderPawn();
   }
   function closePanels() {
+    if (Talk.isOpen()) Talk.close();
     for (const id of PANELS) $(id).hidden = true;
     if ($('modal').hidden && !Ritual.active) G.paused = false;
+  }
+
+  // ---- the adoption papers ------------------------------------------------
+  // What you get before you spend three hundred dollars on an animal: a big
+  // portrait that keeps moving, its traits as bars against the average, and
+  // one line of whatever is wrong with it.
+  let pupI = -1, pupRaf = 0, pupT = 0;
+  const TRAIT_BLURB = {
+    gut: ['slow to digest — fewer cubes', 'ordinary appetite', 'digests fast — more cubes'],
+    calm: ['loses heart quickly', 'even-tempered', 'contented, whatever happens'],
+    luck: ['nothing ever goes its way', 'average fortune', 'turns up the good stuff'],
+  };
+  function openWombat(w, i) {
+    pupI = i;
+    openPanel('panel-wombat');
+    renderWombat(w);
+    if (!pupRaf) pupRaf = requestAnimationFrame(pupTick);
+  }
+  function pupTick(ms) {
+    if ($('panel-wombat').hidden) { pupRaf = 0; return; }
+    pupRaf = requestAnimationFrame(pupTick);
+    pupT = ms / 1000;
+    paintPup();
+  }
+  function paintPup() {
+    const cv = $('wombat-pic');
+    const list = Shop.cagePups;
+    const w = list && list[pupI];
+    if (!cv || !w) return;
+    const g = cv.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    const W = cv.width, H = cv.height;
+    // a corner of its pen, so the portrait has somewhere to stand
+    Art.vband(g, 0, 0, W, H, '#6a4f34', '#8a6a48', 5);
+    Art.rect(g, 0, H - 30, W, 30, '#a8873f');
+    const rr = Art.rng(12);
+    for (let i = 0; i < 180; i++) {
+      const sx = rr() * W, sy = H - 30 + rr() * 30, k = rr();
+      Art.rect(g, sx, sy, 3 + Math.round(rr() * 4), 1, k < 0.4 ? '#c2a15c' : k < 0.7 ? '#8a6c2e' : '#d8bd7a');
+    }
+    Art.rect(g, 0, H - 30, W, 2, '#d8bd7a');
+    {                                        // a lamp cone down the back board
+      const oa = g.globalAlpha;
+      for (let k = 5; k >= 1; k--) {
+        const r2 = k / 5;
+        g.globalAlpha = oa * 0.07 * (1 - (k - 1) / 5.2);
+        Art.poly(g, [[W / 2 - 10, 0], [W / 2 + 10, 0], [W / 2 + 10 + 50 * r2, 130 * r2], [W / 2 - 10 - 50 * r2, 130 * r2]], '#ffdc8a');
+      }
+      g.globalAlpha = oa;
+    }
+    const dir = Math.sin(pupT * 0.5) > 0 ? 1 : -1;
+    const f = Math.floor(pupT * 4);
+    const bob = Math.abs(Math.sin(pupT * 2)) * 2;
+    Sprites.shadow(g, W / 2, H - 14, 'idle', f, w.pelt, dir, w.age, 1.9, 0);
+    Sprites.blit(g, W / 2, H - 14 - bob, 'idle', f, w.pelt, dir, w.age, 1.9, 0);
+    if (Math.sin(pupT * 1.3) > 0.9) FX.pixelText && null;
+  }
+  function traitRow(key, v) {
+    const pct = Math.round(((v - 0.6) / 0.9) * 100);
+    const cls = v > 1.15 ? ' hi' : v < 0.85 ? ' lo' : '';
+    const blurb = TRAIT_BLURB[key][v > 1.15 ? 2 : v < 0.85 ? 0 : 1];
+    const name = (TRAITS.find((t) => t.key === key) || { name: key }).name;
+    return `<div class="dstat" title="${blurb}"><span class="dk">${name}</span>`
+      + `<span class="dbar${cls}"><i style="width:${U.clamp(pct, 4, 100)}%"></i></span>`
+      + `<span class="dv">${v.toFixed(2)}</span></div>`
+      + `<div class="dtag" style="margin:-2px 0 4px 70px">${blurb}</div>`;
+  }
+  function renderWombat(w) {
+    const fur = Sprites.furOf(w.pelt);
+    const room = G.wombats.length < Grove.capacity();
+    const afford = G.wd >= w.price;
+    const age = w.age === 'adult' ? 'Adult' : w.age === 'juvenile' ? 'Juvenile' : 'Baby';
+    $('wombat-body').innerHTML = `
+      <div class="drow">
+        <div class="dpic"><canvas id="wombat-pic" width="150" height="132"></canvas></div>
+        <div class="dinfo">
+          <div class="dname">${w.name}</div>
+          <div class="dtag">${fur.name} &middot; ${age} &middot; ${w.tag}</div>
+          ${traitRow('gut', w.traits.gut)}
+          ${traitRow('calm', w.traits.calm)}
+          ${traitRow('luck', w.traits.luck)}
+        </div>
+      </div>
+      <div class="dnote"><b>Note from the keeper:</b> ${w.quirk}${fur.rare ? ' <span class="warn">Rare coat &mdash; priced accordingly.</span>' : ''}</div>
+      <div class="drow2">
+        <span class="dprice">${Icons.img('wdollar')} ${U.fmt(w.price)}</span>
+        <button class="wbtn" id="b-pup-back">BACK</button>
+        <button class="act go" id="b-pup-take"${room && afford ? '' : ' disabled'}>${!room ? 'NO ROOM' : !afford ? 'TOO DEAR' : 'TAKE ' + w.name.toUpperCase() + ' HOME'}</button>
+      </div>`;
+    $('b-pup-back').onclick = () => { closePanels(); Audio.play('click'); };
+    $('b-pup-take').onclick = () => { if (Shop.adoptPup(pupI)) closePanels(); };
+    paintPup();
   }
 
   function renderPawn() {
@@ -412,7 +505,10 @@ const UI = (() => {
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
     $('b-summon').onclick = () => Ritual.summon();
     $('b-unstage').onclick = () => Ritual.clearStage();
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); } });
+    document.addEventListener('keydown', (e) => {
+      if (Talk.isOpen() && Talk.key(e)) { e.preventDefault(); return; }
+      if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
+    });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
   }
   function setMode(mode) {
@@ -443,6 +539,6 @@ const UI = (() => {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, pingPurse,
-    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom,
+    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom, openWombat,
   };
 })();

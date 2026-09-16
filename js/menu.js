@@ -109,7 +109,7 @@ const Menu = (() => {
 
   function init(settings, saved, act) { G = settings; hasSave = !!saved; onAct = act; }
   function setSave(v) { hasSave = !!v; }
-  function enter() { t = 0; page = 'home'; confirm = null; hover = null; Audio.setMode('menu'); }
+  function enter() { t = 0; page = 'home'; confirm = null; hover = null; rumour = Math.floor(Math.random() * RUMOURS.length); Audio.setMode('menu'); }
 
   // The name of the game, cut into a stone lintel the god is holding up. The
   // letters are chiselled: a dark inset with a lit lower lip, the way carved
@@ -425,13 +425,111 @@ const Menu = (() => {
     }
   }
 
+  // ---- the things living on the title screen ------------------------------
+  // An owl on a bough that blinks and turns its head, a lantern that swings on
+  // its chain, a signpost at the edge of the clearing, and one line of rumour
+  // under the buttons that changes every time you come back.
+  const RUMOURS = [
+    'they say the soil out there remembers things',
+    'nobody has ever counted all nine of them',
+    'the mart shuts at six but Shaz never leaves',
+    'a wombat can dig eight metres in one night',
+    'the tall one in the hood was here before the road',
+    'something in the deepwood answers if you stack high enough',
+    'Groot has not said a second sentence in forty years',
+    'the lottery has paid out twice. both times to the same man.',
+    'square. every single one of them. square.',
+    'the quarry closed for a reason nobody writes down',
+  ];
+  let rumour = 0;
+  function owl(g, x, y, t2) {
+    const blink = (t2 % 4.4) > 4.1;
+    const turn = Math.sin(t2 * 0.35) > 0.6 ? 1 : Math.sin(t2 * 0.35) < -0.6 ? -1 : 0;
+    Art.rect(g, x - 26, y + 9, 52, 3, '#2a2218');                  // the bough
+    Art.rect(g, x - 26, y + 9, 52, 1, '#4a3c28');
+    Art.ell(g, x, y, 8, 10, '#2e2a26');                            // body
+    Art.ell(g, x, y + 1, 6.6, 8.4, '#4a4238');
+    Art.ellBand(g, x, y, 6, 7.4, '#665c4e', 0, 0.5);
+    for (let i = 0; i < 5; i++) Art.rect(g, x - 4 + i * 2, y + 3 + (i % 2), 1, 3, '#332c24');
+    Art.poly(g, [[x - 6, y - 7], [x - 2, y - 11], [x - 1, y - 6]], '#4a4238');   // horns
+    Art.poly(g, [[x + 6, y - 7], [x + 2, y - 11], [x + 1, y - 6]], '#4a4238');
+    for (const sd of [-1, 1]) {
+      const ex = x + sd * 3 + turn * 1.4;
+      if (blink) { Art.rect(g, ex - 2, y - 4, 4, 1, '#2a2218'); continue; }
+      Art.ell(g, ex, y - 4, 2.6, 2.6, '#f2cf3a');
+      Art.ell(g, ex + turn * 0.8, y - 4, 1.2, 1.4, '#120c08');
+    }
+    Art.poly(g, [[x - 1 + turn, y - 2], [x + 1 + turn, y - 2], [x + turn, y]], '#c9903a');
+    Art.rect(g, x - 3, y + 10, 2, 2, '#c9903a');                   // feet on the bough
+    Art.rect(g, x + 1, y + 10, 2, 2, '#c9903a');
+  }
+  function signpost(g, x, y, t2) {
+    Art.rect(g, x - 2, y - 44, 4, 46, '#2a2018');
+    Art.rect(g, x - 2, y - 44, 1.6, 46, '#4a3c28');
+    const sway = Math.sin(t2 * 0.9) * 0.8;
+    for (let i = 0; i < 2; i++) {
+      const sy = y - 40 + i * 13, sd = i ? -1 : 1;
+      Art.poly(g, [[x, sy + sway], [x + sd * 42, sy - 2 + sway], [x + sd * 42, sy + 8 + sway], [x, sy + 10 + sway]], '#241a10');
+      Art.poly(g, [[x, sy + 1 + sway], [x + sd * 40, sy - 1 + sway], [x + sd * 40, sy + 7 + sway], [x, sy + 9 + sway]], '#5a3f24');
+      Art.poly(g, [[x, sy + 1 + sway], [x + sd * 40, sy - 1 + sway], [x + sd * 40, sy + 1 + sway], [x, sy + 3 + sway]], '#7a5836');
+      Font.draw(g, i ? 'MART' : 'GROVE', x + sd * 21, sy + 2 + sway, { scale: 1, color: '#e0cda4', align: 'center' });
+    }
+    Art.rect(g, x - 5, y, 10, 3, '#1d1610');
+  }
   function drawHome(g) {
     buttons = [];
+    owl(g, 92, 126, t);
+    signpost(g, 168, 352, t);
     const BW = 250, BX = VW - BW - 30;
-    buttons.push({ id: 'enter', x: BX, y: 214, w: BW, h: 50 });
-    buttons.push({ id: 'settings', x: BX, y: 274, w: BW, h: 36 });
-    bigButton(g, buttons[0], hasSave ? 'ENTER THE GROVE' : 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
+    buttons.push({ id: 'enter', x: BX, y: 196, w: BW, h: 50 });
+    buttons.push({ id: 'settings', x: BX, y: 256, w: BW, h: 36 });
+    buttons.push({ id: 'help', x: BX, y: 300, w: BW, h: 30 });
+    bigButton(g, buttons[0], 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
     bigButton(g, buttons[1], 'SETTINGS', null, 2);
+    bigButton(g, buttons[2], 'HOW TO PLAY', null, 2);
+    // the rumour, on a torn strip of paper pinned under the buttons
+    const line = RUMOURS[rumour % RUMOURS.length];
+    const w = Font.width(line, 1) + 18;
+    const rx = BX + BW / 2, ry = 344;
+    g.globalAlpha = 0.8;
+    Art.rect(g, rx - w / 2, ry - 4, w, 15, 'rgba(8,6,4,0.55)');
+    Art.rect(g, rx - w / 2 + 1, ry - 3, w - 2, 13, '#2a2418');
+    g.globalAlpha = 1;
+    Font.draw(g, line, rx, ry, { scale: 1, color: '#a8a08a', align: 'center' });
+    // and the wombats you have, if there are any to come back to
+    if (hasSave) {
+      Font.draw(g, 'A SAVE IS WAITING', BX + BW / 2, 182, { scale: 1, color: '#84bb59', align: 'center', shadow: '#0e1a08' });
+    }
+  }
+
+  // a short page of how it works, so the title screen can answer the question
+  const HELP = [
+    ['t_sickle', 'Clear the weeds', 'Right-click opens the tool tray. Pick one and it rides with the pointer.'],
+    ['t_hoe', 'Break a bed, sow it', 'Hoe bare soil, drop seed on it, water it while it grows, pick it when it glows.'],
+    ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, she walks off, and she leaves a cube.'],
+    ['truck', 'Load the truck', 'Drag the cubes to the truck at the edge of the clearing. Click it for the map.'],
+    ['u_seats', 'Stack it high', 'The Great Stack pays per cube and the crowd tips by the second while it stands.'],
+    ['shrine', 'Call one down', 'Stack what she leaves at the ritual site and a god answers. There are nine.'],
+  ];
+  function drawHelp(g) {
+    buttons = [];
+    const PW = 470, PX = (VW - PW) / 2, PY = 44, PH = 272;
+    plaque(g, PX, PY, PW, PH, false);
+    Font.draw(g, 'HOW TO PLAY', VW / 2, PY + 12, { scale: 2, color: '#f5cd5c', align: 'center', shadow: '#160c06' });
+    HELP.forEach(([ico, title, body], i) => {
+      const ry = PY + 42 + i * 34;
+      g.fillStyle = i % 2 ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.12)';
+      g.fillRect(PX + 12, ry - 2, PW - 24, 32);
+      Icons.blit(g, ico, PX + 16, ry, 1.2);
+      Font.draw(g, title, PX + 44, ry, { scale: 1, color: '#f5cd5c' });
+      Font.draw(g, body, PX + 44, ry + 11, { scale: 1, color: '#cfc2a2' });
+    });
+    const by = PY + PH - 34;
+    buttons.push({ id: 'back', x: PX + 14, y: by, w: PW - 28, h: 26 });
+    const bh = hover === 'back';
+    g.fillStyle = bh ? 'rgba(255,216,140,0.18)' : 'rgba(0,0,0,0.3)';
+    g.fillRect(PX + 14, by, PW - 28, 26);
+    Font.draw(g, 'BACK', VW / 2, by + 8, { scale: 1, color: bh ? '#ffe9a8' : '#cfc2a2', align: 'center' });
   }
 
   const SETTINGS = [
@@ -466,7 +564,10 @@ const Menu = (() => {
     buttons.push({ id: 'wipe', x: PX + 14, y: dy, w: PW - 28, h: 28, kind: 'wipe' });
     const wh = hover === 'wipe';
     g.fillStyle = wh ? '#8a2f24' : '#2a1a16'; g.fillRect(PX + 14, dy, PW - 28, 28);
-    g.strokeStyle = wh ? '#e07a6a' : '#4a3028'; g.lineWidth = 1; g.strokeRect(PX + 14.5, dy + 0.5, PW - 29, 27);
+    Art.rect(g, PX + 14, dy, PW - 28, 1, wh ? '#e07a6a' : '#4a3028');
+    Art.rect(g, PX + 14, dy + 27, PW - 28, 1, wh ? '#e07a6a' : '#4a3028');
+    Art.rect(g, PX + 14, dy, 1, 28, wh ? '#e07a6a' : '#4a3028');
+    Art.rect(g, PX + PW - 15, dy, 1, 28, wh ? '#e07a6a' : '#4a3028');
     Font.draw(g, 'RESET ALL DATA', VW / 2, dy + 6, { scale: 1, color: wh ? '#ffd9cf' : '#9a7a70', align: 'center' });
     Font.draw(g, hasSave ? 'ERASES YOUR GROVE AND STARTS OVER' : 'NOTHING SAVED YET', VW / 2, dy + 17, {
       scale: 1, color: wh ? '#e0a89c' : '#6a534c', align: 'center',
@@ -549,6 +650,7 @@ const Menu = (() => {
     seedAir();
     drawAir(g);
     if (page === 'home') drawHome(g);
+    else if (page === 'help') drawHelp(g);
     else drawSettings(g);
     if (confirm) drawConfirm(g);
   }
@@ -567,6 +669,7 @@ const Menu = (() => {
       return;
     }
     if (h.id === 'settings') { page = 'settings'; return; }
+    if (h.id === 'help') { page = 'help'; return; }
     if (h.id === 'back') { page = 'home'; return; }
     if (h.id === 'enter') onAct({ play: true });
   }

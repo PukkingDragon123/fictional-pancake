@@ -96,7 +96,7 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G);
+      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
@@ -377,7 +377,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

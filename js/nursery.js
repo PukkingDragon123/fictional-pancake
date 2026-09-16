@@ -142,6 +142,65 @@ const Nursery = (() => {
     Main.save();
   }
 
+  // ---- talking to a tree ---------------------------------------------------
+  // He says the same three words whatever you ask, so the conversation is
+  // really you working out what he means from his face. The subtitle under his
+  // name is the translation, which is the joke.
+  const GROOT_TREE = {
+    start: 'hub',
+    nodes: {
+      hub: {
+        mood: 'talk', sub: () => basket.length ? 'that will be ' + U.fmt(total()) + ' W$' : 'welcome to the cellar',
+        say: 'I am Groot.',
+        opts: [
+          { q: () => `Pay for the basket (${U.fmt(total())} W$).`, act: () => { UI.openBasket(); }, if: () => basket.length > 0 },
+          { q: 'What is good this week?', to: 'good' },
+          { q: 'Is the mandrake safe?', to: 'mandrake' },
+          { q: 'Why a cellar and not a greenhouse?', to: 'cellar' },
+          { q: 'Are the vines yours?', to: 'vines' },
+          { q: 'Shaz says hello.', to: 'shaz' },
+          { q: 'Are you all right, Groot?', to: 'okay' },
+          { q: 'I am Groot.', to: 'same' },
+          { q: 'Thanks, Groot.', end: true },
+        ],
+      },
+      good: { mood: 'proud', sub: 'the goldwheat, obviously', say: 'I. Am. Groot.',
+        opts: [{ q: 'The goldwheat?', to: 'good2' }, { q: 'Back.', to: 'hub' }] },
+      good2: { mood: 'happy', sub: 'yes, the goldwheat, it is very good', say: 'I am Groot!',
+        opts: [{ q: 'I will take some.', to: 'hub' }] },
+      mandrake: { mood: 'worry', sub: 'absolutely not', say: 'I am Groot...',
+        opts: [{ q: 'What happens if I pick one?', to: 'mandrake2' }, { q: 'Back.', to: 'hub' }] },
+      mandrake2: { mood: 'cross', sub: 'it screams and you fall over', say: 'I AM GROOT.',
+        opts: [{ q: 'Ear plugs?', to: 'mandrake3' }] },
+      mandrake3: { mood: 'happy', sub: 'behind the till, take two', say: 'I am Groot :)',
+        opts: [{ q: 'You are a good tree.', to: 'hub' }] },
+      cellar: { mood: 'curious', sub: 'glass is expensive and the possums got in', say: 'I am Groot?',
+        opts: [{ q: 'Possums?', to: 'possum' }, { q: 'Back.', to: 'hub' }] },
+      possum: { mood: 'cross', sub: 'do not talk to me about possums', say: 'I AM GROOT!',
+        opts: [{ q: 'Sorry.', to: 'hub' }] },
+      vines: { mood: 'proud', sub: 'they came in through the mortar and stayed', say: 'I am. Groot.',
+        opts: [{ q: 'You let them?', to: 'vines2' }, { q: 'Back.', to: 'hub' }] },
+      vines2: { mood: 'happy', sub: 'they are family', say: 'I am Groot~',
+        opts: [{ q: 'That is lovely.', to: 'hub' }] },
+      shaz: { mood: 'curious', sub: 'the shark? from the mart?', say: 'I am Groot?',
+        opts: [{ q: 'She comes down on Thursdays.', to: 'shaz2' }] },
+      shaz2: { mood: 'happy', sub: 'he knows. he waters the good pots on Thursdays.', say: 'I am Groot!!',
+        opts: [{ q: 'You two should talk.', to: 'shaz3' }] },
+      shaz3: { mood: 'sad', sub: 'he only knows the one sentence', say: 'I... am Groot.',
+        opts: [{ q: 'She would not mind.', to: 'shaz4' }] },
+      shaz4: { mood: 'happy', sub: 'he is going to think about it', say: 'I am Groot.',
+        opts: [{ q: 'Good.', to: 'hub' }] },
+      okay: { mood: 'sleepy', sub: 'a bit tired. it is always Thursday down here.', say: 'i am groot',
+        opts: [{ q: 'Get some light on you.', to: 'okay2' }] },
+      okay2: { mood: 'happy', sub: 'he will, in a bit', say: 'I am Groot!',
+        opts: [{ q: 'Good lad.', to: 'hub' }] },
+      same: { mood: 'laugh', sub: 'he thinks that is the funniest thing he has ever heard', say: 'I AM GROOT!',
+        opts: [{ q: 'I am Groot.', to: 'same2' }] },
+      same2: { mood: 'laugh', sub: 'he is wheezing', say: 'I AM GROOT!!',
+        opts: [{ q: 'Right, back to business.', to: 'hub' }] },
+    },
+  };
+
   // ---- Groot's patter ------------------------------------------------------
   function grootSay(line) {
     groot.text = line.say; groot.say = 3.4;
@@ -217,18 +276,12 @@ const Nursery = (() => {
     if (wasDrag) return;
     const s = slotAt(x, y);
     if (s) { add(s.p); return; }
-    if (overGroot(x) && y > 150) {
-      if (basket.length) { UI.openBasket(); Audio.play('click'); return; }
-      groot.line = (groot.line + 1) % LINES.length;
-      grootSay(LINES[groot.line]);
-      Audio.play('click');
-      return;
-    }
+    if (overGroot(x) && y > 150) { Talk.open('groot', GROOT_TREE); return; }
   }
   function hoverAt(x, y) {
     const s = slotAt(x, y);
     hover = s;
-    if (overGroot(x) && y > 150) return `<b>Groot</b> <span class="dim">he grows all of it</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'he only says the one thing'}`;
+    if (overGroot(x) && y > 150) return `<b>Groot</b> <span class="dim">he grows all of it</span><br>click to talk to him${basket.length ? ' &middot; ' + total() + ' W$ in the basket' : ''}`;
     if (!s) return null;
     const p = s.p;
     if (p.kind === 'seed') {
@@ -340,29 +393,78 @@ const Nursery = (() => {
       g.fillStyle = MORT; g.fillRect(bx + bw - 2, y, 2, h); g.fillRect(bx, y + h - 1, bw, 1);
     }
   }
-  // a vine: a pixel stem that wanders, with leaves paired off it
+  // ---- a vine ---------------------------------------------------------------
+  // A proper one: a stem that thickens at the top and tapers to nothing, leaves
+  // in opposite pairs with a midrib and a lit edge, curling tendrils reaching
+  // off the node, and the odd flower cluster. It sways as one piece.
+  function leaf(g, x, y, len, sd, tone) {
+    // the blade: a tapered lens, drawn as two scanline halves off the midrib
+    const W = len * 0.42;
+    for (let i = 0; i <= len; i++) {
+      const u = i / len;
+      const w = Math.sin(u * Math.PI) * W;
+      const lx = Math.round(x + sd * i * 0.92);
+      const ly = Math.round(y + i * 0.34 - Math.sin(u * Math.PI) * 1.2);
+      if (w < 0.5) continue;
+      g.fillStyle = tone[0];
+      g.fillRect(lx, ly - Math.round(w), 1, Math.round(w) * 2);
+      g.fillStyle = tone[1];
+      g.fillRect(lx, ly - Math.round(w) + 1, 1, Math.max(1, Math.round(w)));
+      if (u > 0.18 && u < 0.8 && i % 3 === 0) { g.fillStyle = tone[2]; g.fillRect(lx, ly - Math.round(w) + 1, 1, 1); }
+    }
+    g.fillStyle = tone[3];                                  // the midrib
+    for (let i = 0; i <= len; i++) g.fillRect(Math.round(x + sd * i * 0.92), Math.round(y + i * 0.34 - Math.sin((i / len) * Math.PI) * 1.2), 1, 1);
+  }
+  const VINE_TONE = [
+    ['#1d3a1c', '#2f5a26', '#6fb851', '#153016'],
+    ['#24421f', '#3a6a2c', '#84c862', '#18341a'],
+    ['#1a3520', '#2a4f2c', '#5da85a', '#122a18'],
+  ];
   function vine(g, x, y0, y1, seed, lean) {
     const r = Art.rng(seed);
+    const tone = VINE_TONE[seed % VINE_TONE.length];
+    const L = y1 - y0;
     let x2 = x;
+    const nodes = [];
     for (let y = y0; y < y1; y++) {
-      x2 += (r() - 0.5) * 0.9 + lean * 0.06;
+      const u = (y - y0) / L;
+      x2 += (r() - 0.5) * 0.7 + lean * 0.05 * (1 - u);
       const ix = Math.round(x2);
-      g.fillStyle = VINE0; g.fillRect(ix, y, 3, 1);
-      g.fillStyle = VINE1; g.fillRect(ix, y, 2, 1);
-      if ((y - y0) % 9 === 0) {
-        const sd = ((y - y0) / 9) % 2 ? 1 : -1;
-        const lw = 4 + Math.round(r() * 4);
-        Art.ell(g, ix + sd * (lw - 1), y + 1, lw, 2.6, VINE0);
-        Art.ell(g, ix + sd * (lw - 1), y, lw - 1, 2, r() < 0.4 ? VINE3 : VINE2);
-        Art.rect(g, ix + sd * 2, y, sd > 0 ? lw - 2 : -(lw - 2), 1, VINE1);
-      }
-      if ((y - y0) % 31 === 14) {           // the odd flower
-        const col = ['#e8768f', '#f0c04a', '#c98ad8'][Math.floor(r() * 3)];
-        Art.ell(g, ix + 1, y, 2.2, 2.2, col);
-        Art.ell(g, ix + 1, y, 1, 1, '#fff2c4');
-      }
+      const th = Math.max(1, Math.round(3 * (1 - u * 0.75)));   // thick at the top, thin at the tip
+      g.fillStyle = VINE0; g.fillRect(ix, y, th + 1, 1);
+      g.fillStyle = VINE1; g.fillRect(ix, y, th, 1);
+      g.fillStyle = tone[2]; g.fillRect(ix, y, 1, 1);           // the lit side of the stem
+      if ((y - y0) % 11 === 0 && u < 0.94) nodes.push([ix, y, u]);
     }
+    // the leaves, in opposite pairs, alternating which way the pair leans
+    nodes.forEach(([nx, ny, u], i) => {
+      const len = Math.round((7 - u * 3) * (0.8 + r() * 0.5));
+      const sd = i % 2 ? 1 : -1;
+      leaf(g, nx + (sd > 0 ? 1 : 0), ny, len, sd, tone);
+      if (i % 2 === (seed % 2)) leaf(g, nx + (sd > 0 ? 0 : 1), ny + 2, Math.round(len * 0.7), -sd, tone);
+      // a tendril curling off every third node
+      if (i % 3 === 1) {
+        const td = -sd;
+        for (let k = 0; k < 9; k++) {
+          const a = k * 0.55;
+          g.fillStyle = k > 5 ? tone[2] : tone[0];
+          g.fillRect(Math.round(nx + td * (3 + Math.sin(a) * 3.4)), Math.round(ny + 2 + k * 0.9 + Math.cos(a) * 1.6), 1, 1);
+        }
+      }
+      // and a little cluster of flowers now and then
+      if (i % 4 === 2) {
+        const col = ['#e8768f', '#f0c04a', '#c98ad8', '#f2ece0'][Math.floor(r() * 4)];
+        const fx = nx + sd * 4, fy = ny + 4;
+        for (let k = 0; k < 4; k++) {
+          const a = (k / 4) * TAU;
+          Art.ell(g, fx + Math.cos(a) * 1.6, fy + Math.sin(a) * 1.4, 1.5, 1.3, col);
+        }
+        Art.ell(g, fx, fy, 1.1, 1, '#fff2c4');
+        g.fillStyle = U.shade(col, -0.3); g.fillRect(Math.round(fx), Math.round(fy + 2), 1, 2);
+      }
+    });
   }
+
   function drawVault(g, S) {
     g.save();
     g.beginPath(); g.rect(0, 0, VW, BEAM); g.clip();
@@ -696,6 +798,7 @@ const Nursery = (() => {
   }
 
   return {
+    grootX: () => Math.round(groot.x - scroll),
     init(g) { G = g; }, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
     add, addById, removeOne, removeLine, clear, checkout, total, lines, layout, catalogue,
     setScroll(f) { tscroll = (worldW - VW) * U.clamp(f, 0, 1); scroll = tscroll; },
