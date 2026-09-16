@@ -52,155 +52,279 @@ const Atlas = (() => {
     }
   }
 
+  // ---- the sheet -----------------------------------------------------------
+  // It is a map somebody drew by hand: aged paper, ink that wobbles, hills put
+  // in with hachures, forest drawn tree by tree, hatching in the water. Nothing
+  // on it is ruler-straight and nothing on it is a flat fill.
+  const PAPER0 = '#c8b58c', PAPER1 = '#d8c69e', PAPER2 = '#b9a37a', PAPER3 = '#e6d7b2';
+  const INK = '#2e2418', INK2 = '#4a3a26', INK3 = '#6b5740';
+  const SEA0 = '#7d9aa2', SEA1 = '#9dbac0', SEA2 = '#5f7f8a';
+  const LEAF = '#4f6b3a', LEAF2 = '#3c5530', LEAF3 = '#6b8a4c';
+  const ROOF = '#9a5236', ROOF2 = '#7a3c26';
+
+  // a hand's worth of wobble: the same point always wobbles the same way
+  function wob(x, y, amp, seed) {
+    const n = Math.sin((x * 12.9898 + y * 78.233 + seed * 3.17)) * 43758.5453;
+    return (n - Math.floor(n) - 0.5) * 2 * amp;
+  }
+  // an inked line: walked a pixel at a time, drifting off true the way a nib does
+  function ink(g, x0, y0, x1, y1, col, w, amp, seed) {
+    const L = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0)));
+    for (let i = 0; i <= L; i++) {
+      const u = i / L;
+      const x = U.lerp(x0, x1, u) + wob(i * 0.7, seed, amp, seed);
+      const y = U.lerp(y0, y1, u) + wob(seed, i * 0.7, amp, seed + 9);
+      g.fillStyle = col;
+      g.fillRect(Math.round(x), Math.round(y), w, w);
+    }
+  }
+  function inkPath(g, pts, col, w, amp, seed) {
+    for (let i = 0; i < pts.length - 1; i++) ink(g, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], col, w, amp, seed + i * 5);
+  }
+  // hatching: parallel strokes at 45 degrees inside a test function
+  function hatch(g, x0, y0, x1, y1, step, col, inside, jitter, seed) {
+    const r2 = Art.rng(seed);
+    for (let d = -(y1 - y0); d < (x1 - x0); d += step) {
+      let run = 0;
+      for (let k = 0; k < (x1 - x0) + (y1 - y0); k++) {
+        const x = Math.round(x0 + d + k * 0.7), y = Math.round(y0 + k * 0.7);
+        if (x < x0 || x > x1 || y > y1) break;
+        if (!inside(x, y)) { run = 0; continue; }
+        run++;
+        if (jitter && (run % 9) === 0) continue;     // the nib skips
+        g.fillStyle = col;
+        g.fillRect(x + Math.round((r2() - 0.5) * 1.2), y, 1, 1);
+      }
+    }
+  }
+  // a cartographer's tree: a trunk and three lobes of scribble
+  function mapTree(g, x, y, s, seed) {
+    const r2 = Art.rng(seed);
+    g.fillStyle = INK2;
+    g.fillRect(Math.round(x), Math.round(y - s * 0.4), 1, Math.round(s * 0.8));
+    for (let i = 0; i < 3; i++) {
+      const cx = x + (i - 1) * s * 0.52, cy = y - s * (0.55 + (i === 1 ? 0.35 : 0));
+      const rr = s * (i === 1 ? 0.62 : 0.48);
+      Art.ell(g, cx, cy, rr, rr * 0.86, LEAF2);
+      Art.ell(g, cx - rr * 0.2, cy - rr * 0.2, rr * 0.7, rr * 0.6, r2() < 0.5 ? LEAF : LEAF3);
+    }
+    // a few scratches over it so it reads as drawn, not stamped
+    for (let i = 0; i < 4; i++) {
+      g.fillStyle = LEAF2;
+      g.fillRect(Math.round(x + (r2() - 0.5) * s * 1.8), Math.round(y - s * (0.3 + r2() * 0.9)), 1 + Math.round(r2() * 2), 1);
+    }
+  }
+  // a hill, drawn as hachures: short strokes fanning down from a ridge line
+  function hill(g, x, y, w, h, seed) {
+    const r2 = Art.rng(seed);
+    for (let i = -w; i <= w; i += 3) {
+      const u = i / w;
+      const top = y - h * Math.sqrt(Math.max(0, 1 - u * u));
+      const len = 3 + (1 - Math.abs(u)) * h * 0.55;
+      g.fillStyle = INK2;
+      for (let k = 0; k < len; k++) g.fillRect(Math.round(x + i + k * 0.18 * Math.sign(u || 1)), Math.round(top + k), 1, 1);
+      if (r2() < 0.5) { g.fillStyle = INK3; g.fillRect(Math.round(x + i + 1), Math.round(top + 1), 1, Math.round(len * 0.5)); }
+    }
+    // the ridge itself, inked over the top of the strokes
+    let px = x - w, py = y;
+    for (let i = -w; i <= w; i += 2) {
+      const u = i / w, nx = x + i, ny = y - h * Math.sqrt(Math.max(0, 1 - u * u));
+      ink(g, px, py, nx, ny, INK, 1, 0.5, seed + i);
+      px = nx; py = ny;
+    }
+  }
+
   function sheetOf() {
     if (sheet) return sheet;
     const { c, g } = Art.cv(VW, VH);
     const r = Art.rng(4242);
-    // ---- the land: patchwork farmland, textured everywhere -----------------
-    // A survey map has no empty paper on it. The whole sheet is broken into
-    // 16px fields on a coarse grid, each one a different crop tone with its own
-    // furrows, hedged off from its neighbours. Nothing is left flat.
-    const FIELDS = ['#3a4232', '#414a36', '#354030', '#48513a', '#3d4733', '#323c2c', '#4d543c', '#414434'];
-    g.fillStyle = LAND; g.fillRect(0, 0, VW, VH);
-    const CELL = 24, GC = Math.ceil(VW / CELL), GR = Math.ceil(VH / CELL);
-    const plot = [];                       // which field each cell belongs to
-    for (let cy = 0; cy < GR; cy++) {
-      plot[cy] = [];
-      for (let cx = 0; cx < GC; cx++) {
-        // grow fields out of seeds so they come in ragged blocks, not a grid
-        const up = cy > 0 ? plot[cy - 1][cx] : -1, lf = cx > 0 ? plot[cy][cx - 1] : -1;
-        let f = Math.floor(r() * FIELDS.length);
-        if (up >= 0 && r() < 0.58) f = up; else if (lf >= 0 && r() < 0.58) f = lf;
-        plot[cy][cx] = f;
-        const x = cx * CELL, y = cy * CELL;
-        g.fillStyle = FIELDS[f]; g.fillRect(x, y, CELL, CELL);
-        // furrows, ploughed the way the field lies
-        const dir = (f + cx + cy) % 3;
-        g.fillStyle = U.shade(FIELDS[f], dir === 2 ? 0.1 : -0.12);
-        if (dir === 0) for (let i = 1; i < CELL; i += 4) g.fillRect(x, y + i, CELL, 1);
-        else if (dir === 1) for (let i = 1; i < CELL; i += 4) g.fillRect(x + i, y, 1, CELL);
-        else for (let i = 0; i < 26; i++) g.fillRect(x + Math.floor(r() * CELL), y + Math.floor(r() * CELL), 1, 1);
-      }
-    }
-    // hedgerows on the seams where two different fields meet
-    for (let cy = 0; cy < GR; cy++) {
-      for (let cx = 0; cx < GC; cx++) {
-        const f = plot[cy][cx];
-        if (cx > 0 && plot[cy][cx - 1] !== f) {
-          g.fillStyle = '#2a3422'; g.fillRect(cx * CELL, cy * CELL, 1, CELL);
-          g.fillStyle = '#3c4a30'; for (let i = 0; i < CELL; i += 3) g.fillRect(cx * CELL - 1, cy * CELL + i, 1, 1);
-        }
-        if (cy > 0 && plot[cy - 1][cx] !== f) {
-          g.fillStyle = '#2a3422'; g.fillRect(cx * CELL, cy * CELL, CELL, 1);
-          g.fillStyle = '#3c4a30'; for (let i = 0; i < CELL; i += 3) g.fillRect(cx * CELL + i, cy * CELL - 1, 1, 1);
-        }
-      }
-    }
-    // tussocks, boulders and dry scrub scattered over the top of all of it
-    for (let i = 0; i < 620; i++) {
+    // ---- the paper --------------------------------------------------------
+    g.fillStyle = PAPER0; g.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 9000; i++) {                    // the tooth of the stock
       const x = Math.floor(r() * VW), y = Math.floor(r() * VH), k = r();
-      if (k < 0.55) { g.fillStyle = '#313b28'; g.fillRect(x, y, 2, 1); g.fillRect(x + 1, y - 1, 1, 1); }
-      else if (k < 0.86) { g.fillStyle = '#4e553e'; g.fillRect(x, y, 1, 1); }
-      else { g.fillStyle = '#5a5a4a'; g.fillRect(x, y, 2, 2); g.fillStyle = '#6e6d5c'; g.fillRect(x, y, 2, 1); }
+      g.fillStyle = k < 0.42 ? PAPER1 : k < 0.72 ? PAPER2 : k < 0.92 ? PAPER3 : '#a8916a';
+      g.fillRect(x, y, 1, 1);
     }
-    // ---- forest, in blocks, the way a map shows it ------------------------
+    for (let i = 0; i < 40; i++) {                      // fibres in the pulp
+      const x = r() * VW, y = r() * VH, L = 5 + r() * 16, a = r() * TAU;
+      g.fillStyle = r() < 0.5 ? '#efe0bc' : '#9c8663';
+      for (let k = 0; k < L; k++) g.fillRect(Math.round(x + Math.cos(a) * k), Math.round(y + Math.sin(a) * k), 1, 1);
+    }
+    for (let i = 0; i < 16; i++) {                      // tea stains and foxing
+      const x = r() * VW, y = r() * VH, rr = 12 + r() * 40;
+      const oa = g.globalAlpha;
+      for (let k = 4; k >= 1; k--) { g.globalAlpha = oa * 0.05; Art.ell(g, x, y, rr * (k / 4), rr * (k / 4) * 0.7, '#8a6f45'); }
+      g.globalAlpha = oa;
+    }
+    for (let i = 0; i < 70; i++) {                      // specks of age
+      g.fillStyle = 'rgba(96,74,44,0.35)';
+      g.fillRect(Math.floor(r() * VW), Math.floor(r() * VH), 1 + (r() < 0.2 ? 1 : 0), 1);
+    }
+    // two folds, where the sheet lived in somebody's pocket
+    for (const fx of [VW / 3, (VW * 2) / 3]) {
+      for (let y = 0; y < VH; y++) {
+        g.fillStyle = 'rgba(120,98,62,0.2)'; g.fillRect(Math.round(fx + wob(y, 3, 1.4, 7)), y, 1, 1);
+        g.fillStyle = 'rgba(248,238,212,0.22)'; g.fillRect(Math.round(fx + wob(y, 3, 1.4, 7)) + 1, y, 1, 1);
+      }
+    }
+    for (let x = 0; x < VW; x++) {
+      const fy = VH / 2 + wob(x, 11, 1.4, 13);
+      g.fillStyle = 'rgba(120,98,62,0.16)'; g.fillRect(x, Math.round(fy), 1, 1);
+      g.fillStyle = 'rgba(248,238,212,0.18)'; g.fillRect(x, Math.round(fy) + 1, 1, 1);
+    }
+    // ---- the ground under it all: hachured hills and scratchy heath --------
+    const HILLS = [[92, 118, 58, 26], [196, 88, 44, 20], [470, 96, 52, 24],
+                   [552, 268, 46, 22], [300, 190, 40, 18], [122, 268, 38, 17]];
+    for (let i = 0; i < HILLS.length; i++) hill(g, HILLS[i][0], HILLS[i][1], HILLS[i][2], HILLS[i][3], 300 + i * 97);
+    // grass tufts and heather scribbled over the open ground
+    for (let i = 0; i < 900; i++) {
+      const x = Math.floor(r() * VW), y = Math.floor(r() * VH), k = r();
+      if (k < 0.55) { g.fillStyle = INK3; g.fillRect(x, y, 2, 1); g.fillRect(x + 1, y - 1, 1, 1); }
+      else if (k < 0.82) { g.fillStyle = '#7c8a5c'; g.fillRect(x, y, 1, 1); g.fillRect(x + 2, y, 1, 1); }
+      else { g.fillStyle = '#8a7a58'; g.fillRect(x, y, 1, 1); }
+    }
+    // field boundaries: dry-stone walls drawn as broken ink, never a grid
+    for (let i = 0; i < 26; i++) {
+      const x0 = r() * VW, y0 = r() * VH;
+      let x = x0, y = y0, a = r() * TAU;
+      const segs = 2 + Math.floor(r() * 3);
+      for (let k = 0; k < segs; k++) {
+        const L = 24 + r() * 52;
+        const nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
+        for (let d = 0; d < L; d += 3) {               // broken, the way a wall reads
+          const u = d / L;
+          g.fillStyle = INK2;
+          g.fillRect(Math.round(U.lerp(x, nx, u) + wob(d, k, 0.9, i)), Math.round(U.lerp(y, ny, u) + wob(k, d, 0.9, i + 3)), 2, 1);
+        }
+        x = nx; y = ny; a += (r() - 0.5) * 1.2;
+      }
+    }
+    // ---- forest, drawn tree by tree ---------------------------------------
     const BLOCKS = [[60, 40, 150, 90], [250, 20, 130, 70], [470, 30, 160, 80],
                     [20, 150, 120, 110], [400, 120, 120, 90], [520, 250, 140, 100],
                     [120, 280, 110, 70], [300, 160, 90, 70]];
-    for (const [bx, by, bw, bh] of BLOCKS) {
-      for (let i = 0; i < (bw * bh) / 34; i++) {
-        const x = bx + r() * bw, y = by + r() * bh;
-        const s3 = 5 + r() * 6;
-        Art.ell(g, x + 1, y + 1.6, s3, s3 * 0.84, FOR0);
-        Art.ell(g, x, y, s3, s3 * 0.84, r() < 0.45 ? FOR2 : FOR1);
-        Art.ell(g, x - s3 * 0.3, y - s3 * 0.3, s3 * 0.5, s3 * 0.42, r() < 0.3 ? FOR3 : FOR2);
+    for (let bi = 0; bi < BLOCKS.length; bi++) {
+      const [bx, by, bw, bh] = BLOCKS[bi];
+      // a wobbly ink outline round the wood, the way a surveyor rings one
+      const pts = [];
+      for (let a = 0; a < TAU; a += 0.42) {
+        pts.push([bx + bw / 2 + Math.cos(a) * bw * 0.56, by + bh / 2 + Math.sin(a) * bh * 0.6]);
       }
+      pts.push(pts[0]);
+      inkPath(g, pts, INK2, 1, 1.6, 40 + bi * 13);
+      const n = Math.round((bw * bh) / 420);
+      const trees = [];
+      for (let i = 0; i < n; i++) trees.push([bx + r() * bw, by + r() * bh, 5 + r() * 4]);
+      trees.sort((p, q) => p[1] - q[1]);               // draw back to front
+      for (let i = 0; i < trees.length; i++) mapTree(g, trees[i][0], trees[i][1], trees[i][2], bi * 100 + i);
     }
-    // ---- water: a lake up north and a river down to the sea --------------
-    Art.ell(g, 586, 66, 53, 31, '#6a6858');              // shingle beach
-    for (let i = 0; i < 160; i++) {
-      const a = r() * TAU, k = 0.86 + r() * 0.16;
-      g.fillStyle = r() < 0.5 ? '#87866f' : '#575642';
-      g.fillRect(Math.round(586 + Math.cos(a) * 52 * k), Math.round(66 + Math.sin(a) * 30 * k), 1, 1);
+    // ---- water: an inked shore with hatching inside it ---------------------
+    const lake = (x, y) => { const dx = (x - 586) / 50, dy = (y - 66) / 28; return dx * dx + dy * dy < 1; };
+    for (let y = 36; y < 96; y++) for (let x = 534; x < 640; x++) {
+      if (!lake(x, y)) continue;
+      g.fillStyle = ((x + y) % 7 === 0) ? SEA1 : SEA0;
+      g.fillRect(x, y, 1, 1);
     }
-    Art.ell(g, 586, 66, 50, 28, '#0d2237');
-    Art.ell(g, 586, 66, 48, 26, WATER);
-    Art.ell(g, 583, 64, 40, 20, WATER2);
-    // ripple rows: every third scanline gets broken dashes of the lighter blue
-    for (let y = 44; y < 92; y += 3) {
-      for (let x = 540; x < 634; x += 4) {
-        if (((x + y * 7) % 11) > 5) continue;
-        const dx = (x - 586) / 48, dy = (y - 66) / 26;
-        if (dx * dx + dy * dy > 0.86) continue;
-        g.fillStyle = (y % 6) ? WATER3 : '#8fcfe4';
-        g.fillRect(x, y, 2 + ((x + y) % 2), 1);
+    hatch(g, 534, 36, 639, 96, 5, SEA2, lake, true, 61);
+    for (let a = 0; a < TAU; a += 0.06) {              // the shoreline, inked
+      const x = 586 + Math.cos(a) * 50, y = 66 + Math.sin(a) * 28;
+      g.fillStyle = INK; g.fillRect(Math.round(x + wob(a * 30, 1, 1.5, 21)), Math.round(y + wob(1, a * 30, 1.5, 22)), 1, 1);
+    }
+    for (let i = 0; i < 5; i++) {                      // ripple ticks, drawn in
+      const y = 48 + i * 9;
+      for (let x = 548; x < 626; x += 9) {
+        if (!lake(x, y)) continue;
+        g.fillStyle = SEA2; g.fillRect(x, y, 4, 1); g.fillRect(x + 5, y + 1, 3, 1);
       }
     }
     const river = [[586, 88], [560, 126], [530, 160], [516, 200], [522, 250], [540, 300], [560, 358]];
-    poly(g, river, '#6a6858', 13);                       // its gravel banks
-    poly(g, river, '#0d2237', 11); poly(g, river, WATER, 8); poly(g, river, WATER2, 4);
-    dashed(g, river, WATER3, 1, 3, 4);
-    // ---- the street grid through town ------------------------------------
+    inkPath(g, river, INK, 3, 1.1, 71);                // banks
+    for (let i = 0; i < river.length - 1; i++) {
+      const [x0, y0] = river[i], [x1, y1] = river[i + 1], L = Math.hypot(x1 - x0, y1 - y0);
+      for (let d = 0; d < L; d++) {
+        const u = d / L, x = U.lerp(x0, x1, u), y = U.lerp(y0, y1, u);
+        g.fillStyle = SEA0; g.fillRect(Math.round(x + wob(d, 2, 1, 71)) - 1, Math.round(y), 3, 1);
+        if (d % 6 < 3) { g.fillStyle = SEA1; g.fillRect(Math.round(x + wob(d, 2, 1, 71)), Math.round(y), 1, 1); }
+      }
+    }
+    // ---- the town, drawn as little roofs -----------------------------------
     const T = TOWN;
-    for (let x = T.x0; x <= T.x1; x += T.gx) {
-      poly(g, [[x, T.y0], [x, T.y1]], ST0, 7);
-      poly(g, [[x, T.y0], [x, T.y1]], ST1, 5);
-      poly(g, [[x, T.y0], [x, T.y1]], ST2, 1);
-    }
-    for (let y = T.y0; y <= T.y1; y += T.gy) {
-      poly(g, [[T.x0, y], [T.x1, y]], ST0, 7);
-      poly(g, [[T.x0, y], [T.x1, y]], ST1, 5);
-      poly(g, [[T.x0, y], [T.x1, y]], ST2, 1);
-    }
-    // the blocks between the streets, built up
+    for (let x = T.x0; x <= T.x1; x += T.gx) inkPath(g, [[x, T.y0], [x, T.y1]], INK2, 1, 1.2, x);
+    for (let y = T.y0; y <= T.y1; y += T.gy) inkPath(g, [[T.x0, y], [T.x1, y]], INK2, 1, 1.2, y + 400);
     for (let x = T.x0; x < T.x1; x += T.gx) {
       for (let y = T.y0; y < T.y1; y += T.gy) {
         const n = 2 + Math.floor(r() * 3);
         for (let i = 0; i < n; i++) {
-          const bw = 6 + r() * 9, bh = 5 + r() * 7;
-          const bx = x + 5 + r() * (T.gx - 10 - bw), by = y + 5 + r() * (T.gy - 10 - bh);
-          const X = Math.round(bx), Y = Math.round(by), W2 = Math.round(bw), H2 = Math.round(bh);
-          g.fillStyle = '#2f3428'; g.fillRect(X - 1, Y - 1, W2 + 2, H2 + 2);   // the yard round it
-          g.fillStyle = BLD0; g.fillRect(X, Y + 1, W2, H2);
-          g.fillStyle = r() < 0.4 ? BLD2 : BLD1; g.fillRect(X, Y, W2, H2);
-          for (let ry = 1; ry < H2 - 1; ry += 2) {                             // corrugated roof
-            g.fillStyle = U.shade(r() < 0.4 ? BLD2 : BLD1, -0.18); g.fillRect(X, Y + ry, W2, 1);
-          }
-          g.fillStyle = BLD3; g.fillRect(X, Y, W2, 1);                         // the ridge
-          g.fillStyle = '#171a13'; g.fillRect(X, Y + H2 - 1, W2, 1);           // the eaves shadow
-          if (r() < 0.45) { g.fillStyle = LIT; g.fillRect(X + 1, Y + 2, 1, 1); }
+          const bw = 6 + r() * 6, bh = 4 + r() * 4;
+          const bx = Math.round(x + 5 + r() * (T.gx - 10 - bw)), by = Math.round(y + 5 + r() * (T.gy - 10 - bh));
+          const W2 = Math.round(bw), H2 = Math.round(bh);
+          g.fillStyle = INK2; g.fillRect(bx - 1, by - 1, W2 + 2, H2 + 2);      // the ink round it
+          g.fillStyle = r() < 0.4 ? ROOF : ROOF2; g.fillRect(bx, by, W2, H2);
+          g.fillStyle = '#c47a52'; g.fillRect(bx, by, W2, 1);                  // sun on the ridge
+          for (let k = 2; k < H2; k += 2) { g.fillStyle = 'rgba(46,36,24,0.35)'; g.fillRect(bx, by + k, W2, 1); }
         }
       }
     }
-    // ---- the roads --------------------------------------------------------
-    // The main road through the district is drawn like every other road. It was
-    // a gold motorway band and nobody could tell what it was.
+    // ---- the roads: two inked edges with a pale metalled middle ------------
     for (const p of ROADS.concat([HIGHWAY])) {
-      poly(g, p, RD0, 9);
-      poly(g, p, RD1, 7);
-      poly(g, p, RD2, 3);
-      dashed(g, p, RD3, 1, 3, 5);
+      inkPath(g, p, INK, 5, 1.1, 800);
+      inkPath(g, p, '#e0d2ae', 3, 1.1, 800);
+      for (let i = 0; i < p.length - 1; i++) {         // the centre line, ticked in by hand
+        const [x0, y0] = p[i], [x1, y1] = p[i + 1], L = Math.hypot(x1 - x0, y1 - y0);
+        for (let d = 0; d < L; d += 9) {
+          const u = d / L;
+          g.fillStyle = INK3;
+          g.fillRect(Math.round(U.lerp(x0, x1, u) + wob(d, i, 1, 800)), Math.round(U.lerp(y0, y1, u) + wob(i, d, 1, 809)), 3, 1);
+        }
+      }
     }
-    // ---- farms and sheds strung along the roads --------------------------
+    // farmsteads strung along them, each one a roof with a yard wall
     for (const p of ROADS) {
       for (let i = 1; i < p.length - 1; i++) {
         if (r() < 0.45) continue;
         const sd = r() < 0.5 ? -1 : 1;
-        const bx = p[i][0] + sd * (9 + r() * 10), by = p[i][1] + (r() - 0.5) * 14;
-        const bw = 7 + r() * 6, bh = 6 + r() * 5;
-        g.fillStyle = BLD0; g.fillRect(Math.round(bx), Math.round(by + 1), Math.round(bw), Math.round(bh));
-        g.fillStyle = BLD1; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), Math.round(bh));
-        g.fillStyle = BLD2; g.fillRect(Math.round(bx), Math.round(by), Math.round(bw), 1);
-        if (r() < 0.5) { g.fillStyle = LIT; g.fillRect(Math.round(bx + bw - 2), Math.round(by + 2), 1, 1); }
+        const bx = Math.round(p[i][0] + sd * (10 + r() * 11)), by = Math.round(p[i][1] + (r() - 0.5) * 16);
+        const bw = Math.round(8 + r() * 6), bh = Math.round(6 + r() * 5);
+        g.fillStyle = INK; g.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+        g.fillStyle = r() < 0.5 ? ROOF : ROOF2; g.fillRect(bx, by, bw, bh);
+        g.fillStyle = '#c47a52'; g.fillRect(bx, by, bw, 1);
+        for (let k = 0; k < 10; k++) {                 // the yard wall round it
+          const a = (k / 10) * TAU;
+          g.fillStyle = INK2;
+          g.fillRect(Math.round(bx + bw / 2 + Math.cos(a) * (bw * 0.9 + 4)), Math.round(by + bh / 2 + Math.sin(a) * (bh * 0.9 + 4)), 2, 1);
+        }
       }
     }
-    // ---- the names on it --------------------------------------------------
+    // ---- the names, hand-lettered with a ruled underline -------------------
     for (const [lx, ly, tx2, col] of [
-      [330, 246, 'WOMBAT FLAT', '#9aa88a'], [112, 74, 'FERN GULLY', '#7a8a6e'],
-      [512, 44, 'STILL LAKE', '#6f9ab0'], [248, 128, 'THE SCRUB', '#7a8a6e'],
-      [560, 292, 'BLACKWOOD', '#7a8a6e'], [128, 320, 'STONE FLAT', '#7a8a6e'],
-      [452, 340, 'THE FLATS', '#7a8a6e']]) {
-      Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center', shadow: 'rgba(4,8,4,0.95)' });
+      [330, 246, 'WOMBAT FLAT', '#3a2c1c'], [112, 74, 'FERN GULLY', '#46351f'],
+      [512, 44, 'STILL LAKE', '#2d4a52'], [248, 128, 'THE SCRUB', '#46351f'],
+      [560, 292, 'BLACKWOOD', '#46351f'], [128, 320, 'STONE FLAT', '#46351f'],
+      [452, 340, 'THE FLATS', '#46351f']]) {
+      const w = Font.width(tx2, 1);
+      const oa = g.globalAlpha; g.globalAlpha = 0.5;
+      Art.rect(g, lx - w / 2 - 4, ly - 3, w + 8, 12, '#e4d6b2');      // paper cleared behind it
+      g.globalAlpha = oa;
+      Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center' });
+      ink(g, lx - w / 2, ly + 9, lx + w / 2, ly + 9, col, 1, 0.8, lx);
+    }
+    // ---- the chrome a drawn map wears -------------------------------------
+    // a compass, as a four-point star cut with a diamond rose. No circles.
+    const cx2 = 52, cy2 = 86;
+    for (let k = 0; k < 4; k++) {
+      const a = (k / 4) * TAU - Math.PI / 2, b2 = a + Math.PI / 4;
+      Art.poly(g, [[cx2 + Math.cos(a) * 26, cy2 + Math.sin(a) * 26],
+                   [cx2 + Math.cos(b2) * 8, cy2 + Math.sin(b2) * 8],
+                   [cx2 + Math.cos(a + Math.PI / 2) * 26, cy2 + Math.sin(a + Math.PI / 2) * 26],
+                   [cx2, cy2]], k % 2 ? INK2 : '#e0d2ae');
+    }
+    inkPath(g, [[cx2, cy2 - 30], [cx2 - 6, cy2 - 18], [cx2 + 6, cy2 - 18], [cx2, cy2 - 30]], INK, 1, 0.6, 5);
+    Art.poly(g, [[cx2, cy2 - 29], [cx2 - 4, cy2 - 19], [cx2 + 4, cy2 - 19]], '#a8402c');
+    Font.draw(g, 'N', cx2, cy2 - 42, { scale: 1, color: INK, align: 'center' });
+    // a ruled border with a torn inner edge
+    for (let i = 0; i < 2; i++) {
+      const m = 4 + i * 4;
+      inkPath(g, [[m, m], [VW - m, m], [VW - m, VH - m], [m, VH - m], [m, m]], i ? INK2 : INK, 1, 0.9, 900 + i * 7);
     }
     sheet = c;
     return c;

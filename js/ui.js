@@ -100,7 +100,7 @@ const UI = (() => {
              ${ic(off.icon, 'sm')} feeds for <b>${off.name}</b>`;
         return { icon: c.icon, on, n, out: n === 0, magic: !!c.magic, tip,
           act: () => {
-            if (!n) { Audio.play('error'); toast(food ? 'grow it first' : 'buy seed at the mart or the greenhouse', 'bad'); return; }
+            if (!n) { Audio.play('error'); toast(food ? 'grow it first' : "buy seed at Groot's cellar", 'bad'); return; }
             if (food) G.selFood = c.key; else G.selSeed = c.key;
             Audio.play('click'); closeWheel(); refreshHUD();
           } };

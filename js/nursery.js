@@ -1,8 +1,8 @@
-// ---- Groot's Greenhouse ----------------------------------------------------
-// A glass dome full of plants, most of them legal. Groot walks the aisle,
-// tells you about whatever you are standing next to, and sells seed over a
-// potting bench. Everything here is grown, so the stock is the crop list plus
-// the five things at the back that should not really be in a garden.
+// ---- Groot's Cellar --------------------------------------------------------
+// A brick barrel vault under the town, lit by caged lamps and taken over by
+// the vines that got in through the mortar. Groot walks the aisle and sells
+// seed, garden tools and the odd piece of garden furniture over a potting
+// bench. He only ever says one thing, so watch his face.
 const Nursery = (() => {
   let G = null;
   const VW = 640, VH = 360;
@@ -14,50 +14,83 @@ const Nursery = (() => {
 
   // Groot walks a beat, stops, says something about what he is standing by
   const groot = { x: 300, tx: 300, dir: 1, pose: 'idle', t: 0, poseT: 0, say: 0, line: 0, hop: 0 };
+  // He has one line. Everything he means is in the face and the punctuation,
+  // so each entry pairs a reading of "I am Groot" with the mood that sells it.
   const LINES = [
-    'I am Groot. That means welcome, by the way.',
-    'Mandrake screams. Ear plugs are behind the till.',
-    'Moonbell only opens at night. Plant it where it can see the sky.',
-    'Do not put your fingers near the snapjaw. I am serious.',
-    'Emberleaf is warm to hold. It likes a dry bed.',
-    'Whisperfern repeats what you say. Mind what you say.',
-    'Water it. Everything. Water is the whole of the job.',
-    'That one is my cousin. Distantly.',
-    'A wombat will eat any of these. That is not my problem.',
-    'Sunroot is the one to start with. Cheap and forgiving.',
-    'Goldwheat pays best, but it is slow. Like me.',
-    'The dome keeps the frost off. It does not keep the possums off.',
-    'I grew the bench. Out of my own arm. Long story.',
-    'Take a cutting if you like. Not from me.',
-    'Runeberry glows. Do not look at it for too long.',
-    'The soil here is mostly composted wombat. It works.',
-    'Every plant in here wants something. Most of it is water.',
-    'I am Groot. That one means good luck.',
+    { say: 'I am Groot.', mood: 'talk' },
+    { say: 'I AM GROOT!', mood: 'laugh' },
+    { say: 'I am Groot?', mood: 'curious' },
+    { say: 'I... am Groot.', mood: 'sad' },
+    { say: 'I am Groot!!', mood: 'happy' },
+    { say: 'I am. Groot.', mood: 'proud' },
+    { say: 'i am groot', mood: 'sleepy' },
+    { say: 'I AM GROOT.', mood: 'cross' },
+    { say: 'I am Groot...', mood: 'worry' },
+    { say: 'I am Groot!', mood: 'wave' },
+    { say: 'I - am - Groot.', mood: 'point' },
+    { say: 'I am groot?!', mood: 'worry' },
+    { say: 'I am Groot :)', mood: 'happy' },
+    { say: 'I AM GROOT?!', mood: 'curious' },
+    { say: 'I am Groot~', mood: 'proud' },
   ];
+  // What he says when something specific happens. Same words, chosen mood.
+  const WELCOME = { say: 'I am Groot!', mood: 'wave' };
+  const PICKED  = { say: 'I am Groot!', mood: 'happy' };
+  const BROKE   = { say: 'I am Groot...', mood: 'sad' };
+  const PAID    = { say: 'I AM GROOT!', mood: 'laugh' };
+  const NOSTOCK = { say: 'I am Groot?', mood: 'worry' };
 
   // ---- stock ---------------------------------------------------------------
   function catalogue() {
-    return CROPS.filter((c) => !c.god || G.blessings[c.god]).map((c) => ({
-      id: 'seed:' + c.key, key: c.key, def: c,
-      name: c.name, price: c.seed, magic: !!c.magic,
+    const out = CROPS.filter((c) => !c.god || G.blessings[c.god]).map((c) => ({
+      id: 'seed:' + c.key, kind: 'seed', key: c.key, def: c,
+      name: c.name, price: c.seed, magic: !!c.magic, icon: c.icon,
       locked: !!(c.god && !G.blessings[c.god]),
+      blurb: `6 seeds a packet · grows in ${c.grow}s`,
     }));
+    // the garden half of the shop: the tools you work a bed with, a trough,
+    // and the two pieces of garden furniture the mart no longer carries
+    for (const key of Object.keys(TIERS)) {
+      const nxt = nextTier(G, key), cur = tierOf(G, key);
+      out.push({
+        id: 'tier:' + key, kind: 'tier', key, name: nxt ? nxt.name : cur.name,
+        price: nxt ? nxt.cost : 0, icon: { sickle: 't_sickle', hoe: 't_hoe', water: 't_water' }[key],
+        sold: !nxt, blurb: nxt ? `rank ${tierIndex(G, key) + 2} · ${nxt.desc || 'sharper'}` : 'best there is',
+      });
+    }
+    for (const u of UPGRADES) {
+      if (!GARDEN_UP[u.key]) continue;
+      const l = G.up[u.key] || 0;
+      out.push({ id: 'up:' + u.key, kind: 'up', key: u.key, name: u.name, icon: u.icon,
+        price: Math.round(u.base * Math.pow(u.mult, l)), sold: l >= u.max, blurb: `${l}/${u.max} · ${u.desc(l)}` });
+    }
+    for (const d of DECOR) {
+      if (!GARDEN_DEC[d.key]) continue;
+      out.push({ id: 'dec:' + d.key, kind: 'dec', key: d.key, name: d.name, icon: d.icon,
+        price: d.cost, sold: !!G.decor[d.key], blurb: d.desc });
+    }
+    return out;
   }
   const BAY_W = 150;
+  let bays = [];
   function layout() {
     const list = catalogue();
     slots = [];
-    const plain = list.filter((p) => !p.magic), magic = list.filter((p) => p.magic);
+    const plain = list.filter((p) => p.kind === 'seed' && !p.magic);
+    const magic = list.filter((p) => p.kind === 'seed' && p.magic);
+    const goods = list.filter((p) => p.kind !== 'seed');
     let x = 190;
-    const place = (arr, kind) => {
-      for (const p of arr) {
-        slots.push({ p, x, y: BENCH, kind });
-        x += 96;
-      }
-      x += 70;
+    bays = [];
+    const place = (arr, kind, label) => {
+      if (!arr.length) return;
+      const x0 = x;
+      for (const p of arr) { slots.push({ p, x, y: BENCH, kind }); x += 96; }
+      bays.push({ label, x0: x0 - 52, x1: x - 44, kind });
+      x += 74;
     };
-    place(plain, 'bench');
-    place(magic, 'vault');
+    place(plain, 'bench', 'SEED');
+    place(magic, 'vault', 'THE BACK SHELF');
+    place(goods, 'goods', 'GARDEN GOODS');
     worldW = Math.max(VW + 200, x + 260);
   }
 
@@ -74,10 +107,12 @@ const Nursery = (() => {
   }
   function add(p) {
     if (p.locked) { Audio.play('error'); UI.toast('a god must bless it', 'bad'); return; }
+    if (p.sold) { Audio.play('error'); UI.toast('he has none left', 'bad'); grootSay(NOSTOCK); return; }
+    if (p.kind !== 'seed' && countOf(p.id) >= 1) { Audio.play('error'); return; }
     basket.push(p.id);
     Audio.play('place');
     FX.comic(320, 120, 'x' + countOf(p.id), { ink: '#c9f58a', edge: '#2f8f42', life: 0.5 });
-    grootSay(`${p.name}. Good choice.`, 'talk');
+    grootSay(PICKED);
     UI.refreshBasket();
   }
   function removeOne(id) { const i = basket.lastIndexOf(id); if (i >= 0) basket.splice(i, 1); UI.refreshBasket(); }
@@ -87,26 +122,30 @@ const Nursery = (() => {
   function checkout() {
     const cost = total();
     if (!basket.length) return;
-    if (G.wd < cost) { Audio.play('error'); UI.toast('not enough', 'bad'); grootSay('Come back when you can. I will keep it.', 'talk'); return; }
+    if (G.wd < cost) { Audio.play('error'); UI.toast('not enough', 'bad'); grootSay(BROKE); return; }
     G.wd -= cost;
     for (const id of basket) {
       const p = catalogue().find((x) => x.id === id);
-      if (p) G.seeds[p.key] = (G.seeds[p.key] || 0) + 6;
+      if (!p) continue;
+      if (p.kind === 'seed') G.seeds[p.key] = (G.seeds[p.key] || 0) + 6;
+      else if (p.kind === 'tier') { if (nextTier(G, p.key)) G.tiers[p.key] = tierIndex(G, p.key) + 1; }
+      else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
+      else if (p.kind === 'dec') G.decor[p.key] = 1;
     }
     const n = basket.length;
     basket.length = 0;
     Audio.play('till'); Audio.play('chime');
     FX.confettiBurst(VW / 2, 140, 60);
     UI.toast(`${n} packet${n > 1 ? 's' : ''} of seed`, 'good');
-    grootSay('Water it the day you sow it. Every time.', 'wave');
+    grootSay(PAID);
     UI.refreshTray(); UI.refreshHUD(); UI.refreshBasket();
     Main.save();
   }
 
   // ---- Groot's patter ------------------------------------------------------
-  function grootSay(text, pose) {
-    groot.text = text; groot.say = 4.2;
-    groot.pose = pose || 'talk'; groot.poseT = 2.6;
+  function grootSay(line) {
+    groot.text = line.say; groot.say = 3.4;
+    groot.pose = line.mood || 'talk'; groot.poseT = 2.4;
   }
   function grootTick(dt) {
     groot.t += dt;
@@ -128,7 +167,7 @@ const Nursery = (() => {
           groot.tx = s ? U.clamp(s.x + U.rand(-30, 30), 120, worldW - 160) : U.rand(160, worldW - 200);
           if (groot.say <= 0 && Math.random() < 0.7) {
             groot.line = (groot.line + 1 + Math.floor(Math.random() * 3)) % LINES.length;
-            grootSay(LINES[groot.line], 'talk');
+            grootSay(LINES[groot.line]);
           }
         }
       }
@@ -140,7 +179,7 @@ const Nursery = (() => {
     layout();
     scroll = 0; tscroll = 0; hover = null; basket.length = 0; t = 0;
     groot.x = 300; groot.tx = 340; groot.wait = 1.2;
-    grootSay('I am Groot. That means welcome, by the way.', 'wave');
+    grootSay(WELCOME);
     if (!motes.length) { const r = Art.rng(31); for (let i = 0; i < 40; i++) motes.push({ x: r() * VW, y: r() * VH, ph: r() * TAU, s: 0.4 + r() * 0.9 }); }
     if (!drips.length) { const r = Art.rng(77); for (let i = 0; i < 26; i++) drips.push({ x: r() * worldW, t: r() * 4, sp: 1.6 + r() * 2 }); }
     Audio.setMode('pen');
@@ -181,7 +220,7 @@ const Nursery = (() => {
     if (overGroot(x) && y > 150) {
       if (basket.length) { UI.openBasket(); Audio.play('click'); return; }
       groot.line = (groot.line + 1) % LINES.length;
-      grootSay(LINES[groot.line], 'talk');
+      grootSay(LINES[groot.line]);
       Audio.play('click');
       return;
     }
@@ -189,64 +228,64 @@ const Nursery = (() => {
   function hoverAt(x, y) {
     const s = slotAt(x, y);
     hover = s;
-    if (overGroot(x) && y > 150) return `<b>Groot</b> <span class="dim">grows everything here</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'click him and he will tell you something'}`;
+    if (overGroot(x) && y > 150) return `<b>Groot</b> <span class="dim">he grows all of it</span><br>${basket.length ? 'click to pay ' + total() + ' W$' : 'he only says the one thing'}`;
     if (!s) return null;
-    const c = s.p.def;
-    return `<b>${c.name}</b>${s.p.magic ? ' <span class="warn">magical</span>' : ''}<br>6 seeds a packet<br>${Icons.img('wdollar', 'sm')} ${U.fmt(s.p.price)}<br><span class="dim">grows in ${c.grow}s &middot; feeds for ${OFFERINGS[c.offering].name}</span>`;
+    const p = s.p;
+    if (p.kind === 'seed') {
+      const c = p.def;
+      return `<b>${c.name}</b>${p.magic ? ' <span class="warn">magical</span>' : ''}<br>6 seeds a packet<br>${Icons.img('wdollar', 'sm')} ${U.fmt(p.price)}<br><span class="dim">grows in ${c.grow}s &middot; feeds for ${OFFERINGS[c.offering].name}</span>`;
+    }
+    return `<b>${p.name}</b>${p.sold ? ' <span class="dim">— sold out</span>' : ''}<br>${Icons.img('wdollar', 'sm')} ${U.fmt(p.price)}<br><span class="dim">${p.blurb || ''}</span>`;
   }
   function wheel(dy) { tscroll = U.clamp(tscroll + dy, 0, worldW - VW); }
 
-  // ---- the dome ------------------------------------------------------------
+  // ---- the cellar ----------------------------------------------------------
   function render(g) {
     const S = scroll;
-    // ---- sky through the glass --------------------------------------------
-    Art.vramp(g, 0, 0, VW, FLOOR, [[0, '#1c2f3e'], [0.5, '#2b4a52'], [1, '#3d5f4a']], 10);
-    // the forest outside, seen through it
-    for (let i = 0; i < 12; i++) {
-      const x = ((i * 92 - S * 0.12) % (VW + 200) + VW + 200) % (VW + 200) - 100;
-      const img = Props.get('tree', `${['oak', 'pine', 'gnarl'][i % 3]}|${i % 4}|0.74`);
-      const sc = 0.55 + (i % 3) * 0.1;
-      g.globalAlpha = 0.5;
-      g.drawImage(img, x, 158 - img.height * sc, img.width * sc, img.height * sc);
-      g.globalAlpha = 1;
-    }
-    // ---- the dome's ribs ---------------------------------------------------
-    drawDome(g, S);
-    // ---- the floor ---------------------------------------------------------
-    g.fillStyle = '#4a3a2a'; g.fillRect(0, FLOOR, VW, VH - FLOOR);
+    drawVault(g, S);                       // the brick barrel roof over everything
+    drawWall(g, S);                        // the back wall, brick and vine
+    // ---- the floor: old brick pavers, worn down the middle ----------------
+    g.fillStyle = '#3a2c1e'; g.fillRect(0, FLOOR, VW, VH - FLOOR);
     Tex.fill(g, 'stoned', -S % 64, FLOOR, VW + 64, VH - FLOOR, 0.5);
-    for (let i = -1; i < 20; i++) {                       // brick pavers
-      const x = Math.round(i * 46 - (S % 92));
-      g.fillStyle = '#6a4a30'; g.fillRect(x, FLOOR, 44, 14);
-      g.fillStyle = '#8a6440'; g.fillRect(x, FLOOR, 44, 3);
-      g.fillStyle = '#5a3d26'; g.fillRect(x + 23, FLOOR + 14, 44, 14);
-      g.fillStyle = '#7a5836'; g.fillRect(x + 23, FLOOR + 14, 44, 3);
-      g.fillStyle = '#3a2a1c'; g.fillRect(x, FLOOR + 28, 44, 14);
+    for (let row = 0; row < 3; row++) {
+      const y = FLOOR + row * 14, off = row % 2 ? 23 : 0;
+      for (let i = -1; i < 20; i++) {
+        const x = Math.round(i * 46 - (S % 92) + off);
+        const k = (i * 7 + row * 3) % 5;
+        g.fillStyle = ['#5e422c', '#6a4a30', '#523a26', '#644430', '#583e28'][k];
+        g.fillRect(x, y, 44, 13);
+        g.fillStyle = U.shade(g.fillStyle, 0.12); g.fillRect(x, y, 44, 2);
+        g.fillStyle = '#2c2016'; g.fillRect(x + 44, y, 2, 13); g.fillRect(x, y + 13, 46, 1);
+        for (let q = 0; q < 6; q++) {      // chipped and stained
+          g.fillStyle = (i + q) % 2 ? '#4a3524' : '#6e5038';
+          g.fillRect(x + ((q * 13 + i * 5) % 40), y + ((q * 5 + i) % 11), 2, 1);
+        }
+      }
     }
-    g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(0, FLOOR, VW, 3);
-    // a runnel of water down the middle of the floor
+    g.fillStyle = 'rgba(0,0,0,0.42)'; g.fillRect(0, FLOOR, VW, 3);
+    // the drainage runnel cut down the middle of it
+    g.fillStyle = '#241a12'; g.fillRect(0, FLOOR + 28, VW, 11);
     g.fillStyle = '#2e5a66'; g.fillRect(0, FLOOR + 30, VW, 8);
     g.fillStyle = '#4b8fa0'; g.fillRect(0, FLOOR + 30, VW, 3);
     for (let i = 0; i < 20; i++) {
       const x = ((i * 44 - t * 26) % (VW + 60) + VW + 60) % (VW + 60) - 30;
       g.fillStyle = 'rgba(190,232,240,0.35)'; g.fillRect(x, FLOOR + 32, 14, 1);
     }
-    // ---- the benches and what is on them -----------------------------------
-    {                                      // the back wall, glazed and running with damp
-      const wr = Art.rng(9031);
-      for (let x = -((S * 0.9) % 34) - 34; x < VW + 34; x += 34) {
-        Art.rect(g, x, BEAM, 2, FLOOR - BEAM, '#2f4a40');       // glazing bars
-        Art.rect(g, x + 2, BEAM, 1, FLOOR - BEAM, '#5c7d6c');
-      }
-      for (let y = BEAM + 26; y < FLOOR; y += 38) Art.rect(g, 0, y, VW, 1, '#2f4a40');
-      const oa = g.globalAlpha; g.globalAlpha = 0.5;
-      for (let i = 0; i < 150; i++) {                            // condensation runs
-        const x = Math.round(wr() * VW), y = BEAM + Math.round(wr() * (FLOOR - BEAM));
-        Art.rect(g, x, y, 1, 2 + Math.round(wr() * 8), wr() < 0.5 ? '#7fa894' : '#26413a');
-      }
-      g.globalAlpha = oa;
-    }
     drawBeds(g, S);
+    // a painted board over each bay, hung off the string course on two chains
+    for (const b of bays) {
+      const cx = (b.x0 + b.x1) / 2 - S;
+      const w = Math.max(96, Font.width(b.label, 1) + 34);
+      if (cx < -w || cx > VW + w) continue;
+      const y = BEAM + 14;
+      g.fillStyle = '#2a2018'; g.fillRect(Math.round(cx - w / 2 + 8), BEAM + 2, 2, 12);
+      g.fillStyle = '#2a2018'; g.fillRect(Math.round(cx + w / 2 - 10), BEAM + 2, 2, 12);
+      Art.rect(g, cx - w / 2, y, w, 18, '#1d140c');
+      Art.rect(g, cx - w / 2 + 2, y + 2, w - 4, 14, b.kind === 'vault' ? '#3a2450' : b.kind === 'goods' ? '#2f4460' : '#26401f');
+      Art.rect(g, cx - w / 2 + 2, y + 2, w - 4, 2, 'rgba(255,255,255,0.18)');
+      Art.rect(g, cx - w / 2 + 2, y + 14, w - 4, 2, 'rgba(0,0,0,0.4)');
+      Font.draw(g, b.label, cx, y + 6, { scale: 1, color: '#e8dcbc', align: 'center', shadow: '#0e0a06' });
+    }
     for (const s of slots) {
       const x = s.x - S;
       if (x < -80 || x > VW + 80) continue;
@@ -258,15 +297,16 @@ const Nursery = (() => {
     for (const m of motes) {
       const mx = (m.x + Math.sin(t * 0.3 + m.ph) * 22) % VW;
       const my = (m.y - t * 6 * m.s) % VH;
-      g.fillStyle = `rgba(226,240,190,${(0.16 + 0.16 * Math.sin(t * 2 + m.ph)).toFixed(2)})`;
+      g.fillStyle = `rgba(255,222,160,${(0.14 + 0.16 * Math.sin(t * 2 + m.ph)).toFixed(2)})`;
       g.fillRect(Math.round(mx), Math.round((my + VH) % VH), 2, 2);
     }
-    // glass is warm in here: one pass of light down through the ribs
-    {                                      // sunlight down through the ribs, in flat steps
+    // it is a cellar, so the grade is cold and comes up from the floor
+    {
       const oa = g.globalAlpha;
-      for (let i = 0; i < 7; i++) { g.globalAlpha = oa * 0.16 * (1 - i / 7); Art.rect(g, 0, (FLOOR / 7) * i, VW, FLOOR / 7 + 1, '#e2f0aa'); }
+      for (let i = 0; i < 7; i++) { g.globalAlpha = oa * 0.13 * (i / 7); Art.rect(g, 0, (VH / 7) * i, VW, VH / 7 + 1, '#1d2a22'); }
       g.globalAlpha = oa;
     }
+    Art.vignette(g, VW, VH, '#0a0704', 0.62, 2.4, 0.3);
     if (tscroll < 24 && t < 7) {
       const a = 0.4 + 0.4 * Math.sin(t * 4);
       g.globalAlpha = a;
@@ -281,94 +321,175 @@ const Nursery = (() => {
   }
 
   const BEAM = 166;
-  function drawDome(g, S) {
-    // Everything above the ring beam is roof, and it is clipped so the glazing
-    // bars cannot run down over the shop.
-    g.save();
-    g.beginPath(); g.rect(0, 0, VW, BEAM); g.clip();
-    // the glass itself, tinted and lit from above
-    {                                      // the glass tint, in flat steps
-      const oa = g.globalAlpha;
-      for (let i = 0; i < 6; i++) { g.globalAlpha = oa * (0.28 - i * 0.04); Art.rect(g, 0, (BEAM / 6) * i, VW, BEAM / 6 + 1, '#bee2d2'); }
-      g.globalAlpha = oa;
+  // A brick barrel vault, not a glass dome. Courses of brick curving up into
+  // the dark, iron ties across them, one row of grated lights, and vines that
+  // have got in through the cracks and taken the place over.
+  const BR = ['#5a3a28', '#6a442e', '#4e3222', '#63402c', '#553828', '#704a32'];
+  const MORT = '#2a1c14';
+  const VINE0 = '#1f3a1c', VINE1 = '#2f5a26', VINE2 = '#478a34', VINE3 = '#6fb851';
+  function brickRow(g, x0, y, w, h, off, seed, dark) {
+    const bw = 30;
+    for (let x = x0 - bw; x < x0 + w + bw; x += bw) {
+      const bx = Math.round(x + off);
+      const k = Math.abs(Math.round((bx * 31 + y * 17 + seed) / 7)) % BR.length;
+      let col = BR[k];
+      if (dark) col = U.shade(col, -dark);
+      g.fillStyle = col; g.fillRect(bx, y, bw - 2, h - 1);
+      g.fillStyle = U.shade(col, 0.1); g.fillRect(bx, y, bw - 2, 1);
+      g.fillStyle = U.shade(col, -0.22); g.fillRect(bx, y + h - 2, bw - 2, 1);
+      g.fillStyle = MORT; g.fillRect(bx + bw - 2, y, 2, h); g.fillRect(bx, y + h - 1, bw, 1);
     }
-    // glazing bars, converging on an apex off the top of the frame
-    const apexX = VW / 2, apexY = -150;
-    for (let i = 0; i <= 7; i++) {
-      const bx = -60 + i * ((VW + 120) / 7);
-      Art.line(g, bx, BEAM, U.lerp(bx, apexX, 0.9), apexY + 40, '#3a4634', 3);
-      Art.line(g, bx + 2, BEAM, U.lerp(bx, apexX, 0.9) + 2, apexY + 40, '#96a88c', 1);
-    }
-    // purlins: three shallow arcs across them
-    for (let r = 0; r < 2; r++) {
-      const y = 44 + r * 62;
-      Art.curve(g, -20, y + 14, VW / 2, y - 24, VW + 20, y + 14, '#3a4634', 3, 16);
-      Art.curve(g, -20, y + 11, VW / 2, y - 27, VW + 20, y + 11, '#96a88c', 1, 16);
-    }
-    // birds in the rafters, which is a problem Groot has given up on
-    for (let i = 0; i < 4; i++) {
-      const bx2 = ((i * 190 - S * 0.1 - t * 9) % (VW + 200) + VW + 200) % (VW + 200) - 100;
-      const by2 = 42 + Math.sin(t * 0.8 + i * 2) * 14 + i * 9;
-      const flap = Math.sin(t * 9 + i) * 2.6;
-      g.fillStyle = 'rgba(30,40,30,0.7)';
-      g.fillRect(Math.round(bx2), Math.round(by2), 3, 2);
-      g.fillRect(Math.round(bx2) - 4, Math.round(by2 - flap), 4, 1.4);
-      g.fillRect(Math.round(bx2) + 3, Math.round(by2 - flap), 4, 1.4);
-    }
-    // condensation, running down the inside of it
-    for (const d of drips) {
-      const xx = ((d.x - S * 0.4) % worldW + worldW) % worldW;
-      if (xx > VW + 20) continue;
-      const y = 20 + (d.t / 6) * 170;
-      g.fillStyle = 'rgba(214,240,246,0.4)'; g.fillRect(Math.round(xx), Math.round(y), 2, 6);
-      g.fillStyle = 'rgba(255,255,255,0.55)'; g.fillRect(Math.round(xx), Math.round(y), 1, 2);
-    }
-    g.restore();
-    // ---- the ring beam, and what hangs off it ------------------------------
-    g.fillStyle = '#2e382a'; g.fillRect(0, BEAM, VW, 11);
-    g.fillStyle = '#5c6a54'; g.fillRect(0, BEAM, VW, 4);
-    g.fillStyle = '#8d9c80'; g.fillRect(0, BEAM, VW, 1.4);
-    g.fillStyle = '#1d251a'; g.fillRect(0, BEAM + 9, VW, 3);
-    // grow lamps on chains, pooling light on the bench below
-    for (let i = 0; i < 8; i++) {
-      const x = Math.round(((i * 152 - S * 0.75) % (VW + 304) + VW + 304) % (VW + 304) - 152);
-      if (x < -70 || x > VW + 70) continue;
-      g.fillStyle = '#3a4434'; g.fillRect(x - 1, BEAM + 10, 2, 16);
-      Art.poly(g, [[x - 17, BEAM + 40], [x + 17, BEAM + 40], [x + 9, BEAM + 26], [x - 9, BEAM + 26]], '#3f4a3a');
-      Art.poly(g, [[x - 15, BEAM + 39], [x + 15, BEAM + 39], [x + 8, BEAM + 27], [x - 8, BEAM + 27]], '#6f7f66');
-      Art.ell(g, x, BEAM + 40, 13, 3.4, '#ffe9a8');
-      {                                    // a cone of light, not a halo
-        const oa = g.globalAlpha;
-        for (let k = 5; k >= 1; k--) {
-          const r2 = k / 5;
-          g.globalAlpha = oa * 0.07 * (1 - (k - 1) / 5.2);
-          Art.poly(g, [[x - 13, BEAM + 41], [x + 13, BEAM + 41],
-                       [x + 13 + 30 * r2, BEAM + 41 + 96 * r2], [x - 13 - 30 * r2, BEAM + 41 + 96 * r2]], '#ffe9a8');
-        }
-        g.globalAlpha = oa;
+  }
+  // a vine: a pixel stem that wanders, with leaves paired off it
+  function vine(g, x, y0, y1, seed, lean) {
+    const r = Art.rng(seed);
+    let x2 = x;
+    for (let y = y0; y < y1; y++) {
+      x2 += (r() - 0.5) * 0.9 + lean * 0.06;
+      const ix = Math.round(x2);
+      g.fillStyle = VINE0; g.fillRect(ix, y, 3, 1);
+      g.fillStyle = VINE1; g.fillRect(ix, y, 2, 1);
+      if ((y - y0) % 9 === 0) {
+        const sd = ((y - y0) / 9) % 2 ? 1 : -1;
+        const lw = 4 + Math.round(r() * 4);
+        Art.ell(g, ix + sd * (lw - 1), y + 1, lw, 2.6, VINE0);
+        Art.ell(g, ix + sd * (lw - 1), y, lw - 1, 2, r() < 0.4 ? VINE3 : VINE2);
+        Art.rect(g, ix + sd * 2, y, sd > 0 ? lw - 2 : -(lw - 2), 1, VINE1);
       }
-    }
-    // hanging baskets, behind everything on the bench
-    for (let i = 0; i < 9; i++) {
-      const x = Math.round(((i * 128 - S * 0.55) % (VW + 256) + VW + 256) % (VW + 256) - 128);
-      if (x < -60 || x > VW + 60) continue;
-      const sway = Math.sin(t * 1.1 + i) * 2.4;
-      g.fillStyle = '#4a4438'; g.fillRect(x - 10 + sway * 0.4, BEAM + 10, 1.6, 16); g.fillRect(x + 9 + sway * 0.4, BEAM + 10, 1.6, 16);
-      const bx = x + sway;
-      Art.ell(g, bx, BEAM + 30, 15, 6, '#3a2a1a');
-      Art.ell(g, bx, BEAM + 29, 13.4, 5.2, '#6a4a30');
-      Art.ellBand(g, bx, BEAM + 30, 14, 7, '#8a6440', 0.54, 0.94);
-      for (let k = 0; k < 7; k++) {
-        const a2 = -0.2 + (k / 6) * 3.5;
-        const px = bx + Math.cos(a2) * 12, py = BEAM + 32 + Math.abs(Math.sin(a2)) * 3;
-        const L = 7 + ((k * 7 + i * 3) % 11);
-        Art.limb(g, px, py, px + Math.sin(t * 0.9 + k) * 2, py + L, 2, 1, '#2f6b34');
-        Art.ell(g, px + Math.sin(t * 0.9 + k) * 2, py + L, 2.6, 2, '#4f9a42');
-        if ((k + i) % 3 === 0) Art.ell(g, px + Math.sin(t * 0.9 + k) * 2, py + L + 2, 2, 2, ['#e8768f', '#f0c04a', '#c98ad8'][(k + i) % 3]);
+      if ((y - y0) % 31 === 14) {           // the odd flower
+        const col = ['#e8768f', '#f0c04a', '#c98ad8'][Math.floor(r() * 3)];
+        Art.ell(g, ix + 1, y, 2.2, 2.2, col);
+        Art.ell(g, ix + 1, y, 1, 1, '#fff2c4');
       }
     }
   }
-
+  function drawVault(g, S) {
+    g.save();
+    g.beginPath(); g.rect(0, 0, VW, BEAM); g.clip();
+    g.fillStyle = '#150f0a'; g.fillRect(0, 0, VW, BEAM);
+    // courses of brick springing off the string course and curving into the
+    // dark. Each one is set in further than the last, so the arch is read off
+    // the stepped edge the way a bricklayer would actually build it.
+    const NC = 15;
+    for (let i = 0; i < NC; i++) {
+      const y = BEAM - 11 - i * 11;
+      const k = i / (NC - 1);
+      const inset = Math.round((1 - Math.sqrt(Math.max(0, 1 - k * k))) * 330);
+      if (inset > VW / 2 - 20) break;
+      brickRow(g, inset, y, VW - inset * 2, 11, -((S * (0.5 + k * 0.4)) % 30), i * 131, 0.08 + k * 0.52);
+      g.fillStyle = 'rgba(0,0,0,0.26)'; g.fillRect(inset, y, VW - inset * 2, 1);
+      g.fillStyle = '#120c08';                    // the shadowed reveal at each end
+      g.fillRect(inset - 3, y, 3, 11); g.fillRect(VW - inset, y, 3, 11);
+    }
+    // iron ties across the vault
+    for (let i = 0; i < 4; i++) {
+      const x = Math.round(((i * 190 - S * 0.6) % (VW + 380) + VW + 380) % (VW + 380) - 190);
+      Art.poly(g, [[x - 4, BEAM], [x + 4, BEAM], [x + 40, 18], [x + 32, 18]], '#241a14');
+      Art.poly(g, [[x - 2, BEAM], [x + 2, BEAM], [x + 38, 18], [x + 34, 18]], '#4a4038');
+      for (let k = 0; k < 5; k++) Art.ell(g, x + 6 + k * 7, BEAM - 12 - k * 26, 2, 2, '#6a5c50');
+    }
+    // caged lights hung off the crown
+    for (let i = 0; i < 6; i++) {
+      const x = Math.round(((i * 152 - S * 0.75) % (VW + 304) + VW + 304) % (VW + 304) - 152);
+      if (x < -60 || x > VW + 60) continue;
+      g.fillStyle = '#241a14'; g.fillRect(x - 1, 0, 2, 32);
+      Art.poly(g, [[x - 13, 50], [x + 13, 50], [x + 7, 32], [x - 7, 32]], '#241a14');
+      Art.poly(g, [[x - 11, 49], [x + 11, 49], [x + 6, 34], [x - 6, 34]], '#5a4e42');
+      Art.ell(g, x, 50, 9, 3, '#ffe9a8');
+      for (let k = -2; k <= 2; k++) Art.limb(g, x + k * 4.4, 36, x + k * 5.4, 52, 1, 1, '#2a201a');
+      const oa = g.globalAlpha;
+      for (let q = 5; q >= 1; q--) {        // a cone of light, not a halo
+        const r2 = q / 5;
+        g.globalAlpha = oa * 0.08 * (1 - (q - 1) / 5.2);
+        Art.poly(g, [[x - 9, 51], [x + 9, 51], [x + 9 + 40 * r2, 51 + 150 * r2], [x - 9 - 40 * r2, 51 + 150 * r2]], '#ffe9a8');
+      }
+      g.globalAlpha = oa;
+    }
+    // baskets hung off the ties, which is where the stock overflows to
+    for (let i = 0; i < 7; i++) {
+      const x = Math.round(((i * 128 - S * 0.62) % (VW + 256) + VW + 256) % (VW + 256) - 128);
+      if (x < -50 || x > VW + 50) continue;
+      const sway = Math.sin(t * 1.1 + i) * 2.4, bx = x + sway;
+      g.fillStyle = '#3a3028'; g.fillRect(x - 10 + sway * 0.4, 0, 2, 96); g.fillRect(x + 9 + sway * 0.4, 0, 2, 96);
+      Art.poly(g, [[bx - 15, 95], [bx + 15, 95], [bx + 10, 110], [bx - 10, 110]], '#2a1c12');
+      Art.poly(g, [[bx - 14, 96], [bx + 14, 96], [bx + 9.4, 109], [bx - 9.4, 109]], '#6a4830');
+      for (let k = 0; k < 3; k++) Art.rect(g, bx - 13 + k, 98 + k * 4, 26 - k * 2, 1.4, '#8a6242');
+      Art.rect(g, bx - 15, 93, 30, 4, '#3a281a');
+      Art.rect(g, bx - 15, 93, 30, 1.4, '#9c744a');
+      Art.ell(g, bx, 96, 12, 3, '#2e2016');
+      for (let k = 0; k < 7; k++) {
+        const a2 = -0.2 + (k / 6) * 3.5;
+        const px = bx + Math.cos(a2) * 12, py = 106 + Math.abs(Math.sin(a2)) * 3;
+        const L = 8 + ((k * 7 + i * 3) % 13);
+        Art.limb(g, px, py, px + Math.sin(t * 0.9 + k) * 2, py + L, 2, 1, VINE1);
+        Art.ell(g, px + Math.sin(t * 0.9 + k) * 2, py + L, 2.6, 2, VINE2);
+        if ((k + i) % 3 === 0) Art.ell(g, px + Math.sin(t * 0.9 + k) * 2, py + L + 2, 2, 2, ['#e8768f', '#f0c04a', '#c98ad8'][(k + i) % 3]);
+      }
+    }
+    // water finding its way through the brick and dropping off the crown
+    for (const d of drips) {
+      const dx = Math.round(((d.x - S * 0.9) % (VW + 80) + VW + 80) % (VW + 80) - 40);
+      if (dx < 0 || dx > VW) continue;
+      const k = d.t / 6;
+      if (k < 0.5) { g.fillStyle = 'rgba(150,196,214,0.5)'; g.fillRect(dx, 18 + Math.round(k * 10), 1, 2); }
+      else { g.fillStyle = 'rgba(150,196,214,0.7)'; g.fillRect(dx, Math.round(24 + (k - 0.5) * 300), 1, 3); }
+    }
+    // vines coming down out of the dark between the lights
+    for (let i = 0; i < 9; i++) {
+      const x = Math.round(((i * 98 - S * 0.75) % (VW + 196) + VW + 196) % (VW + 196) - 98);
+      if (x < -30 || x > VW + 30) continue;
+      vine(g, x, 0, 60 + ((i * 37) % 70), 400 + i * 17, Math.sin(t * 0.5 + i) * 1.4);
+    }
+    g.restore();
+    // the ring beam the vault springs from: a stone string course
+    Art.rect(g, 0, BEAM - 4, VW, 8, '#3a2e22');
+    Art.rect(g, 0, BEAM - 4, VW, 2, '#6a5a44');
+    Art.rect(g, 0, BEAM + 2, VW, 2, '#1e1610');
+    for (let x = -((S * 0.9) % 44); x < VW; x += 44) Art.rect(g, Math.round(x), BEAM - 4, 1, 8, '#241c14');
+  }
+  function drawWall(g, S) {
+    // Twelve courses of brick from the string course down to the floor, with
+    // the damp coming up the bottom of it and vines all over the top.
+    for (let i = 0; i < 11; i++) {
+      const y = BEAM + 4 + i * 14;
+      if (y > FLOOR) break;
+      brickRow(g, 0, y, VW, 14, -((S * 0.9 + (i % 2) * 15) % 30), i * 77, 0.18);
+    }
+    const oa = g.globalAlpha;
+    g.globalAlpha = 0.34;                  // rising damp, darkest at the skirting
+    for (let i = 0; i < 7; i++) Art.rect(g, 0, FLOOR - 4 - i * 7, VW, 7, i < 3 ? '#16281c' : '#1d2a22');
+    g.globalAlpha = oa;
+    // saltpetre bloom and soot, so no two feet of it look the same
+    const wr = Art.rng(9031);
+    for (let i = 0; i < 260; i++) {
+      const x = Math.round(wr() * VW), y = BEAM + 6 + Math.round(wr() * (FLOOR - BEAM - 8));
+      const k = wr();
+      g.fillStyle = k < 0.4 ? 'rgba(206,196,172,0.32)' : k < 0.7 ? 'rgba(20,14,10,0.42)' : 'rgba(120,150,110,0.3)';
+      g.fillRect(x, y, 1 + (k > 0.9 ? 1 : 0), 1);
+    }
+    // arched alcoves cut into the brick, with a lantern in each
+    for (let i = 0; i < 5; i++) {
+      const x = Math.round(((i * 210 - S * 0.9) % (VW + 420) + VW + 420) % (VW + 420) - 210);
+      if (x < -60 || x > VW + 60) continue;
+      const ay = BEAM + 26, ah = 62;
+      Art.rect(g, x - 20, ay, 40, ah, '#1a1210');
+      Art.poly(g, [[x - 20, ay], [x + 20, ay], [x + 12, ay - 12], [x - 12, ay - 12]], '#1a1210');
+      Art.rect(g, x - 17, ay + 2, 34, ah - 4, '#241a14');
+      Art.poly(g, [[x - 17, ay + 2], [x + 17, ay + 2], [x + 10, ay - 9], [x - 10, ay - 9]], '#241a14');
+      Art.rect(g, x - 17, ay + ah - 8, 34, 6, '#4a3a2a');         // the shelf in it
+      Art.rect(g, x - 17, ay + ah - 8, 34, 2, '#6a5438');
+      Art.rect(g, x - 5, ay + ah - 22, 10, 14, '#3a3028');        // a lantern on the shelf
+      Art.rect(g, x - 4, ay + ah - 21, 8, 12, '#ffcf6a');
+      Art.rect(g, x - 2, ay + ah - 17, 4, 6, '#fff3c8');
+      Art.glow(g, x, ay + ah - 15, 40, '#ffcf6a', 0.2, 6);
+    }
+    // the vines: up the wall, along the string course, and back down
+    for (let i = 0; i < 13; i++) {
+      const x = Math.round(((i * 68 - S * 0.9) % (VW + 136) + VW + 136) % (VW + 136) - 68);
+      if (x < -24 || x > VW + 24) continue;
+      vine(g, x, BEAM + 4, BEAM + 40 + ((i * 53) % 90), 900 + i * 29, Math.sin(t * 0.4 + i * 1.7) * 1.1);
+    }
+  }
   function drawBeds(g, S) {
     // raised beds running the length of the dome, behind the benches
     for (let i = -1; i < 12; i++) {
@@ -403,7 +524,7 @@ const Nursery = (() => {
     const hot = hover === s;
     const bob = hot ? Math.sin(t * 8) * 2.4 : Math.sin(t * 1.5 + s.x * 0.05) * 1.1;
     const y = s.y + bob;
-    const def = s.p.def;
+    if (s.p.kind !== 'seed') { drawGood(g, s, x, y, hot); return; }
     // the pot
     g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, x, s.y + 13, 17, 5);
     Art.poly(g, [[x - 14, y - 10], [x + 14, y - 10], [x + 10, y + 12], [x - 10, y + 12]], '#7a3a1c');
@@ -443,6 +564,37 @@ const Nursery = (() => {
     if (hot) {
       Font.draw(g, s.p.name.toUpperCase(), x, y - 56, { scale: 1, color: '#e8f4d8', align: 'center', shadow: '#12200e' });
     }
+  }
+
+  // Garden goods: a tool or a piece of garden furniture stood in an open crate
+  // of straw, with the same price stake as the plants so the aisle reads alike.
+  function drawGood(g, s, x, y, hot) {
+    g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, x, s.y + 13, 18, 5);
+    Art.rect(g, x - 16, y - 6, 32, 20, '#3a2a18');                 // the crate
+    Art.rect(g, x - 15, y - 5, 30, 18, '#7a5836');
+    for (let i = 0; i < 3; i++) Art.rect(g, x - 15, y - 3 + i * 6, 30, 1.6, '#5a3d26');
+    Art.rect(g, x - 15, y - 5, 30, 1.6, '#9c744a');
+    Art.rect(g, x - 16, y - 6, 3, 20, '#4a3422'); Art.rect(g, x + 13, y - 6, 3, 20, '#4a3422');
+    for (let i = 0; i < 12; i++) {                                 // straw packing
+      const sx = x - 13 + ((i * 7) % 26), sy = y - 7 + ((i * 5) % 4);
+      Art.rect(g, sx, sy, 3 + (i % 3), 1, i % 2 ? '#c2a15c' : '#9c8040');
+    }
+    Icons.blit(g, s.p.icon, Math.round(x - 16), Math.round(y - 40), 2);   // what is in it
+    if (s.p.sold) {                                                // a SOLD card over it
+      Art.rect(g, x - 17, y - 2, 34, 11, '#3a1a14');
+      Art.rect(g, x - 16, y - 1, 32, 9, '#a8402c');
+      Font.draw(g, 'SOLD', x, y + 1, { scale: 1, color: '#ffe0d0', align: 'center' });
+    } else {
+      const label = String(s.p.price);
+      const w = Math.max(30, Font.width(label, 1) + 16);
+      g.fillStyle = '#3a2a18'; g.fillRect(x + 9, y - 4, 2, 14);
+      g.fillStyle = '#1d2a14'; g.fillRect(x + 4, y - 14, w, 12);
+      g.fillStyle = hot ? '#e8f4d8' : '#cfe0bc'; g.fillRect(x + 5, y - 13, w - 2, 10);
+      Font.draw(g, label, x + 4 + w / 2, y - 11, { scale: 1, color: '#2a3a20', align: 'center' });
+    }
+    const n = countOf(s.p.id);
+    if (n) { Art.ell(g, x + 16, y - 24, 8, 8, '#2f8f42'); FX.pixelText(g, String(n), x + 16, y - 27, { color: '#fff', size: 7 }); }
+    if (hot) Font.draw(g, s.p.name.toUpperCase(), x, y - 52, { scale: 1, color: '#e8f4d8', align: 'center', shadow: '#12200e' });
   }
 
   // the potting bench at the end, where you pay

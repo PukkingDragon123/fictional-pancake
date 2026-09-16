@@ -612,8 +612,11 @@ const Sprites = (() => {
   // polo, and a head two sizes too big for her, like everything else here.
   // Drawn from the chest up: the counter takes care of the rest.
   const KW = 76, KH = 78;
+  // She works the floor as well as the till, so she needs a walk, and she has
+  // an opinion about everything, so she needs a face for each of them.
   function cashier(frame, pose = 'idle') {
-    const n = { idle: 4, talk: 6, happy: 4, wave: 6 }[pose] || 4;
+    const n = { idle: 4, talk: 6, happy: 4, wave: 6, walk: 6, think: 4, cross: 6,
+      cheer: 6, surprise: 4, sleepy: 4, sad: 4 }[pose] || 4;
     const f = ((frame % n) + n) % n, t = f / n;
     const key = `shaz:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
@@ -627,7 +630,8 @@ const Sprites = (() => {
     const TIE0 = '#8f2230', TIE1 = '#c0392f', TIE2 = '#e0664f';
     const CAP0 = '#10381a', CAP1 = '#1c6030', CAP2 = '#2f8f42', CAP3 = '#63c974';
     const INK = '#20192a', LIP = '#b8556a';
-    let bob = 0, lean = 0, armR = 0, mouth = 'flat', eyes = 'open';
+    let bob = 0, lean = 0, armR = 0, armL = 0, mouth = 'flat', eyes = 'open';
+    let brow = 0, tilt = 0;
     switch (pose) {
       case 'idle': bob = [0, 0, 1, 0][f]; eyes = f === 3 ? 'shut' : 'open'; break;
       case 'talk': bob = [0, 1, 0, 1, 0, 1][f]; lean = S * 0.8; armR = -3 - Math.abs(S) * 4;
@@ -635,11 +639,27 @@ const Sprites = (() => {
       case 'happy': bob = [0, 1, 2, 1][f]; mouth = 'grin'; eyes = 'happy'; armR = -5; break;
       case 'wave': bob = [0, 1, 2, 1, 2, 1][f]; mouth = 'grin'; eyes = 'happy';
         armR = -17 - Math.abs(Math.sin(t * TAU * 2)) * 5; break;
+      // she is only ever visible from the counter up, so the walk is all in
+      // the shoulders: a two-beat roll with the arms swinging against it
+      case 'walk': bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.2; lean = S * 1.1;
+        armR = S * 5; armL = -S * 5; mouth = 'flat'; break;
+      case 'think': bob = [0, 0, 1, 1][f]; eyes = 'narrow'; brow = 0.8; tilt = -2;
+        mouth = 'small'; armR = -20; break;
+      case 'cross': bob = [0, 0, 1, 1, 0, 0][f]; eyes = 'narrow'; brow = -1.4;
+        mouth = 'flat'; lean = S * 0.7; armR = -7; armL = -7; break;
+      case 'cheer': bob = [0, 2, 3, 3, 2, 0][f]; eyes = 'happy'; mouth = 'wide';
+        armR = -24; armL = -24; break;
+      case 'surprise': bob = [0, 2, 1, 1][f]; eyes = 'wide'; brow = 1.4;
+        mouth = 'open'; armR = -10; armL = -10; break;
+      case 'sleepy': bob = [0, 0, 1, 1][f]; eyes = 'shut'; brow = -0.3; tilt = 2.4;
+        mouth = 'small'; break;
+      case 'sad': bob = [1, 1, 0, 0][f]; eyes = 'droop'; brow = -0.5; tilt = 1.6;
+        mouth = 'frown'; armR = 3; armL = 3; break;
     }
     const y0 = -bob;
     const shoulder = 46 + y0, chestY = shoulder + 10, bot = KH - 1;
     const hy = 27 + y0;
-    const hx = CXK + lean;
+    const hx = CXK + lean + tilt * 0.3;
 
     // ---- the suit ----------------------------------------------------------
     Art.poly(g, [[CXK - 23, shoulder - 3], [CXK + 23, shoulder - 3], [CXK + 27, bot], [CXK - 27, bot]], SUIT0);
@@ -675,10 +695,11 @@ const Sprites = (() => {
       Art.ell(g, CXK - 19 + i * 5, chestY + 1, 1.7, 1.7, ['#d8b23a', '#b8496a', '#63c974'][i]);
     }
     // ---- arms --------------------------------------------------------------
-    Art.limb(g, CXK - 20, shoulder + 4, CXK - 27, bot - 2, 9, 6.4, SUIT1);
-    Art.rect(g, CXK - 31, bot - 8, 8, 3, SHIRT);                       // a cuff
-    Art.ell(g, CXK - 28, bot - 3, 4.6, 4, SK0);
-    Art.ell(g, CXK - 28, bot - 4, 3.8, 3.2, SK1);
+    const lx2 = CXK - 27, ly2 = bot - 2 + armL;
+    Art.limb(g, CXK - 20, shoulder + 4, lx2, ly2, 9, 6.4, SUIT1);
+    Art.rect(g, lx2 - 4, ly2 - 6, 8, 3, SHIRT);                        // a cuff
+    Art.ell(g, lx2 - 1, ly2 + 2, 4.6, 4, SK0);
+    Art.ell(g, lx2 - 1, ly2 + 1.4, 3.8, 3.2, SK1);
     const ex = CXK + 24, ey = bot - 4 + armR;
     Art.limb(g, CXK + 20, shoulder + 4, ex, ey, 9, 6.4, SUIT0);
     Art.limb(g, CXK + 21, shoulder + 4, ex, ey, 5.6, 4, SUIT1);
@@ -743,18 +764,27 @@ const Sprites = (() => {
     // ---- eyes and that grin ------------------------------------------------
     for (const sd of [-1, 1]) {
       const exx = hx + sd * 8, eyy = hy + 2.4;
-      Art.ell(g, exx, eyy, 5.6, 5.4, SK2);                             // a pale rim round it
-      Art.ell(g, exx, eyy, 4.8, 4.6, '#0d1620');                       // big glossy eye
+      const rw = eyes === 'wide' ? 6.2 : eyes === 'narrow' ? 5.2 : 5.6;
+      const rh = eyes === 'wide' ? 6 : eyes === 'narrow' ? 2.6 : eyes === 'droop' ? 4 : 5.4;
+      Art.ell(g, exx, eyy, rw, rh, SK2);                               // a pale rim round it
+      Art.ell(g, exx, eyy, rw - 0.8, rh - 0.8, '#0d1620');             // big glossy eye
       if (eyes === 'happy') {
         Art.ell(g, exx, eyy, 5.4, 5.6, SK1);
         Art.poly(g, [[exx - 4, eyy + 2.4], [exx, eyy - 2], [exx + 4, eyy + 2.4], [exx, eyy + 0.4]], '#0d1620');
       } else if (eyes === 'shut') {
         Art.ell(g, exx, eyy, 5.4, 5.6, SK1);
         Art.rect(g, exx - 4, eyy - 0.6, 8, 1.6, '#0d1620');
+        Art.rect(g, exx - 3, eyy + 1.2, 6, 1, '#3d5a6e');
       } else {
-        Art.ell(g, exx + sd * 0.5, eyy - 0.4, 2.6, 2.8, '#2a3c4e');
-        Art.ell(g, exx - 1.4, eyy - 1.8, 1.7, 1.5, '#ffffff');         // the catchlight
+        const look = eyes === 'droop' ? 1.2 : 0;
+        Art.ell(g, exx + sd * 0.5, eyy - 0.4 + look, 2.6, Math.min(2.8, rh - 0.8), '#2a3c4e');
+        Art.ell(g, exx - 1.4, eyy - 1.8 + look, 1.7, 1.5, '#ffffff');  // the catchlight
         Art.ell(g, exx + 1.6, eyy + 2, 0.9, 0.8, 'rgba(255,255,255,0.6)');
+      }
+      if (brow) {                                                      // a brow ridge in the hide
+        const b0 = eyy - rh - 1.6 - brow * 1.6, bt = sd * brow * 1.8;
+        Art.poly(g, [[exx - 5, b0 - bt], [exx + 5, b0 + bt],
+                     [exx + 5, b0 + bt + 1.6], [exx - 5, b0 - bt + 1.6]], '#2c4f6e');
       }
     }
     Art.ell(g, hx - 13.4, hy + 8, 3.4, 2, 'rgba(226,132,140,0.4)');    // blush
@@ -779,6 +809,8 @@ const Sprites = (() => {
     } else if (mouth === 'small') {
       Art.poly(g, [[hx - 3.4, my - 1.4], [hx + 3.4, my - 1.4], [hx + 2.4, my + 1.6], [hx - 2.4, my + 1.6]], '#5a2430');
       teeth(hx - 3.2, hx + 3.2, my - 1.4, true);
+    } else if (mouth === 'frown') {
+      Art.poly(g, [[hx - 7, my + 2], [hx, my - 2], [hx + 7, my + 2], [hx, my + 0.2]], '#3d5a6e');
     } else {
       Art.rect(g, hx - 7.4, my - 0.7, 14.8, 1.5, '#3d5a6e');            // resting: a long line
       Art.poly(g, [[hx + 5.4, my - 0.7], [hx + 8.4, my - 0.7], [hx + 7, my + 1.6]], '#fdf6ea');
@@ -789,7 +821,7 @@ const Sprites = (() => {
     return c;
   }
 
-  // ---- Groot, who runs the greenhouse --------------------------------------
+  // ---- Groot, who runs the cellar ------------------------------------------
   // A tall kind tree. Bark laid in overlapping plates, moss in the seams,
   // flowers growing out of his shoulders and head, and a face made of three
   // soft marks in the grain. He is never not pleased to see you.
@@ -803,23 +835,45 @@ const Sprites = (() => {
     Art.ell(g, x - w * 0.25, y - h * 0.3, w * 0.42, h * 0.34, lit);
     for (let i = -1; i <= 1; i++) Art.limb(g, x - w * 0.7, y + i * h * 0.4, x + w * 0.7, y + i * h * 0.4 + 0.6, 0.7, 0.5, BK0);
   }
+  // He only ever says one thing, so the face has to carry the meaning. Every
+  // mood below is a different set of brows, eyes and mouth on the same head.
   function groot(frame, pose = 'idle') {
-    const n = { idle: 6, walk: 6, talk: 6, point: 4, wave: 6 }[pose] || 6;
+    const n = { idle: 6, walk: 6, talk: 6, point: 4, wave: 6, happy: 6, sad: 4, cross: 6,
+      curious: 4, proud: 6, worry: 6, laugh: 6, sleepy: 4 }[pose] || 6;
     const f = ((frame % n) + n) % n, t = f / n;
     const key = `groot:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(GW, GH);
     const S = Math.sin(t * TAU);
     let bob = 0, stride = 0, armR = 0, armL = 0, mouth = 'smile', lean = 0, sway = 0;
+    let eyes = 'open', brow = 0, tilt = 0;           // brow: + is raised, - is knitted
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 1, 0, 0][f]; sway = S * 0.5; armL = S * 1.2; armR = -S * 1.2; break;
+      case 'idle': bob = [0, 0, 1, 1, 0, 0][f]; sway = S * 0.5; armL = S * 1.2; armR = -S * 1.2;
+        eyes = f === 3 ? 'shut' : 'open'; break;
       case 'walk': stride = S * 4.2; bob = -Math.abs(Math.sin(t * TAU * 2)) * 2.4;
         armL = -S * 5; armR = S * 5; sway = S * 0.8; break;
       case 'talk': bob = [0, 1, 0, 1, 0, 1][f]; mouth = f % 2 ? 'open' : 'wide';
-        armR = -6 - Math.abs(S) * 5; armL = S * 2; sway = S * 0.7; break;
-      case 'point': mouth = 'smile'; armR = -20; bob = [0, 1, 1, 0][f]; break;
-      case 'wave': mouth = 'wide'; armR = -22 - Math.abs(Math.sin(t * TAU * 2)) * 5;
+        armR = -6 - Math.abs(S) * 5; armL = S * 2; sway = S * 0.7; brow = 0.6; break;
+      case 'point': mouth = 'smile'; armR = -20; bob = [0, 1, 1, 0][f]; brow = 1; break;
+      case 'wave': mouth = 'wide'; eyes = 'happy'; armR = -22 - Math.abs(Math.sin(t * TAU * 2)) * 5;
         bob = [0, 1, 1, 0, 1, 1][f]; break;
+      // ---- the moods ------------------------------------------------------
+      case 'happy': mouth = 'wide'; eyes = 'happy'; bob = [0, 1, 2, 2, 1, 0][f];
+        armL = -4 - Math.abs(S) * 3; armR = -4 - Math.abs(S) * 3; break;
+      case 'sad': mouth = 'frown'; eyes = 'droop'; brow = -0.4; bob = [1, 1, 0, 0][f];
+        tilt = 1.4; armL = 3; armR = 3; break;
+      case 'cross': mouth = 'flat'; eyes = 'narrow'; brow = -1.4;
+        bob = [0, 0, 1, 1, 0, 0][f]; lean = S * 0.6; armL = -3; armR = -3; break;
+      case 'curious': mouth = 'small'; eyes = 'wide'; brow = 1.2; tilt = -2.2;
+        bob = [0, 1, 1, 0][f]; armR = -5; break;
+      case 'proud': mouth = 'smile'; eyes = 'narrow'; brow = 0.8;
+        bob = [0, 1, 2, 2, 1, 0][f]; armL = -7; armR = -7; break;
+      case 'worry': mouth = 'wobble'; eyes = 'wide'; brow = 0.4; tilt = Math.sin(t * TAU * 2) * 1.6;
+        bob = [0, 1, 0, 1, 0, 1][f]; armL = -2; armR = -2; break;
+      case 'laugh': mouth = 'wide'; eyes = 'happy'; brow = 0.9;
+        bob = [0, 2, 3, 2, 1, 0][f]; tilt = -1.4; armL = -6; armR = -6; break;
+      case 'sleepy': mouth = 'small'; eyes = 'shut'; brow = -0.2; tilt = 2.4;
+        bob = [0, 0, 1, 1][f]; armL = 2; armR = 2; break;
     }
     const y0 = bob;
     const headY = 20 + y0, chin = headY + 13;
@@ -918,15 +972,28 @@ const Sprites = (() => {
         Art.ell(g, sx + i * 0.9, top, 1.2, 1.2, '#f5e6a8');
       }
     }
-    // the face: two kind eyes and a wide soft mouth
+    // the face: two kind eyes under bark brows, which do most of the talking
     for (const sd of [-1, 1]) {
-      const exx = hx + sd * 4;
-      Art.ell(g, exx, headY - 0.4, 3.2, 3.4, '#2a1c10');
-      Art.ell(g, exx, headY - 0.4, 2.4, 2.6, '#6a4a22');
-      Art.ell(g, exx + sd * 0.3, headY - 0.2, 1.4, 1.6, '#150e08');
-      Art.ell(g, exx - 0.7, headY - 1.2, 0.9, 0.9, '#fff6e0');
-      Art.poly(g, [[exx - 3.4, headY - 5], [exx + 3.4, headY - 4.6],
-                   [exx + 3.4, headY - 3.4], [exx - 3.4, headY - 3.8]], BK0);
+      const exx = hx + sd * 4 + tilt * 0.4;
+      const rw = eyes === 'wide' ? 3.8 : eyes === 'narrow' ? 3.2 : 3.2;
+      const rh = eyes === 'wide' ? 4 : eyes === 'narrow' ? 1.8 : eyes === 'droop' ? 2.6 : 3.4;
+      if (eyes === 'happy') {                              // two upturned arcs
+        Art.poly(g, [[exx - 3.4, headY + 1.4], [exx, headY - 2.6], [exx + 3.4, headY + 1.4],
+                     [exx, headY - 0.6]], '#2a1c10');
+      } else if (eyes === 'shut') {
+        Art.rect(g, exx - 3, headY - 0.6, 6, 1.4, '#2a1c10');
+        Art.rect(g, exx - 2, headY + 1, 4, 1, '#4a3418');
+      } else {
+        Art.ell(g, exx, headY - 0.4, rw, rh, '#2a1c10');
+        Art.ell(g, exx, headY - 0.4, rw - 0.8, rh - 0.8, '#6a4a22');
+        const look = eyes === 'droop' ? 1 : 0;
+        Art.ell(g, exx + sd * 0.3, headY - 0.2 + look, 1.4, Math.min(1.6, rh - 0.6), '#150e08');
+        Art.ell(g, exx - 0.7, headY - 1.2 + look, 0.9, 0.9, '#fff6e0');
+      }
+      // the brow ridge, tilted by the mood
+      const b0 = headY - 4.6 - brow * 1.4, bt = sd * brow * 1.5;
+      Art.poly(g, [[exx - 3.4, b0 - bt], [exx + 3.4, b0 + bt],
+                   [exx + 3.4, b0 + bt + 1.4], [exx - 3.4, b0 - bt + 1.4]], BK0);
     }
     Art.ell(g, hx, headY + 3.4, 2.4, 1.8, BK0);                       // the bump of a nose
     const my = headY + 8.2;
@@ -934,6 +1001,14 @@ const Sprites = (() => {
     else if (mouth === 'wide') {
       Art.poly(g, [[hx - 5, my - 1.6], [hx + 5, my - 1.6], [hx + 3.2, my + 2.6], [hx - 3.2, my + 2.6]], '#2a1c10');
       Art.rect(g, hx - 4.4, my - 1.4, 8.8, 1.4, '#e8dcc4');
+    } else if (mouth === 'frown') {
+      Art.poly(g, [[hx - 4.6, my + 2], [hx, my - 1.8], [hx + 4.6, my + 2], [hx, my + 0.2]], '#2a1c10');
+    } else if (mouth === 'flat') {
+      Art.rect(g, hx - 4.6, my - 0.6, 9.2, 1.6, '#2a1c10');
+    } else if (mouth === 'small') {
+      Art.ell(g, hx, my, 1.8, 1.5, '#2a1c10');
+    } else if (mouth === 'wobble') {
+      for (let i = -2; i <= 2; i++) Art.rect(g, hx + i * 2 - 1, my - 0.6 + (i % 2 ? 1.2 : 0), 2, 1.4, '#2a1c10');
     } else {
       Art.poly(g, [[hx - 5.4, my - 2], [hx, my + 2.2], [hx + 5.4, my - 2], [hx, my + 0.2]], '#2a1c10');
       Art.poly(g, [[hx - 3.6, my - 1], [hx, my + 1.2], [hx + 3.6, my - 1], [hx, my + 0.2]], '#7a3a34');

@@ -59,8 +59,8 @@ const Guide = (() => {
       at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.map),
     },
     {
-      key: 'mart', say: 'Walk the mart. Fill a basket, then ask the wombat on the counter.', mood: 'sly', praise: 'A fair trade.', icon: 'shop', title: 'Walk the mart',
-      note: 'Seed, stock and stone. Basket first, counter after.',
+      key: 'mart', say: 'Walk the mart. Fill a basket, then find Shaz on the floor.', mood: 'sly', praise: 'A fair trade.', icon: 'shop', title: 'Walk the mart',
+      note: 'Hardware, furniture and the pet counter. Seed is at Groot\'s cellar, down the road. Basket first, Shaz after.',
       at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.shop),
     },
     {

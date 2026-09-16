@@ -100,28 +100,17 @@ const Shop = (() => {
 
   // ---- catalogue ----------------------------------------------------------
   function catalogue() {
+    // A corner shop, not a garden centre: hardware, homewares and the pet
+    // counter. Seed and garden tools moved down the road to Groot.
     const out = [];
-    for (const c of CROPS) {
-      out.push({
-        id: 'seed:' + c.key, kind: 'seed', key: c.key, name: c.name, price: c.seed,
-        sprite: 'packet', tint: c.color, icon: c.icon, note: c.grow + 's',
-        locked: !!(c.god && !G.blessings[c.god]),
-      });
-    }
-    for (const key of Object.keys(TIERS)) {
-      const nxt = nextTier(G, key), cur = tierOf(G, key);
-      const icon = { sickle: 't_sickle', hoe: 't_hoe', water: 't_water' }[key];
-      out.push({
-        id: 'tier:' + key, kind: 'tier', key, name: nxt ? nxt.name : cur.name, price: nxt ? nxt.cost : 0,
-        sprite: 'tool', tint: '#8a6a3a', icon, note: nxt ? `rank ${tierIndex(G, key) + 2}` : 'best there is', sold: !nxt,
-      });
-    }
     out.push({ id: 'wombat', kind: 'wombat', key: 'wombat', name: 'Wombat', price: WOMBAT_PRICE(G.wombats.length), sprite: 'stock', icon: 'wombat', note: `${G.wombats.length}/${Grove.capacity()}` });
     for (const u of UPGRADES) {
+      if (GARDEN_UP[u.key]) continue;                 // Groot stocks the garden half
       const l = G.up[u.key] || 0;
       out.push({ id: 'up:' + u.key, kind: 'up', key: u.key, name: u.name, price: Math.round(u.base * Math.pow(u.mult, l)), sprite: 'scroll', tint: PAL.stone3, icon: u.icon, note: `${l}/${u.max}`, sold: l >= u.max });
     }
     for (const d of DECOR) {
+      if (GARDEN_DEC[d.key]) continue;                // ditto for the garden pieces
       out.push({ id: 'dec:' + d.key, kind: 'dec', key: d.key, name: d.name, price: d.cost, sprite: 'crate', tint: PAL.moss2, icon: d.icon, note: '', sold: !!G.decor[d.key] });
     }
     return out;
@@ -130,11 +119,9 @@ const Shop = (() => {
   // Each section is a gondola of three shelves under a coloured header sign,
   // laid out left to right; the player swipes sideways to walk the aisle.
   const SECTIONS = [
-    { key: 'tier',   name: 'TOOLS', color: '#8a6a3a', sub: 'sharper' },
-    { key: 'seed',   name: 'SEEDS', color: '#3f8f4a', sub: 'sow it' },
-    { key: 'up',     name: 'BUILD', color: '#2f6f9f', sub: 'dig it' },
-    { key: 'dec',    name: 'YARD',  color: '#c97a25', sub: 'set it' },
-    { key: 'wombat', name: 'ADOPT', color: '#b8496a', sub: 'love it' },
+    { key: 'up',     name: 'HARDWARE',  color: '#2f6f9f', sub: 'build it' },
+    { key: 'dec',    name: 'FURNITURE', color: '#c97a25', sub: 'set it out' },
+    { key: 'wombat', name: 'ADOPT',     color: '#b8496a', sub: 'love it' },
   ];
   const SHELF_Y = [190, 242, 294];        // board tops, three to a gondola
   const COLW = 96;                        // one product slot
@@ -497,10 +484,10 @@ const Shop = (() => {
   // The wall above the aisles: the strip of a real shop that tells you where
   // you are. A house banner, promo posters, a clock, vents.
   const POSTERS = [
-    { x: 236,  w: 104, top: '2 FOR 1', mid: 'SEEDS',   bot: 'THIS WEEK', col: '#3f8f4a' },
-    { x: 620,  w: 112, top: 'NEW IN',  mid: 'SICKLES', bot: 'SHARPER',   col: '#c9581f' },
-    { x: 1004, w: 118, top: 'ADOPT',   mid: 'WOMBATS', bot: 'ASK STAFF', col: '#b8496a' },
-    { x: 1388, w: 104, top: 'SAVE',    mid: '20 W$',   bot: 'ON YARDS',  col: '#2f6f9f' },
+    { x: 236,  w: 116, top: 'NO SEED', mid: 'SORRY',   bot: 'TRY GROOT', col: '#3f8f4a' },
+    { x: 620,  w: 112, top: 'NEW IN',  mid: 'CRANES',  bot: 'STEADIER',  col: '#c9581f' },
+    { x: 1004, w: 118, top: 'ADOPT',   mid: 'WOMBATS', bot: 'ASK SHAZ',  col: '#b8496a' },
+    { x: 1388, w: 104, top: 'SAVE',    mid: '20 W$',   bot: 'ON DECOR',  col: '#2f6f9f' },
   ];
   function wallDressing(g, S, t) {
     // the house banner along the top of the wall
@@ -759,16 +746,22 @@ const Shop = (() => {
       const x = wx - S;
       if (x < -120 || x > VW + 120) return;
       if (i % 3 === 0) {
-        // a convex security mirror, hung above the gap
-        g.fillStyle = '#2a2f3a'; Art.ell(g, x, 148, 27, 27);
-        g.fillStyle = '#8d96a0'; Art.ell(g, x, 148, 24, 24);
-        Art.ell(g, x, 148, 22, 22, '#5a6878');    // the mirror, banded in four hard steps
-        for (let i = 0; i < 4; i++) {
+        // an octagonal security mirror, hung above the gap. Nothing in this
+        // game is a circle, this least of all.
+        const oct = (rr) => {
+          const p2 = [];
+          for (let k = 0; k < 8; k++) { const a2 = (k / 8) * TAU + Math.PI / 8; p2.push([x + Math.cos(a2) * rr, 148 + Math.sin(a2) * rr]); }
+          return p2;
+        };
+        Art.poly(g, oct(27), '#2a2f3a');
+        Art.poly(g, oct(24), '#8d96a0');
+        for (let i = 0; i < 4; i++) {                 // the reflection, in four flat steps
           const k = 1 - i / 4;
-          Art.ell(g, x - 7 * k * 0.6, 148 - 7 * k * 0.6, 22 * k, 22 * k,
+          Art.poly(g, oct(22 * k).map(([px, py]) => [px - 6 * k * 0.5, py - 6 * k * 0.5]),
             U.mix('#f0f6fa', '#5a6878', i / 3.4));
         }
-        g.fillStyle = 'rgba(255,255,255,0.55)'; Art.ell(g, x - 8, 140, 6, 4);
+        Art.poly(g, oct(27).map(([px, py]) => [px, py]).slice(0, 3).concat([[x, 148]]), 'rgba(255,255,255,0.12)');
+        g.fillStyle = 'rgba(255,255,255,0.55)'; Art.rect(g, x - 12, 136, 8, 3, 'rgba(255,255,255,0.55)');
         g.fillStyle = '#6c6759'; g.fillRect(x - 2, 122, 4, 8);
         // a wet-floor cone under it
         g.fillStyle = 'rgba(0,0,0,0.2)'; Art.ell(g, x, 344, 16, 4);
@@ -839,17 +832,23 @@ const Shop = (() => {
     // the coin slot and the knob
     g.fillStyle = '#1d2230'; g.fillRect(x - 12, 266, 24, 16);
     g.fillStyle = '#d8b23a'; g.fillRect(x - 9, 269, 18, 3);
-    g.fillStyle = '#8d96a0'; Art.ell(g, x, 290, 8, 8);
-    g.fillStyle = '#c9c2ad'; Art.ell(g, x, 290, 6, 6);
+    Art.rect(g, x - 8, 282, 16, 16, '#8d96a0');
+    Art.rect(g, x - 6, 284, 12, 12, '#c9c2ad');
+    Art.rect(g, x - 6, 284, 12, 2, '#e6e0cc');
     g.save(); g.translate(x, 290); g.rotate(gacha.spin * 3.4);
     g.fillStyle = '#3a3f48'; g.fillRect(-1.5, -5, 3, 10);
     g.restore();
     // the delivery flap
     g.fillStyle = '#1d2230'; g.fillRect(x - 14, 296, 28, 14);
     g.fillStyle = '#3a3f48'; g.fillRect(x - 12, 298, 24, 10);
-    // the glass drum, full of capsules
-    g.fillStyle = '#2a2f3a'; Art.ell(g, x, 224, 27, 30);
-    g.fillStyle = '#cfe4ee'; Art.ell(g, x, 224, 24, 27);
+    // the glass drum: a six-sided tank, because nothing in here is a circle
+    const tank = (rw, rh) => {
+      const p2 = [];
+      for (let k = 0; k < 6; k++) { const a2 = (k / 6) * TAU + Math.PI / 6; p2.push([x + Math.cos(a2) * rw, 224 + Math.sin(a2) * rh]); }
+      return p2;
+    };
+    Art.poly(g, tank(27, 30), '#2a2f3a');
+    Art.poly(g, tank(24, 27), '#cfe4ee');
     const r = Art.rng(7);
     for (let i = 0; i < 22; i++) {
       const a = r() * TAU + gacha.spin * 2, d = r();
@@ -858,9 +857,14 @@ const Shop = (() => {
       Art.ell(g, cxp, cyp, 4.4, 4.4, col);
       Art.ell(g, cxp - 1.2, cyp - 1.4, 1.8, 1.4, U.shade(col, 0.45));
     }
-    g.fillStyle = 'rgba(255,255,255,0.4)'; Art.ell(g, x - 9, 214, 6, 9);
-    g.fillStyle = 'rgba(120,150,170,0.2)'; Art.ell(g, x, 224, 24, 27);
-    g.fillStyle = '#8d96a0'; Art.ell(g, x, 250, 26, 7);
+    Art.poly(g, [[x - 14, 208], [x - 6, 206], [x - 3, 224], [x - 11, 226]], 'rgba(255,255,255,0.4)');
+    Art.poly(g, tank(24, 27), 'rgba(120,150,170,0.2)');
+    for (let k = 0; k < 6; k++) {                 // the frame between the panes
+      const a2 = (k / 6) * TAU + Math.PI / 6, a3 = ((k + 1) / 6) * TAU + Math.PI / 6;
+      Art.line(g, x + Math.cos(a2) * 25, 224 + Math.sin(a2) * 28,
+                  x + Math.cos(a3) * 25, 224 + Math.sin(a3) * 28, '#6d7681', 2);
+    }
+    g.fillStyle = '#8d96a0'; Art.rect(g, x - 26, 247, 52, 8, '#8d96a0'); Art.rect(g, x - 26, 247, 52, 2, '#b4bcc6');
     // the header card
     g.fillStyle = '#1d2230'; g.fillRect(x - 30, 172, 60, 32);
     g.fillStyle = '#f2cf3a'; g.fillRect(x - 28, 174, 56, 28);
@@ -1065,7 +1069,13 @@ const Shop = (() => {
     'The square poo is so it does not roll off the rock. Genius.',
     'I have a tattoo. I will not show you where.',
   ];
-  const shaz = { t: 0, line: 0, said: 0, pose: 'idle', poseT: 0 };
+  // The mood she picks when she has nothing to do. Each is a pose the sprite
+  // knows, so what she is feeling is on her face and not in a caption.
+  const SHAZ_MOODS = ['idle', 'idle', 'think', 'cross', 'sleepy', 'surprise', 'sad', 'happy'];
+  // She does not stand still all day. Left of the till is the floor: she walks
+  // it, stops, faces the shelves, and comes back the moment you have a basket.
+  const shaz = { t: 0, line: 0, said: 0, pose: 'idle', poseT: 0, x: 198, tx: 198, dir: 1, wait: 2, mood: 0 };
+  const SHAZ_HOME = 198;                  // her offset from the counter, at the till
   let keeperR = null;
   function shazTick(dt) {
     shaz.t += dt;
@@ -1076,20 +1086,63 @@ const Shop = (() => {
       shaz.line = (shaz.line + 1 + Math.floor(Math.random() * 3)) % SHAZ_LINES.length;
       shaz.pose = 'talk'; shaz.poseT = 3.4;
     }
+    // a basket, a sale or a chat and she is back behind the till
+    const wanted = (basket.length || till > 0 || keeperHot || shaz.pose === 'talk') ? SHAZ_HOME : shaz.tx;
+    const d = wanted - shaz.x;
+    if (Math.abs(d) > 3) {
+      shaz.dir = d > 0 ? 1 : -1;
+      shaz.x += Math.sign(d) * 42 * dt;
+      shaz.walking = true;
+    } else {
+      shaz.walking = false;
+      shaz.wait -= dt;
+      if (shaz.wait <= 0) {
+        shaz.wait = 3.4 + Math.random() * 4.5;
+        shaz.tx = SHAZ_HOME - Math.random() * 300;       // somewhere along the aisle
+        if (shaz.poseT <= 0 && Math.random() < 0.6) {
+          shaz.mood = (shaz.mood + 1 + Math.floor(Math.random() * 3)) % SHAZ_MOODS.length;
+          shaz.pose = SHAZ_MOODS[shaz.mood]; shaz.poseT = 2.6 + Math.random() * 2;
+        }
+      }
+    }
   }
   function keeperWombat(g, cx, t) {
     const n = basket.length;
-    const wx = cx + 198, wy = 302;
+    const atTill = Math.abs(shaz.x - SHAZ_HOME) < 6;
+    const wx = cx + shaz.x, wy = 302;
     const hot = keeperHot;
     keeperR = { x: wx - 34, y: wy - 92, w: 68, h: 86 };
-    const pose = till > 0 ? 'wave' : hot ? 'happy' : n ? 'happy' : shaz.pose;
-    const rate = pose === 'talk' ? 7 : pose === 'wave' ? 9 : 2.4;
-    const img = Sprites.cashier(Math.floor(shaz.t * rate), pose);
+    const pose = shaz.walking ? 'walk'
+      : till > 0 ? 'cheer' : hot ? 'happy' : n ? 'happy' : shaz.pose;
+    const rate = pose === 'talk' ? 7 : pose === 'wave' || pose === 'cheer' ? 9 : pose === 'walk' ? 8 : 2.4;
+    let img = Sprites.cashier(Math.floor(shaz.t * rate), pose);
+    if (shaz.dir < 0 && pose === 'walk') img = Art.flip(img);
     const sc = 1.2, w = img.width * sc, h = img.height * sc;
     const bob = Math.sin(shaz.t * 1.6) * 1.2;
     g.drawImage(img, Math.round(wx - w / 2), Math.round(wy - h + bob), Math.round(w), Math.round(h));
-    // her mug, parked on the counter beside her
-    const mx = wx - 40;
+    // Off the till she is drawn from the counter up, so she pushes a stock
+    // trolley: it covers the cut and explains what she is doing out here.
+    if (!atTill) {
+      const tx2 = wx + shaz.dir * 4, ty2 = wy + 2;
+      g.fillStyle = 'rgba(0,0,0,0.26)'; Art.ell(g, tx2, ty2 + 12, 28, 5);
+      Art.rect(g, tx2 - 26, ty2 - 24, 52, 4, '#6d7681');          // the push bar
+      Art.rect(g, tx2 - 26, ty2 - 24, 52, 1.6, '#a4adb8');
+      Art.rect(g, tx2 - 24, ty2 - 22, 3, 24, '#5a6270');
+      Art.rect(g, tx2 + 21, ty2 - 22, 3, 24, '#5a6270');
+      Art.rect(g, tx2 - 27, ty2 - 2, 54, 16, '#3a3f48');          // the tray
+      Art.rect(g, tx2 - 25, ty2, 50, 12, '#7d8892');
+      for (let i = 0; i < 6; i++) Art.rect(g, tx2 - 24 + i * 8.4, ty2, 1.6, 12, '#5a6270');
+      for (let i = 0; i < 4; i++) {                                // boxes on it
+        const bx2 = tx2 - 22 + i * 12, col = ['#c9581f', '#3f8f4a', '#2f6f9f', '#d8b23a'][i];
+        Art.rect(g, bx2, ty2 - 9, 10, 10, U.shade(col, -0.3));
+        Art.rect(g, bx2, ty2 - 9, 10, 9, col);
+        Art.rect(g, bx2, ty2 - 9, 10, 2, U.shade(col, 0.3));
+      }
+      Art.rect(g, tx2 - 22, ty2 + 14, 5, 5, '#22262e');            // castors
+      Art.rect(g, tx2 + 17, ty2 + 14, 5, 5, '#22262e');
+    }
+    // her mug, parked on the counter where the till is
+    const mx = cx + SHAZ_HOME - 40;
     g.fillStyle = '#1d2230'; g.fillRect(mx - 7, 268, 14, 15);
     g.fillStyle = '#d8d2c2'; g.fillRect(mx - 6, 269, 12, 13);
     g.fillStyle = '#8a6a3a'; g.fillRect(mx - 6, 269, 12, 3);
@@ -1102,15 +1155,16 @@ const Shop = (() => {
     else if (n) bubble(g, wx, by, `${total()} W$`, '#c9581f', '#fff0dc');
     else if (shaz.pose === 'talk') chatBubble(g, wx, by, SHAZ_LINES[shaz.line]);
     else if (hot) bubble(g, wx, by, 'G\'DAY', '#2f6f9f', '#d8ecff');
-    if (n && !till) {
+    if (n && !till && atTill) {
       const a = 0.5 + 0.5 * Math.sin(t * 5);
       Font.draw(g, 'CLICK HER', wx, wy + 16, { scale: 1, color: `rgba(245,205,92,${a.toFixed(2)})`, align: 'center', shadow: '#2a1608' });
     }
-    if (hot) {
-      g.strokeStyle = '#f5cd5c'; g.lineWidth = 1;
-      g.setLineDash([4, 3]); g.lineDashOffset = -t * 10;
-      g.strokeRect(keeperR.x + 0.5, keeperR.y + 0.5, keeperR.w - 1, keeperR.h - 1);
-      g.setLineDash([]);
+    if (hot) {                                    // a marching pixel dash, never a stroke
+      g.fillStyle = '#f5cd5c';
+      const off = Math.round(t * 10) % 7;
+      const R = keeperR;
+      for (let x = 0; x < R.w; x += 7) { g.fillRect(R.x + ((x + off) % R.w), R.y, 4, 1); g.fillRect(R.x + ((x + off) % R.w), R.y + R.h - 1, 4, 1); }
+      for (let y = 0; y < R.h; y += 7) { g.fillRect(R.x, R.y + ((y + off) % R.h), 1, 4); g.fillRect(R.x + R.w - 1, R.y + ((y + off) % R.h), 1, 4); }
     }
   }
   // her running commentary: a plain white box, wrapped, with a tail

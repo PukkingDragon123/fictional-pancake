@@ -562,36 +562,16 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 /* ---- bounce ------------------------------------------------------------- */
 /* Nothing in here sits still. The chips breathe, the buttons squash when you
    press them and overshoot on the way back, and panels arrive with a bump. */
-/* ---- panels arrive with a bit of magic ---------------------------------- */
-/* A ring of light opens behind the board, a haze of motes fades through it,
-   and the contents step in a beat later. */
-@keyframes sigil {
-  0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0 }
-  25%  { opacity: 0.9 }
-  100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0 }
-}
-@keyframes motes { 0% { opacity: 0.85; background-position: 0 0, 40px 60px } 100% { opacity: 0; background-position: 0 -90px, 40px -30px } }
-@keyframes bodyin { 0% { opacity: 0; transform: translateY(7px) } 100% { opacity: 1; transform: none } }
-.panel::before {
-  content: ''; position: absolute; left: 50%; top: 50%; width: 130%; padding-bottom: 130%;
-  transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; z-index: -1;
-  background: radial-gradient(circle, rgba(185,142,240,0) 54%, rgba(185,142,240,0.5) 66%, rgba(121,220,237,0.35) 76%, rgba(121,220,237,0) 86%);
-  animation: sigil 0.62s cubic-bezier(0.2, 0.7, 0.3, 1) 1;
-}
-.panel::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 3; opacity: 0;
-  background:
-    radial-gradient(2px 2px at 18% 24%, rgba(245,205,92,0.9), transparent 60%),
-    radial-gradient(2px 2px at 72% 58%, rgba(121,220,237,0.9), transparent 60%);
-  background-size: 120px 120px, 90px 90px;
-  animation: motes 0.72s ease-out 1;
-}
-.panel .pbody, .panel .phead { animation: bodyin 0.3s ease-out 0.08s backwards; }
+/* ---- panels arrive with one short step ----------------------------------- */
+/* No sigil, no motes. A panel just steps in: a quick fade and a few pixels of
+   travel, done before you have finished looking at it. */
+@keyframes bodyin { 0% { opacity: 0; transform: translateY(4px) } 100% { opacity: 1; transform: none } }
+.panel .pbody, .panel .phead { animation: bodyin 0.14s ease-out backwards; }
 @keyframes ping { 0% { transform: scale(1, 1) } 35% { transform: scale(1.14, 0.88) } 70% { transform: scale(0.96, 1.05) } 100% { transform: scale(1, 1) } }
 #money.ping { animation: ping 0.3s cubic-bezier(0.34, 1.7, 0.5, 1); }
 @keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
 @keyframes bobx { 0%, 100% { transform: translateY(0) scale(1, 1) } 50% { transform: translateY(-2px) scale(1.015, 0.985) } }
-@keyframes popin { 0% { transform: translate(-50%, -50%) scale(0.86, 1.1) } 55% { transform: translate(-50%, -50%) scale(1.04, 0.96) } 80% { transform: translate(-50%, -50%) scale(0.99, 1.01) } 100% { transform: translate(-50%, -50%) scale(1, 1) } }
+@keyframes popin { 0% { transform: translate(-50%, -48%) scale(0.98); opacity: 0 } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1 } }
 @keyframes toastin { 0% { transform: translateY(14px) scale(0.8, 1.2) } 50% { transform: translateY(-3px) scale(1.06, 0.94) } 100% { transform: translateY(0) scale(1, 1) } }
 #money { animation: bobx 4.2s ease-in-out infinite; }
 .rbtn, .mbtn { animation: bob 3.4s ease-in-out infinite; }
@@ -603,7 +583,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
 }
 .spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover, .act:hover, .wbtn:hover, .chip:hover { transform: translateY(-2px) scale(1.05, 0.96); }
 .spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active, .act:active, .wbtn:active, .chip:active { transform: translateY(3px) scale(0.92, 1.08); }
-.panel { animation: popin 0.22s cubic-bezier(0.34, 1.7, 0.5, 1); }
+.panel { animation: popin 0.14s ease-out; }
 .toast { animation: toastin 0.26s cubic-bezier(0.34, 1.7, 0.5, 1); }
 .brow .bstep button { transition: transform 0.1s cubic-bezier(0.34, 1.9, 0.5, 1); }
 .brow .bstep button:active { transform: scale(0.8, 1.2); }
@@ -650,7 +630,7 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 .spoke:hover, .rbtn:hover, .mbtn:hover, .zbtn:hover, .hq:hover { transform: translateY(-2px) scale(1.04); }
 .spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active { transform: translateY(1px) scale(.96); }
 @keyframes pop-in { 0% { transform: scale(.86); opacity: 0 } 60% { transform: scale(1.04); opacity: 1 } 100% { transform: scale(1) } }
-.panel:not([hidden]), .tray:not([hidden]) { animation: pop-in .16s cubic-bezier(.34,1.56,.64,1); }
+.tray:not([hidden]) { animation: pop-in .12s ease-out; }
 
 
 /* ---- the UI is built out of wood, with stone where it has to hold ------- */
