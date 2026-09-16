@@ -526,6 +526,175 @@ const Props = (() => {
   P.truck = () => cachedFlat('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: true }));
   P.fortuner = (spec) => cachedFlat('fortuner:' + spec, 140, 78, (g) => fortuner(g, 140, 78, { open: spec === 'open' }));
 
+  // ---- what a crop looks like once it is picked ----------------------------
+  // Each one is its own thing in the bowl, in the tray and on the shelf, rather
+  // than a coloured lump with the crop's tint on it.
+  P.produce = (key) => cached('produce:' + key, 26, 26, (g) => {
+    const def = CROP_BY_KEY[key] || CROPS[0];
+    const C = def.color, D = U.shade(C, -0.34), L = U.shade(C, 0.36), H = U.shade(C, 0.62);
+    const cx = 13, by = 22;
+    switch (key) {
+      case 'ashgrass': {                                   // a tied bundle of blades
+        for (let i = -3; i <= 3; i++) {
+          const lean = i * 2.4;
+          Art.limb(g, cx + i * 0.8, by, cx + lean, 5 + Math.abs(i) * 1.6, 2, 0.8, i % 2 ? D : C);
+          Art.limb(g, cx + i * 0.8, by, cx + lean - 0.6, 6 + Math.abs(i) * 1.6, 1, 0.5, L);
+        }
+        Art.rect(g, cx - 5, by - 7, 10, 3.4, '#8a6a3a');    // the twine
+        Art.rect(g, cx - 5, by - 7, 10, 1.2, '#b89460');
+        break;
+      }
+      case 'sunroot': {                                    // a fat root with its top on
+        Art.poly(g, [[cx - 5, 9], [cx + 5, 9], [cx + 2, by], [cx - 2, by]], D);
+        Art.poly(g, [[cx - 4, 9.6], [cx + 4, 9.6], [cx + 1.6, by - 1], [cx - 1.6, by - 1]], C);
+        Art.poly(g, [[cx - 4, 9.6], [cx - 0.6, 9.6], [cx - 0.6, by - 2], [cx - 3, by - 2]], L);
+        for (let i = 0; i < 3; i++) Art.rect(g, cx - 4 + i * 0.6, 12 + i * 3.4, 8 - i * 1.6, 1, D);
+        for (let i = -1; i <= 1; i++) {                    // the green top
+          Art.limb(g, cx, 10, cx + i * 5, 2 + Math.abs(i), 2.4, 1, '#2f6b34');
+          Art.ell(g, cx + i * 5, 2 + Math.abs(i), 3, 2.2, '#4f9a42');
+          Art.ell(g, cx + i * 5 - 0.8, 1.4 + Math.abs(i), 1.4, 1, '#79c05c');
+        }
+        break;
+      }
+      case 'resinbud': {                                   // a bud, running with sap
+        Art.ell(g, cx, 13, 7, 8.5, D);
+        Art.ell(g, cx, 12.4, 6, 7.5, C);
+        Art.ell(g, cx - 2, 9.4, 3, 3.4, L);
+        Art.ell(g, cx - 2.6, 8.4, 1.4, 1.4, H);
+        for (const [dx, dy] of [[-5, 17], [4.4, 15], [0, 20]]) {   // drips
+          Art.ell(g, cx + dx, dy, 1.8, 2.6, C);
+          Art.ell(g, cx + dx - 0.5, dy - 0.8, 0.8, 1.1, H);
+        }
+        Art.limb(g, cx, 5, cx, 9, 1.6, 2.4, '#6a4a22');
+        break;
+      }
+      case 'duskhusk': {                                   // a split pod
+        Art.ell(g, cx, 13, 6.4, 9, D);
+        Art.ell(g, cx, 12.6, 5.4, 8, C);
+        Art.ell(g, cx - 1.8, 10, 2.4, 3.6, L);
+        Art.poly(g, [[cx - 1, 5], [cx + 1, 5], [cx + 2.4, 20], [cx - 2.4, 20]], D);
+        for (let i = 0; i < 3; i++) Art.ell(g, cx, 10 + i * 3.4, 1.5, 1.5, '#4a4030');  // the seeds inside
+        break;
+      }
+      case 'ironbulb': {                                   // a heavy metallic bulb
+        Art.ell(g, cx, 15, 7.6, 7, D);
+        Art.ell(g, cx, 14.4, 6.6, 6, C);
+        Art.ell(g, cx - 2.2, 12, 2.8, 2.4, L);
+        Art.ell(g, cx - 2.8, 11.2, 1.2, 0.9, H);
+        Art.ellBand(g, cx, 15, 7.6, 7, '#20202c', 0.86, 1);
+        for (let i = -1; i <= 1; i++) Art.limb(g, cx, 9, cx + i * 3.4, 3, 1.8, 0.8, '#4a4a58');
+        Art.rect(g, cx - 1, 2, 2, 7, '#5a5a68');
+        break;
+      }
+      case 'broadleaf': {                                  // one big leaf
+        Art.poly(g, [[cx, 3], [cx + 8, 12], [cx, 21], [cx - 8, 12]], D);
+        Art.poly(g, [[cx, 4.4], [cx + 6.8, 12], [cx, 19.6], [cx - 6.8, 12]], C);
+        Art.poly(g, [[cx, 4.4], [cx + 1, 12], [cx, 19.6], [cx - 6, 12]], L);
+        Art.rect(g, cx - 0.6, 4, 1.2, 16, D);
+        for (let i = 1; i < 4; i++) {
+          Art.limb(g, cx, 6 + i * 3.4, cx - 4.6, 5 + i * 3.4, 0.9, 0.5, D);
+          Art.limb(g, cx, 6 + i * 3.4, cx + 4.6, 5 + i * 3.4, 0.9, 0.5, D);
+        }
+        break;
+      }
+      case 'goldwheat': {                                  // three ears, bound
+        for (const sd of [-1, 0, 1]) {
+          const ex = cx + sd * 4.6, top = 3 + Math.abs(sd) * 2.4;
+          Art.limb(g, cx + sd * 1.4, by, ex, top + 6, 1.6, 1, '#9a7a30');
+          for (let i = 0; i < 4; i++) {
+            const y = top + i * 2.6;
+            Art.ell(g, ex - 1.6, y, 1.8, 1.5, D);
+            Art.ell(g, ex + 1.6, y + 1, 1.8, 1.5, C);
+            Art.ell(g, ex - 1.8, y - 0.4, 0.9, 0.7, H);
+          }
+        }
+        Art.rect(g, cx - 4, by - 6, 8, 3, '#8a6a3a');
+        break;
+      }
+      case 'runeberry': {                                  // berries that will not sit still
+        Art.limb(g, cx, by, cx, 10, 1.6, 1, '#3a2a4a');
+        const spots = [[-4.4, 10], [4.4, 11], [0, 6.4], [-2.4, 15], [3, 16]];
+        for (const [dx, dy] of spots) {
+          Art.ell(g, cx + dx, dy, 4, 4, D);
+          Art.ell(g, cx + dx, dy, 3.2, 3.2, C);
+          Art.ell(g, cx + dx - 1, dy - 1.1, 1.3, 1, H);
+          Art.rect(g, cx + dx - 0.5, dy - 0.5, 1, 1, '#e6d6ff');
+        }
+        break;
+      }
+      case 'mandrake': {                                   // a root with a face, screaming
+        for (let i = -1; i <= 1; i++) {                     // the leaves on its head
+          Art.limb(g, cx, 9, cx + i * 5.4, 1 + Math.abs(i) * 1.6, 2.2, 1, '#2f6b34');
+          Art.ell(g, cx + i * 5.4, 1 + Math.abs(i) * 1.6, 3, 2.2, '#4f9a42');
+        }
+        Art.ell(g, cx, 14, 6.4, 7.4, '#9e8050');            // the body of the root
+        Art.ell(g, cx, 13.6, 5.4, 6.4, C);
+        Art.ell(g, cx - 1.8, 11, 2.4, 2.4, '#e2c894');
+        Art.rect(g, cx - 2.6, 12, 1.6, 1.8, '#3a2a18');     // two furious eyes
+        Art.rect(g, cx + 1, 12, 1.6, 1.8, '#3a2a18');
+        Art.ell(g, cx, 16.6, 2, 2.4, '#3a2a18');            // and a wide open mouth
+        Art.limb(g, cx - 2.4, 20, cx - 4.6, by + 1, 2, 1, '#8a6c44');   // little legs
+        Art.limb(g, cx + 2.4, 20, cx + 4.6, by + 1, 2, 1, '#8a6c44');
+        break;
+      }
+      case 'moonbell': {                                    // three pale bells on a stem
+        Art.limb(g, cx, by, cx, 7, 1.8, 1.2, '#3f6b58');
+        for (const [dx, dy] of [[-4.6, 11], [4.6, 13], [0, 7]]) {
+          Art.limb(g, cx, dy - 2, cx + dx, dy, 1.2, 0.8, '#3f6b58');
+          Art.poly(g, [[cx + dx - 3.4, dy], [cx + dx + 3.4, dy], [cx + dx + 2, dy + 5.4], [cx + dx - 2, dy + 5.4]], '#5d93a6');
+          Art.poly(g, [[cx + dx - 2.8, dy + 0.4], [cx + dx + 2.8, dy + 0.4], [cx + dx + 1.6, dy + 5], [cx + dx - 1.6, dy + 5]], C);
+          Art.rect(g, cx + dx - 2.2, dy + 0.6, 1.4, 4, '#dff2fa');
+          Art.rect(g, cx + dx - 0.5, dy + 5.2, 1, 1.6, '#eaf6fb');     // the clapper
+        }
+        break;
+      }
+      case 'emberleaf': {                                   // leaves with a coal in them
+        Art.limb(g, cx, by, cx, 9, 1.8, 1.2, '#5a3018');
+        for (const [dx, dy, r] of [[-5, 10, 1], [5.4, 12, -1], [0, 5.4, 0]]) {
+          Art.ell(g, cx + dx, dy, 4.4, 3.4, '#7a2e10');
+          Art.ell(g, cx + dx, dy - 0.4, 3.6, 2.7, C);
+          Art.ell(g, cx + dx - 0.6, dy - 1, 1.8, 1.2, '#ffb05a');
+          Art.ell(g, cx + dx, dy, 1.2, 1, '#fff0c0');
+          Art.limb(g, cx, dy + 1, cx + dx, dy, 1, 0.6, '#5a3018');
+        }
+        for (let i = 0; i < 3; i++) Art.rect(g, cx - 3 + i * 3, 2 + (i % 2), 1, 2, '#ffb05a');   // sparks
+        break;
+      }
+      case 'snapjaw': {                                     // a head on a stalk, with teeth
+        Art.limb(g, cx, by, cx + 1, 12, 2.4, 1.6, '#2f6b34');
+        Art.ell(g, cx, 12, 3.4, 2.6, '#2f6b34');
+        Art.poly(g, [[cx - 6, 10], [cx + 6, 10], [cx + 4, 3], [cx - 4, 3]], '#24502a');  // upper jaw
+        Art.poly(g, [[cx - 5, 9.4], [cx + 5, 9.4], [cx + 3.4, 4], [cx - 3.4, 4]], C);
+        Art.poly(g, [[cx - 5.4, 11], [cx + 5.4, 11], [cx + 3.6, 16], [cx - 3.6, 16]], '#24502a');  // lower
+        Art.poly(g, [[cx - 4.6, 11], [cx + 4.6, 11], [cx + 3, 15.2], [cx - 3, 15.2]], '#3f8038');
+        for (let i = 0; i < 4; i++) {
+          Art.poly(g, [[cx - 4.4 + i * 3, 9.6], [cx - 2.6 + i * 3, 9.6], [cx - 3.5 + i * 3, 12]], '#f2ece0');
+          Art.poly(g, [[cx - 3.8 + i * 2.6, 11.4], [cx - 2.2 + i * 2.6, 11.4], [cx - 3 + i * 2.6, 9]], '#f2ece0');
+        }
+        Art.ell(g, cx - 2.4, 5.4, 1.2, 1.2, '#f2ece0');     // one small mad eye
+        Art.rect(g, cx - 2.6, 5.2, 1, 1, '#1a1410');
+        break;
+      }
+      case 'whisperfern': {                                 // a frond that will not shut up
+        Art.limb(g, cx, by, cx, 4, 2, 1.2, '#4a3a5e');
+        for (let i = 0; i < 5; i++) {
+          const y = 5 + i * 3.4, w = 9 - i * 1.2;
+          Art.limb(g, cx, y, cx - w, y - 1.4, 1.6, 0.8, '#6a4a94');
+          Art.limb(g, cx, y, cx + w, y - 1.4, 1.6, 0.8, '#7a58a8');
+          Art.ell(g, cx - w, y - 1.6, 1.8, 1.4, C);
+          Art.ell(g, cx + w, y - 1.6, 1.8, 1.4, C);
+        }
+        Art.ell(g, cx, 3.4, 2.4, 2.4, H);
+        for (let i = 0; i < 3; i++) Art.rect(g, cx - 5 + i * 5, 1 + (i % 2), 1, 1, '#e6d6ff');
+        break;
+      }
+      default:
+        Art.ell(g, cx, 14, 7, 7, D);
+        Art.ell(g, cx, 13.4, 6, 6, C);
+        Art.ell(g, cx - 2, 11, 2.4, 2, L);
+    }
+  });
+
   P.crate = () => cached('crate', 22, 20, (g) => {
     Art.rect(g, 1, 3, 20, 16, PAL.bark2);
     Art.rect(g, 1, 3, 20, 2.4, PAL.bark3);

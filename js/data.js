@@ -24,6 +24,12 @@ const CROPS = [
   { key: 'broadleaf', name: 'Broadleaf', icon: 'c_broadleaf', seed: 24,  grow: 52,  yield: 2, offering: 'slab',  hap: 7,  restore: 0.32, color: '#436f2f' },
   { key: 'goldwheat', name: 'Goldwheat', icon: 'c_goldwheat', seed: 46,  grow: 70,  yield: 2, offering: 'gold',  hap: 12, restore: 0.5,  color: '#f5cd5c' },
   { key: 'runeberry', name: 'Runeberry', icon: 'c_runeberry', seed: 90,  grow: 80,  yield: 2, offering: 'rune',  hap: 14, restore: 0.7,  god: 'demewombra', color: '#8354c9' },
+  // ---- the nursery stock: things that should not really grow in a garden --
+  { key: 'mandrake',  name: 'Mandrake',  icon: 'c_mandrake',  seed: 120, grow: 66,  yield: 2, offering: 'rune',  hap: 2,  restore: 0.6,  magic: 1, color: '#c9a86a' },
+  { key: 'moonbell',  name: 'Moonbell',  icon: 'c_moonbell',  seed: 70,  grow: 54,  yield: 2, offering: 'husk',  hap: 16, restore: 0.42, magic: 1, color: '#9fd8e6' },
+  { key: 'emberleaf', name: 'Emberleaf', icon: 'c_emberleaf', seed: 84,  grow: 48,  yield: 2, offering: 'gold',  hap: 9,  restore: 0.38, magic: 1, color: '#e0703c' },
+  { key: 'snapjaw',   name: 'Snapjaw',   icon: 'c_snapjaw',   seed: 96,  grow: 58,  yield: 2, offering: 'slab',  hap: 4,  restore: 0.4,  magic: 1, color: '#4f9a42' },
+  { key: 'whisperfern', name: 'Whisperfern', icon: 'c_whisperfern', seed: 62, grow: 44, yield: 2, offering: 'resin', hap: 13, restore: 0.5, magic: 1, color: '#b98ef0' },
 ];
 const CROP_BY_KEY = Object.fromEntries(CROPS.map((c) => [c.key, c]));
 
@@ -138,6 +144,7 @@ const SITES = [
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
   { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0, gate: (g) => g.step >= 4 || (g.stack || []).length > 0 || OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring a poop first' },
+  { key: 'nursery', name: 'Groot\'s Greenhouse', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
   { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },

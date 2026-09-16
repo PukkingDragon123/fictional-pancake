@@ -143,6 +143,14 @@ const Menu = (() => {
     Font.draw(g, 'WOMBAT GODS', cx + 1, ty + 4, { scale: 4, align: 'center', color: S4 });      // the lit lower lip
     Font.draw(g, 'WOMBAT GODS', cx, ty + 1, { scale: 4, align: 'center', color: '#cdb98d' });   // lamplight in the groove
     Font.draw(g, 'WOMBAT GODS', cx, ty, { scale: 4, align: 'center', color: '#f0dcab' });
+    // a bar of lamplight travelling along the cut letters
+    const tw = Font.width('WOMBAT GODS', 4);
+    const sweep = ((t * 90) % (tw + 340)) - 170;
+    g.save();
+    g.beginPath(); g.rect(cx - tw / 2 + sweep - 26, ty - 4, 52, 34); g.clip();
+    Font.draw(g, 'WOMBAT GODS', cx, ty, { scale: 4, align: 'center', color: '#fff6d8' });
+    Font.draw(g, 'WOMBAT GODS', cx, ty - 1, { scale: 4, align: 'center', color: '#ffffff' });
+    g.restore();
     // when the eyes take, the cut glows with them
     if (flick > 0.02) {
       g.globalAlpha = flick * 0.75;
@@ -499,13 +507,57 @@ const Menu = (() => {
     }
   }
 
+  // Fireflies over the floor of the wood, and low mist rolling through it.
+  const FLIES = [], DRIFT = [];
+  function seedAir() {
+    if (FLIES.length) return;
+    const r = Art.rng(5150);
+    for (let i = 0; i < 26; i++) {
+      FLIES.push({ x: r() * VW, y: HORIZON + 20 + r() * (VH - HORIZON - 30), ph: r() * TAU,
+        sp: 0.25 + r() * 0.5, rad: 8 + r() * 26, blink: 0.8 + r() * 2.6, off: r() * 4 });
+    }
+    for (let i = 0; i < 14; i++) {
+      DRIFT.push({ x: r() * VW, y: VH - 6 - r() * 84, w: 90 + r() * 150, h: 14 + r() * 20,
+        sp: 3 + r() * 9, a: 0.07 + r() * 0.1 });
+    }
+  }
+  function drawAir(g) {
+    // mist, low and slow
+    for (const d of DRIFT) {
+      const x = ((d.x + t * d.sp) % (VW + 300)) - 150;
+      const y = d.y + Math.sin(t * 0.4 + d.x) * 3;
+      const gr = g.createRadialGradient(x, y, 0, x, y, d.w);
+      gr.addColorStop(0, MIST + (d.a * 0.55).toFixed(3) + ')');
+      gr.addColorStop(1, MIST + '0)');
+      g.save(); g.translate(x, y); g.scale(1, d.h / d.w); g.translate(-x, -y);
+      g.fillStyle = gr; g.fillRect(x - d.w, y - d.w, d.w * 2, d.w * 2);
+      g.restore();
+    }
+    // and the fireflies through it
+    for (const f of FLIES) {
+      const x = f.x + Math.cos(t * f.sp + f.ph) * f.rad;
+      const y = f.y + Math.sin(t * f.sp * 1.6 + f.ph) * f.rad * 0.4;
+      const on = Math.sin((t + f.off) * (TAU / f.blink));
+      if (on < 0.2) continue;
+      const a = (on - 0.2) / 0.8;
+      const gr = g.createRadialGradient(x, y, 0, x, y, 9);
+      gr.addColorStop(0, `rgba(226,244,150,${(a * 0.4).toFixed(2)})`);
+      gr.addColorStop(1, 'rgba(226,244,150,0)');
+      g.fillStyle = gr; g.fillRect(x - 10, y - 10, 20, 20);
+      g.fillStyle = `rgba(244,255,190,${a.toFixed(2)})`;
+      g.fillRect(Math.round(x), Math.round(y), 2, 2);
+    }
+  }
   function update(dt) {
     t += dt;
+    seedAir();
     redT -= dt; redNext -= dt;                          // the god's eyes, now and then
     if (redNext <= 0) { redT = 0.9 + Math.random() * 0.8; redNext = 2.2 + Math.random() * 4.5; }
   }
   function render(g) {
     scene(g);
+    seedAir();
+    drawAir(g);
     if (page === 'home') drawHome(g);
     else drawSettings(g);
     if (confirm) drawConfirm(g);

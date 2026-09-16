@@ -283,10 +283,18 @@ const Grove = (() => {
       }
       if (w.stomach === 'digesting') {
         w.digestT -= dt * digestMult(w);
-        if (w.digestT <= 0) { w.stomach = 'ready'; w.strain = 1.8; w.state = 'dig'; w.stateT = 1.8; }
+        if (w.digestT <= 0) { w.stomach = 'ready'; w.strain = 1.6; w.state = 'dig'; w.stateT = 1.6; }
       } else if (w.stomach === 'ready') {
         w.strain -= dt;
         if (w.strain <= 0) leave(w);
+      } else if (w.stomach === 'empty' && w.age !== 'baby' && w.state !== 'eat') {
+        // Nobody starves here. If there is no bowl down, it grazes whatever it
+        // is standing on, so the loop keeps turning whether you feed it or not.
+        // Grass under it is a quick mouthful; bare dirt takes longer and it
+        // has to root about for it. Either way it eats, so either way it poops.
+        w.graze = (w.graze || 0) + dt;
+        const lush = World.hasGrass(w.x, w.y + 4);
+        if (w.graze > (lush ? 4 : 11)) { w.graze = 0; graze(w, lush); }
       }
       w.stateT -= dt;
       // an empty wombat claims the nearest bowl and heads for it
@@ -444,20 +452,21 @@ const Grove = (() => {
     const bob = Math.sin(f.t * 3) * 1.2;
     g.save();
     g.globalAlpha = k;
-    g.fillStyle = 'rgba(18,14,20,0.34)'; Art.ell(g, f.x, f.y + 1, 13, 4);
-    // a wooden bowl with the crop heaped in it
-    Art.ell(g, f.x, f.y - 2 + bob, 13, 6.6, '#0a0810');
-    Art.ell(g, f.x, f.y - 3 + bob, 11.6, 5.8, PAL.bark2);
-    Art.ell(g, f.x, f.y - 4.4 + bob, 9.6, 4.6, PAL.bark1);
-    Art.ellBand(g, f.x, f.y - 3 + bob, 11.6, 6.4, PAL.bark3, 0.56, 0.94);
-    for (let i = 0; i < 7; i++) {
-      const a = (i / 7) * TAU + f.t * 0.4;
-      Art.ell(g, f.x + Math.cos(a) * 5, f.y - 7 + bob + Math.sin(a) * 2, 3.4, 2.8, def.color);
-      Art.ell(g, f.x + Math.cos(a) * 5 - 0.9, f.y - 7.8 + bob + Math.sin(a) * 2, 1.6, 1.2, U.shade(def.color, 0.35));
-    }
-    Art.ell(g, f.x, f.y - 9 + bob, 4.4, 3.4, def.color);
-    Art.ell(g, f.x - 1.2, f.y - 10 + bob, 2, 1.5, U.shade(def.color, 0.4));
-    Icons.blit(g, def.icon, f.x - 8, f.y - 30 + bob * 1.6, 1);
+    g.fillStyle = 'rgba(14,10,18,0.4)'; Art.ell(g, f.x, f.y + 1, 16, 5);
+    // a glazed dish, and the actual crop heaped in it
+    Art.ell(g, f.x, f.y - 1 + bob, 16, 7.4, '#0a0810');
+    Art.ell(g, f.x, f.y - 2 + bob, 14.4, 6.6, '#7a5230');
+    Art.ell(g, f.x, f.y - 3.4 + bob, 12.4, 5.4, '#a8763e');
+    Art.ell(g, f.x, f.y - 4 + bob, 10.6, 4.4, '#4a3320');            // the bowl's inside
+    Art.ellBand(g, f.x, f.y - 2 + bob, 14.4, 7.2, '#c49461', 0.54, 0.92);
+    Art.rect(g, f.x - 14.4, f.y - 3.4 + bob, 28.8, 1.4, '#6a4626');  // a painted band
+    const img = Props.get('produce', f.key);
+    const put = (dx, dy, sc) => g.drawImage(img,
+      Math.round(f.x + dx - img.width * sc / 2), Math.round(f.y + dy + bob - img.height * sc),
+      Math.round(img.width * sc), Math.round(img.height * sc));
+    put(-6, -3, 0.72); put(6.5, -3.5, 0.72); put(0, -6.5, 0.9);      // three of them, heaped
+    Art.ellBand(g, f.x, f.y - 2 + bob, 14.4, 7.2, '#8a5e36', 0.94, 1);
+    Icons.blit(g, def.icon, f.x - 8, f.y - 34 + bob * 1.6, 1);
     // a smell, curling upward, so you can find it in the weeds
     for (let i = 0; i < 3; i++) {
       const sy = f.y - 12 - ((f.t * 14 + i * 9) % 20);
@@ -474,7 +483,7 @@ const Grove = (() => {
     if (w.stomach !== 'empty' || w.age === 'baby') { if (!auto) Audio.play('error'); return false; }
     G.food[key]--;
     w.stomach = 'digesting'; w.food = key;
-    w.digestTotal = def.grow * 0.55 + 12; w.digestT = w.digestTotal;
+    w.digestTotal = def.grow * 0.2 + 5; w.digestT = w.digestTotal;
     w.hap = Math.min(hapCap(), w.hap + def.hap);
     w.state = 'eat'; w.stateT = 1.9; w.sq = 0.32; w.chew = 1.9;
     G.stats.fed++;
@@ -483,6 +492,17 @@ const Grove = (() => {
     FX.burst(w.x + w.dir * 18, w.y - 12, 7, { color: [def.color, PAL.moss4], speed: 50, gravity: 240, life: 0.5, size: 2 });
     UI.refreshTray();
     return true;
+  }
+  // A mouthful of the lawn: slower than a proper meal and it only ever makes
+  // plain cubes, but it means the grove is never idle.
+  function graze(w, lush) {
+    w.stomach = 'digesting'; w.food = 'ashgrass'; w.grazed = true;
+    w.digestTotal = lush ? 13 : 18; w.digestT = w.digestTotal;
+    w.hap = Math.min(hapCap(), w.hap + (lush ? 2 : 0));
+    w.state = 'eat'; w.stateT = 1.5; w.sq = 0.24; w.chew = 1.5;
+    World.disturb(w.x, w.y + 4, 14);
+    Audio.play('munch');
+    FX.burst(w.x + w.dir * 16, w.y - 6, 5, { color: [PAL.moss3, PAL.moss4], speed: 40, gravity: 220, life: 0.45, size: 2 });
   }
   function pet(w) {
     if (w.grump > 0) { Audio.play('error'); return; }
@@ -1285,10 +1305,19 @@ const Grove = (() => {
   }
 
   function drawDrop(g, d) {
-    const def = OFFERINGS[d.type], s = CUBE_SIZE * 0.72;
+    const def = OFFERINGS[d.type], s = CUBE_SIZE * 0.95;
     const w = def.w * s, h = def.h * s;
     const held = d === dragging;
-    g.fillStyle = 'rgba(18,14,20,0.25)'; Art.ell(g, d.x, d.y - 1, w * 0.55, 4);
+    // a proper contact shadow and a ring of light, so a cube on the ground is
+    // something you notice from across the clearing
+    g.fillStyle = 'rgba(12,9,16,0.4)'; Art.ell(g, d.x, d.y - 1, w * 0.62, 5);
+    if (d.z <= 0.5 && !held) {
+      const pulse = 0.5 + 0.5 * Math.sin(G.time * 3 + d.x * 0.1);
+      const gr = g.createRadialGradient(d.x, d.y - h * 0.4, 2, d.x, d.y - h * 0.4, 26 + pulse * 6);
+      gr.addColorStop(0, `rgba(245,205,92,${(0.13 + pulse * 0.09).toFixed(2)})`);
+      gr.addColorStop(1, 'rgba(245,205,92,0)');
+      g.fillStyle = gr; g.fillRect(d.x - 34, d.y - h - 30, 68, 68);
+    }
     g.save();
     g.translate(Math.round(d.x), Math.round(d.y - d.z - h / 2));
     g.rotate(d.spin * 0.4 + (held ? Math.sin(G.time * 8) * 0.06 : 0));

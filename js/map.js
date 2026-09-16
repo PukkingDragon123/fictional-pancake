@@ -20,7 +20,8 @@ const Atlas = (() => {
 
   // The network. The highway runs the length of the district; everything else
   // hangs off it. Points are map pixels, so a road ends where its place is.
-  const HIGHWAY = [[-24, 330], [110, 312], [236, 296], [352, 268], [452, 238], [556, 200], [664, 178]];
+  const MAINROAD = [[-24, 330], [110, 312], [236, 296], [352, 268], [452, 238], [556, 200], [664, 178]];
+  const HIGHWAY = MAINROAD;            // the old name, kept for the traffic that crawls it
   const ROADS = [
     [[176, 236], [200, 258], [228, 274], [236, 296]],                      // the grove road
     [[330, 296], [318, 288], [300, 282], [284, 286], [236, 296]],          // into town
@@ -105,21 +106,15 @@ const Atlas = (() => {
         }
       }
     }
-    // ---- the secondary roads ---------------------------------------------
-    for (const p of ROADS) {
+    // ---- the roads --------------------------------------------------------
+    // The main road through the district is drawn like every other road. It was
+    // a gold motorway band and nobody could tell what it was.
+    for (const p of ROADS.concat([HIGHWAY])) {
       poly(g, p, RD0, 9);
       poly(g, p, RD1, 7);
       poly(g, p, RD2, 3);
       dashed(g, p, RD3, 1, 3, 5);
     }
-    // ---- the highway, over the top of everything -------------------------
-    // Casing, then the white edge lines, then the tarmac over the top of them,
-    // then a dashed centre line. A solid gold band just reads as a gold band.
-    poly(g, HIGHWAY, '#141108', 15);
-    poly(g, HIGHWAY, '#ddd6c0', 12);
-    poly(g, HIGHWAY, '#4e4739', 10);
-    poly(g, HIGHWAY, '#5b533f', 8);
-    dashed(g, HIGHWAY, HWY3, 2, 6, 7);
     // ---- farms and sheds strung along the roads --------------------------
     for (const p of ROADS) {
       for (let i = 1; i < p.length - 1; i++) {
@@ -138,7 +133,7 @@ const Atlas = (() => {
       [330, 246, 'WOMBAT FLAT', '#9aa88a'], [112, 74, 'FERN GULLY', '#7a8a6e'],
       [512, 44, 'STILL LAKE', '#6f9ab0'], [248, 128, 'THE SCRUB', '#7a8a6e'],
       [560, 292, 'BLACKWOOD', '#7a8a6e'], [128, 320, 'STONE FLAT', '#7a8a6e'],
-      [470, 336, 'HIGHWAY 1', '#b39a52']]) {
+      [452, 340, 'THE FLATS', '#7a8a6e']]) {
       Font.draw(g, tx2, lx, ly, { scale: 1, color: col, align: 'center', shadow: 'rgba(4,8,4,0.95)' });
     }
     sheet = c;

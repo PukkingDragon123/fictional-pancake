@@ -96,7 +96,7 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
-      Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G);
+      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
@@ -143,18 +143,19 @@ const Main = (() => {
     if (mode !== 'map') G.lastSite = mode;
     UI.setMode(mode);
     FX.clear(); FX.flash('#120e14', 0.5);
-    if (mode !== 'shop') Audio.play('whoosh');
+    if (mode !== 'shop' && mode !== 'nursery') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
     if (mode === 'intro') Intro.enter();
     else if (mode === 'grove') Grove.enter();
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
     else if (mode === 'rite') Tower.enter();
+    else if (mode === 'nursery') Nursery.enter();
     if (mode !== 'rite') Audio.setMode('pen');
     save();
   }
   function back() {
-    if (G.mode === 'shrine' || G.mode === 'rite' || G.mode === 'shop') setMode('map');
+    if (G.mode === 'shrine' || G.mode === 'rite' || G.mode === 'shop' || G.mode === 'nursery') setMode('map');
     else setMode('grove');
   }
 
@@ -198,6 +199,7 @@ const Main = (() => {
         if (consumed) lastP = w;
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
+      else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
       else if (G.mode === 'rite') Tower.click(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
@@ -216,11 +218,13 @@ const Main = (() => {
           stroke(wp); UI.hideTip(); return;
         }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
+        if (G.mode === 'nursery') { Nursery.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
+      else if (G.mode === 'nursery') tip = Nursery.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
@@ -230,6 +234,7 @@ const Main = (() => {
       const wp = world(p);
       if (G.mode === 'grove') { if (!panning) Grove.release(wp.x, wp.y); }
       else if (G.mode === 'shop') Shop.release(p.x, p.y);
+      else if (G.mode === 'nursery') Nursery.release(p.x, p.y);
       else if (G.mode === 'map' && moved < 8) Atlas.click(p.x, p.y);
       down = false; lastP = null; downP = null; panning = false;
     };
@@ -244,6 +249,7 @@ const Main = (() => {
         else { const p = pos(e); Grove.zoomBy(e.deltaY < 0 ? 1.14 : 1 / 1.14, p.x, p.y); }
       }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
+      else if (G.mode === 'nursery') { e.preventDefault(); Nursery.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
     document.addEventListener('keydown', (e) => {
@@ -314,6 +320,7 @@ const Main = (() => {
       if (G.mode === 'grove' && G.pointer.on && (!down || (G.tool === 'drag' && !panning)) && !UI.anyPanel()) Grove.edgeScroll(screenP.x, real);
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);
+      else if (G.mode === 'nursery') Nursery.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
@@ -334,6 +341,7 @@ const Main = (() => {
       else if (G.mode === 'shrine') Ritual.renderShrine(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
+      else if (G.mode === 'nursery') Nursery.render(g);
       else Tower.render(g);
       g.restore();
     }
@@ -371,7 +379,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

@@ -83,16 +83,30 @@ const UI = (() => {
     } else {
       const food = wheelRing === 'food';
       title = food ? 'FEED' : 'SEED';
+      // The picker says what each one actually does: how many you have, what it
+      // grows into, how long it takes, and what the wombat leaves afterwards.
       items = CROPS.map((c) => {
         const n = (food ? G.food : G.seeds)[c.key] || 0;
         const on = food ? G.selFood === c.key : G.selSeed === c.key;
-        return { icon: c.icon, on, n, out: n === 0, tip: `<b>${c.name}</b><br>${n} ${food ? 'to feed' : 'seed'}`,
+        const off = OFFERINGS[c.offering];
+        const tip = food
+          ? `<b>${c.name}</b>${c.magic ? ' <span class="warn">magical</span>' : ''}<br>
+             <span class="dim">you have</span> <b>${n}</b><br>
+             ${ic(off.icon, 'sm')} leaves <b>${off.name}</b> &middot; worth ${off.value}<br>
+             ${ic('heart', 'sm')} +${c.hap} happiness`
+          : `<b>${c.name}</b>${c.magic ? ' <span class="warn">magical</span>' : ''}<br>
+             <span class="dim">seed in hand</span> <b>${n}</b><br>
+             grows in <b>${c.grow}s</b> &middot; <b>${c.yield}</b> a plant<br>
+             ${ic(off.icon, 'sm')} feeds for <b>${off.name}</b>`;
+        return { icon: c.icon, on, n, out: n === 0, magic: !!c.magic, tip,
           act: () => {
-            if (!n) { Audio.play('error'); toast(food ? 'grow it first' : 'buy seed at the mart', 'bad'); return; }
+            if (!n) { Audio.play('error'); toast(food ? 'grow it first' : 'buy seed at the mart or the greenhouse', 'bad'); return; }
             if (food) G.selFood = c.key; else G.selSeed = c.key;
             Audio.play('click'); closeWheel(); refreshHUD();
           } };
       });
+      // whatever you have most of, first; the empties fall to the bottom
+      items.sort((a, b2) => (b2.n || 0) - (a.n || 0));
       if (food) items.unshift({ icon: 't_hand', on: !G.selFood, tip: '<b>Pet</b><br>hurries digestion', act: () => { G.selFood = null; Audio.play('click'); closeWheel(); refreshHUD(); } });
       items.push({ icon: 'back', tip: '<b>Back</b>', act: () => { wheelRing = 'tools'; renderWheel(); } });
     }
@@ -112,7 +126,7 @@ const UI = (() => {
     grid.className = 'traygrid';
     items.forEach((it, idx) => {
       const el = document.createElement('button');
-      el.className = 'spoke' + (it.on ? ' on' : '') + (it.locked ? ' locked' : '') + (it.out ? ' out' : '');
+      el.className = 'spoke' + (it.on ? ' on' : '') + (it.locked ? ' locked' : '') + (it.out ? ' out' : '') + (it.magic ? ' magic' : '');
       el.innerHTML = `${ic(it.icon)}${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = (e) => { e.stopPropagation(); it.act(); };
       el.onmouseenter = (e) => showTip(e, it.tip);
@@ -123,7 +137,9 @@ const UI = (() => {
     w.appendChild(tray);
     // keep the whole tray on screen, opening down-right of the cursor by default
     const fw = $('frame').clientWidth, fh = $('frame').clientHeight;
-    const tw = 3 * 58 + 2 * 7 + 22 + 8, th = tray.offsetHeight || 240;
+    const cols = wheelRing === 'tools' ? 3 : 4;
+    grid.style.gridTemplateColumns = `repeat(${cols}, 58px)`;
+    const tw = cols * 58 + (cols - 1) * 7 + 22 + 8, th = tray.offsetHeight || 240;
     let px = wheelAt.x * k + 14, py = wheelAt.y * k + 14;
     if (px + tw > fw - 8) px = wheelAt.x * k - tw - 14;
     if (py + th > fh - 8) py = Math.max(8, fh - th - 8);
@@ -229,19 +245,24 @@ const UI = (() => {
   }
 
   // ---- store basket -------------------------------------------------------
+  // Two shops share this panel, so everything below asks which one you are in.
+  const store = () => (G && G.mode === 'nursery' ? Nursery : Shop);
   function refreshBasket() {
-    const n = Shop.basket.length;
-    $('s-basket').textContent = n;
-    $('b-basket').classList.toggle('full', n > 0);
+    const n = store().basket.length;
+    const chip = G && G.mode === 'nursery' ? 'n-basket' : 's-basket';
+    const btn = G && G.mode === 'nursery' ? 'b-basket2' : 'b-basket';
+    if ($(chip)) $(chip).textContent = n;
+    if ($(btn)) $(btn).classList.toggle('full', n > 0);
     if (!$('panel-basket').hidden) renderBasket();
   }
   function openBasket() { openPanel('panel-basket'); }
   function renderBasket() {
-    const rows = Shop.lines();
-    const t = Shop.total();
+    const St = store();
+    const rows = St.lines();
+    const t = St.total();
     const afford = t <= G.wd;
     let h = '';
-    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>THE BASKET IS EMPTY</p><span>swipe the aisles and click what you want</span></div>`;
+    if (!rows.length) h = `<div class="empty2">${ic('basket', 'xl')}<p>THE BASKET IS EMPTY</p><span>${G.mode === 'nursery' ? 'walk the dome and click a pot' : 'swipe the aisles and click what you want'}</span></div>`;
     else {
       h = '<div class="blist">';
       for (const r of rows) {
@@ -265,16 +286,16 @@ const UI = (() => {
       <div class="brow2">
         <button class="act go big" id="b-pay" ${!rows.length || !afford ? 'disabled' : ''}>${ic('check')}<span>${afford ? 'PAY ' + U.fmt(t) : 'NOT ENOUGH'}</span></button>
         <button class="wbtn" id="b-clear">${ic('close', 'sm')}CLEAR</button>
-        <button class="wbtn" id="b-sell">${ic('wdollar', 'sm')}SELL</button>
+        ${G.mode === 'nursery' ? '' : `<button class="wbtn" id="b-sell">${ic('wdollar', 'sm')}SELL</button>`}
       </div>`;
     $('basket-body').innerHTML = h;
-    $('basket-body').querySelectorAll('.bx').forEach((b) => b.onclick = () => { Shop.removeLine(b.dataset.id); Audio.play('click'); renderBasket(); });
-    $('basket-body').querySelectorAll('.bm').forEach((b) => b.onclick = () => { Shop.removeOne(b.dataset.id); Audio.play('click'); renderBasket(); });
-    $('basket-body').querySelectorAll('.bp2').forEach((b) => b.onclick = () => { Shop.addById(b.dataset.id); renderBasket(); });
+    $('basket-body').querySelectorAll('.bx').forEach((b) => b.onclick = () => { St.removeLine(b.dataset.id); Audio.play('click'); renderBasket(); });
+    $('basket-body').querySelectorAll('.bm').forEach((b) => b.onclick = () => { St.removeOne(b.dataset.id); Audio.play('click'); renderBasket(); });
+    $('basket-body').querySelectorAll('.bp2').forEach((b) => b.onclick = () => { St.addById(b.dataset.id); renderBasket(); });
     const pay = $('b-pay');
-    if (pay) pay.onclick = () => { Shop.checkout(); Audio.play('till'); closePanels(); renderBasket(); };
-    $('b-clear').onclick = () => { Shop.clear(); Audio.play('click'); renderBasket(); };
-    $('b-sell').onclick = () => { openPanel('panel-pawn'); };
+    if (pay) pay.onclick = () => { St.checkout(); Audio.play('till'); closePanels(); renderBasket(); };
+    $('b-clear').onclick = () => { St.clear(); Audio.play('click'); renderBasket(); };
+    if ($('b-sell')) $('b-sell').onclick = () => { openPanel('panel-pawn'); };
   }
 
   // ---- tooltip ------------------------------------------------------------
@@ -364,7 +385,7 @@ const UI = (() => {
   }
   function hideAll() {
     closeWheel(); $('checklist').hidden = true; $('b-tool').hidden = true;
-    $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true;
+    $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true; $('ov-nursery').hidden = true;
     $('b-back').hidden = true;
   }
   function refreshAll() { refreshHUD(); refreshTray(); if (G.mode === 'shrine') refreshRitual(); if (G.mode === 'rite') refreshRiteCard(); }
@@ -379,6 +400,7 @@ const UI = (() => {
     $('b-zout').onclick = () => { Audio.play('click'); Grove.zoomBy(1 / 1.24); refreshZoom(); };
     $('b-tool').onclick = (e) => { e.stopPropagation(); if (wheelOpen()) closeWheel(); else openWheel(470, 120); };
     $('b-basket').onclick = () => openBasket();
+    if ($('b-basket2')) $('b-basket2').onclick = () => openBasket();
     $('b-music').onclick = () => { const on = Audio.toggleMusic(); G.musicOff = !on; $('b-music').textContent = on ? 'MUSIC' : 'MUTED'; Main.save(); };
     let armed = 0;
     $('b-reset').onclick = () => {
@@ -401,11 +423,12 @@ const UI = (() => {
     $('ov-shrine').hidden = mode !== 'shrine';
     $('ov-rite').hidden = mode !== 'rite';
     $('ov-shop').hidden = mode !== 'shop';
+    $('ov-nursery').hidden = mode !== 'nursery';
     closeWheel();
     refreshTray(); refreshHUD();
     if (mode === 'shrine') refreshRitual();
     if (mode === 'rite') refreshRiteCard();
-    if (mode === 'shop') refreshBasket();
+    if (mode === 'shop' || mode === 'nursery') refreshBasket();
   }
   // the zoom column follows the camera so the nub always tells the truth
   function refreshZoom() {
