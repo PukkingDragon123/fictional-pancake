@@ -48,6 +48,8 @@ const SUBTOOLS = [
   { key: 'seed',  name: 'Seed',  icon: 't_seed',  radius: 13, desc: 'Sow on tilled soil. Water it.' },
   { key: 'moss',  name: 'Grass', icon: 't_moss',  radius: 19, desc: 'Sow grass. It sprouts slowly.' },
   { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
+  { key: 'mound', name: 'Hill',  icon: 'u_burrow', radius: 26, cost: 120, desc: 'Raise a grassy hill. They like to sit on it.' },
+  { key: 'pond',  name: 'Pond',  icon: 'd_pool',   radius: 24, cost: 260, desc: 'Dig a pond. Frogs and dragonflies move in.' },
 ];
 // Nothing is handed over at once. The cultist teaches a tool, then you own it.
 const GATES = {
@@ -55,6 +57,8 @@ const GATES = {
   sickle: () => true,
   destroy: (g) => g.step >= 1,
   farm: (g) => g.step >= 2,
+  mound: (g) => g.step >= 5,
+  pond: (g) => g.step >= 5,
   moss: (g) => g.step >= 2,
   hoe: (g) => g.step >= 3,
   seed: (g) => g.step >= 3,
@@ -71,6 +75,8 @@ const GATE_WHY = {
   water: 'the wrecks go first',
   food: 'sow the grass first',
   pair: 'needs a nest',
+  mound: 'load the truck first',
+  pond: 'load the truck first',
 };
 const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
 

@@ -119,6 +119,7 @@ const Grove = (() => {
   // ---- setup --------------------------------------------------------------
   function init(g) {
     G = g;
+    Wild.init(g, { W, H, GROUND, walk: WALK });
     if (!G.startWeeds) G.startWeeds = Math.max(1, World.weeds.filter((w) => inZone(w.x, w.y)).length);
     if (!G.tiers) G.tiers = { sickle: 0, hoe: 0, water: 0 };
     objects.length = 0;
@@ -227,6 +228,7 @@ const Grove = (() => {
   }
 
   function update(dt) {
+    Wild.update(dt);
     updateFoods(dt);
     // weather: clouds crawl, leaves tear loose on a gust
     for (const c of clouds) { c.x += c.s * dt; if (c.x > W + 220) c.x = -c.w - 220; }
@@ -353,6 +355,18 @@ const Grove = (() => {
       // every wombat on the move bounces: a two-beat squash on each footfall
       if (w.state === 'walk' || w.state === 'run') w.sq += Math.sin(w.anim * TAU * 2) * 0.07;
       const rm2 = roam(); w.x = U.clamp(w.x, rm2.x0, rm2.x1); w.y = U.clamp(w.y, WALK.y0, WALK.y1);
+      // a pond is water: push her back out of it, but let her drink at the edge.
+      // a hill is a good place to sit, and she knows it.
+      for (const pd of Wild.ponds) {
+        const dx = w.x - pd.x, dy = (w.y - pd.y) / 0.45;
+        const d = Math.hypot(dx, dy);
+        if (d < pd.r * 0.82 && d > 0.01) {
+          const push = (pd.r * 0.82 - d) * dt * 5;
+          w.x += (dx / d) * push; w.y += (dy / d) * push * 0.45;
+          if (Math.random() < dt * 1.4) w.hap = Math.min(cap, w.hap + 0.5);      // a drink
+        }
+      }
+      if (Math.random() < dt * 0.5 && Wild.onMound(w.x, w.y)) w.hap = Math.min(cap, w.hap + 0.4);
     }
     for (let i = 0; i < G.wombats.length; i++) for (let j = i + 1; j < G.wombats.length; j++) {
       const a = G.wombats[i], b = G.wombats[j], dx = b.x - a.x;
@@ -631,8 +645,15 @@ const Grove = (() => {
       Audio.play('error'); UI.toast('too far out', 'bad');
       return true;
     }
+    if (tool === 'mound' || tool === 'pond') {
+      if (!first) return true;
+      Wild.place(tool, x, y);
+      return true;
+    }
     if (tool === 'drag') {
       if (!first) return true;
+      const v = Wild.visitorAt(x, y);
+      if (v) { Wild.talkTo(v); return true; }
       const d = dropAt(x, y);
       if (d) { dragging = d; d.z = Math.max(d.z, 12); Audio.play('click'); return true; }
       const w = wombatAt(x, y);
@@ -827,6 +848,7 @@ const Grove = (() => {
       const a = (0.07 + (1 - f) * 0.1) * (0.6 + 0.4 * Math.sin(G.time * 0.3 + m.x));
       for (let i = 0; i < 6; i++) Art.dither(g, mx, GROUND - 4 + i * 6, m.w * 1.4, 6, '#ceccd4', a * (1 - i / 6));
     }
+    Wild.drawGround(g);              // hills and ponds are ground, so they go first
     World.drawSprouts(g);
     World.drawBlades(g);
     World.drawFlowers(g);
@@ -850,6 +872,7 @@ const Grove = (() => {
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
     if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
+    for (const it of Wild.items(g)) items.push(it);
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
     drawPlotPrompt(g, L, R);

@@ -84,12 +84,59 @@ const Sprites = (() => {
       Art.speckle(g, X(cx), Y(cy), rx * K, ry * K, fur.mid, Math.round(rx * ry * 0.55), 7);
       Art.speckle(g, X(cx), Y(cy - ry * 0.4), rx * K * 0.9, ry * K * 0.5, fur.dark, Math.round(rx * ry * 0.2), 13);
     };
-    const paws = (x, y, w) => { R(x, y, w, 2.2, fur.deep); R(x, y + 1.4, w, 1, fur.ink); };
-    const eye = (x, y, closed) => { if (closed) R(x - 0.4, y + 0.6, 3, 1, fur.ink); else R(x, y, 2, 2, fur.ink); };
-    const nose = (x, y, w, h) => { E(x + w / 2, y + h / 2, w / 2, h / 2, fur.nose); R(x + 1, y + h - 0.6, w - 2, 1, fur.ink); if (p.jaw > 0.6) { R(x + 1, y + h + 0.4, w - 2.4, 1.6, fur.ink); R(x + 1.6, y + h + 0.6, 1.2, 1, PAL.cream); } };
+    // a rounded loaf: an ellipse with the bottom flattened onto the ground,
+    // which is the silhouette a wombat actually has. Nothing here is a brick.
+    const loaf = (cx, cy, rx, ry, col, flat = 0.55) => {
+      E(cx, cy, rx, ry, col);
+      if (flat > 0) R(cx - rx, cy + ry * flat, rx * 2, ry * (1 - flat) + 1, col);
+    };
+    // a stubby leg with a rounded paw and three claws on it
+    const paws = (x, y, w) => {
+      R(x + 0.4, y - 0.6, w - 0.8, 2.4, fur.dark);
+      E(x + w / 2, y + 1.2, w / 2, 1.5, fur.deep);
+      R(x, y + 1.9, w, 1, fur.ink);
+      for (let i = 0; i < 3; i++) R(x + 0.8 + i * (w - 2) / 2.4, y + 2.2, 0.9, 1, fur.ink);
+    };
+    // a proper eye: dark, round, with a lid over it and a catchlight in it
+    const eye = (x, y, closed) => {
+      if (closed) { R(x - 1.4, y, 3, 1, fur.ink); R(x - 1, y + 0.9, 2.2, 0.8, fur.dark); return; }
+      E(x, y, 2.2, 2.2, fur.mid);                               // the socket it sits in
+      E(x, y, 1.7, 1.8, fur.ink);
+      E(x + 0.3, y + 0.3, 1.1, 1.2, fur.eye || '#4a2f20');      // a warm iris under the pupil
+      R(x - 0.9, y - 0.9, 0.9, 0.9, PAL.cream);                 // one square of catchlight
+      R(x - 2.2, y - 2.6, 4.2, 0.9, fur.dark);                  // the brow ridge over it
+    };
+    // The nose. A wombat's whole face is the nose: a broad bare pad, wider than
+    // it is tall, sat on the very tip of the muzzle. A solid black blob is
+    // unreadable this small, so it is a dark grey pad with a lit top edge, two
+    // nostril slits cut out of it, and the mouth a short line underneath.
+    const PAD0 = U.shade(fur.nose, -0.25), PAD1 = U.shade(fur.nose, 0.22), PAD2 = U.shade(fur.nose, 0.52);
+    const nose = (cx, cy, w, h) => {
+      E(cx, cy, w / 2 + 0.5, h / 2 + 0.4, fur.ink);              // the rim it sits in
+      E(cx, cy, w / 2, h / 2, PAD0);
+      Art.ellBand(g, X(cx), Y(cy), (w / 2) * K, (h / 2) * K, PAD1, 0, 0.42);
+      E(cx - w * 0.16, cy - h * 0.26, w * 0.2, h * 0.16, PAD2);  // the shine off the top of it
+      E(cx - w * 0.2, cy + h * 0.14, w * 0.11, h * 0.2, fur.ink);   // the two nostrils
+      E(cx + w * 0.2, cy + h * 0.14, w * 0.11, h * 0.2, fur.ink);
+      R(cx - 1.2, cy + h / 2 + 0.2, 2.4, 0.9, fur.ink);          // the mouth under it
+      if (p.jaw > 0.6) { R(cx - 1.5, cy + h / 2 + 0.6, 3, 1.6, fur.ink); R(cx - 0.9, cy + h / 2 + 0.8, 1.2, 0.9, PAL.cream); }
+      for (const sd of [-1, 1]) R(cx + sd * (w * 0.5 + 0.6), cy + h * 0.06, 1, 0.8, fur.dark);   // whisker roots
+    };
+    // Ears: rounded triangles set wide and high, with the inner ear showing.
     const ears = (lx, rx, y, lift) => {
-      E(lx, y - lift * 0.8, 2.6 * HK, 2.6 * HK, fur.mid); E(lx, y + 0.4 - lift * 0.8, 1.4 * HK, 1.4 * HK, fur.dark);
-      E(rx, y - lift, 2.6 * HK, 2.6 * HK, fur.base); E(rx, y + 0.4 - lift, 1.4 * HK, 1.4 * HK, fur.mid);
+      const er = 3.6 * HK;
+      const one = (ex, ey, base, inner, tuft) => {
+        Art.poly(g, [[X(ex - er), Y(ey + er * 0.7)], [X(ex - er * 0.75), Y(ey - er * 0.8)],
+                     [X(ex + er * 0.75), Y(ey - er * 0.8)], [X(ex + er), Y(ey + er * 0.7)]], fur.ink);
+        Art.poly(g, [[X(ex - er + 0.5), Y(ey + er * 0.7)], [X(ex - er * 0.62), Y(ey - er * 0.6)],
+                     [X(ex + er * 0.62), Y(ey - er * 0.6)], [X(ex + er - 0.5), Y(ey + er * 0.7)]], base);
+        E(ex, ey - er * 0.1, er * 0.5, er * 0.54, inner);        // the inner ear
+        E(ex - er * 0.2, ey - er * 0.42, er * 0.26, er * 0.24, U.shade(base, 0.3));
+        E(ex, ey - er * 0.84, er * 0.68, er * 0.3, base);        // round the top of it off
+        for (let i = -1; i <= 1; i++) R(ex + i * 1.3, ey - er * 1.02, 0.9, 1.1, tuft);   // fluff on the rim
+      };
+      one(lx, y - lift * 0.8, fur.mid, fur.deep, fur.dark);
+      one(rx, y - lift, fur.base, fur.dark, fur.mid);
     };
     const glow = () => {
       if (fur.moss) { E(16, 8, 4, 1.8, PAL.moss3); E(24, 7.5, 3, 1.6, PAL.moss2); }
@@ -183,25 +230,41 @@ const Sprites = (() => {
         }
       }
     }
-    // body: a brick of a loaf with the corners knocked off, not a ball
-    const slab = (x, y, w, h, col) => { R(x + 2, y, w - 4, h, col); R(x + 1, y + 1, w - 2, h - 2, col); R(x, y + 2, w, h - 4, col); };
-    const bx0 = 20 - bw, bw2 = bw * 2, by0 = by - bh, bh2 = bh * 2;
-    slab(bx0, by0 - p.rear * 0.5, bw2, bh2, fur.base);
-    slab(bx0 - 1, by0 + 1, 8, bh2 - 1, fur.base);                   // the rump
-    R(bx0 + 3, by0 + bh2 - 4, bw2 - 6, 3, fur.light);              // belly band
-    R(bx0 + 2, by0, bw2 - 4, 1.2, fur.light);                      // sun along the back
-    saddle(18, by - bh * 0.35, 10, bh * 0.55);
-    R(bx0 - 2, by - 1, 1.6, 3, fur.mid);                          // the tail nub
-    // head: a squared bump on the front, rising above the back
-    const hx = 30 + p.headFwd, hy = 13 + bob + p.headDip + p.front * 0.6;
-    const hw = 8.5 * HK, hh = 7.5 * HK;
-    slab(hx - hw, hy - hh, hw * 2, hh * 2, fur.base);
-    R(hx - hw + 2, hy - hh, hw * 2 - 4, 1.2, fur.light);
-    R(hx - 2.5, hy + 0.5, 6.5 * HK, 4.5 * HK, fur.light);          // cheek
-    Art.speckle(g, X(hx - 2), Y(hy - 3), 5 * K, 2.5 * K, fur.mid, 6, 3);
-    ears(hx - 5, hx + 3, hy - 7.2 * HK, p.ear);
-    eye(hx - 1.5, hy - 2.2, p.blink);
-    nose(hx + 3, hy + 0.6, 7, 4.8);
+    // ---- the body: a barrel, round on top and settled flat on the ground ----
+    const by0 = by - p.rear * 0.5;
+    E(20, by0, bw, bh, fur.dark);                                  // the dark under-edge
+    loaf(20, by0 - 0.4, bw - 0.4, bh - 0.4, fur.base);
+    E(20 - bw * 0.42, by0 + 0.6, bw * 0.62, bh * 0.96, fur.base);  // the haunch over the back legs
+    E(20 + bw * 0.38, by0 + 0.4, bw * 0.6, bh * 0.9, fur.base);    // the shoulder
+    // top light along the spine, belly pale underneath
+    Art.ellBand(g, X(20), Y(by0 - 0.4), (bw - 0.4) * K, (bh - 0.4) * K, fur.mid, 0, 0.28);
+    Art.ellBand(g, X(20), Y(by0 - 0.4), (bw - 1) * K, (bh - 1) * K, fur.light, 0, 0.13);
+    R(20 - bw + 2.5, by0 + bh - 3.2, bw * 2 - 5, 3, fur.light);    // the belly
+    Art.ell(g, X(20 - bw * 0.1), Y(by0 + bh - 2.6), (bw * 0.72) * K, 1.8 * K, fur.light);
+    saddle(18, by0 - bh * 0.3, 10, bh * 0.5);
+    E(20 - bw - 0.6, by0 + bh * 0.42, 1.6, 1.8, fur.mid);          // the tail nub
+    // ---- the head ------------------------------------------------------------
+    // A round skull that sits a touch lower than the shoulders, a short blunt
+    // muzzle off the front of it, and the nose pad right on the tip. Sized off
+    // life: the head is about a quarter of the body, not a third.
+    const hx = 30.6 + p.headFwd, hy = 14 + bob + p.headDip + p.front * 0.6;
+    const SK = 5.8 * HK, SKY = 5.3 * HK;
+    E(hx - 3.4, hy + 1.4, SK * 0.8, SKY * 0.8, fur.dark);          // the neck, behind the skull
+    E(hx, hy, SK + 0.5, SKY + 0.5, fur.dark);                      // the rim round the skull
+    E(hx, hy - 0.3, SK, SKY, fur.base);
+    Art.ellBand(g, X(hx), Y(hy - 0.3), SK * K, SKY * K, fur.mid, 0, 0.3);
+    Art.ellBand(g, X(hx), Y(hy - 0.3), SK * 0.9 * K, SKY * 0.9 * K, fur.light, 0, 0.14);
+    // the muzzle, short and dropped, pushed out past the front of the skull
+    const mx = hx + SK * 0.72, my = hy + SKY * 0.42;
+    E(mx, my, SK * 0.6, SKY * 0.53, fur.dark);
+    E(mx, my - 0.3, SK * 0.54, SKY * 0.47, fur.base);
+    Art.ellBand(g, X(mx), Y(my - 0.3), SK * 0.54 * K, SKY * 0.47 * K, fur.mid, 0, 0.35);
+    E(mx - 0.4, my + SKY * 0.22, SK * 0.4, SKY * 0.22, fur.light);  // the pale chin
+    E(hx - SK * 0.46, hy + SKY * 0.42, SK * 0.42, SKY * 0.3, fur.light);   // the cheek
+    Art.speckle(g, X(hx - 1), Y(hy - SKY * 0.5), SK * 0.7 * K, SKY * 0.34 * K, fur.mid, 7, 3);
+    ears(hx - SK * 0.72, hx + SK * 0.22, hy - SKY - 1.2 * HK, p.ear);
+    eye(hx + SK * 0.1, hy - SKY * 0.2, p.blink);
+    nose(mx + SK * 0.3, my - SKY * 0.04, 3.7, 2.9);
     if (p.hurt > 0) {                                             // little stars over the head
       for (let i = 0; i < 3; i++) { const a = p.hurt * 4 + i * 2.1; R(hx - 3 + Math.cos(a) * 7, hy - 9 + Math.sin(a) * 2, 1.4, 1.4, PAL.gold3); }
     }

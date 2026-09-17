@@ -483,6 +483,7 @@ const World = (() => {
       G.world.sprouts = sprouts.map((p) => ({ x: p.x, y: p.y, t: +p.t.toFixed(1), wet: 0, r: p.r }));
       G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2), hp: w.hp }));
       G.world.restored = restored;
+      G.world.land = Wild.save();          // the hills and ponds you dug
     },
     SKY, GROUND, W, H,
   };
