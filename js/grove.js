@@ -262,6 +262,7 @@ const Grove = (() => {
     const cap = hapCap(), decay = 0.42;
     for (const w of G.wombats) {
       w.anim += dt;
+      if (w.turnT > 0) w.turnT -= dt;
       w.hap = U.clamp(w.hap - (decay / (w.traits.calm || 1)) * dt, 0, cap);
       if (w.grump > 0) w.grump -= dt;
       if (w.age !== 'adult') {
@@ -330,7 +331,7 @@ const Grove = (() => {
         }
         else {
           w.x += (dx / d) * sp * dt; w.y += (dy / d) * sp * dt;
-          w.dir = dx > 0 ? 1 : -1;
+          face(w, dx > 0 ? 1 : -1);
           World.disturb(w.x, w.y + 2, 20, 0.85);
           if (G.fruits.greenwake && Math.random() < dt * 1.6) World.sowGrass(w.x, w.y + 2, 8);
         }
@@ -339,7 +340,7 @@ const Grove = (() => {
         if (r < 0.3 && World.hasGrass(w.x, w.y)) { w.state = 'graze'; w.stateT = U.rand(3, 6); }
         else if (r < 0.74) { const rm = roam(); w.tx = U.rand(rm.x0, rm.x1); w.ty = U.rand(WALK.y0, WALK.y1); w.state = 'walk'; w.goal = U.chance(0.35) ? 'graze' : 'idle'; }
         else if (r < 0.85 && w.hap < 40) { w.state = 'sleep'; w.stateT = U.rand(5, 9); }
-        else { w.state = 'idle'; w.stateT = U.rand(1.5, 3.5); if (U.chance(0.35)) w.dir = -w.dir; }
+        else { w.state = 'idle'; w.stateT = U.rand(1.5, 3.5); if (U.chance(0.35)) face(w, -w.dir); }
       }
       if (w.state === 'dig' && w.stateT <= 0 && w.stomach !== 'ready') { w.state = 'idle'; w.stateT = 1; }
       if (w.chew > 0) {                                 // a chew wobble while it eats
@@ -1234,6 +1235,14 @@ const Grove = (() => {
     g.strokeRect(Math.round(x) + 0.5, Math.round(y) + 0.5, w, h);
     g.setLineDash([]); g.restore();
   }
+  // Turning round is an animation, not a flip. It swings the animal away from
+  // you, through its back, and out the other side, which takes about a third of
+  // a second and is the difference between a creature and a sticker.
+  function face(w, dir) {
+    if (dir === w.dir) return;
+    if (w.turnT > 0) { w.dir = dir; return; }
+    w.turnFrom = w.dir; w.turnT = 0.36; w.dir = dir;
+  }
   function drawWombat(g, w) {
     let p = 'idle';
     if (w.state === 'walk') p = 'walk';
@@ -1242,14 +1251,21 @@ const Grove = (() => {
     else if (w.state === 'eat') p = 'eat';
     else if (w.state === 'graze') p = 'graze';
     else if (w.state === 'happy' || w.hap > hapCap() * 0.85) p = 'happy';
-    const rate = p === 'walk' ? 9 : p === 'eat' ? 8 : p === 'dig' ? 9 : p === 'happy' ? 9 : 3.4;
+    const rate = p === 'walk' ? 13 : p === 'eat' ? 11 : p === 'dig' ? 12 : p === 'happy' ? 11 : 5;
+    let frame = Math.floor(w.anim * rate), dir = w.dir;
+    if (w.turnT > 0) {                       // mid-turn: swing through the back view
+      const n = Sprites.POSES.turn;
+      frame = U.clamp(Math.floor((1 - w.turnT / 0.36) * n), 0, n - 1);
+      dir = frame < 3 ? (w.turnFrom || w.dir) : w.dir;
+      p = 'turn';
+    }
     const k = Sprites.AGE[w.age].k;
-    Sprites.shadow(g, w.x, w.y, p, Math.floor(w.anim * rate), w.pelt, w.dir, w.age, Sprites.S, w.sq);
+    Sprites.shadow(g, w.x, w.y, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
     const fur = Sprites.furOf(w.pelt);
     if (fur.glow) {
       Art.glow(g, w.x, w.y - 18 * k, 36 * k, fur.glow, 0.3, 5);
     }
-    Sprites.blit(g, w.x, w.y, p, Math.floor(w.anim * rate), w.pelt, w.dir, w.age, Sprites.S, w.sq);
+    Sprites.blit(g, w.x, w.y, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
     if (w.grump > 0 && Math.floor(w.anim * 6) % 2) { g.fillStyle = PAL.red2; g.fillRect(w.x - 8, w.y - 50 * k, 3, 3); g.fillRect(w.x + 6, w.y - 54 * k, 3, 3); }
     if (w.state === 'sleep') {
       const t = (w.anim * 0.5) % 1;

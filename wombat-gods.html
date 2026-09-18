@@ -1982,57 +1982,125 @@ const Sprites = (() => {
 
   const AGE = { baby: { k: 0.62, head: 1.2, name: 'Joey' }, juvenile: { k: 0.78, head: 1.1, name: 'Juvenile' }, adult: { k: 1, head: 1, name: 'Adult' } };
   // Every animation on the sheet, plus the few the grove itself needs.
-  const POSES = { idle: 4, walk: 8, run: 6, turn: 6, jump: 5, hurt: 4, sit: 3, lie: 2, sleep: 3, eat: 6, graze: 4, dig: 6, happy: 5, pray: 6, bite: 6 };
+  // Frame counts. They are high on purpose: the walk is a real four-beat gait
+  // and it wants the frames to read as one, not as a flick between two poses.
+  const POSES = { idle: 10, walk: 12, run: 10, turn: 6, jump: 7, hurt: 5, sit: 8, lie: 4, sleep: 6, eat: 10, graze: 8, dig: 10, happy: 8, pray: 10, bite: 8 };
 
+  // ---- the gait --------------------------------------------------------------
+  // One leg through one cycle. `u` is where in the cycle this leg is: the first
+  // two fifths it is in the air swinging forward, the rest it is planted and
+  // being pushed back under the animal. That split is what makes a walk read as
+  // a walk instead of four legs waving.
+  const SWING = 0.4;
+  function step(u, reach, lift) {
+    u = ((u % 1) + 1) % 1;
+    if (u < SWING) {
+      const k = u / SWING;
+      return { lift: Math.sin(k * Math.PI) * lift, fwd: U.lerp(-reach, reach, U.easeInOut(k)), knee: Math.sin(k * Math.PI) };
+    }
+    const k = (u - SWING) / (1 - SWING);
+    return { lift: 0, fwd: U.lerp(reach, -reach, k), knee: 0 };
+  }
   function pose(name, f) {
     const n = POSES[name] || 1, t = f / n;
     const p = {
       bob: 0, squash: 0, headDip: 0, headFwd: 0, front: 0, rear: 0, jaw: 0, ear: 0, blink: 0,
-      leg: [0, 0, 0, 0], tuck: 0, sit: 0, lie: 0, sleep: 0, view: 'side', tilt: 0, hurt: 0, reach: 0, z: 0,
+      leg: [0, 0, 0, 0], legX: [0, 0, 0, 0], knee: [0, 0, 0, 0],
+      tuck: 0, sit: 0, lie: 0, sleep: 0, view: 'side', tilt: 0, hurt: 0, reach: 0, z: 0,
+      tail: 0, breathe: 0, earFlop: 0, headSw: 0,
     };
     const s = Math.sin(t * TAU);
+    // legs are ordered [rear far, rear near, front far, front near]
+    const gait = (reach, lift, phase) => {
+      for (let i = 0; i < 4; i++) {
+        const st = step(t + phase[i], reach, lift);
+        p.leg[i] = st.lift; p.legX[i] = st.fwd; p.knee[i] = st.knee;
+      }
+    };
     switch (name) {
-      case 'idle': p.bob = s * 0.5; p.blink = f === 3 ? 1 : 0; p.ear = f === 1 ? 1 : 0; break;
+      case 'idle': {
+        // standing: it breathes, the ears twitch, it blinks once a cycle
+        p.breathe = Math.sin(t * TAU) * 0.6;
+        p.bob = p.breathe * 0.5;
+        p.squash = Math.sin(t * TAU) * 0.018;
+        p.blink = f === 4 ? 1 : 0;
+        p.ear = f === 1 || f === 7 ? 1 : 0;
+        p.earFlop = Math.sin(t * TAU * 2) * 0.3;
+        p.tail = Math.sin(t * TAU * 0.5) * 0.4;
+        p.headSw = Math.sin(t * TAU + 1) * 0.4;
+        break;
+      }
       case 'walk': {
-        const a = Math.sin(t * TAU), b = Math.sin(t * TAU + Math.PI);
-        p.leg = [Math.max(0, a) * 4, Math.max(0, b) * 4, Math.max(0, b) * 4, Math.max(0, a) * 4];
-        p.bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.4;
-        p.headDip = Math.abs(Math.sin(t * TAU * 2)) * 1.2 - 0.5;
+        // a wombat walks diagonally: near hind and far fore come through together
+        gait(2.3, 3.2, [0, 0.5, 0.55, 0.05]);
+        p.bob = -Math.abs(Math.sin(t * TAU * 2)) * 1.1;
+        p.tilt = Math.sin(t * TAU * 2) * 0.02;
+        p.headDip = Math.sin(t * TAU * 2 + 0.6) * 0.9 - 0.3;
+        p.headSw = Math.sin(t * TAU) * 0.8;
+        p.tail = Math.sin(t * TAU * 2) * 0.8;
+        p.earFlop = Math.sin(t * TAU * 2 + 1) * 0.7;
+        p.breathe = Math.sin(t * TAU) * 0.3;
         break;
       }
       case 'run': {
-        const a = Math.sin(t * TAU), b = Math.sin(t * TAU + Math.PI * 0.6);
-        p.leg = [Math.max(0, a) * 6, Math.max(0, a) * 5, Math.max(0, b) * 6, Math.max(0, b) * 5];
-        p.bob = -Math.abs(Math.sin(t * TAU)) * 3; p.front = 1.2; p.headFwd = 2; p.squash = -0.06 + Math.sin(t * TAU * 2) * 0.06;
+        // a bound: the two hind legs together, then the two fore
+        gait(3.6, 5, [0, 0.06, 0.48, 0.54]);
+        const air = Math.sin(t * TAU);
+        p.bob = -Math.abs(air) * 3.2;
+        p.front = 1 + air * 0.6; p.rear = -air * 0.5;
+        p.headFwd = 2 + air * 0.8;
+        p.squash = -0.05 + Math.sin(t * TAU * 2) * 0.07;
+        p.tilt = air * 0.06;
+        p.earFlop = 1 + Math.sin(t * TAU * 2) * 0.6;
+        p.tail = Math.sin(t * TAU * 2) * 1.4;
         break;
       }
-      case 'turn': p.view = ['side', 'quarter', 'back', 'back', 'quarter', 'side'][f]; p.blink = f === 1 || f === 4 ? 0 : 0; break;
+      case 'turn': p.view = ['side', 'quarter', 'back', 'back', 'quarter', 'side'][f]; break;
       case 'jump': {
-        const lift = [0, -9, -14, -9, 0][f];
-        p.bob = lift; p.tuck = f === 2 ? 1 : f === 1 || f === 3 ? 0.5 : 0;
-        p.squash = f === 0 ? 0.16 : f === 4 ? 0.2 : f === 2 ? -0.12 : -0.05;
-        p.tilt = f === 1 ? -0.18 : f === 3 ? 0.18 : 0; p.ear = f === 2 ? 1 : 0;
+        const lift = [0, -5, -12, -15, -12, -5, 0][f];
+        p.bob = lift; p.tuck = f >= 2 && f <= 4 ? 1 : f === 1 || f === 5 ? 0.5 : 0;
+        p.squash = f === 0 ? 0.16 : f === 6 ? 0.2 : f === 3 ? -0.12 : -0.05;
+        p.tilt = f < 3 ? -0.16 : f > 3 ? 0.16 : 0;
+        p.ear = f >= 2 && f <= 4 ? 1 : 0; p.earFlop = f < 3 ? -1 : 1;
         break;
       }
-      case 'hurt': p.hurt = [1, 0.7, 0.4, 0][f]; p.tilt = 0.28 * p.hurt; p.blink = f < 3 ? 1 : 0; p.bob = -p.hurt * 2; break;
-      case 'sit': p.sit = 1; p.bob = s * 0.4; p.blink = f === 2 ? 1 : 0; break;
-      case 'lie': p.lie = 1; p.bob = f ? 0.6 : 0; break;
-      case 'sleep': p.lie = 1; p.sleep = 1; p.blink = 1; p.z = f; p.bob = f === 1 ? 0.6 : 0; break;
-      case 'eat': p.headDip = 7; p.headFwd = 2.4; p.front = 3.2; p.rear = -1; p.jaw = Math.abs(Math.sin(t * TAU * 2)) * 1.4; p.bob = 0.4; break;
-      case 'graze': p.headDip = 6.5; p.headFwd = 2; p.front = 2.6; p.jaw = f % 2 ? 0.8 : 0; break;
+      case 'hurt': p.hurt = [1, 0.8, 0.55, 0.3, 0][f]; p.tilt = 0.26 * p.hurt; p.blink = f < 4 ? 1 : 0; p.bob = -p.hurt * 2; p.earFlop = -p.hurt; break;
+      case 'sit': {
+        p.sit = 1; p.breathe = Math.sin(t * TAU) * 0.7; p.bob = p.breathe * 0.5;
+        p.blink = f === 5 ? 1 : 0; p.ear = f === 2 ? 1 : 0;
+        p.earFlop = Math.sin(t * TAU) * 0.4; p.headSw = Math.sin(t * TAU * 0.5) * 0.6;
+        break;
+      }
+      case 'lie': p.lie = 1; p.breathe = Math.sin(t * TAU) * 0.8; p.bob = p.breathe * 0.7; p.blink = f === 2 ? 1 : 0; break;
+      case 'sleep': p.lie = 1; p.sleep = 1; p.blink = 1; p.z = f * 0.6; p.breathe = Math.sin(t * TAU) * 1; p.bob = p.breathe * 0.8; break;
+      case 'eat': {
+        // head down, then a proper chew with the jaw and the ears
+        p.headDip = 6.4 + Math.sin(t * TAU) * 0.8; p.headFwd = 2.4; p.front = 3.2; p.rear = -1;
+        p.jaw = Math.abs(Math.sin(t * TAU * 3)) * 1.5;
+        p.bob = 0.3 + Math.sin(t * TAU * 3) * 0.3;
+        p.earFlop = Math.sin(t * TAU * 3) * 0.6;
+        p.blink = f === 6 ? 1 : 0;
+        break;
+      }
+      case 'graze': p.headDip = 6.2 + Math.sin(t * TAU) * 1.2; p.headFwd = 2; p.front = 2.6; p.jaw = Math.abs(Math.sin(t * TAU * 2)) * 0.9; p.headSw = Math.sin(t * TAU) * 1.4; break;
       case 'dig': {
         const a = Math.sin(t * TAU * 2), b = Math.sin(t * TAU * 2 + Math.PI);
         p.leg = [0, 0, Math.max(0, a) * 6, Math.max(0, b) * 6];
-        p.headDip = 4.6; p.headFwd = 1.6; p.front = 3.6; p.rear = -2.4; p.jaw = 0.4;
+        p.legX = [0, 0, Math.max(0, a) * 2.4, Math.max(0, b) * 2.4];
+        p.knee = [0, 0, Math.max(0, a), Math.max(0, b)];
+        p.headDip = 4.4 + Math.sin(t * TAU * 2) * 0.8; p.headFwd = 1.6; p.front = 3.6; p.rear = -2.4; p.jaw = 0.4;
+        p.bob = Math.sin(t * TAU * 2) * 0.6;
         break;
       }
       case 'happy': {
-        const lift = [0, -5, -8, -5, 0][f];
-        p.bob = lift; p.tuck = f === 2 ? 0.6 : 0; p.ear = 1; p.jaw = 0.8; p.squash = f === 0 || f === 4 ? 0.12 : -0.06;
+        const lift = [0, -4, -7, -8, -7, -4, -1, 0][f];
+        p.bob = lift; p.tuck = lift < -5 ? 0.7 : 0; p.ear = 1; p.jaw = 0.9;
+        p.squash = f === 0 || f === 7 ? 0.14 : -0.06;
+        p.earFlop = lift < -4 ? -1.2 : 0.6; p.tail = Math.sin(t * TAU * 2) * 1.6;
         break;
       }
-      case 'pray': p.sit = 1; p.reach = 0.6 + s * 0.2; p.bob = s * 0.4; p.blink = f === 3 ? 1 : 0; p.ear = 1; break;
-      case 'bite': p.sit = 1; p.reach = 1; p.jaw = f > 2 ? 1.4 : 0.2; p.bob = -s * 0.5; p.ear = 1; break;
+      case 'pray': p.sit = 1; p.reach = 0.6 + s * 0.22; p.bob = s * 0.4; p.blink = f === 6 ? 1 : 0; p.ear = 1; p.breathe = s * 0.4; break;
+      case 'bite': p.sit = 1; p.reach = 1; p.jaw = f > 3 ? 1.5 : 0.2; p.bob = -s * 0.5; p.ear = 1; break;
     }
     return p;
   }
@@ -2062,11 +2130,43 @@ const Sprites = (() => {
       if (flat > 0) R(cx - rx, cy + ry * flat, rx * 2, ry * (1 - flat) + 1, col);
     };
     // a stubby leg with a rounded paw and three claws on it
-    const paws = (x, y, w) => {
-      R(x + 0.4, y - 0.6, w - 0.8, 2.4, fur.dark);
-      E(x + w / 2, y + 1.2, w / 2, 1.5, fur.deep);
+    const paws = (x, y, w, tone) => {
+      const t0 = tone || fur.dark, t1 = tone ? U.shade(tone, -0.18) : fur.deep;
+      R(x + 0.4, y - 0.6, w - 0.8, 2.4, t0);
+      E(x + w / 2, y + 1.2, w / 2, 1.5, t1);
       R(x, y + 1.9, w, 1, fur.ink);
       for (let i = 0; i < 3; i++) R(x + 0.8 + i * (w - 2) / 2.4, y + 2.2, 0.9, 1, fur.ink);
+    };
+    // ---- a leg -----------------------------------------------------------
+    // A wombat's leg is not a post. It is a thick furry thigh that carries most
+    // of the animal, a short shin tucked under it, and a wide splayed paw turned
+    // slightly out. Bending the knee when the foot is in the air is most of what
+    // makes the walk read.
+    const legOf = (hx0, hipY, floorY, lift, fwd, knee, thick, tone, front) => {
+      const shadeT = U.shade(tone, -0.12);
+      const footY = floorY - lift;
+      const len = footY - hipY;
+      if (len < 1.5) return;
+      // the knee sits forward on a fore leg and back on a hind one
+      const bend = knee * (front ? 1.6 : -1.9);
+      const kneeY = hipY + len * 0.52;
+      const kneeX = hx0 + fwd * 0.45 + bend;
+      const footX = hx0 + fwd;
+      // thigh: wide at the hip, narrower at the knee
+      const seg = (x0, y0, x1, y1, w0, w1, col) => {
+        const n = Math.max(2, Math.round(Math.abs(y1 - y0)));
+        for (let i = 0; i <= n; i++) {
+          const k = i / n, w = U.lerp(w0, w1, k);
+          R(U.lerp(x0, x1, k) - w / 2, U.lerp(y0, y1, k), w, 1.2, col);
+        }
+      };
+      seg(hx0, hipY, kneeX, kneeY, thick + 1.4, thick, shadeT);
+      seg(hx0, hipY, kneeX, kneeY, thick + 0.4, thick - 0.6, tone);
+      seg(kneeX, kneeY, footX, footY - 1.4, thick - 0.2, thick - 0.8, shadeT);
+      seg(kneeX, kneeY, footX, footY - 1.4, thick - 1, thick - 1.4, tone);
+      // the fur on the front edge catches the light
+      R(U.lerp(hx0, kneeX, 0.4) - thick * 0.5, hipY + len * 0.14, 1, len * 0.3, U.shade(tone, 0.18));
+      paws(footX - thick * 0.62, footY - 1.4, thick * 1.24, tone);
     };
     // a proper eye: dark, round, with a lid over it and a catchlight in it
     const eye = (x, y, closed) => {
@@ -2094,9 +2194,11 @@ const Sprites = (() => {
       for (const sd of [-1, 1]) R(cx + sd * (w * 0.5 + 0.6), cy + h * 0.06, 1, 0.8, fur.dark);   // whisker roots
     };
     // Ears: rounded triangles set wide and high, with the inner ear showing.
-    const ears = (lx, rx, y, lift) => {
+    const ears = (lx, rx, y, lift, flop) => {
       const er = 3.6 * HK;
+      const fl = (flop || 0) * 0.9;            // they swing a little as the animal moves
       const one = (ex, ey, base, inner, tuft) => {
+        ex += fl;
         Art.poly(g, [[X(ex - er), Y(ey + er * 0.7)], [X(ex - er * 0.75), Y(ey - er * 0.8)],
                      [X(ex + er * 0.75), Y(ey - er * 0.8)], [X(ex + er), Y(ey + er * 0.7)]], fur.ink);
         Art.poly(g, [[X(ex - er + 0.5), Y(ey + er * 0.7)], [X(ex - er * 0.62), Y(ey - er * 0.6)],
@@ -2106,8 +2208,8 @@ const Sprites = (() => {
         E(ex, ey - er * 0.84, er * 0.68, er * 0.3, base);        // round the top of it off
         for (let i = -1; i <= 1; i++) R(ex + i * 1.3, ey - er * 1.02, 0.9, 1.1, tuft);   // fluff on the rim
       };
-      one(lx, y - lift * 0.8, fur.mid, fur.deep, fur.dark);
-      one(rx, y - lift, fur.base, fur.dark, fur.mid);
+      one(lx, y - lift * 0.8 - fl * 0.2, fur.mid, fur.deep, fur.dark);
+      one(rx, y - lift + fl * 0.2, fur.base, fur.dark, fur.mid);
     };
     const glow = () => {
       if (fur.moss) { E(16, 8, 4, 1.8, PAL.moss3); E(24, 7.5, 3, 1.6, PAL.moss2); }
@@ -2122,7 +2224,9 @@ const Sprites = (() => {
       E(22, 7.5, 7.5 * HK, 6.5 * HK, fur.base);                 // the back of the head
       ears(17, 27, 2.5, 0);
       E(22, 20.5, 1.6, 1.4, fur.dark);                          // the tail dot
-      for (const lx of [10, 17, 24, 31]) { R(lx, 21, 5, 6, fur.mid); paws(lx - 0.5, 24.8, 6); }
+      for (const [lx, tone] of [[10, fur.dark], [17, fur.mid], [24, fur.mid], [31, fur.dark]]) {
+        legOf(lx + 2.5, 20.5, 26.6, 0, 0, 0, 2.9, tone, false);
+      }
       glow();
       return;
     }
@@ -2134,7 +2238,9 @@ const Sprites = (() => {
       ears(21, 31, 6, 0);
       eye(24, 11, p.blink); eye(30, 11, p.blink);
       nose(24.5, 14, 6.5, 4.5);
-      for (const lx of [10, 16, 23, 29]) { R(lx, 21, 5, 6, fur.mid); paws(lx - 0.5, 24.8, 6); }
+      for (const [lx, tone] of [[10, fur.dark], [16, fur.mid], [23, fur.mid], [29, fur.base]]) {
+        legOf(lx + 2.5, 20.5, 26.6, 0, 0, 0, 2.9, tone, lx > 20);
+      }
       glow();
       return;
     }
@@ -2182,25 +2288,34 @@ const Sprites = (() => {
     const bob = p.bob;
     g.save();
     if (p.tilt) { g.translate(X(20), Y(20)); g.rotate(-p.tilt); g.translate(-X(20), -Y(20)); }
-    const sq = p.squash, bw = 13 * (1 + sq * 0.6), bh = 7.5 * (1 - sq);
+    const sq = p.squash, br = (p.breathe || 0) * 0.16;
+    const bw = 13 * (1 + sq * 0.6), bh = (7.5 + br) * (1 - sq);
     const by = 15.5 + bob + (7.5 - bh);
     const tiltF = (t) => U.lerp(-p.rear, p.front, t) * 0.5;
-    // legs first, so the belly overlaps their tops
-    if (p.tuck < 1) {
-      const legs = [[9, 0], [15, 1], [24, 2], [30, 3]];
-      for (const [lx, i] of legs) {
-        const lf = (p.leg[i] || 0) + p.tuck * 4;
-        const swing = (i >= 2 ? 1 : -1) * (p.leg[i] || 0) * 0.35;
-        const top = by + bh - 4 + tiltF((lx - 7) / 26) + bob * 0.2;
-        const floor = Math.min(GY, by + bh + 4.5);            // airborne legs hang from the body
-        const h = floor - top - lf;
-        if (h > 1.2) {
-          R(lx + swing, top, 5, h, i % 2 ? fur.mid : fur.base);
-          R(lx + swing + 3.6, top, 1.4, h, fur.dark);
-          paws(lx + swing - 0.4, floor - lf - 2.2, 6);
-        }
+    // ---- legs, in two passes ------------------------------------------------
+    // The two on the far side go down before the body and are drawn in the
+    // shadowed tones; the two on this side go down after it. That is the whole
+    // trick to a four-legged animal reading as solid rather than as a cut-out.
+    const LEGS = [
+      { i: 0, x: 11.5, front: false, far: true },
+      { i: 2, x: 27.0, front: true, far: true },
+      { i: 1, x: 13.5, front: false, far: false },
+      { i: 3, x: 29.0, front: true, far: false },
+    ];
+    const drawLegs = (far) => {
+      if (p.tuck >= 1) return;
+      for (const L2 of LEGS) {
+        if (L2.far !== far) continue;
+        const lift = (p.leg[L2.i] || 0) + p.tuck * 4;
+        const fwd = (p.legX[L2.i] || 0);
+        const hipY = by + bh - 4.4 + tiltF((L2.x - 7) / 26) + bob * 0.2;
+        const floorY = Math.min(GY, by + bh + 4.6);
+        const tone = far ? fur.dark : (L2.front ? fur.base : fur.mid);
+        legOf(L2.x + (far ? -1.2 : 0), hipY + (far ? -0.8 : 0), floorY - (far ? 1 : 0),
+          lift, fwd, p.knee[L2.i] || 0, L2.front ? 2.6 : 3.1, tone, L2.front);
       }
-    }
+    };
+    drawLegs(true);
     // ---- the body: a barrel, round on top and settled flat on the ground ----
     const by0 = by - p.rear * 0.5;
     E(20, by0, bw, bh, fur.dark);                                  // the dark under-edge
@@ -2213,12 +2328,13 @@ const Sprites = (() => {
     R(20 - bw + 2.5, by0 + bh - 3.2, bw * 2 - 5, 3, fur.light);    // the belly
     Art.ell(g, X(20 - bw * 0.1), Y(by0 + bh - 2.6), (bw * 0.72) * K, 1.8 * K, fur.light);
     saddle(18, by0 - bh * 0.3, 10, bh * 0.5);
-    E(20 - bw - 0.6, by0 + bh * 0.42, 1.6, 1.8, fur.mid);          // the tail nub
+    E(20 - bw - 0.6, by0 + bh * 0.42 + (p.tail || 0) * 0.5, 1.6, 1.8, fur.mid);   // the tail nub
+    drawLegs(false);                                               // the near pair, over the belly
     // ---- the head ------------------------------------------------------------
     // A round skull that sits a touch lower than the shoulders, a short blunt
     // muzzle off the front of it, and the nose pad right on the tip. Sized off
     // life: the head is about a quarter of the body, not a third.
-    const hx = 30.6 + p.headFwd, hy = 14 + bob + p.headDip + p.front * 0.6;
+    const hx = 30.6 + p.headFwd + (p.headSw || 0) * 0.5, hy = 14 + bob + p.headDip + p.front * 0.6 + (p.breathe || 0) * 0.2;
     const SK = 5.8 * HK, SKY = 5.3 * HK;
     E(hx - 3.4, hy + 1.4, SK * 0.8, SKY * 0.8, fur.dark);          // the neck, behind the skull
     E(hx, hy, SK + 0.5, SKY + 0.5, fur.dark);                      // the rim round the skull
@@ -2233,7 +2349,7 @@ const Sprites = (() => {
     E(mx - 0.4, my + SKY * 0.22, SK * 0.4, SKY * 0.22, fur.light);  // the pale chin
     E(hx - SK * 0.46, hy + SKY * 0.42, SK * 0.42, SKY * 0.3, fur.light);   // the cheek
     Art.speckle(g, X(hx - 1), Y(hy - SKY * 0.5), SK * 0.7 * K, SKY * 0.34 * K, fur.mid, 7, 3);
-    ears(hx - SK * 0.72, hx + SK * 0.22, hy - SKY - 1.2 * HK, p.ear);
+    ears(hx - SK * 0.72, hx + SK * 0.22, hy - SKY - 1.2 * HK, p.ear, p.earFlop);
     eye(hx + SK * 0.1, hy - SKY * 0.2, p.blink);
     nose(mx + SK * 0.3, my - SKY * 0.04, 3.7, 2.9);
     if (p.hurt > 0) {                                             // little stars over the head
@@ -7981,6 +8097,7 @@ const Grove = (() => {
     const cap = hapCap(), decay = 0.42;
     for (const w of G.wombats) {
       w.anim += dt;
+      if (w.turnT > 0) w.turnT -= dt;
       w.hap = U.clamp(w.hap - (decay / (w.traits.calm || 1)) * dt, 0, cap);
       if (w.grump > 0) w.grump -= dt;
       if (w.age !== 'adult') {
@@ -8049,7 +8166,7 @@ const Grove = (() => {
         }
         else {
           w.x += (dx / d) * sp * dt; w.y += (dy / d) * sp * dt;
-          w.dir = dx > 0 ? 1 : -1;
+          face(w, dx > 0 ? 1 : -1);
           World.disturb(w.x, w.y + 2, 20, 0.85);
           if (G.fruits.greenwake && Math.random() < dt * 1.6) World.sowGrass(w.x, w.y + 2, 8);
         }
@@ -8058,7 +8175,7 @@ const Grove = (() => {
         if (r < 0.3 && World.hasGrass(w.x, w.y)) { w.state = 'graze'; w.stateT = U.rand(3, 6); }
         else if (r < 0.74) { const rm = roam(); w.tx = U.rand(rm.x0, rm.x1); w.ty = U.rand(WALK.y0, WALK.y1); w.state = 'walk'; w.goal = U.chance(0.35) ? 'graze' : 'idle'; }
         else if (r < 0.85 && w.hap < 40) { w.state = 'sleep'; w.stateT = U.rand(5, 9); }
-        else { w.state = 'idle'; w.stateT = U.rand(1.5, 3.5); if (U.chance(0.35)) w.dir = -w.dir; }
+        else { w.state = 'idle'; w.stateT = U.rand(1.5, 3.5); if (U.chance(0.35)) face(w, -w.dir); }
       }
       if (w.state === 'dig' && w.stateT <= 0 && w.stomach !== 'ready') { w.state = 'idle'; w.stateT = 1; }
       if (w.chew > 0) {                                 // a chew wobble while it eats
@@ -8953,6 +9070,14 @@ const Grove = (() => {
     g.strokeRect(Math.round(x) + 0.5, Math.round(y) + 0.5, w, h);
     g.setLineDash([]); g.restore();
   }
+  // Turning round is an animation, not a flip. It swings the animal away from
+  // you, through its back, and out the other side, which takes about a third of
+  // a second and is the difference between a creature and a sticker.
+  function face(w, dir) {
+    if (dir === w.dir) return;
+    if (w.turnT > 0) { w.dir = dir; return; }
+    w.turnFrom = w.dir; w.turnT = 0.36; w.dir = dir;
+  }
   function drawWombat(g, w) {
     let p = 'idle';
     if (w.state === 'walk') p = 'walk';
@@ -8961,14 +9086,21 @@ const Grove = (() => {
     else if (w.state === 'eat') p = 'eat';
     else if (w.state === 'graze') p = 'graze';
     else if (w.state === 'happy' || w.hap > hapCap() * 0.85) p = 'happy';
-    const rate = p === 'walk' ? 9 : p === 'eat' ? 8 : p === 'dig' ? 9 : p === 'happy' ? 9 : 3.4;
+    const rate = p === 'walk' ? 13 : p === 'eat' ? 11 : p === 'dig' ? 12 : p === 'happy' ? 11 : 5;
+    let frame = Math.floor(w.anim * rate), dir = w.dir;
+    if (w.turnT > 0) {                       // mid-turn: swing through the back view
+      const n = Sprites.POSES.turn;
+      frame = U.clamp(Math.floor((1 - w.turnT / 0.36) * n), 0, n - 1);
+      dir = frame < 3 ? (w.turnFrom || w.dir) : w.dir;
+      p = 'turn';
+    }
     const k = Sprites.AGE[w.age].k;
-    Sprites.shadow(g, w.x, w.y, p, Math.floor(w.anim * rate), w.pelt, w.dir, w.age, Sprites.S, w.sq);
+    Sprites.shadow(g, w.x, w.y, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
     const fur = Sprites.furOf(w.pelt);
     if (fur.glow) {
       Art.glow(g, w.x, w.y - 18 * k, 36 * k, fur.glow, 0.3, 5);
     }
-    Sprites.blit(g, w.x, w.y, p, Math.floor(w.anim * rate), w.pelt, w.dir, w.age, Sprites.S, w.sq);
+    Sprites.blit(g, w.x, w.y, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
     if (w.grump > 0 && Math.floor(w.anim * 6) % 2) { g.fillStyle = PAL.red2; g.fillRect(w.x - 8, w.y - 50 * k, 3, 3); g.fillRect(w.x + 6, w.y - 54 * k, 3, 3); }
     if (w.state === 'sleep') {
       const t = (w.anim * 0.5) % 1;
