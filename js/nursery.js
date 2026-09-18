@@ -44,9 +44,11 @@ const Nursery = (() => {
   function catalogue() {
     const out = CROPS.filter((c) => !c.god || G.blessings[c.god]).map((c) => ({
       id: 'seed:' + c.key, kind: 'seed', key: c.key, def: c,
-      name: c.name, price: c.seed, magic: !!c.magic, icon: c.icon,
+      name: c.name, price: c.seed, pkind: c.kind, magic: c.kind === 'magic', icon: c.icon,
       locked: !!(c.god && !G.blessings[c.god]),
-      blurb: `6 seeds a packet · grows in ${c.grow}s`,
+      blurb: c.kind === 'tree' ? `one sapling · ${c.grow}s to establish`
+        : c.kind === 'magic' ? `3 seeds a packet · ${MAGIC_NEED[c.need]}`
+          : `6 seeds a packet · grows in ${c.grow}s`,
     }));
     // the garden half of the shop: the tools you work a bed with, a trough,
     // and the two pieces of garden furniture the mart no longer carries
@@ -76,8 +78,9 @@ const Nursery = (() => {
   function layout() {
     const list = catalogue();
     slots = [];
-    const plain = list.filter((p) => p.kind === 'seed' && !p.magic);
-    const magic = list.filter((p) => p.kind === 'seed' && p.magic);
+    const plain = list.filter((p) => p.kind === 'seed' && p.pkind === 'crop');
+    const trees = list.filter((p) => p.kind === 'seed' && p.pkind === 'tree');
+    const magic = list.filter((p) => p.kind === 'seed' && p.pkind === 'magic');
     const goods = list.filter((p) => p.kind !== 'seed');
     let x = 190;
     bays = [];
@@ -89,6 +92,7 @@ const Nursery = (() => {
       x += 74;
     };
     place(plain, 'bench', 'SEED');
+    place(trees, 'bench', 'THE ORCHARD');
     place(magic, 'vault', 'THE BACK SHELF');
     place(goods, 'goods', 'GARDEN GOODS');
     worldW = Math.max(VW + 200, x + 260);
@@ -127,7 +131,7 @@ const Nursery = (() => {
     for (const id of basket) {
       const p = catalogue().find((x) => x.id === id);
       if (!p) continue;
-      if (p.kind === 'seed') G.seeds[p.key] = (G.seeds[p.key] || 0) + 6;
+      if (p.kind === 'seed') G.seeds[p.key] = (G.seeds[p.key] || 0) + (p.pkind === 'tree' ? 1 : p.pkind === 'magic' ? 3 : 6);
       else if (p.kind === 'tier') { if (nextTier(G, p.key)) G.tiers[p.key] = tierIndex(G, p.key) + 1; }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = 1;
@@ -286,7 +290,12 @@ const Nursery = (() => {
     const p = s.p;
     if (p.kind === 'seed') {
       const c = p.def;
-      return `<b>${c.name}</b>${p.magic ? ' <span class="warn">magical</span>' : ''}<br>6 seeds a packet<br>${Icons.img('wdollar', 'sm')} ${U.fmt(p.price)}<br><span class="dim">grows in ${c.grow}s &middot; feeds for ${OFFERINGS[c.offering].name}</span>`;
+      const many = c.kind === 'tree' ? 'one sapling' : c.kind === 'magic' ? '3 seeds a packet' : '6 seeds a packet';
+      const tail = c.kind === 'tree' ? `${c.grow}s to establish &middot; then ${c.yield} fruit every ${c.fruitEvery}s`
+        : c.kind === 'magic' ? `${MAGIC_NEED[c.need]}<br>${MAGIC_EFFECT[c.effect]}`
+          : `grows in ${c.grow}s &middot; feeds for ${OFFERINGS[c.offering].name}`;
+      const tag = c.kind === 'magic' ? ' <span class="warn">magical</span>' : c.kind === 'tree' ? ' <span class="dim">fruit tree</span>' : '';
+      return `<b>${c.name}</b>${tag}<br>${many}<br>${Icons.img('wdollar', 'sm')} ${U.fmt(p.price)}<br><span class="dim">${tail}</span>`;
     }
     return `<b>${p.name}</b>${p.sold ? ' <span class="dim">— sold out</span>' : ''}<br>${Icons.img('wdollar', 'sm')} ${U.fmt(p.price)}<br><span class="dim">${p.blurb || ''}</span>`;
   }

@@ -14,23 +14,87 @@ const OFFERINGS = {
 };
 const OFFER_ORDER = ['plain', 'rich', 'resin', 'husk', 'stone', 'slab', 'gold', 'rune'];
 
-// Crops you sow into the ground with a dragged brush.
+// ---- What you can grow ----------------------------------------------------
+// Three kinds, and they play completely differently.
+//
+//   crop    a vegetable. Quick, cheap, forgiving. You pick it once and it is
+//           gone. This is the bread and butter of feeding a wombat.
+//   tree    a fruit tree. Slow, expensive, and it wants looking after — water
+//           and a prune — but once it is established it fruits forever.
+//   magic   something that should not be in a garden. Each one has a growing
+//           requirement of its own and does something to the grove once grown.
+//
+// Every plant maps to an `offering`: what the wombat leaves after eating it.
+const PLANT_KINDS = {
+  crop:  { name: 'Crop',        icon: 't_seed',  blurb: 'quick, easy, picked once' },
+  tree:  { name: 'Fruit Tree',  icon: 'c_broadleaf', blurb: 'slow, needs care, fruits forever' },
+  magic: { name: 'Magical',     icon: 'c_runeberry', blurb: 'strange requirements, strange gifts' },
+};
 const CROPS = [
-  { key: 'ashgrass',  name: 'Ashgrass',  icon: 'c_ashgrass',  seed: 2,   grow: 26,  yield: 2, offering: 'plain', hap: 3,  restore: 0,    color: '#84bb59' },
-  { key: 'sunroot',   name: 'Sunroot',   icon: 'c_sunroot',   seed: 8,   grow: 40,  yield: 2, offering: 'rich',  hap: 7,  restore: 0.08, color: '#d8a52f' },
-  { key: 'resinbud',  name: 'Resinbud',  icon: 'c_resinbud',  seed: 14,  grow: 46,  yield: 2, offering: 'resin', hap: 8,  restore: 0.14, color: '#a97c1e' },
-  { key: 'duskhusk',  name: 'Duskhusk',  icon: 'c_duskhusk',  seed: 12,  grow: 38,  yield: 2, offering: 'husk',  hap: 5,  restore: 0.14, color: '#cfc4b0' },
-  { key: 'ironbulb',  name: 'Ironbulb',  icon: 'c_ironbulb',  seed: 20,  grow: 56,  yield: 2, offering: 'stone', hap: 4,  restore: 0.24, color: '#625a72' },
-  { key: 'broadleaf', name: 'Broadleaf', icon: 'c_broadleaf', seed: 24,  grow: 52,  yield: 2, offering: 'slab',  hap: 7,  restore: 0.32, color: '#436f2f' },
-  { key: 'goldwheat', name: 'Goldwheat', icon: 'c_goldwheat', seed: 46,  grow: 70,  yield: 2, offering: 'gold',  hap: 12, restore: 0.5,  color: '#f5cd5c' },
-  { key: 'runeberry', name: 'Runeberry', icon: 'c_runeberry', seed: 90,  grow: 80,  yield: 2, offering: 'rune',  hap: 14, restore: 0.7,  god: 'demewombra', color: '#8354c9' },
-  // ---- the nursery stock: things that should not really grow in a garden --
-  { key: 'mandrake',  name: 'Mandrake',  icon: 'c_mandrake',  seed: 120, grow: 66,  yield: 2, offering: 'rune',  hap: 2,  restore: 0.6,  magic: 1, color: '#c9a86a' },
-  { key: 'moonbell',  name: 'Moonbell',  icon: 'c_moonbell',  seed: 70,  grow: 54,  yield: 2, offering: 'husk',  hap: 16, restore: 0.42, magic: 1, color: '#9fd8e6' },
-  { key: 'emberleaf', name: 'Emberleaf', icon: 'c_emberleaf', seed: 84,  grow: 48,  yield: 2, offering: 'gold',  hap: 9,  restore: 0.38, magic: 1, color: '#e0703c' },
-  { key: 'snapjaw',   name: 'Snapjaw',   icon: 'c_snapjaw',   seed: 96,  grow: 58,  yield: 2, offering: 'slab',  hap: 4,  restore: 0.4,  magic: 1, color: '#4f9a42' },
-  { key: 'whisperfern', name: 'Whisperfern', icon: 'c_whisperfern', seed: 62, grow: 44, yield: 2, offering: 'resin', hap: 13, restore: 0.5, magic: 1, color: '#b98ef0' },
+  // ---- vegetables ---------------------------------------------------------
+  { kind: 'crop', key: 'ashgrass',  name: 'Ashgrass',  icon: 'c_ashgrass',  seed: 2,  grow: 26, yield: 2, offering: 'plain', hap: 3,  restore: 0,    color: '#84bb59', blurb: 'Hardy native grass. Grows in anything.' },
+  { kind: 'crop', key: 'carrot',    name: 'Carrot',    icon: 'c_carrot',    seed: 6,  grow: 34, yield: 3, offering: 'rich',  hap: 6,  restore: 0.06, color: '#e0763a', blurb: 'Sweet, orange, and they will eat the tops as well.' },
+  { kind: 'crop', key: 'cabbage',   name: 'Cabbage',   icon: 'c_cabbage',   seed: 9,  grow: 42, yield: 2, offering: 'slab',  hap: 8,  restore: 0.12, color: '#8fc47a', blurb: 'One cabbage will keep a wombat busy for an hour.' },
+  { kind: 'crop', key: 'potato',    name: 'Potato',    icon: 'c_potato',    seed: 7,  grow: 46, yield: 4, offering: 'husk',  hap: 5,  restore: 0.1,  color: '#c9a46a', blurb: 'Four to a plant. Keeps in the shed for a year.' },
+  { kind: 'crop', key: 'sunroot',   name: 'Sunroot',   icon: 'c_sunroot',   seed: 8,  grow: 40, yield: 2, offering: 'rich',  hap: 7,  restore: 0.08, color: '#d8a52f', blurb: 'A yellow tuber that tastes of honey and dirt.' },
+  { kind: 'crop', key: 'pumpkin',   name: 'Pumpkin',   icon: 'c_pumpkin',   seed: 18, grow: 62, yield: 2, offering: 'stone', hap: 11, restore: 0.2,  color: '#e08a2a', blurb: 'Enormous. Takes its time. Worth it.' },
+  { kind: 'crop', key: 'resinbud',  name: 'Resinbud',  icon: 'c_resinbud',  seed: 14, grow: 46, yield: 2, offering: 'resin', hap: 8,  restore: 0.14, color: '#a97c1e', blurb: 'Sticky. The cubes come out sticky too.' },
+  { kind: 'crop', key: 'duskhusk',  name: 'Duskhusk',  icon: 'c_duskhusk',  seed: 12, grow: 38, yield: 2, offering: 'husk',  hap: 5,  restore: 0.14, color: '#cfc4b0', blurb: 'Pale husks that rattle when the wind gets up.' },
+  { kind: 'crop', key: 'ironbulb',  name: 'Ironbulb',  icon: 'c_ironbulb',  seed: 20, grow: 56, yield: 2, offering: 'stone', hap: 4,  restore: 0.24, color: '#625a72', blurb: 'Heavy as a rock and about as popular.' },
+  { kind: 'crop', key: 'broadleaf', name: 'Broadleaf', icon: 'c_broadleaf', seed: 24, grow: 52, yield: 2, offering: 'slab',  hap: 7,  restore: 0.32, color: '#436f2f', blurb: 'Big flat leaves. Good shade for a small wombat.' },
+  { kind: 'crop', key: 'goldwheat', name: 'Goldwheat', icon: 'c_goldwheat', seed: 46, grow: 70, yield: 2, offering: 'gold',  hap: 12, restore: 0.5,  color: '#f5cd5c', blurb: 'Slow, expensive, and it pays.' },
+
+  // ---- fruit trees --------------------------------------------------------
+  // `fruitEvery` seconds between crops once grown, `thirsty` how fast it dries,
+  // and they want pruning or the yield drops off.
+  { kind: 'tree', key: 'apple',   name: 'Apple Tree',  icon: 'c_apple',   seed: 140, grow: 190, yield: 3, fruitEvery: 62, offering: 'rich',  hap: 14, restore: 1.2, thirsty: 1.3, leaf: '#4e7a3a', color: '#d8402f', blurb: 'Takes three minutes to establish. Then apples, forever.' },
+  { kind: 'tree', key: 'plum',    name: 'Plum Tree',   icon: 'c_plum',    seed: 165, grow: 210, yield: 3, fruitEvery: 70, offering: 'resin', hap: 15, restore: 1.3, thirsty: 1.4, leaf: '#3f6a44', color: '#7a3f8a', blurb: 'Dark fruit, heavy branches, very happy wombats.' },
+  { kind: 'tree', key: 'lemon',   name: 'Lemon Tree',  icon: 'c_lemon',   seed: 180, grow: 200, yield: 2, fruitEvery: 54, offering: 'gold',  hap: 12, restore: 1.1, thirsty: 1.7, leaf: '#5d8a3c', color: '#f0d04a', blurb: 'Thirsty. Sulks the moment you forget it.' },
+  { kind: 'tree', key: 'fig',     name: 'Fig Tree',    icon: 'c_fig',     seed: 210, grow: 240, yield: 4, fruitEvery: 78, offering: 'slab',  hap: 17, restore: 1.6, thirsty: 1.1, leaf: '#4a7250', color: '#6a4a7a', blurb: 'The slowest and the best. Four figs a crop.' },
+  { kind: 'tree', key: 'gumnut',  name: 'Gum Tree',    icon: 'c_gumnut',  seed: 120, grow: 170, yield: 3, fruitEvery: 58, offering: 'husk',  hap: 10, restore: 1.4, thirsty: 0.7, leaf: '#6f8f63', color: '#a8bfa0', blurb: 'Native. Drinks almost nothing. Smells like home.' },
+
+  // ---- magical ------------------------------------------------------------
+  // `need` is a condition that must hold or it stops growing; `effect` is what
+  // it does to the grove once it is up.
+  { kind: 'magic', key: 'runeberry',   name: 'Runeberry',   icon: 'c_runeberry',   seed: 90,  grow: 80, yield: 2, offering: 'rune',  hap: 14, restore: 0.7,  god: 'demewombra', color: '#8354c9',
+    need: 'night',  effect: 'favour', blurb: 'Only swells after dark. The gods notice it.' },
+  { kind: 'magic', key: 'mandrake',    name: 'Mandrake',    icon: 'c_mandrake',    seed: 120, grow: 66, yield: 2, offering: 'rune',  hap: 2,  restore: 0.6,  magic: 1, color: '#c9a86a',
+    need: 'alone',  effect: 'scare',  blurb: 'Will not grow within sight of another plant. Screams.' },
+  { kind: 'magic', key: 'moonbell',    name: 'Moonbell',    icon: 'c_moonbell',    seed: 70,  grow: 54, yield: 2, offering: 'husk',  hap: 16, restore: 0.42, magic: 1, color: '#9fd8e6',
+    need: 'night',  effect: 'lull',   blurb: 'Opens at night. Anything sleeping near it sleeps better.' },
+  { kind: 'magic', key: 'emberleaf',   name: 'Emberleaf',   icon: 'c_emberleaf',   seed: 84,  grow: 48, yield: 2, offering: 'gold',  hap: 9,  restore: 0.38, magic: 1, color: '#e0703c',
+    need: 'dry',    effect: 'warm',   blurb: 'Do not water it. Everything near it grows quicker for the heat.' },
+  { kind: 'magic', key: 'snapjaw',     name: 'Snapjaw',     icon: 'c_snapjaw',     seed: 96,  grow: 58, yield: 2, offering: 'slab',  hap: 4,  restore: 0.4,  magic: 1, color: '#4f9a42',
+    need: 'bugs',   effect: 'hunt',   blurb: 'Needs something to eat. Eats it.' },
+  { kind: 'magic', key: 'whisperfern', name: 'Whisperfern', icon: 'c_whisperfern', seed: 62,  grow: 44, yield: 2, offering: 'resin', hap: 13, restore: 0.5,  magic: 1, color: '#b98ef0',
+    need: 'crowd',  effect: 'echo',   blurb: 'Wants company. Repeats whatever grows beside it.' },
+  { kind: 'magic', key: 'dreamcap',    name: 'Dreamcap',    icon: 'c_dreamcap',    seed: 110, grow: 50, yield: 2, offering: 'husk',  hap: 18, restore: 0.45, magic: 1, color: '#c88ab0',
+    need: 'shade',  effect: 'dream',  blurb: 'Grows in the dark under a tree. Everything nearby is content.' },
+  { kind: 'magic', key: 'starthistle', name: 'Starthistle', icon: 'c_starthistle', seed: 130, grow: 64, yield: 2, offering: 'gold',  hap: 8,  restore: 0.55, magic: 1, color: '#f0e08a',
+    need: 'wet',    effect: 'draw',   blurb: 'Keep it soaked. People come to look at it.' },
 ];
+const PLANTS = CROPS;
+const PLANTS_OF = (kind) => CROPS.filter((c) => c.kind === kind);
+// what the magical ones each want, said plainly for the tooltip
+const MAGIC_NEED = {
+  night: 'only grows at night',
+  alone: 'nothing else growing within a step',
+  dry:   'never water it',
+  bugs:  'wants a bug within reach',
+  crowd: 'two or more plants beside it',
+  shade: 'under the shade of a tree',
+  wet:   'keep it wet the whole time',
+};
+const MAGIC_EFFECT = {
+  favour: 'the gods answer sooner',
+  scare:  'keeps the crows off the whole plot',
+  lull:   'wombats asleep nearby wake up happier',
+  warm:   'everything around it grows faster',
+  hunt:   'eats the pests before they reach your beds',
+  echo:   'plants beside it sometimes yield double',
+  dream:  'everything within reach is quietly content',
+  draw:   'visitors turn up more often',
+};
 const CROP_BY_KEY = Object.fromEntries(CROPS.map((c) => [c.key, c]));
 
 // ---- Tools ---------------------------------------------------------------

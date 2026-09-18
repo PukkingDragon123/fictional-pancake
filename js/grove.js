@@ -42,8 +42,6 @@ const Grove = (() => {
   for (let i = 0; i < 12; i++) mist.push({ x: R0() * W, y: SKY - 16 + R0() * 56, w: 110 + R0() * 150, s: 2 + R0() * 4, d: Math.floor(R0() * 3) });
   const flies = [];   // slow motes over the treeline
   for (let i = 0; i < 26; i++) flies.push({ x: R0() * W, y: SKY - 40 + R0() * 110, ph: R0() * TAU, sp: 0.25 + R0() * 0.5 });
-  const clouds = [];  // slow weather overhead
-  for (let i = 0; i < 7; i++) clouds.push({ x: R0() * (W + 400) - 200, y: 8 + R0() * 54, w: 60 + R0() * 90, h: 9 + R0() * 9, s: 3 + R0() * 6, a: 0.1 + R0() * 0.16 });
   const leaves = []; // leaves crossing the plot on the gust
   const shafts = [];  // light falling through the canopy
   for (let i = 0; i < 5; i++) shafts.push({ x: 60 + R0() * (W - 120), w: 26 + R0() * 40, lean: 26 + R0() * 22, a: 0.05 + R0() * 0.07 });
@@ -230,8 +228,7 @@ const Grove = (() => {
   function update(dt) {
     Wild.update(dt);
     updateFoods(dt);
-    // weather: clouds crawl, leaves tear loose on a gust
-    for (const c of clouds) { c.x += c.s * dt; if (c.x > W + 220) c.x = -c.w - 220; }
+    // leaves tear loose on a gust
     const gu = World.gust(FX.cam.x);
     if (leaves.length < 26 && Math.random() < dt * (1.4 + gu * 5)) {
       leaves.push({ x: FX.cam.x - 380, y: GROUND - 40 + Math.random() * 180, vx: 40 + gu * 90 + Math.random() * 40, ph: Math.random() * TAU, t: 0, c: ['#7f9a4a', '#a8843a', '#8a5a2a', '#6d8c3a'][Math.floor(Math.random() * 4)] });
@@ -658,7 +655,10 @@ const Grove = (() => {
       if (d) { dragging = d; d.z = Math.max(d.z, 12); Audio.play('click'); return true; }
       const w = wombatAt(x, y);
       if (w) { pet(w); return true; }
-      if (World.harvest(x, y)) return true;
+      const got = World.harvest(x, y);
+      if (got === 'unripe' && first) { Audio.play('error'); UI.toast('not ready yet', 'bad'); }
+      else if (got === 'nofruit' && first) { Audio.play('error'); UI.toast('no fruit on it yet', 'bad'); }
+      if (got) return true;
       return false;
     }
     if (tool === 'food') {
@@ -694,6 +694,7 @@ const Grove = (() => {
       case 'hoe': World.till(x, y, r); if (first) Audio.play('dig'); break;
       case 'sickle': {
         if (first || Math.random() < 0.25) slashes.push({ x, y, t: 0, r });
+        World.prune(x, y, r);                 // over a fruit tree the sickle is a pruning hook
         const dead = World.hitWeeds(x, y, r, tier.dmg);
         for (const d of dead) {
           coins.push({ x: d.x, y: d.y - 10, vx: U.rand(-30, 30), vy: U.rand(-150, -90), z: 0, t: 0, n: d.big ? WEED_COIN * 2 : WEED_COIN });
@@ -709,6 +710,7 @@ const Grove = (() => {
         if (res === 'ok') { Audio.play('pluck'); UI.refreshTray(); }
         else if (res === 'nosoil' && first) { Audio.play('error'); UI.toast('till the soil first', 'bad'); }
         else if (res === 'noseed' && first) { Audio.play('error'); UI.toast('buy seed at the mart', 'bad'); }
+        else if (res === 'crowded' && first) { Audio.play('error'); UI.toast('a tree needs room to itself', 'bad'); }
         break;
       }
     }
@@ -742,6 +744,8 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
+    const pl2 = World.plantAt(x, y);
+    if (pl2) return World.plantTip(pl2);
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
     return null;
   }
@@ -755,29 +759,21 @@ const Grove = (() => {
     g.save();
     g.translate(VW / 2, VH / 2); g.scale(cam.zoom, cam.zoom); g.translate(-cam.x, -cam.y);
 
-    // ---- sky: cold and overcast, warming only as the forest returns -------
-    const top = U.mix('#0d0f18', '#2d4462', f), bot = U.mix('#39323f', '#7fa39f', f);
+    // ---- sky: the hour paints it, the weather flattens it -----------------
+    // Sky keeps one clock for the whole game, so the wood, the map and the
+    // title screen are all the same afternoon.
+    const day = Sky.light(), cov = Sky.cover();
+    const top = U.mix(U.mix('#0b1020', '#2d4462', day), '#5a6472', cov * 0.7);
+    const bot = U.mix(U.mix('#1e2436', U.mix('#7fa39f', '#cfe0d8', f * 0.5), day), '#8e97a0', cov * 0.7);
     for (let i = 0; i < 12; i++) {
       g.fillStyle = U.mix(top, bot, i / 11);
       g.fillRect(L, Math.round((SKY * i) / 12) - 40, R - L, Math.ceil(SKY / 12) + 42);
     }
-    // a cold sun, low and pale, parked behind the canopy
-    const sunX = W * 0.22 + drift * 0.8, sunY = 40;
-    Art.glow(g, sunX, sunY, 110, '#ffeec4', 0.12 + f * 0.3, 6);
-    g.fillStyle = U.mix('#5f5a68', '#ffeeb0', f); Art.ell(g, sunX, sunY, 8, 8);
+    // the sun crosses; after dark the moon takes the same road
+    const arc = U.clamp((Sky.hour() - 5) / 14, -0.2, 1.2);
+    Sky.drawSun(g, W * 0.1 + arc * W * 0.8 + drift * 0.8, 74 - Math.sin(arc * Math.PI) * 48);
+    Sky.drawClouds(g, W, SKY, -drift * 0.9, 0.55 + cov * 0.5);
 
-    // clouds, drifting the other way to the parallax so the sky feels deep
-    for (const c of clouds) {
-      const x = c.x + drift * 0.85;
-      if (x > R + 120 || x + c.w < L - 120) continue;
-      g.fillStyle = `rgba(226,228,238,${(c.a * (1 - f * 0.3)).toFixed(3)})`;
-      g.fillRect(x, c.y, c.w, c.h);
-      g.fillRect(x + 8, c.y - c.h * 0.45, c.w - 24, c.h * 0.5);
-      g.fillStyle = `rgba(255,250,236,${(c.a * 0.7).toFixed(3)})`;
-      g.fillRect(x + 8, c.y - c.h * 0.45, c.w - 24, 2);
-      g.fillStyle = `rgba(60,66,90,${(c.a * 0.5).toFixed(3)})`;
-      g.fillRect(x, c.y + c.h - 2, c.w, 2);
-    }
     // ---- five layers of trees, each at its own drift rate -----------------
     for (let d = 0; d < layers.length; d++) {
       const off = drift * PAR[d];
@@ -865,6 +861,7 @@ const Grove = (() => {
       items.push({ y: dy, fn: () => { const img = Props.get(d.key === 'nest' ? 'crate' : 'rock'); g.drawImage(img, Math.round(dx - img.width / 2), Math.round(dy - img.height + 4)); } });
     }
     items.push({ y: -1, fn: () => World.drawCrops(g) });
+    for (const it of World.cropItems(g)) items.push(it);   // fruit trees stand tall enough to sort
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
     items.push({ y: Guide.cult.y, fn: () => Guide.draw(g) });
     if (arrival) items.push({ y: arrival.y, fn: () => { Sprites.shadow(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); } });
@@ -946,6 +943,7 @@ const Grove = (() => {
     // the whole grove sits inside a soft violet frame
     Art.vignette(g, VW, VH, '#241230', 0.3 - f * 0.1, 1.8, 0.4);
     Art.vignette(g, VW, VH, '#10081a', 0.62 - f * 0.24, 3.2, 0.5);
+    Sky.drawOver(g, VW, VH);          // the hour, the mist and the rain, over everything
     edgeArrows(g);
   }
 

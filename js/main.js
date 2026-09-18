@@ -25,6 +25,7 @@ const Main = (() => {
     if (!G) return;
     try {
       World.save();
+      Sky.save();
       Grove.saveObjects();
       if (G.mode === 'rite') Tower.serialise();     // the standing tower goes in the save
       G.lastSave = Date.now();
@@ -95,7 +96,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
+      Sky.init(G); World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
       Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -308,6 +309,7 @@ const Main = (() => {
     if (c.freeze > 0 || c.hitstop > 0) gdt = 0;
     if (G.paused) gdt = 0;
     G.time += real;
+    Sky.update(real);            // one clock and one weather front for the whole game
 
     if (G.mode === 'menu') Menu.update(real);
     else if (G.mode === 'intro') Intro.update(real);
@@ -376,7 +378,7 @@ const Main = (() => {
     G = fresh();
     G.mode = 'menu';
     window.G = G;
-    World.init(G);
+    Sky.init(G); World.init(G);
     Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();

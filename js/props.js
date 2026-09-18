@@ -688,6 +688,101 @@ const Props = (() => {
         for (let i = 0; i < 3; i++) Art.rect(g, cx - 5 + i * 5, 1 + (i % 2), 1, 1, '#e6d6ff');
         break;
       }
+      case 'carrot': {                                      // pulled, tops still on
+        Art.poly(g, [[cx - 4, 8], [cx + 4, 8], [cx, by + 1]], D);
+        Art.poly(g, [[cx - 3, 9], [cx + 2.6, 9], [cx, by - 1]], C);
+        Art.poly(g, [[cx - 3, 9], [cx - 0.6, 9], [cx - 0.8, by - 3]], L);
+        for (let i = 0; i < 4; i++) Art.rect(g, cx - 3 + i * 0.5, 10.4 + i * 2.6, 6 - i * 1.4, 1, D);
+        for (let i = -2; i <= 2; i++) {
+          Art.limb(g, cx, 8.4, cx + i * 3.4, 1.4 + Math.abs(i), 1.6, 0.8, '#2f6b34');
+          Art.ell(g, cx + i * 3.4, 1.4 + Math.abs(i), 2, 1.6, '#4f9a42');
+        }
+        break;
+      }
+      case 'cabbage': {                                     // a head, leaves curling off it
+        Art.ell(g, cx, 14, 9, 8, '#3c6b32');
+        Art.ell(g, cx, 13.6, 7.6, 6.8, D);
+        Art.ell(g, cx, 13, 6, 5.4, C);
+        Art.ell(g, cx - 1.6, 11, 3, 2.4, L);
+        Art.ell(g, cx - 2.2, 10.2, 1.4, 1, H);
+        for (const [dx, dy] of [[-8, 16], [8, 16], [0, 20]]) {
+          Art.ell(g, cx + dx * 0.8, dy, 4, 2.4, '#3c6b32');
+          Art.ell(g, cx + dx * 0.8, dy - 0.4, 3.2, 1.8, '#5d9440');
+        }
+        Art.rect(g, cx - 0.6, 8.6, 1.2, 3, '#2a4f24');
+        break;
+      }
+      case 'potato': {                                      // two, with the dirt still on
+        Art.ell(g, cx - 3, 15, 6.4, 5, D);
+        Art.ell(g, cx - 3, 14.4, 5.4, 4.2, C);
+        Art.ell(g, cx - 4.6, 12.8, 2, 1.4, L);
+        Art.ell(g, cx + 5, 18, 5, 4, D);
+        Art.ell(g, cx + 5, 17.5, 4.2, 3.2, C);
+        for (const [dx, dy] of [[-4, 14], [-1, 16], [6, 18], [4, 19.6]]) Art.rect(g, cx + dx, dy, 1.2, 1.2, U.shade(C, -0.5));
+        for (let i = 0; i < 4; i++) Art.rect(g, cx - 6 + i * 4, 20 + (i % 2), 2, 1, '#4a3a28');
+        break;
+      }
+      case 'pumpkin': {                                     // ribbed, with a stalk
+        Art.ell(g, cx, 15, 9.4, 7.6, D);
+        Art.ell(g, cx, 14.6, 8.4, 6.8, C);
+        for (const d of [-0.62, -0.2, 0.2, 0.62]) Art.ell(g, cx + d * 8, 14.8, 1.6, 6.4, D);
+        Art.ell(g, cx - 3.4, 11.4, 2.6, 2, L);
+        Art.ell(g, cx - 4, 10.8, 1.2, 0.9, H);
+        Art.rect(g, cx - 1.4, 5.4, 3, 4, '#4a6b2a');
+        Art.rect(g, cx - 1.4, 5.4, 3, 1.4, '#6d8f3a');
+        Art.limb(g, cx + 1.4, 6, cx + 5.4, 3.4, 1.2, 0.8, '#4a6b2a');
+        break;
+      }
+      case 'apple': case 'plum': case 'lemon': case 'fig': {  // a pair of fruit off the tree
+        const tall = key === 'lemon' || key === 'plum';
+        for (const [dx, dy, sc] of [[-3.4, 14, 1], [4, 17, 0.82]]) {
+          Art.ell(g, cx + dx, dy, 6 * sc * (tall ? 0.86 : 1), 6 * sc * (tall ? 1.12 : 1), D);
+          Art.ell(g, cx + dx, dy - 0.4, 5 * sc * (tall ? 0.86 : 1), 5 * sc * (tall ? 1.12 : 1), C);
+          Art.ell(g, cx + dx - 1.8 * sc, dy - 2 * sc, 2 * sc, 1.6 * sc, L);
+          Art.ell(g, cx + dx - 2.2 * sc, dy - 2.6 * sc, 1 * sc, 0.8 * sc, H);
+          Art.rect(g, cx + dx - 0.5, dy - 6.4 * sc, 1, 2.4 * sc, '#5a3a20');
+        }
+        Art.poly(g, [[cx - 2, 8], [cx + 4, 5], [cx + 5, 8.4]], '#4f8a3a');   // one leaf
+        Art.poly(g, [[cx - 1, 8], [cx + 3.4, 6], [cx + 4, 8]], '#6fae4a');
+        break;
+      }
+      case 'gumnut': {                                      // hard little capsules
+        for (const [dx, dy, sc] of [[-4, 15, 1], [3.4, 17, 0.9], [1, 11, 0.8]]) {
+          Art.ell(g, cx + dx, dy, 4.4 * sc, 4 * sc, '#5a4a3a');
+          Art.ell(g, cx + dx, dy + 0.4, 3.6 * sc, 3.2 * sc, C);
+          Art.rect(g, cx + dx - 2.4 * sc, dy - 2.6 * sc, 4.8 * sc, 1.6 * sc, '#4a3c2e');
+          Art.rect(g, cx + dx - 1.6 * sc, dy - 1.4 * sc, 3.2 * sc, 1, L);
+        }
+        for (const [lx, ly] of [[-7, 7], [6, 6]]) {
+          Art.poly(g, [[cx + lx, ly + 5], [cx + lx * 1.3, ly - 3], [cx + lx * 0.6, ly + 4]], '#6f8f63');
+        }
+        break;
+      }
+      case 'dreamcap': {                                    // a mushroom, spores lifting off
+        Art.rect(g, cx - 1.6, 12, 3.4, 10, '#e2d4c0');
+        Art.rect(g, cx - 1.6, 12, 1.4, 10, '#f6ece0');
+        Art.ell(g, cx, 17, 5, 1.6, '#d0c0aa');
+        Art.ell(g, cx, 11.4, 9, 6, D);
+        Art.ell(g, cx, 11, 8, 5.2, C);
+        Art.ell(g, cx - 3, 8.6, 3, 2, L);
+        Art.ell(g, cx - 3.6, 8, 1.4, 1, H);
+        Art.rect(g, cx - 6, 13.4, 12, 1.4, U.shade(C, -0.5));
+        for (let i = 0; i < 4; i++) Art.rect(g, cx - 6 + i * 4, 2 + (i % 2) * 2, 1, 1, '#e6d6ff');
+        break;
+      }
+      case 'starthistle': {                                 // a burr with a light in it
+        for (let i = 0; i < 10; i++) {
+          const a = i * 0.63;
+          Art.limb(g, cx, 12, cx + Math.cos(a) * 9, 12 + Math.sin(a) * 8, 1.6, 0.6, '#8a8a4a');
+        }
+        Art.ell(g, cx, 12, 6, 5.4, '#4a3a6a');
+        Art.ell(g, cx, 11.6, 5, 4.4, '#7a58a8');
+        Art.ell(g, cx - 1.6, 10, 2.2, 1.8, C);
+        Art.rect(g, cx - 0.6, 11, 1.4, 1.4, '#fff6d0');
+        for (let i = 0; i < 3; i++) Art.rect(g, cx - 5 + i * 5, 3 + (i % 2), 1, 1, '#e6d6ff');
+        Art.limb(g, cx, 16, cx, by, 2, 1.2, '#5a6b3a');
+        break;
+      }
       default:
         Art.ell(g, cx, 14, 7, 7, D);
         Art.ell(g, cx, 13.4, 6, 6, C);
@@ -703,6 +798,122 @@ const Props = (() => {
   });
 
   // ---- crops --------------------------------------------------------------
+  // ---- fruit trees ---------------------------------------------------------
+  // Years in the ground, then fruit forever. Built from the roots up, so the
+  // same routine draws a whip, a young tree and a full crown.
+  function drawTree(g, def, x, y, p, time, sway, fruit, wild, wet) {
+    const gr = U.clamp(p, 0, 1);
+    const H2 = Math.round(10 + gr * 44);              // trunk height
+    const cw = 7 + gr * 21, ch = 5 + gr * 15;         // crown half-size
+    const lean = Math.sin(time * 0.8 + x * 0.05) * (1 + gr * 1.8) + (sway || 0) * 10;
+    const cx = Math.round(x + lean), cy = Math.round(y - H2 - ch * 0.35);
+    const leaf = def.leaf || '#4e7a3a';
+    const dark = U.shade(leaf, -0.42), mid = leaf, lit = U.shade(leaf, 0.22), hi = U.shade(leaf, 0.42);
+    const r = Art.rng(Math.round(x) * 31 + 7);
+
+    if (wet) { g.fillStyle = 'rgba(87,182,201,0.18)'; Art.ell(g, x, y + 1, cw * 0.6 + 4, 3); }
+    g.fillStyle = 'rgba(18,14,20,0.26)'; Art.ell(g, x, y, cw * 0.66 + 3, 3 + gr * 2);
+
+    // trunk: an ink edge, bark inside, lit down the left, moss at the foot
+    const tw = Math.max(3, Math.round(3 + gr * 5));
+    for (let i = 0; i < H2; i++) {
+      const t = i / H2;
+      const bx = Math.round(x + lean * t * t);
+      const w2 = Math.max(3, Math.round(tw * (1 - t * 0.3)));
+      const x0 = bx - (w2 >> 1);
+      g.fillStyle = PAL.bark0; g.fillRect(x0 - 1, y - i, w2 + 2, 1);
+      g.fillStyle = PAL.bark2; g.fillRect(x0, y - i, w2, 1);
+      g.fillStyle = PAL.bark3; g.fillRect(x0, y - i, 1, 1);
+      if (i % 9 === 4) { g.fillStyle = PAL.bark1; g.fillRect(x0 + 1, y - i, w2 - 1, 1); }
+    }
+    if (gr > 0.3) {                                    // root flare
+      g.fillStyle = PAL.bark0;
+      g.fillRect(Math.round(x - tw), y - 2, 2, 2); g.fillRect(Math.round(x + tw - 2), y - 2, 2, 2);
+      g.fillStyle = PAL.soil2; g.fillRect(Math.round(x - tw - 2), y - 1, tw * 2 + 4, 1);
+    }
+    if (gr > 0.35) {                                   // moss climbing the shady side
+      const mh = Math.round(H2 * 0.45);
+      for (let i = 0; i < mh; i++) {
+        if ((i * 7 + Math.round(x)) % 4 === 0) continue;
+        g.fillStyle = i % 3 ? PAL.moss1 : PAL.moss2;
+        g.fillRect(Math.round(x - (tw >> 1) - 1), y - i, 2, 1);
+      }
+      g.fillStyle = PAL.moss3;
+      for (let i = 0; i < 4; i++) g.fillRect(Math.round(x - (tw >> 1) - 1), y - Math.round(r() * mh), 1, 1);
+    }
+    // boughs reaching into the crown
+    if (gr > 0.4) {
+      for (const d of [-1, 1]) {
+        const by = y - H2 * 0.72, n = Math.round(cw * 0.42);
+        for (let i = 0; i < n; i++) {
+          g.fillStyle = PAL.bark0; g.fillRect(Math.round(x + lean * 0.5 + d * i), Math.round(by - i * 0.62), 3, 3);
+          g.fillStyle = PAL.bark2; g.fillRect(Math.round(x + lean * 0.5 + d * i), Math.round(by - i * 0.62), 2, 2);
+        }
+      }
+    }
+    // crown: a handful of chunky clumps, each with its own shading, so the
+    // silhouette reads as leaves rather than one smooth dome
+    const CL = [[0, -0.34, 0.66], [-0.66, 0.06, 0.6], [0.64, 0.02, 0.58], [-0.3, 0.42, 0.52], [0.34, 0.44, 0.5], [0, 0.16, 0.72]];
+    const n = gr < 0.25 ? 1 : gr < 0.5 ? 3 : gr < 0.8 ? 5 : 6;
+    const clumps = [];
+    for (let i = 0; i < n; i++) {
+      const c = CL[i];
+      clumps.push({ x: cx + c[0] * cw, y: cy + c[1] * ch, rx: cw * c[2], ry: ch * c[2] * 1.05 });
+    }
+    for (const c of clumps) Art.ell(g, c.x, c.y, c.rx + 1.5, c.ry + 1.5, PAL.ink);   // one ink edge for the lot
+    for (const c of clumps) Art.ell(g, c.x, c.y, c.rx, c.ry, dark);
+    for (const c of clumps) Art.ell(g, c.x, c.y - c.ry * 0.22, c.rx * 0.86, c.ry * 0.74, mid);
+    for (const c of clumps) Art.ell(g, c.x - c.rx * 0.2, c.y - c.ry * 0.46, c.rx * 0.5, c.ry * 0.36, lit);
+    Art.ell(g, cx - cw * 0.3, cy - ch * 0.8, cw * 0.3, ch * 0.2, hi);
+    // leaf tufts standing off the edge
+    for (let i = 0; i < Math.round(gr * 22); i++) {
+      const a = r() * TAU, rr = 0.9 + r() * 0.22;
+      g.fillStyle = r() < 0.35 ? lit : dark;
+      g.fillRect(Math.round(cx + Math.cos(a) * cw * rr), Math.round(cy + Math.sin(a) * ch * rr), 2, 2);
+    }
+    if (wild > 1) {                                    // leggy: shoots out of the crown
+      for (let i = 0; i < 8; i++) {
+        const a = -0.35 - r() * 2.4, l = 5 + r() * 8;
+        for (let k = 0; k < l; k++) {
+          g.fillStyle = k > l - 3 ? lit : PAL.bark1;
+          g.fillRect(Math.round(cx + Math.cos(a) * (cw * 0.8 + k)), Math.round(cy + Math.sin(a) * (ch * 0.8 + k * 0.6)), 1, 1);
+        }
+      }
+    }
+    // blossom while the next crop is coming, fruit once it has arrived
+    if (gr >= 1 && !fruit) {
+      for (let i = 0; i < 8; i++) {
+        const a = r() * TAU, rr = 0.4 + r() * 0.55;
+        const bx = Math.round(cx + Math.cos(a) * cw * rr), by = Math.round(cy + Math.sin(a) * ch * rr);
+        g.fillStyle = '#f6d8e4'; g.fillRect(bx - 1, by, 3, 1); g.fillRect(bx, by - 1, 1, 3);
+        g.fillStyle = PAL.gold3; g.fillRect(bx, by, 1, 1);
+      }
+    }
+    for (let i = 0; i < (fruit || 0) * 3; i++) {
+      const a = 0.35 + (i / Math.max(1, (fruit || 1) * 3)) * TAU, rr = 0.5 + ((i * 7) % 5) / 14;
+      drawFruit(g, def, Math.round(cx + Math.cos(a) * cw * rr), Math.round(cy + Math.abs(Math.sin(a)) * ch * rr + ch * 0.26));
+    }
+    if (gr >= 1 && fruit) {                            // it is asking to be picked
+      const tw2 = 0.5 + 0.5 * Math.sin(time * 4 + x);
+      g.fillStyle = `rgba(255,238,176,${(0.3 + tw2 * 0.4).toFixed(2)})`;
+      g.fillRect(Math.round(cx + cw * 0.86), Math.round(cy - ch * 0.7), 2, 2);
+      g.fillRect(Math.round(cx - cw * 0.94), Math.round(cy - ch * 0.2), 2, 2);
+    }
+  }
+  // one hanging fruit, two pixels of stalk and a highlight
+  function drawFruit(g, def, x, y) {
+    const key = typeof def === 'string' ? def : def.key;
+    g.fillStyle = PAL.bark1; g.fillRect(x, y - 3, 1, 2);
+    g.fillStyle = PAL.ink; Art.ell(g, x, y, 3.2, 3.2);
+    switch (key) {
+      case 'apple': Art.ell(g, x, y, 2.6, 2.6, '#b8412c'); Art.ell(g, x - 0.8, y - 0.8, 1.2, 1, '#e0705a'); break;
+      case 'plum': Art.ell(g, x, y, 2.2, 2.6, '#563391'); Art.ell(g, x - 0.7, y - 0.8, 1, 1, '#8354c9'); break;
+      case 'lemon': Art.ell(g, x, y, 2, 2.8, '#d8a52f'); Art.ell(g, x - 0.6, y - 1, 0.9, 1, '#ffeeb0'); break;
+      case 'fig': Art.ell(g, x, y, 2.4, 2.2, '#6b3a56'); Art.ell(g, x, y + 1, 1.6, 1, '#a8557e'); break;
+      default: Art.ell(g, x, y, 2.2, 2.4, '#8a7156'); Art.ell(g, x - 0.6, y - 0.6, 0.9, 0.8, '#cfc4b0'); break;
+    }
+  }
+
   function drawCrop(g, def, x, y, p, time, wet, sway) {
     const s = sway || 0;
     const bend = (Math.sin(time * 1.5 + x * 0.07) * (0.6 + p) + s) * 1.6;
@@ -748,6 +959,99 @@ const Props = (() => {
         break;
       case 'goldwheat':
         for (let i = 0; i < 4; i++) { g.fillStyle = i % 2 ? PAL.gold3 : PAL.gold2; Art.ell(g, tipX + i * 0.4, tipY + i * 2.4, 2 + t, 1.6); }
+        break;
+      case 'carrot':                          // a root: fern top, one orange shoulder
+        g.fillStyle = PAL.moss4;
+        for (let i = 0; i < 5; i++) { const a = -1.9 + i * 0.5; for (let k = 0; k < 4 + t * 4; k++) g.fillRect(Math.round(tipX + Math.cos(a) * k), Math.round(tipY + Math.sin(a) * k * 0.8), 1, 1); }
+        Art.ell(g, x, y - 1, 2.4 + t * 1.6, 1.6 + t, def.color);
+        g.fillStyle = U.shade(def.color, 0.25); g.fillRect(Math.round(x - 1), Math.round(y - 2), 2, 1);
+        break;
+      case 'cabbage': {                       // rings of leaf, tight in the middle
+        const rr = 3 + t * 5;
+        Art.ell(g, x, y - rr * 0.5, rr, rr * 0.72, U.shade(def.color, -0.3));
+        Art.ell(g, x, y - rr * 0.6, rr * 0.78, rr * 0.56, def.color);
+        Art.ell(g, x - rr * 0.16, y - rr * 0.72, rr * 0.42, rr * 0.32, U.shade(def.color, 0.24));
+        g.fillStyle = U.shade(def.color, -0.45);
+        g.fillRect(Math.round(x - rr * 0.6), Math.round(y - rr * 0.5), Math.round(rr * 1.2), 1);
+        break;
+      }
+      case 'potato':                          // low bushy haulm, one tuber showing
+        for (let i = 0; i < 4; i++) { g.fillStyle = i % 2 ? PAL.moss2 : PAL.moss3; Art.ell(g, x - 4 + i * 2.6, y - 4 - (i % 2) * 3 - t * 3, 3, 2.2); }
+        Art.ell(g, x + 4, y - 1, 2.6 + t, 2 + t * 0.6, def.color);
+        g.fillStyle = PAL.soil1; g.fillRect(Math.round(x + 3), Math.round(y - 1), 1, 1); g.fillRect(Math.round(x + 5), Math.round(y - 2), 1, 1);
+        break;
+      case 'pumpkin': {                        // a fat ribbed gourd lying in its vine
+        const rr = 3 + t * 6;
+        g.fillStyle = PAL.moss2;
+        for (let i = -6; i < 6; i++) g.fillRect(Math.round(x + i * 1.6), Math.round(y - 1 + Math.abs(i % 3)), 2, 1);
+        Art.ell(g, x, y - rr * 0.55, rr, rr * 0.8, U.shade(def.color, -0.25));
+        Art.ell(g, x, y - rr * 0.6, rr * 0.82, rr * 0.7, def.color);
+        g.fillStyle = U.shade(def.color, -0.4);
+        for (const d of [-0.5, 0, 0.5]) g.fillRect(Math.round(x + d * rr), Math.round(y - rr * 1.2), 1, Math.round(rr * 1.2));
+        g.fillStyle = PAL.moss1; g.fillRect(Math.round(x - 1), Math.round(y - rr * 1.45), 2, Math.round(rr * 0.35));
+        break;
+      }
+      case 'mandrake': {                       // a face in the dirt, mouth open
+        const rr = 3 + t * 3;
+        Art.ell(g, x, y - rr * 0.4, rr, rr * 0.8, def.color);
+        Art.ell(g, x, y - rr * 0.5, rr * 0.7, rr * 0.6, U.shade(def.color, 0.2));
+        g.fillStyle = '#2a1a18';
+        g.fillRect(Math.round(x - rr * 0.4), Math.round(y - rr * 0.7), 1, 1);
+        g.fillRect(Math.round(x + rr * 0.3), Math.round(y - rr * 0.7), 1, 1);
+        const yawn = p >= 1 ? 2 + Math.round(Math.sin(time * 6) + 1) : 1;
+        g.fillRect(Math.round(x - 1), Math.round(y - rr * 0.25), 2, yawn);
+        break;
+      }
+      case 'moonbell': {                       // pale bells that only open after dark
+        const open = typeof Sky !== 'undefined' && Sky.isNight() ? 1 : 0.4;
+        for (let i = 0; i < 3; i++) {
+          const bx = tipX - 3 + i * 3, by = tipY + i % 2;
+          Art.ell(g, bx, by, 2 * open + 0.6, 2.6, def.color);
+          g.fillStyle = PAL.cyan4; g.fillRect(Math.round(bx), Math.round(by + 2), 1, 1);
+        }
+        break;
+      }
+      case 'emberleaf':                        // leaves with a coal in them
+        for (let i = 0; i < 4; i++) {
+          const a = -2.3 + i * 0.6;
+          Art.ell(g, tipX + Math.cos(a) * 4, tipY + Math.sin(a) * 3, 3, 1.8, def.color);
+        }
+        g.fillStyle = `rgba(245,205,92,${(0.5 + 0.5 * Math.sin(time * 5 + x)).toFixed(2)})`;
+        g.fillRect(Math.round(tipX - 1), Math.round(tipY - 1), 2, 2);
+        break;
+      case 'snapjaw': {                        // it bites
+        const bite = p >= 1 ? Math.max(0, Math.sin(time * 2.2 + x)) * 3 : 0.6;
+        Art.ell(g, tipX, tipY + 1, 3.4, 2.2, U.shade(def.color, -0.25));
+        Art.ell(g, tipX, tipY - bite, 3.4, 2.2, def.color);
+        g.fillStyle = PAL.cream;
+        for (let i = -2; i <= 2; i++) g.fillRect(Math.round(tipX + i * 1.4), Math.round(tipY - bite + 1), 1, 1);
+        break;
+      }
+      case 'whisperfern':                      // fronds that never stop moving
+        for (let i = 0; i < 5; i++) {
+          const a = -2.6 + i * 0.55 + Math.sin(time * 1.6 + i) * 0.14;
+          for (let k = 2; k < 5 + t * 6; k++) {
+            g.fillStyle = k % 2 ? def.color : PAL.moss2;
+            g.fillRect(Math.round(tipX + Math.cos(a) * k), Math.round(tipY + Math.sin(a) * k * 0.7), 1, 1);
+          }
+        }
+        break;
+      case 'dreamcap': {                       // a cap with spores drifting off it
+        const rr = 3 + t * 3;
+        g.fillStyle = PAL.parch1; g.fillRect(Math.round(x - 1), Math.round(y - 5 - t * 3), 2, 5 + t * 3);
+        Art.ell(g, x, y - 5 - t * 3, rr, rr * 0.7, def.color);
+        Art.ell(g, x - rr * 0.3, y - 6 - t * 3, rr * 0.4, rr * 0.3, U.shade(def.color, 0.28));
+        for (let i = 0; i < 3; i++) {
+          g.fillStyle = `rgba(230,214,255,${(0.2 + 0.3 * Math.sin(time * 2 + i)).toFixed(2)})`;
+          g.fillRect(Math.round(x + Math.sin(time + i * 2) * 6), Math.round(y - 12 - t * 4 - ((time * 8 + i * 5) % 12)), 1, 1);
+        }
+        break;
+      }
+      case 'starthistle':                      // a burr full of light
+        g.fillStyle = def.color;
+        for (let i = 0; i < 8; i++) { const a = i * 0.78; g.fillRect(Math.round(tipX + Math.cos(a) * (3 + t * 2)), Math.round(tipY + Math.sin(a) * (3 + t * 2)), 1, 1); }
+        Art.ell(g, tipX, tipY, 2 + t, 2 + t, PAL.div3);
+        g.fillStyle = PAL.div5; g.fillRect(Math.round(tipX), Math.round(tipY), 1, 1);
         break;
       case 'runeberry':
         for (let i = 0; i < 3; i++) {
@@ -901,5 +1205,5 @@ const Props = (() => {
     return res;
   }
 
-  return { P, get: (n, v) => P[n](v), drawCrop, buildLifeTree, clear: () => cache.clear() };
+  return { P, get: (n, v) => P[n](v), drawCrop, drawTree, drawFruit, buildLifeTree, clear: () => cache.clear() };
 })();

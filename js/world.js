@@ -76,7 +76,7 @@ const World = (() => {
     }
     if (Array.isArray(s.blades)) for (const b of s.blades) blades.push(mkBlade(b.x, b.y, b.v, b.h));
     if (Array.isArray(s.flowers)) for (const f of s.flowers) flowers.push({ x: f.x, y: f.y, v: f.v, bend: 0, vel: 0 });
-    if (Array.isArray(s.crops)) for (const c of s.crops) crops.push({ x: c.x, y: c.y, k: c.k, t: c.t, wet: c.wet || 0, thirst: c.thirst || 0 });
+    if (Array.isArray(s.crops)) for (const c of s.crops) { if (!CROP_BY_KEY[c.k]) continue; crops.push({ x: c.x, y: c.y, k: c.k, t: c.t, wet: c.wet || 0, thirst: c.thirst || 0, fr: c.fr || 0, ft: c.ft || 0, wild: c.wild || 0, stall: 0 }); }
     if (Array.isArray(s.sprouts)) for (const p of s.sprouts) sprouts.push({ x: p.x, y: p.y, t: p.t, wet: p.wet || 0, r: p.r || 12 });
     measure();
   }
@@ -162,20 +162,71 @@ const World = (() => {
     return dead;
   }
   const clearWeeds = (x, y, r) => hitWeeds(x, y, r, 99).length;
+  // A bed takes one of three things. A crop is sown and picked once. A fruit
+  // tree wants room, years and looking after, and then feeds you forever. A
+  // magical plant only grows when the thing it wants is true.
   function plant(x, y, key) {
     if (!hasSoil(x, y)) return 'nosoil';
     const def = CROP_BY_KEY[key];
     if (!def) return false;
-    for (const c of crops) if (Math.hypot(c.x - x, (c.y - y) * 1.4) < 14) return false;
+    const tree = def.kind === 'tree';
+    const near = tree ? 34 : 14;
+    for (const c of crops) {
+      const d = Math.hypot(c.x - x, (c.y - y) * 1.4);
+      if (d < near) return tree ? 'crowded' : false;
+      if (CROP_BY_KEY[c.k].kind === 'tree' && d < 34) return 'crowded';
+    }
     if ((G.seeds[key] || 0) <= 0) return 'noseed';
     G.seeds[key]--;
-    crops.push({ x: +x.toFixed(1), y: +y.toFixed(1), k: key, t: 0, wet: 6, thirst: 0 });
+    crops.push({ x: +x.toFixed(1), y: +y.toFixed(1), k: key, t: 0, wet: 6, thirst: 0, fr: 0, ft: 0, wild: 0, stall: 0 });
     FX.burst(x, y, 4, { color: [def.color, PAL.soil3], speed: 30, gravity: 60, life: 0.4, size: 2 });
     return 'ok';
   }
+  const kindOf = (c) => (CROP_BY_KEY[c.k] || {}).kind || 'crop';
+  const grown = (c) => c.t >= growTime(c);
+  // What a magical plant is holding out for. Until it is true the thing sulks
+  // in the ground and will not put on so much as a leaf.
+  function needMet(c) {
+    const def = CROP_BY_KEY[c.k];
+    switch (def && def.need) {
+      case 'night': return Sky.isNight();
+      case 'dry': return Sky.wet() <= 0 && c.wet <= 0;
+      case 'wet': return Sky.wet() > 0 || c.wet > 0;
+      case 'alone': return !crops.some((o) => o !== c && Math.hypot(o.x - c.x, (o.y - c.y) * 1.4) < 52);
+      case 'crowd': return crops.filter((o) => o !== c && Math.hypot(o.x - c.x, (o.y - c.y) * 1.4) < 62).length >= 3;
+      case 'shade': return crops.some((o) => o !== c && kindOf(o) === 'tree' && grown(o) && Math.hypot(o.x - c.x, (o.y - c.y) * 1.4) < 72);
+      case 'bugs': return typeof Wild !== 'undefined' && Wild.bugsNear(c.x, c.y, 80) > 0;
+      default: return true;
+    }
+  }
+  // Which magical effects are in the ground and awake right now. Other systems
+  // read this: a scarecrow plant keeps the crows off, a lull calms the wombats.
+  function magic() {
+    const out = {};
+    for (const c of crops) {
+      const def = CROP_BY_KEY[c.k];
+      if (!def || def.kind !== 'magic' || !grown(c)) continue;
+      out[def.effect] = (out[def.effect] || 0) + 1;
+    }
+    return out;
+  }
+  // The sickle over a fruit tree is a pruning, not a cut.
+  function prune(x, y, r) {
+    let n = 0;
+    for (const c of crops) {
+      if (kindOf(c) !== 'tree' || !grown(c)) continue;
+      if (Math.hypot(c.x - x, (c.y - y) * 1.3) > r + 16) continue;
+      if (c.wild < 0.25) continue;
+      c.wild = 0; n++;
+      FX.burst(c.x, c.y - 34, 8, { color: [PAL.moss3, PAL.moss1], speed: 60, gravity: 150, life: 0.5, size: 2 });
+      FX.float(c.x, c.y - 48, 'pruned', { color: PAL.moss5, size: 7 });
+    }
+    if (n) Audio.play('snip');
+    return n;
+  }
   function water(x, y, r) {
     let n = 0;
-    for (const c of crops) if (Math.hypot(c.x - x, (c.y - y) * 1.3) < r) { c.wet = Math.min(22, c.wet + 5); c.thirst = 0; n++; }
+    for (const c of crops) if (Math.hypot(c.x - x, (c.y - y) * 1.3) < r + (kindOf(c) === 'tree' ? 14 : 0)) { c.wet = Math.min(kindOf(c) === 'tree' ? 40 : 22, c.wet + (kindOf(c) === 'tree' ? 9 : 5)); c.thirst = 0; n++; }
     for (const p of sprouts) if (Math.hypot(p.x - x, (p.y - y) * 1.3) < r) { p.wet = Math.min(20, p.wet + 5); n++; }
     for (let i = 0; i < 3; i++) FX.spawn({ x: x + U.rand(-r * 0.6, r * 0.6), y: y - 12, vx: 0, vy: 110, life: 0.3, size: 2, color: PAL.water2, gravity: 240 });
     disturb(x, y, r, 0.5);
@@ -187,20 +238,25 @@ const World = (() => {
     if (G.blessings.demewombra) t *= 0.5;
     return t;
   }
-  const ripe = (c) => c.t >= growTime(c);
+  // "Ripe" means there is something to take. A tree is never picked clean --
+  // it just has fruit on it or it does not.
+  const ripe = (c) => (kindOf(c) === 'tree' ? c.fr > 0 : c.t >= growTime(c));
+  const FRUIT_CAP = 4;
   function harvest(x, y) {
     for (let i = crops.length - 1; i >= 0; i--) {
       const c = crops[i];
       if (Math.hypot(c.x - x, (c.y - y) * 1.4) > 16) continue;
-      if (!ripe(c)) return 'unripe';
       const def = CROP_BY_KEY[c.k];
-      crops.splice(i, 1);
-      G.food[c.k] = (G.food[c.k] || 0) + def.yield;
+      if (!ripe(c)) return def.kind === 'tree' ? (grown(c) ? 'nofruit' : 'unripe') : 'unripe';
+      let got = def.yield, top = c.y - 22;
+      if (def.kind === 'tree') { got = def.yield * c.fr; c.fr = 0; top = c.y - 58; }
+      else crops.splice(i, 1);
+      G.food[c.k] = (G.food[c.k] || 0) + got;
       G.stats.harvested = (G.stats.harvested || 0) + 1;
       Audio.play('pluck');
-      FX.burst(c.x, c.y - 10, 9, { color: [def.color, PAL.cream], speed: 74, gravity: 130, life: 0.5, size: 2 });
-      FX.float(c.x, c.y - 22, '+' + def.yield, { color: PAL.moss5, size: 8 });
-      FX.comic(c.x, c.y - 32, U.pick(['POP!', 'PICK!', 'YOINK!']), { ink: '#d8f0a0', edge: '#5d9440', life: 0.55 });
+      FX.burst(c.x, top + 12, 9, { color: [def.color, PAL.cream], speed: 74, gravity: 130, life: 0.5, size: 2 });
+      FX.float(c.x, top, '+' + got, { color: PAL.moss5, size: 8 });
+      FX.comic(c.x, top - 10, U.pick(['POP!', 'PICK!', 'YOINK!']), { ink: '#d8f0a0', edge: '#5d9440', life: 0.55 });
       return 'ok';
     }
     for (let i = seams.length - 1; i >= 0; i--) {
@@ -265,11 +321,39 @@ const World = (() => {
       p.t += dt * rate * (G.blessings.burrowseidon ? 1.3 : 1);
       if (p.t >= 16) { bloom(p); sprouts.splice(i, 1); }
     }
-    // crops grow, and get thirsty if left alone
+    // ---- the beds -----------------------------------------------------------
+    // Rain waters everything for free, which is half the reason to want it.
+    const rain = Sky.wet();
+    const warm = magic().warm ? 1.3 : 1;      // an emberleaf in the ground hurries its neighbours
     for (const c of crops) {
+      const def = CROP_BY_KEY[c.k] || {};
+      const tree = def.kind === 'tree';
+      if (rain > 0) { c.wet = Math.min(tree ? 40 : 22, c.wet + dt * rain * 1.6); c.thirst = 0; }
       const wet = c.wet > 0;
-      if (wet) c.wet -= dt; else c.thirst += dt;
-      if (!ripe(c)) c.t += dt * (wet ? 1.7 : c.thirst > 26 ? 0.25 : 0.8) * (G.blessings.burrowseidon ? 1.25 : 1);
+      const drink = tree ? (def.thirsty || 1) : 1;
+      if (wet) c.wet -= dt * drink; else c.thirst += dt * drink;
+      const blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm;
+      if (def.kind === 'magic') {
+        // magical seed only counts the hours it is happy
+        const ok = needMet(c);
+        c.stall = ok ? 0 : (c.stall || 0) + dt;
+        if (ok && !grown(c)) c.t += dt * (wet ? 1.5 : 0.85) * blessed;
+      } else if (tree) {
+        if (!grown(c)) c.t += dt * (wet ? 1.5 : c.thirst > 40 ? 0.15 : 0.6) * blessed;
+        else {
+          c.wild = Math.min(2.4, c.wild + dt / 150);          // it goes leggy if nobody prunes it
+          const health = (wet ? 1.25 : c.thirst > 50 ? 0.25 : 0.7) * (c.wild > 1 ? 0.45 : 1);
+          if (c.fr < FRUIT_CAP) {
+            c.ft += dt * health * blessed;
+            if (c.ft >= (def.fruitEvery || 40)) {
+              c.ft = 0; c.fr++;
+              FX.sparkle(c.x, c.y - 52, 5, def.color);
+            }
+          }
+        }
+      } else if (!ripe(c)) {
+        c.t += dt * (wet ? 1.7 : c.thirst > 26 ? 0.25 : 0.8) * blessed;
+      }
     }
     for (const s of seams) s.t += dt;
     if (G.fruits.deeproots || G.blessings.wombeus) {
@@ -441,18 +525,76 @@ const World = (() => {
     }
   }
   function drawWeeds(g) { for (const w of weeds) drawWeed(g, w); }
-  function drawCrops(g) {
-    for (const c of crops) {
-      const p = U.clamp(c.t / growTime(c), 0, 1);
-      Props.drawCrop(g, CROP_BY_KEY[c.k], c.x, c.y, p, G.time, c.wet > 0, wind * 0.02);
-      if (c.thirst > 26) { const tw = 0.5 + 0.5 * Math.sin(G.time * 5); g.fillStyle = `rgba(216,165,47,${0.4 + tw * 0.3})`; g.fillRect((c.x - 1) | 0, (c.y - 30) | 0, 2, 5); g.fillRect((c.x - 1) | 0, (c.y - 24) | 0, 2, 2); }
+  function drawPlant(g, c) {
+    const def = CROP_BY_KEY[c.k];
+    const p = U.clamp(c.t / growTime(c), 0, 1);
+    if (def.kind === 'tree') {
+      Props.drawTree(g, def, c.x, c.y, p, G.time, wind * 0.02, c.fr || 0, c.wild || 0, c.wet > 0);
+      if (c.wild > 1) mark(g, c.x, c.y - 26 - p * 54, '#84bb59');      // needs a prune
+    } else {
+      Props.drawCrop(g, def, c.x, c.y, p, G.time, c.wet > 0, wind * 0.02);
     }
+    const top = def.kind === 'tree' ? c.y - 20 - p * 54 : c.y - 30;
+    if (c.thirst > (def.kind === 'tree' ? 50 : 26)) mark(g, c.x, top, '#57b6c9');
+    // a magical seed that is sulking says so
+    if (def.kind === 'magic' && c.stall > 3 && p < 1) mark(g, c.x, top, '#b98ef0');
+  }
+  // the little floating exclamation a plant uses to ask for something
+  function mark(g, x, y, col) {
+    const tw = 0.5 + 0.5 * Math.sin(G.time * 5 + x);
+    const yy = Math.round(y - tw * 2);
+    g.fillStyle = 'rgba(18,14,20,0.4)'; g.fillRect((x - 2) | 0, yy + 1, 4, 8);
+    g.fillStyle = col;
+    g.globalAlpha = 0.55 + tw * 0.45;
+    g.fillRect((x - 1) | 0, yy, 2, 5); g.fillRect((x - 1) | 0, yy + 6, 2, 2);
+    g.globalAlpha = 1;
+  }
+  // Trees are tall enough to need sorting with everything else on the ground;
+  // the low stuff can all be painted in one pass at the back.
+  function cropItems(g) {
+    const out = [];
+    for (const c of crops) if (kindOf(c) === 'tree') out.push({ y: c.y, fn: () => drawPlant(g, c) });
+    return out;
+  }
+  function drawCrops(g) {
+    for (const c of crops) if (kindOf(c) !== 'tree') drawPlant(g, c);
     for (const s of seams) {
       const pulse = 0.55 + 0.45 * Math.sin(G.time * 4 + s.x);
       g.fillStyle = `rgba(245,205,92,${0.3 + pulse * 0.3})`; Art.ell(g, s.x, s.y, 7, 3);
       g.fillStyle = PAL.gold3; g.fillRect((s.x - 2) | 0, (s.y - 2) | 0, 4, 3);
       g.fillStyle = PAL.gold4; g.fillRect((s.x - 1) | 0, (s.y - 2) | 0, 2, 1);
     }
+  }
+  // What a plant would tell you if you asked it: how far along, what it wants.
+  function plantAt(x, y) {
+    let best = null, bd = 1e9;
+    for (const c of crops) {
+      const tall = kindOf(c) === 'tree';
+      const d = Math.hypot(c.x - x, (c.y - y - (tall ? 24 : 0)) * (tall ? 0.7 : 1.4));
+      if (d < (tall ? 34 : 16) && d < bd) { bd = d; best = c; }
+    }
+    return best;
+  }
+  function plantTip(c) {
+    const def = CROP_BY_KEY[c.k];
+    if (!def) return null;
+    const p = U.clamp(c.t / growTime(c), 0, 1);
+    const kind = PLANT_KINDS[def.kind] || {};
+    const bits = [];
+    if (def.kind === 'tree') {
+      if (p < 1) bits.push(`growing &middot; ${Math.round(p * 100)}%`);
+      else bits.push(c.fr > 0 ? `<b>${c.fr}</b> fruit ready to pick` : 'coming into fruit');
+      if (c.wild > 1) bits.push('overgrown &mdash; take the sickle to it');
+      if (c.thirst > 50) bits.push('dry');
+    } else if (def.kind === 'magic') {
+      bits.push(p >= 1 ? 'ready' : `growing &middot; ${Math.round(p * 100)}%`);
+      if (def.need) bits.push(`wants: ${MAGIC_NEED[def.need]}${needMet(c) ? ' &#10003;' : ' &mdash; not yet'}`);
+      if (p >= 1 && def.effect) bits.push(MAGIC_EFFECT[def.effect]);
+    } else {
+      bits.push(p >= 1 ? 'ready to pick' : `growing &middot; ${Math.round(p * 100)}%`);
+      if (c.thirst > 26) bits.push('thirsty');
+    }
+    return `<b>${def.name}</b> <span class="dim">${kind.name || ''}</span><br>${bits.join('<br>')}`;
   }
   function drawCursor(g, x, y, r, col) {
     if (r <= 0) return;
@@ -471,15 +613,15 @@ const World = (() => {
   }
 
   return {
-    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, drawCursor,
+    init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, cropItems, drawCursor,
     sowGrass, till, clearWeeds, hitWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
-    fraction, zoneFraction, measure, ripe, growTime,
+    fraction, zoneFraction, measure, ripe, growTime, grown, kindOf, needMet, magic, prune, plantAt, plantTip,
     get weeds() { return weeds; }, get crops() { return crops; },
     get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },
     save() {
       G.world.blades = blades.map((b) => ({ x: b.x, y: b.y, v: b.v, h: b.h }));
       G.world.flowers = flowers.map((f) => ({ x: f.x, y: f.y, v: f.v }));
-      G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1) }));
+      G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1), fr: c.fr || 0, ft: +(c.ft || 0).toFixed(1), wild: +(c.wild || 0).toFixed(2) }));
       G.world.sprouts = sprouts.map((p) => ({ x: p.x, y: p.y, t: +p.t.toFixed(1), wet: 0, r: p.r }));
       G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2), hp: w.hp }));
       G.world.restored = restored;

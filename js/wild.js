@@ -563,6 +563,8 @@ const Wild = (() => {
     init, save, update, drawGround, items,
     place, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
     get mounds() { return mounds; }, get ponds() { return ponds; },
+    get bugs() { return bugs; },
+    bugsNear(x, y, r) { let n = 0; for (const b of bugs) if (Math.hypot(b.x - x, (b.y - y) * 1.4) < r) n++; return n; },
     get visitors() { return visitors; },
     MOUND_COST, POND_COST,
   };
