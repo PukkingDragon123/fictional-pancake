@@ -137,6 +137,7 @@ const Main = (() => {
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
     if (mode !== 'map') G.lastSite = mode;
+    if (mode !== 'grove' && G.wombats.some((w) => w.riding)) G.rode = true;   // somebody came along
     UI.setMode(mode);
     FX.clear(); FX.flash('#efe8f6', 0.42);   // scenes change through a breath of cloud, not a blackout
     if (mode !== 'shop' && mode !== 'nursery') Audio.play('whoosh');

@@ -127,6 +127,164 @@ const Wild = (() => {
   // ---- the visitors ---------------------------------------------------------
   // Each one walks in from an edge, drifts about for a minute or two, and goes
   // home. Click one and you get the full dialogue panel.
+
+  // Everyone who lives within a morning's walk. `tree` is what they will talk
+  // about; `gift` is what they leave on the fence post before they go.
+  const VILLAGE = [
+    {
+      key: 'bee', name: 'Maud', why: 'with a jar of something',
+      sprite: (f, pose) => Sprites.villager('bee', f, pose), sc: 1.5,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { for (const w of G.wombats) w.hap = Math.min(100, w.hap + 16); return 'Maud left a jar of honey; everybody had some'; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'happy', sub: 'forty hives on the ridge',
+            say: 'Brought you a jar. Do not give it to the wombats straight, they go peculiar. A spoonful in the water and they will love you forever.',
+            opts: [
+              { q: 'How are the bees?', to: 'bees' },
+              { q: 'Peculiar how?', to: 'odd' },
+              { q: 'Do my flowers help?', to: 'flow' },
+              { q: 'Thanks, Maud.', end: true },
+            ] },
+          bees: { mood: 'talk', say: 'Busy. It has been a wet one, which they hate and the clover loves, so on balance nobody is happy but there is a lot of honey.',
+            opts: [{ q: 'Sounds about right.', to: 'hub' }] },
+          odd: { mood: 'happy', say: 'One of them dug a hole through the floor of my shed and out the other side. In an afternoon. On honey.',
+            opts: [{ q: 'Noted.', to: 'hub' }] },
+          flow: { mood: 'proud', say: 'Everything you plant out here, mine find within the week. Keep planting. I am not being generous, I am being commercial.',
+            opts: [{ q: 'A deal, then.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'fish', name: 'Errol', why: 'back from the lake',
+      sprite: (f, pose) => Sprites.villager('fish', f, pose), sc: 1.55,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const n = 60 + Math.floor(Math.random() * 90); G.wd += n; return `Errol sold you his catch for ${U.fmt(n)} W$ less than it was worth`; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'talk', sub: 'nothing on the line since Tuesday',
+            say: 'Walked past and thought: that fellow has wombats. So here I am, standing in your garden, not fishing. An improvement.',
+            opts: [
+              { q: 'Catch anything?', to: 'catch' },
+              { q: 'What is in the lake?', to: 'lake' },
+              { q: 'Should I dig a pond?', to: 'pond' },
+              { q: 'Good luck out there.', end: true },
+            ] },
+          catch: { mood: 'sad', say: 'A boot, a bucket and the same eel three times. He knows me now. We have an understanding.',
+            opts: [{ q: 'Give him my regards.', to: 'hub' }] },
+          lake: { mood: 'worry', say: 'Water. Fish. And something underneath that has never once taken a hook, which is the part that keeps me going back.',
+            opts: [{ q: 'Do not find out.', to: 'hub' }] },
+          pond: { mood: 'happy', say: 'Dig one. Wombats drink like they are being timed, and a pond fills itself when it rains. Cheapest thing you will ever build.',
+            opts: [{ q: 'I will do that.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'post', name: 'Bev', why: 'with the post',
+      sprite: (f, pose) => Sprites.villager('post', f, pose), sc: 1.5,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const c = U.pick(PLANTS_OF('crop')); G.seeds[c.key] = (G.seeds[c.key] || 0) + 5; return `a packet of ${c.name} seed, posted to the wrong address`; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'talk', sub: 'the round takes four hours and she likes it',
+            say: 'Nothing for you. There is never anything for you. I come anyway because the last three houses on this road are all yours and I have nothing else to do.',
+            opts: [
+              { q: 'Who writes to anyone out here?', to: 'mail' },
+              { q: 'What is in the sack?', to: 'sack' },
+              { q: 'Seen anything odd?', to: 'odd' },
+              { q: 'Safe round, Bev.', end: true },
+            ] },
+          mail: { mood: 'cross', say: 'The department, to the ranger. Seed catalogues, to Groot, who cannot read them and keeps them anyway. And bills. Always bills.',
+            opts: [{ q: 'Grim.', to: 'hub' }] },
+          sack: { mood: 'happy', say: 'A packet that has been to four wrong addresses and is not going to a fifth. It is seed. Have it. Sign nothing.',
+            opts: [{ q: 'Very kind.', to: 'hub' }] },
+          odd: { mood: 'worry', say: 'A hooded fellow, out by the treeline, waving at me. Every week. I have never once seen him walk there or walk away.',
+            opts: [{ q: 'That is just him.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'bake', name: 'Nonna', why: 'with a tray of something hot',
+      sprite: (f, pose) => Sprites.villager('bake', f, pose), sc: 1.45,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { for (const w of G.wombats) { w.hap = 100; w.bored = 0; } return 'Nonna fed everybody and would not be argued with'; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'happy', sub: 'she has been baking since four',
+            say: 'You are too thin and your animals are too fat, so somebody here is eating wrong. Sit. Have one. I am not taking them home.',
+            opts: [
+              { q: 'What is in them?', to: 'what' },
+              { q: 'You did not have to.', to: 'must' },
+              { q: 'Do they get one?', to: 'them' },
+              { q: 'Thank you, Nonna.', end: true },
+            ] },
+          what: { mood: 'sly', say: 'Flour, butter, and a question you do not need the answer to. Eat.',
+            opts: [{ q: 'Eating.', to: 'hub' }] },
+          must: { mood: 'cross', say: 'I did. Nobody lives out here on their own and eats properly. I have seen your larder from the road.',
+            opts: [{ q: 'Fair enough.', to: 'hub' }] },
+          them: { mood: 'happy', say: 'They already have. All of them. Twice. Do not look at me like that, look at their faces.',
+            opts: [{ q: 'They do look happy.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'bota', name: 'Dr Finch', why: 'looking for a plant',
+      sprite: (f, pose) => Sprites.villager('bota', f, pose), sc: 1.55,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const c = U.pick(PLANTS_OF('magic')); G.seeds[c.key] = (G.seeds[c.key] || 0) + 2; return `Dr Finch left two ${c.name} seeds and a warning`; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'think', sub: 'university of somewhere, thirty years ago',
+            say: 'Do not mind me. I am counting. There is something growing on your land that is not supposed to exist below the tree line and I would like to know how you managed it.',
+            opts: [
+              { q: 'Which one?', to: 'which' },
+              { q: 'Is it dangerous?', to: 'danger' },
+              { q: 'How do I grow more?', to: 'grow' },
+              { q: 'Count away.', end: true },
+            ] },
+          which: { mood: 'happy', say: 'If I tell you, you will dig it up and put it in a pot, and then it will die, and then I will cry in front of you. Let us not.',
+            opts: [{ q: 'Understood.', to: 'hub' }] },
+          danger: { mood: 'worry', say: 'The mandrake screams and the snapjaw bites. Neither is dangerous. The dreamcap is perfectly safe and I will not be saying anything further about the dreamcap.',
+            opts: [{ q: '...right.', to: 'hub' }] },
+          grow: { mood: 'proud', say: 'Every magical plant wants one thing and will sulk until it gets it. Night, drought, company, solitude, shade. Find the thing. Give it the thing.',
+            opts: [{ q: 'Find the thing. Got it.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'bard', name: 'Little Ash', why: 'with a song about you',
+      sprite: (f, pose) => Sprites.villager('bard', f, pose), sc: 1.4,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const n = 30 + Math.floor(Math.random() * 40); G.wd += n; return `they passed the hat after the song and it came to ${U.fmt(n)} W$`; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'happy', sub: 'twelve, and already unbearable',
+            say: 'I wrote a song about your wombats. It is four verses. There is a chorus. You do not have a choice about this.',
+            opts: [
+              { q: 'Go on then.', to: 'song' },
+              { q: 'Who taught you?', to: 'who' },
+              { q: 'Four verses?', to: 'four' },
+              { q: 'Maybe next time.', end: true },
+            ] },
+          song: { mood: 'proud', say: 'THE WOMBATS OF THE GROVE, they dig and they are ROUND. They leave behind a CUBE, the finest in the TOWN. ...There are three more verses.',
+            opts: [{ q: 'That was genuinely good.', to: 'good' }, { q: 'Three more?', to: 'four' }] },
+          good: { mood: 'happy', say: 'I know. I am going to be enormous.',
+            opts: [{ q: 'I believe you.', to: 'hub' }] },
+          four: { mood: 'cross', say: 'The fourth one is about the hooded man and it is the best one and nobody ever lets me get to it.',
+            opts: [{ q: 'Next time, I promise.', to: 'hub' }] },
+          who: { mood: 'talk', say: 'Nobody. There is one lute in the Flats and it was in a cupboard. It is mine now by the law of nobody else wanting it.',
+            opts: [{ q: 'That is how it works.', to: 'hub' }] },
+        },
+      }),
+    },
+  ];
+
   const GUESTS = [
     {
       key: 'shaz', name: 'Shaz', why: 'on her day off',
@@ -222,6 +380,11 @@ const Wild = (() => {
         },
       }),
     },
+    // ---- the village ------------------------------------------------------
+    // Six people from down the road, each with a reason to be here and
+    // something in their hands. They use the same walk-in, stand-about,
+    // leave-a-gift loop as everyone else.
+    ...VILLAGE,
   ];
   function spawnVisitor() {
     if (visitors.length) return;
@@ -243,7 +406,8 @@ const Wild = (() => {
   function talkTo(v) {
     if (!v) return;
     v.state = 'talk'; v.t = 0;
-    Talk.open(v.def.key === 'ranger' ? 'cultist' : v.def.key === 'kid' ? 'cultist' : v.def.key, v.def.tree(), () => {
+    const who = { ranger: 'cultist', kid: 'cultist' }[v.def.key] || (Sprites.VILLAGERS[v.def.key] ? 'villager:' + v.def.key : v.def.key);
+    Talk.open(who, v.def.tree(), () => {
       if (v.state === 'talk') v.state = 'wander';
       if (!v.gave) { v.gave = true; const msg = v.def.gift(); UI.toast(msg, 'good'); UI.refreshHUD(); UI.refreshTray(); Main.save(); }
     });
@@ -300,7 +464,12 @@ const Wild = (() => {
     }
     // visitors
     spawnT -= dt;
-    if (spawnT <= 0 && G.step >= 4 && !UI.anyPanel()) { spawnVisitor(); spawnT = 150 + Math.random() * 190; }
+    if (spawnT <= 0 && G.step >= 4 && !UI.anyPanel()) {
+      spawnVisitor();
+      // a starthistle in the ground brings people up the road to look at it
+      const draw2 = (World.magic().draw || 0);
+      spawnT = (100 + Math.random() * 150) / (1 + draw2 * 0.6);
+    }
     for (let i = visitors.length - 1; i >= 0; i--) {
       const v = visitors[i];
       v.t += dt;

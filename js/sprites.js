@@ -1637,5 +1637,164 @@ const Sprites = (() => {
     }
   }
 
-  return { S, AGE, POSES, CULT_POSES, KW, KH, cashier, GW, GH, GX, GGY, groot, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
+  // ---- villagers -------------------------------------------------------------
+  // The people who live down the road. One routine builds all of them: a chibi
+  // human on two stubby legs, and a table of kits says what they wear, what
+  // they are carrying and what colour they are. They walk, they talk, they wave.
+  const VW2 = 30, VH2 = 46, VX = 15, VGY = 45;
+  const VILLAGERS = {
+    bee: { name: 'Maud', skin: '#e8bd92', hair: '#8a6a3a', shirt: '#f2ece0', pants: '#6b5a44',
+      hat: 'veil', prop: 'hive', why: 'with a jar of something' },
+    fish: { name: 'Errol', skin: '#c9955f', hair: '#3a3028', shirt: '#4a7a9a', pants: '#3a4a58',
+      hat: 'bucket', prop: 'rod', why: 'back from the lake' },
+    post: { name: 'Bev', skin: '#e0b088', hair: '#a8462c', shirt: '#c9581f', pants: '#2f3a4a',
+      hat: 'cap', prop: 'sack', why: 'with the post' },
+    bake: { name: 'Nonna', skin: '#d8a878', hair: '#cfc4b0', shirt: '#f0e0c8', pants: '#8a4520',
+      hat: 'kerchief', prop: 'tray', why: 'with a tray of something hot' },
+    bota: { name: 'Dr Finch', skin: '#a87850', hair: '#2e2a26', shirt: '#7a9a5a', pants: '#4a5238',
+      hat: 'wide', prop: 'press', why: 'looking for a plant' },
+    bard: { name: 'Little Ash', skin: '#f0cba0', hair: '#f5cd5c', shirt: '#7a58a8', pants: '#4a3a6a',
+      hat: 'none', prop: 'lute', why: 'with a song about you' },
+  };
+  function villager(kind, frame, pose = 'idle') {
+    const K = VILLAGERS[kind] || VILLAGERS.bee;
+    const n = { idle: 6, walk: 8, talk: 6, wave: 6 }[pose] || 6;
+    const f = ((frame % n) + n) % n, t = f / n;
+    const key = `vil:${kind}:${f}:${pose}`;
+    let img = cache.get(key); if (img) return img;
+    const { c, g } = Art.cv(VW2, VH2);
+    const S2 = Math.sin(t * TAU);
+    let bob = 0, sq = 0, step = 0, armL = 0, armR = 0, lean = 0, blink = 0, mouth = 0;
+    switch (pose) {
+      case 'idle': bob = [0, -1, -1, 0, 0, 0][f]; sq = S2 * 0.03; armL = S2 * 1.4; blink = f === 4 ? 1 : 0; break;
+      case 'walk': bob = [-2, -3, -1, 0, -2, -3, -1, 0][f]; step = [2, 1, -1, -2, -2, -1, 1, 2][f];
+        armL = -step * 1.2; armR = step * 1.2; lean = 0.4; sq = f % 2 ? -0.05 : 0.05; break;
+      case 'talk': bob = S2 * 0.8; armR = -2 - S2 * 2.4; mouth = f % 2; blink = f === 3 ? 1 : 0; break;
+      case 'wave': bob = -1; armR = -7 - Math.abs(S2) * 3; mouth = 1; break;
+    }
+    const cx = VX + lean, by = VGY + bob;
+    const SK = K.skin, SKD = U.shade(K.skin, -0.24);
+    const SH = K.shirt, SHD = U.shade(K.shirt, -0.26), SHL = U.shade(K.shirt, 0.2);
+    const PT = K.pants, PTD = U.shade(K.pants, -0.26);
+    // legs
+    for (const d of [-1, 1]) {
+      const lx = cx + d * 3.4 + (d > 0 ? step : -step) * 0.7;
+      Art.rect(g, lx - 2, by - 12, 4, 12, PTD);
+      Art.rect(g, lx - 2, by - 12, 3, 11, PT);
+      Art.rect(g, lx - 3, by - 2, 6, 3, '#2a2018');              // a boot
+      Art.rect(g, lx - 3, by - 2, 5, 1, '#4a3c2e');
+    }
+    // body: a rounded tunic, wider at the hem
+    const bh = 15 * (1 - sq), bw = 7.6 * (1 + sq * 0.5);
+    Art.ell(g, cx, by - 12 - bh * 0.5, bw + 0.8, bh * 0.5 + 0.8, PAL.ink);
+    Art.ell(g, cx, by - 12 - bh * 0.5, bw, bh * 0.5, SHD);
+    Art.rect(g, cx - bw, by - 14, bw * 2, 3, SHD);
+    Art.ell(g, cx, by - 13 - bh * 0.5, bw - 1, bh * 0.44, SH);
+    Art.ell(g, cx - bw * 0.35, by - 15 - bh * 0.5, bw * 0.4, bh * 0.22, SHL);
+    // arms
+    for (const [d, sw] of [[-1, armL], [1, armR]]) {
+      const ax = cx + d * (bw - 0.6), ay = by - 12 - bh * 0.72;
+      Art.limb(g, ax, ay, ax + d * 2.4, ay + 8 + sw, 2.6, 2, SHD);
+      Art.limb(g, ax, ay, ax + d * 2.2, ay + 7 + sw, 1.8, 1.4, SH);
+      Art.ell(g, ax + d * 2.6, ay + 9 + sw, 1.8, 1.8, SK);        // a hand
+    }
+    // head
+    const hy = by - 12 - bh - 6;
+    Art.ell(g, cx, hy, 6.4, 6.2, PAL.ink);
+    Art.ell(g, cx, hy, 5.8, 5.6, SK);
+    Art.ell(g, cx - 1.6, hy - 1.6, 2.4, 2, U.shade(SK, 0.18));
+    Art.ell(g, cx, hy + 4.6, 2.4, 1.6, SKD);                      // a chin
+    // hair
+    Art.ell(g, cx, hy - 2.4, 6, 4, K.hair);
+    Art.ell(g, cx - 4.4, hy - 0.4, 2, 3, K.hair);
+    Art.ell(g, cx + 4.4, hy - 0.4, 2, 3, K.hair);
+    // face
+    if (blink) { Art.rect(g, cx - 3.4, hy - 0.4, 2.4, 1, '#2a1a14'); Art.rect(g, cx + 1.2, hy - 0.4, 2.4, 1, '#2a1a14'); }
+    else {
+      Art.ell(g, cx - 2.2, hy - 0.2, 1.3, 1.5, '#fdf3dc');
+      Art.ell(g, cx + 2.2, hy - 0.2, 1.3, 1.5, '#fdf3dc');
+      Art.ell(g, cx - 2.1, hy, 0.8, 1, '#241a14');
+      Art.ell(g, cx + 2.3, hy, 0.8, 1, '#241a14');
+    }
+    Art.ell(g, cx - 3.8, hy + 1.8, 1.4, 1, 'rgba(224,112,90,0.5)');
+    Art.ell(g, cx + 3.8, hy + 1.8, 1.4, 1, 'rgba(224,112,90,0.5)');
+    if (mouth) { Art.ell(g, cx, hy + 2.6, 1.6, 1.4, '#5a2a24'); Art.rect(g, cx - 1, hy + 2, 2, 1, '#fdf3dc'); }
+    else Art.rect(g, cx - 1.2, hy + 2.6, 2.4, 1, '#5a2a24');
+    // what is on their head
+    switch (K.hat) {
+      case 'veil':
+        Art.ell(g, cx, hy - 4.6, 7.6, 2.4, '#f2ece0');
+        Art.rect(g, cx - 7.6, hy - 5.4, 15.2, 2, '#e0d8c8');
+        g.globalAlpha = 0.5; Art.ell(g, cx, hy, 6.6, 6.4, '#dfe6ea'); g.globalAlpha = 1;
+        for (let i = 0; i < 8; i++) Art.rect(g, cx - 6 + i * 1.6, hy - 3 + (i % 3) * 2.4, 1, 1, '#b8c0c8');
+        break;
+      case 'bucket':
+        Art.ell(g, cx, hy - 4, 7.2, 2.6, '#4a5a48');
+        Art.rect(g, cx - 5.4, hy - 7.6, 10.8, 4, '#5c6e58');
+        Art.rect(g, cx - 5.4, hy - 7.6, 10.8, 1, '#7a8c72');
+        break;
+      case 'cap':
+        Art.rect(g, cx - 5.4, hy - 6.4, 10.8, 3.4, '#2f3a4a');
+        Art.ell(g, cx, hy - 6.6, 5.6, 2.6, '#3a4a5c');
+        Art.rect(g, cx - 1, hy - 8.4, 2, 2, '#c9581f');
+        Art.rect(g, cx + 1, hy - 3.6, 7, 1.6, '#2f3a4a');           // the peak
+        break;
+      case 'kerchief':
+        Art.ell(g, cx, hy - 3.4, 6.4, 4, '#c94a5a');
+        Art.rect(g, cx - 6.4, hy - 3.4, 12.8, 2, '#a83a48');
+        for (let i = 0; i < 5; i++) Art.rect(g, cx - 5 + i * 2.4, hy - 5 + (i % 2), 1, 1, '#f0e0c8');
+        Art.poly(g, [[cx + 5, hy - 2], [cx + 9, hy + 1], [cx + 5, hy + 2]], '#a83a48');
+        break;
+      case 'wide':
+        Art.ell(g, cx, hy - 3.6, 10.4, 3, '#8a6a3a');
+        Art.ell(g, cx, hy - 4, 9.6, 2.4, '#a8834a');
+        Art.ell(g, cx, hy - 6.4, 5, 3.4, '#8a6a3a');
+        Art.rect(g, cx - 5, hy - 5.4, 10, 1.4, '#5a4424');
+        break;
+    }
+    // and what they are carrying
+    const px = cx + (bw - 0.6) + 2.6, py = by - 12 - 15 * 0.72 + 9 + armR;
+    switch (K.prop) {
+      case 'hive':
+        for (let i = 0; i < 4; i++) Art.ell(g, px + 2, py + 2 - i * 2.2, 5 - i * 0.7, 1.6, i % 2 ? '#d8a52f' : '#c08f22');
+        Art.rect(g, px - 1, py - 6, 6, 1, '#8a6a3a');
+        for (let i = 0; i < 3; i++) { Art.ell(g, px - 4 + i * 5, py - 9 - (i % 2) * 3, 1.4, 1.2, '#f5cd5c'); }
+        break;
+      case 'rod':
+        for (let i = 0; i < 22; i++) Art.rect(g, px + i * 0.5, py - i * 1.1, 1, 2, '#6b4a2c');
+        Art.rect(g, px + 10, py - 22, 1, 12, '#b8c0c8');
+        Art.ell(g, px + 10, py - 10, 1.6, 2.2, '#8fd4e4');
+        break;
+      case 'sack':
+        Art.ell(g, px + 2, py, 5, 5.4, '#8a6a3a');
+        Art.ell(g, px + 2, py, 4.2, 4.6, '#a8834a');
+        Art.rect(g, px, py - 5, 4, 2, '#6b4a2c');
+        Art.rect(g, px, py - 1, 4, 3, '#f0e0c8');
+        break;
+      case 'tray':
+        Art.rect(g, px - 5, py, 12, 2, '#8a6a3a');
+        Art.rect(g, px - 5, py, 12, 1, '#a8834a');
+        for (let i = 0; i < 3; i++) Art.ell(g, px - 3 + i * 3.4, py - 1.4, 1.6, 1.4, '#c9a15c');
+        for (let i = 0; i < 3; i++) { g.globalAlpha = 0.35; Art.ell(g, px - 3 + i * 3.4, py - 5 - (i % 2), 1.6, 2, '#e8e0d0'); g.globalAlpha = 1; }
+        break;
+      case 'press':
+        Art.rect(g, px - 2, py - 4, 8, 9, '#6b4a2c');
+        Art.rect(g, px - 2, py - 4, 8, 1.4, '#a8834a');
+        Art.rect(g, px - 2, py, 8, 1, '#4a3220');
+        Art.ell(g, px + 2, py - 6, 2.4, 1.6, '#5d9440');
+        break;
+      case 'lute':
+        Art.ell(g, px + 1, py, 4.6, 5.4, '#8a5a2a');
+        Art.ell(g, px + 1, py, 3.8, 4.6, '#b07a3a');
+        Art.ell(g, px + 1, py - 0.6, 1.8, 1.8, '#3a2418');
+        for (let i = 0; i < 12; i++) Art.rect(g, px + 1, py - 5 - i, 1, 1, '#6b4a2c');
+        for (let i = 0; i < 3; i++) Art.rect(g, px - 0.6 + i, py - 16, 1, 3, '#cfc4b0');
+        break;
+    }
+    Art.outline(c, PAL.ink);
+    cache.set(key, c);
+    return c;
+  }
+
+  return { S, AGE, POSES, CULT_POSES, KW, KH, cashier, villager, VILLAGERS, VW2, VH2, GW, GH, GX, GGY, groot, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
 })();

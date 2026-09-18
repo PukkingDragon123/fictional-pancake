@@ -897,6 +897,31 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 /* the little phone button down in the corner of the frame */
 .mbtn.phonebtn { position: relative; }
 .mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }
+
+/* A wet wood grows over everything it is allowed to. The job list, the panels
+   and the toasts all take a little moss along the top edge, so the interface
+   looks like it has been out here as long as the fence has. */
+#checklist::before {
+  content: ''; position: absolute; left: -4px; right: -4px; top: -7px; height: 9px; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, #3f6a2c 0 5px, transparent 5px 8px, #4f7a34 8px 14px, transparent 14px 19px) 0 3px/auto 6px repeat-x,
+    repeating-linear-gradient(90deg, transparent 0 3px, #5d9440 3px 6px, transparent 6px 11px) 0 0/auto 5px repeat-x;
+}
+.panel .phead { position: relative; }
+.panel .phead::after {
+  content: ''; position: absolute; left: 4px; right: 4px; top: -5px; height: 7px; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, #3f6a2c 0 6px, transparent 6px 10px, #4f7a34 10px 17px, transparent 17px 23px) 0 2px/auto 5px repeat-x,
+    repeating-linear-gradient(90deg, transparent 0 4px, #5d9440 4px 7px, transparent 7px 13px) 0 0/auto 4px repeat-x;
+  opacity: 0.85;
+}
+/* toasts land like a leaf rather than a notification */
+.toast { position: relative; }
+.toast::before {
+  content: ''; position: absolute; left: 6px; right: 6px; top: -4px; height: 5px;
+  background: repeating-linear-gradient(90deg, #4f7a34 0 5px, transparent 5px 9px, #3f6a2c 9px 15px, transparent 15px 21px);
+  opacity: 0.7;
+}
 </style>
 
 <div id="app">
@@ -916,7 +941,7 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
-      <button class="mbtn phonebtn" id="b-phone" title="Your phone (P)"><img class="ico sm" data-ico="map" alt=""><i id="b-phone-dot" hidden></i></button>
+      <button class="mbtn phonebtn" id="b-phone" title="Your phone (P)"><img class="ico sm" data-ico="phone" alt=""><i id="b-phone-dot" hidden></i></button>
     </div>
 
     <div id="zoomer" hidden>
@@ -3734,7 +3759,166 @@ const Sprites = (() => {
     }
   }
 
-  return { S, AGE, POSES, CULT_POSES, KW, KH, cashier, GW, GH, GX, GGY, groot, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
+  // ---- villagers -------------------------------------------------------------
+  // The people who live down the road. One routine builds all of them: a chibi
+  // human on two stubby legs, and a table of kits says what they wear, what
+  // they are carrying and what colour they are. They walk, they talk, they wave.
+  const VW2 = 30, VH2 = 46, VX = 15, VGY = 45;
+  const VILLAGERS = {
+    bee: { name: 'Maud', skin: '#e8bd92', hair: '#8a6a3a', shirt: '#f2ece0', pants: '#6b5a44',
+      hat: 'veil', prop: 'hive', why: 'with a jar of something' },
+    fish: { name: 'Errol', skin: '#c9955f', hair: '#3a3028', shirt: '#4a7a9a', pants: '#3a4a58',
+      hat: 'bucket', prop: 'rod', why: 'back from the lake' },
+    post: { name: 'Bev', skin: '#e0b088', hair: '#a8462c', shirt: '#c9581f', pants: '#2f3a4a',
+      hat: 'cap', prop: 'sack', why: 'with the post' },
+    bake: { name: 'Nonna', skin: '#d8a878', hair: '#cfc4b0', shirt: '#f0e0c8', pants: '#8a4520',
+      hat: 'kerchief', prop: 'tray', why: 'with a tray of something hot' },
+    bota: { name: 'Dr Finch', skin: '#a87850', hair: '#2e2a26', shirt: '#7a9a5a', pants: '#4a5238',
+      hat: 'wide', prop: 'press', why: 'looking for a plant' },
+    bard: { name: 'Little Ash', skin: '#f0cba0', hair: '#f5cd5c', shirt: '#7a58a8', pants: '#4a3a6a',
+      hat: 'none', prop: 'lute', why: 'with a song about you' },
+  };
+  function villager(kind, frame, pose = 'idle') {
+    const K = VILLAGERS[kind] || VILLAGERS.bee;
+    const n = { idle: 6, walk: 8, talk: 6, wave: 6 }[pose] || 6;
+    const f = ((frame % n) + n) % n, t = f / n;
+    const key = `vil:${kind}:${f}:${pose}`;
+    let img = cache.get(key); if (img) return img;
+    const { c, g } = Art.cv(VW2, VH2);
+    const S2 = Math.sin(t * TAU);
+    let bob = 0, sq = 0, step = 0, armL = 0, armR = 0, lean = 0, blink = 0, mouth = 0;
+    switch (pose) {
+      case 'idle': bob = [0, -1, -1, 0, 0, 0][f]; sq = S2 * 0.03; armL = S2 * 1.4; blink = f === 4 ? 1 : 0; break;
+      case 'walk': bob = [-2, -3, -1, 0, -2, -3, -1, 0][f]; step = [2, 1, -1, -2, -2, -1, 1, 2][f];
+        armL = -step * 1.2; armR = step * 1.2; lean = 0.4; sq = f % 2 ? -0.05 : 0.05; break;
+      case 'talk': bob = S2 * 0.8; armR = -2 - S2 * 2.4; mouth = f % 2; blink = f === 3 ? 1 : 0; break;
+      case 'wave': bob = -1; armR = -7 - Math.abs(S2) * 3; mouth = 1; break;
+    }
+    const cx = VX + lean, by = VGY + bob;
+    const SK = K.skin, SKD = U.shade(K.skin, -0.24);
+    const SH = K.shirt, SHD = U.shade(K.shirt, -0.26), SHL = U.shade(K.shirt, 0.2);
+    const PT = K.pants, PTD = U.shade(K.pants, -0.26);
+    // legs
+    for (const d of [-1, 1]) {
+      const lx = cx + d * 3.4 + (d > 0 ? step : -step) * 0.7;
+      Art.rect(g, lx - 2, by - 12, 4, 12, PTD);
+      Art.rect(g, lx - 2, by - 12, 3, 11, PT);
+      Art.rect(g, lx - 3, by - 2, 6, 3, '#2a2018');              // a boot
+      Art.rect(g, lx - 3, by - 2, 5, 1, '#4a3c2e');
+    }
+    // body: a rounded tunic, wider at the hem
+    const bh = 15 * (1 - sq), bw = 7.6 * (1 + sq * 0.5);
+    Art.ell(g, cx, by - 12 - bh * 0.5, bw + 0.8, bh * 0.5 + 0.8, PAL.ink);
+    Art.ell(g, cx, by - 12 - bh * 0.5, bw, bh * 0.5, SHD);
+    Art.rect(g, cx - bw, by - 14, bw * 2, 3, SHD);
+    Art.ell(g, cx, by - 13 - bh * 0.5, bw - 1, bh * 0.44, SH);
+    Art.ell(g, cx - bw * 0.35, by - 15 - bh * 0.5, bw * 0.4, bh * 0.22, SHL);
+    // arms
+    for (const [d, sw] of [[-1, armL], [1, armR]]) {
+      const ax = cx + d * (bw - 0.6), ay = by - 12 - bh * 0.72;
+      Art.limb(g, ax, ay, ax + d * 2.4, ay + 8 + sw, 2.6, 2, SHD);
+      Art.limb(g, ax, ay, ax + d * 2.2, ay + 7 + sw, 1.8, 1.4, SH);
+      Art.ell(g, ax + d * 2.6, ay + 9 + sw, 1.8, 1.8, SK);        // a hand
+    }
+    // head
+    const hy = by - 12 - bh - 6;
+    Art.ell(g, cx, hy, 6.4, 6.2, PAL.ink);
+    Art.ell(g, cx, hy, 5.8, 5.6, SK);
+    Art.ell(g, cx - 1.6, hy - 1.6, 2.4, 2, U.shade(SK, 0.18));
+    Art.ell(g, cx, hy + 4.6, 2.4, 1.6, SKD);                      // a chin
+    // hair
+    Art.ell(g, cx, hy - 2.4, 6, 4, K.hair);
+    Art.ell(g, cx - 4.4, hy - 0.4, 2, 3, K.hair);
+    Art.ell(g, cx + 4.4, hy - 0.4, 2, 3, K.hair);
+    // face
+    if (blink) { Art.rect(g, cx - 3.4, hy - 0.4, 2.4, 1, '#2a1a14'); Art.rect(g, cx + 1.2, hy - 0.4, 2.4, 1, '#2a1a14'); }
+    else {
+      Art.ell(g, cx - 2.2, hy - 0.2, 1.3, 1.5, '#fdf3dc');
+      Art.ell(g, cx + 2.2, hy - 0.2, 1.3, 1.5, '#fdf3dc');
+      Art.ell(g, cx - 2.1, hy, 0.8, 1, '#241a14');
+      Art.ell(g, cx + 2.3, hy, 0.8, 1, '#241a14');
+    }
+    Art.ell(g, cx - 3.8, hy + 1.8, 1.4, 1, 'rgba(224,112,90,0.5)');
+    Art.ell(g, cx + 3.8, hy + 1.8, 1.4, 1, 'rgba(224,112,90,0.5)');
+    if (mouth) { Art.ell(g, cx, hy + 2.6, 1.6, 1.4, '#5a2a24'); Art.rect(g, cx - 1, hy + 2, 2, 1, '#fdf3dc'); }
+    else Art.rect(g, cx - 1.2, hy + 2.6, 2.4, 1, '#5a2a24');
+    // what is on their head
+    switch (K.hat) {
+      case 'veil':
+        Art.ell(g, cx, hy - 4.6, 7.6, 2.4, '#f2ece0');
+        Art.rect(g, cx - 7.6, hy - 5.4, 15.2, 2, '#e0d8c8');
+        g.globalAlpha = 0.5; Art.ell(g, cx, hy, 6.6, 6.4, '#dfe6ea'); g.globalAlpha = 1;
+        for (let i = 0; i < 8; i++) Art.rect(g, cx - 6 + i * 1.6, hy - 3 + (i % 3) * 2.4, 1, 1, '#b8c0c8');
+        break;
+      case 'bucket':
+        Art.ell(g, cx, hy - 4, 7.2, 2.6, '#4a5a48');
+        Art.rect(g, cx - 5.4, hy - 7.6, 10.8, 4, '#5c6e58');
+        Art.rect(g, cx - 5.4, hy - 7.6, 10.8, 1, '#7a8c72');
+        break;
+      case 'cap':
+        Art.rect(g, cx - 5.4, hy - 6.4, 10.8, 3.4, '#2f3a4a');
+        Art.ell(g, cx, hy - 6.6, 5.6, 2.6, '#3a4a5c');
+        Art.rect(g, cx - 1, hy - 8.4, 2, 2, '#c9581f');
+        Art.rect(g, cx + 1, hy - 3.6, 7, 1.6, '#2f3a4a');           // the peak
+        break;
+      case 'kerchief':
+        Art.ell(g, cx, hy - 3.4, 6.4, 4, '#c94a5a');
+        Art.rect(g, cx - 6.4, hy - 3.4, 12.8, 2, '#a83a48');
+        for (let i = 0; i < 5; i++) Art.rect(g, cx - 5 + i * 2.4, hy - 5 + (i % 2), 1, 1, '#f0e0c8');
+        Art.poly(g, [[cx + 5, hy - 2], [cx + 9, hy + 1], [cx + 5, hy + 2]], '#a83a48');
+        break;
+      case 'wide':
+        Art.ell(g, cx, hy - 3.6, 10.4, 3, '#8a6a3a');
+        Art.ell(g, cx, hy - 4, 9.6, 2.4, '#a8834a');
+        Art.ell(g, cx, hy - 6.4, 5, 3.4, '#8a6a3a');
+        Art.rect(g, cx - 5, hy - 5.4, 10, 1.4, '#5a4424');
+        break;
+    }
+    // and what they are carrying
+    const px = cx + (bw - 0.6) + 2.6, py = by - 12 - 15 * 0.72 + 9 + armR;
+    switch (K.prop) {
+      case 'hive':
+        for (let i = 0; i < 4; i++) Art.ell(g, px + 2, py + 2 - i * 2.2, 5 - i * 0.7, 1.6, i % 2 ? '#d8a52f' : '#c08f22');
+        Art.rect(g, px - 1, py - 6, 6, 1, '#8a6a3a');
+        for (let i = 0; i < 3; i++) { Art.ell(g, px - 4 + i * 5, py - 9 - (i % 2) * 3, 1.4, 1.2, '#f5cd5c'); }
+        break;
+      case 'rod':
+        for (let i = 0; i < 22; i++) Art.rect(g, px + i * 0.5, py - i * 1.1, 1, 2, '#6b4a2c');
+        Art.rect(g, px + 10, py - 22, 1, 12, '#b8c0c8');
+        Art.ell(g, px + 10, py - 10, 1.6, 2.2, '#8fd4e4');
+        break;
+      case 'sack':
+        Art.ell(g, px + 2, py, 5, 5.4, '#8a6a3a');
+        Art.ell(g, px + 2, py, 4.2, 4.6, '#a8834a');
+        Art.rect(g, px, py - 5, 4, 2, '#6b4a2c');
+        Art.rect(g, px, py - 1, 4, 3, '#f0e0c8');
+        break;
+      case 'tray':
+        Art.rect(g, px - 5, py, 12, 2, '#8a6a3a');
+        Art.rect(g, px - 5, py, 12, 1, '#a8834a');
+        for (let i = 0; i < 3; i++) Art.ell(g, px - 3 + i * 3.4, py - 1.4, 1.6, 1.4, '#c9a15c');
+        for (let i = 0; i < 3; i++) { g.globalAlpha = 0.35; Art.ell(g, px - 3 + i * 3.4, py - 5 - (i % 2), 1.6, 2, '#e8e0d0'); g.globalAlpha = 1; }
+        break;
+      case 'press':
+        Art.rect(g, px - 2, py - 4, 8, 9, '#6b4a2c');
+        Art.rect(g, px - 2, py - 4, 8, 1.4, '#a8834a');
+        Art.rect(g, px - 2, py, 8, 1, '#4a3220');
+        Art.ell(g, px + 2, py - 6, 2.4, 1.6, '#5d9440');
+        break;
+      case 'lute':
+        Art.ell(g, px + 1, py, 4.6, 5.4, '#8a5a2a');
+        Art.ell(g, px + 1, py, 3.8, 4.6, '#b07a3a');
+        Art.ell(g, px + 1, py - 0.6, 1.8, 1.8, '#3a2418');
+        for (let i = 0; i < 12; i++) Art.rect(g, px + 1, py - 5 - i, 1, 1, '#6b4a2c');
+        for (let i = 0; i < 3; i++) Art.rect(g, px - 0.6 + i, py - 16, 1, 3, '#cfc4b0');
+        break;
+    }
+    Art.outline(c, PAL.ink);
+    cache.set(key, c);
+    return c;
+  }
+
+  return { S, AGE, POSES, CULT_POSES, KW, KH, cashier, villager, VILLAGERS, VW2, VH2, GW, GH, GX, GGY, groot, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
 })();
 </script>
 
@@ -5024,6 +5208,13 @@ const Icons = (() => {
     offering: (d) => { cube(d, E2, 3, 7, 7, 7); cube(d, E1, 8, 4, 6, 6); d.R(4, 5, 2, 2, M3); },
     leaf: (d) => { d.L(3, 14, 12, 4, M1, 1); for (let i = 0; i < 5; i++) { const t = i / 5, x = U.lerp(4, 12, t), y = U.lerp(13, 4, t); d.L(x, y, x - 3 + i * 0.6, y - 2, M3, 1); d.L(x, y, x + 3 - i * 0.4, y + 1, M2, 1); } d.E(11, 4, 2, 2, M4); },
     eye: (d) => { d.E(8, 8, 7, 4.5, C); d.E(8, 8, 4, 4, D3); d.E(8, 8, 2, 2, I); d.E(6.6, 6.6, 1, 1, C); d.L(1, 4, 3, 6, I, 1); d.L(15, 4, 13, 6, I, 1); },
+    phone: (d) => {                       // the thing in your pocket
+      d.R(4, 1, 8, 14, '#1c1c26'); d.R(3, 2, 10, 12, '#1c1c26');
+      d.R(5, 3, 6, 10, '#2f3a4a'); d.R(5, 3, 6, 9, '#4f8aa8');
+      d.R(5, 3, 6, 1, '#8fd4e4'); d.R(6, 5, 4, 1, '#cfeef6'); d.R(6, 7, 3, 1, '#cfeef6');
+      d.R(6, 9, 4, 1, '#cfeef6'); d.R(7, 13, 2, 1, '#6a7286');
+      d.R(3, 4, 1, 3, '#8b90a0'); d.R(12, 5, 1, 2, '#8b90a0');
+    },
     wombat: (d) => { d.E(7, 10, 6, 4.6, K3); d.E(12, 9, 3.6, 3.2, K3); d.E(10.6, 6, 1.6, 1.7, K2); d.E(13.6, 5.6, 1.6, 1.7, K3); d.R(13, 8, 1, 1, I); d.R(11, 8.4, 1, 1, I); d.E(15, 10, 2, 1.6, PAL.bark3); d.R(15.4, 9.4, 1.4, 1, I); d.R(3, 13, 2, 2, K1); d.R(8, 13, 2, 2, K1); d.E(1.8, 9.4, 1.4, 1.5, K2); },
     // --- interface ---
     sound: (d) => { d.R(2, 6, 3, 4, S4); d.L(5, 6, 8, 3, S4, 1); d.L(5, 9, 8, 12, S4, 1); d.R(5, 6, 3, 4, S4); d.R(10, 6, 1, 1, Y2); d.R(11, 5, 1, 3, Y2); d.R(13, 4, 1, 5, Y2); },
@@ -7541,6 +7732,164 @@ const Wild = (() => {
   // ---- the visitors ---------------------------------------------------------
   // Each one walks in from an edge, drifts about for a minute or two, and goes
   // home. Click one and you get the full dialogue panel.
+
+  // Everyone who lives within a morning's walk. `tree` is what they will talk
+  // about; `gift` is what they leave on the fence post before they go.
+  const VILLAGE = [
+    {
+      key: 'bee', name: 'Maud', why: 'with a jar of something',
+      sprite: (f, pose) => Sprites.villager('bee', f, pose), sc: 1.5,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { for (const w of G.wombats) w.hap = Math.min(100, w.hap + 16); return 'Maud left a jar of honey; everybody had some'; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'happy', sub: 'forty hives on the ridge',
+            say: 'Brought you a jar. Do not give it to the wombats straight, they go peculiar. A spoonful in the water and they will love you forever.',
+            opts: [
+              { q: 'How are the bees?', to: 'bees' },
+              { q: 'Peculiar how?', to: 'odd' },
+              { q: 'Do my flowers help?', to: 'flow' },
+              { q: 'Thanks, Maud.', end: true },
+            ] },
+          bees: { mood: 'talk', say: 'Busy. It has been a wet one, which they hate and the clover loves, so on balance nobody is happy but there is a lot of honey.',
+            opts: [{ q: 'Sounds about right.', to: 'hub' }] },
+          odd: { mood: 'happy', say: 'One of them dug a hole through the floor of my shed and out the other side. In an afternoon. On honey.',
+            opts: [{ q: 'Noted.', to: 'hub' }] },
+          flow: { mood: 'proud', say: 'Everything you plant out here, mine find within the week. Keep planting. I am not being generous, I am being commercial.',
+            opts: [{ q: 'A deal, then.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'fish', name: 'Errol', why: 'back from the lake',
+      sprite: (f, pose) => Sprites.villager('fish', f, pose), sc: 1.55,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const n = 60 + Math.floor(Math.random() * 90); G.wd += n; return `Errol sold you his catch for ${U.fmt(n)} W$ less than it was worth`; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'talk', sub: 'nothing on the line since Tuesday',
+            say: 'Walked past and thought: that fellow has wombats. So here I am, standing in your garden, not fishing. An improvement.',
+            opts: [
+              { q: 'Catch anything?', to: 'catch' },
+              { q: 'What is in the lake?', to: 'lake' },
+              { q: 'Should I dig a pond?', to: 'pond' },
+              { q: 'Good luck out there.', end: true },
+            ] },
+          catch: { mood: 'sad', say: 'A boot, a bucket and the same eel three times. He knows me now. We have an understanding.',
+            opts: [{ q: 'Give him my regards.', to: 'hub' }] },
+          lake: { mood: 'worry', say: 'Water. Fish. And something underneath that has never once taken a hook, which is the part that keeps me going back.',
+            opts: [{ q: 'Do not find out.', to: 'hub' }] },
+          pond: { mood: 'happy', say: 'Dig one. Wombats drink like they are being timed, and a pond fills itself when it rains. Cheapest thing you will ever build.',
+            opts: [{ q: 'I will do that.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'post', name: 'Bev', why: 'with the post',
+      sprite: (f, pose) => Sprites.villager('post', f, pose), sc: 1.5,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const c = U.pick(PLANTS_OF('crop')); G.seeds[c.key] = (G.seeds[c.key] || 0) + 5; return `a packet of ${c.name} seed, posted to the wrong address`; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'talk', sub: 'the round takes four hours and she likes it',
+            say: 'Nothing for you. There is never anything for you. I come anyway because the last three houses on this road are all yours and I have nothing else to do.',
+            opts: [
+              { q: 'Who writes to anyone out here?', to: 'mail' },
+              { q: 'What is in the sack?', to: 'sack' },
+              { q: 'Seen anything odd?', to: 'odd' },
+              { q: 'Safe round, Bev.', end: true },
+            ] },
+          mail: { mood: 'cross', say: 'The department, to the ranger. Seed catalogues, to Groot, who cannot read them and keeps them anyway. And bills. Always bills.',
+            opts: [{ q: 'Grim.', to: 'hub' }] },
+          sack: { mood: 'happy', say: 'A packet that has been to four wrong addresses and is not going to a fifth. It is seed. Have it. Sign nothing.',
+            opts: [{ q: 'Very kind.', to: 'hub' }] },
+          odd: { mood: 'worry', say: 'A hooded fellow, out by the treeline, waving at me. Every week. I have never once seen him walk there or walk away.',
+            opts: [{ q: 'That is just him.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'bake', name: 'Nonna', why: 'with a tray of something hot',
+      sprite: (f, pose) => Sprites.villager('bake', f, pose), sc: 1.45,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { for (const w of G.wombats) { w.hap = 100; w.bored = 0; } return 'Nonna fed everybody and would not be argued with'; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'happy', sub: 'she has been baking since four',
+            say: 'You are too thin and your animals are too fat, so somebody here is eating wrong. Sit. Have one. I am not taking them home.',
+            opts: [
+              { q: 'What is in them?', to: 'what' },
+              { q: 'You did not have to.', to: 'must' },
+              { q: 'Do they get one?', to: 'them' },
+              { q: 'Thank you, Nonna.', end: true },
+            ] },
+          what: { mood: 'sly', say: 'Flour, butter, and a question you do not need the answer to. Eat.',
+            opts: [{ q: 'Eating.', to: 'hub' }] },
+          must: { mood: 'cross', say: 'I did. Nobody lives out here on their own and eats properly. I have seen your larder from the road.',
+            opts: [{ q: 'Fair enough.', to: 'hub' }] },
+          them: { mood: 'happy', say: 'They already have. All of them. Twice. Do not look at me like that, look at their faces.',
+            opts: [{ q: 'They do look happy.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'bota', name: 'Dr Finch', why: 'looking for a plant',
+      sprite: (f, pose) => Sprites.villager('bota', f, pose), sc: 1.55,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const c = U.pick(PLANTS_OF('magic')); G.seeds[c.key] = (G.seeds[c.key] || 0) + 2; return `Dr Finch left two ${c.name} seeds and a warning`; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'think', sub: 'university of somewhere, thirty years ago',
+            say: 'Do not mind me. I am counting. There is something growing on your land that is not supposed to exist below the tree line and I would like to know how you managed it.',
+            opts: [
+              { q: 'Which one?', to: 'which' },
+              { q: 'Is it dangerous?', to: 'danger' },
+              { q: 'How do I grow more?', to: 'grow' },
+              { q: 'Count away.', end: true },
+            ] },
+          which: { mood: 'happy', say: 'If I tell you, you will dig it up and put it in a pot, and then it will die, and then I will cry in front of you. Let us not.',
+            opts: [{ q: 'Understood.', to: 'hub' }] },
+          danger: { mood: 'worry', say: 'The mandrake screams and the snapjaw bites. Neither is dangerous. The dreamcap is perfectly safe and I will not be saying anything further about the dreamcap.',
+            opts: [{ q: '...right.', to: 'hub' }] },
+          grow: { mood: 'proud', say: 'Every magical plant wants one thing and will sulk until it gets it. Night, drought, company, solitude, shade. Find the thing. Give it the thing.',
+            opts: [{ q: 'Find the thing. Got it.', to: 'hub' }] },
+        },
+      }),
+    },
+    {
+      key: 'bard', name: 'Little Ash', why: 'with a song about you',
+      sprite: (f, pose) => Sprites.villager('bard', f, pose), sc: 1.4,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const n = 30 + Math.floor(Math.random() * 40); G.wd += n; return `they passed the hat after the song and it came to ${U.fmt(n)} W$`; },
+      tree: () => ({
+        start: 'hub',
+        nodes: {
+          hub: { mood: 'happy', sub: 'twelve, and already unbearable',
+            say: 'I wrote a song about your wombats. It is four verses. There is a chorus. You do not have a choice about this.',
+            opts: [
+              { q: 'Go on then.', to: 'song' },
+              { q: 'Who taught you?', to: 'who' },
+              { q: 'Four verses?', to: 'four' },
+              { q: 'Maybe next time.', end: true },
+            ] },
+          song: { mood: 'proud', say: 'THE WOMBATS OF THE GROVE, they dig and they are ROUND. They leave behind a CUBE, the finest in the TOWN. ...There are three more verses.',
+            opts: [{ q: 'That was genuinely good.', to: 'good' }, { q: 'Three more?', to: 'four' }] },
+          good: { mood: 'happy', say: 'I know. I am going to be enormous.',
+            opts: [{ q: 'I believe you.', to: 'hub' }] },
+          four: { mood: 'cross', say: 'The fourth one is about the hooded man and it is the best one and nobody ever lets me get to it.',
+            opts: [{ q: 'Next time, I promise.', to: 'hub' }] },
+          who: { mood: 'talk', say: 'Nobody. There is one lute in the Flats and it was in a cupboard. It is mine now by the law of nobody else wanting it.',
+            opts: [{ q: 'That is how it works.', to: 'hub' }] },
+        },
+      }),
+    },
+  ];
+
   const GUESTS = [
     {
       key: 'shaz', name: 'Shaz', why: 'on her day off',
@@ -7636,6 +7985,11 @@ const Wild = (() => {
         },
       }),
     },
+    // ---- the village ------------------------------------------------------
+    // Six people from down the road, each with a reason to be here and
+    // something in their hands. They use the same walk-in, stand-about,
+    // leave-a-gift loop as everyone else.
+    ...VILLAGE,
   ];
   function spawnVisitor() {
     if (visitors.length) return;
@@ -7657,7 +8011,8 @@ const Wild = (() => {
   function talkTo(v) {
     if (!v) return;
     v.state = 'talk'; v.t = 0;
-    Talk.open(v.def.key === 'ranger' ? 'cultist' : v.def.key === 'kid' ? 'cultist' : v.def.key, v.def.tree(), () => {
+    const who = { ranger: 'cultist', kid: 'cultist' }[v.def.key] || (Sprites.VILLAGERS[v.def.key] ? 'villager:' + v.def.key : v.def.key);
+    Talk.open(who, v.def.tree(), () => {
       if (v.state === 'talk') v.state = 'wander';
       if (!v.gave) { v.gave = true; const msg = v.def.gift(); UI.toast(msg, 'good'); UI.refreshHUD(); UI.refreshTray(); Main.save(); }
     });
@@ -7714,7 +8069,12 @@ const Wild = (() => {
     }
     // visitors
     spawnT -= dt;
-    if (spawnT <= 0 && G.step >= 4 && !UI.anyPanel()) { spawnVisitor(); spawnT = 150 + Math.random() * 190; }
+    if (spawnT <= 0 && G.step >= 4 && !UI.anyPanel()) {
+      spawnVisitor();
+      // a starthistle in the ground brings people up the road to look at it
+      const draw2 = (World.magic().draw || 0);
+      spawnT = (100 + Math.random() * 150) / (1 + draw2 * 0.6);
+    }
     for (let i = visitors.length - 1; i >= 0; i--) {
       const v = visitors[i];
       v.t += dt;
@@ -8003,6 +8363,9 @@ const Grove = (() => {
   const PARK = 656;                      // where the truck stops when called: the east edge of the clearing
   const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [], foods = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0, hoverPlot = null;
+  // Picking an animal up is a drag, not a click: grab, move the pointer far
+  // enough and she comes off the ground, and where you put her down matters.
+  let grab = null, grabAt = null, carry = null;
   let arrival = null, dragging = null;
 
   // fixed forest layers behind the plot
@@ -8056,6 +8419,19 @@ const Grove = (() => {
     FX.cam.ty = halfY * 2 >= H ? H / 2 : U.clamp(FX.cam.ty, halfY, H - halfY);
   }
   function enter() {
+    // anybody who rode along comes back delighted with themselves
+    if (G && G.rode) {
+      G.rode = false;
+      for (const w of G.wombats) {
+        if (!w.riding) continue;
+        w.riding = false;
+        w.bored = 0; w.thirst = Math.max(0, (w.thirst || 0) - 30);
+        w.hap = hapCap();
+        w.state = 'happy'; w.stateT = 1.6;
+        setTimeout(() => { FX.hearts(w.x, w.y - 30, 6); }, 400);
+        UI.toast(`<b>${w.name}</b> loved the drive`, 'good');
+      }
+    }
     const c = FX.cam;
     c.zoom = c.tzoom = ZOOM; c.ty = c.y = H / 2;
     c.ty = c.y = H / 2;
@@ -8299,6 +8675,9 @@ const Grove = (() => {
         const lush = World.hasGrass(w.x, w.y + 4);
         if (w.graze > (lush ? 4 : 11)) { w.graze = 0; graze(w, lush); }
       }
+      if (w.state === 'held') { w.lift = U.lerp(w.lift || 0, 16, 1 - Math.pow(0.001, dt)); continue; }
+      if (w.riding) { w.x = U.lerp(w.x, TRUCK.x - 16, 1 - Math.pow(0.02, dt)); w.y = TRUCK.y - 2; w.state = 'sit'; continue; }
+      if (w.lift > 0) w.lift = Math.max(0, w.lift - dt * 90);
       w.stateT -= dt;
       // an empty wombat claims the nearest bowl and heads for it
       if (w.stomach === 'empty' && w.age !== 'baby' && w.state !== 'eat' && w.state !== 'sleep') {
@@ -8662,7 +9041,7 @@ const Grove = (() => {
       const d = dropAt(x, y);
       if (d) { dragging = d; d.z = Math.max(d.z, 12); Audio.play('click'); return true; }
       const w = wombatAt(x, y);
-      if (w) { pet(w); return true; }
+      if (w) { grab = w; grabAt = { x, y }; return true; }
       const got = World.harvest(x, y);
       if (got === 'unripe' && first) { Audio.play('error'); UI.toast('not ready yet', 'bad'); }
       else if (got === 'nofruit' && first) { Audio.play('error'); UI.toast('no fruit on it yet', 'bad'); }
@@ -8727,14 +9106,65 @@ const Grove = (() => {
   function clearPair() { if (G) G.pairFirst = null; }
   function move(x, y) {
     if (dragging) { dragging.x = U.clamp(x, 8, W - 8); dragging.y = y; dragging.z = 16; dragging.vz = 0; dragging.vx = 0; return true; }
+    if (grab && !carry && grabAt && Math.hypot(x - grabAt.x, y - grabAt.y) > 7) {
+      carry = grab;
+      carry.state = 'held'; carry.stateT = 1e4; carry.claim = null;
+      carry.lift = 0;
+      Audio.play('squeak');
+      FX.comic(carry.x, carry.y - 40, U.pick(['UP!', 'WHEE!', 'OOF!']), { ink: '#ffc4dd', edge: '#e0507a', life: 0.6 });
+    }
+    if (carry) {
+      const rm = roam();
+      carry.x = U.clamp(x, rm.x0, rm.x1);
+      carry.y = U.clamp(y, WALK.y0 - 30, WALK.y1);
+      return true;
+    }
     return false;
   }
   function release(x, y) {
+    if (carry) { setDown(carry, x, y); carry = null; grab = null; grabAt = null; return; }
+    if (grab) { pet(grab); grab = null; grabAt = null; return; }   // a tap, not a lift
     if (!dragging) return;
     const d = dragging;
     dragging = null;
     if (truckHit(x, y)) loadIntoTruck(d);
     else { d.z = Math.max(4, d.z); d.vz = 0; }
+  }
+  // Where she lands is the whole point of carrying her. The truck takes her
+  // with you; the pond is a drink; a hill is a good sit; the nest is a date.
+  function setDown(w, x, y) {
+    w.stateT = U.rand(1.2, 2.4);
+    w.state = 'idle';
+    w.lift = 0;
+    if (truckHit(x, y)) {
+      const riders = G.wombats.filter((m) => m.riding).length;
+      if (riders >= 2) { UI.toast('the cab only seats two', 'bad'); Audio.play('error'); }
+      else {
+        w.riding = true; w.x = TRUCK.x - 16; w.y = TRUCK.y - 2;
+        Audio.play('door'); FX.hearts(TRUCK.x - 10, TRUCK.y - 40, 4);
+        FX.comic(TRUCK.x, TRUCK.y - 56, 'SHOTGUN!', { ink: '#a8d0e0', edge: '#33495c', life: 0.8 });
+        UI.toast(`<b>${w.name}</b> is coming along for the drive`, 'good');
+      }
+      return;
+    }
+    w.riding = false;
+    for (const pd of Wild.ponds) {
+      if (Math.hypot(w.x - pd.x, (w.y - pd.y) / 0.45) < pd.r) {
+        w.thirst = 0; w.hap = Math.min(hapCap(), w.hap + 10);
+        Audio.play('splash'); FX.burst(w.x, w.y, 12, { color: [PAL.water2, PAL.water3], speed: 90, gravity: 220, life: 0.5, size: 2 });
+        FX.comic(w.x, w.y - 40, 'SPLOSH!', { ink: '#9fe2ee', edge: '#2f7f96', life: 0.7 });
+        return;
+      }
+    }
+    if (Wild.onMound(w.x, w.y)) {
+      w.bored = Math.max(0, (w.bored || 0) - 34); w.hap = Math.min(hapCap(), w.hap + 8);
+      w.state = 'sleep'; w.stateT = U.rand(5, 9);
+      FX.hearts(w.x, w.y - 30, 3); Audio.play('pet');
+      return;
+    }
+    Audio.play('thud', 0.6);
+    FX.dust(w.x, w.y, 4, PAL.soil3);
+    World.disturb(w.x, w.y, 18, 0.8);
   }
   function hover(x, y) {
     hoverW = (G.tool === 'drag' || G.tool === 'food' || G.tool === 'pair') ? wombatAt(x, y) : null;
@@ -8747,6 +9177,7 @@ const Grove = (() => {
     if (hoverObj) return `<b>${hoverObj.kind === 'fallen' ? 'Fallen tree' : hoverObj.kind === 'ruin' ? 'Ruin' : 'Stump'}</b><br>${demolishCost(hoverObj)} W$ to have it carried off`;
     if (hoverW) {
       const w = hoverW;
+      if (G.tool === 'drag') return `<b>${w.name}</b><br>click to pet, drag to pick her up<br><span class="dim">the pond, a hill or the truck are all good places to put her</span>`;
       const st = w.age !== 'adult' ? Sprites.AGE[w.age].name : w.gest > 0 ? 'expecting' : w.stomach === 'empty' ? 'hungry' : w.stomach === 'digesting' ? 'digesting' : 'about to give';
       const fur = Sprites.furOf(w.pelt);
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
@@ -8854,6 +9285,7 @@ const Grove = (() => {
       for (let i = 0; i < 6; i++) Art.dither(g, mx, GROUND - 4 + i * 6, m.w * 1.4, 6, '#ceccd4', a * (1 - i / 6));
     }
     Wild.drawGround(g);              // hills and ponds are ground, so they go first
+    drawMoss(g, L, R);               // and moss over the whole floor of it
     World.drawSprouts(g);
     World.drawBlades(g);
     World.drawFlowers(g);
@@ -9170,12 +9602,52 @@ const Grove = (() => {
   }
   function toolTint(k) { return { moss: PAL.moss4, hoe: PAL.soil4, sickle: PAL.rot2, water: PAL.water2, seed: PAL.gold3 }[k] || PAL.cream; }
 
+  // ---- moss ----------------------------------------------------------------
+  // Nothing in a wet wood stays bare. Cushions of it grow at the foot of every
+  // trunk, along the fence rails and over anything that has been lying still
+  // long enough, and the wetter the weather the greener it gets.
+  const MOSS = [];
+  (() => {
+    const r = Art.rng(6112);
+    for (let i = 0; i < 90; i++) {
+      MOSS.push({ x: r() * W, y: GROUND + 2 + r() * 34, w: 5 + r() * 16, h: 2 + r() * 5, tone: Math.floor(r() * 3), ph: r() * TAU });
+    }
+    for (let i = 0; i < 60; i++) {
+      MOSS.push({ x: r() * W, y: WALK.y0 + r() * (WALK.y1 - WALK.y0), w: 4 + r() * 11, h: 2 + r() * 4, tone: Math.floor(r() * 3), ph: r() * TAU });
+    }
+  })();
+  const MOSS_TONE = ['#3f6a2c', '#4f7a34', '#5d9440'];
+  function mossPad(g, x, y, w, h, tone, lush) {
+    const c0 = MOSS_TONE[tone], c1 = U.shade(c0, 0.2 + lush * 0.12), c2 = U.shade(c0, -0.26);
+    Art.ell(g, x, y, w, h, c2);
+    Art.ell(g, x, y - h * 0.24, w * 0.92, h * 0.82, c0);
+    Art.ell(g, x - w * 0.24, y - h * 0.46, w * 0.42, h * 0.4, c1);
+    for (let i = 0; i < 4; i++) {                           // a few stalks off the top
+      const sx = Math.round(x - w * 0.6 + i * w * 0.4), sy = Math.round(y - h * 0.9);
+      g.fillStyle = c1; g.fillRect(sx, sy - (i % 2) - 1, 1, 2 + (i % 2));
+    }
+  }
+  function drawMoss(g, L, R) {
+    const lush = U.clamp(World.fraction() * 0.6 + Sky.wet() * 0.5, 0, 1);
+    for (const m of MOSS) {
+      if (m.x < L - 20 || m.x > R + 20) continue;
+      const sw = Math.sin(G.time * 0.7 + m.ph) * 0.4;
+      mossPad(g, m.x + sw, m.y, m.w * (0.75 + lush * 0.35), m.h * (0.8 + lush * 0.3), m.tone, lush);
+    }
+  }
   function drawObject(g, o) {
     g.save();
     if (o.gone) { g.globalAlpha = 1 - o.gone; g.translate(0, -o.gone * 22); }
     const img = Props.get(o.kind === 'fallen' ? 'fallen' : o.kind === 'ruin' ? 'ruin' : 'stump', o.v);
     Art.castShadow(g, img, o.x, o.y + 3, img.width, img.height, { alpha: 0.3, lean: 0.58, squash: 0.2 });
     g.drawImage(img, Math.round(o.x - img.width / 2), Math.round(o.y - img.height + 4));
+    // and moss over the top of it, because it has been there a long time
+    const r = Art.rng(Math.round(o.x) * 17 + (o.v || 0));
+    for (let i = 0; i < 5; i++) {
+      const mx = o.x - img.width * 0.4 + r() * img.width * 0.8;
+      const my = o.y - img.height * (0.2 + r() * 0.55) + 4;
+      mossPad(g, mx, my, 3 + r() * 6, 1.6 + r() * 2.4, Math.floor(r() * 3), 0.4);
+    }
     g.restore();
     if (hoverObj === o) {
       g.save(); g.strokeStyle = PAL.redL; g.lineWidth = 1; g.setLineDash([3, 3]);
@@ -9268,12 +9740,22 @@ const Grove = (() => {
       p = 'turn';
     }
     const k = Sprites.AGE[w.age].k;
-    Sprites.shadow(g, w.x, w.y, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
+    const lift = w.lift || 0;
+    if (w.state === 'held') {                 // she dangles, and she wriggles
+      p = 'hurt'; frame = Math.floor(G.time * 8) % Sprites.POSES.hurt;
+      dir = Math.sin(G.time * 7) > 0 ? 1 : -1;
+    }
+    Sprites.shadow(g, w.x, w.y + lift * 0.3, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
     const fur = Sprites.furOf(w.pelt);
     if (fur.glow) {
       Art.glow(g, w.x, w.y - 18 * k, 36 * k, fur.glow, 0.3, 5);
     }
-    Sprites.blit(g, w.x, w.y, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
+    Sprites.blit(g, w.x, w.y - lift, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
+    if (lift > 2) {                            // two hands' worth of held-up sparkle
+      const a = 0.4 + 0.3 * Math.sin(G.time * 8);
+      g.fillStyle = `rgba(255,214,150,${a.toFixed(2)})`;
+      for (let i = 0; i < 3; i++) g.fillRect(Math.round(w.x - 14 + i * 12), Math.round(w.y - lift - 34 - (i % 2) * 4), 2, 2);
+    }
     if (w.grump > 0 && Math.floor(w.anim * 6) % 2) { g.fillStyle = PAL.red2; g.fillRect(w.x - 8, w.y - 50 * k, 3, 3); g.fillRect(w.x + 6, w.y - 54 * k, 3, 3); }
     if (w.state === 'sleep') {
       const t = (w.anim * 0.5) % 1;
@@ -14777,6 +15259,21 @@ const Talk = (() => {
     },
   };
 
+  // Every villager is the same speaker with a different kit, so one entry
+  // covers the lot: `villager:bee`, `villager:post`, and so on.
+  for (const key of Object.keys(Sprites.VILLAGERS)) {
+    const K = Sprites.VILLAGERS[key];
+    SPEAKERS['villager:' + key] = {
+      name: K.name, sub: K.why,
+      bg: ['#2f3c4a', '#181f28'],
+      draw(mood, t) {
+        const pose = { happy: 'wave', proud: 'wave', talk: 'talk', think: 'idle', cross: 'talk',
+          shock: 'wave', tired: 'idle', worry: 'talk', sly: 'talk', sad: 'idle' }[mood] || 'talk';
+        return { img: Sprites.villager(key, Math.floor(t * 5), pose), sc: 2.6, dy: 0 };
+      },
+    };
+  }
+
   function init(g) { G = g; }
 
   // ---- opening and closing ------------------------------------------------
@@ -16624,6 +17121,7 @@ const Main = (() => {
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
     if (mode !== 'map') G.lastSite = mode;
+    if (mode !== 'grove' && G.wombats.some((w) => w.riding)) G.rode = true;   // somebody came along
     UI.setMode(mode);
     FX.clear(); FX.flash('#efe8f6', 0.42);   // scenes change through a breath of cloud, not a blackout
     if (mode !== 'shop' && mode !== 'nursery') Audio.play('whoosh');

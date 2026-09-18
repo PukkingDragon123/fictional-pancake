@@ -888,3 +888,28 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 /* the little phone button down in the corner of the frame */
 .mbtn.phonebtn { position: relative; }
 .mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }
+
+/* A wet wood grows over everything it is allowed to. The job list, the panels
+   and the toasts all take a little moss along the top edge, so the interface
+   looks like it has been out here as long as the fence has. */
+#checklist::before {
+  content: ''; position: absolute; left: -4px; right: -4px; top: -7px; height: 9px; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, #3f6a2c 0 5px, transparent 5px 8px, #4f7a34 8px 14px, transparent 14px 19px) 0 3px/auto 6px repeat-x,
+    repeating-linear-gradient(90deg, transparent 0 3px, #5d9440 3px 6px, transparent 6px 11px) 0 0/auto 5px repeat-x;
+}
+.panel .phead { position: relative; }
+.panel .phead::after {
+  content: ''; position: absolute; left: 4px; right: 4px; top: -5px; height: 7px; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, #3f6a2c 0 6px, transparent 6px 10px, #4f7a34 10px 17px, transparent 17px 23px) 0 2px/auto 5px repeat-x,
+    repeating-linear-gradient(90deg, transparent 0 4px, #5d9440 4px 7px, transparent 7px 13px) 0 0/auto 4px repeat-x;
+  opacity: 0.85;
+}
+/* toasts land like a leaf rather than a notification */
+.toast { position: relative; }
+.toast::before {
+  content: ''; position: absolute; left: 6px; right: 6px; top: -4px; height: 5px;
+  background: repeating-linear-gradient(90deg, #4f7a34 0 5px, transparent 5px 9px, #3f6a2c 9px 15px, transparent 15px 21px);
+  opacity: 0.7;
+}

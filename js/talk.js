@@ -55,6 +55,21 @@ const Talk = (() => {
     },
   };
 
+  // Every villager is the same speaker with a different kit, so one entry
+  // covers the lot: `villager:bee`, `villager:post`, and so on.
+  for (const key of Object.keys(Sprites.VILLAGERS)) {
+    const K = Sprites.VILLAGERS[key];
+    SPEAKERS['villager:' + key] = {
+      name: K.name, sub: K.why,
+      bg: ['#2f3c4a', '#181f28'],
+      draw(mood, t) {
+        const pose = { happy: 'wave', proud: 'wave', talk: 'talk', think: 'idle', cross: 'talk',
+          shock: 'wave', tired: 'idle', worry: 'talk', sly: 'talk', sad: 'idle' }[mood] || 'talk';
+        return { img: Sprites.villager(key, Math.floor(t * 5), pose), sc: 2.6, dy: 0 };
+      },
+    };
+  }
+
   function init(g) { G = g; }
 
   // ---- opening and closing ------------------------------------------------

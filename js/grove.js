@@ -14,6 +14,9 @@ const Grove = (() => {
   const PARK = 656;                      // where the truck stops when called: the east edge of the clearing
   const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [], foods = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0, hoverPlot = null;
+  // Picking an animal up is a drag, not a click: grab, move the pointer far
+  // enough and she comes off the ground, and where you put her down matters.
+  let grab = null, grabAt = null, carry = null;
   let arrival = null, dragging = null;
 
   // fixed forest layers behind the plot
@@ -67,6 +70,19 @@ const Grove = (() => {
     FX.cam.ty = halfY * 2 >= H ? H / 2 : U.clamp(FX.cam.ty, halfY, H - halfY);
   }
   function enter() {
+    // anybody who rode along comes back delighted with themselves
+    if (G && G.rode) {
+      G.rode = false;
+      for (const w of G.wombats) {
+        if (!w.riding) continue;
+        w.riding = false;
+        w.bored = 0; w.thirst = Math.max(0, (w.thirst || 0) - 30);
+        w.hap = hapCap();
+        w.state = 'happy'; w.stateT = 1.6;
+        setTimeout(() => { FX.hearts(w.x, w.y - 30, 6); }, 400);
+        UI.toast(`<b>${w.name}</b> loved the drive`, 'good');
+      }
+    }
     const c = FX.cam;
     c.zoom = c.tzoom = ZOOM; c.ty = c.y = H / 2;
     c.ty = c.y = H / 2;
@@ -310,6 +326,9 @@ const Grove = (() => {
         const lush = World.hasGrass(w.x, w.y + 4);
         if (w.graze > (lush ? 4 : 11)) { w.graze = 0; graze(w, lush); }
       }
+      if (w.state === 'held') { w.lift = U.lerp(w.lift || 0, 16, 1 - Math.pow(0.001, dt)); continue; }
+      if (w.riding) { w.x = U.lerp(w.x, TRUCK.x - 16, 1 - Math.pow(0.02, dt)); w.y = TRUCK.y - 2; w.state = 'sit'; continue; }
+      if (w.lift > 0) w.lift = Math.max(0, w.lift - dt * 90);
       w.stateT -= dt;
       // an empty wombat claims the nearest bowl and heads for it
       if (w.stomach === 'empty' && w.age !== 'baby' && w.state !== 'eat' && w.state !== 'sleep') {
@@ -673,7 +692,7 @@ const Grove = (() => {
       const d = dropAt(x, y);
       if (d) { dragging = d; d.z = Math.max(d.z, 12); Audio.play('click'); return true; }
       const w = wombatAt(x, y);
-      if (w) { pet(w); return true; }
+      if (w) { grab = w; grabAt = { x, y }; return true; }
       const got = World.harvest(x, y);
       if (got === 'unripe' && first) { Audio.play('error'); UI.toast('not ready yet', 'bad'); }
       else if (got === 'nofruit' && first) { Audio.play('error'); UI.toast('no fruit on it yet', 'bad'); }
@@ -738,14 +757,65 @@ const Grove = (() => {
   function clearPair() { if (G) G.pairFirst = null; }
   function move(x, y) {
     if (dragging) { dragging.x = U.clamp(x, 8, W - 8); dragging.y = y; dragging.z = 16; dragging.vz = 0; dragging.vx = 0; return true; }
+    if (grab && !carry && grabAt && Math.hypot(x - grabAt.x, y - grabAt.y) > 7) {
+      carry = grab;
+      carry.state = 'held'; carry.stateT = 1e4; carry.claim = null;
+      carry.lift = 0;
+      Audio.play('squeak');
+      FX.comic(carry.x, carry.y - 40, U.pick(['UP!', 'WHEE!', 'OOF!']), { ink: '#ffc4dd', edge: '#e0507a', life: 0.6 });
+    }
+    if (carry) {
+      const rm = roam();
+      carry.x = U.clamp(x, rm.x0, rm.x1);
+      carry.y = U.clamp(y, WALK.y0 - 30, WALK.y1);
+      return true;
+    }
     return false;
   }
   function release(x, y) {
+    if (carry) { setDown(carry, x, y); carry = null; grab = null; grabAt = null; return; }
+    if (grab) { pet(grab); grab = null; grabAt = null; return; }   // a tap, not a lift
     if (!dragging) return;
     const d = dragging;
     dragging = null;
     if (truckHit(x, y)) loadIntoTruck(d);
     else { d.z = Math.max(4, d.z); d.vz = 0; }
+  }
+  // Where she lands is the whole point of carrying her. The truck takes her
+  // with you; the pond is a drink; a hill is a good sit; the nest is a date.
+  function setDown(w, x, y) {
+    w.stateT = U.rand(1.2, 2.4);
+    w.state = 'idle';
+    w.lift = 0;
+    if (truckHit(x, y)) {
+      const riders = G.wombats.filter((m) => m.riding).length;
+      if (riders >= 2) { UI.toast('the cab only seats two', 'bad'); Audio.play('error'); }
+      else {
+        w.riding = true; w.x = TRUCK.x - 16; w.y = TRUCK.y - 2;
+        Audio.play('door'); FX.hearts(TRUCK.x - 10, TRUCK.y - 40, 4);
+        FX.comic(TRUCK.x, TRUCK.y - 56, 'SHOTGUN!', { ink: '#a8d0e0', edge: '#33495c', life: 0.8 });
+        UI.toast(`<b>${w.name}</b> is coming along for the drive`, 'good');
+      }
+      return;
+    }
+    w.riding = false;
+    for (const pd of Wild.ponds) {
+      if (Math.hypot(w.x - pd.x, (w.y - pd.y) / 0.45) < pd.r) {
+        w.thirst = 0; w.hap = Math.min(hapCap(), w.hap + 10);
+        Audio.play('splash'); FX.burst(w.x, w.y, 12, { color: [PAL.water2, PAL.water3], speed: 90, gravity: 220, life: 0.5, size: 2 });
+        FX.comic(w.x, w.y - 40, 'SPLOSH!', { ink: '#9fe2ee', edge: '#2f7f96', life: 0.7 });
+        return;
+      }
+    }
+    if (Wild.onMound(w.x, w.y)) {
+      w.bored = Math.max(0, (w.bored || 0) - 34); w.hap = Math.min(hapCap(), w.hap + 8);
+      w.state = 'sleep'; w.stateT = U.rand(5, 9);
+      FX.hearts(w.x, w.y - 30, 3); Audio.play('pet');
+      return;
+    }
+    Audio.play('thud', 0.6);
+    FX.dust(w.x, w.y, 4, PAL.soil3);
+    World.disturb(w.x, w.y, 18, 0.8);
   }
   function hover(x, y) {
     hoverW = (G.tool === 'drag' || G.tool === 'food' || G.tool === 'pair') ? wombatAt(x, y) : null;
@@ -758,6 +828,7 @@ const Grove = (() => {
     if (hoverObj) return `<b>${hoverObj.kind === 'fallen' ? 'Fallen tree' : hoverObj.kind === 'ruin' ? 'Ruin' : 'Stump'}</b><br>${demolishCost(hoverObj)} W$ to have it carried off`;
     if (hoverW) {
       const w = hoverW;
+      if (G.tool === 'drag') return `<b>${w.name}</b><br>click to pet, drag to pick her up<br><span class="dim">the pond, a hill or the truck are all good places to put her</span>`;
       const st = w.age !== 'adult' ? Sprites.AGE[w.age].name : w.gest > 0 ? 'expecting' : w.stomach === 'empty' ? 'hungry' : w.stomach === 'digesting' ? 'digesting' : 'about to give';
       const fur = Sprites.furOf(w.pelt);
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
@@ -865,6 +936,7 @@ const Grove = (() => {
       for (let i = 0; i < 6; i++) Art.dither(g, mx, GROUND - 4 + i * 6, m.w * 1.4, 6, '#ceccd4', a * (1 - i / 6));
     }
     Wild.drawGround(g);              // hills and ponds are ground, so they go first
+    drawMoss(g, L, R);               // and moss over the whole floor of it
     World.drawSprouts(g);
     World.drawBlades(g);
     World.drawFlowers(g);
@@ -1181,12 +1253,52 @@ const Grove = (() => {
   }
   function toolTint(k) { return { moss: PAL.moss4, hoe: PAL.soil4, sickle: PAL.rot2, water: PAL.water2, seed: PAL.gold3 }[k] || PAL.cream; }
 
+  // ---- moss ----------------------------------------------------------------
+  // Nothing in a wet wood stays bare. Cushions of it grow at the foot of every
+  // trunk, along the fence rails and over anything that has been lying still
+  // long enough, and the wetter the weather the greener it gets.
+  const MOSS = [];
+  (() => {
+    const r = Art.rng(6112);
+    for (let i = 0; i < 90; i++) {
+      MOSS.push({ x: r() * W, y: GROUND + 2 + r() * 34, w: 5 + r() * 16, h: 2 + r() * 5, tone: Math.floor(r() * 3), ph: r() * TAU });
+    }
+    for (let i = 0; i < 60; i++) {
+      MOSS.push({ x: r() * W, y: WALK.y0 + r() * (WALK.y1 - WALK.y0), w: 4 + r() * 11, h: 2 + r() * 4, tone: Math.floor(r() * 3), ph: r() * TAU });
+    }
+  })();
+  const MOSS_TONE = ['#3f6a2c', '#4f7a34', '#5d9440'];
+  function mossPad(g, x, y, w, h, tone, lush) {
+    const c0 = MOSS_TONE[tone], c1 = U.shade(c0, 0.2 + lush * 0.12), c2 = U.shade(c0, -0.26);
+    Art.ell(g, x, y, w, h, c2);
+    Art.ell(g, x, y - h * 0.24, w * 0.92, h * 0.82, c0);
+    Art.ell(g, x - w * 0.24, y - h * 0.46, w * 0.42, h * 0.4, c1);
+    for (let i = 0; i < 4; i++) {                           // a few stalks off the top
+      const sx = Math.round(x - w * 0.6 + i * w * 0.4), sy = Math.round(y - h * 0.9);
+      g.fillStyle = c1; g.fillRect(sx, sy - (i % 2) - 1, 1, 2 + (i % 2));
+    }
+  }
+  function drawMoss(g, L, R) {
+    const lush = U.clamp(World.fraction() * 0.6 + Sky.wet() * 0.5, 0, 1);
+    for (const m of MOSS) {
+      if (m.x < L - 20 || m.x > R + 20) continue;
+      const sw = Math.sin(G.time * 0.7 + m.ph) * 0.4;
+      mossPad(g, m.x + sw, m.y, m.w * (0.75 + lush * 0.35), m.h * (0.8 + lush * 0.3), m.tone, lush);
+    }
+  }
   function drawObject(g, o) {
     g.save();
     if (o.gone) { g.globalAlpha = 1 - o.gone; g.translate(0, -o.gone * 22); }
     const img = Props.get(o.kind === 'fallen' ? 'fallen' : o.kind === 'ruin' ? 'ruin' : 'stump', o.v);
     Art.castShadow(g, img, o.x, o.y + 3, img.width, img.height, { alpha: 0.3, lean: 0.58, squash: 0.2 });
     g.drawImage(img, Math.round(o.x - img.width / 2), Math.round(o.y - img.height + 4));
+    // and moss over the top of it, because it has been there a long time
+    const r = Art.rng(Math.round(o.x) * 17 + (o.v || 0));
+    for (let i = 0; i < 5; i++) {
+      const mx = o.x - img.width * 0.4 + r() * img.width * 0.8;
+      const my = o.y - img.height * (0.2 + r() * 0.55) + 4;
+      mossPad(g, mx, my, 3 + r() * 6, 1.6 + r() * 2.4, Math.floor(r() * 3), 0.4);
+    }
     g.restore();
     if (hoverObj === o) {
       g.save(); g.strokeStyle = PAL.redL; g.lineWidth = 1; g.setLineDash([3, 3]);
@@ -1279,12 +1391,22 @@ const Grove = (() => {
       p = 'turn';
     }
     const k = Sprites.AGE[w.age].k;
-    Sprites.shadow(g, w.x, w.y, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
+    const lift = w.lift || 0;
+    if (w.state === 'held') {                 // she dangles, and she wriggles
+      p = 'hurt'; frame = Math.floor(G.time * 8) % Sprites.POSES.hurt;
+      dir = Math.sin(G.time * 7) > 0 ? 1 : -1;
+    }
+    Sprites.shadow(g, w.x, w.y + lift * 0.3, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
     const fur = Sprites.furOf(w.pelt);
     if (fur.glow) {
       Art.glow(g, w.x, w.y - 18 * k, 36 * k, fur.glow, 0.3, 5);
     }
-    Sprites.blit(g, w.x, w.y, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
+    Sprites.blit(g, w.x, w.y - lift, p, frame, w.pelt, dir, w.age, Sprites.S, w.sq);
+    if (lift > 2) {                            // two hands' worth of held-up sparkle
+      const a = 0.4 + 0.3 * Math.sin(G.time * 8);
+      g.fillStyle = `rgba(255,214,150,${a.toFixed(2)})`;
+      for (let i = 0; i < 3; i++) g.fillRect(Math.round(w.x - 14 + i * 12), Math.round(w.y - lift - 34 - (i % 2) * 4), 2, 2);
+    }
     if (w.grump > 0 && Math.floor(w.anim * 6) % 2) { g.fillStyle = PAL.red2; g.fillRect(w.x - 8, w.y - 50 * k, 3, 3); g.fillRect(w.x + 6, w.y - 54 * k, 3, 3); }
     if (w.state === 'sleep') {
       const t = (w.anim * 0.5) % 1;
