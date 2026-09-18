@@ -441,5 +441,19 @@ const Guide = (() => {
     };
   }
   function toggle() { hidden = !hidden; UI.refreshNotebook(); }
-  return { init, update, draw, state, toggle, check, poke, hit, say, get cult() { return cult; }, STEPS };
+  // The job in hand, in the shape the phone wants it: a title, the long form of
+  // what she said, where it has to happen, and what she pays for it.
+  const WHERE = {
+    weeds: 'in the grove', junk: 'in the grove', grass: 'in the grove', arrive: 'in the grove',
+    sow: 'in the grove', pick: 'in the grove', feed: 'in the grove', load: 'in the grove',
+    map: 'in the truck', mart: 'Wombat Mart, down the road', stack: 'The Great Stack, east',
+    god: 'the Ritual Site, north',
+  };
+  function current() {
+    const st = step();
+    if (!st) return null;
+    return { key: st.key, title: st.title, note: st.note, icon: st.icon, say: st.say,
+      where: WHERE[st.key] || 'in the grove', reward: REWARD[G.step] || 0, i: G.step, total: STEPS.length };
+  }
+  return { init, update, draw, state, toggle, check, poke, hit, say, current, get cult() { return cult; }, STEPS };
 })();

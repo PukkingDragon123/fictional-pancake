@@ -765,3 +765,126 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   background: rgba(20,12,6,0.35); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px rgba(120,86,48,0.4); }
 .drow2 { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
 .dprice { margin-right: auto; display: flex; align-items: center; gap: 7px; font-size: 22px; color: var(--gd4); }
+
+/* =========================================================================
+   THE PHONE
+   Glass and brushed steel, sat in the middle of the screen. It is the one
+   thing in the game that is not made of wood, which is the point: everything
+   else is the wood you are standing in, and this is the thing in your pocket.
+   ========================================================================= */
+.phone {
+  position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 46%, rgba(20,14,26,0.5) 0%, rgba(8,5,12,0.82) 72%);
+  animation: phfade .18s ease-out;
+}
+@keyframes phfade { from { opacity: 0 } to { opacity: 1 } }
+.phshell {
+  position: relative; width: min(360px, 88vw); height: min(690px, 88vh);
+  display: flex; flex-direction: column;
+  background: linear-gradient(150deg, #cfd6e4 0%, #8d94a6 40%, #5d6474 100%);
+  padding: 7px;
+  box-shadow: 0 0 0 3px #0a0710, 0 18px 0 4px rgba(0,0,0,0.5), 0 0 80px rgba(0,0,0,0.6);
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px),
+                     calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+  animation: phin .26s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+@keyframes phin { from { transform: translateY(26px) scale(0.94); opacity: 0 } to { transform: none; opacity: 1 } }
+.phrail { position: absolute; left: -4px; top: 74px; width: 4px; height: 26px; background: #b9bfd0; box-shadow: 0 38px 0 #b9bfd0, 0 78px 0 0 #b9bfd0; }
+.phglass {
+  flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;
+  background: linear-gradient(180deg, #14131c 0%, #0d0d14 40%, #101019 100%);
+  box-shadow: inset 0 0 0 2px #05040a, inset 0 0 40px rgba(60,80,120,0.16);
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px),
+                     calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+}
+.phstatus {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 7px 14px 3px;
+  font-size: 12px; color: #cfd6e8; letter-spacing: 1px;
+}
+.phstatus span { margin-left: auto; opacity: 0.75; }
+.phbatt { width: 18px; height: 9px; background: #2a2b38; box-shadow: inset 0 0 0 1px #6a7286, inset 12px 0 0 0 #7de08a; }
+.phtop {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 4px 10px 8px;
+  border-bottom: 2px solid #23243a;
+}
+.phtop b { flex: 1 1 auto; text-align: center; font-size: 15px; color: #e6ecff; letter-spacing: 2px; }
+.phback, .phx {
+  width: 30px; height: 26px; border: 0; cursor: pointer; font-family: inherit; font-size: 17px;
+  color: #cfd6e8; background: #1d1e2c; box-shadow: inset 0 0 0 2px #313349;
+}
+.phback:hover, .phx:hover { background: #2a2c40; color: #fff; }
+.phscreen { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+.phscreen::-webkit-scrollbar { width: 7px; }
+.phscreen::-webkit-scrollbar-thumb { background: #33354c; }
+.phbottom { flex: 0 0 auto; display: flex; justify-content: center; padding: 6px 0 8px; }
+.phhome { width: 78px; height: 5px; border: 0; background: #4d5063; cursor: pointer; }
+.phhome:hover { background: #7b8098; }
+
+/* the home screen: a grid of apps over a quiet header */
+.phpage { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.phhead { padding: 10px 4px 4px; }
+.phhead b { display: block; font-size: 20px; color: #e6ecff; letter-spacing: 2px; }
+.phhead span { font-size: 13px; color: #8d94ae; font-style: italic; }
+.phgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 6px 0 2px; }
+.phapp {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 11px 4px 9px; border: 0; cursor: pointer; font-family: inherit;
+  color: #dfe5f6; background: linear-gradient(180deg, #23263a 0%, #171a2a 100%);
+  box-shadow: inset 0 0 0 2px var(--tint, #4a4f6a), inset 0 14px 18px -12px var(--tint, #4a4f6a);
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px),
+                     calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  transition: transform .14s cubic-bezier(.2,2.2,.4,1);
+}
+.phapp:hover { transform: translateY(-3px) scale(1.05); }
+.phapp:active { transform: translateY(3px) scale(0.94); }
+.phapp img.ico { width: 30px; height: 30px; image-rendering: pixelated; }
+.phapp b { font-size: 12px; letter-spacing: 1px; }
+.phdot {
+  position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; line-height: 17px;
+  font-size: 11px; font-style: normal; text-align: center; color: #1a0e08; background: #ff7a5a;
+  box-shadow: 0 0 0 2px #0a0710;
+}
+.phnote { margin-top: auto; padding: 9px 10px; font-size: 13px; color: #b9c2dc; background: #171a28; box-shadow: inset 0 0 0 2px #262a40; }
+.phnote b { color: #f5cd5c; letter-spacing: 1px; }
+
+/* cards and rows */
+.phcard { padding: 9px 10px; background: linear-gradient(180deg, #1b1e2e 0%, #141623 100%); box-shadow: inset 0 0 0 2px #2a2e46; }
+.phcard.big { box-shadow: inset 0 0 0 2px #3a4062, inset 0 20px 26px -20px #6a74a8; }
+.phcard.shut { opacity: 0.55; }
+.phcardh { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #e6ecff; }
+.phcardh img.ico { width: 22px; height: 22px; image-rendering: pixelated; }
+.phcardh b { flex: 0 1 auto; }
+.phcardh .phdim { margin-left: auto; }
+.phcard p { margin: 6px 0 0; font-size: 13px; line-height: 1.55; color: #aeb6d0; }
+.phmeta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 7px; font-size: 12px; color: #8d94ae; }
+.phmeta img.ico { width: 13px; height: 13px; vertical-align: -2px; image-rendering: pixelated; }
+.phsub { margin: 9px 0 1px; font-size: 12px; letter-spacing: 2px; color: #6f7794; }
+.phrow { display: flex; align-items: center; gap: 7px; padding: 7px 9px; font-size: 13px; color: #d4dbf0; background: #16182600; box-shadow: inset 0 0 0 2px #23263a; }
+.phrow.done { opacity: 0.5; }
+.phrow img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
+.phrow b { font-weight: normal; }
+.phnum { margin-left: auto; color: #f5cd5c; font-variant-numeric: tabular-nums; }
+.phdim { font-size: 12px; color: #7d85a2; font-style: italic; }
+.phrow .phdim { margin-left: auto; text-align: right; }
+.phbar { height: 6px; margin: 0 0 4px; background: #0e0f18; box-shadow: inset 0 0 0 1px #2a2e46; }
+.phbar i { display: block; height: 100%; }
+.phstat { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 12px; color: #8d94ae; }
+.phstat span { flex: 0 0 52px; }
+.phstat .phbar { flex: 1 1 auto; margin: 0; height: 8px; }
+.phwant { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.phwant em { font-style: normal; font-size: 11px; letter-spacing: 1px; padding: 3px 6px; color: #1a0e08; background: #e8a04a; }
+.phok { margin-top: 7px; font-size: 12px; color: #7de08a; font-style: italic; }
+.phacts { display: flex; gap: 6px; margin-top: 9px; }
+.phbtn {
+  flex: 1 1 auto; padding: 7px 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: 1px;
+  color: #dfe5f6; background: linear-gradient(180deg, #2c3150 0%, #1b1f31 100%);
+  box-shadow: inset 0 0 0 2px #3f4668;
+  transition: transform .14s cubic-bezier(.2,2.2,.4,1);
+}
+.phbtn.go { color: #1a0e08; background: linear-gradient(180deg, #8fd4e4 0%, #2f7a90 100%); box-shadow: inset 0 0 0 2px #cfeef6; }
+.phbtn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+.phbtn:active { transform: translateY(2px) scale(0.96); }
+
+/* the little phone button down in the corner of the frame */
+.mbtn.phonebtn { position: relative; }
+.mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }

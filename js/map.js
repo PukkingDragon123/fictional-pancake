@@ -456,9 +456,15 @@ const Atlas = (() => {
   function click(x, y) {
     if (travel) return;
     const s = siteAt(x, y);
-    if (!s) return;
-    if (!unlocked(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return; }
-    if (!s.mode) { Audio.play('error'); return; }
+    if (s) go(s);
+  }
+  // Driving somewhere. The map calls this when you click a pin; the phone calls
+  // it from wherever you are standing, which is the point of carrying a phone.
+  function go(s) {
+    if (travel || FX.curtaining) return false;
+    if (!s) return false;
+    if (!siteOpen(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return false; }
+    if (!s.mode) { Audio.play('error'); return false; }
     const from = whereAmI();
     travel = { site: s };
     Audio.play('rumble');
@@ -472,11 +478,12 @@ const Atlas = (() => {
         Main.setMode(m);
       },
     });
+    return true;
   }
   function hoverAt(x, y) {
     hover = siteAt(x, y);
     if (!hover) return null;
-    if (!unlocked(hover)) return `<b>?</b><br>${hover.gate && !hover.gate(G) ? hover.why : hover.need + ' gods must answer first'}`;
+    if (!siteOpen(hover)) return `<b>?</b><br>${hover.gate && !hover.gate(G) ? hover.why : hover.need + ' gods must answer first'}`;
     return `<b>${hover.name}</b>`;
   }
   // Where the truck is parked right now: the last place you were, or the grove.
@@ -486,6 +493,9 @@ const Atlas = (() => {
   }
   // How far it is, in the money of the map: a straight line scaled to km.
   const kmBetween = (a, b) => Math.max(3, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / 11));
+  // A place is open when its own gate says so and enough gods have answered.
+  // (This used to call the tool gate by mistake, so the fog was only paint.)
+  const siteOpen = (s) => !!s && (!s.gate || s.gate(G)) && Object.keys(G.summoned || {}).length >= (s.need || 0);
   function update(dt) {
     Drive.update(dt);
   }
@@ -504,7 +514,7 @@ const Atlas = (() => {
     }
 
     for (const s of SITES) {
-      const open = unlocked(s);
+      const open = siteOpen(s);
       const hot = hover === s && open;
       // every pin breathes; the one under the pointer bounces properly
       // a fat hop when you point at one, a slow float when you do not, and a
@@ -523,7 +533,7 @@ const Atlas = (() => {
       const y = f.y + Math.cos(t * f.sp * 0.8 + f.ph) * 5;
       let cover = 0;
       for (const s of SITES) {
-        if (unlocked(s)) continue;
+        if (siteOpen(s)) continue;
         const d = Math.hypot(x - s.x, y - s.y);
         if (d < 120) cover = Math.max(cover, 1 - d / 120);
       }
@@ -537,7 +547,7 @@ const Atlas = (() => {
     // ---- things moving in the dark ----------------------------------------
     for (const e of eyes) {                      // pairs of eyes, out under the canopy
       let lit = 1e9;
-      for (const s2 of SITES) if (unlocked(s2)) lit = Math.min(lit, Math.hypot(e.x - s2.x, e.y - s2.y));
+      for (const s2 of SITES) if (siteOpen(s2)) lit = Math.min(lit, Math.hypot(e.x - s2.x, e.y - s2.y));
       if (lit < 54) { e.on *= 0.9; continue; }   // they keep clear of the places you know
       e.on = Math.sin(t * e.sp + e.ph) > 0.93 ? 1 : e.on * 0.92;
       if (e.on < 0.05) continue;
@@ -570,7 +580,7 @@ const Atlas = (() => {
     g.save();
     g.globalCompositeOperation = 'screen';
     for (const s2 of SITES) {
-      if (!unlocked(s2)) continue;
+      if (!siteOpen(s2)) continue;
       // a dithered warm patch, not a bullseye: hard rings read as targets here
       const oa = g.globalAlpha;
       for (let i = 5; i >= 1; i--) {
@@ -660,5 +670,5 @@ const Atlas = (() => {
     Font.draw(g, label, x, ly + 3, { scale: 1, color: open ? '#3c3a35' : '#8b8780', align: 'center' });
   }
 
-  return { init, enter, update, render, click, hover: hoverAt, get busy() { return !!travel; } };
+  return { init, enter, update, render, click, go, whereAmI, kmBetween, siteOpen, hover: hoverAt, get busy() { return !!travel; } };
 })();

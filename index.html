@@ -27,6 +27,7 @@
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
+      <button class="mbtn phonebtn" id="b-phone" title="Your phone (P)"><img class="ico sm" data-ico="map" alt=""><i id="b-phone-dot" hidden></i></button>
     </div>
 
     <div id="zoomer" hidden>
@@ -92,6 +93,18 @@
     <div class="pbody" id="wombat-body"></div>
   </div>
 
+  <div id="panel-phone" class="phone" hidden>
+    <div class="phshell">
+      <div class="phrail"></div>
+      <div class="phglass">
+        <div class="phstatus"><b id="ph-clock">7:14am</b><span id="ph-wx">Fair</span><i class="phbatt"></i></div>
+        <div class="phtop"><button class="phback" id="ph-back" hidden>&lsaquo;</button><b id="ph-title">WOMBAT OS</b><button class="phx" id="ph-close">&times;</button></div>
+        <div class="phscreen" id="ph-screen"></div>
+        <div class="phbottom"><button class="phhome" id="ph-home"></button></div>
+      </div>
+    </div>
+  </div>
+
   <div id="panel-help" class="panel" hidden>
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
@@ -137,6 +150,7 @@
 <script src="js/guide.js"></script>
 <script src="js/tower.js"></script>
 <script src="js/talk.js"></script>
+<script src="js/phone.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/main.js"></script>

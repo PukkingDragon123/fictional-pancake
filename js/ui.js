@@ -21,6 +21,11 @@ const UI = (() => {
     lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
     $('b-back').hidden = G.mode === 'grove';
+    const dot = $('b-phone-dot');
+    if (dot) {
+      const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length : 0;
+      dot.hidden = jobs === 0;
+    }
     refreshList();
     refreshNotebook();
   }
@@ -311,7 +316,7 @@ const UI = (() => {
   function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat'];
+  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat', 'panel-phone'];
   function openPanel(id) {
     closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click');
     if (id === 'panel-basket') renderBasket();
@@ -503,10 +508,18 @@ const UI = (() => {
       setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'RESET'; armed = 0; } }, 4100);
     };
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
+    // the phone: a button in the corner, and P from anywhere
+    $('b-phone').onclick = () => Phone.toggle();
+    $('ph-close').onclick = () => Phone.close();
+    $('ph-home').onclick = () => Phone.open('home');
+    $('ph-back').onclick = () => Phone.open('home');
     $('b-summon').onclick = () => Ritual.summon();
     $('b-unstage').onclick = () => Ritual.clearStage();
     document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
       if (Talk.isOpen() && Talk.key(e)) { e.preventDefault(); return; }
+      if (Phone.isOpen() && Phone.key(e)) { e.preventDefault(); return; }
+      if ((e.key === 'p' || e.key === 'P') && G.mode !== 'intro' && G.mode !== 'menu' && !Talk.isOpen()) { Phone.toggle(); e.preventDefault(); return; }
       if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
     });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';

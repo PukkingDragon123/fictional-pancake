@@ -774,6 +774,129 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   background: rgba(20,12,6,0.35); border: 3px solid var(--ol); box-shadow: inset 0 0 0 2px rgba(120,86,48,0.4); }
 .drow2 { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
 .dprice { margin-right: auto; display: flex; align-items: center; gap: 7px; font-size: 22px; color: var(--gd4); }
+
+/* =========================================================================
+   THE PHONE
+   Glass and brushed steel, sat in the middle of the screen. It is the one
+   thing in the game that is not made of wood, which is the point: everything
+   else is the wood you are standing in, and this is the thing in your pocket.
+   ========================================================================= */
+.phone {
+  position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 46%, rgba(20,14,26,0.5) 0%, rgba(8,5,12,0.82) 72%);
+  animation: phfade .18s ease-out;
+}
+@keyframes phfade { from { opacity: 0 } to { opacity: 1 } }
+.phshell {
+  position: relative; width: min(360px, 88vw); height: min(690px, 88vh);
+  display: flex; flex-direction: column;
+  background: linear-gradient(150deg, #cfd6e4 0%, #8d94a6 40%, #5d6474 100%);
+  padding: 7px;
+  box-shadow: 0 0 0 3px #0a0710, 0 18px 0 4px rgba(0,0,0,0.5), 0 0 80px rgba(0,0,0,0.6);
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px),
+                     calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+  animation: phin .26s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+@keyframes phin { from { transform: translateY(26px) scale(0.94); opacity: 0 } to { transform: none; opacity: 1 } }
+.phrail { position: absolute; left: -4px; top: 74px; width: 4px; height: 26px; background: #b9bfd0; box-shadow: 0 38px 0 #b9bfd0, 0 78px 0 0 #b9bfd0; }
+.phglass {
+  flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;
+  background: linear-gradient(180deg, #14131c 0%, #0d0d14 40%, #101019 100%);
+  box-shadow: inset 0 0 0 2px #05040a, inset 0 0 40px rgba(60,80,120,0.16);
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px),
+                     calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+}
+.phstatus {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 7px 14px 3px;
+  font-size: 12px; color: #cfd6e8; letter-spacing: 1px;
+}
+.phstatus span { margin-left: auto; opacity: 0.75; }
+.phbatt { width: 18px; height: 9px; background: #2a2b38; box-shadow: inset 0 0 0 1px #6a7286, inset 12px 0 0 0 #7de08a; }
+.phtop {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 4px 10px 8px;
+  border-bottom: 2px solid #23243a;
+}
+.phtop b { flex: 1 1 auto; text-align: center; font-size: 15px; color: #e6ecff; letter-spacing: 2px; }
+.phback, .phx {
+  width: 30px; height: 26px; border: 0; cursor: pointer; font-family: inherit; font-size: 17px;
+  color: #cfd6e8; background: #1d1e2c; box-shadow: inset 0 0 0 2px #313349;
+}
+.phback:hover, .phx:hover { background: #2a2c40; color: #fff; }
+.phscreen { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+.phscreen::-webkit-scrollbar { width: 7px; }
+.phscreen::-webkit-scrollbar-thumb { background: #33354c; }
+.phbottom { flex: 0 0 auto; display: flex; justify-content: center; padding: 6px 0 8px; }
+.phhome { width: 78px; height: 5px; border: 0; background: #4d5063; cursor: pointer; }
+.phhome:hover { background: #7b8098; }
+
+/* the home screen: a grid of apps over a quiet header */
+.phpage { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.phhead { padding: 10px 4px 4px; }
+.phhead b { display: block; font-size: 20px; color: #e6ecff; letter-spacing: 2px; }
+.phhead span { font-size: 13px; color: #8d94ae; font-style: italic; }
+.phgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 6px 0 2px; }
+.phapp {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 11px 4px 9px; border: 0; cursor: pointer; font-family: inherit;
+  color: #dfe5f6; background: linear-gradient(180deg, #23263a 0%, #171a2a 100%);
+  box-shadow: inset 0 0 0 2px var(--tint, #4a4f6a), inset 0 14px 18px -12px var(--tint, #4a4f6a);
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px),
+                     calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  transition: transform .14s cubic-bezier(.2,2.2,.4,1);
+}
+.phapp:hover { transform: translateY(-3px) scale(1.05); }
+.phapp:active { transform: translateY(3px) scale(0.94); }
+.phapp img.ico { width: 30px; height: 30px; image-rendering: pixelated; }
+.phapp b { font-size: 12px; letter-spacing: 1px; }
+.phdot {
+  position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; line-height: 17px;
+  font-size: 11px; font-style: normal; text-align: center; color: #1a0e08; background: #ff7a5a;
+  box-shadow: 0 0 0 2px #0a0710;
+}
+.phnote { margin-top: auto; padding: 9px 10px; font-size: 13px; color: #b9c2dc; background: #171a28; box-shadow: inset 0 0 0 2px #262a40; }
+.phnote b { color: #f5cd5c; letter-spacing: 1px; }
+
+/* cards and rows */
+.phcard { padding: 9px 10px; background: linear-gradient(180deg, #1b1e2e 0%, #141623 100%); box-shadow: inset 0 0 0 2px #2a2e46; }
+.phcard.big { box-shadow: inset 0 0 0 2px #3a4062, inset 0 20px 26px -20px #6a74a8; }
+.phcard.shut { opacity: 0.55; }
+.phcardh { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #e6ecff; }
+.phcardh img.ico { width: 22px; height: 22px; image-rendering: pixelated; }
+.phcardh b { flex: 0 1 auto; }
+.phcardh .phdim { margin-left: auto; }
+.phcard p { margin: 6px 0 0; font-size: 13px; line-height: 1.55; color: #aeb6d0; }
+.phmeta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 7px; font-size: 12px; color: #8d94ae; }
+.phmeta img.ico { width: 13px; height: 13px; vertical-align: -2px; image-rendering: pixelated; }
+.phsub { margin: 9px 0 1px; font-size: 12px; letter-spacing: 2px; color: #6f7794; }
+.phrow { display: flex; align-items: center; gap: 7px; padding: 7px 9px; font-size: 13px; color: #d4dbf0; background: #16182600; box-shadow: inset 0 0 0 2px #23263a; }
+.phrow.done { opacity: 0.5; }
+.phrow img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
+.phrow b { font-weight: normal; }
+.phnum { margin-left: auto; color: #f5cd5c; font-variant-numeric: tabular-nums; }
+.phdim { font-size: 12px; color: #7d85a2; font-style: italic; }
+.phrow .phdim { margin-left: auto; text-align: right; }
+.phbar { height: 6px; margin: 0 0 4px; background: #0e0f18; box-shadow: inset 0 0 0 1px #2a2e46; }
+.phbar i { display: block; height: 100%; }
+.phstat { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 12px; color: #8d94ae; }
+.phstat span { flex: 0 0 52px; }
+.phstat .phbar { flex: 1 1 auto; margin: 0; height: 8px; }
+.phwant { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.phwant em { font-style: normal; font-size: 11px; letter-spacing: 1px; padding: 3px 6px; color: #1a0e08; background: #e8a04a; }
+.phok { margin-top: 7px; font-size: 12px; color: #7de08a; font-style: italic; }
+.phacts { display: flex; gap: 6px; margin-top: 9px; }
+.phbtn {
+  flex: 1 1 auto; padding: 7px 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: 1px;
+  color: #dfe5f6; background: linear-gradient(180deg, #2c3150 0%, #1b1f31 100%);
+  box-shadow: inset 0 0 0 2px #3f4668;
+  transition: transform .14s cubic-bezier(.2,2.2,.4,1);
+}
+.phbtn.go { color: #1a0e08; background: linear-gradient(180deg, #8fd4e4 0%, #2f7a90 100%); box-shadow: inset 0 0 0 2px #cfeef6; }
+.phbtn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+.phbtn:active { transform: translateY(2px) scale(0.96); }
+
+/* the little phone button down in the corner of the frame */
+.mbtn.phonebtn { position: relative; }
+.mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }
 </style>
 
 <div id="app">
@@ -793,6 +916,7 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
+      <button class="mbtn phonebtn" id="b-phone" title="Your phone (P)"><img class="ico sm" data-ico="map" alt=""><i id="b-phone-dot" hidden></i></button>
     </div>
 
     <div id="zoomer" hidden>
@@ -856,6 +980,18 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   <div id="panel-wombat" class="panel dossier" hidden>
     <div class="phead"><img class="ico" data-ico="wombat" alt=""><span class="ptitle">ADOPTION PAPERS</span><button class="x" data-close="panel-wombat"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody" id="wombat-body"></div>
+  </div>
+
+  <div id="panel-phone" class="phone" hidden>
+    <div class="phshell">
+      <div class="phrail"></div>
+      <div class="phglass">
+        <div class="phstatus"><b id="ph-clock">7:14am</b><span id="ph-wx">Fair</span><i class="phbatt"></i></div>
+        <div class="phtop"><button class="phback" id="ph-back" hidden>&lsaquo;</button><b id="ph-title">WOMBAT OS</b><button class="phx" id="ph-close">&times;</button></div>
+        <div class="phscreen" id="ph-screen"></div>
+        <div class="phbottom"><button class="phhome" id="ph-home"></button></div>
+      </div>
+    </div>
   </div>
 
   <div id="panel-help" class="panel" hidden>
@@ -8095,10 +8231,24 @@ const Grove = (() => {
     }
     if (arrival) { updateArrival(dt); return; }
     const cap = hapCap(), decay = 0.42;
+    const charm = World.magic();            // what the magical beds are doing for the herd
     for (const w of G.wombats) {
       w.anim += dt;
       if (w.turnT > 0) w.turnT -= dt;
-      w.hap = U.clamp(w.hap - (decay / (w.traits.calm || 1)) * dt, 0, cap);
+      // ---- what an animal needs -------------------------------------------
+      // Three things, and they all creep back up: water, something to do, and
+      // food. Ignore any of them and the happiness runs out faster.
+      if (w.thirst == null) w.thirst = U.rand(0, 25);
+      if (w.bored == null) w.bored = U.rand(0, 25);
+      const dry = Sky.wet() > 0 ? 0.55 : 1;
+      w.thirst = U.clamp(w.thirst + dt * 0.5 * dry, 0, 100);
+      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42), 0, 100);
+      // enrichment: a nest, a paddling pool, a hill or a friend all count
+      if (G.decor.nest || G.decor.pool || Wild.mounds.length || G.wombats.length > 1) {
+        if (w.state !== 'sleep' && Math.random() < dt * 0.5) w.bored = Math.max(0, w.bored - 1.6);
+      }
+      const want = (w.thirst > 70 ? 1 : 0) + (w.bored > 70 ? 1 : 0) + (w.stomach === 'empty' && w.age !== 'baby' ? 1 : 0);
+      w.hap = U.clamp(w.hap - ((decay + want * 0.34) / (w.traits.calm || 1)) * dt * (charm.lull ? 0.7 : 1), 0, cap);
       if (w.grump > 0) w.grump -= dt;
       if (w.age !== 'adult') {
         w.ageT += dt * (G.fruits.longlife ? 2 : 1);
@@ -8196,10 +8346,12 @@ const Grove = (() => {
         if (d < pd.r * 0.82 && d > 0.01) {
           const push = (pd.r * 0.82 - d) * dt * 5;
           w.x += (dx / d) * push; w.y += (dy / d) * push * 0.45;
-          if (Math.random() < dt * 1.4) w.hap = Math.min(cap, w.hap + 0.5);      // a drink
+          w.thirst = Math.max(0, w.thirst - dt * 26);                            // a drink
+          if (Math.random() < dt * 1.4) w.hap = Math.min(cap, w.hap + 0.5);
         }
       }
-      if (Math.random() < dt * 0.5 && Wild.onMound(w.x, w.y)) w.hap = Math.min(cap, w.hap + 0.4);
+      if (Math.random() < dt * 0.5 && Wild.onMound(w.x, w.y)) { w.hap = Math.min(cap, w.hap + 0.4); w.bored = Math.max(0, w.bored - 2); }
+      if (Sky.wet() > 0.5 && Math.random() < dt * 0.6) w.thirst = Math.max(0, w.thirst - 2);   // rain in the mouth
     }
     for (let i = 0; i < G.wombats.length; i++) for (let j = i + 1; j < G.wombats.length; j++) {
       const a = G.wombats[i], b = G.wombats[j], dx = b.x - a.x;
@@ -8338,6 +8490,7 @@ const Grove = (() => {
     w.stomach = 'digesting'; w.food = key;
     w.digestTotal = def.grow * 0.2 + 5; w.digestT = w.digestTotal;
     w.hap = Math.min(hapCap(), w.hap + def.hap);
+    w.thirst = Math.max(0, (w.thirst || 0) - (def.kind === 'tree' ? 22 : 9));   // juice in it
     w.state = 'eat'; w.stateT = 1.9; w.sq = 0.32; w.chew = 1.9;
     G.stats.fed++;
     Audio.play('munch');
@@ -8363,6 +8516,7 @@ const Grove = (() => {
     w.pets.push(G.time);
     if (w.pets.length > 7) { w.grump = 5; w.hap = Math.max(0, w.hap - 14); w.pets = []; Audio.play('squeak'); return; }
     w.hap = Math.min(hapCap(), w.hap + 7 * (G.fruits.softpaws ? 2 : 1));
+    w.bored = Math.max(0, (w.bored || 0) - 26);          // attention is enrichment
     if (w.stomach === 'digesting') w.digestT = Math.max(0.01, w.digestT - 2.5);
     w.sq = 0.26;
     if (w.state === 'sleep' || w.state === 'walk') { w.state = 'happy'; w.stateT = 1.1; }
@@ -10285,9 +10439,15 @@ const Atlas = (() => {
   function click(x, y) {
     if (travel) return;
     const s = siteAt(x, y);
-    if (!s) return;
-    if (!unlocked(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return; }
-    if (!s.mode) { Audio.play('error'); return; }
+    if (s) go(s);
+  }
+  // Driving somewhere. The map calls this when you click a pin; the phone calls
+  // it from wherever you are standing, which is the point of carrying a phone.
+  function go(s) {
+    if (travel || FX.curtaining) return false;
+    if (!s) return false;
+    if (!siteOpen(s)) { Audio.play('error'); UI.toast(s.gate && !s.gate(G) ? s.why : 'fog', 'bad'); return false; }
+    if (!s.mode) { Audio.play('error'); return false; }
     const from = whereAmI();
     travel = { site: s };
     Audio.play('rumble');
@@ -10301,11 +10461,12 @@ const Atlas = (() => {
         Main.setMode(m);
       },
     });
+    return true;
   }
   function hoverAt(x, y) {
     hover = siteAt(x, y);
     if (!hover) return null;
-    if (!unlocked(hover)) return `<b>?</b><br>${hover.gate && !hover.gate(G) ? hover.why : hover.need + ' gods must answer first'}`;
+    if (!siteOpen(hover)) return `<b>?</b><br>${hover.gate && !hover.gate(G) ? hover.why : hover.need + ' gods must answer first'}`;
     return `<b>${hover.name}</b>`;
   }
   // Where the truck is parked right now: the last place you were, or the grove.
@@ -10315,6 +10476,9 @@ const Atlas = (() => {
   }
   // How far it is, in the money of the map: a straight line scaled to km.
   const kmBetween = (a, b) => Math.max(3, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / 11));
+  // A place is open when its own gate says so and enough gods have answered.
+  // (This used to call the tool gate by mistake, so the fog was only paint.)
+  const siteOpen = (s) => !!s && (!s.gate || s.gate(G)) && Object.keys(G.summoned || {}).length >= (s.need || 0);
   function update(dt) {
     Drive.update(dt);
   }
@@ -10333,7 +10497,7 @@ const Atlas = (() => {
     }
 
     for (const s of SITES) {
-      const open = unlocked(s);
+      const open = siteOpen(s);
       const hot = hover === s && open;
       // every pin breathes; the one under the pointer bounces properly
       // a fat hop when you point at one, a slow float when you do not, and a
@@ -10352,7 +10516,7 @@ const Atlas = (() => {
       const y = f.y + Math.cos(t * f.sp * 0.8 + f.ph) * 5;
       let cover = 0;
       for (const s of SITES) {
-        if (unlocked(s)) continue;
+        if (siteOpen(s)) continue;
         const d = Math.hypot(x - s.x, y - s.y);
         if (d < 120) cover = Math.max(cover, 1 - d / 120);
       }
@@ -10366,7 +10530,7 @@ const Atlas = (() => {
     // ---- things moving in the dark ----------------------------------------
     for (const e of eyes) {                      // pairs of eyes, out under the canopy
       let lit = 1e9;
-      for (const s2 of SITES) if (unlocked(s2)) lit = Math.min(lit, Math.hypot(e.x - s2.x, e.y - s2.y));
+      for (const s2 of SITES) if (siteOpen(s2)) lit = Math.min(lit, Math.hypot(e.x - s2.x, e.y - s2.y));
       if (lit < 54) { e.on *= 0.9; continue; }   // they keep clear of the places you know
       e.on = Math.sin(t * e.sp + e.ph) > 0.93 ? 1 : e.on * 0.92;
       if (e.on < 0.05) continue;
@@ -10399,7 +10563,7 @@ const Atlas = (() => {
     g.save();
     g.globalCompositeOperation = 'screen';
     for (const s2 of SITES) {
-      if (!unlocked(s2)) continue;
+      if (!siteOpen(s2)) continue;
       // a dithered warm patch, not a bullseye: hard rings read as targets here
       const oa = g.globalAlpha;
       for (let i = 5; i >= 1; i--) {
@@ -10489,7 +10653,7 @@ const Atlas = (() => {
     Font.draw(g, label, x, ly + 3, { scale: 1, color: open ? '#3c3a35' : '#8b8780', align: 'center' });
   }
 
-  return { init, enter, update, render, click, hover: hoverAt, get busy() { return !!travel; } };
+  return { init, enter, update, render, click, go, whereAmI, kmBetween, siteOpen, hover: hoverAt, get busy() { return !!travel; } };
 })();
 </script>
 
@@ -14342,7 +14506,21 @@ const Guide = (() => {
     };
   }
   function toggle() { hidden = !hidden; UI.refreshNotebook(); }
-  return { init, update, draw, state, toggle, check, poke, hit, say, get cult() { return cult; }, STEPS };
+  // The job in hand, in the shape the phone wants it: a title, the long form of
+  // what she said, where it has to happen, and what she pays for it.
+  const WHERE = {
+    weeds: 'in the grove', junk: 'in the grove', grass: 'in the grove', arrive: 'in the grove',
+    sow: 'in the grove', pick: 'in the grove', feed: 'in the grove', load: 'in the grove',
+    map: 'in the truck', mart: 'Wombat Mart, down the road', stack: 'The Great Stack, east',
+    god: 'the Ritual Site, north',
+  };
+  function current() {
+    const st = step();
+    if (!st) return null;
+    return { key: st.key, title: st.title, note: st.note, icon: st.icon, say: st.say,
+      where: WHERE[st.key] || 'in the grove', reward: REWARD[G.step] || 0, i: G.step, total: STEPS.length };
+  }
+  return { init, update, draw, state, toggle, check, poke, hit, say, current, get cult() { return cult; }, STEPS };
 })();
 </script>
 
@@ -15175,6 +15353,304 @@ const Talk = (() => {
 </script>
 
 <script>
+// ===== js/phone.js =====
+// ---- The phone ---------------------------------------------------------------
+// Everything you would otherwise have to remember lives in here: what the
+// hooded one has asked for, how each wombat is doing, what is in the beds, what
+// the sky is doing, where you can drive and what is in the purse. It opens over
+// whatever scene you are in and pauses the world while it is up, because that
+// is what a phone does to a person.
+const Phone = (() => {
+  let G = null;
+  let app = 'home';
+  let raf = 0, t = 0;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+  // ---- the apps -------------------------------------------------------------
+  const APPS = [
+    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: '#d8a52f' },
+    { key: 'herd', name: 'Herd', icon: 'wombat', tint: '#c98a6c' },
+    { key: 'map', name: 'Places', icon: 'map', tint: '#57b6c9' },
+    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: '#84bb59' },
+    { key: 'sky', name: 'Sky', icon: 't_water', tint: '#9fd8e6' },
+    { key: 'purse', name: 'Purse', icon: 'wdollar', tint: '#f5cd5c' },
+  ];
+  const TITLE = Object.fromEntries(APPS.map((a) => [a.key, a.name]));
+
+  function init(g) { G = g; }
+
+  // ---- opening and closing --------------------------------------------------
+  function open(which) {
+    if (!G) return;
+    UI.closePanels();
+    app = which || 'home';
+    $('panel-phone').hidden = false;
+    G.paused = true;
+    Audio.play('click');
+    render();
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+  function close() {
+    if ($('panel-phone').hidden) return;
+    $('panel-phone').hidden = true;
+    G.paused = false;
+    cancelAnimationFrame(raf); raf = 0;
+    Audio.play('click');
+    UI.refreshAll();
+  }
+  const isOpen = () => !$('panel-phone').hidden;
+  function toggle() { if (isOpen()) close(); else open('home'); }
+  function tick(ms) {
+    if (!isOpen()) { raf = 0; return; }
+    raf = requestAnimationFrame(tick);
+    t = ms / 1000;
+    const c = $('ph-clock');
+    if (c) c.textContent = Sky.clockText();
+    const w = $('ph-wx');
+    if (w) w.textContent = Sky.def().name;
+  }
+
+  // ---- little pieces everyone uses ------------------------------------------
+  const bar = (v, max, col) => `<div class="phbar"><i style="width:${Math.round(U.clamp(v / max, 0, 1) * 100)}%;background:${col}"></i></div>`;
+  const row = (inner, cls = '') => `<div class="phrow ${cls}">${inner}</div>`;
+  const ic = (n, cls = '') => Icons.img(n, cls);
+
+  // ---- the home screen ------------------------------------------------------
+  function home() {
+    const q = Guide.current();
+    const needs = careList();
+    const badge = { quests: q ? 1 : 0, herd: needs.length, garden: gardenJobs().length, map: 0, sky: 0, purse: 0 };
+    return `<div class="phpage">
+      <div class="phhead">
+        <b>${Sky.partOfDay().toUpperCase()}</b>
+        <span>${esc(Sky.def().blurb)}</span>
+      </div>
+      <div class="phgrid">${APPS.map((a) => `
+        <button class="phapp" data-app="${a.key}" style="--tint:${a.tint}">
+          ${ic(a.icon)}<b>${a.name}</b>
+          ${badge[a.key] ? `<i class="phdot">${badge[a.key]}</i>` : ''}
+        </button>`).join('')}</div>
+      <div class="phnote">${q ? `<b>NOW:</b> ${esc(q.title)}` : '<b>NOW:</b> whatever you like'}</div>
+    </div>`;
+  }
+
+  // ---- jobs -----------------------------------------------------------------
+  function quests() {
+    const q = Guide.current();
+    const where = q ? (q.where || 'in the grove') : '';
+    const list = G.mode === 'grove' && !G.arrived ? Grove.tasks() : [];
+    let html = '';
+    if (q) {
+      html += `<div class="phcard big">
+        <div class="phcardh">${ic(q.icon)}<b>${esc(q.title)}</b></div>
+        <p>${esc(q.note)}</p>
+        <div class="phmeta"><span>${ic('map', 'sm')} ${esc(where)}</span><span>${ic('wdollar', 'sm')} ${q.reward || 0} on the nail</span></div>
+      </div>`;
+    } else {
+      html += `<div class="phcard big"><div class="phcardh">${ic('eye')}<b>Nothing owing</b></div>
+        <p>The hooded one has run out of orders. What happens next is up to you: more land, more wombats, more gods.</p></div>`;
+    }
+    if (list.length) {
+      html += `<div class="phsub">CLEAN-UP</div>` + list.map((ts) => row(
+        `${ic(ts.icon)}<b>${esc(ts.name || ts.key)}</b><span class="phnum">${Math.round(ts.at)}/${ts.need}</span>`,
+        ts.done ? 'done' : '') + bar(ts.at, ts.need, ts.done ? '#84bb59' : '#d8a52f')).join('');
+    }
+    const jobs = gardenJobs().concat(careList());
+    if (jobs.length) {
+      html += `<div class="phsub">STANDING JOBS</div>` + jobs.map((j) => row(`${ic(j.icon)}<b>${esc(j.what)}</b><span class="phdim">${esc(j.where)}</span>`)).join('');
+    }
+    return html;
+  }
+
+  // ---- the herd -------------------------------------------------------------
+  function herd() {
+    if (!G.wombats.length) return `<div class="phcard big"><div class="phcardh">${ic('wombat')}<b>Nobody yet</b></div><p>Clean the grove and one will come. After that the mart has a cage of them.</p></div>`;
+    return G.wombats.map((w, i) => {
+      const fur = Sprites.furOf(w.pelt);
+      const age = Sprites.AGE[w.age].name;
+      const care = careOf(w);
+      return `<div class="phcard wom" data-wom="${w.id}">
+        <div class="phcardh">${ic('wombat')}<b>${esc(w.name)}</b><span class="phdim">${esc(fur.name)} ${esc(age)}</span></div>
+        <div class="phstat"><span>happy</span>${bar(w.hap, 100, w.hap > 60 ? '#84bb59' : w.hap > 30 ? '#d8a52f' : '#b8412c')}</div>
+        <div class="phstat"><span>fed</span>${bar(w.stomach === 'empty' ? 6 : 100, 100, '#e0763a')}</div>
+        <div class="phstat"><span>water</span>${bar(100 - (w.thirst || 0), 100, '#57b6c9')}</div>
+        <div class="phstat"><span>play</span>${bar(100 - (w.bored || 0), 100, '#b98ef0')}</div>
+        ${care.length ? `<div class="phwant">${care.map((c) => `<em>${esc(c)}</em>`).join('')}</div>` : '<div class="phok">wants for nothing</div>'}
+        <div class="phacts"><button class="phbtn" data-find="${w.id}">FIND HER</button><button class="phbtn" data-papers="${w.id}">PAPERS</button></div>
+      </div>`;
+    }).join('');
+  }
+  // what one animal is short of right now
+  function careOf(w) {
+    const out = [];
+    if (w.stomach === 'empty' && w.age !== 'baby') out.push('hungry');
+    if ((w.thirst || 0) > 60) out.push('thirsty');
+    if ((w.bored || 0) > 60) out.push('bored');
+    if (w.hap < 30) out.push('miserable');
+    if (w.gest > 0) out.push('expecting');
+    return out;
+  }
+  function careList() {
+    const out = [];
+    for (const w of G.wombats) {
+      for (const c of careOf(w)) {
+        if (c === 'expecting') continue;
+        out.push({ icon: c === 'thirsty' ? 't_water' : c === 'bored' ? 'heart' : 't_food', what: `${w.name} is ${c}`, where: c === 'thirsty' ? 'dig a pond or fill the trough' : c === 'bored' ? 'put a toy out, or go and pet her' : 'put a bowl down' });
+      }
+    }
+    return out;
+  }
+
+  // ---- the garden -----------------------------------------------------------
+  function gardenJobs() {
+    const out = [];
+    if (typeof World === 'undefined' || !World.crops) return out;
+    for (const c of World.crops) {
+      const def = CROP_BY_KEY[c.k];
+      if (!def) continue;
+      if (World.kindOf(c) === 'tree') {
+        if (c.wild > 1) out.push({ icon: 't_sickle', what: `${def.name} wants pruning`, where: 'in the beds' });
+        else if (c.fr > 0) out.push({ icon: 't_food', what: `${def.name} has ${c.fr} fruit on it`, where: 'pick it with the hand' });
+        else if (c.thirst > 50) out.push({ icon: 't_water', what: `${def.name} is dry`, where: 'in the beds' });
+      } else if (World.ripe(c)) out.push({ icon: 't_food', what: `${def.name} is ready`, where: 'pick it with the hand' });
+      else if (def.kind === 'magic' && c.stall > 3) out.push({ icon: 'c_runeberry', what: `${def.name} is sulking`, where: MAGIC_NEED[def.need] || 'it wants something' });
+      else if (c.thirst > 26) out.push({ icon: 't_water', what: `${def.name} is thirsty`, where: 'in the beds' });
+    }
+    return out.slice(0, 12);
+  }
+  function garden() {
+    const beds = World.crops || [];
+    const by = { crop: 0, tree: 0, magic: 0 };
+    for (const c of beds) by[World.kindOf(c)]++;
+    const jobs = gardenJobs();
+    let html = `<div class="phcard big"><div class="phcardh">${ic('c_broadleaf')}<b>${beds.length} in the ground</b></div>
+      <div class="phmeta"><span>${by.crop} crops</span><span>${by.tree} trees</span><span>${by.magic} magical</span></div></div>`;
+    if (jobs.length) html += `<div class="phsub">WANTS DOING</div>` + jobs.map((j) => row(`${ic(j.icon)}<b>${esc(j.what)}</b><span class="phdim">${esc(j.where)}</span>`)).join('');
+    const seeds = CROPS.filter((c) => (G.seeds[c.key] || 0) > 0);
+    if (seeds.length) {
+      html += `<div class="phsub">IN THE SEED TIN</div>` + seeds.map((c) => row(
+        `${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${G.seeds[c.key]}</span><span class="phdim">${esc(c.kind === 'tree' ? `${c.grow}s to establish` : c.kind === 'magic' ? MAGIC_NEED[c.need] : `${c.grow}s`)}</span>`)).join('');
+    }
+    const growing = CROPS.filter((c) => beds.some((b) => b.k === c.key));
+    if (growing.length) {
+      html += `<div class="phsub">WHAT IS IN THE BEDS</div>` + growing.map((c) => {
+        const mine = beds.filter((b) => b.k === c.key);
+        const ready = mine.filter((b) => World.ripe(b)).length;
+        return row(`${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${mine.length}</span><span class="phdim">${ready ? `${ready} ready` : esc(PLANT_KINDS[c.kind].blurb)}</span>`);
+      }).join('');
+    }
+    return html;
+  }
+
+  // ---- places ---------------------------------------------------------------
+  const SITE_BLURB = {
+    grove: 'Your land. The wombats, the beds and the truck.',
+    mart: 'Shaz on the till. Hardware, furniture, drinks, a gumball machine and a cage of wombats.',
+    nursery: 'Groot. Seed of all three kinds, garden tools, a trough and a nest.',
+    ritual: 'Stack an offering and call one of the ten down.',
+    stack: 'Pile the cubes. The crowd tips for as long as it stands.',
+    quarry: 'Shut. Something is still down there.',
+    lake: 'Still water, a long way north.',
+    deep: 'Nobody goes in. Nobody comes out saying much.',
+  };
+  function places() {
+    const here = Atlas.whereAmI();
+    return SITES.map((s) => {
+      const open = Atlas.siteOpen(s);
+      const km = Atlas.kmBetween(here, s);
+      const now = s.mode === G.mode || (s.key === 'grove' && G.mode === 'grove');
+      const why = !open ? (s.gate && !s.gate(G) ? s.why : `${s.need} gods must answer first`) : '';
+      return `<div class="phcard site ${open ? '' : 'shut'}">
+        <div class="phcardh">${ic(s.icon)}<b>${esc(open ? s.name : '???')}</b><span class="phdim">${now ? 'you are here' : km + ' km'}</span></div>
+        <p>${esc(open ? (SITE_BLURB[s.key] || '') : why)}</p>
+        ${open && s.mode && !now ? `<div class="phacts"><button class="phbtn go" data-go="${s.key}">DRIVE OVER</button></div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // ---- the sky --------------------------------------------------------------
+  function sky() {
+    const d = Sky.def();
+    const light = Math.round(Sky.light() * 100);
+    return `<div class="phcard big">
+        <div class="phcardh">${ic(d.icon)}<b>${esc(d.name)}</b><span class="phdim">${Sky.clockText()}</span></div>
+        <p>${esc(d.blurb)}</p>
+        <div class="phstat"><span>daylight</span>${bar(light, 100, '#f5cd5c')}</div>
+        <div class="phstat"><span>cloud</span>${bar(Sky.cover() * 100, 100, '#8b849c')}</div>
+        <div class="phstat"><span>rain</span>${bar(Sky.wet() * 100, 100, '#57b6c9')}</div>
+      </div>
+      <div class="phsub">WHAT IT MEANS</div>
+      ${row(`${ic('t_water')}<b>Rain waters the beds</b><span class="phdim">for nothing</span>`)}
+      ${row(`${ic('c_runeberry')}<b>Some seed only grows at night</b><span class="phdim">moonbell, runeberry</span>`)}
+      ${row(`${ic('c_emberleaf')}<b>Some seed hates the wet</b><span class="phdim">emberleaf</span>`)}
+      <div class="phsub">THE DAY</div>
+      ${row(`<b>${esc(Sky.partOfDay())}</b><span class="phdim">a full day is twelve minutes</span>`)}`;
+  }
+
+  // ---- the purse ------------------------------------------------------------
+  function purse() {
+    const offs = OFFER_ORDER.filter((k) => (G.offerings[k] || 0) + (G.blessed[k] || 0) > 0);
+    const food = CROPS.filter((c) => (G.food[c.key] || 0) > 0);
+    let html = `<div class="phcard big"><div class="phcardh">${ic('wdollar')}<b>${U.fmt(G.wd)} W$</b></div>
+      <div class="phmeta"><span>earned ${U.fmt(Math.round(G.stats.earned || 0))}</span><span>${G.wombats.length} in the herd</span></div></div>`;
+    if (offs.length) {
+      html += `<div class="phsub">IN THE TRUCK</div>` + offs.map((k) => row(
+        `${ic(OFFERINGS[k].icon)}<b>${esc(OFFERINGS[k].name)}</b><span class="phnum">${(G.offerings[k] || 0) + (G.blessed[k] || 0)}</span><span class="phdim">the hooded one buys these</span>`)).join('');
+    }
+    if (food.length) {
+      html += `<div class="phsub">IN THE LARDER</div>` + food.map((c) => row(
+        `${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${G.food[c.key]}</span><span class="phdim">+${c.hap} happy</span>`)).join('');
+    }
+    if (!offs.length && !food.length) html += `<div class="phsub">EMPTY</div>${row('<b>Nothing in the back and nothing in the larder.</b>')}`;
+    return html;
+  }
+
+  // ---- drawing --------------------------------------------------------------
+  const BODY = { home, quests, herd, map: places, garden, sky, purse };
+  function render() {
+    const scr = $('ph-screen');
+    if (!scr) return;
+    $('ph-title').textContent = app === 'home' ? 'WOMBAT OS' : TITLE[app].toUpperCase();
+    $('ph-back').hidden = app === 'home';
+    scr.className = 'phscreen app-' + app;
+    scr.innerHTML = (BODY[app] || home)();
+    scr.scrollTop = 0;
+    wire(scr);
+  }
+  function wire(scr) {
+    scr.querySelectorAll('[data-app]').forEach((b) => b.onclick = () => { app = b.dataset.app; Audio.play('click'); render(); });
+    scr.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => {
+      const s = SITES.find((x) => x.key === b.dataset.go);
+      close();
+      if (G.mode !== 'map') { Main.setMode('map'); setTimeout(() => Atlas.go(s), 260); }
+      else Atlas.go(s);
+    });
+    scr.querySelectorAll('[data-find]').forEach((b) => b.onclick = () => {
+      const w = G.wombats.find((x) => x.id === b.dataset.find);
+      if (!w) return;
+      close();
+      if (G.mode !== 'grove') { Main.setMode('grove'); }
+      setTimeout(() => { Grove.panTo(w.x); FX.comic(w.x, w.y - 40, 'HERE!', { ink: '#d8f0a0', edge: '#5d9440', life: 0.9 }); }, 200);
+    });
+    scr.querySelectorAll('[data-papers]').forEach((b) => b.onclick = () => {
+      const w = G.wombats.find((x) => x.id === b.dataset.papers);
+      if (w) { close(); UI.openWombat(w); }
+    });
+  }
+  function key(e) {
+    if (!isOpen()) return false;
+    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (app === 'home') close(); else { app = 'home'; render(); } return true; }
+    const n = parseInt(e.key, 10) - 1;
+    if (app === 'home' && n >= 0 && n < APPS.length) { app = APPS[n].key; Audio.play('click'); render(); return true; }
+    return false;
+  }
+
+  return { init, open, close, toggle, isOpen, render, key, gardenJobs, careOf, careList, APPS };
+})();
+</script>
+
+<script>
 // ===== js/ui.js =====
 // ---- Interface: money, a tool dock, and almost nothing else --------------
 const UI = (() => {
@@ -15199,6 +15675,11 @@ const UI = (() => {
     lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
     $('b-back').hidden = G.mode === 'grove';
+    const dot = $('b-phone-dot');
+    if (dot) {
+      const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length : 0;
+      dot.hidden = jobs === 0;
+    }
     refreshList();
     refreshNotebook();
   }
@@ -15489,7 +15970,7 @@ const UI = (() => {
   function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat'];
+  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat', 'panel-phone'];
   function openPanel(id) {
     closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click');
     if (id === 'panel-basket') renderBasket();
@@ -15681,10 +16162,18 @@ const UI = (() => {
       setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'RESET'; armed = 0; } }, 4100);
     };
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
+    // the phone: a button in the corner, and P from anywhere
+    $('b-phone').onclick = () => Phone.toggle();
+    $('ph-close').onclick = () => Phone.close();
+    $('ph-home').onclick = () => Phone.open('home');
+    $('ph-back').onclick = () => Phone.open('home');
     $('b-summon').onclick = () => Ritual.summon();
     $('b-unstage').onclick = () => Ritual.clearStage();
     document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
       if (Talk.isOpen() && Talk.key(e)) { e.preventDefault(); return; }
+      if (Phone.isOpen() && Phone.key(e)) { e.preventDefault(); return; }
+      if ((e.key === 'p' || e.key === 'P') && G.mode !== 'intro' && G.mode !== 'menu' && !Talk.isOpen()) { Phone.toggle(); e.preventDefault(); return; }
       if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
     });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
@@ -16461,6 +16950,9 @@ const Main = (() => {
       for (const w of s.wombats) {
         w.pets = []; w.state = 'idle'; w.stateT = 1; w.sq = 0; w.anim = U.rand(0, 9); w.chew = 0; w.claim = null;
         if (!w.traits) w.traits = { gut: 1, calm: 1, luck: 1 };
+        if (typeof w.thirst !== 'number') w.thirst = U.rand(0, 30);
+        if (typeof w.bored !== 'number') w.bored = U.rand(0, 30);
+        w.turnT = 0;
         if (!w.pelt || !FUR_BY_KEY[w.pelt]) w.pelt = 'brown';
         if (!w.age) w.age = 'adult';
         if (w.stomach === 'ready') { w.stomach = 'digesting'; w.digestT = 0.5; w.digestTotal = Math.max(1, w.digestTotal || 1); }
@@ -16510,7 +17002,7 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       Sky.init(G); World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
+      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
@@ -16792,7 +17284,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

@@ -48,6 +48,9 @@ const Main = (() => {
       for (const w of s.wombats) {
         w.pets = []; w.state = 'idle'; w.stateT = 1; w.sq = 0; w.anim = U.rand(0, 9); w.chew = 0; w.claim = null;
         if (!w.traits) w.traits = { gut: 1, calm: 1, luck: 1 };
+        if (typeof w.thirst !== 'number') w.thirst = U.rand(0, 30);
+        if (typeof w.bored !== 'number') w.bored = U.rand(0, 30);
+        w.turnT = 0;
         if (!w.pelt || !FUR_BY_KEY[w.pelt]) w.pelt = 'brown';
         if (!w.age) w.age = 'adult';
         if (w.stomach === 'ready') { w.stomach = 'digesting'; w.digestT = 0.5; w.digestTotal = Math.max(1, w.digestTotal || 1); }
@@ -97,7 +100,7 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       Sky.init(G); World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
+      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
@@ -379,7 +382,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

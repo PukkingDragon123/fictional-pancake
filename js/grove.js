@@ -260,10 +260,24 @@ const Grove = (() => {
     }
     if (arrival) { updateArrival(dt); return; }
     const cap = hapCap(), decay = 0.42;
+    const charm = World.magic();            // what the magical beds are doing for the herd
     for (const w of G.wombats) {
       w.anim += dt;
       if (w.turnT > 0) w.turnT -= dt;
-      w.hap = U.clamp(w.hap - (decay / (w.traits.calm || 1)) * dt, 0, cap);
+      // ---- what an animal needs -------------------------------------------
+      // Three things, and they all creep back up: water, something to do, and
+      // food. Ignore any of them and the happiness runs out faster.
+      if (w.thirst == null) w.thirst = U.rand(0, 25);
+      if (w.bored == null) w.bored = U.rand(0, 25);
+      const dry = Sky.wet() > 0 ? 0.55 : 1;
+      w.thirst = U.clamp(w.thirst + dt * 0.5 * dry, 0, 100);
+      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42), 0, 100);
+      // enrichment: a nest, a paddling pool, a hill or a friend all count
+      if (G.decor.nest || G.decor.pool || Wild.mounds.length || G.wombats.length > 1) {
+        if (w.state !== 'sleep' && Math.random() < dt * 0.5) w.bored = Math.max(0, w.bored - 1.6);
+      }
+      const want = (w.thirst > 70 ? 1 : 0) + (w.bored > 70 ? 1 : 0) + (w.stomach === 'empty' && w.age !== 'baby' ? 1 : 0);
+      w.hap = U.clamp(w.hap - ((decay + want * 0.34) / (w.traits.calm || 1)) * dt * (charm.lull ? 0.7 : 1), 0, cap);
       if (w.grump > 0) w.grump -= dt;
       if (w.age !== 'adult') {
         w.ageT += dt * (G.fruits.longlife ? 2 : 1);
@@ -361,10 +375,12 @@ const Grove = (() => {
         if (d < pd.r * 0.82 && d > 0.01) {
           const push = (pd.r * 0.82 - d) * dt * 5;
           w.x += (dx / d) * push; w.y += (dy / d) * push * 0.45;
-          if (Math.random() < dt * 1.4) w.hap = Math.min(cap, w.hap + 0.5);      // a drink
+          w.thirst = Math.max(0, w.thirst - dt * 26);                            // a drink
+          if (Math.random() < dt * 1.4) w.hap = Math.min(cap, w.hap + 0.5);
         }
       }
-      if (Math.random() < dt * 0.5 && Wild.onMound(w.x, w.y)) w.hap = Math.min(cap, w.hap + 0.4);
+      if (Math.random() < dt * 0.5 && Wild.onMound(w.x, w.y)) { w.hap = Math.min(cap, w.hap + 0.4); w.bored = Math.max(0, w.bored - 2); }
+      if (Sky.wet() > 0.5 && Math.random() < dt * 0.6) w.thirst = Math.max(0, w.thirst - 2);   // rain in the mouth
     }
     for (let i = 0; i < G.wombats.length; i++) for (let j = i + 1; j < G.wombats.length; j++) {
       const a = G.wombats[i], b = G.wombats[j], dx = b.x - a.x;
@@ -503,6 +519,7 @@ const Grove = (() => {
     w.stomach = 'digesting'; w.food = key;
     w.digestTotal = def.grow * 0.2 + 5; w.digestT = w.digestTotal;
     w.hap = Math.min(hapCap(), w.hap + def.hap);
+    w.thirst = Math.max(0, (w.thirst || 0) - (def.kind === 'tree' ? 22 : 9));   // juice in it
     w.state = 'eat'; w.stateT = 1.9; w.sq = 0.32; w.chew = 1.9;
     G.stats.fed++;
     Audio.play('munch');
@@ -528,6 +545,7 @@ const Grove = (() => {
     w.pets.push(G.time);
     if (w.pets.length > 7) { w.grump = 5; w.hap = Math.max(0, w.hap - 14); w.pets = []; Audio.play('squeak'); return; }
     w.hap = Math.min(hapCap(), w.hap + 7 * (G.fruits.softpaws ? 2 : 1));
+    w.bored = Math.max(0, (w.bored || 0) - 26);          // attention is enrichment
     if (w.stomach === 'digesting') w.digestT = Math.max(0.01, w.digestT - 2.5);
     w.sq = 0.26;
     if (w.state === 'sleep' || w.state === 'walk') { w.state = 'happy'; w.stateT = 1.1; }
