@@ -42,8 +42,27 @@ const FX = (() => {
   // the screen, hold, then drop out the bottom. Nothing to read, nothing to
   // wait for — it is over in under half a second each way.
   function trees(onShut, onDone) {
-    curtain = { t: 0, shut: 0.28, hold: 0.1, open: 0.24, fired: false, onShut, onDone };
+    curtain = { t: 0, shut: 0.44, hold: 0.22, open: 0.42, fired: false, onShut, onDone };
   }
+  // ---- the curtain ---------------------------------------------------------
+  // Going anywhere in this game is going through cloud. Two banks of it roll in
+  // from either side, meet in the middle, hold for a beat with motes drifting
+  // through, and part again. Hard-edged puffs, no gradients, and a warm wash
+  // over the top so the whole thing feels like falling asleep somewhere soft.
+  const PUFF = [];
+  for (let i = 0; i < 46; i++) {
+    const r = Art.rng(4400 + i * 17);
+    PUFF.push({
+      side: i % 2 ? 1 : -1,
+      y: r() * 1.12 - 0.06,          // 0..1 of the screen height
+      rx: 0.1 + r() * 0.22,          // as a fraction of the width
+      ry: 0.09 + r() * 0.18,
+      lead: r() * 0.34,              // how far ahead of the bank it runs
+      drift: 0.3 + r() * 0.9,
+      tone: Math.floor(r() * 3),
+    });
+  }
+  const CLOUD = ['#f6f0fb', '#e4dcf0', '#cfc6e2'];
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
@@ -53,19 +72,44 @@ const FX = (() => {
     else { cover = 1 - (c.t - c.shut - c.hold) / c.open; phase = 'out'; }
     cover = U.clamp(cover, 0, 1);
     if (cover <= 0) return;
-    const e = phase === 'in' ? U.easeOut(cover) : U.easeIn(cover);
-    const cols = Math.ceil(W / CELL);
-    for (let i = 0; i < cols; i++) {
-      // each column is a beat behind its neighbour, so the edge is a stair
-      const lag = ((i * 5) % cols) / cols * 0.22;
-      const k = U.clamp((e - lag) / (1 - 0.22), 0, 1);
-      if (k <= 0) continue;
-      const h = Math.ceil(H * k);
-      const y = phase === 'in' ? 0 : H - h;
-      g.fillStyle = '#07060e';
-      g.fillRect(i * CELL, y, CELL, h);
-      g.fillStyle = '#241a34';                 // one lit pixel row on the leading edge
-      g.fillRect(i * CELL, phase === 'in' ? y + h - 3 : y, CELL, 3);
+    const e = phase === 'in' ? U.easeOut(cover) : U.easeInOut(cover);
+    const t = c.t;
+    // the wash: the world going soft behind the weather
+    g.save();
+    g.globalAlpha = Math.min(1, e * e * 1.15);
+    g.fillStyle = '#efe8f6'; g.fillRect(0, 0, W, H);
+    g.restore();
+    // three passes over the same puffs, darkest first, so each one has a lip
+    for (let pass = 0; pass < 3; pass++) {
+      const shrink = pass * 0.055;
+      g.fillStyle = CLOUD[2 - pass];
+      for (const p of PUFF) {
+        const push = U.clamp(e * (1 + p.lead), 0, 1.35);
+        const home = p.side < 0 ? -0.24 + push * 0.92 : 1.24 - push * 0.92;
+        const x = (home + Math.sin(t * p.drift + p.y * 9) * 0.012) * W;
+        const rx = (p.rx - shrink * 0.5) * W * (0.72 + e * 0.5);
+        const ry = (p.ry - shrink * 0.5) * H * (0.72 + e * 0.5);
+        if (rx <= 1 || ry <= 1) continue;
+        if (pass === 0) Art.ell(g, x, p.y * H, rx + 2, ry + 2, '#b6abcf');   // one ink lip underneath
+        Art.ell(g, x, p.y * H - (pass ? pass * ry * 0.12 : 0), rx, ry, CLOUD[2 - pass]);
+      }
+    }
+    // motes, drifting through the thick of it
+    if (e > 0.5) {
+      const a = (e - 0.5) / 0.5;
+      for (let i = 0; i < 40; i++) {
+        const r = Art.rng(900 + i)();
+        const mx = ((r * W) + Math.sin(t * (0.4 + r) + i) * 26) % W;
+        const my = ((r * H * 1.7) - t * (8 + r * 22)) % H;
+        g.fillStyle = `rgba(255,252,240,${(a * (0.25 + r * 0.45)).toFixed(2)})`;
+        const sz = r > 0.7 ? 2 : 1;
+        g.fillRect(Math.round(mx), Math.round((my + H) % H), sz, sz);
+      }
+      // and a soft warm heart to it, so the middle of the transition glows
+      g.save();
+      g.globalAlpha = a * 0.5;
+      Art.glow(g, W * 0.5, H * 0.44, H * 0.8, '#fff3d8', 0.5, 8);
+      g.restore();
     }
   }
 

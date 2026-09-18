@@ -138,7 +138,7 @@ const Main = (() => {
     G.visited[mode] = true;
     if (mode !== 'map') G.lastSite = mode;
     UI.setMode(mode);
-    FX.clear(); FX.flash('#120e14', 0.5);
+    FX.clear(); FX.flash('#efe8f6', 0.42);   // scenes change through a breath of cloud, not a blackout
     if (mode !== 'shop' && mode !== 'nursery') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
     if (mode === 'intro') Intro.enter();

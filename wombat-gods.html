@@ -6195,8 +6195,27 @@ const FX = (() => {
   // the screen, hold, then drop out the bottom. Nothing to read, nothing to
   // wait for — it is over in under half a second each way.
   function trees(onShut, onDone) {
-    curtain = { t: 0, shut: 0.28, hold: 0.1, open: 0.24, fired: false, onShut, onDone };
+    curtain = { t: 0, shut: 0.44, hold: 0.22, open: 0.42, fired: false, onShut, onDone };
   }
+  // ---- the curtain ---------------------------------------------------------
+  // Going anywhere in this game is going through cloud. Two banks of it roll in
+  // from either side, meet in the middle, hold for a beat with motes drifting
+  // through, and part again. Hard-edged puffs, no gradients, and a warm wash
+  // over the top so the whole thing feels like falling asleep somewhere soft.
+  const PUFF = [];
+  for (let i = 0; i < 46; i++) {
+    const r = Art.rng(4400 + i * 17);
+    PUFF.push({
+      side: i % 2 ? 1 : -1,
+      y: r() * 1.12 - 0.06,          // 0..1 of the screen height
+      rx: 0.1 + r() * 0.22,          // as a fraction of the width
+      ry: 0.09 + r() * 0.18,
+      lead: r() * 0.34,              // how far ahead of the bank it runs
+      drift: 0.3 + r() * 0.9,
+      tone: Math.floor(r() * 3),
+    });
+  }
+  const CLOUD = ['#f6f0fb', '#e4dcf0', '#cfc6e2'];
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
@@ -6206,19 +6225,44 @@ const FX = (() => {
     else { cover = 1 - (c.t - c.shut - c.hold) / c.open; phase = 'out'; }
     cover = U.clamp(cover, 0, 1);
     if (cover <= 0) return;
-    const e = phase === 'in' ? U.easeOut(cover) : U.easeIn(cover);
-    const cols = Math.ceil(W / CELL);
-    for (let i = 0; i < cols; i++) {
-      // each column is a beat behind its neighbour, so the edge is a stair
-      const lag = ((i * 5) % cols) / cols * 0.22;
-      const k = U.clamp((e - lag) / (1 - 0.22), 0, 1);
-      if (k <= 0) continue;
-      const h = Math.ceil(H * k);
-      const y = phase === 'in' ? 0 : H - h;
-      g.fillStyle = '#07060e';
-      g.fillRect(i * CELL, y, CELL, h);
-      g.fillStyle = '#241a34';                 // one lit pixel row on the leading edge
-      g.fillRect(i * CELL, phase === 'in' ? y + h - 3 : y, CELL, 3);
+    const e = phase === 'in' ? U.easeOut(cover) : U.easeInOut(cover);
+    const t = c.t;
+    // the wash: the world going soft behind the weather
+    g.save();
+    g.globalAlpha = Math.min(1, e * e * 1.15);
+    g.fillStyle = '#efe8f6'; g.fillRect(0, 0, W, H);
+    g.restore();
+    // three passes over the same puffs, darkest first, so each one has a lip
+    for (let pass = 0; pass < 3; pass++) {
+      const shrink = pass * 0.055;
+      g.fillStyle = CLOUD[2 - pass];
+      for (const p of PUFF) {
+        const push = U.clamp(e * (1 + p.lead), 0, 1.35);
+        const home = p.side < 0 ? -0.24 + push * 0.92 : 1.24 - push * 0.92;
+        const x = (home + Math.sin(t * p.drift + p.y * 9) * 0.012) * W;
+        const rx = (p.rx - shrink * 0.5) * W * (0.72 + e * 0.5);
+        const ry = (p.ry - shrink * 0.5) * H * (0.72 + e * 0.5);
+        if (rx <= 1 || ry <= 1) continue;
+        if (pass === 0) Art.ell(g, x, p.y * H, rx + 2, ry + 2, '#b6abcf');   // one ink lip underneath
+        Art.ell(g, x, p.y * H - (pass ? pass * ry * 0.12 : 0), rx, ry, CLOUD[2 - pass]);
+      }
+    }
+    // motes, drifting through the thick of it
+    if (e > 0.5) {
+      const a = (e - 0.5) / 0.5;
+      for (let i = 0; i < 40; i++) {
+        const r = Art.rng(900 + i)();
+        const mx = ((r * W) + Math.sin(t * (0.4 + r) + i) * 26) % W;
+        const my = ((r * H * 1.7) - t * (8 + r * 22)) % H;
+        g.fillStyle = `rgba(255,252,240,${(a * (0.25 + r * 0.45)).toFixed(2)})`;
+        const sz = r > 0.7 ? 2 : 1;
+        g.fillRect(Math.round(mx), Math.round((my + H) % H), sz, sz);
+      }
+      // and a soft warm heart to it, so the middle of the transition glows
+      g.save();
+      g.globalAlpha = a * 0.5;
+      Art.glow(g, W * 0.5, H * 0.44, H * 0.8, '#fff3d8', 0.5, 8);
+      g.restore();
     }
   }
 
@@ -15752,64 +15796,53 @@ const Menu = (() => {
   const eyes = [];
   for (let i = 0; i < 10; i++) eyes.push({ x: 24 + R() * (VW - 48), y: 150 + R() * 92, ph: R() * TAU, on: 0 });
 
-  // ---- the wombat who is doing something about it -------------------------
-  // A loop: trots in, squats, strains, drops a cube, trots off. The cube stays
-  // where it fell until the next lap, so the clearing slowly fills up.
-  const cubes = [];
-  const wb = { x: 260, y: 340, dir: 1, state: 'walk', tx: 340, st: 0, anim: 0 };
+  // ---- three wombats, having a nice time ----------------------------------
+  // Nobody is working. One grazes its way across the clearing, one has gone to
+  // sleep on the warm side of a mound, and one is up and about looking at
+  // things. They each run a little loop of their own.
+  const MOB = [
+    { x: 250, y: 318, dir: 1, tx: 330, state: 'walk', st: 0, anim: 0, pelt: 'brown', sc: 1.5, home: [200, 380] },
+    { x: 330, y: 286, dir: -1, tx: 300, state: 'sleep', st: 0, anim: 0, pelt: 'sand', sc: 1.3, home: [240, 400] },
+    { x: 150, y: 348, dir: 1, tx: 220, state: 'graze', st: 0, anim: 0, pelt: 'grey', sc: 1.6, home: [70, 300] },
+  ];
+  const hearts = [];
   function wombatLoop(dt) {
-    wb.anim += dt * 9;
-    wb.st += dt;
-    if (wb.state === 'walk') {
-      const dx = wb.tx - wb.x;
-      wb.dir = dx < 0 ? -1 : 1;
-      wb.x += Math.sign(dx) * 24 * dt;
-      if (Math.abs(dx) < 4) { wb.state = 'squat'; wb.st = 0; }
-    } else if (wb.state === 'squat' && wb.st > 1.1) { wb.state = 'strain'; wb.st = 0; }
-    else if (wb.state === 'strain' && wb.st > 1.3) {
-      wb.state = 'drop'; wb.st = 0;
-      cubes.push({ x: wb.x - wb.dir * 13, y: wb.y, z: 6, vz: -26, t: 0, sq: 0.5 });
-      if (cubes.length > 5) cubes.shift();
-    } else if (wb.state === 'drop' && wb.st > 0.7) {
-      wb.state = 'walk'; wb.st = 0;
-      wb.tx = 210 + R() * 190; wb.y = 330 + R() * 18;
+    for (const w of MOB) {
+      w.anim += dt * (w.state === 'walk' ? 12 : 5);
+      w.st += dt;
+      if (w.state === 'walk') {
+        const dx = w.tx - w.x;
+        w.dir = dx < 0 ? -1 : 1;
+        w.x += Math.sign(dx) * 22 * dt;
+        if (Math.abs(dx) < 4) { w.state = U.pick(['graze', 'idle', 'graze', 'happy']); w.st = 0; }
+      } else if (w.st > (w.state === 'sleep' ? 9 : w.state === 'happy' ? 1.4 : 4 + Math.random() * 4)) {
+        w.st = 0;
+        if (Math.random() < 0.25) { w.state = 'sleep'; }
+        else { w.state = 'walk'; w.tx = w.home[0] + Math.random() * (w.home[1] - w.home[0]); w.y = 284 + Math.random() * 66; }
+      }
+      if (w.state === 'happy' && Math.random() < dt * 5) hearts.push({ x: w.x, y: w.y - 26, t: 0 });
+      if (w.state === 'graze' && Math.random() < dt * 2.2) hearts.push({ x: w.x + w.dir * 14, y: w.y - 6, t: 0, leaf: 1 });
     }
-    for (const c of cubes) {
-      c.t += dt;
-      if (c.z > 0 || c.vz < 0) { c.vz += 180 * dt; c.z += c.vz * dt; if (c.z >= 0) { c.z = 0; c.vz = 0; c.sq = 0.4; } }
-      c.sq = Math.max(0, c.sq - dt * 2.4);
-    }
+    for (let i = hearts.length - 1; i >= 0; i--) { hearts[i].t += dt; if (hearts[i].t > 1.2) hearts.splice(i, 1); }
   }
   function drawWombat(g) {
-    const pose = wb.state === 'walk' ? 'walk' : wb.state === 'drop' ? 'happy' : 'sit';
-    const f = Math.floor(wb.anim);
-    const s = 1.5;
-    // a little effort while it works
-    const push = wb.state === 'strain' ? Math.sin(t * 22) * 0.9 : 0;
-    Sprites.shadow(g, wb.x, wb.y, pose, f, 'brown', wb.dir, 'adult', s);
-    g.save();
-    g.translate(push, 0);
-    Sprites.blit(g, wb.x, wb.y, pose, f, 'brown', wb.dir, 'adult', s);
-    g.restore();
-    if (wb.state === 'strain') {
-      const a = 0.4 + 0.4 * Math.sin(t * 14);
-      Font.draw(g, '!', wb.x - wb.dir * 16, wb.y - 30, { scale: 1, color: `rgba(255,214,150,${a.toFixed(2)})`, align: 'center' });
-      Font.draw(g, '!', wb.x - wb.dir * 21, wb.y - 26, { scale: 1, color: `rgba(255,214,150,${(a * 0.6).toFixed(2)})`, align: 'center' });
-    }
-    for (const c of cubes) {
-      const sq = c.sq;
-      g.save();
-      g.translate(c.x, c.y + c.z);
-      g.fillStyle = 'rgba(0,0,0,0.4)'; Art.ell(g, 0, 1, 8, 3);
-      g.scale(1 + sq * 0.5, 1 - sq * 0.45);
-      Sprites.drawCube(g, OFFERINGS.plain, 16, 16, { face: 'happy' });
-      g.restore();
-      if (c.t < 0.4) {                                    // a puff where it landed
-        const a = 1 - c.t / 0.4;
-        g.fillStyle = `rgba(150,130,100,${(a * 0.5).toFixed(2)})`;
-        Art.ell(g, c.x - 9, c.y + 1, 7 * (1 + c.t * 3), 3, g.fillStyle);
-        Art.ell(g, c.x + 9, c.y + 1, 6 * (1 + c.t * 3), 3, g.fillStyle);
+    for (const w of MOB.slice().sort((a, b) => a.y - b.y)) {
+      const f = Math.floor(w.anim);
+      Sprites.shadow(g, w.x, w.y, w.state, f, w.pelt, w.dir, 'adult', w.sc);
+      Sprites.blit(g, w.x, w.y, w.state, f, w.pelt, w.dir, 'adult', w.sc);
+      if (w.state === 'sleep') {
+        const k = (t * 0.5) % 1;
+        g.globalAlpha = 1 - k;
+        Font.draw(g, 'z', w.x + 20 + k * 8, w.y - 32 - k * 14, { scale: 1, color: '#e6d6ff' });
+        g.globalAlpha = 1;
       }
+    }
+    for (const h of hearts) {
+      const a = 1 - h.t / 1.2;
+      g.globalAlpha = a;
+      if (h.leaf) { g.fillStyle = '#84bb59'; g.fillRect(Math.round(h.x), Math.round(h.y - h.t * 14), 2, 2); }
+      else Icons.blit(g, 'heart', h.x - 5, h.y - h.t * 22, 0.7);
+      g.globalAlpha = 1;
     }
   }
 
@@ -15817,274 +15850,297 @@ const Menu = (() => {
   function setSave(v) { hasSave = !!v; }
   function enter() { t = 0; page = 'home'; confirm = null; hover = null; rumour = Math.floor(Math.random() * RUMOURS.length); Audio.setMode('menu'); }
 
-  // The name of the game, cut into a stone lintel the god is holding up. The
-  // letters are chiselled: a dark inset with a lit lower lip, the way carved
-  // stone reads. Nothing else on this screen is text.
-  function lintel(g) {
-    const y = GOD.y - 82 * GOD.s;                       // held right up over its head
-    const x0 = 14, x1 = VW - 14, h = 50;
-    const S0 = '#090b0f', S1 = '#232932', S2 = '#323945', S3 = '#454d59', S4 = '#5a6270';
-    const flick = redT > 0 ? U.clamp(redT / 0.6, 0, 1) * (0.62 + 0.38 * Math.sin(t * 26)) : 0;
-    const top = y - h;
-    // the slab, with a moulded lip top and bottom
-    Art.poly(g, [[x0 - 8, top - 8], [x1 + 8, top - 8], [x1 + 4, top], [x0 - 4, top]], S0);
-    Art.poly(g, [[x0 - 7, top - 7], [x1 + 7, top - 7], [x1 + 3.5, top - 1], [x0 - 3.5, top - 1]], S2);
-    Art.rect(g, x0 - 7, top - 7, x1 - x0 + 14, 2, S3);
-    Art.rect(g, x0 - 4, top, x1 - x0 + 8, h, S0);
-    Art.rect(g, x0 - 2, top + 2, x1 - x0 + 4, h - 4, S1);
-    Art.rect(g, x0 - 2, top + 2, x1 - x0 + 4, 3, S2);
-    Art.rect(g, x0 - 2, top + h - 7, x1 - x0 + 4, 3, S0);
-    Art.poly(g, [[x0 - 8, y + 8], [x1 + 8, y + 8], [x1 + 4, y], [x0 - 4, y]], S0);
-    Art.poly(g, [[x0 - 7, y + 7], [x1 + 7, y + 7], [x1 + 3.5, y + 1], [x0 - 3.5, y + 1]], S1);
-    Art.rect(g, x0 - 7, y + 1, x1 - x0 + 14, 2, S3);
-    // weathering: a long crack and some chips before the letters go on
-    Art.limb(g, x0 + 58, top + 4, x0 + 74, y - 6, 1.6, 0.6, S0);
-    Art.rect(g, x1 - 90, top + 8, 2, 12, S0);
-    g.globalAlpha = 0.4;
-    Art.speckle(g, (x0 + x1) / 2, top + h / 2, (x1 - x0) / 2, h / 2 - 3, '#3f5a34', 0.05, 7);
-    g.globalAlpha = 1;
-    // the letters, chiselled in
-    const cx = (x0 + x1) / 2, ty = top + 13;
-    Font.draw(g, 'WOMBAT GODS', cx, ty + 3, { scale: 4, align: 'center', color: '#05070a' });   // the depth of the cut
-    Font.draw(g, 'WOMBAT GODS', cx + 1, ty + 4, { scale: 4, align: 'center', color: S4 });      // the lit lower lip
-    Font.draw(g, 'WOMBAT GODS', cx, ty + 1, { scale: 4, align: 'center', color: '#cdb98d' });   // lamplight in the groove
-    Font.draw(g, 'WOMBAT GODS', cx, ty, { scale: 4, align: 'center', color: '#f0dcab' });
-    // a bar of lamplight travelling along the cut letters
-    const tw = Font.width('WOMBAT GODS', 4);
-    const sweep = ((t * 90) % (tw + 340)) - 170;
+  // ---- the title -----------------------------------------------------------
+  // A long board of weathered oak hung off the canopy on two ropes, with moss
+  // over the top edge, the name burnt into it and a couple of flowers growing
+  // out of the corner. It sways, because it is hanging.
+  function titleSign(g) {
+    const cx = VW / 2, w = 366, h = 62, y = 28;
+    const sway = Math.sin(t * 0.55) * 0.028;
     g.save();
-    g.beginPath(); g.rect(cx - tw / 2 + sweep - 26, ty - 4, 52, 34); g.clip();
-    Font.draw(g, 'WOMBAT GODS', cx, ty, { scale: 4, align: 'center', color: '#fff6d8' });
-    Font.draw(g, 'WOMBAT GODS', cx, ty - 1, { scale: 4, align: 'center', color: '#ffffff' });
+    g.translate(cx, y - 34);
+    g.rotate(sway);
+    g.translate(-cx, -(y - 34));
+    // the two ropes up into the leaves
+    for (const rx of [cx - w / 2 + 22, cx + w / 2 - 22]) {
+      for (let i = 0; i < 34; i++) {
+        g.fillStyle = i % 2 ? '#6b5232' : '#4a3a22';
+        g.fillRect(Math.round(rx + Math.sin(i * 0.9) * 1), y - 34 - i, 2, 1);
+      }
+      Art.ell(g, rx + 1, y - 2, 4, 4, '#3a2a18');                 // the iron ring
+      Art.ellBand(g, rx + 1, y - 2, 4, 4, '#8a7a58', 0.5, 0.5);
+    }
+    // the board: five planks, dark edge, lit top
+    Art.rect(g, cx - w / 2 - 4, y - 4, w + 8, h + 8, '#20160e');
+    for (let i = 0; i < 5; i++) {
+      const py = y + i * (h / 5);
+      Art.rect(g, cx - w / 2, py, w, h / 5, i % 2 ? '#6b4a2c' : '#7d5738');
+      Art.rect(g, cx - w / 2, py, w, 2, '#9a7452');
+      Art.rect(g, cx - w / 2, py + h / 5 - 2, w, 2, '#4a3220');
+    }
+    // grain, knots and a split
+    const r = Art.rng(3311);
+    for (let i = 0; i < 40; i++) {
+      const gx = cx - w / 2 + r() * w, gy = y + r() * h;
+      g.fillStyle = 'rgba(58,38,22,0.4)';
+      g.fillRect(Math.round(gx), Math.round(gy), 6 + Math.round(r() * 18), 1);
+    }
+    for (const [kx, ky] of [[cx - w * 0.36, y + h * 0.7], [cx + w * 0.4, y + h * 0.3]]) {
+      Art.ell(g, kx, ky, 5, 4, '#4a3220');
+      Art.ell(g, kx, ky, 3, 2.4, '#3a2618');
+    }
+    // two iron straps across it
+    for (const sx of [cx - w / 2 + 16, cx + w / 2 - 20]) {
+      Art.rect(g, sx, y, 5, h, '#2e3038');
+      Art.rect(g, sx, y, 2, h, '#565b68');
+      for (let i = 0; i < 4; i++) { g.fillStyle = '#8b90a0'; g.fillRect(Math.round(sx + 1), Math.round(y + 8 + i * (h / 4)), 2, 2); }
+    }
+    // moss along the top and in the corners, because nothing here stays clean
+    for (let i = 0; i < w; i += 3) {
+      const hgt = 2 + Math.round(Math.abs(Math.sin(i * 0.31)) * 5);
+      g.fillStyle = i % 6 < 3 ? '#4f7a34' : '#3f6a2c';
+      g.fillRect(Math.round(cx - w / 2 + i), y - hgt + 1, 3, hgt + 2);
+      if (i % 9 === 0) { g.fillStyle = '#84bb59'; g.fillRect(Math.round(cx - w / 2 + i), y - hgt, 2, 2); }
+    }
+    g.fillStyle = '#3f6a2c';
+    Art.ell(g, cx - w / 2 + 10, y + h - 4, 16, 6, '#3f6a2c');
+    Art.ell(g, cx + w / 2 - 12, y + h - 3, 13, 5, '#4f7a34');
+    for (let i = 0; i < 4; i++) { g.fillStyle = FLOW[i % FLOW.length]; g.fillRect(Math.round(cx - w / 2 + 4 + i * 6), Math.round(y + h - 10), 3, 3); }
+    // the name, burnt in: a dark cut with a lit lower lip
+    const ty = y + 14;
+    Font.draw(g, 'WOMBAT', cx, ty + 2, { scale: 4, align: 'center', color: '#2a1a0e' });
+    Font.draw(g, 'WOMBAT', cx, ty, { scale: 4, align: 'center', color: '#f0dcab' });
+    Font.draw(g, 'WOMBAT', cx, ty - 1, { scale: 4, align: 'center', color: '#fff6d8' });
+    Font.draw(g, 'GODS', cx, ty + 32, { scale: 4, align: 'center', color: '#2a1a0e' });
+    Font.draw(g, 'GODS', cx, ty + 30, { scale: 4, align: 'center', color: '#f0dcab' });
+    Font.draw(g, 'GODS', cx, ty + 29, { scale: 4, align: 'center', color: '#fff6d8' });
     g.restore();
-    // when the eyes take, the cut glows with them
-    if (flick > 0.02) {
-      g.globalAlpha = flick * 0.75;
-      Font.draw(g, 'WOMBAT GODS', cx, ty + 1.5, { scale: 4, align: 'center', color: '#ff3a26' });
-      g.globalAlpha = 1;
-    }
-    // two iron rings the god's fists are hooked through
-    for (const fx of [GOD.x - 26 * GOD.s, GOD.x + 26 * GOD.s]) {
-      Art.ellBand(g, fx, y + 6, 9, 11, '#14171d', 0, 1);
-      Art.ellBand(g, fx, y + 6, 7.6, 9.4, '#404854', 0.06, 0.44);
-    }
   }
 
-  // ---- WOMBATHENA, of the Bolt -------------------------------------------
-  // A colossus of a wombat carved mid-flex: chest out, both arms up, stone
-  // muscle everywhere. Every so often the carved eyes catch something and go
-  // red, which is the only part of it that ever moves.
-  const GOD = { x: 198, y: 338, s: 2.6 };
-  let redT = 0, redNext = 2.5;
-  function godStatue(g) {
-    const { x, y, s } = GOD;
-    const S0 = '#090b0f', S1 = '#1d2229', S2 = '#2a303a', S3 = '#3a414c', S4 = '#4e5661';
-    const flick = redT > 0 ? U.clamp(redT / 0.6, 0, 1) * (0.62 + 0.38 * Math.sin(t * 26)) : 0;
-    g.save();
-    g.translate(x, y); g.scale(s, s);
-    // plinth, carved with a row of cubes
-    Art.poly(g, [[-30, 0], [30, 0], [25, -13], [-25, -13]], S0);
-    Art.poly(g, [[-28, -1], [28, -1], [23.5, -12], [-23.5, -12]], S1);
-    Art.rect(g, -23.5, -12, 47, 2, S2);
-    for (let i = -4; i <= 4; i++) { Art.rect(g, i * 5 - 1.6, -10, 3.2, 3.2, S0); Art.rect(g, i * 5 - 1.6, -10, 3.2, 1, S2); }
-    Art.rect(g, -23.5, -12, 47, 1, S3);
-    // legs: short, planted wide, thick as columns
-    for (const lx of [-13, 9]) {
-      Art.poly(g, [[lx - 5, -12], [lx + 5, -12], [lx + 6, -26], [lx - 6, -26]], S0);
-      Art.poly(g, [[lx - 4, -12.5], [lx + 4, -12.5], [lx + 5, -25], [lx - 5, -25]], S1);
-      Art.rect(g, lx - 4, -25, 2, 12, S2);
-      Art.ell(g, lx, -21, 4.4, 3.4, S2);                     // the calf
-    }
-    // a torso that tapers hard to the waist: the classic pose
-    Art.poly(g, [[-9, -24], [9, -24], [17, -46], [-17, -46]], S0);
-    Art.poly(g, [[-8, -24.5], [8, -24.5], [15.5, -45], [-15.5, -45]], S1);
-    Art.poly(g, [[-15.5, -45], [-4, -45], [-6, -25], [-8, -25]], S2);   // lit flank
-    // pectorals and a carved six-pack
-    Art.ell(g, -6.5, -40, 6.4, 4.4, S2); Art.ell(g, 6.5, -40, 6.4, 4.4, S1);
-    Art.ell(g, -7.5, -41.5, 4, 2.4, S3);
-    Art.rect(g, -0.6, -45, 1.2, 20, S0);
-    for (let r2 = 0; r2 < 3; r2++) {
-      Art.rect(g, -6, -33 + r2 * 3.4, 12, 0.9, S0);
-      Art.ell(g, -3.4, -34.4 + r2 * 3.4, 2.4, 1.2, S2);
-      Art.ell(g, 3.4, -34.4 + r2 * 3.4, 2.4, 1.2, S1);
-    }
-    // arms up, fists clenched: both biceps balled
-    for (const sd of [-1, 1]) {
-      const sx = sd * 15, sy = -44;
-      Art.limb(g, sx, sy, sx + sd * 9, sy - 16, 10, 8.4, S0);          // upper arm, driving up
-      Art.limb(g, sx, sy - 0.6, sx + sd * 8.6, sy - 16, 8.4, 7, sd < 0 ? S2 : S1);
-      Art.ell(g, sx + sd * 4.4, sy - 8, 7, 6, sd < 0 ? S3 : S2);       // the bicep, balled
-      Art.ell(g, sx + sd * 3.4, sy - 10, 3.4, 2.6, sd < 0 ? S4 : S3);
-      Art.limb(g, sx + sd * 9, sy - 16, sx + sd * 11, sy - 34, 8.4, 7, S0);      // forearm, straight up
-      Art.limb(g, sx + sd * 8.6, sy - 16.4, sx + sd * 10.6, sy - 33.6, 7, 5.8, sd < 0 ? S2 : S1);
-      Art.ell(g, sx + sd * 11, sy - 36, 6.4, 5.8, S0);                 // the fist
-      Art.ell(g, sx + sd * 11, sy - 36.4, 5.6, 5, sd < 0 ? S3 : S2);
-      for (let k = 0; k < 3; k++) Art.rect(g, sx + sd * 11 - 3.8 + k * 2.8, sy - 40, 1.8, 3, S0);
-    }
-    g.restore();
-    lintel(g);
-    g.save();
-    g.translate(x, y); g.scale(s, s);
-    // the head: a wombat's, but snarling, horned, and badly used
-    Art.ell(g, 0, -52, 11.5, 10, S0);
-    Art.ell(g, 0, -52.6, 10.4, 9, S1);
-    Art.ell(g, -3.6, -56.4, 5.2, 4, S2);
-    Art.ell(g, -5.2, -58, 2.2, 1.6, S3);
-    // ears, torn: one has a bite out of it
-    Art.poly(g, [[-11, -57], [-6, -61.5], [-4.5, -55]], S0);
-    Art.poly(g, [[-10, -57], [-6.4, -60.4], [-5.4, -55.6]], S2);
-    Art.poly(g, [[11, -56.6], [6.4, -61], [4.8, -54.8]], S0);
-    Art.poly(g, [[10.2, -56.8], [7, -59.8], [5.8, -55.4]], S1);
-    Art.poly(g, [[8.2, -59], [10.2, -58], [9.2, -56.4]], '#07080b');            // the bite
-    // two short horns growing out of the brow
-    for (const hs of [-1, 1]) {
-      Art.poly(g, [[hs * 6.4, -58], [hs * 9.6, -66], [hs * 10.8, -64.4], [hs * 8.4, -56.6]], S0);
-      Art.poly(g, [[hs * 6.8, -58], [hs * 9.4, -64.8], [hs * 10.2, -64], [hs * 8.2, -57]], hs < 0 ? S3 : S2);
-    }
-    // a heavy overhanging brow, which is most of the menace
-    Art.poly(g, [[-10, -55.4], [10, -55.4], [9, -51.4], [-9, -51.4]], S0);
-    Art.poly(g, [[-9.4, -55], [9.4, -55], [8.4, -52.6], [-8.4, -52.6]], S2);
-    Art.poly(g, [[-9.4, -55], [-1, -55], [-1, -52.6], [-8.4, -52.6]], S3);
-    // the snout, drawn back off the teeth
-    Art.ell(g, 0, -45.5, 6, 4.4, S0); Art.ell(g, 0, -46.2, 5.2, 3.8, S2);
-    Art.ell(g, -1.6, -47.4, 2.4, 1.6, S3);
-    Art.rect(g, -1.6, -47.6, 3.2, 1.8, '#07080b');                              // nostrils
-    Art.rect(g, -4.4, -44.6, 8.8, 1.2, '#07080b');                              // a hard flat mouth
-    Art.rect(g, -4.4, -45.6, 1.6, 1, '#07080b');
-    Art.rect(g, 2.8, -45.6, 1.6, 1, '#07080b');
-    // scars, a chipped horn and an old crack across the cheek
-    Art.limb(g, -8.4, -50, -4.6, -44.6, 1.1, 0.6, '#07080b');
-    Art.limb(g, -8, -49.6, -4.4, -44.4, 0.6, 0.4, S3);
-    Art.rect(g, 6, -53, 3.4, 0.9, '#07080b');
-    // eyes: hollow, until they are not
-    const eyeCol = flick > 0.02 ? U.mix('#3a0a06', '#ff2a1e', flick) : '#07080b';
-    for (const es of [-1, 1]) {
-      Art.poly(g, [[es * 1.8, -52.4], [es * 6, -51.6], [es * 5.4, -48.6], [es * 2, -49.4]], '#07080b');
-      Art.poly(g, [[es * 2.2, -52], [es * 5.6, -51.4], [es * 5.1, -49], [es * 2.4, -49.6]], eyeCol);
-      if (flick > 0.3) Art.poly(g, [[es * 3, -51.4], [es * 4.6, -51.1], [es * 4.4, -50], [es * 3.1, -50.3]], '#ffd0c4');
-    }
-    if (flick > 0.02) {
-      g.globalAlpha = flick * 0.5;
-      Art.ell(g, -3.6, -51.4, 4.4, 4.4, '#ff2a1e');
-      Art.ell(g, 3.6, -51, 4.2, 4.2, '#ff2a1e');
-      g.globalAlpha = 1;
-    }
-    // weather: cracks, chips, moss up the legs
-    Art.rect(g, -12, -40, 0.9, 9, S0);
-    Art.rect(g, 6, -30, 5, 0.9, S0);
-    g.globalAlpha = 0.5;
-    Art.speckle(g, 0, -16, 20, 7, '#3f5a34', 0.3, 3);
-    Art.speckle(g, 0, -4, 26, 6, '#2f4a2a', 0.34, 5);
-    g.globalAlpha = 1;
-    g.restore();
-    // the light it throws when the eyes take
-    if (flick > 0.02) {
-      Art.glow(g, x, y - 128, 54 * flick, '#ff3224', 0.3 * flick, 4);
-    }
-    // the name, cut into the plinth
-  }
+  // ---- the paradise --------------------------------------------------------
+  // Not a dark wood any more. A clearing in high summer: three treehouses up
+  // in the canopy with rope between them, flowers through the grass, moss over
+  // every log and stone, a pond, birds going over and three wombats in it.
+  const LX = 470, LY = 150;                             // the lantern, on the near house
+  const FLOWERS = [], TUFTS = [], STONES = [], LILY = [];
+  (() => {
+    const r = Art.rng(7711);
+    const wet = (x, y) => Math.hypot((x - 96) / 86, (y - 336) / 30) < 1.05;
+    for (let i = 0; i < 130; i++) { const x = r() * VW, y = 240 + r() * 122; if (!wet(x, y)) FLOWERS.push({ x, y, v: Math.floor(r() * 5), ph: r() * TAU, s: 0.7 + r() * 0.6 }); }
+    for (let i = 0; i < 220; i++) { const x = r() * VW, y = 232 + r() * 130; if (!wet(x, y)) TUFTS.push({ x, y, h: 4 + r() * 7, ph: r() * TAU, tone: Math.floor(r() * 3) }); }
+    for (let i = 0; i < 16; i++) { const x = r() * VW, y = 252 + r() * 106; if (!wet(x, y)) STONES.push({ x, y, w: 7 + r() * 16, h: 4 + r() * 7 }); }
+    for (let i = 0; i < 6; i++) LILY.push({ x: 40 + r() * 112, y: 322 + r() * 30, r: 5 + r() * 5, ph: r() * TAU });
+  })();
+  const BIRDS = [];
+  for (let i = 0; i < 7; i++) BIRDS.push({ x: Math.random() * VW, y: 30 + Math.random() * 90, sp: 16 + Math.random() * 26, ph: Math.random() * TAU, dir: Math.random() < 0.5 ? -1 : 1, s: 0.7 + Math.random() * 0.6 });
+  const FLOW = ['#f2d0e0', '#f5cd5c', '#c4a8e8', '#f0f0e0', '#e88a6a'];
 
-  // ---- the scene -----------------------------------------------------------
-  const LX = 128, LY = 78;                              // the lantern
+  // one flower: a stalk, two leaves and a four-petal head
+  function flower(g, f) {
+    const sway = Math.sin(t * 1.1 + f.ph) * 1.6;
+    const h = 7 * f.s;
+    g.fillStyle = '#3f6a2c';
+    for (let i = 0; i < h; i++) g.fillRect(Math.round(f.x + sway * (i / h) * (i / h)), Math.round(f.y - i), 1, 1);
+    const hx = Math.round(f.x + sway), hy = Math.round(f.y - h);
+    g.fillStyle = '#4f8a36'; g.fillRect(hx - 2, Math.round(f.y - h * 0.5), 2, 1); g.fillRect(hx + 1, Math.round(f.y - h * 0.7), 2, 1);
+    const c = FLOW[f.v];
+    g.fillStyle = U.shade(c, -0.3);
+    g.fillRect(hx - 2, hy - 1, 5, 3); g.fillRect(hx - 1, hy - 2, 3, 5);
+    g.fillStyle = c;
+    g.fillRect(hx - 1, hy - 1, 3, 3); g.fillRect(hx - 2, hy, 1, 1); g.fillRect(hx + 2, hy, 1, 1);
+    g.fillStyle = '#ffeeb0'; g.fillRect(hx, hy, 1, 1);
+  }
+  // a treehouse: a platform round a trunk, plank walls, a shingle roof, a
+  // window with the light on and a ladder down
+  function treehouse(g, x, y, w, h, flip, lamp) {
+    const D = '#3a2a1c', M = '#5c4430', L = '#7d5f42', H2 = '#9a7a58';
+    Art.rect(g, x - w / 2 - 6, y, w + 12, 5, D);                      // the platform
+    Art.rect(g, x - w / 2 - 6, y, w + 12, 2, L);
+    for (let i = 0; i < 5; i++) Art.rect(g, x - w / 2 - 4 + i * (w / 4), y + 5, 3, 7, D);   // joists
+    Art.rect(g, x - w / 2, y - h, w, h, D);                           // the box
+    for (let i = 0; i < h / 5; i++) {
+      Art.rect(g, x - w / 2 + 1, y - h + i * 5, w - 2, 4, i % 2 ? M : L);
+      Art.rect(g, x - w / 2 + 1, y - h + i * 5, w - 2, 1, H2);
+    }
+    for (let i = 0; i < 9; i++) {                                     // the roof
+      const rw = w / 2 + 9 - i * (w / 22);
+      Art.rect(g, x - rw, y - h - 2 - i * 2.4, rw * 2, 3, '#4a3a2e');
+      Art.rect(g, x - rw, y - h - 2 - i * 2.4, rw * 2, 1, '#6d5644');
+      if (i % 3 === 0) { g.fillStyle = PAL.moss1; g.fillRect(Math.round(x - rw + 2), Math.round(y - h - 2 - i * 2.4), Math.round(rw * 0.6), 2); }
+    }
+    const wx = x + (flip ? -1 : 1) * w * 0.16;                        // the window
+    const glow2 = 0.6 + 0.4 * Math.sin(t * 1.6 + x);
+    Art.rect(g, wx - 8, y - h * 0.72, 16, 14, D);
+    Art.rect(g, wx - 6, y - h * 0.72 + 2, 12, 10, `rgba(250,220,140,${(0.55 + glow2 * 0.4).toFixed(2)})`);
+    Art.rect(g, wx - 1, y - h * 0.72 + 2, 2, 10, M);
+    Art.rect(g, wx - 6, y - h * 0.72 + 6, 12, 2, M);
+    if (lamp) Art.glow(g, wx, y - h * 0.62, 34 + glow2 * 8, '#ffd88c', 0.14 + glow2 * 0.08, 6);
+    // a flower box under the window and moss along the platform edge
+    Art.rect(g, wx - 9, y - h * 0.72 + 14, 18, 5, D);
+    for (let i = 0; i < 5; i++) { g.fillStyle = FLOW[i % FLOW.length]; g.fillRect(Math.round(wx - 7 + i * 3.4), Math.round(y - h * 0.72 + 12), 2, 2); }
+    g.fillStyle = PAL.moss1;
+    for (let i = 0; i < 6; i++) g.fillRect(Math.round(x - w / 2 - 6 + i * ((w + 12) / 6)), y + 1, 5, 3);
+    // a rail
+    Art.rect(g, x - w / 2 - 6, y - 12, 2, 12, D);
+    Art.rect(g, x + w / 2 + 4, y - 12, 2, 12, D);
+    Art.rect(g, x - w / 2 - 6, y - 13, w + 12, 2, M);
+  }
+  function ropeBridge(g, x0, y0, x1, y1) {
+    const n = 26;
+    for (let i = 0; i <= n; i++) {
+      const k = i / n;
+      const sag = Math.sin(k * Math.PI) * 13 + Math.sin(t * 0.8 + k * 4) * 1.2;
+      const px = U.lerp(x0, x1, k), py = U.lerp(y0, y1, k) + sag;
+      g.fillStyle = '#6b5232'; g.fillRect(Math.round(px), Math.round(py), 3, 2);       // the planks
+      g.fillStyle = '#8a6a44'; g.fillRect(Math.round(px), Math.round(py), 3, 1);
+      g.fillStyle = '#4a3a22';                                                        // the hand rope
+      g.fillRect(Math.round(px), Math.round(py - 12 - Math.sin(k * Math.PI) * 2), 2, 1);
+      if (i % 5 === 0) g.fillRect(Math.round(px), Math.round(py - 12), 1, 12);
+    }
+  }
+  function bird(g, b) {
+    const x = ((b.x + t * b.sp * b.dir) % (VW + 60) + VW + 60) % (VW + 60) - 30;
+    const y = b.y + Math.sin(t * 0.8 + b.ph) * 9;
+    const flap = Math.sin(t * 9 + b.ph);
+    const w = 5 * b.s, up = flap * 3 * b.s;
+    g.fillStyle = '#2e2a34';
+    g.fillRect(Math.round(x - w), Math.round(y - up), Math.round(w), 1);
+    g.fillRect(Math.round(x), Math.round(y - up), Math.round(w), 1);
+    g.fillRect(Math.round(x - 1), Math.round(y), 2, 1);
+  }
   function scene(g) {
-    const flick = 0.82 + 0.18 * Math.sin(t * 9) + 0.06 * Math.sin(t * 23);
-    Art.vramp(g, 0, 0, VW, HORIZON, [[0, '#04060a'], [0.6, '#080e14'], [1, '#10181a']], 9);
-    for (let i = 0; i < 30; i++) {
-      const sx = (i * 173) % VW, sy = (i * 61) % 96;
-      g.fillStyle = `rgba(180,206,232,${(0.1 + 0.18 * Math.abs(Math.sin(t * 0.7 + i))).toFixed(2)})`;
+    // ---- the sky, at whatever hour the game's clock says ------------------
+    const day = Sky.light();
+    const top = U.mix('#101a34', '#6aa8d8', day), mid = U.mix('#26324e', '#a8d4e8', day), low = U.mix('#3a3a52', '#e4e8c8', day);
+    for (let i = 0; i < 14; i++) {
+      const k = i / 13;
+      g.fillStyle = k < 0.5 ? U.mix(top, mid, k * 2) : U.mix(mid, low, (k - 0.5) * 2);
+      g.fillRect(0, Math.round((HORIZON + 12) * i / 14), VW, Math.ceil((HORIZON + 12) / 14) + 1);
+    }
+    if (day < 0.4) for (let i = 0; i < 40; i++) {              // stars, when it is dark enough
+      const sx = (i * 173) % VW, sy = (i * 61) % 110;
+      g.fillStyle = `rgba(214,228,248,${((0.4 - day) * 2 * (0.3 + 0.5 * Math.abs(Math.sin(t * 0.7 + i)))).toFixed(2)})`;
       g.fillRect(sx, sy, 1, 1);
     }
-    Art.vramp(g, 0, HORIZON - 8, VW, VH - HORIZON + 8, [[0, '#172016'], [0.5, '#101810'], [1, '#070b08']], 8);
+    Sky.drawSun(g, 104, 58);
+    Sky.drawClouds(g, VW, 150, 0, 0.7);
+    for (const b of BIRDS) bird(g, b);
 
-    // the wood, back to front, using the grove's own trees
-    for (let d = 0; d < RANKS.length; d++) {
+    // ---- the far treeline, soft and hazy ----------------------------------
+    for (let d = 0; d < 2; d++) {
       for (const tr of wood) {
         if (tr.d !== d) continue;
-        const img = Props.get('tree', `${tr.kind}|${tr.v}|${tr.sh.toFixed(2)}`);
+        const img = Props.get('tree', `${tr.kind}|${tr.v}|${(0.3 - d * 0.06).toFixed(2)}`);
+        const w = img.width * tr.s * 0.74, h = img.height * tr.s * 0.74;
+        const sway = Math.sin(t * 0.4 + tr.sway) * (1.4 - d * 0.2);
+        g.drawImage(img, Math.round(tr.x - w / 2 + sway), Math.round(tr.y - h + 34), Math.round(w), Math.round(h));
+      }
+      g.globalAlpha = 0.34 - d * 0.14;                      // haze between the ranks
+      Art.rect(g, 0, 110 + d * 26, VW, 100, '#cfe0e8');
+      g.globalAlpha = 1;
+    }
+
+    // ---- the grass floor ---------------------------------------------------
+    for (let i = 0; i < 10; i++) {
+      const k = i / 9;
+      g.fillStyle = U.mix(U.mix('#2e4a24', '#4f7a34', day), U.mix('#3f6330', '#6d9c42', day), k);
+      g.fillRect(0, HORIZON + 4 + i * ((VH - HORIZON) / 10), VW, Math.ceil((VH - HORIZON) / 10) + 1);
+    }
+    // the pond, over on the left
+    const PX2 = 96, PY2 = 336, PR = 86;
+    Art.ell(g, PX2, PY2, PR + 6, 34, '#3f5a30');
+    Art.ell(g, PX2, PY2, PR + 2, 31, '#5a6a3a');
+    Art.ell(g, PX2, PY2, PR, 28, U.mix('#254a58', '#3f8ca0', day));
+    Art.ell(g, PX2, PY2 - 3, PR - 10, 20, U.mix('#2f6070', '#5fb0c2', day));
+    Art.ell(g, PX2 - PR * 0.3, PY2 - 8, PR * 0.3, 6, U.mix('#3f7a90', '#9fdcea', day));
+    for (let i = 0; i < 5; i++) {                            // ripples
+      const rw = PR * (0.3 + i * 0.16), a = 0.3 - i * 0.05;
+      g.globalAlpha = a * (0.6 + 0.4 * Math.sin(t * 1.4 + i));
+      Art.ellBand(g, PX2, PY2 - 2, rw, rw * 0.3, '#bfe4f4', 0.7, 0.14);
+      g.globalAlpha = 1;
+    }
+    for (const l of LILY) {                                  // lily pads
+      const ly = l.y + Math.sin(t * 0.9 + l.ph) * 1.2;
+      Art.ell(g, l.x, ly, l.r, l.r * 0.42, '#3f7a34');
+      Art.ell(g, l.x - l.r * 0.2, ly - 0.6, l.r * 0.5, l.r * 0.2, '#5d9440');
+      if (l.r > 8) { g.fillStyle = '#f2d0e0'; g.fillRect(Math.round(l.x + 2), Math.round(ly - 3), 3, 3); }
+    }
+    // mossy stones and logs
+    for (const st of STONES) {
+      Art.ell(g, st.x, st.y, st.w, st.h, '#5b5a58');
+      Art.ell(g, st.x, st.y - 1, st.w - 1, st.h - 1, '#7a786f');
+      Art.ell(g, st.x - st.w * 0.2, st.y - st.h * 0.5, st.w * 0.6, st.h * 0.42, '#4f7a34');
+      g.fillStyle = PAL.moss3;
+      for (let i = 0; i < 4; i++) g.fillRect(Math.round(st.x - st.w * 0.6 + i * st.w * 0.4), Math.round(st.y - st.h * 0.4), 3, 2);
+    }
+    // grass tufts, then flowers over the top
+    for (const tf of TUFTS) {
+      const sway = Math.sin(t * 1.3 + tf.ph) * 1.4;
+      const col = ['#4f7a34', '#5d9440', '#84bb59'][tf.tone];
+      for (let i = 0; i < tf.h; i++) {
+        g.fillStyle = i > tf.h - 2 ? '#a8d878' : col;
+        g.fillRect(Math.round(tf.x + sway * (i / tf.h) * (i / tf.h)), Math.round(tf.y - i), 1, 1);
+      }
+    }
+    for (const f of FLOWERS) flower(g, f);
+
+    // ---- the near trees and the houses in them -----------------------------
+    for (let d = 2; d < RANKS.length; d++) {
+      for (const tr of wood) {
+        if (tr.d !== d) continue;
+        const img = Props.get('tree', `${tr.kind}|${tr.v}|${(0.06 + (5 - d) * 0.05).toFixed(2)}`);
         const w = img.width * tr.s, h = img.height * tr.s;
         const sway = Math.sin(t * 0.4 + tr.sway) * (1.4 - d * 0.2);
         g.drawImage(img, Math.round(tr.x - w / 2 + sway), Math.round(tr.y - h), Math.round(w), Math.round(h));
       }
-      if (d === 1) {
-        for (const e of eyes) {
-          e.on = Math.sin(t * 0.7 + e.ph) > 0.955 ? 1 : e.on * 0.9;
-          if (e.on < 0.05) continue;
-          g.fillStyle = `rgba(240,196,120,${(e.on * 0.9).toFixed(2)})`;
-          g.fillRect(e.x, e.y, 2, 2); g.fillRect(e.x + 5, e.y, 2, 2);
-        }
-      }
+    }
+    ropeBridge(g, 216, 186, 380, 180);
+    ropeBridge(g, 392, 184, 520, 168);
+    treehouse(g, 196, 192, 66, 52, false, false);
+    treehouse(g, 384, 186, 58, 46, true, false);
+    treehouse(g, 536, 174, 74, 58, false, true);
+    // ladders down from the near house
+    for (let i = 0; i < 14; i++) {
+      Art.rect(g, 524, 200 + i * 8, 3, 6, '#4a3a22');
+      Art.rect(g, 548, 200 + i * 8, 3, 6, '#4a3a22');
+      Art.rect(g, 524, 202 + i * 8, 27, 2, '#6b5232');
+    }
+    lantern(g, 0.82 + 0.18 * Math.sin(t * 9));
+    titleSign(g);
 
-    }
-    // the same scrub you spend the game cutting, growing over everything
-    for (const b2 of scrub.slice().sort((p, q) => p.y - q.y)) {
-      const img = Props.get('weed', b2.v);
-      const w = img.width * b2.s, h = img.height * b2.s;
-      const sw = Math.sin(t * 0.8 + b2.ph) * 1.2;
-      g.save();
-      g.globalAlpha = 0.9;
-      g.drawImage(img, Math.round(b2.x - w / 2 + sw), Math.round(b2.y - h), Math.round(w), Math.round(h));
-      g.restore();
-      g.fillStyle = 'rgba(6,10,8,0.5)';                  // press it back into the dark
-      g.fillRect(Math.round(b2.x - w / 2 + sw), Math.round(b2.y - h), Math.round(w), Math.round(h));
-    }
-    // moss hanging out of the canopy, moving just enough to be noticed
-    for (let i = 0; i < 9; i++) {
-      const hx = 30 + ((i * 137) % (VW - 60));
-      const hl = 30 + ((i * 53) % 70);
+    // ---- moss hanging out of the canopy ------------------------------------
+    for (let i = 0; i < 14; i++) {
+      const hx = 16 + ((i * 97) % (VW - 32));
+      const hl = 22 + ((i * 53) % 58);
       const sw2 = Math.sin(t * 0.6 + i) * 3;
       for (let k = 0; k < hl; k += 3) {
         const a = 1 - k / hl;
-        g.fillStyle = `rgba(46,70,48,${(0.5 * a).toFixed(2)})`;
-        g.fillRect(Math.round(hx + sw2 * (k / hl)), 96 + k, 2, 3);
+        g.fillStyle = `rgba(${i % 2 ? '96,140,80' : '78,118,66'},${(0.75 * a).toFixed(2)})`;
+        g.fillRect(Math.round(hx + sw2 * (k / hl)), 100 + k, 2, 3);
+        if (k % 12 === 0) g.fillRect(Math.round(hx + sw2 * (k / hl)) + 2, 100 + k, 1, 2);
       }
     }
-    // mist lying between the trunks
-    for (let i = 0; i < 7; i++) {
-      const mx = ((i * 130 + t * 5) % (VW + 300)) - 150;
-      const a = 0.05 + 0.035 * Math.sin(t * 0.4 + i);
-      const oa0 = g.globalAlpha;              // mist, banded from the middle out
-      for (let j = 0; j < 9; j++) {
-        g.globalAlpha = oa0 * a * 2.6 * Math.max(0, 1 - Math.abs(j - 4) / 4.4);
-        Art.rect(g, mx, HORIZON - 30 + j * 12, 210, 13, '#92ac92');
-      }
-      g.globalAlpha = oa0;
+    // light coming down through the leaves
+    for (let i = 0; i < 5; i++) {
+      const sx = 60 + i * 130, a = (0.06 + 0.04 * Math.sin(t * 0.4 + i)) * (0.4 + day);
+      g.save();
+      g.beginPath();
+      g.moveTo(sx - 16, 70); g.lineTo(sx + 16, 70); g.lineTo(sx + 52, VH); g.lineTo(sx + 12, VH);
+      g.closePath(); g.clip();
+      for (let k = 0; k < 9; k++) { g.globalAlpha = a * (1 - k / 9); Art.rect(g, sx - 60, 70 + k * 34, 180, 35, '#fff0c8'); }
+      g.restore();
     }
-    g.save();                                   // warm light thrown onto the wood
-    g.globalCompositeOperation = 'screen';
-    // Cold moonlight from the upper right and the lantern's warmth from the
-    // left, laid as broad diagonal washes. A radial glow this big reads as a
-    // painted circle on the sky, which is what it looked like.
-    const oa = g.globalAlpha;
-    for (let i = 0; i < 7; i++) {
-      g.globalAlpha = oa * 0.1 * (1 - i / 7);
-      Art.rect(g, VW - 60 - i * 92, 0, 60 + i * 92, 46 + i * 34, '#80a8d6');
-      g.globalAlpha = oa * 0.13 * (1 - i / 7) * flick;
-      Art.rect(g, 0, 0, 90 + i * 64, 60 + i * 42, '#ffce82');
-    }
-    g.globalAlpha = oa;
-    Art.glow(g, LX, LY + 24, 96 * flick, '#ffce82', 0.34, 9);
-    g.restore();
-    lantern(g, flick);
-    godStatue(g);
-    for (const m of motes) {
-      const mx = m.x + Math.sin(t * m.sp + m.ph) * 22;
-      const my = m.y - ((t * 10 * m.sp) % 250);
-      const d2 = Math.hypot(mx - LX, my - LY);
-      const a = U.clamp(1 - d2 / 240, 0, 1) * (0.3 + 0.5 * (Math.sin(t * 2 + m.ph) * 0.5 + 0.5));
-      if (a < 0.02) continue;
-      g.fillStyle = `rgba(255,214,150,${a.toFixed(2)})`;
-      g.fillRect(Math.round(mx), Math.round(my), 1, 1);
-    }
+    for (let i = 0; i < 3; i++) bird(g, { x: BIRDS[i].x, y: 208 + i * 14, sp: BIRDS[i].sp * 0.8, ph: BIRDS[i].ph, dir: BIRDS[i].dir, s: 1.1 });
+    drawWombat(g);
+    // the warm grade over the lot
     g.save();
     g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = '#14305a'; g.globalAlpha = 0.44; g.fillRect(0, 0, VW, VH);
+    g.fillStyle = U.mix('#2a3f6a', '#ffe8a8', day); g.globalAlpha = 0.34; g.fillRect(0, 0, VW, VH);
     g.restore();
-    g.fillStyle = 'rgba(6,10,14,0.14)'; g.fillRect(0, 0, VW, VH);     // the night on top of it all
-    Art.vignette(g, VW, VH, '#000000', 0.88, 2.4, 0.26);
+    Sky.drawOver(g, VW, VH);
+    Art.vignette(g, VW, VH, '#1a2410', 0.4, 2.2, 0.34);
   }
-  function wombatShadowPass(g) {
-    for (const c of cubes) { g.fillStyle = 'rgba(0,0,0,0.35)'; Art.ell(g, c.x, c.y + 2, 9, 3); }
-  }
+  function wombatShadowPass(g) { }
   function lantern(g, flick) {
     Art.glow(g, LX, LY + 10, 92 * flick, '#ffd88c', 0.34 * flick, 9);
     g.fillStyle = '#1a1410'; g.fillRect(LX - 1, 0, 2, LY - 14);
@@ -16101,34 +16157,73 @@ const Menu = (() => {
   }
 
   // ---- plates --------------------------------------------------------------
+  // ---- signs ---------------------------------------------------------------
+  // Everything you can press is a board of the same weathered oak as the title,
+  // hung on two short ropes, with moss over its top edge and iron at the
+  // corners. Hover and it swings a little and the moss catches the light.
   function plaque(g, x, y, w, h, hot, tone) {
-    g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(x + 3, y + 4, w, h);
-    g.fillStyle = '#0a0810'; g.fillRect(x, y, w, h);
-    g.fillStyle = tone || '#3f2a18'; g.fillRect(x + 2, y + 2, w - 4, h - 4);
-    Tex.fill(g, 'darkwood', x + 2, y + 2, w - 4, h - 4, 0.7);
-    g.fillStyle = hot ? 'rgba(255,216,140,0.24)' : 'rgba(255,226,180,0.08)';
-    g.fillRect(x + 2, y + 2, w - 4, 2);
-    g.fillStyle = 'rgba(0,0,0,0.36)'; g.fillRect(x + 2, y + h - 6, w - 4, 4);
-    g.strokeStyle = hot ? '#f5cd5c' : '#241a12'; g.lineWidth = 1;
-    g.strokeRect(x + 1.5, y + 1.5, w - 3, h - 3);
-    for (const nx of [x + 7, x + w - 8]) {
-      g.fillStyle = '#1a1218'; g.fillRect(nx - 1, y + 6, 3, 3);
-      g.fillStyle = '#7f7688'; g.fillRect(nx - 1, y + 6, 2, 2);
+    const D = '#20160e', M = hot ? '#8a6038' : '#6b4a2c', L = hot ? '#9c7046' : '#7d5738', H2 = hot ? '#b98c5e' : '#9a7452';
+    g.fillStyle = 'rgba(12,18,8,0.45)'; g.fillRect(x + 4, y + 6, w, h);
+    Art.rect(g, x - 3, y - 3, w + 6, h + 6, D);
+    const rows = Math.max(2, Math.round(h / 13));
+    for (let i = 0; i < rows; i++) {
+      const py = y + i * (h / rows);
+      Art.rect(g, x, py, w, h / rows, i % 2 ? M : L);
+      Art.rect(g, x, py, w, 2, H2);
+      Art.rect(g, x, py + h / rows - 2, w, 2, '#4a3220');
+    }
+    const r = Art.rng(Math.round(x * 7 + y * 13 + w));
+    for (let i = 0; i < Math.round(w / 12); i++) {                    // grain
+      g.fillStyle = 'rgba(58,38,22,0.35)';
+      g.fillRect(Math.round(x + r() * w), Math.round(y + r() * h), 5 + Math.round(r() * 14), 1);
+    }
+    // iron straps at the ends
+    for (const sx of [x + 5, x + w - 9]) {
+      Art.rect(g, sx, y, 4, h, '#2e3038');
+      Art.rect(g, sx, y, 2, h, hot ? '#6e7484' : '#565b68');
+      g.fillStyle = '#8b90a0'; g.fillRect(Math.round(sx + 1), Math.round(y + 4), 2, 2); g.fillRect(Math.round(sx + 1), Math.round(y + h - 6), 2, 2);
+    }
+    // moss along the top, thicker where it has been left alone longest
+    for (let i = 0; i < w; i += 3) {
+      const hgt = 1 + Math.round(Math.abs(Math.sin(i * 0.27 + x)) * 4);
+      g.fillStyle = i % 6 < 3 ? (hot ? '#5d9440' : '#4f7a34') : (hot ? '#4f7a34' : '#3f6a2c');
+      g.fillRect(Math.round(x + i), y - hgt, 3, hgt + 2);
+      if (i % 12 === 0) { g.fillStyle = hot ? '#a8d878' : '#84bb59'; g.fillRect(Math.round(x + i), y - hgt - 1, 2, 2); }
+    }
+    // and a little in the bottom corners
+    Art.ell(g, x + 8, y + h - 2, 11, 4, '#3f6a2c');
+    Art.ell(g, x + w - 9, y + h - 1, 9, 3, '#4f7a34');
+  }
+  // two short ropes, so a sign reads as hung rather than nailed on
+  function hang(g, b, lift) {
+    for (const rx of [b.x + 14, b.x + b.w - 16]) {
+      for (let i = 0; i < 12 + lift; i++) {
+        g.fillStyle = i % 2 ? '#6b5232' : '#4a3a22';
+        g.fillRect(Math.round(rx), Math.round(b.y - 12 - lift + i), 2, 1);
+      }
     }
   }
   function bigButton(g, b, label, sub, scale) {
     const hot = hover === b.id;
-    const lift = hot ? -2 : 0;
-    plaque(g, b.x, b.y + lift, b.w, b.h, hot, hot ? '#513club'.slice(0, 7) : '#3f2a18');
+    const lift = hot ? -3 : 0;
+    const tilt = hot ? Math.sin(t * 6) * 0.012 : Math.sin(t * 0.7 + b.x) * 0.004;
+    hang(g, b, -lift);
+    g.save();
+    g.translate(b.x + b.w / 2, b.y - 12);
+    g.rotate(tilt);
+    g.translate(-(b.x + b.w / 2), -(b.y - 12));
+    plaque(g, b.x, b.y + lift, b.w, b.h, hot);
     const cy = b.y + lift + (sub ? 10 : (b.h - (scale || 2) * 7) / 2);
+    Font.draw(g, label, b.x + b.w / 2, cy + 2, { scale: scale || 2, color: '#2a1a0e', align: 'center' });
     Font.draw(g, label, b.x + b.w / 2, cy, {
-      scale: scale || 2, color: hot ? '#ffe9a8' : '#e0c88e', align: 'center', shadow: '#160c06', shadowDist: 2,
+      scale: scale || 2, color: hot ? '#fff3d0' : '#f0dcab', align: 'center',
     });
-    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + (scale || 2) * 7 + 5, { scale: 1, color: hot ? '#c9b68a' : '#8d7f66', align: 'center' });
-    if (hot) {                                            // two lantern-lit ticks
-      Font.draw(g, '>', b.x + 10, cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: '#f5cd5c' });
-      Font.draw(g, '<', b.x + b.w - 10 - Font.width('<', scale || 2), cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: '#f5cd5c' });
+    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + (scale || 2) * 7 + 5, { scale: 1, color: hot ? '#e0c88e' : '#b89a72', align: 'center' });
+    if (hot) {                                            // two carved ticks
+      Font.draw(g, '>', b.x + 14, cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: '#f5cd5c' });
+      Font.draw(g, '<', b.x + b.w - 14 - Font.width('<', scale || 2), cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: '#f5cd5c' });
     }
+    g.restore();
   }
 
   // ---- the things living on the title screen ------------------------------
@@ -16184,8 +16279,8 @@ const Menu = (() => {
   }
   function drawHome(g) {
     buttons = [];
-    owl(g, 92, 126, t);
-    signpost(g, 168, 352, t);
+    owl(g, 74, 196, t);
+    signpost(g, 286, 356, t);
     const BW = 250, BX = VW - BW - 30;
     buttons.push({ id: 'enter', x: BX, y: 196, w: BW, h: 50 });
     buttons.push({ id: 'settings', x: BX, y: 256, w: BW, h: 36 });
@@ -16348,8 +16443,7 @@ const Menu = (() => {
   function update(dt) {
     t += dt;
     seedAir();
-    redT -= dt; redNext -= dt;                          // the god's eyes, now and then
-    if (redNext <= 0) { redT = 0.9 + Math.random() * 0.8; redNext = 2.2 + Math.random() * 4.5; }
+    wombatLoop(dt);
   }
   function render(g) {
     scene(g);
@@ -16531,7 +16625,7 @@ const Main = (() => {
     G.visited[mode] = true;
     if (mode !== 'map') G.lastSite = mode;
     UI.setMode(mode);
-    FX.clear(); FX.flash('#120e14', 0.5);
+    FX.clear(); FX.flash('#efe8f6', 0.42);   // scenes change through a breath of cloud, not a blackout
     if (mode !== 'shop' && mode !== 'nursery') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
     if (mode === 'intro') Intro.enter();
