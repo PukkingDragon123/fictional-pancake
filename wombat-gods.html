@@ -932,17 +932,6 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
       <button id="b-unstage" class="act small" title="Take back"><img class="ico" data-ico="close" alt=""></button>
     </div>
 
-    <div id="ov-rite" class="overlay" hidden>
-      <div id="rite-read" class="readout">
-        <div class="line big"><img class="ico" data-ico="u_seats" alt=""><b id="r-h">0</b></div>
-        <div class="line"><img class="ico sm" data-ico="wombat" alt=""><b id="r-c">0</b></div>
-        <div class="line"><img class="ico sm" data-ico="wdollar" alt=""><b id="r-e">0</b><em id="r-rate">+0/s</em></div>
-        <div id="r-rank" class="rank"></div>
-      </div>
-      <div id="rite-tray" class="strip"><div id="rite-slots"></div></div>
-      <div id="rite-keys" class="keys"><kbd>Space</kbd><kbd>1-9</kbd><kbd>R</kbd></div>
-    </div>
-
     <div id="ov-shop" class="overlay" hidden>
       <button id="b-basket" class="rbtn big"><img class="ico" data-ico="basket" alt=""><b id="s-basket">0</b></button>
     </div>
@@ -998,12 +987,13 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
+        <li>Press <b>P</b> for your phone: the job in hand and where it happens, every wombat and what it is short of, what is in the beds, the weather, the money, and a list of places you can drive to from right here.</li>
         <li>Right-click (or press Tab) and a tool tray opens beside the cursor; pick one and it rides with the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
         <li>The hooded one tells you what to do next in a speech bubble. Click him and you can actually talk to him &mdash; he will repeat the order or answer whatever you ask. Shaz and Groot will talk too.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
         <li>Feed a wombat and it leaves a cube. Drag the cubes into the truck parked at the edge of the clearing.</li>
-        <li>Click the truck for the map. Wombat Mart is the corner shop, Groot's Cellar sells seed and garden tools, the Ritual Site calls the gods, and the Great Stack is where the money is.</li>
-        <li>At the Great Stack, drop poop on the plinth. Every cube pays when it lands and the higher the tower goes the more it pays. The crowd tips by the second for as long as it stands &mdash; and it stays standing while you are away. Nothing is ever lost: a cube that falls off is caught and handed back.</li>
+        <li>Click the truck for the map, or open the Places app on your phone and drive from where you stand. Wombat Mart is the corner shop, Groot's Cellar sells seed and garden tools, and the Ritual Site calls the gods.</li>
+        <li>The hooded one buys every cube she leaves, whatever kind, and pays more for a load than for one. Sell to him where he stands; once he has finished showing you round he moves into a hut at the back of your plot and you sell at the door.</li>
         <li>In the mart, swipe the aisles, click what you want into the basket, and pay at the till on the left. One line is half price every visit. By the counter there is a gumball machine at 1 W$ a turn and a lottery at 40 W$ a ticket, and at the far end a cage with three wombats in it &mdash; click one to read its papers before you take it home.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
@@ -5955,7 +5945,6 @@ const SITES = [
   { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
-  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0, gate: (g) => g.step >= 4 || (g.stack || []).length > 0 || OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring a poop first' },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
@@ -6031,8 +6020,8 @@ const FRUITS = [
   { key: 'twinfall',   root: 1, i: 2, cost: 520,  at: 0.28, icon: 'f_twin',   name: 'Twin Fall',    desc: 'Offerings sometimes come in pairs.' },
   { key: 'longlife',   root: 1, i: 3, cost: 1100, at: 0.5,  icon: 'f_heart',  name: 'Fond Herd',    desc: 'Joeys grow up twice as quickly.' },
   { key: 'steadyclaw', root: 2, i: 0, cost: 90,   at: 0.06, icon: 'f_claw',   name: 'Steady Claw',  desc: 'The crane is slower and hangs level.' },
-  { key: 'wideplinth', root: 2, i: 1, cost: 260,  at: 0.16, icon: 'f_plinth', name: 'Wide Plinth',  desc: 'A broader plinth at the stack.' },
-  { key: 'seersight',  root: 2, i: 2, cost: 600,  at: 0.3,  icon: 'f_eye',    name: 'Seer Sight',   desc: 'A landing guide at the stack, and a fourth blessing.' },
+  { key: 'wideplinth', root: 2, i: 1, cost: 260,  at: 0.16, icon: 'f_plinth', name: 'Wide Plinth',  desc: 'A broader plinth at the ritual site.' },
+  { key: 'seersight',  root: 2, i: 2, cost: 600,  at: 0.3,  icon: 'f_eye',    name: 'Seer Sight',   desc: 'A fourth blessing may be held at once.' },
   { key: 'godtongue',  root: 2, i: 3, cost: 1300, at: 0.55, icon: 'f_tongue', name: 'God Tongue',   desc: 'Rituals need one fewer of each offering.' },
 ];
 const ROOT_NAMES = ['Soil', 'Beast', 'Rite'];
@@ -6040,9 +6029,9 @@ const ROOT_NAMES = ['Soil', 'Beast', 'Rite'];
 // ---- Things to buy with W$ ------------------------------------------------
 const UPGRADES = [
   { key: 'shrine',  name: 'Plinth',   icon: 'u_shrine',  base: 220, mult: 2.1,  max: 6, desc: (l) => `Plinth ${l}. A wider base holds more.` },
-  { key: 'crane',   name: 'Crane',    icon: 'u_cart',    base: 180, mult: 2.0,  max: 5, desc: (l) => l >= 5 ? 'The crane holds still. Drop where you like.' : l ? `The crane swings ${l * 15}% slower.` : 'A steadier crane arm.' },
-  { key: 'grip',    name: 'Grip Wax', icon: 'u_trough',  base: 200, mult: 2.2,  max: 5, desc: (l) => l ? `Cubes grip ${l * 12}% harder.` : 'Wax the cubes so they hold.' },
-  { key: 'seats',   name: 'Stands',   icon: 'u_seats',   base: 280, mult: 1.9,  max: 8, desc: (l) => `Seats ${12 + l * 5} wombats. Tips +${l * 14}%.` },
+  { key: 'haggle',  name: 'Haggling', icon: 'u_seats',   base: 260, mult: 2.1,  max: 5, desc: (l) => l ? `He pays ${l * 8}% more for a cube.` : 'Learn what a cube is actually worth.' },
+  { key: 'shade',   name: 'Shade Cloth', icon: 'u_cart',  base: 200, mult: 2.0,  max: 4, desc: (l) => l ? `Beds dry out ${l * 15}% slower.` : 'Keeps the sun off the beds.' },
+  { key: 'toys',    name: 'Toy Box',  icon: 'd_nest',    base: 180, mult: 2.2,  max: 4, desc: (l) => l ? `Wombats get bored ${l * 16}% slower.` : 'Balls, logs and a knotted rope.' },
   { key: 'burrow',  name: 'Burrow',   icon: 'u_burrow',  base: 150, mult: 2.25, max: 6, desc: (l) => `Room for ${2 + l} wombats.` },
   { key: 'trough',  name: 'Trough',   icon: 'u_trough',  base: 240, mult: 2.1,  max: 4, desc: (l) => l ? `Feeds one wombat every ${(15 / l).toFixed(0)}s.` : 'Feeds hungry wombats.' },
   { key: 'cart',    name: 'Cart',     icon: 'u_cart',    base: 170, mult: 2.4,  max: 3, desc: (l) => l >= 3 ? 'Instant pickup, +10% value.' : l ? `Gathers after ${(4 / l).toFixed(1)}s.` : 'Gathers poop for you.' },
@@ -6060,32 +6049,6 @@ const GARDEN_UP = { trough: 1 };
 const GARDEN_DEC = { nest: 1, pool: 1 };
 
 const WOMBAT_PRICE = (n) => Math.round(180 * Math.pow(2.5, Math.max(0, n - 1)));
-
-// ---- The Great Stack -----------------------------------------------------
-// No runs, no lives, no losing. The tower you build stays standing between
-// visits and the crowd keeps paying for it. What progression there is lives
-// here: a ladder of heights, each one paid once and each one worth more per
-// second forever after.
-const STACK_RANKS = [
-  { h: 3,  name: 'Little Heap',   pay: 120,   tip: 0.15 },
-  { h: 6,  name: 'Proper Pile',   pay: 320,   tip: 0.3 },
-  { h: 10, name: 'Poop Pillar',   pay: 700,   tip: 0.5 },
-  { h: 15, name: 'Brown Obelisk', pay: 1400,  tip: 0.75 },
-  { h: 21, name: 'Dung Spire',    pay: 2600,  tip: 1.05 },
-  { h: 28, name: 'Cube Cathedral', pay: 4800, tip: 1.4 },
-  { h: 36, name: 'Stinking Steeple', pay: 8200, tip: 1.8 },
-  { h: 45, name: 'The Brown Tower', pay: 14000, tip: 2.3 },
-  { h: 55, name: 'Heaven Reacher', pay: 24000, tip: 2.9 },
-  { h: 66, name: 'The Great Stack', pay: 44000, tip: 3.6 },
-];
-const rankAt = (h) => { let r = null; for (const k of STACK_RANKS) if (h >= k.h) r = k; return r; };
-const nextRank = (h) => STACK_RANKS.find((k) => h < k.h) || null;
-// Every rank you have ever reached adds its tip to the crowd's rate.
-function tipBonus(g) {
-  let t = 0;
-  for (const k of STACK_RANKS) if ((g.record || 0) >= k.h) t += k.tip;
-  return t;
-}
 
 // ---- The Mart's prize machine --------------------------------------------
 // A capsule machine by the till. You put a coin in, the drum turns, and you
@@ -6159,7 +6122,18 @@ function rollLotto() {
 }
 
 // Every Golden Wombat on the shelf pays a little more at the stack, for good.
+// ---- What the hooded one pays for a cube ----------------------------------
+// He buys the lot. The price is the offering's own worth plus a little for
+// bulk: one cube is a curiosity, a truckload is a supply.
 const trophyBonus = (g) => (g.trophies || 0) * 0.08;
+const POOP_PRICE = { plain: 9, rich: 16, husk: 22, resin: 30, slab: 44, stone: 60, rune: 90, gold: 140 };
+const poopPrice = (key, n, g) => {
+  const base = POOP_PRICE[key] || 10;
+  const bulk = 1 + Math.min(0.5, Math.max(0, n - 1) * 0.04);     // he pays more for a load
+  const gg = g || (typeof window !== 'undefined' ? window.G : null) || {};
+  const talk = 1 + ((gg.up || {}).haggle || 0) * 0.08;
+  return Math.round(base * bulk * talk);
+};
 
 // ---- Breeding -------------------------------------------------------------
 const TRAITS = [
@@ -7090,7 +7064,7 @@ const World = (() => {
       const tree = def.kind === 'tree';
       if (rain > 0) { c.wet = Math.min(tree ? 40 : 22, c.wet + dt * rain * 1.6); c.thirst = 0; }
       const wet = c.wet > 0;
-      const drink = tree ? (def.thirsty || 1) : 1;
+      const drink = (tree ? (def.thirsty || 1) : 1) * (1 - 0.15 * (G.up.shade || 0));
       if (wet) c.wet -= dt * drink; else c.thirst += dt * drink;
       const blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm;
       if (def.kind === 'magic') {
@@ -8242,7 +8216,7 @@ const Grove = (() => {
       if (w.bored == null) w.bored = U.rand(0, 25);
       const dry = Sky.wet() > 0 ? 0.55 : 1;
       w.thirst = U.clamp(w.thirst + dt * 0.5 * dry, 0, 100);
-      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42), 0, 100);
+      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42) * (1 - 0.16 * (G.up.toys || 0)), 0, 100);
       // enrichment: a nest, a paddling pool, a hill or a friend all count
       if (G.decor.nest || G.decor.pool || Wild.mounds.length || G.wombats.length > 1) {
         if (w.state !== 'sleep' && Math.random() < dt * 0.5) w.bored = Math.max(0, w.bored - 1.6);
@@ -8734,6 +8708,7 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
+    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>he buys every cube you have';
     const pl2 = World.plantAt(x, y);
     if (pl2) return World.plantTip(pl2);
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
@@ -8853,7 +8828,7 @@ const Grove = (() => {
     items.push({ y: -1, fn: () => World.drawCrops(g) });
     for (const it of World.cropItems(g)) items.push(it);   // fruit trees stand tall enough to sort
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
-    items.push({ y: Guide.cult.y, fn: () => Guide.draw(g) });
+    items.push({ y: Guide.hutHere() ? WALK.y0 + 86 : Guide.cult.y, fn: () => Guide.draw(g) });
     if (arrival) items.push({ y: arrival.y, fn: () => { Sprites.shadow(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); } });
     for (const f of foods) items.push({ y: f.y, fn: () => drawFood(g, f) });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });
@@ -14068,9 +14043,13 @@ const Guide = (() => {
   let G = null;
   const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0, happyT: 0 };
   let flash = 0, hidden = false;
+  // When the notebook is full he goes. `vanish` counts down the teleport, and
+  // after that he is away for a while before the hut turns up with him in it.
+  let vanish = 0, huts = 0;
+  const HUT = { x: 376, y: 0 };
   // the speech bubble: what she is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [12, 18, 24, 0, 20, 20, 24, 30, 30, 36, 60];
+  const REWARD = [12, 18, 24, 0, 20, 20, 24, 30, 30, 36, 60, 90];
 
   // Each step is a line in the notebook and a place for her to stand.
   const STEPS = [
@@ -14113,7 +14092,7 @@ const Guide = (() => {
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', say: 'What she leaves is money. Drag it to the truck.', mood: 'proud', praise: 'Loaded. That lot is worth a fortune stacked.', icon: 'truck', title: 'Load the cubes',
+      key: 'load', say: 'What she leaves is money. Drag it to the truck.', mood: 'proud', praise: 'Loaded. I will take that lot off you shortly.', icon: 'truck', title: 'Load the cubes',
       note: 'What she leaves is an offering. Drag it to the truck, or call the truck over.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
       done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
@@ -14129,9 +14108,9 @@ const Guide = (() => {
       at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.shop),
     },
     {
-      key: 'stack', say: 'Now the good part. Truck the poop to the Great Stack and pile it high.', mood: 'happy', praise: 'Look at it. The higher it goes, the more they pay.', icon: 'u_seats', title: 'Stack the poop',
-      note: 'The Great Stack is on the map. Every cube pays when it lands, and the crowd tips by the second for as long as the tower stands.',
-      at: () => Grove.TRUCK.x, done: (g) => (g.record || 0) >= 2,
+      key: 'sell', say: 'Now the good part. Those cubes are mine. Bring them to me and I will pay.', mood: 'happy', praise: 'Pleasure doing business. There is more where that came from.', icon: 'wdollar', title: 'Sell him the cubes',
+      note: 'Everything the wombats leave, the hooded one buys. Click him — or, once he has a hut, click the hut — and sell the lot. He pays more for a load than for one.',
+      at: () => Grove.TRUCK.x, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
       key: 'god', say: 'Stack what she leaves at the ritual site. Call one down.', mood: 'shock', praise: 'They answered. I am so proud.', icon: 'shrine', title: 'Call one of them',
@@ -14145,6 +14124,8 @@ const Guide = (() => {
     if (!G.visited) G.visited = {};
     if (typeof G.step !== 'number') G.step = 0;
     cult.x = cult.tx = 240;
+    vanish = 0;
+    huts = G.cultAway === 2 ? 1 : 0;        // a hut already standing does not grow again
   }
   const finished = () => G.step >= STEPS.length;
   const step = () => (finished() ? null : STEPS[G.step]);
@@ -14214,10 +14195,12 @@ const Guide = (() => {
   }
   function poke() {                          // click him and he actually talks
     cult.still = 0; cult.pose = 'idle';
-    FX.burst(cult.x, cult.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
+    const at = G.cultAway === 2 ? { x: HUT.x + 22, y: hutY() } : cult;
+    FX.burst(at.x, at.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
     Audio.play('squeak');
     Talk.open('cultist', TREE);
   }
+  const cubesHere = () => OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
   // ---- what he will talk about --------------------------------------------
   // The first node always leads with whatever the current order is, so asking
   // him a question is never a detour away from knowing what to do next.
@@ -14228,10 +14211,13 @@ const Guide = (() => {
         mood: 'sly',
         say: () => {
           const s = step();
+          if (!s && G.cultAway === 2) return 'Mind the step. It is not much, but the roof holds and the kettle works. Cubes round the back, money in your hand.';
           return s ? s.say : 'The grove is green and the gods have answered. You did that. I only pointed.';
         },
-        sub: () => 'he found you first',
+        sub: () => (G.cultAway === 2 ? 'he lives here now' : 'he found you first'),
         opts: [
+          { q: () => `Sell you the cubes. I have ${cubesHere()}.`, if: () => cubesHere() > 0,
+            act: () => { Talk.close(); UI.openPawn('cult'); } },
           { q: 'Say that again, slower.', to: 'order', if: () => !!step() },
           { q: 'What is this place?', to: 'place' },
           { q: 'Who are you, really?', to: 'who' },
@@ -14274,7 +14260,7 @@ const Guide = (() => {
       },
       gods: {
         mood: 'proud',
-        say: 'There are nine. They are all wombats. They do not want prayer, they want a tower of dung tall enough to be rude, and they pay in miracles. I did not design the arrangement.',
+        say: 'There are nine. They are all wombats. They do not want prayer, they want a pile of dung large enough to be rude, and they pay in miracles. I did not design the arrangement.',
         opts: [
           { q: 'How do I call one?', to: 'call' },
           { q: 'What do they give me?', to: 'boon' },
@@ -14301,12 +14287,12 @@ const Guide = (() => {
       },
       cubes: {
         mood: 'proud',
-        say: 'Square. Every one. It is so the pile does not roll off the rock, and the gods find it very tidy. Stack it high enough and a crowd gathers and pays you by the second.',
+        say: 'Square. Every one. It is so the pile does not roll off the cart, and the gods find it very tidy. I will take every one you can get out of her.',
         opts: [{ q: 'Beautiful.', to: 'hub' }],
       },
       money: {
         mood: 'talk',
-        say: 'The mart, for hardware and furniture and the pet counter. Groot, for seed and garden tools. The Stack pays you. The gumball machine takes one coin and is a disgrace.',
+        say: 'The mart, for hardware and furniture and the pet counter. Groot, for seed and garden tools. I pay for the cubes, in cash, at the door. The gumball machine takes one coin and is a disgrace.',
         opts: [
           { q: 'Is the lottery worth it?', to: 'lotto' },
           { q: 'Back.', to: 'hub' },
@@ -14319,7 +14305,10 @@ const Guide = (() => {
       },
     },
   };
-  function hit(x, y) { return !finished() && !hidden && Math.abs(x - cult.x) < 18 && y > cult.y - 66 && y < cult.y + 6; }
+  function hit(x, y) {
+    if (hutHit(x, y)) return true;
+    return !finished() && !hidden && Math.abs(x - cult.x) < 18 && y > cult.y - 66 && y < cult.y + 6;
+  }
   function check() {
     const s = step();
     if (!s) return;
@@ -14338,11 +14327,170 @@ const Guide = (() => {
     UI.refreshAll();           // a finished step can hand over a new tool
     UI.refreshNotebook();
     Main.save();
-    if (finished()) UI.toast('the notebook is full', 'good');
+    if (finished()) {
+      UI.toast('the notebook is full', 'good');
+      say('That is the lot. You do not need me stood in your garden. I will be about.', 'praise', 'sly');
+      vanish = 2.6;                                  // he goes in a moment, loudly
+      G.cultAway = 1;
+      G.hutAt = (G.time || 0) + 70;                  // and builds himself something
+    }
+  }
+
+  // ---- his hut ---------------------------------------------------------------
+  // He does not sleep in a hedge. Once he has gone, a small wooden hut goes up
+  // at the west end of the plot with a lamp in the window, and he buys the
+  // cubes off you through the door.
+  const hutHere = () => !!G && G.cultAway === 2;
+  function hutRect() { return { x: HUT.x, y: hutY(), w: 150, h: 130 }; }
+  function hutHit(x, y) {
+    if (!hutHere()) return false;
+    const r = hutRect();
+    return x > r.x - r.w / 2 && x < r.x + r.w / 2 && y > r.y - r.h && y < r.y + 8;
+  }
+  function hutY() { return Grove.WALK.y0 + 86; }
+  function drawHut(g) {
+    if (!hutHere()) return;
+    const x = HUT.x, y = hutY(), t = G.time;
+    const grow = U.clamp(huts, 0, 1);                  // it goes up with a thump
+    const W2 = 62, WALLH = 64;                         // half-width, wall height
+    g.save();
+    g.translate(x, y); g.scale(1, grow); g.translate(-x, -y);
+    Art.ell(g, x, y + 2, W2 + 8, 7, 'rgba(18,14,20,0.34)');
+
+    // ---- the walls: split logs, stacked, mossy at the foot ----------------
+    for (let i = 0; i < WALLH / 5; i++) {
+      const ly = y - 4 - i * 5;
+      Art.rect(g, x - W2, ly, W2 * 2, 5, PAL.bark0);
+      Art.rect(g, x - W2 + 1, ly, W2 * 2 - 2, 4, i % 2 ? PAL.bark1 : PAL.bark2);
+      Art.rect(g, x - W2 + 1, ly, W2 * 2 - 2, 1, PAL.bark3);
+      if (i < 3) for (let k = 0; k < 3; k++) {          // moss creeping up the boards
+        const mx = x - W2 + 4 + ((i * 17 + k * 29) % (W2 * 2 - 12));
+        g.fillStyle = k % 2 ? PAL.moss1 : PAL.moss2;
+        g.fillRect(Math.round(mx), Math.round(ly + 1), 6, 3);
+      }
+    }
+    // corner posts, so it reads as built rather than piled
+    for (const d of [-1, 1]) {
+      Art.rect(g, x + d * W2 - (d > 0 ? 5 : 0), y - WALLH - 2, 5, WALLH + 2, PAL.bark0);
+      Art.rect(g, x + d * W2 - (d > 0 ? 4 : -1), y - WALLH - 2, 3, WALLH + 2, PAL.bark2);
+    }
+
+    // ---- the roof: a real gable, shingled, with moss down the north slope --
+    const RH = 40, OVER = 15;
+    for (let i = 0; i < RH; i += 2) {
+      const k = i / RH;
+      const w = (W2 + OVER) * (1 - k * 0.94);
+      const ry = y - WALLH - 2 - i;
+      Art.rect(g, x - w, ry, w * 2, 3, PAL.ink);
+      Art.rect(g, x - w + 1, ry, w * 2 - 2, 2, i % 4 ? '#7d6250' : '#66503f');
+      Art.rect(g, x - w + 1, ry, w * 2 - 2, 1, '#9a7a60');
+      Art.rect(g, x - w + 1, ry, Math.round(w * 0.3), 2, '#8d6e58');
+      if (i % 6 === 0) { g.fillStyle = PAL.moss2; g.fillRect(Math.round(x - w + 2), Math.round(ry), Math.round(w * 0.5), 2); }
+      if (i % 6 === 3) { g.fillStyle = PAL.moss1; g.fillRect(Math.round(x - w + 6), Math.round(ry), Math.round(w * 0.3), 2); }
+    }
+    Art.rect(g, x - 4, y - WALLH - 2 - RH - 3, 8, 5, '#9a7a60');       // the ridge cap
+    Art.rect(g, x - W2 - OVER, y - WALLH - 4, (W2 + OVER) * 2, 3, PAL.bark0);   // the eaves board
+    // the chimney, and smoke off it
+    Art.rect(g, x + 30, y - WALLH - 40, 14, 26, PAL.stone1);
+    Art.rect(g, x + 31, y - WALLH - 40, 12, 24, PAL.stone2);
+    for (let i = 0; i < 5; i++) Art.rect(g, x + 31 + (i % 2) * 5, y - WALLH - 37 + i * 4, 5, 3, PAL.stone3);
+    Art.rect(g, x + 28, y - WALLH - 43, 19, 4, PAL.stone0);
+    for (let i = 0; i < 5; i++) {
+      const k = ((t * 0.34 + i * 0.2) % 1);
+      g.globalAlpha = (1 - k) * 0.34;
+      g.fillStyle = '#c8c2d0';
+      const sz = 3 + k * 5;
+      g.fillRect(Math.round(x + 37 + Math.sin(k * 4 + i) * 9 - sz / 2), Math.round(y - WALLH - 48 - k * 46), sz, sz);
+    }
+    g.globalAlpha = 1;
+
+    // ---- the door, standing open, with him in it ---------------------------
+    Art.rect(g, x - 30, y - 54, 34, 54, PAL.bark0);
+    Art.rect(g, x - 28, y - 52, 30, 52, '#17110d');                   // the dark inside
+    Art.glow(g, x - 13, y - 26, 30, '#f5cd5c', 0.11, 5);
+    Art.rect(g, x + 4, y - 54, 6, 54, PAL.bark1);                     // the open leaf of it
+    Art.rect(g, x + 4, y - 54, 2, 54, PAL.bark3);
+    // the window, lit
+    const lamp = 0.62 + 0.38 * Math.sin(t * 1.8);
+    Art.rect(g, x + 18, y - 52, 30, 26, PAL.bark0);
+    Art.rect(g, x + 20, y - 50, 26, 22, `rgba(248,214,120,${(0.5 + lamp * 0.4).toFixed(2)})`);
+    Art.rect(g, x + 32, y - 50, 2, 22, PAL.bark1);
+    Art.rect(g, x + 20, y - 41, 26, 2, PAL.bark1);
+    Art.glow(g, x + 33, y - 40, 46 + lamp * 10, '#f5cd5c', 0.13 + lamp * 0.08, 7);
+    // a shingle awning over the door
+    for (let i = 0; i < 5; i++) Art.rect(g, x - 38 + i, y - 60 - i * 2, 50 - i * 2, 3, i % 2 ? '#4a3a2e' : '#5c4738');
+
+    // ---- the sign, hung off the eave ---------------------------------------
+    const sx = x - W2 - 30;
+    Art.rect(g, sx - 2, y - 58, 5, 58, PAL.bark0);                   // the post
+    Art.rect(g, sx - 1, y - 58, 3, 58, PAL.bark2);
+    Art.rect(g, sx - 26, y - 62, 52, 22, PAL.bark0);
+    Art.rect(g, sx - 24, y - 60, 48, 18, '#4a3526');
+    Art.rect(g, sx - 24, y - 60, 48, 2, '#6d5644');
+    Font.draw(g, 'CUBES', sx, y - 56, { scale: 2, color: '#f5cd5c', align: 'center', shadow: '#1a1008' });
+    Font.draw(g, 'BOUGHT', sx, y - 48, { scale: 1, color: '#c2a176', align: 'center' });
+    g.fillStyle = PAL.moss2; g.fillRect(Math.round(sx - 26), Math.round(y - 44), 14, 4);
+
+    // ---- the yard: a barrel of cubes, a woodpile, a lantern on a hook -------
+    Art.rect(g, x - W2 - 16, y - 16, 15, 16, PAL.bark0);              // barrel
+    Art.rect(g, x - W2 - 15, y - 15, 13, 14, PAL.bark2);
+    Art.rect(g, x - W2 - 15, y - 12, 13, 2, PAL.bark3);
+    Art.rect(g, x - W2 - 15, y - 6, 13, 2, PAL.bark3);
+    for (const [cx2, cy2] of [[-9, -20], [-3, -19], [-6, -24]]) {     // cubes stacked in it
+      Art.rect(g, x - W2 - 16 + 8 + cx2, y + cy2, 6, 6, '#3b2a1b');
+      Art.rect(g, x - W2 - 16 + 8 + cx2, y + cy2, 6, 2, '#553d27');
+    }
+    for (let i = 0; i < 7; i++) {                                     // a woodpile
+      const wx = x + W2 + 6 + (i % 3) * 6, wy = y - 4 - Math.floor(i / 3) * 6;
+      Art.rect(g, wx, wy, 6, 6, PAL.bark1);
+      Art.ell(g, wx + 3, wy + 3, 2.4, 2.4, PAL.bark3);
+      Art.ell(g, wx + 3, wy + 3, 1.2, 1.2, PAL.bark0);
+    }
+    g.restore();
+
+    // ---- and him, leaning in the doorway -----------------------------------
+    const img = Sprites.cultist(Math.floor(t * 3), 'idle');
+    const sc = 1.05, dw = img.width * sc, dh = img.height * sc;
+    Art.castShadow(g, img, x - 13, y + 2, dw, dh, { alpha: 0.3, lean: 0.6, squash: 0.3 });
+    g.drawImage(img, Math.round(x - 13 - dw / 2), Math.round(y - dh + 4), Math.round(dw), Math.round(dh));
+    const p2 = 0.5 + 0.5 * Math.sin(t * 3);
+    Art.glow(g, x - 13, y - 24, 36 + p2 * 8, '#b98ef0', 0.1 + p2 * 0.07, 5);
+  }
+  function paid(n) {
+    if (n <= 0) return;
+    say(U.pick(['Lovely. Square as anything.', 'That is going straight to the order.', 'More. Bring me more.', 'A fair price and you know it.']), 'chat', 'happy');
+    cult.happyT = 1.2;
   }
 
   let lastStep = -1, sayT = 0;
   function update(dt) {
+    if (G.cultAway === 2 && huts < 1) huts = Math.min(1, huts + dt * 1.6);
+    if (vanish > 0) {                                  // going: sparks, then nothing
+      vanish -= dt;
+      cult.pose = 'cast'; cult.castT = 1;
+      if (Math.random() < dt * 30) FX.sparkle(cult.x + U.rand(-14, 14), cult.y - U.rand(4, 64), 1, PAL.div4);
+      if (bubble.life > 0) { bubble.life -= dt; bubble.shown += dt * 28; }
+      if (vanish <= 0) {
+        FX.burst(cult.x, cult.y - 30, 26, { color: [PAL.div4, PAL.div5, PAL.cream], speed: 150, gravity: -20, life: 0.8, size: 3 });
+        FX.comic(cult.x, cult.y - 60, 'POP!', { ink: '#e6d6ff', edge: '#563391', life: 0.8 });
+        Audio.play('whoosh'); Audio.play('chime'); FX.shake(1.2);
+        UI.toast('he is gone. he said he would be about.', '');
+      }
+      return;
+    }
+    // away, and then back in a hut of his own
+    if (G.cultAway === 1) {
+      if ((G.time || 0) >= (G.hutAt || 0)) {
+        G.cultAway = 2; huts = 0;
+        Audio.play('thud', 1.4); FX.shake(1.6);
+        FX.burst(HUT.x, hutY(), 22, { color: [PAL.bark3, PAL.bark2, PAL.moss3], speed: 110, gravity: 260, life: 0.7, size: 3 });
+        FX.comic(HUT.x, hutY() - 90, 'THUNK!', { ink: '#f5cd5c', edge: '#7a5210', life: 1 });
+        UI.toast('<b>a hut went up</b> at the west end &mdash; he buys cubes', 'good');
+        Main.save();
+      }
+      return;
+    }
+    if (G.cultAway === 2) { cult.t += dt; if (bubble.life > 0) { bubble.life -= dt; bubble.shown += dt * 28; } return; }
     if (bubble.life <= 0 && Sprites.face !== 'idle' && cult.happyT <= 0) Sprites.setFace('idle');
     if (flash > 0) flash -= dt;
     cult.t += dt;
@@ -14373,7 +14521,9 @@ const Guide = (() => {
 
   // She stands in the grove and points at whatever the step is about.
   function draw(g) {
-    if (finished() || hidden) return;
+    if (G.cultAway === 2) { drawHut(g); drawBubble(g); return; }
+    if (G.cultAway === 1) return;
+    if ((finished() && vanish <= 0) || hidden) return;
     const rate = { walk: 8, run: 12, cast: 5, sit: 2, idle: 3, jump: 9 }[cult.pose] || 4;
     const img = Sprites.cultist(Math.floor(cult.t * rate), cult.pose);
     const lift = 0;
@@ -14511,7 +14661,7 @@ const Guide = (() => {
   const WHERE = {
     weeds: 'in the grove', junk: 'in the grove', grass: 'in the grove', arrive: 'in the grove',
     sow: 'in the grove', pick: 'in the grove', feed: 'in the grove', load: 'in the grove',
-    map: 'in the truck', mart: 'Wombat Mart, down the road', stack: 'The Great Stack, east',
+    map: 'in the truck', mart: 'Wombat Mart, down the road', sell: 'wherever he is standing',
     god: 'the Ritual Site, north',
   };
   function current() {
@@ -14520,658 +14670,7 @@ const Guide = (() => {
     return { key: st.key, title: st.title, note: st.note, icon: st.icon, say: st.say,
       where: WHERE[st.key] || 'in the grove', reward: REWARD[G.step] || 0, i: G.step, total: STEPS.length };
   }
-  return { init, update, draw, state, toggle, check, poke, hit, say, current, get cult() { return cult; }, STEPS };
-})();
-</script>
-
-<script>
-// ===== js/tower.js =====
-// ---- The Great Stack: pile poop as high as it will go ---------------------
-// There are no runs here and nothing to lose. The tower you build is still
-// standing when you come back, the crowd keeps paying rent on it, and a cube
-// that falls off is caught by a wombat and handed straight back to you. All
-// the progression is in how high the thing gets.
-const Tower = (() => {
-  let G = null;
-  const W = 640, H = 360;
-  const PX = 320, PLAT_Y = 264, GROUND = 322, PLAT_H = 16;
-  const world = new Physics.World();
-  let platform = null;
-  const R = {
-    open: false, height: 0, peak: 0, settled: 0, streak: 0, combo: 0, comboT: 0,
-    craneX: PX, lastCraneX: PX, craneT: 0, falling: null, canDrop: true, dropCd: 0, rot: false,
-    session: 0, acc: 0, rate: 0, excite: 0, caught: 0, cheerT: 0, rankT: 0, rankShown: null,
-  };
-  const crowd = [], flakes = [];
-  let physAcc = 0;
-
-  function platWidth() { return (G.fruits.wideplinth ? 150 : 112) + (G.up.shrine || 0) * 11; }
-  function crowdCap() { return 12 + 5 * (G.up.seats || 0); }
-  const lvl = (k) => G.up[k] || 0;
-
-  // ---- the world ----------------------------------------------------------
-  function resetWorld() {
-    world.clear();
-    platform = world.add(new Physics.Body({
-      x: PX, y: PLAT_Y + PLAT_H / 2, width: platWidth(), height: PLAT_H,
-      isStatic: true, friction: 0.94, userData: { platform: true },
-    }));
-    platform.baseX = PX;
-    world.gravity = 620; world.iterations = 44; world.maxFall = 170;
-    world.onImpact = onImpact;
-    world.forceFn = null;
-    R.falling = null; R.canDrop = true; R.dropCd = 0;
-  }
-
-  // ---- the tower persists between visits ----------------------------------
-  function serialise() {
-    // Only snapshot a tower that is standing still: a shot taken mid-topple
-    // would be restored mid-topple, and the pile would fall again on arrival.
-    for (const b of world.bodies) {
-      const ud = b.userData;
-      if (!ud || ud.platform) continue;
-      if (b.speed > 18 || b.restTime < 0.4) return;
-    }
-    const out = [];
-    for (const b of world.bodies) {
-      const ud = b.userData;
-      if (!ud || ud.platform || !ud.settled) continue;
-      if (b.y > PLAT_Y + 20) continue;                 // anything on the floor is loose
-      out.push({ t: ud.type, b: ud.blessed ? 1 : 0, x: Math.round(b.x * 10) / 10,
-        y: Math.round(b.y * 10) / 10, a: Math.round(b.angle * 100) / 100 });
-    }
-    G.stack = out;
-  }
-  function rebuild() {
-    resetWorld();
-    for (const s of (G.stack || [])) {
-      if (!OFFERINGS[s.t]) continue;
-      const b = make(s.t, !!s.b, s.x, s.y);
-      b.angle = s.a || 0;
-      b.userData.settled = true;
-      b.userData.eye = U.rand(0, TAU);
-      b.restTime = 2;
-      world.add(b);
-    }
-    R.settled = world.bodies.length - 1;
-    R.height = computeHeight();
-    R.peak = R.height;
-  }
-  function enter() {
-    R.open = true; R.session = 0; R.combo = 0; R.comboT = 0; R.caught = 0;
-    rebuild();
-    crowd.length = 0; flakes.length = 0;
-    autoSelect();
-    Audio.setMode('tower');
-    const rk = rankAt(Math.floor(G.record || 0));
-    FX.title(rk ? rk.name.toUpperCase() : 'THE GREAT STACK',
-      { style: 'slide', dur: 1.7, size: 16, color: PAL.gold4, sub: R.height >= 1 ? R.height.toFixed(0) + ' HIGH' : 'stack it up' });
-  }
-  function leave() {
-    if (!R.open) return;
-    serialise();
-    R.open = false;
-    Audio.setMode('pen');
-    Main.save();
-  }
-
-  function onImpact(a, b, impulse, c) {
-    const s = impulse / 800;
-    if (s > 0.22) {
-      const x = c ? c.x : (a.x + b.x) / 2, y = c ? c.y : (a.y + b.y) / 2;
-      FX.dust(x, y, Math.min(12, Math.round(s * 5)), PAL.soil3);
-      FX.shake(Math.min(5, s * 1.2));
-      Audio.play('thud', Math.min(2, s));
-      for (const bd of [a, b]) if (bd.userData && !bd.userData.platform) bd.userData.sq = Math.min(0.42, s * 0.32);
-      if (s > 0.7) FX.ring(x, y, Math.min(26, s * 16));
-    }
-    if (R.falling && (a === R.falling || b === R.falling)) landed(R.falling);
-  }
-  function landed(b) {
-    b.gravityScale = 1; b.w *= 0.35;
-    R.falling = null; R.canDrop = true; R.dropCd = 0.12;
-    FX.burst(b.x, b.y, 8, { color: [PAL.cream, OFFERINGS[b.userData.type].color], speed: 70, gravity: 190, life: 0.35, size: 3 });
-  }
-
-  // ---- the bag ------------------------------------------------------------
-  function available(t) { return (G.offerings[t] || 0) + (G.blessed[t] || 0); }
-  function total() { return OFFER_ORDER.reduce((s, k) => s + available(k), 0); }
-  function autoSelect() {
-    if (G.selOffer && available(G.selOffer) > 0) return;
-    G.selOffer = OFFER_ORDER.find((k) => available(k) > 0) || null;
-    UI.refreshTray();
-  }
-  function give(type, blessed) {
-    if (blessed) G.blessed[type] = (G.blessed[type] || 0) + 1;
-    else G.offerings[type] = (G.offerings[type] || 0) + 1;
-    autoSelect(); UI.refreshTray(); UI.refreshRunHUD();
-  }
-
-  function make(type, blessed, x, y) {
-    const def = OFFERINGS[type];
-    const sz = CUBE_SIZE;
-    let w = def.w * sz, h = def.h * sz;
-    if (R.rot) { const t = w; w = h; h = t; }
-    let friction = def.friction * 1.45 * (1 + lvl('grip') * 0.12);
-    if (blessed) friction *= 1.12;
-    return new Physics.Body({
-      x, y, width: w, height: h, density: def.density, friction,
-      restitution: def.restitution * 0.4, adhesion: def.adhesion + 900 + lvl('grip') * 320,
-      angularDamping: 0.42, linearDamping: 0.08,
-      userData: { type, blessed, placed: true, settled: false, sq: 0, eye: U.rand(0, TAU), blink: U.rand(2, 7) },
-    });
-  }
-  function drop() {
-    if (!R.open || G.paused) return;
-    if (!R.canDrop || R.falling) return;
-    const type = G.selOffer;
-    if (!type || available(type) <= 0) { autoSelect(); Audio.play('error'); return; }
-    let blessed = false;
-    if ((G.blessed[type] || 0) > 0) { G.blessed[type]--; blessed = true; } else G.offerings[type]--;
-    const b = make(type, blessed, R.craneX, craneY() + 22);
-    b.vx = (R.craneX - R.lastCraneX) * 60 * 0.07; b.vy = 24;
-    if (!G.fruits.steadyclaw) b.angle = U.rand(-0.05, 0.05);
-    world.add(b);
-    R.falling = b; R.canDrop = false;
-    Audio.play('whoosh');
-    autoSelect(); UI.refreshTray(); UI.refreshHUD();
-  }
-  function craneY() { return towerTop() - 70; }
-  function towerTop() {
-    let top = PLAT_Y;
-    for (const b of world.bodies) if (b.userData && b.userData.placed && b.restTime > 0.05 && b.y < PLAT_Y) top = Math.min(top, b.top());
-    return top;
-  }
-  function computeHeight() {
-    let top = PLAT_Y;
-    for (const b of world.bodies) if (b.userData && b.userData.settled && b.restTime > 0.05 && b.y < PLAT_Y + 40) top = Math.min(top, b.top());
-    return Math.max(0, Math.round(((PLAT_Y - top) / CUBE_SIZE) * 100 + 0.4) / 100);
-  }
-
-  // ---- money --------------------------------------------------------------
-  // Two taps. Each cube pays when it settles, and the crowd pays by the second
-  // for as long as the tower stands. Height drives both.
-  function payMult() {
-    let m = 1 + 0.14 * lvl('seats');
-    if (G.blessings.wombonysus) m *= 2;
-    if ((G.up.cart || 0) >= 3) m *= 1.1;
-    return m;
-  }
-  function cubePay(b) {
-    const ud = b.userData, def = OFFERINGS[ud.type];
-    let v = def.value * (ud.blessed ? 2 : 1);
-    v *= 1 + 0.26 * R.height;                       // every storey is worth more
-    v *= 1 + 0.08 * R.combo;                        // and a clean run of drops pays
-    return Math.max(1, Math.round(v * payMult()));
-  }
-  function tipRate() {
-    if (R.height < 0.5) return 0;
-    return (0.6 + R.height * 0.85) * (1 + tipBonus(G) + trophyBonus(G)) * payMult() * (1 + crowd.length * 0.04);
-  }
-  function earn(a, x, y, big) {
-    G.wd += a; R.session += a; G.stats.earned += a;
-    if (x !== undefined) {
-      FX.float(x, y, '+' + U.fmt(a), { color: PAL.gold4, size: big ? 10 : 8, world: true, life: 1.1 });
-      // the camera is doing the work here, so the coins are handed over in
-      // screen space or they would fly off with the scenery
-      const cam = FX.cam;
-      FX.coinBurst((x - cam.x) * cam.zoom + W / 2, (y - cam.y) * cam.zoom + H / 2,
-        big ? 3 : 2, false);
-    }
-    UI.refreshHUD();
-  }
-
-  function onSettled(b) {
-    b.userData.settled = true;
-    R.settled++; R.streak++;
-    R.combo = Math.min(12, R.combo + 1); R.comboT = 5;
-    R.height = computeHeight();
-    const p = cubePay(b);
-    earn(p, b.x, b.y - b.height / 2 - 8, true);
-    R.excite = Math.min(2, R.excite + 0.9);
-    Audio.play('place'); Audio.play('coin');
-    b.userData.sq = 0.34;
-    if (R.combo >= 3) {
-      FX.comic(b.x, b.y - b.height / 2 - 26, 'x' + R.combo, { ink: FX.COMIC_INK.yay, world: true });
-    }
-    if (Math.abs(b.x - PX) < 6 && R.height > 1) {
-      FX.float(b.x, b.y - b.height / 2 - 24, 'NEAT!', { color: PAL.cyan3, size: 9, world: true });
-      FX.sparkle(b.x, b.y, 10, PAL.cyan3); earn(Math.round(p * 0.5));
-    }
-    if (R.height > R.peak) R.peak = R.height;
-    checkRank();
-    serialise();
-    UI.refreshRunHUD();
-  }
-  // The ladder: a height you have never reached pays once, and lifts the tip
-  // rate for good.
-  function checkRank() {
-    const h = Math.floor(R.peak);
-    if (h <= (G.record || 0)) return;
-    const was = G.record || 0;
-    G.record = h;
-    for (const k of STACK_RANKS) {
-      if (k.h > was && k.h <= h) {
-        earn(k.pay);
-        R.rankShown = k; R.rankT = 3;
-        FX.title(k.name.toUpperCase(), { size: 20, color: PAL.gold4, dur: 2.4, sub: '+' + U.fmt(k.pay) + ' W$' });
-        FX.confettiBurst(W / 2, H * 0.32, 120);
-        FX.flash(U.rgba(PAL.gold4, 0.4), 0.35); FX.punch(0.12);
-        Audio.play('record'); Audio.play('cheer', 1);
-        R.cheerT = 2.4;
-      }
-    }
-    if (h > was) UI.refreshRunHUD();
-  }
-
-  // ---- the crowd ----------------------------------------------------------
-  function seat(i) {
-    const side = i % 2 ? 1 : -1, k = Math.floor(i / 2);
-    const col = k % 6, row = Math.floor(k / 6) % 3;
-    return { x: PX + side * (118 + col * 32 + row * 11 + ((i * 37) % 9)), y: GROUND - 2 - col * 8 - row * 5 };
-  }
-  function updateCrowd(dt) {
-    let f = 1;
-    for (const d of DECOR) if (G.decor[d.key] && d.favor) f += d.favor;
-    const want = Math.min(crowdCap(), Math.floor(2 + Math.pow(Math.max(0, R.height), 1.4) * 1.2 * f));
-    while (crowd.length < want) {
-      const i = crowd.length, s = seat(i);
-      crowd.push({ x: s.x + (s.x > PX ? 220 : -220), tx: s.x, y: s.y, hop: 0,
-        pelt: U.pick(FUR.filter((p) => !p.rare)).key, ph: U.rand(0, TAU) });
-    }
-    while (crowd.length > want + 1) crowd.pop();
-    R.rate = tipRate();
-    R.acc += R.rate * dt;
-    if (R.acc >= 1) { const a = Math.floor(R.acc); R.acc -= a; G.wd += a; R.session += a; G.stats.earned += a; UI.refreshHUD(); }
-    R.excite = Math.max(0, R.excite - dt);
-    R.cheerT = Math.max(0, R.cheerT - dt);
-    for (const c of crowd) {
-      c.x = U.lerp(c.x, c.tx, 1 - Math.pow(0.02, dt));
-      if (R.cheerT > 0 || R.excite > 0.6) c.hop = Math.min(1, c.hop + dt * 3);
-      else c.hop = Math.max(0, c.hop - dt * 2);
-    }
-    // stink motes drifting off the pile: free atmosphere, and it reads as cute
-    if (R.height >= 1 && Math.random() < dt * (2 + R.height * 0.25) && flakes.length < 26) {
-      flakes.push({ x: PX + U.rand(-60, 60), y: PLAT_Y - R.height * CUBE_SIZE * U.rand(0, 1), t: 0,
-        life: U.rand(1.6, 3), vx: U.rand(-9, 9), vy: U.rand(-16, -6), r: U.rand(2, 4) });
-    }
-    for (let i = flakes.length - 1; i >= 0; i--) {
-      const k = flakes[i]; k.t += dt;
-      k.x += k.vx * dt; k.y += k.vy * dt; k.vx += Math.sin(k.t * 2.4) * 6 * dt;
-      if (k.t >= k.life) flakes.splice(i, 1);
-    }
-  }
-
-  // ---- tick ---------------------------------------------------------------
-  function update(dt, realDt) {
-    if (!R.open) { if (G.mode === 'rite') { FX.cam.tzoom = 1; FX.cam.tx = PX; FX.cam.ty = 180; } return; }
-    if (!G.paused) {
-      const steady = 1 - Math.min(0.75, lvl('crane') * 0.15);
-      const sp = 1.3 * steady * (G.fruits.steadyclaw ? 0.78 : 1);
-      R.craneT += dt * sp;
-      const amp = lvl('crane') >= 5 ? 0 : Math.min(platWidth() * 0.52 + 16, 52 + R.height * 2.2);
-      R.lastCraneX = R.craneX;
-      R.craneX = lvl('crane') >= 5 ? U.clamp(G.pointer.x, PX - 150, PX + 150) : PX + Math.sin(R.craneT) * amp;
-      if (R.dropCd > 0) R.dropCd -= dt;
-      if (R.comboT > 0) { R.comboT -= dt; if (R.comboT <= 0) R.combo = 0; }
-      if (R.rankT > 0) R.rankT -= realDt;
-      physAcc += dt;
-      const step = 1 / 180; let n = 0;
-      while (physAcc >= step && n < 14) { world.step(step); physAcc -= step; n++; }
-      if (n >= 14) physAcc = 0;
-    }
-    for (const b of world.bodies) if (b.userData && b.userData.sq) b.userData.sq = Math.max(0, b.userData.sq - realDt * 1.6);
-    // A cube that leaves the tower is caught below and handed back. Nothing is
-    // ever lost, so a topple costs you time and nothing else.
-    for (let i = world.bodies.length - 1; i >= 0; i--) {
-      const b = world.bodies[i], ud = b.userData;
-      if (!ud || ud.platform) continue;
-      const onFloor = ud.settled && b.restTime > 0.6 && b.y > PLAT_Y + 24;
-      if (b.y > GROUND + 60 || onFloor) {
-        world.remove(b);
-        if (b === R.falling) landed(b);
-        give(ud.type, ud.blessed);
-        R.caught++; R.combo = 0;
-        const cx = U.clamp(b.x, PX - 150, PX + 150);
-        FX.float(cx, GROUND - 26, 'CAUGHT', { color: PAL.cyan3, size: 8, world: true, life: 0.9 });
-        FX.burst(cx, GROUND - 16, 9, { color: [PAL.cream, PAL.cyan3], speed: 80, life: 0.5 });
-        Audio.play('pop');
-        for (const c of crowd) if (Math.abs(c.x - cx) < 90) c.hop = 1;
-        continue;
-      }
-      if (!ud.settled && b !== R.falling && b.restTime > 0.45) onSettled(b);
-    }
-    R.height = computeHeight();
-    if (R.height > R.peak) { R.peak = R.height; checkRank(); }
-    updateCrowd(dt);
-    // the camera holds the whole tower and the crane in frame
-    const cy = craneY() - 30;
-    const span = GROUND + 50 - cy;
-    const zoom = U.clamp(H / Math.max(286, span), 0.2, 1.26);
-    FX.cam.tzoom = zoom;
-    FX.cam.tx = PX;
-    FX.cam.ty = GROUND + 50 - (H / 2) / FX.cam.tzoom;
-  }
-
-  // ---- input --------------------------------------------------------------
-  function click(x, y) {
-    if (!R.open) return;
-    drop();
-  }
-  function key(k) {
-    if (k === ' ') { drop(); return true; }
-    if (k === 'r' || k === 'R') { R.rot = !R.rot; Audio.play('click'); return true; }
-    const n = parseInt(k);
-    if (n >= 1 && n <= 9) {
-      const t = OFFER_ORDER.filter((c) => available(c) > 0)[n - 1];
-      if (t) { G.selOffer = t; UI.refreshTray(); UI.refreshRunHUD(); Audio.play('click'); }
-      return true;
-    }
-    return false;
-  }
-
-  // ---- scene --------------------------------------------------------------
-  function render(g) {
-    const cam = FX.cam;
-    g.fillStyle = '#0d0a16'; g.fillRect(0, 0, W, H);
-    g.save();
-    g.translate(W / 2 + cam.shakeX, H / 2 + cam.shakeY);
-    g.scale(cam.zoom, cam.zoom);
-    g.translate(-cam.x, -cam.y);
-    const vw = W / cam.zoom, vh = H / cam.zoom;
-    const vx0 = cam.x - vw / 2, vy0 = cam.y - vh / 2;
-    for (let i = 0; i < 8; i++) {
-      g.fillStyle = U.mix('#0f0b1c', '#2f2246', i / 7);
-      g.fillRect(vx0, vy0 + (vh * i) / 8, vw, vh / 8 + 2);
-      if (i < 7) Art.dither(g, vx0, vy0 + (vh * (i + 0.62)) / 8, vw, vh / 20, U.mix('#0f0b1c', '#2f2246', (i + 1) / 7), 0.5);
-    }
-    // cloud banks, so the sky is not an empty wash
-    {
-      const cr = Art.rng(771);
-      for (let i = 0; i < 22; i++) {
-        const cx3 = vx0 + cr() * vw, cy3 = vy0 + cr() * vh * 0.8, cw = 60 + cr() * 150;
-        g.globalAlpha = 0.05 + cr() * 0.07;
-        Art.ell(g, cx3, cy3, cw, 7 + cr() * 9, '#6a5a86');
-        Art.ell(g, cx3 - cw * 0.3, cy3 - 5, cw * 0.5, 5 + cr() * 6, '#8a78a8');
-      }
-      g.globalAlpha = 1;
-    }
-    g.fillStyle = PAL.cream;
-    for (let i = 0; i < 70; i++) {
-      const sx = (i * 149) % 1400 - 400, sy = (i * 83) % 900 - 500;
-      g.globalAlpha = 0.3 + 0.5 * Math.sin(G.time * 1.6 + i);
-      g.fillRect(sx, sy, 2, 2);
-    }
-    g.globalAlpha = 1;
-    // a big low moon
-    g.fillStyle = 'rgba(194,244,255,0.12)'; Art.ell(g, PX - 210, -120, 70, 70);
-    g.fillStyle = '#c2f4ff'; Art.ell(g, PX - 210, -120, 40, 40);
-    g.fillStyle = '#9fd8e6'; Art.ell(g, PX - 196, -132, 12, 12); Art.ell(g, PX - 222, -104, 8, 8);
-    // Two ranks of forest, dark enough to stay backdrop and thinned out in the
-    // middle so the plinth has the clearing to itself.
-    const gap = (x) => Math.min(1, Math.abs(x - PX) / 190);        // 0 in the centre
-    for (let i = 0; i < 20; i++) {
-      const tx = PX - 520 + i * 55;
-      if (gap(tx + 34) < 0.34) continue;
-      const img = Props.get('tree', `${['oak', 'gnarl', 'pine'][i % 3]}|${i % 4}|0.9`);
-      const sc = 0.5 + (i % 3) * 0.09;
-      g.drawImage(img, tx, GROUND - img.height * sc + 10, img.width * sc, img.height * sc);
-    }
-    for (let i = 0; i < 11; i++) {
-      const tx = PX - 540 + i * 104;
-      if (gap(tx + 44) < 0.62) continue;
-      const img = Props.get('tree', `${['gnarl', 'pine', 'oak'][i % 3]}|${(i + 2) % 4}|0.78`);
-      const sc = 0.82 + (i % 3) * 0.12;
-      g.drawImage(img, tx, GROUND - img.height * sc + 16, img.width * sc, img.height * sc);
-    }
-    // one cold wash to sink the whole treeline behind the yard
-    {                                      // the cold wash, as eight flat bands
-      const oa = g.globalAlpha;
-      for (let i = 0; i < 8; i++) {
-        g.globalAlpha = oa * 0.55 * (1 - i / 8);
-        Art.rect(g, vx0, GROUND - 150 + i * 20, vw, 21, '#1c142e');
-        g.globalAlpha = oa * 0.2 * (i / 8);
-        Art.rect(g, vx0, GROUND - 150 + i * 20, vw, 21, '#2c1c3a');
-      }
-      g.globalAlpha = oa;
-    }
-    // ground
-    g.fillStyle = '#140f1e'; g.fillRect(vx0, GROUND, vw, vh);
-    {                                      // packed dirt: grit, ruts and gravel
-      const gr2 = Art.rng(4180);
-      for (let i = 0; i < 1400; i++) {
-        const x2 = vx0 + gr2() * vw, y2 = GROUND + gr2() * Math.min(vh, 260), k = gr2();
-        g.fillStyle = k < 0.45 ? '#1b1526' : k < 0.78 ? '#241c32' : '#2f2540';
-        g.fillRect(Math.round(x2), Math.round(y2), 1 + (k > 0.9 ? 1 : 0), 1);
-      }
-      for (let i = 0; i < 16; i++) {       // cart ruts scraped across the yard
-        const y2 = GROUND + 8 + gr2() * 230, w2 = 60 + gr2() * 200;
-        g.fillStyle = '#100c1a'; g.fillRect(Math.round(vx0 + gr2() * vw), Math.round(y2), Math.round(w2), 1);
-        g.fillStyle = '#2b2340'; g.fillRect(Math.round(vx0 + gr2() * vw), Math.round(y2 + 1), Math.round(w2 * 0.7), 1);
-      }
-    }
-    g.fillStyle = '#1d1728'; Art.ell(g, PX, GROUND + 12, 300, 34);
-    for (let i = -10; i <= 10; i++) {
-      const cx2 = PX + i * 34;
-      g.fillStyle = i % 2 === 0 ? PAL.stone2 : PAL.stone1;
-      g.fillRect(cx2 - 17, GROUND - 7, 34, 10);
-      g.fillStyle = i % 2 === 0 ? PAL.stone3 : PAL.stone0;
-      g.fillRect(cx2 - 17, GROUND + 3, 34, 3);
-    }
-    g.fillStyle = 'rgba(0,0,0,0.34)'; g.fillRect(vx0, GROUND - 7, vw, 3);
-    // braziers out of the way, throwing light back at the pile
-    for (const s of [-1, 1]) {
-      const bx = PX + s * 236;
-      const img = Props.get('brazier');
-      g.drawImage(img, bx - img.width / 2, GROUND - img.height + 4);
-      const fl = 0.5 + 0.5 * Math.sin(G.time * 6 + s);
-      Art.glow(g, bx, GROUND - 30, 92 + fl * 20, '#e0705a', 0.36 + fl * 0.16, 5);
-    }
-    // The stands you paid for: stepped timber bleachers either side, one more
-    // tier for every level, so the upgrade is something you can see.
-    const seats = lvl('seats');
-    if (seats > 0) {
-      for (const sd of [-1, 1]) {
-        const rows = Math.min(6, seats);
-        for (let t = rows - 1; t >= 0; t--) {           // back rows first
-          const y = GROUND - 14 - t * 15;
-          const xa = PX + sd * (126 + t * 38), xb = xa + sd * 44;
-          const x = Math.min(xa, xb);
-          g.fillStyle = '#3a2a1a'; g.fillRect(x, y, 44, GROUND - y);       // the riser
-          g.fillStyle = '#6a4c2c'; g.fillRect(x, y, 44, 6);                // the plank
-          g.fillStyle = '#8a6840'; g.fillRect(x, y, 44, 2);
-          g.fillStyle = 'rgba(0,0,0,0.42)'; g.fillRect(x, y + 6, 44, 3);
-          g.fillStyle = '#241708';                                          // legs
-          g.fillRect(x + 3, y + 9, 3, GROUND - y - 9);
-          g.fillRect(x + 38, y + 9, 3, GROUND - y - 9);
-        }
-        // a rail along the back of the top row
-        const ty = GROUND - 14 - (Math.min(6, seats) - 1) * 15;
-        const rx = PX + sd * (126 + (Math.min(6, seats) - 1) * 38);
-        g.fillStyle = '#6a4c2c';
-        g.fillRect(Math.min(rx, rx + sd * 44), ty - 13, 44, 3);
-        g.fillRect(Math.min(rx, rx + sd * 44) + (sd > 0 ? 41 : 0), ty - 13, 3, 13);
-      }
-    }
-    // a moonlit pool of light on the pavement, so the plinth has a stage
-    {                                      // the stage pool, as flat pixel ovals
-      const oa = g.globalAlpha;
-      for (let i = 5; i >= 1; i--) {
-        g.globalAlpha = oa * 0.13 * (1 - (i - 1) / 5);
-        Art.ell(g, PX, GROUND - 8, 210 * (i / 5), 52 * (i / 5), '#b4ccff');
-      }
-      g.globalAlpha = oa;
-    }
-    // height rungs, and the next rank marked in gold
-    const nx = nextRank(Math.max(Math.floor(R.peak), G.record || 0));
-    for (let h = 5; h <= Math.max(15, R.peak + 10); h += 5) {
-      const y = PLAT_Y - h * CUBE_SIZE;
-      g.fillStyle = h <= R.height ? 'rgba(132,187,89,0.4)' : 'rgba(253,243,220,0.14)';
-      for (let x = PX - 170; x < PX + 170; x += 13) g.fillRect(Math.round(x), Math.round(y), 5, 1);
-      Font.draw(g, String(h), PX - 178, y - 4, { scale: 1, align: 'right', color: 'rgba(253,243,220,0.45)' });
-    }
-    if (nx) {
-      const y = PLAT_Y - nx.h * CUBE_SIZE;
-      g.fillStyle = 'rgba(216,165,47,0.6)';
-      for (let x = PX - 176; x < PX + 176; x += 15) g.fillRect(Math.round(x), Math.round(y) - 1, 9, 2);
-      Font.draw(g, nx.name.toUpperCase() + '  ' + nx.h, PX - 176, y - 6, { scale: 1, color: PAL.gold4, shadow: '#120c18' });
-    }
-    // plinth
-    const pw = platWidth();
-    const ped = Props.get('plinth', Math.round(pw));
-    g.drawImage(ped, PX - pw / 2, PLAT_Y + PLAT_H - 2, pw, GROUND - PLAT_Y - PLAT_H + 2);
-    if (platform) {
-      g.save(); g.translate(platform.x, platform.y);
-      g.fillStyle = PAL.stone3; g.fillRect(-pw / 2, -PLAT_H / 2, pw, PLAT_H);
-      g.fillStyle = PAL.stone4; g.fillRect(-pw / 2, -PLAT_H / 2, pw, 3);
-      g.fillStyle = PAL.stone0; g.fillRect(-pw / 2, PLAT_H / 2 - 3, pw, 3);
-      g.fillStyle = PAL.div3; for (let x = -pw / 2 + 5; x < pw / 2 - 5; x += 18) g.fillRect(x, -PLAT_H / 2 + 5, 9, 3);
-      g.restore();
-    }
-    // landing guide
-    if (G.fruits.seersight && !R.falling && G.selOffer) {
-      const def = OFFERINGS[G.selOffer];
-      const hw = (R.rot ? def.h : def.w) * CUBE_SIZE / 2;
-      let hy = PLAT_Y;
-      for (const b of world.bodies) {
-        if (!b.userData || b.userData.platform) continue;
-        const bb = b.aabb();
-        if (bb.maxX > R.craneX - hw && bb.minX < R.craneX + hw) hy = Math.min(hy, bb.minY);
-      }
-      g.fillStyle = 'rgba(121,220,237,0.5)';
-      for (let y2 = craneY() + 24; y2 < hy; y2 += 8) {
-        g.fillRect(Math.round(R.craneX - hw), Math.round(y2), 1, 3);
-        g.fillRect(Math.round(R.craneX + hw), Math.round(y2), 1, 3);
-      }
-      g.fillStyle = 'rgba(121,220,237,0.35)'; g.fillRect(R.craneX - hw, hy - 2, hw * 2, 2);
-    }
-    // the pile
-    for (const b of world.bodies) {
-      const ud = b.userData; if (!ud || ud.platform) continue;
-      const def = OFFERINGS[ud.type];
-      const sq = ud.sq || 0;
-      const br = ud.settled ? Math.sin(G.time * 2.2 + (ud.eye || 0)) * 0.012 : 0;
-      g.save(); g.translate(b.x, b.y); g.rotate(b.angle); g.scale(1 + sq + br, 1 - sq - br);
-      Sprites.drawCube(g, def, b.width, b.height, {
-        blessed: ud.blessed,
-        outline: b === R.falling ? PAL.cream : (ud.blessed ? PAL.div4 : null),
-        face: ud.settled ? faceOf(ud) : 'fall',
-      });
-      g.restore();
-    }
-    // stink motes
-    for (const k of flakes) {
-      const a = Math.min(1, k.t / 0.3) * (1 - k.t / k.life);
-      g.globalAlpha = a * 0.45;
-      g.fillStyle = '#9fb07a';
-      Art.ell(g, k.x, k.y, k.r, k.r * 0.8);
-      g.globalAlpha = 1;
-    }
-    drawCrane(g);
-    // the congregation
-    for (const c of crowd) {
-      const pose = c.hop > 0.4 ? 'happy' : 'pray';
-      const fr = Math.floor(G.time * (pose === 'happy' ? 9 : 3) + c.ph);
-      const lift = c.hop > 0.4 ? Math.abs(Math.sin(G.time * 7 + c.ph)) * 7 * c.hop : 0;
-      Sprites.blit(g, c.x, c.y - lift, pose, fr, c.pelt, c.x > PX ? -1 : 1, 'adult', 1.35);
-      if (c.hop > 0.7 && ((Math.floor(G.time * 2 + c.ph) % 5) === 0)) {
-        Icons.blit(g, 'heart', c.x - 5, c.y - 34 - lift, 0.7);
-      }
-    }
-    FX.drawParticles(g, 0);
-    FX.drawFloaters(g, true);
-    g.restore();
-    FX.drawParticles(g, 1);
-    FX.drawConfetti(g);
-    FX.drawFloaters(g, false);
-    overlay(g);
-  }
-  // the cube's little face: mostly happy, blinking now and then
-  function faceOf(ud) {
-    const t = G.time + ud.eye;
-    return (t % ud.blink) < 0.16 ? 'blink' : 'happy';
-  }
-  function drawCrane(g) {
-    const cy = craneY(), cam = FX.cam, vw = W / cam.zoom;
-    g.fillStyle = PAL.bark0; g.fillRect(cam.x - vw, cy - 34, vw * 2, 5);
-    g.fillStyle = PAL.bark0; g.fillRect(cam.x - vw, cy - 22, vw * 2, 5);
-    g.fillStyle = PAL.bark1;
-    for (let x = -3000; x < 3000; x += 24) { g.fillRect(x, cy - 30, 3, 9); g.fillRect(x + 12, cy - 30, 3, 9); }
-    g.fillStyle = PAL.bark3; g.fillRect(cam.x - vw, cy - 34, vw * 2, 1);
-    if (lvl('seats') > 0) {                            // bunting, one run per stand
-      const cols = [PAL.red3, PAL.gold4, PAL.cyan3, PAL.moss5, PAL.div4];
-      for (let i = -14; i <= 14; i++) {
-        const fx = PX + i * 34, sag = Math.sin(i * 0.8 + G.time * 1.4) * 2;
-        g.fillStyle = cols[(i + 14) % cols.length];
-        Art.poly(g, [[fx - 6, cy - 17 + sag], [fx + 6, cy - 17 + sag], [fx, cy - 6 + sag]], g.fillStyle);
-      }
-    }
-    g.fillStyle = PAL.stone2; g.fillRect(R.craneX - 15, cy - 25, 30, 15);
-    g.fillStyle = PAL.stone4; g.fillRect(R.craneX - 15, cy - 25, 30, 2);
-    g.fillStyle = PAL.div3; g.fillRect(R.craneX - 9, cy - 19, 18, 3);
-    g.fillStyle = PAL.ink; g.fillRect(R.craneX - 1, cy - 10, 2, 19);
-    g.fillStyle = PAL.stone3; g.fillRect(R.craneX - 13, cy + 6, 26, 5);
-    g.fillStyle = PAL.stone2; g.fillRect(R.craneX - 13, cy + 6, 5, 10); g.fillRect(R.craneX + 8, cy + 6, 5, 10);
-    if (!R.falling && R.canDrop && G.selOffer) {
-      const def = OFFERINGS[G.selOffer];
-      let w = def.w * CUBE_SIZE, h = def.h * CUBE_SIZE;
-      if (R.rot) { const t = w; w = h; h = t; }
-      const sway = (R.craneX - R.lastCraneX) * 0.02;
-      g.save(); g.translate(R.craneX, cy + 22 + h / 2 - 12); g.rotate(-sway);
-      Sprites.drawCube(g, def, w, h, { blessed: (G.blessed[G.selOffer] || 0) > 0, outline: 'rgba(253,243,220,0.6)', face: 'ready' });
-      g.restore();
-    }
-  }
-  // the gauge up the right-hand side
-  function overlay(g) {
-    const rx = W - 30, y0 = 54, y1 = H - 44;
-    g.fillStyle = PAL.ink; g.fillRect(rx - 9, y0 - 10, 20, y1 - y0 + 20);
-    g.fillStyle = PAL.bark1; g.fillRect(rx - 8, y0 - 9, 18, y1 - y0 + 18);
-    g.fillStyle = PAL.bark0; g.fillRect(rx - 4, y0, 10, y1 - y0);
-    const nx = nextRank(Math.max(Math.floor(R.peak), G.record || 0));
-    const maxH = Math.max(12, nx ? nx.h : Math.ceil((R.peak + 4) / 4) * 4);
-    g.fillStyle = PAL.bark3;
-    for (let t = 0; t <= maxH; t += Math.max(2, Math.round(maxH / 8))) g.fillRect(rx - 8, Math.round(y1 - (t / maxH) * (y1 - y0)), 5, 1);
-    const hy = y1 - Math.min(1, R.height / maxH) * (y1 - y0);
-    g.fillStyle = PAL.moss3; g.fillRect(rx - 4, hy, 10, y1 - hy);
-    g.fillStyle = PAL.moss5; g.fillRect(rx - 4, hy, 10, 2);
-    if (G.record > 0) {
-      const ry = y1 - Math.min(1, G.record / maxH) * (y1 - y0);
-      g.fillStyle = PAL.gold4; g.fillRect(rx - 9, ry, 20, 2);
-    }
-    Font.draw(g, R.height.toFixed(1), rx + 1, y1 + 14, { scale: 1.4, align: 'center', color: PAL.cream, shadow: '#120c18' });
-  }
-
-  // What the crowd paid while you were away. The tower keeps standing and the
-  // wombats keep tipping; it is the whole point of leaving it up.
-  function idleHeight() {
-    const list = G.stack || [];
-    if (!list.length) return 0;
-    let top = PLAT_Y;
-    for (const s of list) {
-      const def = OFFERINGS[s.t]; if (!def) continue;
-      top = Math.min(top, s.y - (def.h * CUBE_SIZE) / 2);
-    }
-    return Math.max(0, (PLAT_Y - top) / CUBE_SIZE);
-  }
-  function offline(sec) {
-    const h = idleHeight();
-    if (h < 1) return 0;
-    const rate = (0.6 + h * 0.85) * (1 + tipBonus(G) + trophyBonus(G)) * (1 + 0.14 * lvl('seats')) * 0.4;
-    const got = Math.floor(rate * Math.min(sec, 14400));
-    if (got > 0) { G.wd += got; G.stats.earned += got; }
-    return got;
-  }
-
-  return {
-    init(g) { G = g; resetWorld(); },
-    offline, idleHeight,
-    R, world, update, render, click, key, drop, total, available, autoSelect, enter, leave, serialise,
-    get open() { return R.open; },
-    get active() { return R.open; },
-    get crowdSize() { return crowd.length; },
-    get rate() { return R.rate; },
-  };
+  return { init, update, draw, state, toggle, check, poke, hit, say, current, paid, hutHit, hutHere, drawHut, get cult() { return cult; }, get hutX() { return HUT.x; }, STEPS };
 })();
 </script>
 
@@ -15852,7 +15351,7 @@ const UI = (() => {
       el.className = 'chip' + (keys && G.selOffer === k ? ' on' : '');
       el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
       el.onclick = (e) => onClick(k, e);
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${def.value} W$ stacked, more the higher it goes${def.sell ? `<br>${def.sell} W$ pawned` : ''}${bl ? '<br><b>blessed</b> pays double' : ''}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from the hooded one${def.sell ? `<br>${def.sell} W$ pawned at the mart` : ''}${bl ? '<br><b>blessed</b>' : ''}`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
@@ -15871,37 +15370,13 @@ const UI = (() => {
     purseT = setTimeout(() => el.classList.remove('ping'), 320);
   }
 
-  // ---- the stack ----------------------------------------------------------
-  function refreshRunHUD() {
-    if (!Tower.open) return;
-    const R = Tower.R;
-    $('r-h').textContent = R.height.toFixed(1);
-    $('r-c').textContent = Tower.crowdSize;
-    $('r-e').textContent = U.fmt(R.session);
-    $('r-rate').textContent = '+' + (Tower.rate < 10 ? Tower.rate.toFixed(1) : U.fmt(Math.round(Tower.rate))) + '/s';
-    const nx = nextRank(Math.max(Math.floor(R.peak), G.record || 0));
-    const box = $('r-rank');
-    if (!nx) { box.innerHTML = '<div class="rname">THE GREAT STACK</div><div class="rsub">nothing left to beat</div>'; return; }
-    const done = Math.min(1, R.height / nx.h);
-    box.innerHTML = `<div class="rname">${nx.name}</div>
-      <div class="rbar"><i style="width:${(done * 100).toFixed(0)}%"></i></div>
-      <div class="rsub">${Math.floor(R.height)}/${nx.h} &middot; ${U.fmt(nx.pay)} W$</div>`;
-  }
-  function onRunStart() { refreshRunHUD(); refreshOfferTray(); }
-  function onRunPlay() { refreshRunHUD(); }
+  // The stack is gone: the hooded one buys the cubes off you at his hut now.
+  function refreshRunHUD() { }
+  function onRunStart() { }
+  function onRunPlay() { }
   function hideRunHUD() { }
-  function onRunEnd() { refreshHUD(); refreshOfferTray(); }
-  function refreshRiteCard() {
-    if (G.mode !== 'rite') return;
-    refreshRunHUD();
-    refreshOfferTray();
-  }
-  function refreshOfferTray() {
-    const box = $('rite-slots');
-    if (!box) return;
-    box.innerHTML = '';
-    offerSlots(box, (k) => { G.selOffer = k; Audio.play('click'); refreshOfferTray(); }, true);
-  }
+  function onRunEnd() { refreshHUD(); }
+  function refreshRiteCard() { }
 
   // ---- store basket -------------------------------------------------------
   // Two shops share this panel, so everything below asks which one you are in.
@@ -15954,7 +15429,7 @@ const UI = (() => {
     const pay = $('b-pay');
     if (pay) pay.onclick = () => { St.checkout(); Audio.play('till'); closePanels(); renderBasket(); };
     $('b-clear').onclick = () => { St.clear(); Audio.play('click'); renderBasket(); };
-    if ($('b-sell')) $('b-sell').onclick = () => { openPanel('panel-pawn'); };
+    if ($('b-sell')) $('b-sell').onclick = () => { openPawn('shop'); };
   }
 
   // ---- tooltip ------------------------------------------------------------
@@ -16074,17 +15549,32 @@ const UI = (() => {
     paintPup();
   }
 
+  // Two people buy things off you: the pawn counter at the mart, which only
+  // wants the gilded and the rune, and the hooded one, who wants every cube
+  // you have and pays more the more you bring.
+  let pawnMode = 'shop';
+  function openPawn(mode) { pawnMode = mode || 'shop'; openPanel('panel-pawn'); }
   function renderPawn() {
-    let h = '<div class="grid">';
+    const cult = pawnMode === 'cult';
+    const head = $('panel-pawn').querySelector('.ptitle');
+    if (head) head.textContent = cult ? 'THE HOODED ONE BUYS' : 'SELL';
+    let h = cult ? `<p class="pnote">He takes the lot &mdash; every cube she leaves, whatever kind. The more you bring at once, the better the rate.</p><div class="grid">` : '<div class="grid">';
     let any = false;
     for (const k of OFFER_ORDER) {
       const def = OFFERINGS[k];
-      if (!def.sell) continue;
+      if (!cult && !def.sell) continue;
       const n = (G.offerings[k] || 0) + (G.blessed[k] || 0);
+      const each = cult ? poopPrice(k, 1) : def.sell;
+      const lot = cult ? poopPrice(k, n) * n : def.sell * n;
       any = any || n > 0;
       h += `<div class="item ${n ? 'have' : ''}"><div class="pic">${ic(def.icon, 'xl')}</div>
-        <h3>${def.name} <span class="lv">${n}</span></h3><p>${def.sell} each</p>
-        <div class="act2">${n ? price(def.sell, `data-s="off" data-k="${k}" data-n="1"`) + (n > 1 ? price(def.sell * n, `data-s="off" data-k="${k}" data-n="${n}"`, 'all') : '') : '<button class="buy" disabled>&mdash;</button>'}</div></div>`;
+        <h3>${def.name} <span class="lv">${n}</span></h3><p>${each} each${cult && n > 1 ? ` &middot; ${poopPrice(k, n)} for a load` : ''}</p>
+        <div class="act2">${n ? price(each, `data-s="off" data-k="${k}" data-n="1"`) + (n > 1 ? price(lot, `data-s="off" data-k="${k}" data-n="${n}"`, 'all') : '') : '<button class="buy" disabled>&mdash;</button>'}</div></div>`;
+    }
+    if (cult) {
+      $('pawn-body').innerHTML = h + (any ? '' : `<div class="item"><div class="pic">${ic('o_plain', 'xl')}</div><h3>Nothing in the truck</h3><p>Feed a wombat, wait, and drag what she leaves into the back.</p></div>`) + '</div>';
+      $('pawn-body').querySelectorAll('button.buy').forEach((b) => { if (!b.disabled) b.onclick = () => pawnAct(b.dataset); });
+      return;
     }
     for (const god of GODS) {
       const n = G.artifacts[god.key] || 0;
@@ -16110,8 +15600,11 @@ const UI = (() => {
         else break;
         sold++;
       }
-      G.wd += def.sell * sold;
+      const each = pawnMode === 'cult' ? poopPrice(d.k, sold) : def.sell;
+      G.wd += each * sold;
+      G.stats.sold = (G.stats.sold || 0) + sold;
       FX.coinBurst(320, 200, 6);
+      if (pawnMode === 'cult') Guide.paid(each * sold);
     } else {
       const god = GOD_BY_KEY[d.k];
       if ((G.artifacts[d.k] || 0) < n) return;
@@ -16137,10 +15630,10 @@ const UI = (() => {
   }
   function hideAll() {
     closeWheel(); $('checklist').hidden = true; $('b-tool').hidden = true;
-    $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true; $('ov-nursery').hidden = true;
+    $('ov-shrine').hidden = true; $('ov-shop').hidden = true; $('ov-nursery').hidden = true;
     $('b-back').hidden = true;
   }
-  function refreshAll() { refreshHUD(); refreshTray(); if (G.mode === 'shrine') refreshRitual(); if (G.mode === 'rite') refreshRiteCard(); }
+  function refreshAll() { refreshHUD(); refreshTray(); if (G.mode === 'shrine') refreshRitual(); }
 
   // ---- setup --------------------------------------------------------------
   function init(g) {
@@ -16184,13 +15677,11 @@ const UI = (() => {
     $('zoomer').hidden = mode !== 'grove';
     if (intro) { closeWheel(); $('checklist').hidden = true; }
     $('ov-shrine').hidden = mode !== 'shrine';
-    $('ov-rite').hidden = mode !== 'rite';
     $('ov-shop').hidden = mode !== 'shop';
     $('ov-nursery').hidden = mode !== 'nursery';
     closeWheel();
     refreshTray(); refreshHUD();
     if (mode === 'shrine') refreshRitual();
-    if (mode === 'rite') refreshRiteCard();
     if (mode === 'shop' || mode === 'nursery') refreshBasket();
   }
   // the zoom column follows the camera so the nub always tells the truth
@@ -16206,7 +15697,7 @@ const UI = (() => {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, pingPurse,
-    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom, openWombat,
+    showTip, hideTip, place, setMode, openPanel, openPawn, closePanels, anyPanel, refreshZoom, openWombat,
   };
 })();
 </script>
@@ -16723,7 +16214,7 @@ const Menu = (() => {
     ['t_hoe', 'Break a bed, sow it', 'Hoe bare soil, drop seed on it, water it while it grows, pick it when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, she walks off, and she leaves a cube.'],
     ['truck', 'Load the truck', 'Drag the cubes to the truck at the edge of the clearing. Click it for the map.'],
-    ['u_seats', 'Stack it high', 'The Great Stack pays per cube and the crowd tips by the second while it stands.'],
+    ['u_seats', 'Sell him the cubes', 'The hooded one buys everything she leaves, and pays better for a load than for one.'],
     ['shrine', 'Call one down', 'Stack what she leaves at the ritual site and a god answers. There are nine.'],
   ];
   function drawHelp(g) {
@@ -16917,8 +16408,8 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      stack: [], trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
-      stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0 },
+      trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
+      stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0 },
       pointer: { x: 320, y: 240, on: false },
       paused: false, muted: false, musicOff: false, lastSave: Date.now(), seen: false,
     };
@@ -16929,7 +16420,6 @@ const Main = (() => {
       World.save();
       Sky.save();
       Grove.saveObjects();
-      if (G.mode === 'rite') Tower.serialise();     // the standing tower goes in the save
       G.lastSave = Date.now();
       if (!playing) return;
       const body = Object.assign({}, G, { paused: false, pointer: undefined });
@@ -17002,18 +16492,12 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       Sky.init(G); World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
+      Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
         const made = G.wombats.some((w) => w.stomach === 'digesting') ? Grove.offline(Math.min(away, 7200)) : 0;
-        const tips = Tower.offline(away);          // the standing tower kept earning
-        if (made > 0 || tips > 0) {
-          const bits = [];
-          if (made > 0) bits.push(`<b>${made}</b> poop`);
-          if (tips > 0) bits.push(`<b>${U.fmt(tips)}</b> W$ in tips`);
-          setTimeout(() => UI.toast(`${U.time(Math.min(away, 14400))} away &middot; ${bits.join(' &middot; ')}`, 'good'), 900);
-        }
+        if (made > 0) setTimeout(() => UI.toast(`${U.time(Math.min(away, 14400))} away &middot; <b>${made}</b> poop`, 'good'), 900);
       }
       G.paused = false;
       if (!G.introDone) { G.mode = 'intro'; Intro.enter(); UI.setMode('intro'); }
@@ -17042,7 +16526,6 @@ const Main = (() => {
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
     if (Ritual.active) return;
-    if (Tower.open && mode !== 'rite') Tower.leave();
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
@@ -17055,13 +16538,12 @@ const Main = (() => {
     else if (mode === 'grove') Grove.enter();
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
-    else if (mode === 'rite') Tower.enter();
     else if (mode === 'nursery') Nursery.enter();
-    if (mode !== 'rite') Audio.setMode('pen');
+    Audio.setMode('pen');
     save();
   }
   function back() {
-    if (G.mode === 'shrine' || G.mode === 'rite' || G.mode === 'shop' || G.mode === 'nursery') setMode('map');
+    if (G.mode === 'shrine' || G.mode === 'shop' || G.mode === 'nursery') setMode('map');
     else setMode('grove');
   }
 
@@ -17106,7 +16588,6 @@ const Main = (() => {
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
-      else if (G.mode === 'rite') Tower.click(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -17174,9 +16655,7 @@ const Main = (() => {
       if (G.mode === 'grove' && (e.key === '+' || e.key === '=')) { Grove.zoomBy(1.18, screenP.x, screenP.y); e.preventDefault(); return; }
       if (G.mode === 'grove' && (e.key === '-' || e.key === '_')) { Grove.zoomBy(1 / 1.18, screenP.x, screenP.y); e.preventDefault(); return; }
       if (e.key === 'h' || e.key === 'H') { UI.openPanel('panel-help'); return; }
-      if (G.mode === 'rite') {
-        if (Tower.key(e.key)) e.preventDefault();
-      } else if (G.mode === 'grove') {
+      if (G.mode === 'grove') {
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { Grove.panBy(-70); e.preventDefault(); return; }
         if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { Grove.panBy(70); e.preventDefault(); return; }
         const n = parseInt(e.key);
@@ -17231,10 +16710,9 @@ const Main = (() => {
     } else if (Grove.arriving) {
       Grove.update(real);
     }
-    if (G.mode !== 'intro' && G.mode !== 'menu') Tower.update(gdt, real);
     // The rite pauses the world but its own effects must keep running, or
     // bolts and roots spawned during the cutscene never expire.
-    FX.updateWorld(Ritual.active ? real : G.mode === 'rite' ? gdt : (G.paused ? 0 : real));
+    FX.updateWorld(Ritual.active ? real : (G.paused ? 0 : real));
 
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.imageSmoothingEnabled = false;
@@ -17248,8 +16726,7 @@ const Main = (() => {
       else if (G.mode === 'shrine') Ritual.renderShrine(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
-      else if (G.mode === 'nursery') Nursery.render(g);
-      else Tower.render(g);
+      else Nursery.render(g);
       g.restore();
     }
     FX.drawCoins(g, false);           // money on its way to the corner
@@ -17259,7 +16736,6 @@ const Main = (() => {
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
       if (G.mode === 'grove') UI.refreshZoom();
-      if (Tower.open) UI.refreshRunHUD();
       if (G.mode === 'shrine') UI.refreshRitual();
     }
   }
@@ -17284,7 +16760,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

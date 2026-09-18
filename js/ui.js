@@ -198,7 +198,7 @@ const UI = (() => {
       el.className = 'chip' + (keys && G.selOffer === k ? ' on' : '');
       el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
       el.onclick = (e) => onClick(k, e);
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${def.value} W$ stacked, more the higher it goes${def.sell ? `<br>${def.sell} W$ pawned` : ''}${bl ? '<br><b>blessed</b> pays double' : ''}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from the hooded one${def.sell ? `<br>${def.sell} W$ pawned at the mart` : ''}${bl ? '<br><b>blessed</b>' : ''}`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
@@ -217,37 +217,13 @@ const UI = (() => {
     purseT = setTimeout(() => el.classList.remove('ping'), 320);
   }
 
-  // ---- the stack ----------------------------------------------------------
-  function refreshRunHUD() {
-    if (!Tower.open) return;
-    const R = Tower.R;
-    $('r-h').textContent = R.height.toFixed(1);
-    $('r-c').textContent = Tower.crowdSize;
-    $('r-e').textContent = U.fmt(R.session);
-    $('r-rate').textContent = '+' + (Tower.rate < 10 ? Tower.rate.toFixed(1) : U.fmt(Math.round(Tower.rate))) + '/s';
-    const nx = nextRank(Math.max(Math.floor(R.peak), G.record || 0));
-    const box = $('r-rank');
-    if (!nx) { box.innerHTML = '<div class="rname">THE GREAT STACK</div><div class="rsub">nothing left to beat</div>'; return; }
-    const done = Math.min(1, R.height / nx.h);
-    box.innerHTML = `<div class="rname">${nx.name}</div>
-      <div class="rbar"><i style="width:${(done * 100).toFixed(0)}%"></i></div>
-      <div class="rsub">${Math.floor(R.height)}/${nx.h} &middot; ${U.fmt(nx.pay)} W$</div>`;
-  }
-  function onRunStart() { refreshRunHUD(); refreshOfferTray(); }
-  function onRunPlay() { refreshRunHUD(); }
+  // The stack is gone: the hooded one buys the cubes off you at his hut now.
+  function refreshRunHUD() { }
+  function onRunStart() { }
+  function onRunPlay() { }
   function hideRunHUD() { }
-  function onRunEnd() { refreshHUD(); refreshOfferTray(); }
-  function refreshRiteCard() {
-    if (G.mode !== 'rite') return;
-    refreshRunHUD();
-    refreshOfferTray();
-  }
-  function refreshOfferTray() {
-    const box = $('rite-slots');
-    if (!box) return;
-    box.innerHTML = '';
-    offerSlots(box, (k) => { G.selOffer = k; Audio.play('click'); refreshOfferTray(); }, true);
-  }
+  function onRunEnd() { refreshHUD(); }
+  function refreshRiteCard() { }
 
   // ---- store basket -------------------------------------------------------
   // Two shops share this panel, so everything below asks which one you are in.
@@ -300,7 +276,7 @@ const UI = (() => {
     const pay = $('b-pay');
     if (pay) pay.onclick = () => { St.checkout(); Audio.play('till'); closePanels(); renderBasket(); };
     $('b-clear').onclick = () => { St.clear(); Audio.play('click'); renderBasket(); };
-    if ($('b-sell')) $('b-sell').onclick = () => { openPanel('panel-pawn'); };
+    if ($('b-sell')) $('b-sell').onclick = () => { openPawn('shop'); };
   }
 
   // ---- tooltip ------------------------------------------------------------
@@ -420,17 +396,32 @@ const UI = (() => {
     paintPup();
   }
 
+  // Two people buy things off you: the pawn counter at the mart, which only
+  // wants the gilded and the rune, and the hooded one, who wants every cube
+  // you have and pays more the more you bring.
+  let pawnMode = 'shop';
+  function openPawn(mode) { pawnMode = mode || 'shop'; openPanel('panel-pawn'); }
   function renderPawn() {
-    let h = '<div class="grid">';
+    const cult = pawnMode === 'cult';
+    const head = $('panel-pawn').querySelector('.ptitle');
+    if (head) head.textContent = cult ? 'THE HOODED ONE BUYS' : 'SELL';
+    let h = cult ? `<p class="pnote">He takes the lot &mdash; every cube she leaves, whatever kind. The more you bring at once, the better the rate.</p><div class="grid">` : '<div class="grid">';
     let any = false;
     for (const k of OFFER_ORDER) {
       const def = OFFERINGS[k];
-      if (!def.sell) continue;
+      if (!cult && !def.sell) continue;
       const n = (G.offerings[k] || 0) + (G.blessed[k] || 0);
+      const each = cult ? poopPrice(k, 1) : def.sell;
+      const lot = cult ? poopPrice(k, n) * n : def.sell * n;
       any = any || n > 0;
       h += `<div class="item ${n ? 'have' : ''}"><div class="pic">${ic(def.icon, 'xl')}</div>
-        <h3>${def.name} <span class="lv">${n}</span></h3><p>${def.sell} each</p>
-        <div class="act2">${n ? price(def.sell, `data-s="off" data-k="${k}" data-n="1"`) + (n > 1 ? price(def.sell * n, `data-s="off" data-k="${k}" data-n="${n}"`, 'all') : '') : '<button class="buy" disabled>&mdash;</button>'}</div></div>`;
+        <h3>${def.name} <span class="lv">${n}</span></h3><p>${each} each${cult && n > 1 ? ` &middot; ${poopPrice(k, n)} for a load` : ''}</p>
+        <div class="act2">${n ? price(each, `data-s="off" data-k="${k}" data-n="1"`) + (n > 1 ? price(lot, `data-s="off" data-k="${k}" data-n="${n}"`, 'all') : '') : '<button class="buy" disabled>&mdash;</button>'}</div></div>`;
+    }
+    if (cult) {
+      $('pawn-body').innerHTML = h + (any ? '' : `<div class="item"><div class="pic">${ic('o_plain', 'xl')}</div><h3>Nothing in the truck</h3><p>Feed a wombat, wait, and drag what she leaves into the back.</p></div>`) + '</div>';
+      $('pawn-body').querySelectorAll('button.buy').forEach((b) => { if (!b.disabled) b.onclick = () => pawnAct(b.dataset); });
+      return;
     }
     for (const god of GODS) {
       const n = G.artifacts[god.key] || 0;
@@ -456,8 +447,11 @@ const UI = (() => {
         else break;
         sold++;
       }
-      G.wd += def.sell * sold;
+      const each = pawnMode === 'cult' ? poopPrice(d.k, sold) : def.sell;
+      G.wd += each * sold;
+      G.stats.sold = (G.stats.sold || 0) + sold;
       FX.coinBurst(320, 200, 6);
+      if (pawnMode === 'cult') Guide.paid(each * sold);
     } else {
       const god = GOD_BY_KEY[d.k];
       if ((G.artifacts[d.k] || 0) < n) return;
@@ -483,10 +477,10 @@ const UI = (() => {
   }
   function hideAll() {
     closeWheel(); $('checklist').hidden = true; $('b-tool').hidden = true;
-    $('ov-shrine').hidden = true; $('ov-rite').hidden = true; $('ov-shop').hidden = true; $('ov-nursery').hidden = true;
+    $('ov-shrine').hidden = true; $('ov-shop').hidden = true; $('ov-nursery').hidden = true;
     $('b-back').hidden = true;
   }
-  function refreshAll() { refreshHUD(); refreshTray(); if (G.mode === 'shrine') refreshRitual(); if (G.mode === 'rite') refreshRiteCard(); }
+  function refreshAll() { refreshHUD(); refreshTray(); if (G.mode === 'shrine') refreshRitual(); }
 
   // ---- setup --------------------------------------------------------------
   function init(g) {
@@ -530,13 +524,11 @@ const UI = (() => {
     $('zoomer').hidden = mode !== 'grove';
     if (intro) { closeWheel(); $('checklist').hidden = true; }
     $('ov-shrine').hidden = mode !== 'shrine';
-    $('ov-rite').hidden = mode !== 'rite';
     $('ov-shop').hidden = mode !== 'shop';
     $('ov-nursery').hidden = mode !== 'nursery';
     closeWheel();
     refreshTray(); refreshHUD();
     if (mode === 'shrine') refreshRitual();
-    if (mode === 'rite') refreshRiteCard();
     if (mode === 'shop' || mode === 'nursery') refreshBasket();
   }
   // the zoom column follows the camera so the nub always tells the truth
@@ -552,6 +544,6 @@ const UI = (() => {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, showBlessing, pingPurse,
-    showTip, hideTip, place, setMode, openPanel, closePanels, anyPanel, refreshZoom, openWombat,
+    showTip, hideTip, place, setMode, openPanel, openPawn, closePanels, anyPanel, refreshZoom, openWombat,
   };
 })();

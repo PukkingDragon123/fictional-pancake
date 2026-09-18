@@ -508,7 +508,7 @@ const Menu = (() => {
     ['t_hoe', 'Break a bed, sow it', 'Hoe bare soil, drop seed on it, water it while it grows, pick it when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, she walks off, and she leaves a cube.'],
     ['truck', 'Load the truck', 'Drag the cubes to the truck at the edge of the clearing. Click it for the map.'],
-    ['u_seats', 'Stack it high', 'The Great Stack pays per cube and the crowd tips by the second while it stands.'],
+    ['u_seats', 'Sell him the cubes', 'The hooded one buys everything she leaves, and pays better for a load than for one.'],
     ['shrine', 'Call one down', 'Stack what she leaves at the ritual site and a god answers. There are nine.'],
   ];
   function drawHelp(g) {

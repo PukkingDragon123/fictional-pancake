@@ -3,9 +3,13 @@ const Guide = (() => {
   let G = null;
   const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0, happyT: 0 };
   let flash = 0, hidden = false;
+  // When the notebook is full he goes. `vanish` counts down the teleport, and
+  // after that he is away for a while before the hut turns up with him in it.
+  let vanish = 0, huts = 0;
+  const HUT = { x: 376, y: 0 };
   // the speech bubble: what she is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [12, 18, 24, 0, 20, 20, 24, 30, 30, 36, 60];
+  const REWARD = [12, 18, 24, 0, 20, 20, 24, 30, 30, 36, 60, 90];
 
   // Each step is a line in the notebook and a place for her to stand.
   const STEPS = [
@@ -48,7 +52,7 @@ const Guide = (() => {
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', say: 'What she leaves is money. Drag it to the truck.', mood: 'proud', praise: 'Loaded. That lot is worth a fortune stacked.', icon: 'truck', title: 'Load the cubes',
+      key: 'load', say: 'What she leaves is money. Drag it to the truck.', mood: 'proud', praise: 'Loaded. I will take that lot off you shortly.', icon: 'truck', title: 'Load the cubes',
       note: 'What she leaves is an offering. Drag it to the truck, or call the truck over.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
       done: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0),
@@ -64,9 +68,9 @@ const Guide = (() => {
       at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.shop),
     },
     {
-      key: 'stack', say: 'Now the good part. Truck the poop to the Great Stack and pile it high.', mood: 'happy', praise: 'Look at it. The higher it goes, the more they pay.', icon: 'u_seats', title: 'Stack the poop',
-      note: 'The Great Stack is on the map. Every cube pays when it lands, and the crowd tips by the second for as long as the tower stands.',
-      at: () => Grove.TRUCK.x, done: (g) => (g.record || 0) >= 2,
+      key: 'sell', say: 'Now the good part. Those cubes are mine. Bring them to me and I will pay.', mood: 'happy', praise: 'Pleasure doing business. There is more where that came from.', icon: 'wdollar', title: 'Sell him the cubes',
+      note: 'Everything the wombats leave, the hooded one buys. Click him — or, once he has a hut, click the hut — and sell the lot. He pays more for a load than for one.',
+      at: () => Grove.TRUCK.x, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
       key: 'god', say: 'Stack what she leaves at the ritual site. Call one down.', mood: 'shock', praise: 'They answered. I am so proud.', icon: 'shrine', title: 'Call one of them',
@@ -80,6 +84,8 @@ const Guide = (() => {
     if (!G.visited) G.visited = {};
     if (typeof G.step !== 'number') G.step = 0;
     cult.x = cult.tx = 240;
+    vanish = 0;
+    huts = G.cultAway === 2 ? 1 : 0;        // a hut already standing does not grow again
   }
   const finished = () => G.step >= STEPS.length;
   const step = () => (finished() ? null : STEPS[G.step]);
@@ -149,10 +155,12 @@ const Guide = (() => {
   }
   function poke() {                          // click him and he actually talks
     cult.still = 0; cult.pose = 'idle';
-    FX.burst(cult.x, cult.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
+    const at = G.cultAway === 2 ? { x: HUT.x + 22, y: hutY() } : cult;
+    FX.burst(at.x, at.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
     Audio.play('squeak');
     Talk.open('cultist', TREE);
   }
+  const cubesHere = () => OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
   // ---- what he will talk about --------------------------------------------
   // The first node always leads with whatever the current order is, so asking
   // him a question is never a detour away from knowing what to do next.
@@ -163,10 +171,13 @@ const Guide = (() => {
         mood: 'sly',
         say: () => {
           const s = step();
+          if (!s && G.cultAway === 2) return 'Mind the step. It is not much, but the roof holds and the kettle works. Cubes round the back, money in your hand.';
           return s ? s.say : 'The grove is green and the gods have answered. You did that. I only pointed.';
         },
-        sub: () => 'he found you first',
+        sub: () => (G.cultAway === 2 ? 'he lives here now' : 'he found you first'),
         opts: [
+          { q: () => `Sell you the cubes. I have ${cubesHere()}.`, if: () => cubesHere() > 0,
+            act: () => { Talk.close(); UI.openPawn('cult'); } },
           { q: 'Say that again, slower.', to: 'order', if: () => !!step() },
           { q: 'What is this place?', to: 'place' },
           { q: 'Who are you, really?', to: 'who' },
@@ -209,7 +220,7 @@ const Guide = (() => {
       },
       gods: {
         mood: 'proud',
-        say: 'There are nine. They are all wombats. They do not want prayer, they want a tower of dung tall enough to be rude, and they pay in miracles. I did not design the arrangement.',
+        say: 'There are nine. They are all wombats. They do not want prayer, they want a pile of dung large enough to be rude, and they pay in miracles. I did not design the arrangement.',
         opts: [
           { q: 'How do I call one?', to: 'call' },
           { q: 'What do they give me?', to: 'boon' },
@@ -236,12 +247,12 @@ const Guide = (() => {
       },
       cubes: {
         mood: 'proud',
-        say: 'Square. Every one. It is so the pile does not roll off the rock, and the gods find it very tidy. Stack it high enough and a crowd gathers and pays you by the second.',
+        say: 'Square. Every one. It is so the pile does not roll off the cart, and the gods find it very tidy. I will take every one you can get out of her.',
         opts: [{ q: 'Beautiful.', to: 'hub' }],
       },
       money: {
         mood: 'talk',
-        say: 'The mart, for hardware and furniture and the pet counter. Groot, for seed and garden tools. The Stack pays you. The gumball machine takes one coin and is a disgrace.',
+        say: 'The mart, for hardware and furniture and the pet counter. Groot, for seed and garden tools. I pay for the cubes, in cash, at the door. The gumball machine takes one coin and is a disgrace.',
         opts: [
           { q: 'Is the lottery worth it?', to: 'lotto' },
           { q: 'Back.', to: 'hub' },
@@ -254,7 +265,10 @@ const Guide = (() => {
       },
     },
   };
-  function hit(x, y) { return !finished() && !hidden && Math.abs(x - cult.x) < 18 && y > cult.y - 66 && y < cult.y + 6; }
+  function hit(x, y) {
+    if (hutHit(x, y)) return true;
+    return !finished() && !hidden && Math.abs(x - cult.x) < 18 && y > cult.y - 66 && y < cult.y + 6;
+  }
   function check() {
     const s = step();
     if (!s) return;
@@ -273,11 +287,170 @@ const Guide = (() => {
     UI.refreshAll();           // a finished step can hand over a new tool
     UI.refreshNotebook();
     Main.save();
-    if (finished()) UI.toast('the notebook is full', 'good');
+    if (finished()) {
+      UI.toast('the notebook is full', 'good');
+      say('That is the lot. You do not need me stood in your garden. I will be about.', 'praise', 'sly');
+      vanish = 2.6;                                  // he goes in a moment, loudly
+      G.cultAway = 1;
+      G.hutAt = (G.time || 0) + 70;                  // and builds himself something
+    }
+  }
+
+  // ---- his hut ---------------------------------------------------------------
+  // He does not sleep in a hedge. Once he has gone, a small wooden hut goes up
+  // at the west end of the plot with a lamp in the window, and he buys the
+  // cubes off you through the door.
+  const hutHere = () => !!G && G.cultAway === 2;
+  function hutRect() { return { x: HUT.x, y: hutY(), w: 150, h: 130 }; }
+  function hutHit(x, y) {
+    if (!hutHere()) return false;
+    const r = hutRect();
+    return x > r.x - r.w / 2 && x < r.x + r.w / 2 && y > r.y - r.h && y < r.y + 8;
+  }
+  function hutY() { return Grove.WALK.y0 + 86; }
+  function drawHut(g) {
+    if (!hutHere()) return;
+    const x = HUT.x, y = hutY(), t = G.time;
+    const grow = U.clamp(huts, 0, 1);                  // it goes up with a thump
+    const W2 = 62, WALLH = 64;                         // half-width, wall height
+    g.save();
+    g.translate(x, y); g.scale(1, grow); g.translate(-x, -y);
+    Art.ell(g, x, y + 2, W2 + 8, 7, 'rgba(18,14,20,0.34)');
+
+    // ---- the walls: split logs, stacked, mossy at the foot ----------------
+    for (let i = 0; i < WALLH / 5; i++) {
+      const ly = y - 4 - i * 5;
+      Art.rect(g, x - W2, ly, W2 * 2, 5, PAL.bark0);
+      Art.rect(g, x - W2 + 1, ly, W2 * 2 - 2, 4, i % 2 ? PAL.bark1 : PAL.bark2);
+      Art.rect(g, x - W2 + 1, ly, W2 * 2 - 2, 1, PAL.bark3);
+      if (i < 3) for (let k = 0; k < 3; k++) {          // moss creeping up the boards
+        const mx = x - W2 + 4 + ((i * 17 + k * 29) % (W2 * 2 - 12));
+        g.fillStyle = k % 2 ? PAL.moss1 : PAL.moss2;
+        g.fillRect(Math.round(mx), Math.round(ly + 1), 6, 3);
+      }
+    }
+    // corner posts, so it reads as built rather than piled
+    for (const d of [-1, 1]) {
+      Art.rect(g, x + d * W2 - (d > 0 ? 5 : 0), y - WALLH - 2, 5, WALLH + 2, PAL.bark0);
+      Art.rect(g, x + d * W2 - (d > 0 ? 4 : -1), y - WALLH - 2, 3, WALLH + 2, PAL.bark2);
+    }
+
+    // ---- the roof: a real gable, shingled, with moss down the north slope --
+    const RH = 40, OVER = 15;
+    for (let i = 0; i < RH; i += 2) {
+      const k = i / RH;
+      const w = (W2 + OVER) * (1 - k * 0.94);
+      const ry = y - WALLH - 2 - i;
+      Art.rect(g, x - w, ry, w * 2, 3, PAL.ink);
+      Art.rect(g, x - w + 1, ry, w * 2 - 2, 2, i % 4 ? '#7d6250' : '#66503f');
+      Art.rect(g, x - w + 1, ry, w * 2 - 2, 1, '#9a7a60');
+      Art.rect(g, x - w + 1, ry, Math.round(w * 0.3), 2, '#8d6e58');
+      if (i % 6 === 0) { g.fillStyle = PAL.moss2; g.fillRect(Math.round(x - w + 2), Math.round(ry), Math.round(w * 0.5), 2); }
+      if (i % 6 === 3) { g.fillStyle = PAL.moss1; g.fillRect(Math.round(x - w + 6), Math.round(ry), Math.round(w * 0.3), 2); }
+    }
+    Art.rect(g, x - 4, y - WALLH - 2 - RH - 3, 8, 5, '#9a7a60');       // the ridge cap
+    Art.rect(g, x - W2 - OVER, y - WALLH - 4, (W2 + OVER) * 2, 3, PAL.bark0);   // the eaves board
+    // the chimney, and smoke off it
+    Art.rect(g, x + 30, y - WALLH - 40, 14, 26, PAL.stone1);
+    Art.rect(g, x + 31, y - WALLH - 40, 12, 24, PAL.stone2);
+    for (let i = 0; i < 5; i++) Art.rect(g, x + 31 + (i % 2) * 5, y - WALLH - 37 + i * 4, 5, 3, PAL.stone3);
+    Art.rect(g, x + 28, y - WALLH - 43, 19, 4, PAL.stone0);
+    for (let i = 0; i < 5; i++) {
+      const k = ((t * 0.34 + i * 0.2) % 1);
+      g.globalAlpha = (1 - k) * 0.34;
+      g.fillStyle = '#c8c2d0';
+      const sz = 3 + k * 5;
+      g.fillRect(Math.round(x + 37 + Math.sin(k * 4 + i) * 9 - sz / 2), Math.round(y - WALLH - 48 - k * 46), sz, sz);
+    }
+    g.globalAlpha = 1;
+
+    // ---- the door, standing open, with him in it ---------------------------
+    Art.rect(g, x - 30, y - 54, 34, 54, PAL.bark0);
+    Art.rect(g, x - 28, y - 52, 30, 52, '#17110d');                   // the dark inside
+    Art.glow(g, x - 13, y - 26, 30, '#f5cd5c', 0.11, 5);
+    Art.rect(g, x + 4, y - 54, 6, 54, PAL.bark1);                     // the open leaf of it
+    Art.rect(g, x + 4, y - 54, 2, 54, PAL.bark3);
+    // the window, lit
+    const lamp = 0.62 + 0.38 * Math.sin(t * 1.8);
+    Art.rect(g, x + 18, y - 52, 30, 26, PAL.bark0);
+    Art.rect(g, x + 20, y - 50, 26, 22, `rgba(248,214,120,${(0.5 + lamp * 0.4).toFixed(2)})`);
+    Art.rect(g, x + 32, y - 50, 2, 22, PAL.bark1);
+    Art.rect(g, x + 20, y - 41, 26, 2, PAL.bark1);
+    Art.glow(g, x + 33, y - 40, 46 + lamp * 10, '#f5cd5c', 0.13 + lamp * 0.08, 7);
+    // a shingle awning over the door
+    for (let i = 0; i < 5; i++) Art.rect(g, x - 38 + i, y - 60 - i * 2, 50 - i * 2, 3, i % 2 ? '#4a3a2e' : '#5c4738');
+
+    // ---- the sign, hung off the eave ---------------------------------------
+    const sx = x - W2 - 30;
+    Art.rect(g, sx - 2, y - 58, 5, 58, PAL.bark0);                   // the post
+    Art.rect(g, sx - 1, y - 58, 3, 58, PAL.bark2);
+    Art.rect(g, sx - 26, y - 62, 52, 22, PAL.bark0);
+    Art.rect(g, sx - 24, y - 60, 48, 18, '#4a3526');
+    Art.rect(g, sx - 24, y - 60, 48, 2, '#6d5644');
+    Font.draw(g, 'CUBES', sx, y - 56, { scale: 2, color: '#f5cd5c', align: 'center', shadow: '#1a1008' });
+    Font.draw(g, 'BOUGHT', sx, y - 48, { scale: 1, color: '#c2a176', align: 'center' });
+    g.fillStyle = PAL.moss2; g.fillRect(Math.round(sx - 26), Math.round(y - 44), 14, 4);
+
+    // ---- the yard: a barrel of cubes, a woodpile, a lantern on a hook -------
+    Art.rect(g, x - W2 - 16, y - 16, 15, 16, PAL.bark0);              // barrel
+    Art.rect(g, x - W2 - 15, y - 15, 13, 14, PAL.bark2);
+    Art.rect(g, x - W2 - 15, y - 12, 13, 2, PAL.bark3);
+    Art.rect(g, x - W2 - 15, y - 6, 13, 2, PAL.bark3);
+    for (const [cx2, cy2] of [[-9, -20], [-3, -19], [-6, -24]]) {     // cubes stacked in it
+      Art.rect(g, x - W2 - 16 + 8 + cx2, y + cy2, 6, 6, '#3b2a1b');
+      Art.rect(g, x - W2 - 16 + 8 + cx2, y + cy2, 6, 2, '#553d27');
+    }
+    for (let i = 0; i < 7; i++) {                                     // a woodpile
+      const wx = x + W2 + 6 + (i % 3) * 6, wy = y - 4 - Math.floor(i / 3) * 6;
+      Art.rect(g, wx, wy, 6, 6, PAL.bark1);
+      Art.ell(g, wx + 3, wy + 3, 2.4, 2.4, PAL.bark3);
+      Art.ell(g, wx + 3, wy + 3, 1.2, 1.2, PAL.bark0);
+    }
+    g.restore();
+
+    // ---- and him, leaning in the doorway -----------------------------------
+    const img = Sprites.cultist(Math.floor(t * 3), 'idle');
+    const sc = 1.05, dw = img.width * sc, dh = img.height * sc;
+    Art.castShadow(g, img, x - 13, y + 2, dw, dh, { alpha: 0.3, lean: 0.6, squash: 0.3 });
+    g.drawImage(img, Math.round(x - 13 - dw / 2), Math.round(y - dh + 4), Math.round(dw), Math.round(dh));
+    const p2 = 0.5 + 0.5 * Math.sin(t * 3);
+    Art.glow(g, x - 13, y - 24, 36 + p2 * 8, '#b98ef0', 0.1 + p2 * 0.07, 5);
+  }
+  function paid(n) {
+    if (n <= 0) return;
+    say(U.pick(['Lovely. Square as anything.', 'That is going straight to the order.', 'More. Bring me more.', 'A fair price and you know it.']), 'chat', 'happy');
+    cult.happyT = 1.2;
   }
 
   let lastStep = -1, sayT = 0;
   function update(dt) {
+    if (G.cultAway === 2 && huts < 1) huts = Math.min(1, huts + dt * 1.6);
+    if (vanish > 0) {                                  // going: sparks, then nothing
+      vanish -= dt;
+      cult.pose = 'cast'; cult.castT = 1;
+      if (Math.random() < dt * 30) FX.sparkle(cult.x + U.rand(-14, 14), cult.y - U.rand(4, 64), 1, PAL.div4);
+      if (bubble.life > 0) { bubble.life -= dt; bubble.shown += dt * 28; }
+      if (vanish <= 0) {
+        FX.burst(cult.x, cult.y - 30, 26, { color: [PAL.div4, PAL.div5, PAL.cream], speed: 150, gravity: -20, life: 0.8, size: 3 });
+        FX.comic(cult.x, cult.y - 60, 'POP!', { ink: '#e6d6ff', edge: '#563391', life: 0.8 });
+        Audio.play('whoosh'); Audio.play('chime'); FX.shake(1.2);
+        UI.toast('he is gone. he said he would be about.', '');
+      }
+      return;
+    }
+    // away, and then back in a hut of his own
+    if (G.cultAway === 1) {
+      if ((G.time || 0) >= (G.hutAt || 0)) {
+        G.cultAway = 2; huts = 0;
+        Audio.play('thud', 1.4); FX.shake(1.6);
+        FX.burst(HUT.x, hutY(), 22, { color: [PAL.bark3, PAL.bark2, PAL.moss3], speed: 110, gravity: 260, life: 0.7, size: 3 });
+        FX.comic(HUT.x, hutY() - 90, 'THUNK!', { ink: '#f5cd5c', edge: '#7a5210', life: 1 });
+        UI.toast('<b>a hut went up</b> at the west end &mdash; he buys cubes', 'good');
+        Main.save();
+      }
+      return;
+    }
+    if (G.cultAway === 2) { cult.t += dt; if (bubble.life > 0) { bubble.life -= dt; bubble.shown += dt * 28; } return; }
     if (bubble.life <= 0 && Sprites.face !== 'idle' && cult.happyT <= 0) Sprites.setFace('idle');
     if (flash > 0) flash -= dt;
     cult.t += dt;
@@ -308,7 +481,9 @@ const Guide = (() => {
 
   // She stands in the grove and points at whatever the step is about.
   function draw(g) {
-    if (finished() || hidden) return;
+    if (G.cultAway === 2) { drawHut(g); drawBubble(g); return; }
+    if (G.cultAway === 1) return;
+    if ((finished() && vanish <= 0) || hidden) return;
     const rate = { walk: 8, run: 12, cast: 5, sit: 2, idle: 3, jump: 9 }[cult.pose] || 4;
     const img = Sprites.cultist(Math.floor(cult.t * rate), cult.pose);
     const lift = 0;
@@ -446,7 +621,7 @@ const Guide = (() => {
   const WHERE = {
     weeds: 'in the grove', junk: 'in the grove', grass: 'in the grove', arrive: 'in the grove',
     sow: 'in the grove', pick: 'in the grove', feed: 'in the grove', load: 'in the grove',
-    map: 'in the truck', mart: 'Wombat Mart, down the road', stack: 'The Great Stack, east',
+    map: 'in the truck', mart: 'Wombat Mart, down the road', sell: 'wherever he is standing',
     god: 'the Ritual Site, north',
   };
   function current() {
@@ -455,5 +630,5 @@ const Guide = (() => {
     return { key: st.key, title: st.title, note: st.note, icon: st.icon, say: st.say,
       where: WHERE[st.key] || 'in the grove', reward: REWARD[G.step] || 0, i: G.step, total: STEPS.length };
   }
-  return { init, update, draw, state, toggle, check, poke, hit, say, current, get cult() { return cult; }, STEPS };
+  return { init, update, draw, state, toggle, check, poke, hit, say, current, paid, hutHit, hutHere, drawHut, get cult() { return cult; }, get hutX() { return HUT.x; }, STEPS };
 })();

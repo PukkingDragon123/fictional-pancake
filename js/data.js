@@ -213,7 +213,6 @@ const SITES = [
   { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
-  { key: 'stack',  name: 'The Great Stack', x: 548, y: 232, icon: 'u_seats', mode: 'rite', need: 0, gate: (g) => g.step >= 4 || (g.stack || []).length > 0 || OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring a poop first' },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
@@ -289,8 +288,8 @@ const FRUITS = [
   { key: 'twinfall',   root: 1, i: 2, cost: 520,  at: 0.28, icon: 'f_twin',   name: 'Twin Fall',    desc: 'Offerings sometimes come in pairs.' },
   { key: 'longlife',   root: 1, i: 3, cost: 1100, at: 0.5,  icon: 'f_heart',  name: 'Fond Herd',    desc: 'Joeys grow up twice as quickly.' },
   { key: 'steadyclaw', root: 2, i: 0, cost: 90,   at: 0.06, icon: 'f_claw',   name: 'Steady Claw',  desc: 'The crane is slower and hangs level.' },
-  { key: 'wideplinth', root: 2, i: 1, cost: 260,  at: 0.16, icon: 'f_plinth', name: 'Wide Plinth',  desc: 'A broader plinth at the stack.' },
-  { key: 'seersight',  root: 2, i: 2, cost: 600,  at: 0.3,  icon: 'f_eye',    name: 'Seer Sight',   desc: 'A landing guide at the stack, and a fourth blessing.' },
+  { key: 'wideplinth', root: 2, i: 1, cost: 260,  at: 0.16, icon: 'f_plinth', name: 'Wide Plinth',  desc: 'A broader plinth at the ritual site.' },
+  { key: 'seersight',  root: 2, i: 2, cost: 600,  at: 0.3,  icon: 'f_eye',    name: 'Seer Sight',   desc: 'A fourth blessing may be held at once.' },
   { key: 'godtongue',  root: 2, i: 3, cost: 1300, at: 0.55, icon: 'f_tongue', name: 'God Tongue',   desc: 'Rituals need one fewer of each offering.' },
 ];
 const ROOT_NAMES = ['Soil', 'Beast', 'Rite'];
@@ -298,9 +297,9 @@ const ROOT_NAMES = ['Soil', 'Beast', 'Rite'];
 // ---- Things to buy with W$ ------------------------------------------------
 const UPGRADES = [
   { key: 'shrine',  name: 'Plinth',   icon: 'u_shrine',  base: 220, mult: 2.1,  max: 6, desc: (l) => `Plinth ${l}. A wider base holds more.` },
-  { key: 'crane',   name: 'Crane',    icon: 'u_cart',    base: 180, mult: 2.0,  max: 5, desc: (l) => l >= 5 ? 'The crane holds still. Drop where you like.' : l ? `The crane swings ${l * 15}% slower.` : 'A steadier crane arm.' },
-  { key: 'grip',    name: 'Grip Wax', icon: 'u_trough',  base: 200, mult: 2.2,  max: 5, desc: (l) => l ? `Cubes grip ${l * 12}% harder.` : 'Wax the cubes so they hold.' },
-  { key: 'seats',   name: 'Stands',   icon: 'u_seats',   base: 280, mult: 1.9,  max: 8, desc: (l) => `Seats ${12 + l * 5} wombats. Tips +${l * 14}%.` },
+  { key: 'haggle',  name: 'Haggling', icon: 'u_seats',   base: 260, mult: 2.1,  max: 5, desc: (l) => l ? `He pays ${l * 8}% more for a cube.` : 'Learn what a cube is actually worth.' },
+  { key: 'shade',   name: 'Shade Cloth', icon: 'u_cart',  base: 200, mult: 2.0,  max: 4, desc: (l) => l ? `Beds dry out ${l * 15}% slower.` : 'Keeps the sun off the beds.' },
+  { key: 'toys',    name: 'Toy Box',  icon: 'd_nest',    base: 180, mult: 2.2,  max: 4, desc: (l) => l ? `Wombats get bored ${l * 16}% slower.` : 'Balls, logs and a knotted rope.' },
   { key: 'burrow',  name: 'Burrow',   icon: 'u_burrow',  base: 150, mult: 2.25, max: 6, desc: (l) => `Room for ${2 + l} wombats.` },
   { key: 'trough',  name: 'Trough',   icon: 'u_trough',  base: 240, mult: 2.1,  max: 4, desc: (l) => l ? `Feeds one wombat every ${(15 / l).toFixed(0)}s.` : 'Feeds hungry wombats.' },
   { key: 'cart',    name: 'Cart',     icon: 'u_cart',    base: 170, mult: 2.4,  max: 3, desc: (l) => l >= 3 ? 'Instant pickup, +10% value.' : l ? `Gathers after ${(4 / l).toFixed(1)}s.` : 'Gathers poop for you.' },
@@ -318,32 +317,6 @@ const GARDEN_UP = { trough: 1 };
 const GARDEN_DEC = { nest: 1, pool: 1 };
 
 const WOMBAT_PRICE = (n) => Math.round(180 * Math.pow(2.5, Math.max(0, n - 1)));
-
-// ---- The Great Stack -----------------------------------------------------
-// No runs, no lives, no losing. The tower you build stays standing between
-// visits and the crowd keeps paying for it. What progression there is lives
-// here: a ladder of heights, each one paid once and each one worth more per
-// second forever after.
-const STACK_RANKS = [
-  { h: 3,  name: 'Little Heap',   pay: 120,   tip: 0.15 },
-  { h: 6,  name: 'Proper Pile',   pay: 320,   tip: 0.3 },
-  { h: 10, name: 'Poop Pillar',   pay: 700,   tip: 0.5 },
-  { h: 15, name: 'Brown Obelisk', pay: 1400,  tip: 0.75 },
-  { h: 21, name: 'Dung Spire',    pay: 2600,  tip: 1.05 },
-  { h: 28, name: 'Cube Cathedral', pay: 4800, tip: 1.4 },
-  { h: 36, name: 'Stinking Steeple', pay: 8200, tip: 1.8 },
-  { h: 45, name: 'The Brown Tower', pay: 14000, tip: 2.3 },
-  { h: 55, name: 'Heaven Reacher', pay: 24000, tip: 2.9 },
-  { h: 66, name: 'The Great Stack', pay: 44000, tip: 3.6 },
-];
-const rankAt = (h) => { let r = null; for (const k of STACK_RANKS) if (h >= k.h) r = k; return r; };
-const nextRank = (h) => STACK_RANKS.find((k) => h < k.h) || null;
-// Every rank you have ever reached adds its tip to the crowd's rate.
-function tipBonus(g) {
-  let t = 0;
-  for (const k of STACK_RANKS) if ((g.record || 0) >= k.h) t += k.tip;
-  return t;
-}
 
 // ---- The Mart's prize machine --------------------------------------------
 // A capsule machine by the till. You put a coin in, the drum turns, and you
@@ -417,7 +390,18 @@ function rollLotto() {
 }
 
 // Every Golden Wombat on the shelf pays a little more at the stack, for good.
+// ---- What the hooded one pays for a cube ----------------------------------
+// He buys the lot. The price is the offering's own worth plus a little for
+// bulk: one cube is a curiosity, a truckload is a supply.
 const trophyBonus = (g) => (g.trophies || 0) * 0.08;
+const POOP_PRICE = { plain: 9, rich: 16, husk: 22, resin: 30, slab: 44, stone: 60, rune: 90, gold: 140 };
+const poopPrice = (key, n, g) => {
+  const base = POOP_PRICE[key] || 10;
+  const bulk = 1 + Math.min(0.5, Math.max(0, n - 1) * 0.04);     // he pays more for a load
+  const gg = g || (typeof window !== 'undefined' ? window.G : null) || {};
+  const talk = 1 + ((gg.up || {}).haggle || 0) * 0.08;
+  return Math.round(base * bulk * talk);
+};
 
 // ---- Breeding -------------------------------------------------------------
 const TRAITS = [

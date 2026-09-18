@@ -271,7 +271,7 @@ const Grove = (() => {
       if (w.bored == null) w.bored = U.rand(0, 25);
       const dry = Sky.wet() > 0 ? 0.55 : 1;
       w.thirst = U.clamp(w.thirst + dt * 0.5 * dry, 0, 100);
-      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42), 0, 100);
+      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42) * (1 - 0.16 * (G.up.toys || 0)), 0, 100);
       // enrichment: a nest, a paddling pool, a hill or a friend all count
       if (G.decor.nest || G.decor.pool || Wild.mounds.length || G.wombats.length > 1) {
         if (w.state !== 'sleep' && Math.random() < dt * 0.5) w.bored = Math.max(0, w.bored - 1.6);
@@ -763,6 +763,7 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
+    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>he buys every cube you have';
     const pl2 = World.plantAt(x, y);
     if (pl2) return World.plantTip(pl2);
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
@@ -882,7 +883,7 @@ const Grove = (() => {
     items.push({ y: -1, fn: () => World.drawCrops(g) });
     for (const it of World.cropItems(g)) items.push(it);   // fruit trees stand tall enough to sort
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
-    items.push({ y: Guide.cult.y, fn: () => Guide.draw(g) });
+    items.push({ y: Guide.hutHere() ? WALK.y0 + 86 : Guide.cult.y, fn: () => Guide.draw(g) });
     if (arrival) items.push({ y: arrival.y, fn: () => { Sprites.shadow(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); Sprites.blit(g, arrival.x, arrival.y, 'walk', Math.floor(G.time * 9), 'brown', 1, 'adult', Sprites.S); } });
     for (const f of foods) items.push({ y: f.y, fn: () => drawFood(g, f) });
     for (const d of drops) items.push({ y: d === dragging ? 1e5 : d.y, fn: () => drawDrop(g, d) });

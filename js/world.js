@@ -330,7 +330,7 @@ const World = (() => {
       const tree = def.kind === 'tree';
       if (rain > 0) { c.wet = Math.min(tree ? 40 : 22, c.wet + dt * rain * 1.6); c.thirst = 0; }
       const wet = c.wet > 0;
-      const drink = tree ? (def.thirsty || 1) : 1;
+      const drink = (tree ? (def.thirsty || 1) : 1) * (1 - 0.15 * (G.up.shade || 0));
       if (wet) c.wet -= dt * drink; else c.thirst += dt * drink;
       const blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm;
       if (def.kind === 'magic') {

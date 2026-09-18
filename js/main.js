@@ -15,8 +15,8 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      stack: [], trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
-      stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0 },
+      trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
+      stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0 },
       pointer: { x: 320, y: 240, on: false },
       paused: false, muted: false, musicOff: false, lastSave: Date.now(), seen: false,
     };
@@ -27,7 +27,6 @@ const Main = (() => {
       World.save();
       Sky.save();
       Grove.saveObjects();
-      if (G.mode === 'rite') Tower.serialise();     // the standing tower goes in the save
       G.lastSave = Date.now();
       if (!playing) return;
       const body = Object.assign({}, G, { paused: false, pointer: undefined });
@@ -100,18 +99,12 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       Sky.init(G); World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
+      Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
         const made = G.wombats.some((w) => w.stomach === 'digesting') ? Grove.offline(Math.min(away, 7200)) : 0;
-        const tips = Tower.offline(away);          // the standing tower kept earning
-        if (made > 0 || tips > 0) {
-          const bits = [];
-          if (made > 0) bits.push(`<b>${made}</b> poop`);
-          if (tips > 0) bits.push(`<b>${U.fmt(tips)}</b> W$ in tips`);
-          setTimeout(() => UI.toast(`${U.time(Math.min(away, 14400))} away &middot; ${bits.join(' &middot; ')}`, 'good'), 900);
-        }
+        if (made > 0) setTimeout(() => UI.toast(`${U.time(Math.min(away, 14400))} away &middot; <b>${made}</b> poop`, 'good'), 900);
       }
       G.paused = false;
       if (!G.introDone) { G.mode = 'intro'; Intro.enter(); UI.setMode('intro'); }
@@ -140,7 +133,6 @@ const Main = (() => {
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
     if (Ritual.active) return;
-    if (Tower.open && mode !== 'rite') Tower.leave();
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
@@ -153,13 +145,12 @@ const Main = (() => {
     else if (mode === 'grove') Grove.enter();
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
-    else if (mode === 'rite') Tower.enter();
     else if (mode === 'nursery') Nursery.enter();
-    if (mode !== 'rite') Audio.setMode('pen');
+    Audio.setMode('pen');
     save();
   }
   function back() {
-    if (G.mode === 'shrine' || G.mode === 'rite' || G.mode === 'shop' || G.mode === 'nursery') setMode('map');
+    if (G.mode === 'shrine' || G.mode === 'shop' || G.mode === 'nursery') setMode('map');
     else setMode('grove');
   }
 
@@ -204,7 +195,6 @@ const Main = (() => {
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
-      else if (G.mode === 'rite') Tower.click(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -272,9 +262,7 @@ const Main = (() => {
       if (G.mode === 'grove' && (e.key === '+' || e.key === '=')) { Grove.zoomBy(1.18, screenP.x, screenP.y); e.preventDefault(); return; }
       if (G.mode === 'grove' && (e.key === '-' || e.key === '_')) { Grove.zoomBy(1 / 1.18, screenP.x, screenP.y); e.preventDefault(); return; }
       if (e.key === 'h' || e.key === 'H') { UI.openPanel('panel-help'); return; }
-      if (G.mode === 'rite') {
-        if (Tower.key(e.key)) e.preventDefault();
-      } else if (G.mode === 'grove') {
+      if (G.mode === 'grove') {
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { Grove.panBy(-70); e.preventDefault(); return; }
         if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { Grove.panBy(70); e.preventDefault(); return; }
         const n = parseInt(e.key);
@@ -329,10 +317,9 @@ const Main = (() => {
     } else if (Grove.arriving) {
       Grove.update(real);
     }
-    if (G.mode !== 'intro' && G.mode !== 'menu') Tower.update(gdt, real);
     // The rite pauses the world but its own effects must keep running, or
     // bolts and roots spawned during the cutscene never expire.
-    FX.updateWorld(Ritual.active ? real : G.mode === 'rite' ? gdt : (G.paused ? 0 : real));
+    FX.updateWorld(Ritual.active ? real : (G.paused ? 0 : real));
 
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.imageSmoothingEnabled = false;
@@ -346,8 +333,7 @@ const Main = (() => {
       else if (G.mode === 'shrine') Ritual.renderShrine(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
-      else if (G.mode === 'nursery') Nursery.render(g);
-      else Tower.render(g);
+      else Nursery.render(g);
       g.restore();
     }
     FX.drawCoins(g, false);           // money on its way to the corner
@@ -357,7 +343,6 @@ const Main = (() => {
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
       if (G.mode === 'grove') UI.refreshZoom();
-      if (Tower.open) UI.refreshRunHUD();
       if (G.mode === 'shrine') UI.refreshRitual();
     }
   }
@@ -382,7 +367,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Tower.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();
