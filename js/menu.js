@@ -51,9 +51,9 @@ const Menu = (() => {
   // sleep on the warm side of a mound, and one is up and about looking at
   // things. They each run a little loop of their own.
   const MOB = [
-    { x: 250, y: 318, dir: 1, tx: 330, state: 'walk', st: 0, anim: 0, pelt: 'brown', sc: 1.5, home: [200, 380] },
-    { x: 330, y: 286, dir: -1, tx: 300, state: 'sleep', st: 0, anim: 0, pelt: 'sand', sc: 1.3, home: [240, 400] },
-    { x: 150, y: 348, dir: 1, tx: 220, state: 'graze', st: 0, anim: 0, pelt: 'grey', sc: 1.6, home: [70, 300] },
+    { x: 250, y: 318, dir: 1, tx: 330, state: 'walk', st: 0, anim: 0, pelt: 'brown', sc: 1.5, home: [150, 420] },
+    { x: 380, y: 282, dir: -1, tx: 340, state: 'sleep', st: 0, anim: 0, pelt: 'sand', sc: 1.2, home: [280, 470] },
+    { x: 120, y: 348, dir: 1, tx: 200, state: 'graze', st: 0, anim: 0, pelt: 'grey', sc: 1.6, home: [60, 260] },
   ];
   const hearts = [];
   function wombatLoop(dt) {
@@ -68,7 +68,7 @@ const Menu = (() => {
       } else if (w.st > (w.state === 'sleep' ? 9 : w.state === 'happy' ? 1.4 : 4 + Math.random() * 4)) {
         w.st = 0;
         if (Math.random() < 0.25) { w.state = 'sleep'; }
-        else { w.state = 'walk'; w.tx = w.home[0] + Math.random() * (w.home[1] - w.home[0]); w.y = 284 + Math.random() * 66; }
+        else { w.state = 'walk'; w.tx = w.home[0] + Math.random() * (w.home[1] - w.home[0]); w.y = 272 + Math.random() * 84; }
       }
       if (w.state === 'happy' && Math.random() < dt * 5) hearts.push({ x: w.x, y: w.y - 26, t: 0 });
       if (w.state === 'graze' && Math.random() < dt * 2.2) hearts.push({ x: w.x + w.dir * 14, y: w.y - 6, t: 0, leaf: 1 });
@@ -172,81 +172,146 @@ const Menu = (() => {
   // in the canopy with rope between them, flowers through the grass, moss over
   // every log and stone, a pond, birds going over and three wombats in it.
   const LX = 470, LY = 150;                             // the lantern, on the near house
-  const FLOWERS = [], TUFTS = [], STONES = [], LILY = [];
+  const FLOWERS = [], TUFTS = [], STONES = [];
   (() => {
     const r = Art.rng(7711);
-    const wet = (x, y) => Math.hypot((x - 96) / 86, (y - 336) / 30) < 1.05;
-    for (let i = 0; i < 130; i++) { const x = r() * VW, y = 240 + r() * 122; if (!wet(x, y)) FLOWERS.push({ x, y, v: Math.floor(r() * 5), ph: r() * TAU, s: 0.7 + r() * 0.6 }); }
-    for (let i = 0; i < 220; i++) { const x = r() * VW, y = 232 + r() * 130; if (!wet(x, y)) TUFTS.push({ x, y, h: 4 + r() * 7, ph: r() * TAU, tone: Math.floor(r() * 3) }); }
-    for (let i = 0; i < 16; i++) { const x = r() * VW, y = 252 + r() * 106; if (!wet(x, y)) STONES.push({ x, y, w: 7 + r() * 16, h: 4 + r() * 7 }); }
-    for (let i = 0; i < 6; i++) LILY.push({ x: 40 + r() * 112, y: 322 + r() * 30, r: 5 + r() * 5, ph: r() * TAU });
+    for (let i = 0; i < 74; i++) FLOWERS.push({ x: 14 + r() * (VW - 28), y: 212 + r() * 150, v: Math.floor(r() * 5), ph: r() * TAU, s: 1.5 + r() * 1.5 });
+    for (let i = 0; i < 240; i++) TUFTS.push({ x: r() * VW, y: 206 + r() * 156, h: 4 + r() * 8, ph: r() * TAU, tone: Math.floor(r() * 3) });
+    for (let i = 0; i < 18; i++) STONES.push({ x: r() * VW, y: 226 + r() * 132, w: 7 + r() * 16, h: 4 + r() * 7 });
   })();
   const BIRDS = [];
   for (let i = 0; i < 7; i++) BIRDS.push({ x: Math.random() * VW, y: 30 + Math.random() * 90, sp: 16 + Math.random() * 26, ph: Math.random() * TAU, dir: Math.random() < 0.5 ? -1 : 1, s: 0.7 + Math.random() * 0.6 });
   const FLOW = ['#f2d0e0', '#f5cd5c', '#c4a8e8', '#f0f0e0', '#e88a6a'];
 
+  // ---- the ground ------------------------------------------------------------
+  // Not a lawn. The same worn soil the plot is made of, with the treeline
+  // throwing a band of shade across the back of it and the grass coming back
+  // in patches, which is exactly what you are looking at all game.
+  let floorTex = null;
+  function floorCanvas() {
+    if (floorTex) return floorTex;
+    const h = VH - HORIZON + 10;
+    const { c, g } = Art.cv(VW, h);
+    const r = Art.rng(4242);
+    for (let i = 0; i < 10; i++) {                        // bands of soil, front to back
+      const k = i / 9;
+      g.fillStyle = U.mix('#4a3628', '#6b5238', k);
+      g.fillRect(0, Math.round((h * i) / 10), VW, Math.ceil(h / 10) + 1);
+    }
+    for (let i = 0; i < 900; i++) {                       // grit
+      const x = Math.round(r() * VW), y = Math.round(r() * h);
+      g.fillStyle = ['#3b2a1b', '#553d27', '#75573a', '#9b7a52'][Math.floor(r() * 4)];
+      g.fillRect(x, y, 1 + Math.floor(r() * 2), 1);
+    }
+    for (let i = 0; i < 80; i++) {                        // pebbles
+      const x = Math.round(r() * VW), y = Math.round(6 + r() * (h - 12));
+      const w = 2 + Math.floor(r() * 3);
+      g.fillStyle = '#6b6455'; g.fillRect(x, y, w, 2);
+      g.fillStyle = '#8d8573'; g.fillRect(x, y, w, 1);
+      g.fillStyle = 'rgba(24,20,16,0.45)'; g.fillRect(x, y + 2, w + 1, 1);
+    }
+    for (let i = 0; i < 26; i++) {                        // cart ruts and scuffs
+      const x = Math.round(r() * VW), y = Math.round(r() * h), w = 14 + Math.round(r() * 40);
+      g.fillStyle = 'rgba(38,26,16,0.3)'; g.fillRect(x, y, w, 2);
+    }
+    floorTex = c;
+    return c;
+  }
+  // the patches of grass that have taken, painted once and kept
+  let grassTex = null;
+  function grassCanvas() {
+    if (grassTex) return grassTex;
+    const h = VH - HORIZON + 10;
+    const { c, g } = Art.cv(VW, h);
+    const r = Art.rng(1717);
+    for (let i = 0; i < 26; i++) {
+      const cx = r() * VW, cy = 16 + r() * (h - 24), rx = 26 + r() * 60, ry = 8 + r() * 20;
+      for (let k = 0; k < 260; k++) {                     // a scatter, not an ellipse
+        const a = r() * TAU, d = Math.sqrt(r());
+        const x = Math.round(cx + Math.cos(a) * rx * d), y = Math.round(cy + Math.sin(a) * ry * d);
+        g.fillStyle = ['#3f6330', '#4f7a34', '#5d9440'][Math.floor(r() * 3)];
+        g.fillRect(x, y, 2, 1);
+      }
+    }
+    grassTex = c;
+    return c;
+  }
+  function drawFloor(g, day) {
+    g.drawImage(floorCanvas(), 0, HORIZON - 6);
+    g.globalAlpha = 0.5 + day * 0.3;
+    g.drawImage(grassCanvas(), 0, HORIZON - 6);
+    g.globalAlpha = 1;
+    // the treeline throws a band of shade across the back of the clearing
+    for (let i = 0; i < 8; i++) {
+      g.globalAlpha = 0.3 * (1 - i / 8);
+      Art.rect(g, 0, HORIZON - 6 + i * 7, VW, 7, '#12100e');
+    }
+    g.globalAlpha = 1;
+  }
+  // the split-rail fence that runs down both sides of every plot in this game
+  function railFence(g) {
+    // it runs away from you, so it spreads outward as it comes forward, the
+    // same as the one round the plot
+    const at = (side, y) => (side < 0 ? 52 : VW - 52) + side * (y - HORIZON) * 0.26;
+    for (const side of [-1, 1]) {
+      for (let i = 6; i >= 0; i--) {
+        const y = HORIZON + 30 + i * 26;
+        const x = at(side, y);
+        const h = 26 + i * 3;
+        if (i < 6) {                                       // the rails, behind the post
+          const y2 = y + 26, x2 = at(side, y2);
+          for (const off of [-0.7, -0.38]) {
+            const a = y + h * off, b = y2 + (h + 3) * off;
+            Art.poly(g, [[x, a], [x2, b], [x2, b + 6], [x, a + 6]], '#241810');
+            Art.poly(g, [[x, a + 1], [x2, b + 1], [x2, b + 5], [x, a + 5]], '#6b4d34');
+            Art.poly(g, [[x, a + 1], [x2, b + 1], [x2, b + 2.4], [x, a + 2.4]], '#8a6446');
+          }
+        }
+        Art.rect(g, x - 4, y - h, 9, h + 4, '#241810');    // the post
+        Art.rect(g, x - 3, y - h, 6, h + 3, '#5d4430');
+        Art.rect(g, x - 3, y - h, 2, h + 3, '#7d5f42');
+        Art.rect(g, x - 4, y - h - 2, 9, 3, '#3a2a1c');    // the cap
+        g.fillStyle = PAL.moss1;                            // moss up the foot of it
+        g.fillRect(Math.round(x - 4), Math.round(y - 5), 9, 7);
+        g.fillStyle = PAL.moss2; g.fillRect(Math.round(x - 3), Math.round(y - 9), 5, 4);
+        g.fillStyle = PAL.moss3; g.fillRect(Math.round(x - 1), Math.round(y - 12), 3, 3);
+      }
+    }
+  }
+
   // one flower: a stalk, two leaves and a four-petal head
   function flower(g, f) {
-    const sway = Math.sin(t * 1.1 + f.ph) * 1.6;
-    const h = 7 * f.s;
-    g.fillStyle = '#3f6a2c';
-    for (let i = 0; i < h; i++) g.fillRect(Math.round(f.x + sway * (i / h) * (i / h)), Math.round(f.y - i), 1, 1);
+    const sway = Math.sin(t * 1.1 + f.ph) * 2.2;
+    const h = Math.round(8 * f.s);
+    const st = Math.max(1, Math.round(f.s * 0.8));
+    g.fillStyle = '#2f5a22';
+    for (let i = 0; i < h; i++) g.fillRect(Math.round(f.x + sway * (i / h) * (i / h)), Math.round(f.y - i), st + 1, 1);
+    g.fillStyle = '#4f8a36';
+    for (let i = 0; i < h; i++) g.fillRect(Math.round(f.x + sway * (i / h) * (i / h)), Math.round(f.y - i), st, 1);
     const hx = Math.round(f.x + sway), hy = Math.round(f.y - h);
-    g.fillStyle = '#4f8a36'; g.fillRect(hx - 2, Math.round(f.y - h * 0.5), 2, 1); g.fillRect(hx + 1, Math.round(f.y - h * 0.7), 2, 1);
-    const c = FLOW[f.v];
-    g.fillStyle = U.shade(c, -0.3);
-    g.fillRect(hx - 2, hy - 1, 5, 3); g.fillRect(hx - 1, hy - 2, 3, 5);
+    // two leaves off the stalk, sized with it
+    const lw = Math.round(3 * f.s);
+    g.fillStyle = '#3f6a2c';
+    g.fillRect(hx - lw - 1, Math.round(f.y - h * 0.45), lw, 2);
+    g.fillRect(hx + st, Math.round(f.y - h * 0.68), lw, 2);
+    g.fillStyle = '#5d9440';
+    g.fillRect(hx - lw - 1, Math.round(f.y - h * 0.45), lw - 1, 1);
+    // the head: four petals round a middle, all on the pixel grid
+    const c = FLOW[f.v], dk = U.shade(c, -0.34), lt = U.shade(c, 0.28);
+    const pr = Math.max(2, Math.round(2.4 * f.s));
+    g.fillStyle = dk;
+    g.fillRect(hx - pr * 2, hy - pr, pr * 4, pr * 2);
+    g.fillRect(hx - pr, hy - pr * 2, pr * 2, pr * 4);
     g.fillStyle = c;
-    g.fillRect(hx - 1, hy - 1, 3, 3); g.fillRect(hx - 2, hy, 1, 1); g.fillRect(hx + 2, hy, 1, 1);
-    g.fillStyle = '#ffeeb0'; g.fillRect(hx, hy, 1, 1);
-  }
-  // a treehouse: a platform round a trunk, plank walls, a shingle roof, a
-  // window with the light on and a ladder down
-  function treehouse(g, x, y, w, h, flip, lamp) {
-    const D = '#3a2a1c', M = '#5c4430', L = '#7d5f42', H2 = '#9a7a58';
-    Art.rect(g, x - w / 2 - 6, y, w + 12, 5, D);                      // the platform
-    Art.rect(g, x - w / 2 - 6, y, w + 12, 2, L);
-    for (let i = 0; i < 5; i++) Art.rect(g, x - w / 2 - 4 + i * (w / 4), y + 5, 3, 7, D);   // joists
-    Art.rect(g, x - w / 2, y - h, w, h, D);                           // the box
-    for (let i = 0; i < h / 5; i++) {
-      Art.rect(g, x - w / 2 + 1, y - h + i * 5, w - 2, 4, i % 2 ? M : L);
-      Art.rect(g, x - w / 2 + 1, y - h + i * 5, w - 2, 1, H2);
-    }
-    for (let i = 0; i < 9; i++) {                                     // the roof
-      const rw = w / 2 + 9 - i * (w / 22);
-      Art.rect(g, x - rw, y - h - 2 - i * 2.4, rw * 2, 3, '#4a3a2e');
-      Art.rect(g, x - rw, y - h - 2 - i * 2.4, rw * 2, 1, '#6d5644');
-      if (i % 3 === 0) { g.fillStyle = PAL.moss1; g.fillRect(Math.round(x - rw + 2), Math.round(y - h - 2 - i * 2.4), Math.round(rw * 0.6), 2); }
-    }
-    const wx = x + (flip ? -1 : 1) * w * 0.16;                        // the window
-    const glow2 = 0.6 + 0.4 * Math.sin(t * 1.6 + x);
-    Art.rect(g, wx - 8, y - h * 0.72, 16, 14, D);
-    Art.rect(g, wx - 6, y - h * 0.72 + 2, 12, 10, `rgba(250,220,140,${(0.55 + glow2 * 0.4).toFixed(2)})`);
-    Art.rect(g, wx - 1, y - h * 0.72 + 2, 2, 10, M);
-    Art.rect(g, wx - 6, y - h * 0.72 + 6, 12, 2, M);
-    if (lamp) Art.glow(g, wx, y - h * 0.62, 34 + glow2 * 8, '#ffd88c', 0.14 + glow2 * 0.08, 6);
-    // a flower box under the window and moss along the platform edge
-    Art.rect(g, wx - 9, y - h * 0.72 + 14, 18, 5, D);
-    for (let i = 0; i < 5; i++) { g.fillStyle = FLOW[i % FLOW.length]; g.fillRect(Math.round(wx - 7 + i * 3.4), Math.round(y - h * 0.72 + 12), 2, 2); }
-    g.fillStyle = PAL.moss1;
-    for (let i = 0; i < 6; i++) g.fillRect(Math.round(x - w / 2 - 6 + i * ((w + 12) / 6)), y + 1, 5, 3);
-    // a rail
-    Art.rect(g, x - w / 2 - 6, y - 12, 2, 12, D);
-    Art.rect(g, x + w / 2 + 4, y - 12, 2, 12, D);
-    Art.rect(g, x - w / 2 - 6, y - 13, w + 12, 2, M);
-  }
-  function ropeBridge(g, x0, y0, x1, y1) {
-    const n = 26;
-    for (let i = 0; i <= n; i++) {
-      const k = i / n;
-      const sag = Math.sin(k * Math.PI) * 13 + Math.sin(t * 0.8 + k * 4) * 1.2;
-      const px = U.lerp(x0, x1, k), py = U.lerp(y0, y1, k) + sag;
-      g.fillStyle = '#6b5232'; g.fillRect(Math.round(px), Math.round(py), 3, 2);       // the planks
-      g.fillStyle = '#8a6a44'; g.fillRect(Math.round(px), Math.round(py), 3, 1);
-      g.fillStyle = '#4a3a22';                                                        // the hand rope
-      g.fillRect(Math.round(px), Math.round(py - 12 - Math.sin(k * Math.PI) * 2), 2, 1);
-      if (i % 5 === 0) g.fillRect(Math.round(px), Math.round(py - 12), 1, 12);
-    }
+    g.fillRect(hx - pr * 2 + 1, hy - pr + 1, pr * 4 - 2, pr * 2 - 2);
+    g.fillRect(hx - pr + 1, hy - pr * 2 + 1, pr * 2 - 2, pr * 4 - 2);
+    g.fillStyle = lt;
+    g.fillRect(hx - pr * 2 + 1, hy - pr + 1, pr - 1, pr);
+    g.fillRect(hx - pr + 1, hy - pr * 2 + 1, pr, pr - 1);
+    g.fillStyle = '#ffeeb0';
+    g.fillRect(hx - Math.round(pr * 0.6), hy - Math.round(pr * 0.6), Math.round(pr * 1.2), Math.round(pr * 1.2));
+    g.fillStyle = '#e0a82e';
+    g.fillRect(hx - Math.round(pr * 0.3), hy - Math.round(pr * 0.3), Math.max(1, Math.round(pr * 0.6)), Math.max(1, Math.round(pr * 0.6)));
   }
   function bird(g, b) {
     const x = ((b.x + t * b.sp * b.dir) % (VW + 60) + VW + 60) % (VW + 60) - 30;
@@ -290,31 +355,8 @@ const Menu = (() => {
       g.globalAlpha = 1;
     }
 
-    // ---- the grass floor ---------------------------------------------------
-    for (let i = 0; i < 10; i++) {
-      const k = i / 9;
-      g.fillStyle = U.mix(U.mix('#2e4a24', '#4f7a34', day), U.mix('#3f6330', '#6d9c42', day), k);
-      g.fillRect(0, HORIZON + 4 + i * ((VH - HORIZON) / 10), VW, Math.ceil((VH - HORIZON) / 10) + 1);
-    }
-    // the pond, over on the left
-    const PX2 = 96, PY2 = 336, PR = 86;
-    Art.ell(g, PX2, PY2, PR + 6, 34, '#3f5a30');
-    Art.ell(g, PX2, PY2, PR + 2, 31, '#5a6a3a');
-    Art.ell(g, PX2, PY2, PR, 28, U.mix('#254a58', '#3f8ca0', day));
-    Art.ell(g, PX2, PY2 - 3, PR - 10, 20, U.mix('#2f6070', '#5fb0c2', day));
-    Art.ell(g, PX2 - PR * 0.3, PY2 - 8, PR * 0.3, 6, U.mix('#3f7a90', '#9fdcea', day));
-    for (let i = 0; i < 5; i++) {                            // ripples
-      const rw = PR * (0.3 + i * 0.16), a = 0.3 - i * 0.05;
-      g.globalAlpha = a * (0.6 + 0.4 * Math.sin(t * 1.4 + i));
-      Art.ellBand(g, PX2, PY2 - 2, rw, rw * 0.3, '#bfe4f4', 0.7, 0.14);
-      g.globalAlpha = 1;
-    }
-    for (const l of LILY) {                                  // lily pads
-      const ly = l.y + Math.sin(t * 0.9 + l.ph) * 1.2;
-      Art.ell(g, l.x, ly, l.r, l.r * 0.42, '#3f7a34');
-      Art.ell(g, l.x - l.r * 0.2, ly - 0.6, l.r * 0.5, l.r * 0.2, '#5d9440');
-      if (l.r > 8) { g.fillStyle = '#f2d0e0'; g.fillRect(Math.round(l.x + 2), Math.round(ly - 3), 3, 3); }
-    }
+    // ---- the floor of it: the same worn soil as your own plot -------------
+    drawFloor(g, day);
     // mossy stones and logs
     for (const st of STONES) {
       Art.ell(g, st.x, st.y, st.w, st.h, '#5b5a58');
@@ -344,17 +386,8 @@ const Menu = (() => {
         g.drawImage(img, Math.round(tr.x - w / 2 + sway), Math.round(tr.y - h), Math.round(w), Math.round(h));
       }
     }
-    ropeBridge(g, 216, 186, 380, 180);
-    ropeBridge(g, 392, 184, 520, 168);
-    treehouse(g, 196, 192, 66, 52, false, false);
-    treehouse(g, 384, 186, 58, 46, true, false);
-    treehouse(g, 536, 174, 74, 58, false, true);
-    // ladders down from the near house
-    for (let i = 0; i < 14; i++) {
-      Art.rect(g, 524, 200 + i * 8, 3, 6, '#4a3a22');
-      Art.rect(g, 548, 200 + i * 8, 3, 6, '#4a3a22');
-      Art.rect(g, 524, 202 + i * 8, 27, 2, '#6b5232');
-    }
+    // the fence down both sides, the same split rail as the plot
+    railFence(g);
     lantern(g, 0.82 + 0.18 * Math.sin(t * 9));
     titleSign(g);
 
@@ -393,8 +426,14 @@ const Menu = (() => {
   function wombatShadowPass(g) { }
   function lantern(g, flick) {
     Art.glow(g, LX, LY + 10, 92 * flick, '#ffd88c', 0.34 * flick, 9);
-    g.fillStyle = '#1a1410'; g.fillRect(LX - 1, 0, 2, LY - 14);
-    for (let i = 0; i < 5; i++) { g.fillStyle = '#4a4038'; g.fillRect(LX - 2, 10 + i * 22, 4, 3); }
+    // the bough it hangs off, and the chain
+    Art.rect(g, LX - 46, LY - 74, 56, 7, '#2a1d15');
+    Art.rect(g, LX - 46, LY - 74, 56, 3, '#5d4430');
+    Art.rect(g, LX - 46, LY - 68, 56, 2, '#1d1410');
+    g.fillStyle = PAL.moss1;
+    for (let i = 0; i < 6; i++) g.fillRect(Math.round(LX - 44 + i * 9), LY - 76, 6, 3);
+    g.fillStyle = '#1a1410'; g.fillRect(LX - 1, LY - 70, 2, 56);
+    for (let i = 0; i < 4; i++) { g.fillStyle = '#4a4038'; g.fillRect(LX - 2, LY - 66 + i * 13, 4, 3); }
     g.fillStyle = '#0c0a08'; g.fillRect(LX - 9, LY - 15, 18, 4);
     g.fillStyle = '#57493a'; g.fillRect(LX - 8, LY - 14, 16, 2);
     g.fillStyle = '#0c0a08'; g.fillRect(LX - 8, LY - 11, 16, 22);

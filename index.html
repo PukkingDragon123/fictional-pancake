@@ -84,13 +84,29 @@
 
   <div id="panel-phone" class="phone" hidden>
     <div class="phshell">
-      <div class="phrail"></div>
+      <i class="phbtn-silent"></i><i class="phbtn-up"></i><i class="phbtn-down"></i><i class="phbtn-wake"></i>
       <div class="phglass">
-        <div class="phstatus"><b id="ph-clock">7:14am</b><span id="ph-wx">Fair</span><i class="phbatt"></i></div>
-        <div class="phtop"><button class="phback" id="ph-back" hidden>&lsaquo;</button><b id="ph-title">WOMBAT OS</b><button class="phx" id="ph-close">&times;</button></div>
-        <div class="phscreen" id="ph-screen"></div>
-        <div class="phbottom"><button class="phhome" id="ph-home"></button></div>
+        <div class="phwall"></div>
+        <div class="phstatus">
+          <b id="ph-clock">7:14</b>
+          <i class="phisland"></i>
+          <span class="phsig"><i></i><i></i><i></i><i></i></span>
+          <span class="phwifi"></span>
+          <span class="phbatt"><i></i></span>
+        </div>
+        <div class="phhome-view" id="ph-home-view">
+          <div class="phwidget" id="ph-widget"></div>
+          <div class="phgrid" id="ph-grid"></div>
+          <div class="phdots"><i class="on"></i><i></i></div>
+          <div class="phdock" id="ph-dock"></div>
+        </div>
+        <div class="phapp-view" id="ph-app-view" hidden>
+          <div class="phnav"><button class="phback" id="ph-back">&lsaquo; Home</button><b id="ph-title">App</b><span class="phnav-sp"></span></div>
+          <div class="phscreen" id="ph-screen"></div>
+        </div>
+        <button class="phbar" id="ph-home-btn" title="Home"></button>
       </div>
+      <button class="phclose" id="ph-close" title="Put it away (P)">&times;</button>
     </div>
   </div>
 
@@ -98,7 +114,7 @@
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>Press <b>P</b> for your phone: the job in hand and where it happens, every wombat and what it is short of, what is in the beds, the weather, the money, and a list of places you can drive to from right here.</li>
+        <li>Press <b>P</b> for your phone. Jobs is the order in hand and where it happens. Herd is every wombat and what it is short of. Garden is the beds. Places will drive you anywhere from where you stand. There is also the weather, the wallet, your photos, your messages and the settings.</li>
         <li>Right-click (or press Tab) and a tool tray opens beside the cursor; pick one and it rides with the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
         <li>The hooded one tells you what to do next in a speech bubble. Click him and you can actually talk to him &mdash; he will repeat the order or answer whatever you ask. Shaz and Groot will talk too.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>

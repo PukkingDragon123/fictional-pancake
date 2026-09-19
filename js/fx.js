@@ -46,23 +46,110 @@ const FX = (() => {
   }
   // ---- the curtain ---------------------------------------------------------
   // Going anywhere in this game is going through cloud. Two banks of it roll in
-  // from either side, meet in the middle, hold for a beat with motes drifting
-  // through, and part again. Hard-edged puffs, no gradients, and a warm wash
-  // over the top so the whole thing feels like falling asleep somewhere soft.
+  // from either side, meet in the middle, hold for a beat, and part again.
+  //
+  // Every cloud here is built the way a pixel artist builds one: a stack of
+  // horizontal runs on a four-pixel grid, stepped in and out, with a lit row
+  // along the top and a shaded run along the bottom. There is not an ellipse
+  // or an arc anywhere in it.
+  const CPX = 5;                          // the size of one cloud pixel
+  const CLOUD = ['#fdfaff', '#f0eafa', '#ddd4ee', '#bfb4d8', '#9c90bc', '#6f6390'];
+  // ---- building a cloud ------------------------------------------------------
+  // Two or three bumps sitting on one flat baseline. For each row of blocks we
+  // take the widest bump that reaches it, which gives the stepped, lumpy
+  // silhouette a pixel cloud is supposed to have: bumpy on top, flat underneath.
+  function cloudShape(seed) {
+    const r = Art.rng(seed);
+    const rows = 6 + Math.floor(r() * 3);               // how tall, in blocks
+    // two or three humps of different heights, so it never reads as a lump
+    const hs = r() < 0.45
+      ? [rows - 1, 1 + Math.floor(r() * 2)]
+      : [rows - 1, rows - 2 - Math.floor(r() * 2), 1 + Math.floor(r() * 2)];
+    for (let i = hs.length - 1; i > 0; i--) {           // shuffle which is tallest
+      const j = Math.floor(r() * (i + 1));
+      const tmp = hs[i]; hs[i] = hs[j]; hs[j] = tmp;
+    }
+    const bumps = [];
+    let at = 0;
+    for (const h0 of hs) {
+      const h = Math.max(1, h0);
+      const w = Math.max(2, Math.round(h * 0.85) + 1);  // a shade wider than tall
+      bumps.push({ cx: at + w, w, h });
+      at += Math.max(2, w + Math.round(w * 0.4));       // sit them well inside each other
+    }
+    const mid = at / 2;
+    for (const b of bumps) b.cx -= mid;
+    const prof = [];
+    for (let i = 0; i < rows; i++) {
+      const up = rows - 1 - i;                          // 0 at the baseline
+      let l = null, rr = null;
+      for (const b of bumps) {
+        if (up > b.h) continue;
+        // the hump, quantised: how far the run reaches at this height. It comes
+        // out as a stack of stepped runs, which is what a pixel cloud is.
+        const k = up / (b.h + 0.6);
+        const ext = Math.max(1, Math.round(b.w * Math.sqrt(Math.max(0, 1 - k * k))));
+        l = l == null ? b.cx - ext : Math.min(l, b.cx - ext);
+        rr = rr == null ? b.cx + ext : Math.max(rr, b.cx + ext);
+      }
+      if (l == null) { l = -2; rr = 2; }
+      prof.push([l, rr]);
+    }
+    // the bottom two rows run the full width of the lot, flat
+    let fl = 0, fr = 0;
+    for (const [l, rr] of prof) { fl = Math.min(fl, l); fr = Math.max(fr, rr); }
+    prof[prof.length - 1] = [fl, fr];
+    if (rows > 4) prof[prof.length - 2] = [fl, fr];
+    return prof;
+  }
   const PUFF = [];
-  for (let i = 0; i < 46; i++) {
+  for (let i = 0; i < 24; i++) {
     const r = Art.rng(4400 + i * 17);
     PUFF.push({
       side: i % 2 ? 1 : -1,
-      y: r() * 1.12 - 0.06,          // 0..1 of the screen height
-      rx: 0.1 + r() * 0.22,          // as a fraction of the width
-      ry: 0.09 + r() * 0.18,
-      lead: r() * 0.34,              // how far ahead of the bank it runs
+      y: r() * 1.18 - 0.09,               // 0..1 of the screen height
+      prof: cloudShape(8800 + i * 31),
+      scale: 0.7 + r() * 1.0,
+      lead: r() * 0.36,                   // how far ahead of the bank it runs
       drift: 0.3 + r() * 0.9,
-      tone: Math.floor(r() * 3),
     });
   }
-  const CLOUD = ['#f6f0fb', '#e4dcf0', '#cfc6e2'];
+  // One cloud, drawn as runs of blocks, with a hard line all the way round it.
+  function pixelCloud(g, cx, cy, prof, px, shade) {
+    const n = prof.length;
+    const snap = (v) => Math.round(v / px) * px;
+    const x0 = snap(cx), top = snap(cy - (n * px) / 2);
+    const BODY = CLOUD[shade ? 2 : 1], LIT = CLOUD[shade ? 1 : 0];
+    const EDGE = CLOUD[shade ? 5 : 4], UNDER = CLOUD[shade ? 4 : 3];
+    // the hard edge: the body grown one block sideways, and one row proud
+    // top and bottom. One block thick all the way round, never more.
+    g.fillStyle = EDGE;
+    for (let i = 0; i < n; i++) {
+      const [l, r] = prof[i];
+      g.fillRect(x0 + (l - 1) * px, top + i * px, (r - l + 3) * px, px);
+    }
+    g.fillRect(x0 + prof[0][0] * px, top - px, (prof[0][1] - prof[0][0] + 1) * px, px);
+    g.fillRect(x0 + prof[n - 1][0] * px, top + n * px, (prof[n - 1][1] - prof[n - 1][0] + 1) * px, px);
+    // the body
+    g.fillStyle = BODY;
+    for (let i = 0; i < n; i++) {
+      const [l, r] = prof[i];
+      g.fillRect(x0 + l * px, top + i * px, (r - l + 1) * px, px);
+    }
+    // the lit crown: each bump's top two rows, inset a block from the left
+    g.fillStyle = LIT;
+    for (let i = 0; i < Math.min(n - 2, 3); i++) {
+      const [l, r] = prof[i];
+      const w = Math.max(1, r - l - 1);
+      g.fillRect(x0 + l * px, top + i * px, w * px, px);
+    }
+    // the shaded underside, and the skirt below it
+    g.fillStyle = UNDER;
+    for (let i = Math.max(0, n - 2); i < n; i++) {
+      const [l, r] = prof[i];
+      g.fillRect(x0 + l * px, top + i * px, (r - l + 1) * px, px);
+    }
+  }
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
@@ -74,24 +161,27 @@ const FX = (() => {
     if (cover <= 0) return;
     const e = phase === 'in' ? U.easeOut(cover) : U.easeInOut(cover);
     const t = c.t;
-    // the wash: the world going soft behind the weather
-    g.save();
-    g.globalAlpha = Math.min(1, e * e * 1.15);
-    g.fillStyle = '#efe8f6'; g.fillRect(0, 0, W, H);
-    g.restore();
-    // three passes over the same puffs, darkest first, so each one has a lip
-    for (let pass = 0; pass < 3; pass++) {
-      const shrink = pass * 0.055;
-      g.fillStyle = CLOUD[2 - pass];
-      for (const p of PUFF) {
-        const push = U.clamp(e * (1 + p.lead), 0, 1.35);
-        const home = p.side < 0 ? -0.24 + push * 0.92 : 1.24 - push * 0.92;
-        const x = (home + Math.sin(t * p.drift + p.y * 9) * 0.012) * W;
-        const rx = (p.rx - shrink * 0.5) * W * (0.72 + e * 0.5);
-        const ry = (p.ry - shrink * 0.5) * H * (0.72 + e * 0.5);
-        if (rx <= 1 || ry <= 1) continue;
-        if (pass === 0) Art.ell(g, x, p.y * H, rx + 2, ry + 2, '#b6abcf');   // one ink lip underneath
-        Art.ell(g, x, p.y * H - (pass ? pass * ry * 0.12 : 0), rx, ry, CLOUD[2 - pass]);
+    // the wash: the world going soft behind the weather, in flat steps
+    const wash = Math.min(1, e * e * 1.2);
+    if (wash > 0.01) {
+      g.save();
+      for (let i = 0; i < 5; i++) {         // five flat steps, no gradient
+        g.globalAlpha = Math.min(1, wash * (0.25 + i * 0.2));
+        g.fillStyle = CLOUD[1];
+        g.fillRect(0, Math.round((H / 5) * i), W, Math.ceil(H / 5) + 1);
+      }
+      g.restore();
+    }
+    // two passes: the far bank in the shaded tones, the near bank over it
+    for (let pass = 0; pass < 2; pass++) {
+      for (let i = 0; i < PUFF.length; i++) {
+        const p = PUFF[i];
+        if ((i % 2 === 0) !== (pass === 0)) continue;
+        const push = U.clamp(e * (1 + p.lead), 0, 1.4);
+        const home = p.side < 0 ? -0.3 + push * 0.96 : 1.3 - push * 0.96;
+        const x = (home + Math.sin(t * p.drift + p.y * 9) * 0.014) * W;
+        const px = Math.max(2, Math.round(CPX * p.scale * (0.7 + e * 0.7)));
+        pixelCloud(g, x, p.y * H, p.prof, px, pass === 0);
       }
     }
     // motes, drifting through the thick of it
@@ -105,10 +195,14 @@ const FX = (() => {
         const sz = r > 0.7 ? 2 : 1;
         g.fillRect(Math.round(mx), Math.round((my + H) % H), sz, sz);
       }
-      // and a soft warm heart to it, so the middle of the transition glows
+      // a warm heart to it: flat bands out from the middle, not a painted disc
       g.save();
-      g.globalAlpha = a * 0.5;
-      Art.glow(g, W * 0.5, H * 0.44, H * 0.8, '#fff3d8', 0.5, 8);
+      for (let i = 0; i < 7; i++) {
+        g.globalAlpha = a * 0.09 * (1 - i / 7);
+        g.fillStyle = '#fff3d8';
+        const bw = W * (0.22 + i * 0.13), bh = H * (0.16 + i * 0.13);
+        g.fillRect(Math.round(W / 2 - bw / 2), Math.round(H * 0.46 - bh / 2), Math.round(bw), Math.round(bh));
+      }
       g.restore();
     }
   }
@@ -410,5 +504,5 @@ const FX = (() => {
     return Font.draw(g, text, x, y, opts);
   }
 
-  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, coinBurst, drawCoins, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, drawTrees, trees, get curtaining() { return !!curtain; }, clear, clearComics, particles };
+  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, coinBurst, drawCoins, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, drawTrees, trees, pixelCloud, cloudShape, get curtaining() { return !!curtain; }, clear, clearComics, particles };
 })();

@@ -284,6 +284,22 @@ const Guide = (() => {
     cult.pose = 'jump'; cult.castT = 0; cult.t = 0; cult.still = 0;
     Audio.play('chime');
     FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
+    // and he texts you about it afterwards, like anyone would
+    const AFTER = {
+      weeds: 'Good. Do not let them back. They come back.',
+      junk: 'The ants invoiced me for that. Ignore any letters.',
+      grass: 'Green suits it. Keep the water up.',
+      arrive: 'She chose you. Do not read too much into it. Read a little into it.',
+      sow: 'A bed in the ground is money in the ground.',
+      pick: 'Anything you grow, she will eat. Anything she eats, I will buy.',
+      feed: 'One fed wombat. Try three.',
+      load: 'That truck has carried worse.',
+      map: 'Nine gods, four shops and a lake nobody swims in. Enjoy.',
+      mart: 'Shaz will talk. Let her. She is the only one out here who does.',
+      sell: 'Pleasure. Bring me everything. I am not being polite.',
+      god: 'One of them answered you. I have been at this for forty years.',
+    };
+    if (AFTER[s.key]) setTimeout(() => Phone.push('cultist', AFTER[s.key]), 2600);
     UI.refreshAll();           // a finished step can hand over a new tool
     UI.refreshNotebook();
     Main.save();

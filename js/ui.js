@@ -23,7 +23,7 @@ const UI = (() => {
     $('b-back').hidden = G.mode === 'grove';
     const dot = $('b-phone-dot');
     if (dot) {
-      const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length : 0;
+      const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length + Phone.unread() : 0;
       dot.hidden = jobs === 0;
     }
     refreshList();
@@ -451,7 +451,10 @@ const UI = (() => {
       G.wd += each * sold;
       G.stats.sold = (G.stats.sold || 0) + sold;
       FX.coinBurst(320, 200, 6);
-      if (pawnMode === 'cult') Guide.paid(each * sold);
+      if (pawnMode === 'cult') {
+        Guide.paid(each * sold);
+        if (sold >= 5) setTimeout(() => Phone.push('cultist', `${sold} in one go. The order thanks you. I thank you more.`), 3000);
+      }
     } else {
       const god = GOD_BY_KEY[d.k];
       if ((G.artifacts[d.k] || 0) < n) return;
@@ -505,8 +508,8 @@ const UI = (() => {
     // the phone: a button in the corner, and P from anywhere
     $('b-phone').onclick = () => Phone.toggle();
     $('ph-close').onclick = () => Phone.close();
-    $('ph-home').onclick = () => Phone.open('home');
-    $('ph-back').onclick = () => Phone.open('home');
+    $('ph-home-btn').onclick = () => Phone.open('home');
+    $('ph-back').onclick = () => Phone.back();
     $('b-summon').onclick = () => Ritual.summon();
     $('b-unstage').onclick = () => Ritual.clearStage();
     document.addEventListener('keydown', (e) => {

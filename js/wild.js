@@ -409,7 +409,25 @@ const Wild = (() => {
     const who = { ranger: 'cultist', kid: 'cultist' }[v.def.key] || (Sprites.VILLAGERS[v.def.key] ? 'villager:' + v.def.key : v.def.key);
     Talk.open(who, v.def.tree(), () => {
       if (v.state === 'talk') v.state = 'wander';
-      if (!v.gave) { v.gave = true; const msg = v.def.gift(); UI.toast(msg, 'good'); UI.refreshHUD(); UI.refreshTray(); Main.save(); }
+      if (!v.gave) {
+        v.gave = true;
+        const msg = v.def.gift();
+        UI.toast(msg, 'good'); UI.refreshHUD(); UI.refreshTray(); Main.save();
+        // and they text on the way home
+        const BYE = {
+          bee: 'got back fine. that big grey one watched me the whole way to the gate',
+          fish: 'nothing on the line again. your wombats were better company',
+          post: 'nothing for you tomorrow either. see you then',
+          bake: 'eat the other one. do not save it. i will know',
+          bota: 'I have written you up as an anomaly. Meant kindly.',
+          bard: 'verse four is about the hooded man and it is the best one',
+          shaz: 'got home!! tell the big one i said hi 😄',
+          groot: 'I am Groot.',
+          ranger: 'Count logged. Nineteen. Nobody at the office believes me.',
+          kid: 'i told the whole bus. the whole bus knows now',
+        };
+        if (BYE[v.def.key]) setTimeout(() => Phone.push(v.def.key, BYE[v.def.key]), 9000);
+      }
     });
   }
 
@@ -464,7 +482,8 @@ const Wild = (() => {
     }
     // visitors
     spawnT -= dt;
-    if (spawnT <= 0 && G.step >= 4 && !UI.anyPanel()) {
+    // Nobody drives out here in the dark. Visitors keep daylight hours.
+    if (spawnT <= 0 && G.step >= 4 && !UI.anyPanel() && Sky.light() > 0.45) {
       spawnVisitor();
       // a starthistle in the ground brings people up the road to look at it
       const draw2 = (World.magic().draw || 0);

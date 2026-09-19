@@ -365,14 +365,27 @@ const Grove = (() => {
         else {
           w.x += (dx / d) * sp * dt; w.y += (dy / d) * sp * dt;
           face(w, dx > 0 ? 1 : -1);
+          w.step = (w.step || 0) + sp * dt;
+          if (w.step > 15) { w.step = 0; print(w.x, w.y, w.dir); }
           World.disturb(w.x, w.y + 2, 20, 0.85);
           if (G.fruits.greenwake && Math.random() < dt * 1.6) World.sowGrass(w.x, w.y + 2, 8);
         }
       } else if (w.stateT <= 0 && w.state !== 'dig') {
+        // A wombat is nocturnal. Through the middle of the day it sleeps in the
+        // shade and barely moves; after dark it is up, out and grazing, which is
+        // when the grove is actually busy.
+        const night = Sky.isNight(), noon = Sky.light() > 0.85;
         const r = Math.random();
-        if (r < 0.3 && World.hasGrass(w.x, w.y)) { w.state = 'graze'; w.stateT = U.rand(3, 6); }
-        else if (r < 0.74) { const rm = roam(); w.tx = U.rand(rm.x0, rm.x1); w.ty = U.rand(WALK.y0, WALK.y1); w.state = 'walk'; w.goal = U.chance(0.35) ? 'graze' : 'idle'; }
-        else if (r < 0.85 && w.hap < 40) { w.state = 'sleep'; w.stateT = U.rand(5, 9); }
+        if (noon && r < 0.6) {
+          // find the coolest thing nearby and lie down beside it
+          const shade = shadeSpot(w);
+          if (shade && Math.hypot(shade.x - w.x, shade.y - w.y) > 26) {
+            w.tx = shade.x; w.ty = shade.y; w.state = 'walk'; w.goal = 'sleep';
+          } else { w.state = 'sleep'; w.stateT = U.rand(8, 16); }
+        }
+        else if (night && r < 0.42 && World.hasGrass(w.x, w.y)) { w.state = 'graze'; w.stateT = U.rand(4, 8); }
+        else if (r < (night ? 0.86 : 0.6)) { const rm = roam(); w.tx = U.rand(rm.x0, rm.x1); w.ty = U.rand(WALK.y0, WALK.y1); w.state = 'walk'; w.goal = U.chance(night ? 0.5 : 0.3) ? 'graze' : 'idle'; }
+        else if (r < 0.9 || (!night && w.hap < 60)) { w.state = 'sleep'; w.stateT = U.rand(night ? 3 : 7, night ? 6 : 14); }
         else { w.state = 'idle'; w.stateT = U.rand(1.5, 3.5); if (U.chance(0.35)) face(w, -w.dir); }
       }
       if (w.state === 'dig' && w.stateT <= 0 && w.stomach !== 'ready') { w.state = 'idle'; w.stateT = 1; }
@@ -409,6 +422,7 @@ const Grove = (() => {
       }
     }
     // poop cubes settle
+    updatePrints(dt);
     for (const d of drops) {
       d.t += dt;
       // the impact squash unwinds as a damped spring: flatten, overshoot, settle
@@ -937,6 +951,7 @@ const Grove = (() => {
     }
     Wild.drawGround(g);              // hills and ponds are ground, so they go first
     drawMoss(g, L, R);               // and moss over the whole floor of it
+    drawPrints(g);                   // and everything that has walked over it
     World.drawSprouts(g);
     World.drawBlades(g);
     World.drawFlowers(g);
@@ -1366,6 +1381,53 @@ const Grove = (() => {
     g.strokeRect(Math.round(x) + 0.5, Math.round(y) + 0.5, w, h);
     g.setLineDash([]); g.restore();
   }
+  // The best place to sleep out the middle of the day: under a grown tree, in
+  // the lee of a hill, or failing that behind the nearest fallen log.
+  function shadeSpot(w) {
+    let best = null, bd = 1e9;
+    for (const c of World.crops) {
+      if (World.kindOf(c) !== 'tree' || !World.grown(c)) continue;
+      const d = Math.hypot(c.x - w.x, c.y - w.y);
+      if (d < bd) { bd = d; best = { x: c.x + U.rand(-14, 14), y: c.y + 10 }; }
+    }
+    for (const m of Wild.mounds) {
+      const d = Math.hypot(m.x - w.x, m.y - w.y);
+      if (d < bd) { bd = d; best = { x: m.x + U.rand(-10, 10), y: m.y + 4 }; }
+    }
+    for (const o of objects) {
+      if (o.gone || o.kind !== 'fallen') continue;
+      const d = Math.hypot(o.x - w.x, o.y - w.y);
+      if (d < bd) { bd = d; best = { x: o.x + U.rand(-16, 16), y: o.y + 8 }; }
+    }
+    if (!best) return null;
+    const rm = roam();
+    return { x: U.clamp(best.x, rm.x0, rm.x1), y: U.clamp(best.y, WALK.y0, WALK.y1) };
+  }
+
+  // ---- footprints --------------------------------------------------------------
+  // Soft ground takes a print, and the prints fade. It is a small thing and it
+  // is most of what makes a clearing look walked in.
+  const prints = [];
+  function print(x, y, dir) {
+    prints.push({ x, y, dir, t: 0 });
+    if (prints.length > 90) prints.shift();
+  }
+  function updatePrints(dt) {
+    for (let i = prints.length - 1; i >= 0; i--) {
+      prints[i].t += dt * (Sky.wet() > 0 ? 2.4 : 1);       // rain washes them out
+      if (prints[i].t > 26) prints.splice(i, 1);
+    }
+  }
+  function drawPrints(g) {
+    for (const p of prints) {
+      const a = U.clamp(1 - p.t / 26, 0, 1) * 0.34;
+      if (a < 0.02) continue;
+      g.fillStyle = `rgba(42,28,18,${a.toFixed(2)})`;
+      g.fillRect(Math.round(p.x - 3), Math.round(p.y), 3, 2);
+      g.fillRect(Math.round(p.x + 1), Math.round(p.y - 2), 3, 2);
+    }
+  }
+
   // Turning round is an animation, not a flip. It swings the animal away from
   // you, through its back, and out the other side, which takes about a third of
   // a second and is the difference between a creature and a sticker.

@@ -777,122 +777,219 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
 /* =========================================================================
    THE PHONE
-   Glass and brushed steel, sat in the middle of the screen. It is the one
-   thing in the game that is not made of wood, which is the point: everything
-   else is the wood you are standing in, and this is the thing in your pocket.
+   A phone, drawn as a phone: titanium rail, rounded glass, Dynamic Island,
+   a wallpaper behind a grid of rounded app icons, a dock, and the home bar.
+   It is the one object in this game that is not made of wood or pixels,
+   because it is the thing in your pocket and it should look like it.
    ========================================================================= */
 .phone {
   position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at 50% 46%, rgba(20,14,26,0.5) 0%, rgba(8,5,12,0.82) 72%);
+  background: radial-gradient(ellipse at 50% 46%, rgba(20,14,26,0.52) 0%, rgba(8,5,12,0.84) 72%);
   animation: phfade .18s ease-out;
 }
 @keyframes phfade { from { opacity: 0 } to { opacity: 1 } }
 .phshell {
-  position: relative; width: min(360px, 88vw); height: min(690px, 88vh);
-  display: flex; flex-direction: column;
-  background: linear-gradient(150deg, #cfd6e4 0%, #8d94a6 40%, #5d6474 100%);
-  padding: 7px;
-  box-shadow: 0 0 0 3px #0a0710, 0 18px 0 4px rgba(0,0,0,0.5), 0 0 80px rgba(0,0,0,0.6);
-  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px),
-                     calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
-  animation: phin .26s cubic-bezier(0.3, 1.5, 0.5, 1);
+  --ph-h: min(94vh, 780px);
+  position: relative; flex: 0 0 auto; height: var(--ph-h); width: calc(var(--ph-h) * 393 / 852);
+  min-width: 0; max-width: 96vw;
+  display: flex; padding: 4px; border-radius: 56px;
+  background:
+    linear-gradient(118deg, #f2f4f8 0%, #9aa1ad 12%, #6e7683 26%, #cfd5de 40%, #7d848f 56%, #aab1bc 72%, #5f666f 88%, #e6eaf0 100%);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.6), 0 26px 60px rgba(0,0,0,0.55), 0 0 90px rgba(0,0,0,0.45),
+    inset 0 0 0 3px rgba(255,255,255,0.14);
+  animation: phin .3s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
-@keyframes phin { from { transform: translateY(26px) scale(0.94); opacity: 0 } to { transform: none; opacity: 1 } }
-.phrail { position: absolute; left: -4px; top: 74px; width: 4px; height: 26px; background: #b9bfd0; box-shadow: 0 38px 0 #b9bfd0, 0 78px 0 0 #b9bfd0; }
+@keyframes phin { from { transform: translateY(30px) scale(0.93); opacity: 0 } to { transform: none; opacity: 1 } }
+/* the side buttons */
+.phshell i[class^="phbtn-"] { position: absolute; background: linear-gradient(180deg, #d8dde4, #8e959f); border-radius: 2px; }
+.phbtn-silent { left: -2px; top: 16%; width: 3px; height: 3.2%; }
+.phbtn-up     { left: -2px; top: 24%; width: 3px; height: 6.4%; }
+.phbtn-down   { left: -2px; top: 33%; width: 3px; height: 6.4%; }
+.phbtn-wake   { right: -2px; top: 27%; width: 3px; height: 9%; }
+.phclose {
+  position: absolute; right: -14px; top: -14px; width: 34px; height: 34px; border: 0; cursor: pointer;
+  border-radius: 50%; font-family: var(--f); font-size: 19px; line-height: 1;
+  color: #efe9dd; background: #2a2c38; box-shadow: 0 0 0 2px #0a0710, 0 4px 10px rgba(0,0,0,0.5);
+}
+.phclose:hover { background: #3c3f50; }
 .phglass {
-  flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;
-  background: linear-gradient(180deg, #14131c 0%, #0d0d14 40%, #101019 100%);
-  box-shadow: inset 0 0 0 2px #05040a, inset 0 0 40px rgba(60,80,120,0.16);
-  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px),
-                     calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+  position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  border-radius: 52px; background: #06070c;
+  box-shadow: inset 0 0 0 2px #05040a;
 }
+/* the wallpaper: a hill, a wood and a sky, all in flat bands */
+.phwall {
+  position: absolute; inset: 0; pointer-events: none; background: #1d2417;
+  background-size: 100% 100%; background-repeat: no-repeat; image-rendering: pixelated;
+}
+/* the status bar and the island */
 .phstatus {
-  flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 7px 14px 3px;
-  font-size: 12px; color: #cfd6e8; letter-spacing: 1px;
+  position: relative; z-index: 3; flex: 0 0 auto; display: flex; align-items: center; gap: 5px;
+  padding: 13px 26px 4px; font-size: 13px; color: #fff; letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
-.phstatus span { margin-left: auto; opacity: 0.75; }
-.phbatt { width: 18px; height: 9px; background: #2a2b38; box-shadow: inset 0 0 0 1px #6a7286, inset 12px 0 0 0 #7de08a; }
-.phtop {
-  flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 4px 10px 8px;
-  border-bottom: 2px solid #23243a;
+.phstatus b { font-weight: 400; }
+.phisland {
+  position: absolute; left: 50%; top: 9px; width: 30%; height: 26px; margin-left: -15%;
+  background: #000; border-radius: 14px;
+  box-shadow: inset -20px 0 0 -14px #14141c;
 }
-.phtop b { flex: 1 1 auto; text-align: center; font-size: 15px; color: #e6ecff; letter-spacing: 2px; }
-.phback, .phx {
-  width: 30px; height: 26px; border: 0; cursor: pointer; font-family: inherit; font-size: 17px;
-  color: #cfd6e8; background: #1d1e2c; box-shadow: inset 0 0 0 2px #313349;
-}
-.phback:hover, .phx:hover { background: #2a2c40; color: #fff; }
-.phscreen { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
-.phscreen::-webkit-scrollbar { width: 7px; }
-.phscreen::-webkit-scrollbar-thumb { background: #33354c; }
-.phbottom { flex: 0 0 auto; display: flex; justify-content: center; padding: 6px 0 8px; }
-.phhome { width: 78px; height: 5px; border: 0; background: #4d5063; cursor: pointer; }
-.phhome:hover { background: #7b8098; }
+.phsig { margin-left: auto; display: flex; align-items: flex-end; gap: 2px; height: 11px; }
+.phsig i { width: 3px; background: #fff; border-radius: 1px; }
+.phsig i:nth-child(1) { height: 4px } .phsig i:nth-child(2) { height: 6px }
+.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 11px; opacity: 0.4 }
+.phwifi { width: 14px; height: 11px; background:
+  radial-gradient(circle at 50% 100%, #fff 0 2px, transparent 2px),
+  radial-gradient(circle at 50% 100%, transparent 0 4px, #fff 4px 5.5px, transparent 5.5px),
+  radial-gradient(circle at 50% 100%, transparent 0 7.5px, #fff 7.5px 9px, transparent 9px); }
+.phbatt { width: 24px; height: 12px; border: 1px solid rgba(255,255,255,0.55); border-radius: 3px; padding: 1.5px;
+  position: relative; }
+.phbatt::after { content: ''; position: absolute; right: -3px; top: 4px; width: 2px; height: 4px; background: rgba(255,255,255,0.55); border-radius: 0 1px 1px 0; }
+.phbatt i { display: block; width: 76%; height: 100%; background: #fff; border-radius: 1.5px; }
 
-/* the home screen: a grid of apps over a quiet header */
-.phpage { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
-.phhead { padding: 10px 4px 4px; }
-.phhead b { display: block; font-size: 20px; color: #e6ecff; letter-spacing: 2px; }
-.phhead span { font-size: 13px; color: #8d94ae; font-style: italic; }
-.phgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 6px 0 2px; }
+/* the home screen */
+.phhome-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 10px 18px 0; }
+.phwidget {
+  margin: 6px 2px 14px; padding: 12px 14px; border-radius: 20px; color: #f2f5ff;
+  background: rgba(22,20,34,0.46); backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+}
+.phwidget h5 { margin: 0 0 4px; font-size: 12px; font-weight: 400; letter-spacing: 1.5px; color: #b9c2dc; }
+.phwidget p { margin: 0; font-size: 15px; line-height: 1.45; }
+.phwidget .phwrow { display: flex; gap: 12px; margin-top: 8px; font-size: 12px; color: #c9d2ea; }
+.phwidget .phwrow span { display: flex; align-items: center; gap: 4px; }
+.phwidget img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
+.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 8px; align-content: start; }
 .phapp {
   position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px;
-  padding: 11px 4px 9px; border: 0; cursor: pointer; font-family: inherit;
-  color: #dfe5f6; background: linear-gradient(180deg, #23263a 0%, #171a2a 100%);
-  box-shadow: inset 0 0 0 2px var(--tint, #4a4f6a), inset 0 14px 18px -12px var(--tint, #4a4f6a);
-  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px),
-                     calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
-  transition: transform .14s cubic-bezier(.2,2.2,.4,1);
+  padding: 0; border: 0; background: none; cursor: pointer; font-family: inherit;
+  transition: transform .12s cubic-bezier(.2,2.2,.4,1);
 }
-.phapp:hover { transform: translateY(-3px) scale(1.05); }
-.phapp:active { transform: translateY(3px) scale(0.94); }
-.phapp img.ico { width: 30px; height: 30px; image-rendering: pixelated; }
-.phapp b { font-size: 12px; letter-spacing: 1px; }
+.phapp i.phico {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; aspect-ratio: 1; border-radius: 24%;
+  background: linear-gradient(170deg, var(--t1, #4a4f6a), var(--t2, #23263a));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 3px 8px rgba(0,0,0,0.45);
+}
+.phapp img.ico { width: 62%; height: 62%; image-rendering: pixelated; }
+.phapp b { font-size: 11px; font-weight: 400; color: #fff; letter-spacing: 0.3px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+.phapp:hover { transform: scale(1.08); }
+.phapp:active { transform: scale(0.9); }
 .phdot {
-  position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; line-height: 17px;
-  font-size: 11px; font-style: normal; text-align: center; color: #1a0e08; background: #ff7a5a;
-  box-shadow: 0 0 0 2px #0a0710;
+  position: absolute; top: -5px; right: -3px; min-width: 19px; height: 19px; line-height: 19px;
+  font-size: 11px; font-style: normal; text-align: center; color: #fff; background: #ff3b30;
+  border-radius: 10px; box-shadow: 0 0 0 2px rgba(0,0,0,0.35);
 }
-.phnote { margin-top: auto; padding: 9px 10px; font-size: 13px; color: #b9c2dc; background: #171a28; box-shadow: inset 0 0 0 2px #262a40; }
-.phnote b { color: #f5cd5c; letter-spacing: 1px; }
+.phdots { display: flex; gap: 6px; justify-content: center; margin: 14px 0 10px; }
+.phdots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); }
+.phdots i.on { background: #fff; }
+.phdock {
+  margin: auto 0 16px; padding: 12px 10px; border-radius: 30px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  background: rgba(30,28,44,0.45); backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.09);
+}
+.phdock .phapp b { display: none; }
 
-/* cards and rows */
-.phcard { padding: 9px 10px; background: linear-gradient(180deg, #1b1e2e 0%, #141623 100%); box-shadow: inset 0 0 0 2px #2a2e46; }
-.phcard.big { box-shadow: inset 0 0 0 2px #3a4062, inset 0 20px 26px -20px #6a74a8; }
-.phcard.shut { opacity: 0.55; }
+/* an app, open */
+.phapp-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
+  background: #0f1016; animation: phopen .18s ease-out; }
+@keyframes phopen { from { transform: scale(0.9); opacity: 0 } to { transform: none; opacity: 1 } }
+.phnav { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 14px 10px;
+  border-bottom: 1px solid #23243a; background: rgba(18,19,28,0.9); }
+.phnav b { flex: 1 1 auto; text-align: center; font-size: 15px; font-weight: 400; color: #e6ecff; }
+.phnav-sp { flex: 0 0 62px; }
+.phback { flex: 0 0 62px; text-align: left; padding: 4px 0; border: 0; background: none; cursor: pointer;
+  font-family: inherit; font-size: 14px; color: #6fa8ff; }
+.phback:hover { color: #9cc4ff; }
+.phscreen { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 10px 12px 18px; display: flex; flex-direction: column; gap: 7px; }
+.phscreen::-webkit-scrollbar { width: 6px; }
+.phscreen::-webkit-scrollbar-thumb { background: #33354c; border-radius: 3px; }
+.phbar { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 4;
+  width: 36%; height: 5px; border: 0; border-radius: 3px; background: rgba(255,255,255,0.65); cursor: pointer; }
+.phbar:hover { background: #fff; }
+
+/* cards and rows inside an app */
+.phcard { min-width: 0; padding: 10px 12px; border-radius: 14px; background: #1b1d2a; box-shadow: inset 0 0 0 1px #2a2e46; }
+.phcard.big { background: linear-gradient(170deg, #232741, #171a29); box-shadow: inset 0 0 0 1px #3a4062; }
+.phcard.shut { opacity: 0.5; }
 .phcardh { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #e6ecff; }
 .phcardh img.ico { width: 22px; height: 22px; image-rendering: pixelated; }
-.phcardh b { flex: 0 1 auto; }
+.phcardh b { flex: 0 1 auto; font-weight: 400; }
 .phcardh .phdim { margin-left: auto; }
 .phcard p { margin: 6px 0 0; font-size: 13px; line-height: 1.55; color: #aeb6d0; }
 .phmeta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 7px; font-size: 12px; color: #8d94ae; }
 .phmeta img.ico { width: 13px; height: 13px; vertical-align: -2px; image-rendering: pixelated; }
-.phsub { margin: 9px 0 1px; font-size: 12px; letter-spacing: 2px; color: #6f7794; }
-.phrow { display: flex; align-items: center; gap: 7px; padding: 7px 9px; font-size: 13px; color: #d4dbf0; background: #16182600; box-shadow: inset 0 0 0 2px #23263a; }
-.phrow.done { opacity: 0.5; }
+.phsub { margin: 10px 2px 1px; font-size: 11px; letter-spacing: 1.6px; color: #6f7794; }
+.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 11px; font-size: 13px; color: #d4dbf0;
+  border-radius: 12px; background: #16182a; }
+.phrow.done { opacity: 0.45; }
 .phrow img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
-.phrow b { font-weight: normal; }
+.phrow b { font-weight: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .phnum { margin-left: auto; color: #f5cd5c; font-variant-numeric: tabular-nums; }
 .phdim { font-size: 12px; color: #7d85a2; font-style: italic; }
 .phrow .phdim { margin-left: auto; text-align: right; }
-.phbar { height: 6px; margin: 0 0 4px; background: #0e0f18; box-shadow: inset 0 0 0 1px #2a2e46; }
-.phbar i { display: block; height: 100%; }
+.phbar2 { height: 6px; margin: 0 0 4px; border-radius: 3px; background: #0e0f18; overflow: hidden; }
+.phbar2 i { display: block; height: 100%; border-radius: 3px; }
 .phstat { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 12px; color: #8d94ae; }
 .phstat span { flex: 0 0 52px; }
-.phstat .phbar { flex: 1 1 auto; margin: 0; height: 8px; }
+.phstat .phbar2 { flex: 1 1 auto; margin: 0; height: 8px; }
 .phwant { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
-.phwant em { font-style: normal; font-size: 11px; letter-spacing: 1px; padding: 3px 6px; color: #1a0e08; background: #e8a04a; }
-.phok { margin-top: 7px; font-size: 12px; color: #7de08a; font-style: italic; }
-.phacts { display: flex; gap: 6px; margin-top: 9px; }
+.phwant em { font-style: normal; font-size: 11px; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 9px; color: #1a0e08; background: #ffb340; }
+.phok { margin-top: 7px; font-size: 12px; color: #30d158; }
+.phacts { display: flex; gap: 6px; margin-top: 10px; }
 .phbtn {
-  flex: 1 1 auto; padding: 7px 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: 1px;
-  color: #dfe5f6; background: linear-gradient(180deg, #2c3150 0%, #1b1f31 100%);
-  box-shadow: inset 0 0 0 2px #3f4668;
-  transition: transform .14s cubic-bezier(.2,2.2,.4,1);
+  flex: 1 1 auto; padding: 9px 4px; border: 0; border-radius: 11px; cursor: pointer; font-family: inherit; font-size: 13px;
+  color: #dfe5f6; background: #2c3150;
+  transition: transform .14s cubic-bezier(.2,2.2,.4,1), filter .1s;
 }
-.phbtn.go { color: #1a0e08; background: linear-gradient(180deg, #8fd4e4 0%, #2f7a90 100%); box-shadow: inset 0 0 0 2px #cfeef6; }
-.phbtn:hover { transform: translateY(-2px); filter: brightness(1.15); }
-.phbtn:active { transform: translateY(2px) scale(0.96); }
+.phbtn.go { color: #06121a; background: linear-gradient(180deg, #7fd7ee, #2f9ec0); }
+.phbtn:hover { filter: brightness(1.18); }
+.phbtn:active { transform: scale(0.95); }
+
+/* settings: iOS-style grouped rows with switches */
+.phgroup { border-radius: 14px; overflow: hidden; background: #1b1d2a; }
+.phset { display: flex; align-items: center; gap: 10px; padding: 12px 13px; font-size: 14px; color: #e6ecff;
+  border-bottom: 1px solid #23253a; }
+.phset:last-child { border-bottom: 0; }
+.phset span { flex: 1 1 auto; }
+.phset small { display: block; font-size: 11px; color: #7d85a2; }
+.phsw { position: relative; flex: 0 0 auto; width: 46px; height: 27px; border: 0; border-radius: 14px; cursor: pointer;
+  background: #3a3d52; transition: background .16s; }
+.phsw i { position: absolute; left: 3px; top: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4); transition: left .16s cubic-bezier(.3,1.6,.5,1); }
+.phsw.on { background: #30d158; }
+.phsw.on i { left: 22px; }
+.phset .phgo { flex: 0 0 auto; padding: 7px 14px; border: 0; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: 12px; color: #fff; background: #ff453a; }
+
+/* messages */
+.phthread { display: flex; align-items: center; gap: 10px; padding: 10px 11px; border-radius: 14px; cursor: pointer;
+  border: 0; width: 100%; text-align: left; font-family: inherit; background: #16182a; color: #e6ecff; }
+.phthread:hover { background: #1f2236; }
+.phava { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #2a2e46;
+  display: flex; align-items: flex-end; justify-content: center; }
+.phava canvas { image-rendering: pixelated; }
+.phthread .phtx { flex: 1 1 auto; min-width: 0; }
+.phthread .phtx b { display: block; font-size: 14px; font-weight: 400; }
+.phthread .phtx small { display: block; font-size: 12px; color: #8d94ae; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.phunread { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: #0a84ff; }
+.phchat { display: flex; flex-direction: column; gap: 6px; }
+.phmsg { max-width: 78%; padding: 8px 12px; border-radius: 18px; font-size: 13.5px; line-height: 1.45; }
+.phmsg.them { align-self: flex-start; background: #2a2d3e; color: #eef2ff; border-bottom-left-radius: 5px; }
+.phmsg.me { align-self: flex-end; background: #0a84ff; color: #fff; border-bottom-right-radius: 5px; }
+.phreplies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.phreply { padding: 8px 13px; border: 0; border-radius: 16px; cursor: pointer; font-family: inherit; font-size: 12.5px;
+  color: #9cc4ff; background: #1c2135; box-shadow: inset 0 0 0 1px #2e3654; }
+.phreply:hover { background: #253052; color: #cfe1ff; }
+
+/* photos */
+.phphotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #22304a; display: flex; align-items: flex-end; justify-content: center; }
+.phphoto canvas { image-rendering: pixelated; width: 100%; height: 100%; object-fit: contain; }
+.phphoto em { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-style: normal; font-size: 10px;
+  color: #fff; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.7)); }
 
 /* the little phone button down in the corner of the frame */
 .mbtn.phonebtn { position: relative; }
@@ -998,13 +1095,29 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
   <div id="panel-phone" class="phone" hidden>
     <div class="phshell">
-      <div class="phrail"></div>
+      <i class="phbtn-silent"></i><i class="phbtn-up"></i><i class="phbtn-down"></i><i class="phbtn-wake"></i>
       <div class="phglass">
-        <div class="phstatus"><b id="ph-clock">7:14am</b><span id="ph-wx">Fair</span><i class="phbatt"></i></div>
-        <div class="phtop"><button class="phback" id="ph-back" hidden>&lsaquo;</button><b id="ph-title">WOMBAT OS</b><button class="phx" id="ph-close">&times;</button></div>
-        <div class="phscreen" id="ph-screen"></div>
-        <div class="phbottom"><button class="phhome" id="ph-home"></button></div>
+        <div class="phwall"></div>
+        <div class="phstatus">
+          <b id="ph-clock">7:14</b>
+          <i class="phisland"></i>
+          <span class="phsig"><i></i><i></i><i></i><i></i></span>
+          <span class="phwifi"></span>
+          <span class="phbatt"><i></i></span>
+        </div>
+        <div class="phhome-view" id="ph-home-view">
+          <div class="phwidget" id="ph-widget"></div>
+          <div class="phgrid" id="ph-grid"></div>
+          <div class="phdots"><i class="on"></i><i></i></div>
+          <div class="phdock" id="ph-dock"></div>
+        </div>
+        <div class="phapp-view" id="ph-app-view" hidden>
+          <div class="phnav"><button class="phback" id="ph-back">&lsaquo; Home</button><b id="ph-title">App</b><span class="phnav-sp"></span></div>
+          <div class="phscreen" id="ph-screen"></div>
+        </div>
+        <button class="phbar" id="ph-home-btn" title="Home"></button>
       </div>
+      <button class="phclose" id="ph-close" title="Put it away (P)">&times;</button>
     </div>
   </div>
 
@@ -1012,7 +1125,7 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>Press <b>P</b> for your phone: the job in hand and where it happens, every wombat and what it is short of, what is in the beds, the weather, the money, and a list of places you can drive to from right here.</li>
+        <li>Press <b>P</b> for your phone. Jobs is the order in hand and where it happens. Herd is every wombat and what it is short of. Garden is the beds. Places will drive you anywhere from where you stand. There is also the weather, the wallet, your photos, your messages and the settings.</li>
         <li>Right-click (or press Tab) and a tool tray opens beside the cursor; pick one and it rides with the pointer. The grove is wider than the window - drag bare ground, roll the wheel, or press the arrow keys to pan.</li>
         <li>The hooded one tells you what to do next in a speech bubble. Click him and you can actually talk to him &mdash; he will repeat the order or answer whatever you ask. Shaz and Groot will talk too.</li>
         <li>Till a bed, sow a crop, water it while it grows, and pick it when it glows.</li>
@@ -5208,6 +5321,23 @@ const Icons = (() => {
     offering: (d) => { cube(d, E2, 3, 7, 7, 7); cube(d, E1, 8, 4, 6, 6); d.R(4, 5, 2, 2, M3); },
     leaf: (d) => { d.L(3, 14, 12, 4, M1, 1); for (let i = 0; i < 5; i++) { const t = i / 5, x = U.lerp(4, 12, t), y = U.lerp(13, 4, t); d.L(x, y, x - 3 + i * 0.6, y - 2, M3, 1); d.L(x, y, x + 3 - i * 0.4, y + 1, M2, 1); } d.E(11, 4, 2, 2, M4); },
     eye: (d) => { d.E(8, 8, 7, 4.5, C); d.E(8, 8, 4, 4, D3); d.E(8, 8, 2, 2, I); d.E(6.6, 6.6, 1, 1, C); d.L(1, 4, 3, 6, I, 1); d.L(15, 4, 13, 6, I, 1); },
+    msg: (d) => {                          // a speech bubble, for the messages app
+      d.R(2, 3, 12, 9, '#1a3a20'); d.R(3, 4, 10, 7, '#e8f6ea');
+      d.P([[4, 11], [8, 11], [4, 15]], '#e8f6ea');
+      d.R(5, 6, 6, 1, '#4a7a52'); d.R(5, 8, 4, 1, '#4a7a52');
+    },
+    gear: (d) => {                         // a cog, for settings
+      d.R(6, 1, 4, 14, '#8d94a0'); d.R(1, 6, 14, 4, '#8d94a0');
+      d.R(3, 3, 10, 10, '#8d94a0'); d.R(4, 4, 8, 8, '#b9c0cc');
+      d.R(6, 6, 4, 4, '#3a3f4a');
+      d.R(3, 3, 10, 1, '#d6dce6'); d.R(6, 1, 4, 1, '#d6dce6');
+    },
+    camera: (d) => {                       // a little camera, for photos
+      d.R(1, 4, 14, 10, '#2a2430'); d.R(2, 5, 12, 8, '#4a4258');
+      d.R(5, 2, 6, 2, '#2a2430');
+      d.R(5, 6, 6, 6, '#1a1620'); d.R(6, 7, 4, 4, '#8fd4e4'); d.R(6, 7, 2, 2, '#dff2fa');
+      d.R(12, 6, 2, 1, '#f2cf3a');
+    },
     phone: (d) => {                       // the thing in your pocket
       d.R(4, 1, 8, 14, '#1c1c26'); d.R(3, 2, 10, 12, '#1c1c26');
       d.R(5, 3, 6, 10, '#2f3a4a'); d.R(5, 3, 6, 9, '#4f8aa8');
@@ -6390,23 +6520,110 @@ const FX = (() => {
   }
   // ---- the curtain ---------------------------------------------------------
   // Going anywhere in this game is going through cloud. Two banks of it roll in
-  // from either side, meet in the middle, hold for a beat with motes drifting
-  // through, and part again. Hard-edged puffs, no gradients, and a warm wash
-  // over the top so the whole thing feels like falling asleep somewhere soft.
+  // from either side, meet in the middle, hold for a beat, and part again.
+  //
+  // Every cloud here is built the way a pixel artist builds one: a stack of
+  // horizontal runs on a four-pixel grid, stepped in and out, with a lit row
+  // along the top and a shaded run along the bottom. There is not an ellipse
+  // or an arc anywhere in it.
+  const CPX = 5;                          // the size of one cloud pixel
+  const CLOUD = ['#fdfaff', '#f0eafa', '#ddd4ee', '#bfb4d8', '#9c90bc', '#6f6390'];
+  // ---- building a cloud ------------------------------------------------------
+  // Two or three bumps sitting on one flat baseline. For each row of blocks we
+  // take the widest bump that reaches it, which gives the stepped, lumpy
+  // silhouette a pixel cloud is supposed to have: bumpy on top, flat underneath.
+  function cloudShape(seed) {
+    const r = Art.rng(seed);
+    const rows = 6 + Math.floor(r() * 3);               // how tall, in blocks
+    // two or three humps of different heights, so it never reads as a lump
+    const hs = r() < 0.45
+      ? [rows - 1, 1 + Math.floor(r() * 2)]
+      : [rows - 1, rows - 2 - Math.floor(r() * 2), 1 + Math.floor(r() * 2)];
+    for (let i = hs.length - 1; i > 0; i--) {           // shuffle which is tallest
+      const j = Math.floor(r() * (i + 1));
+      const tmp = hs[i]; hs[i] = hs[j]; hs[j] = tmp;
+    }
+    const bumps = [];
+    let at = 0;
+    for (const h0 of hs) {
+      const h = Math.max(1, h0);
+      const w = Math.max(2, Math.round(h * 0.85) + 1);  // a shade wider than tall
+      bumps.push({ cx: at + w, w, h });
+      at += Math.max(2, w + Math.round(w * 0.4));       // sit them well inside each other
+    }
+    const mid = at / 2;
+    for (const b of bumps) b.cx -= mid;
+    const prof = [];
+    for (let i = 0; i < rows; i++) {
+      const up = rows - 1 - i;                          // 0 at the baseline
+      let l = null, rr = null;
+      for (const b of bumps) {
+        if (up > b.h) continue;
+        // the hump, quantised: how far the run reaches at this height. It comes
+        // out as a stack of stepped runs, which is what a pixel cloud is.
+        const k = up / (b.h + 0.6);
+        const ext = Math.max(1, Math.round(b.w * Math.sqrt(Math.max(0, 1 - k * k))));
+        l = l == null ? b.cx - ext : Math.min(l, b.cx - ext);
+        rr = rr == null ? b.cx + ext : Math.max(rr, b.cx + ext);
+      }
+      if (l == null) { l = -2; rr = 2; }
+      prof.push([l, rr]);
+    }
+    // the bottom two rows run the full width of the lot, flat
+    let fl = 0, fr = 0;
+    for (const [l, rr] of prof) { fl = Math.min(fl, l); fr = Math.max(fr, rr); }
+    prof[prof.length - 1] = [fl, fr];
+    if (rows > 4) prof[prof.length - 2] = [fl, fr];
+    return prof;
+  }
   const PUFF = [];
-  for (let i = 0; i < 46; i++) {
+  for (let i = 0; i < 24; i++) {
     const r = Art.rng(4400 + i * 17);
     PUFF.push({
       side: i % 2 ? 1 : -1,
-      y: r() * 1.12 - 0.06,          // 0..1 of the screen height
-      rx: 0.1 + r() * 0.22,          // as a fraction of the width
-      ry: 0.09 + r() * 0.18,
-      lead: r() * 0.34,              // how far ahead of the bank it runs
+      y: r() * 1.18 - 0.09,               // 0..1 of the screen height
+      prof: cloudShape(8800 + i * 31),
+      scale: 0.7 + r() * 1.0,
+      lead: r() * 0.36,                   // how far ahead of the bank it runs
       drift: 0.3 + r() * 0.9,
-      tone: Math.floor(r() * 3),
     });
   }
-  const CLOUD = ['#f6f0fb', '#e4dcf0', '#cfc6e2'];
+  // One cloud, drawn as runs of blocks, with a hard line all the way round it.
+  function pixelCloud(g, cx, cy, prof, px, shade) {
+    const n = prof.length;
+    const snap = (v) => Math.round(v / px) * px;
+    const x0 = snap(cx), top = snap(cy - (n * px) / 2);
+    const BODY = CLOUD[shade ? 2 : 1], LIT = CLOUD[shade ? 1 : 0];
+    const EDGE = CLOUD[shade ? 5 : 4], UNDER = CLOUD[shade ? 4 : 3];
+    // the hard edge: the body grown one block sideways, and one row proud
+    // top and bottom. One block thick all the way round, never more.
+    g.fillStyle = EDGE;
+    for (let i = 0; i < n; i++) {
+      const [l, r] = prof[i];
+      g.fillRect(x0 + (l - 1) * px, top + i * px, (r - l + 3) * px, px);
+    }
+    g.fillRect(x0 + prof[0][0] * px, top - px, (prof[0][1] - prof[0][0] + 1) * px, px);
+    g.fillRect(x0 + prof[n - 1][0] * px, top + n * px, (prof[n - 1][1] - prof[n - 1][0] + 1) * px, px);
+    // the body
+    g.fillStyle = BODY;
+    for (let i = 0; i < n; i++) {
+      const [l, r] = prof[i];
+      g.fillRect(x0 + l * px, top + i * px, (r - l + 1) * px, px);
+    }
+    // the lit crown: each bump's top two rows, inset a block from the left
+    g.fillStyle = LIT;
+    for (let i = 0; i < Math.min(n - 2, 3); i++) {
+      const [l, r] = prof[i];
+      const w = Math.max(1, r - l - 1);
+      g.fillRect(x0 + l * px, top + i * px, w * px, px);
+    }
+    // the shaded underside, and the skirt below it
+    g.fillStyle = UNDER;
+    for (let i = Math.max(0, n - 2); i < n; i++) {
+      const [l, r] = prof[i];
+      g.fillRect(x0 + l * px, top + i * px, (r - l + 1) * px, px);
+    }
+  }
   function drawTrees(g, W, H) {
     if (!curtain) return;
     const c = curtain;
@@ -6418,24 +6635,27 @@ const FX = (() => {
     if (cover <= 0) return;
     const e = phase === 'in' ? U.easeOut(cover) : U.easeInOut(cover);
     const t = c.t;
-    // the wash: the world going soft behind the weather
-    g.save();
-    g.globalAlpha = Math.min(1, e * e * 1.15);
-    g.fillStyle = '#efe8f6'; g.fillRect(0, 0, W, H);
-    g.restore();
-    // three passes over the same puffs, darkest first, so each one has a lip
-    for (let pass = 0; pass < 3; pass++) {
-      const shrink = pass * 0.055;
-      g.fillStyle = CLOUD[2 - pass];
-      for (const p of PUFF) {
-        const push = U.clamp(e * (1 + p.lead), 0, 1.35);
-        const home = p.side < 0 ? -0.24 + push * 0.92 : 1.24 - push * 0.92;
-        const x = (home + Math.sin(t * p.drift + p.y * 9) * 0.012) * W;
-        const rx = (p.rx - shrink * 0.5) * W * (0.72 + e * 0.5);
-        const ry = (p.ry - shrink * 0.5) * H * (0.72 + e * 0.5);
-        if (rx <= 1 || ry <= 1) continue;
-        if (pass === 0) Art.ell(g, x, p.y * H, rx + 2, ry + 2, '#b6abcf');   // one ink lip underneath
-        Art.ell(g, x, p.y * H - (pass ? pass * ry * 0.12 : 0), rx, ry, CLOUD[2 - pass]);
+    // the wash: the world going soft behind the weather, in flat steps
+    const wash = Math.min(1, e * e * 1.2);
+    if (wash > 0.01) {
+      g.save();
+      for (let i = 0; i < 5; i++) {         // five flat steps, no gradient
+        g.globalAlpha = Math.min(1, wash * (0.25 + i * 0.2));
+        g.fillStyle = CLOUD[1];
+        g.fillRect(0, Math.round((H / 5) * i), W, Math.ceil(H / 5) + 1);
+      }
+      g.restore();
+    }
+    // two passes: the far bank in the shaded tones, the near bank over it
+    for (let pass = 0; pass < 2; pass++) {
+      for (let i = 0; i < PUFF.length; i++) {
+        const p = PUFF[i];
+        if ((i % 2 === 0) !== (pass === 0)) continue;
+        const push = U.clamp(e * (1 + p.lead), 0, 1.4);
+        const home = p.side < 0 ? -0.3 + push * 0.96 : 1.3 - push * 0.96;
+        const x = (home + Math.sin(t * p.drift + p.y * 9) * 0.014) * W;
+        const px = Math.max(2, Math.round(CPX * p.scale * (0.7 + e * 0.7)));
+        pixelCloud(g, x, p.y * H, p.prof, px, pass === 0);
       }
     }
     // motes, drifting through the thick of it
@@ -6449,10 +6669,14 @@ const FX = (() => {
         const sz = r > 0.7 ? 2 : 1;
         g.fillRect(Math.round(mx), Math.round((my + H) % H), sz, sz);
       }
-      // and a soft warm heart to it, so the middle of the transition glows
+      // a warm heart to it: flat bands out from the middle, not a painted disc
       g.save();
-      g.globalAlpha = a * 0.5;
-      Art.glow(g, W * 0.5, H * 0.44, H * 0.8, '#fff3d8', 0.5, 8);
+      for (let i = 0; i < 7; i++) {
+        g.globalAlpha = a * 0.09 * (1 - i / 7);
+        g.fillStyle = '#fff3d8';
+        const bw = W * (0.22 + i * 0.13), bh = H * (0.16 + i * 0.13);
+        g.fillRect(Math.round(W / 2 - bw / 2), Math.round(H * 0.46 - bh / 2), Math.round(bw), Math.round(bh));
+      }
       g.restore();
     }
   }
@@ -6754,7 +6978,7 @@ const FX = (() => {
     return Font.draw(g, text, x, y, opts);
   }
 
-  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, coinBurst, drawCoins, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, drawTrees, trees, get curtaining() { return !!curtain; }, clear, clearComics, particles };
+  return { cam, cine, pixelText, spawn, burst, dust, hearts, sparkle, float, coinBurst, drawCoins, confettiBurst, ring, lightning, root, shake, punch, flash, title, setSlowmo, letterbox, vignette, freeze, hitstop, update, updateWorld, drawParticles, drawFloaters, drawComics, comic, COMIC_INK, drawConfetti, drawCinema, drawTrees, trees, pixelCloud, cloudShape, get curtaining() { return !!curtain; }, clear, clearComics, particles };
 })();
 </script>
 
@@ -6822,6 +7046,10 @@ const Sky = (() => {
       front = opts[Math.floor(Math.random() * opts.length)];
       nextFront = WEATHER[front].mins * 60;
       if (G) UI.toast(`<b>${WEATHER[front].name}</b> &mdash; ${WEATHER[front].blurb}`, '');
+      // somebody always has something to say about the weather
+      if (G && front === 'storm') Phone.push('shaz', 'big one coming in over the flats!! get them inside 😬');
+      else if (G && front === 'rain') Phone.push('bee', 'rain on. my lot are all indoors sulking. yours will love it');
+      else if (G && front === 'clear' && Math.random() < 0.5) Phone.push('fish', 'flat calm out here. perfect. i will catch nothing again');
     }
     const w = wet();
     // rain: a column of drops falling across the whole screen
@@ -6869,12 +7097,12 @@ const Sky = (() => {
   }
   // the wash the hour paints over a scene: warm at dawn, blue at night
   const TINTS = {
-    night:     ['#16264e', 0.46],
-    dawn:      ['#f0a070', 0.24],
+    night:     ['#101c3e', 0.6],
+    dawn:      ['#f0a070', 0.26],
     morning:   ['#fff0c0', 0.1],
     afternoon: ['#ffe8b0', 0.06],
     evening:   ['#ffb070', 0.18],
-    dusk:      ['#8a5a9a', 0.3],
+    dusk:      ['#6a4a8a', 0.38],
   };
   function tint() {
     const [col, a] = TINTS[partOfDay()] || TINTS.afternoon;
@@ -6922,20 +7150,18 @@ const Sky = (() => {
     }
     if (flash > 0.01) { g.fillStyle = `rgba(226,236,255,${(flash * 0.5).toFixed(2)})`; g.fillRect(0, 0, W, H); }
   }
-  // clouds drawn behind a scene's trees, in world space
+  // Clouds drawn behind a scene's trees, in world space. Same blocky pixel
+  // cloud the transition uses, so the sky matches the curtain.
   function drawClouds(g, W, H, scroll = 0, alpha = 1) {
     const n = front === 'clear' ? 3 : front === 'fair' ? 7 : 16;
     const oa = g.globalAlpha;
+    const dark = cover() > 0.4;
     for (let i = 0; i < n; i++) {
       const c = clouds[i];
+      if (!c.prof) { c.prof = FX.cloudShape(2300 + i * 53); c.px = 2 + Math.round(c.w / 34); }
       const x = c.x - scroll * (0.2 + c.lay * 0.12);
-      g.globalAlpha = oa * alpha * (c.a + cover() * 0.3);
-      const col = cover() > 0.4 ? '#8f98a4' : '#f4f6f8';
-      Art.ell(g, x, c.y, c.w, c.h, col);
-      Art.ell(g, x - c.w * 0.4, c.y + c.h * 0.3, c.w * 0.5, c.h * 0.7, col);
-      Art.ell(g, x + c.w * 0.36, c.y + c.h * 0.24, c.w * 0.42, c.h * 0.64, col);
-      g.globalAlpha = oa * alpha * (c.a + cover() * 0.3) * 0.5;
-      Art.ellBand(g, x, c.y, c.w, c.h, U.shade(col, 0.28), 0, 0.4);
+      g.globalAlpha = oa * alpha * (c.a + cover() * 0.35) * 1.6;
+      FX.pixelCloud(g, x, c.y, c.prof, c.px, dark);
     }
     g.globalAlpha = oa;
   }
@@ -8014,7 +8240,25 @@ const Wild = (() => {
     const who = { ranger: 'cultist', kid: 'cultist' }[v.def.key] || (Sprites.VILLAGERS[v.def.key] ? 'villager:' + v.def.key : v.def.key);
     Talk.open(who, v.def.tree(), () => {
       if (v.state === 'talk') v.state = 'wander';
-      if (!v.gave) { v.gave = true; const msg = v.def.gift(); UI.toast(msg, 'good'); UI.refreshHUD(); UI.refreshTray(); Main.save(); }
+      if (!v.gave) {
+        v.gave = true;
+        const msg = v.def.gift();
+        UI.toast(msg, 'good'); UI.refreshHUD(); UI.refreshTray(); Main.save();
+        // and they text on the way home
+        const BYE = {
+          bee: 'got back fine. that big grey one watched me the whole way to the gate',
+          fish: 'nothing on the line again. your wombats were better company',
+          post: 'nothing for you tomorrow either. see you then',
+          bake: 'eat the other one. do not save it. i will know',
+          bota: 'I have written you up as an anomaly. Meant kindly.',
+          bard: 'verse four is about the hooded man and it is the best one',
+          shaz: 'got home!! tell the big one i said hi 😄',
+          groot: 'I am Groot.',
+          ranger: 'Count logged. Nineteen. Nobody at the office believes me.',
+          kid: 'i told the whole bus. the whole bus knows now',
+        };
+        if (BYE[v.def.key]) setTimeout(() => Phone.push(v.def.key, BYE[v.def.key]), 9000);
+      }
     });
   }
 
@@ -8069,7 +8313,8 @@ const Wild = (() => {
     }
     // visitors
     spawnT -= dt;
-    if (spawnT <= 0 && G.step >= 4 && !UI.anyPanel()) {
+    // Nobody drives out here in the dark. Visitors keep daylight hours.
+    if (spawnT <= 0 && G.step >= 4 && !UI.anyPanel() && Sky.light() > 0.45) {
       spawnVisitor();
       // a starthistle in the ground brings people up the road to look at it
       const draw2 = (World.magic().draw || 0);
@@ -8714,14 +8959,27 @@ const Grove = (() => {
         else {
           w.x += (dx / d) * sp * dt; w.y += (dy / d) * sp * dt;
           face(w, dx > 0 ? 1 : -1);
+          w.step = (w.step || 0) + sp * dt;
+          if (w.step > 15) { w.step = 0; print(w.x, w.y, w.dir); }
           World.disturb(w.x, w.y + 2, 20, 0.85);
           if (G.fruits.greenwake && Math.random() < dt * 1.6) World.sowGrass(w.x, w.y + 2, 8);
         }
       } else if (w.stateT <= 0 && w.state !== 'dig') {
+        // A wombat is nocturnal. Through the middle of the day it sleeps in the
+        // shade and barely moves; after dark it is up, out and grazing, which is
+        // when the grove is actually busy.
+        const night = Sky.isNight(), noon = Sky.light() > 0.85;
         const r = Math.random();
-        if (r < 0.3 && World.hasGrass(w.x, w.y)) { w.state = 'graze'; w.stateT = U.rand(3, 6); }
-        else if (r < 0.74) { const rm = roam(); w.tx = U.rand(rm.x0, rm.x1); w.ty = U.rand(WALK.y0, WALK.y1); w.state = 'walk'; w.goal = U.chance(0.35) ? 'graze' : 'idle'; }
-        else if (r < 0.85 && w.hap < 40) { w.state = 'sleep'; w.stateT = U.rand(5, 9); }
+        if (noon && r < 0.6) {
+          // find the coolest thing nearby and lie down beside it
+          const shade = shadeSpot(w);
+          if (shade && Math.hypot(shade.x - w.x, shade.y - w.y) > 26) {
+            w.tx = shade.x; w.ty = shade.y; w.state = 'walk'; w.goal = 'sleep';
+          } else { w.state = 'sleep'; w.stateT = U.rand(8, 16); }
+        }
+        else if (night && r < 0.42 && World.hasGrass(w.x, w.y)) { w.state = 'graze'; w.stateT = U.rand(4, 8); }
+        else if (r < (night ? 0.86 : 0.6)) { const rm = roam(); w.tx = U.rand(rm.x0, rm.x1); w.ty = U.rand(WALK.y0, WALK.y1); w.state = 'walk'; w.goal = U.chance(night ? 0.5 : 0.3) ? 'graze' : 'idle'; }
+        else if (r < 0.9 || (!night && w.hap < 60)) { w.state = 'sleep'; w.stateT = U.rand(night ? 3 : 7, night ? 6 : 14); }
         else { w.state = 'idle'; w.stateT = U.rand(1.5, 3.5); if (U.chance(0.35)) face(w, -w.dir); }
       }
       if (w.state === 'dig' && w.stateT <= 0 && w.stomach !== 'ready') { w.state = 'idle'; w.stateT = 1; }
@@ -8758,6 +9016,7 @@ const Grove = (() => {
       }
     }
     // poop cubes settle
+    updatePrints(dt);
     for (const d of drops) {
       d.t += dt;
       // the impact squash unwinds as a damped spring: flatten, overshoot, settle
@@ -9286,6 +9545,7 @@ const Grove = (() => {
     }
     Wild.drawGround(g);              // hills and ponds are ground, so they go first
     drawMoss(g, L, R);               // and moss over the whole floor of it
+    drawPrints(g);                   // and everything that has walked over it
     World.drawSprouts(g);
     World.drawBlades(g);
     World.drawFlowers(g);
@@ -9715,6 +9975,53 @@ const Grove = (() => {
     g.strokeRect(Math.round(x) + 0.5, Math.round(y) + 0.5, w, h);
     g.setLineDash([]); g.restore();
   }
+  // The best place to sleep out the middle of the day: under a grown tree, in
+  // the lee of a hill, or failing that behind the nearest fallen log.
+  function shadeSpot(w) {
+    let best = null, bd = 1e9;
+    for (const c of World.crops) {
+      if (World.kindOf(c) !== 'tree' || !World.grown(c)) continue;
+      const d = Math.hypot(c.x - w.x, c.y - w.y);
+      if (d < bd) { bd = d; best = { x: c.x + U.rand(-14, 14), y: c.y + 10 }; }
+    }
+    for (const m of Wild.mounds) {
+      const d = Math.hypot(m.x - w.x, m.y - w.y);
+      if (d < bd) { bd = d; best = { x: m.x + U.rand(-10, 10), y: m.y + 4 }; }
+    }
+    for (const o of objects) {
+      if (o.gone || o.kind !== 'fallen') continue;
+      const d = Math.hypot(o.x - w.x, o.y - w.y);
+      if (d < bd) { bd = d; best = { x: o.x + U.rand(-16, 16), y: o.y + 8 }; }
+    }
+    if (!best) return null;
+    const rm = roam();
+    return { x: U.clamp(best.x, rm.x0, rm.x1), y: U.clamp(best.y, WALK.y0, WALK.y1) };
+  }
+
+  // ---- footprints --------------------------------------------------------------
+  // Soft ground takes a print, and the prints fade. It is a small thing and it
+  // is most of what makes a clearing look walked in.
+  const prints = [];
+  function print(x, y, dir) {
+    prints.push({ x, y, dir, t: 0 });
+    if (prints.length > 90) prints.shift();
+  }
+  function updatePrints(dt) {
+    for (let i = prints.length - 1; i >= 0; i--) {
+      prints[i].t += dt * (Sky.wet() > 0 ? 2.4 : 1);       // rain washes them out
+      if (prints[i].t > 26) prints.splice(i, 1);
+    }
+  }
+  function drawPrints(g) {
+    for (const p of prints) {
+      const a = U.clamp(1 - p.t / 26, 0, 1) * 0.34;
+      if (a < 0.02) continue;
+      g.fillStyle = `rgba(42,28,18,${a.toFixed(2)})`;
+      g.fillRect(Math.round(p.x - 3), Math.round(p.y), 3, 2);
+      g.fillRect(Math.round(p.x + 1), Math.round(p.y - 2), 3, 2);
+    }
+  }
+
   // Turning round is an animation, not a flip. It swings the animal away from
   // you, through its back, and out the other side, which takes about a third of
   // a second and is the difference between a creature and a sticker.
@@ -14850,6 +15157,22 @@ const Guide = (() => {
     cult.pose = 'jump'; cult.castT = 0; cult.t = 0; cult.still = 0;
     Audio.play('chime');
     FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
+    // and he texts you about it afterwards, like anyone would
+    const AFTER = {
+      weeds: 'Good. Do not let them back. They come back.',
+      junk: 'The ants invoiced me for that. Ignore any letters.',
+      grass: 'Green suits it. Keep the water up.',
+      arrive: 'She chose you. Do not read too much into it. Read a little into it.',
+      sow: 'A bed in the ground is money in the ground.',
+      pick: 'Anything you grow, she will eat. Anything she eats, I will buy.',
+      feed: 'One fed wombat. Try three.',
+      load: 'That truck has carried worse.',
+      map: 'Nine gods, four shops and a lake nobody swims in. Enjoy.',
+      mart: 'Shaz will talk. Let her. She is the only one out here who does.',
+      sell: 'Pleasure. Bring me everything. I am not being polite.',
+      god: 'One of them answered you. I have been at this for forty years.',
+    };
+    if (AFTER[s.key]) setTimeout(() => Phone.push('cultist', AFTER[s.key]), 2600);
     UI.refreshAll();           // a finished step can hand over a new tool
     UI.refreshNotebook();
     Main.save();
@@ -15408,17 +15731,123 @@ const Phone = (() => {
   const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
   // ---- the apps -------------------------------------------------------------
+  // Every app on the home screen, in the order they sit on it. `tint` is the
+  // icon's own colour, the way every phone gives an app one.
   const APPS = [
-    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: '#d8a52f' },
-    { key: 'herd', name: 'Herd', icon: 'wombat', tint: '#c98a6c' },
-    { key: 'map', name: 'Places', icon: 'map', tint: '#57b6c9' },
-    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: '#84bb59' },
-    { key: 'sky', name: 'Sky', icon: 't_water', tint: '#9fd8e6' },
-    { key: 'purse', name: 'Purse', icon: 'wdollar', tint: '#f5cd5c' },
+    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: ['#f7c53f', '#b07a10'] },
+    { key: 'herd', name: 'Herd', icon: 'wombat', tint: ['#d79a76', '#8a5138'] },
+    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: ['#7fce63', '#2f7a30'] },
+    { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#6fc4ec', '#1f6fae'] },
+    { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#ff9a6a', '#c4386a'] },
+    { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#3a3f52', '#14161f'] },
+    { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#a9b0bd', '#5c636f'] },
+    { key: 'help', name: 'Tips', icon: 'basket', tint: ['#c49bff', '#6b3fc4'] },
   ];
-  const TITLE = Object.fromEntries(APPS.map((a) => [a.key, a.name]));
+  const DOCK = ['messages', 'map', 'quests', 'herd'];
+  const ALL = APPS.concat([
+    { key: 'messages', name: 'Messages', icon: 'msg', tint: ['#5ce06a', '#1f9a34'] },
+    { key: 'map', name: 'Places', icon: 'map', tint: ['#7fd6b0', '#1f7a6a'] },
+  ]);
+  const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
+  const TITLE = Object.fromEntries(ALL.map((a) => [a.key, a.name]));
 
   function init(g) { G = g; }
+
+  // ---- the wallpaper -----------------------------------------------------------
+  // Painted once, in the same pixels as the game: the grove at dusk from the
+  // top of the ridge, with the moon up and the lamp on in somebody's window.
+  let wallURL = null;
+  function wallpaper() {
+    if (wallURL) return wallURL;
+    // Drawn small and blown up, so every pixel in it is four on the screen.
+    const W2 = 110, H2 = 238;
+    const { c, g } = Art.cv(W2, H2);
+    const r = Art.rng(31337);
+    const HZ = Math.round(H2 * 0.58);
+    const BANDS = ['#151033', '#1c1640', '#271e4f', '#372660', '#4e2f6a', '#6d3c68', '#8e4a62', '#b9675a', '#dd9a62', '#f6d089'];
+    for (let i = 0; i < BANDS.length; i++) {
+      g.fillStyle = BANDS[i];
+      g.fillRect(0, Math.round((HZ * i) / BANDS.length), W2, Math.ceil(HZ / BANDS.length) + 1);
+    }
+    // stars, thicker toward the top
+    for (let i = 0; i < 60; i++) {
+      const x = Math.round(r() * W2), y = Math.round(r() * r() * HZ * 0.8);
+      g.fillStyle = r() < 0.35 ? '#ffffff' : '#cfd6f2';
+      g.fillRect(x, y, 1, 1);
+    }
+    // the moon: a crescent, stepped, four blocks to a step
+    const mx = 74, my = 30, mr = 11;
+    for (let yy = -mr; yy <= mr; yy++) {
+      const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
+      if (w < 1) continue;
+      g.fillStyle = '#f2ecff'; g.fillRect(mx - w, my + yy, w * 2, 1);
+    }
+    for (let yy = -mr; yy <= mr; yy++) {                 // the bite out of it
+      const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
+      const w2 = Math.round(Math.sqrt(Math.max(0, mr * mr - (yy * 0.95) * (yy * 0.95))));
+      if (w < 1) continue;
+      g.fillStyle = BANDS[Math.min(BANDS.length - 1, Math.max(0, Math.floor(((my + yy) / HZ) * BANDS.length)))];
+      g.fillRect(mx - w + 5, my + yy, w2 * 2, 1);
+    }
+    for (const [dx, dy, rr] of [[-6, -2, 2], [-4, 5, 1]]) {   // a couple of seas
+      g.fillStyle = '#d3c6ec';
+      g.fillRect(mx + dx - rr, my + dy - rr, rr * 2 + 1, rr * 2 + 1);
+    }
+    // three ranks of conifer, each lower, darker and bigger
+    const RANK = [['#3a3358', 0.00, 10, 7], ['#241f3e', 0.045, 15, 9], ['#141324', 0.1, 22, 12]];
+    RANK.forEach(([col, off, hgt, wid]) => {
+      const baseY = Math.round(HZ + off * H2);
+      g.fillStyle = col;
+      let x = -4;
+      while (x < W2 + 6) {
+        const w = Math.max(3, Math.round(wid * (0.6 + r() * 0.8)));
+        const h = Math.round(hgt * (0.7 + r() * 0.8));
+        const steps = Math.max(3, Math.round(h / 3));
+        for (let i = 0; i < steps; i++) {
+          const ww = Math.max(1, Math.round((w * (steps - i)) / steps / 2));
+          g.fillRect(x - ww, baseY - h + Math.round((h * i) / steps), ww * 2, Math.ceil(h / steps) + 1);
+        }
+        g.fillRect(x - 1, baseY - 3, 2, 3);                 // a trunk
+        x += Math.max(3, Math.round(w * 0.7));
+      }
+      g.fillRect(0, baseY, W2, H2 - baseY);
+    });
+    // the ground, and grass through it
+    const gy = Math.round(HZ + 0.1 * H2);
+    for (let i = 0; i < 7; i++) {
+      g.fillStyle = U.mix('#101a12', '#223522', i / 6);
+      g.fillRect(0, gy + Math.round(((H2 - gy) * i) / 7), W2, Math.ceil((H2 - gy) / 7) + 1);
+    }
+    for (let i = 0; i < 260; i++) {
+      const x = Math.round(r() * W2), y = gy + Math.round(r() * (H2 - gy));
+      g.fillStyle = ['#1e3320', '#284523', '#33542a'][Math.floor(r() * 3)];
+      g.fillRect(x, y, 2, 1);
+    }
+    // a hut with the lamp on
+    const hx = 30, hy = gy + Math.round((H2 - gy) * 0.4);
+    g.fillStyle = '#0b1210'; g.fillRect(hx - 14, hy - 16, 28, 17);
+    g.fillStyle = '#241c14'; g.fillRect(hx - 13, hy - 15, 26, 15);
+    for (let i = 0; i < 5; i++) { g.fillStyle = '#17110c'; g.fillRect(hx - 13, hy - 14 + i * 3, 26, 1); }
+    for (let i = 0; i < 7; i++) { g.fillStyle = i % 2 ? '#2a2118' : '#1c150f'; g.fillRect(hx - 18 + i * 1.4, hy - 17 - i * 2, 36 - i * 2.8, 2); }
+    g.fillStyle = '#3a2a1c'; g.fillRect(hx - 5, hy - 10, 7, 10);   // the door
+    g.fillStyle = '#f5cd5c'; g.fillRect(hx + 4, hy - 11, 7, 6);    // the window
+    g.fillStyle = '#fff2c8'; g.fillRect(hx + 5, hy - 10, 5, 4);
+    for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(245,205,92,${(0.09 - i * 0.013).toFixed(3)})`; g.fillRect(hx - 2 - i * 4, hy - 16 - i * 4, 22 + i * 8, 16 + i * 8); }
+    // a fence running away down the right
+    for (let i = 0; i < 6; i++) {
+      const fy = gy + 8 + i * 14, fx = 96 + i * 3;
+      g.fillStyle = '#1a1510'; g.fillRect(fx, fy - 12, 3, 13);
+      if (i < 5) { g.fillStyle = '#24190f'; g.fillRect(fx, fy - 9, 5, 2); g.fillRect(fx, fy - 5, 5, 2); }
+    }
+    // and a wombat asleep in the foreground
+    try {
+      const img = Sprites.wombat('sleep', 1, 'brown', 1, 'adult');
+      const sc = 1.3, w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+      g.drawImage(img, Math.round(W2 * 0.56 - w / 2), Math.round(H2 * 0.94 - h), w, h);
+    } catch (e) { }
+    wallURL = c.toDataURL('image/png');
+    return wallURL;
+  }
 
   // ---- opening and closing --------------------------------------------------
   function open(which) {
@@ -15426,10 +15855,17 @@ const Phone = (() => {
     UI.closePanels();
     app = which || 'home';
     $('panel-phone').hidden = false;
+    const wall = $('panel-phone').querySelector('.phwall');
+    if (wall && !wall.dataset.on) { wall.style.backgroundImage = `url(${wallpaper()})`; wall.dataset.on = '1'; }
     G.paused = true;
     Audio.play('click');
     render();
     if (!raf) raf = requestAnimationFrame(tick);
+  }
+  // A 24-hour clock, the way a phone shows it
+  function clock24() {
+    const h = Math.floor(Sky.hour()), m = Math.floor((Sky.hour() % 1) * 60);
+    return `${h}:${String(m).padStart(2, '0')}`;
   }
   function close() {
     if ($('panel-phone').hidden) return;
@@ -15446,9 +15882,7 @@ const Phone = (() => {
     raf = requestAnimationFrame(tick);
     t = ms / 1000;
     const c = $('ph-clock');
-    if (c) c.textContent = Sky.clockText();
-    const w = $('ph-wx');
-    if (w) w.textContent = Sky.def().name;
+    if (c) c.textContent = clock24();
   }
 
   // ---- little pieces everyone uses ------------------------------------------
@@ -15457,22 +15891,39 @@ const Phone = (() => {
   const ic = (n, cls = '') => Icons.img(n, cls);
 
   // ---- the home screen ------------------------------------------------------
-  function home() {
+  // ---- the home screen -------------------------------------------------------
+  // A widget across the top with the job in hand and the weather, then the grid,
+  // then the dock. Badges are real counts of things that want doing.
+  function badges() {
     const q = Guide.current();
-    const needs = careList();
-    const badge = { quests: q ? 1 : 0, herd: needs.length, garden: gardenJobs().length, map: 0, sky: 0, purse: 0 };
-    return `<div class="phpage">
-      <div class="phhead">
-        <b>${Sky.partOfDay().toUpperCase()}</b>
-        <span>${esc(Sky.def().blurb)}</span>
-      </div>
-      <div class="phgrid">${APPS.map((a) => `
-        <button class="phapp" data-app="${a.key}" style="--tint:${a.tint}">
-          ${ic(a.icon)}<b>${a.name}</b>
-          ${badge[a.key] ? `<i class="phdot">${badge[a.key]}</i>` : ''}
-        </button>`).join('')}</div>
-      <div class="phnote">${q ? `<b>NOW:</b> ${esc(q.title)}` : '<b>NOW:</b> whatever you like'}</div>
-    </div>`;
+    return {
+      quests: q ? 1 : 0,
+      herd: careList().length,
+      garden: gardenJobs().length,
+      messages: unread(),
+    };
+  }
+  function appIcon(a, badge) {
+    return `<button class="phapp" data-app="${a.key}">
+      <i class="phico" style="--t1:${a.tint[0]};--t2:${a.tint[1]}">${ic(a.icon)}</i>
+      <b>${a.name}</b>${badge ? `<i class="phdot">${badge > 99 ? '99' : badge}</i>` : ''}
+    </button>`;
+  }
+  function paintHome() {
+    const b = badges();
+    const q = Guide.current();
+    const d = Sky.def();
+    $('ph-widget').innerHTML = `
+      <h5>${Sky.partOfDay().toUpperCase()} &middot; ${esc(d.name).toUpperCase()}</h5>
+      <p>${q ? esc(q.title) : 'Nothing owing. The wood is yours.'}</p>
+      <div class="phwrow">
+        <span>${ic('wdollar', 'sm')} ${U.fmt(G.wd)}</span>
+        <span>${ic('wombat', 'sm')} ${G.wombats.length}</span>
+        <span>${ic('c_broadleaf', 'sm')} ${(World.crops || []).length}</span>
+      </div>`;
+    $('ph-grid').innerHTML = APPS.map((a) => appIcon(a, b[a.key])).join('');
+    $('ph-dock').innerHTML = DOCK.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
+    wire($('ph-home-view'));
   }
 
   // ---- jobs -----------------------------------------------------------------
@@ -15646,20 +16097,206 @@ const Phone = (() => {
     return html;
   }
 
+  // ---- messages --------------------------------------------------------------
+  // Everyone in the district has your number. Threads live in the save, new
+  // lines arrive as things happen, and you can text back — badly.
+  const PEOPLE = {
+    cultist: { name: 'The Hooded One', sub: 'no surname given' },
+    shaz: { name: 'Shaz', sub: 'Wombat Mart' },
+    groot: { name: 'Groot', sub: 'the cellar' },
+    bee: { name: 'Maud', sub: 'the hives' },
+    fish: { name: 'Errol', sub: 'the lake' },
+    post: { name: 'Bev', sub: 'the round' },
+    bake: { name: 'Nonna', sub: 'the bakery' },
+    bota: { name: 'Dr Finch', sub: 'botany' },
+    bard: { name: 'Little Ash', sub: 'the Flats' },
+  };
+  // What each of them opens with, so the inbox is never empty.
+  const SEED_MSGS = {
+    cultist: ['You have my number now. Do not lose it.', 'Anything square, I will buy. Any hour.'],
+    shaz: ['hiii its shaz from the mart!! 😄', 'we got the good pies in. do not tell head office'],
+    groot: ['I am Groot.'],
+    bake: ['i left something on the fence post. eat it today not tomorrow'],
+  };
+  // The canned things you are able to say back, and what they say to that.
+  const REPLIES = [
+    { q: 'Thanks!', a: ['No trouble.', 'Any time.', 'You are very welcome.', 'I am Groot.'] },
+    { q: 'How are you?', a: ['Tired. The usual.', 'Better for asking.', 'Up since four.', 'I am Groot!'] },
+    { q: 'Come and see the wombats.', a: ['Try and stop me.', 'Sunday. I will bring something.', 'I was going to invite myself anyway.', 'I am Groot?'] },
+    { q: 'Busy right now.', a: ['Understood.', 'Go on then.', 'I will leave you to it.', 'I am Groot.'] },
+  ];
+  function threads() {
+    if (!G.msgs) G.msgs = {};
+    for (const k of Object.keys(SEED_MSGS)) {
+      if (!G.msgs[k]) G.msgs[k] = SEED_MSGS[k].map((text, i) => ({ f: 't', text, t: i }));
+    }
+    return G.msgs;
+  }
+  function unread() {
+    const th = threads();
+    return Object.keys(th).filter((k) => th[k].some((m) => m.f === 't' && !m.seen)).length;
+  }
+  // Anything in the game can drop somebody a line.
+  function push(who, text) {
+    if (!PEOPLE[who]) return;
+    const th = threads();
+    if (!th[who]) th[who] = [];
+    th[who].push({ f: 't', text, t: Math.round((G.time || 0)) });
+    if (th[who].length > 40) th[who].splice(0, th[who].length - 40);
+    if (typeof UI !== 'undefined' && UI.refreshHUD) UI.refreshHUD();
+  }
+  // a little round portrait for the thread list
+  function avatar(who) {
+    const c = document.createElement('canvas');
+    c.width = 40; c.height = 40;
+    const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
+    let img = null, sc = 1;
+    if (who === 'cultist') { img = Sprites.cultist(2, 'idle'); sc = 40 / img.height * 1.9; }
+    else if (who === 'shaz') { img = Sprites.cashier(2, 'talk'); sc = 40 / img.height * 1.9; }
+    else if (who === 'groot') { img = Sprites.groot(2, 'talk'); sc = 40 / img.height * 1.9; }
+    else if (Sprites.VILLAGERS[who]) { img = Sprites.villager(who, 2, 'talk'); sc = 40 / img.height * 2.1; }
+    if (!img) return c;
+    const w = img.width * sc, h = img.height * sc;
+    g2.drawImage(img, Math.round(20 - w / 2), Math.round(30 - h * 0.62), Math.round(w), Math.round(h));
+    return c;
+  }
+  let chatWith = null;
+  function messages() {
+    const th = threads();
+    if (chatWith && th[chatWith]) {
+      const list = th[chatWith];
+      for (const m of list) m.seen = 1;
+      return `<div class="phchat">${list.map((m) => `<div class="phmsg ${m.f === 't' ? 'them' : 'me'}">${esc(m.text)}</div>`).join('')}</div>
+        <div class="phreplies">${REPLIES.map((r, i) => `<button class="phreply" data-reply="${i}">${esc(r.q)}</button>`).join('')}</div>`;
+    }
+    const keys = Object.keys(th).filter((k) => PEOPLE[k] && th[k].length);
+    if (!keys.length) return `<div class="phcard big"><div class="phcardh"><b>No messages</b></div><p>Nobody has your number yet. Meet a few people.</p></div>`;
+    return keys.map((k) => {
+      const last = th[k][th[k].length - 1];
+      const un = th[k].some((m) => m.f === 't' && !m.seen);
+      return `<button class="phthread" data-chat="${k}">
+        <span class="phava" data-ava="${k}"></span>
+        <span class="phtx"><b>${esc(PEOPLE[k].name)}</b><small>${last.f === 'm' ? 'You: ' : ''}${esc(last.text)}</small></span>
+        ${un ? '<i class="phunread"></i>' : ''}
+      </button>`;
+    }).join('');
+  }
+
+  // ---- settings ---------------------------------------------------------------
+  function settings() {
+    const st = Main.settings;
+    const row = (k, name, sub, on) => `<div class="phset"><span>${esc(name)}<small>${esc(sub)}</small></span>
+      <button class="phsw ${on ? 'on' : ''}" data-tog="${k}"><i></i></button></div>`;
+    return `<div class="phsub">SOUND</div>
+      <div class="phgroup">
+        ${row('muted', 'Silent', 'everything off', st.muted)}
+        ${row('musicOff', 'Music', 'the wood has a tune', !st.musicOff)}
+      </div>
+      <div class="phsub">DISPLAY</div>
+      <div class="phgroup">
+        ${row('shake', 'Screen shake', 'things land harder', st.shake !== false)}
+        ${row('bigText', 'Larger text', 'for reading across a room', !!st.bigText)}
+      </div>
+      <div class="phsub">ABOUT</div>
+      <div class="phgroup">
+        <div class="phset"><span>Wombat OS<small>version 38, built in a wood</small></span></div>
+        <div class="phset"><span>Storage<small>${(World.crops || []).length} plants &middot; ${G.wombats.length} wombats &middot; ${Object.keys(G.summoned || {}).length} gods</small></span></div>
+        <div class="phset"><span>Time in the grove<small>${U.time(Math.round(G.time || 0))}</small></span></div>
+      </div>
+      <div class="phsub">DANGER</div>
+      <div class="phgroup">
+        <div class="phset"><span>Erase this grove<small>everything, permanently</small></span>
+          <button class="phgo" data-wipe="1" id="ph-wipe">ERASE</button></div>
+      </div>`;
+  }
+
+  // ---- photos ------------------------------------------------------------------
+  function photos() {
+    if (!G.wombats.length) return `<div class="phcard big"><div class="phcardh"><b>No photos</b></div><p>Nothing to photograph yet.</p></div>`;
+    return `<div class="phsub">${G.wombats.length} PHOTO${G.wombats.length > 1 ? 'S' : ''}</div>
+      <div class="phphotos">${G.wombats.map((w) => `<div class="phphoto" data-shot="${w.id}"><em>${esc(w.name)}</em></div>`).join('')}</div>
+      <div class="phsub">FAVOURITES</div>
+      <div class="phcard"><p>Every one of them, obviously.</p></div>`;
+  }
+
+  // ---- tips --------------------------------------------------------------------
+  function help() {
+    const TIPS = [
+      ['t_sickle', 'The tool tray', 'Right-click, or press Tab. Pick one and it rides with the pointer.'],
+      ['t_hoe', 'Beds', 'Hoe bare soil, sow on it, water it, pick it when it glows.'],
+      ['c_broadleaf', 'Three kinds of plant', 'Crops are picked once. Trees take minutes and fruit forever. Magical seed wants one strange thing and sulks until it gets it.'],
+      ['wombat', 'Carrying', 'Drag a wombat and she comes off the ground. The pond is a drink, a hill is a sit, the truck means she is coming with you.'],
+      ['wdollar', 'Cubes', 'The hooded one buys every one of them, and pays better for a load.'],
+      ['map', 'Getting about', 'Places will drive you anywhere from where you are standing.'],
+    ];
+    return TIPS.map(([i, t2, b]) => `<div class="phcard"><div class="phcardh">${ic(i)}<b>${esc(t2)}</b></div><p>${esc(b)}</p></div>`).join('');
+  }
+
   // ---- drawing --------------------------------------------------------------
-  const BODY = { home, quests, herd, map: places, garden, sky, purse };
+  const BODY = { quests, herd, map: places, garden, sky, purse, messages, settings, photos, help };
   function render() {
+    const homeV = $('ph-home-view'), appV = $('ph-app-view');
+    if (!homeV || !appV) return;
+    if (app === 'home') {
+      homeV.hidden = false; appV.hidden = true;
+      paintHome();
+      return;
+    }
+    homeV.hidden = true; appV.hidden = false;
     const scr = $('ph-screen');
-    if (!scr) return;
-    $('ph-title').textContent = app === 'home' ? 'WOMBAT OS' : TITLE[app].toUpperCase();
-    $('ph-back').hidden = app === 'home';
+    $('ph-title').textContent = app === 'messages' && chatWith ? PEOPLE[chatWith].name : TITLE[app] || 'App';
+    $('ph-back').textContent = app === 'messages' && chatWith ? '‹ Messages' : '‹ Home';
     scr.className = 'phscreen app-' + app;
-    scr.innerHTML = (BODY[app] || home)();
+    scr.innerHTML = (BODY[app] || help)();
     scr.scrollTop = 0;
+    // the bits that need a canvas painting into them
+    scr.querySelectorAll('[data-ava]').forEach((el) => el.appendChild(avatar(el.dataset.ava)));
+    scr.querySelectorAll('[data-shot]').forEach((el) => {
+      const w = G.wombats.find((x) => String(x.id) === el.dataset.shot);
+      if (!w) return;
+      const c = document.createElement('canvas');
+      c.width = 60; c.height = 48;
+      const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
+      const poses = ['idle', 'happy', 'sit', 'graze', 'sleep'];
+      const img = Sprites.wombat(poses[(w.name.length + w.x | 0) % poses.length], 2, w.pelt, 1, w.age);
+      g2.fillStyle = '#4a6a3a'; g2.fillRect(0, 0, 60, 48);
+      g2.fillStyle = '#5d8a44'; g2.fillRect(0, 34, 60, 14);
+      g2.drawImage(img, Math.round(30 - img.width / 2), Math.round(42 - img.height));
+      el.insertBefore(c, el.firstChild);
+    });
     wire(scr);
   }
   function wire(scr) {
-    scr.querySelectorAll('[data-app]').forEach((b) => b.onclick = () => { app = b.dataset.app; Audio.play('click'); render(); });
+    scr.querySelectorAll('[data-app]').forEach((b) => b.onclick = () => {
+      app = b.dataset.app; chatWith = null; Audio.play('click'); render();
+    });
+    scr.querySelectorAll('[data-chat]').forEach((b) => b.onclick = () => { chatWith = b.dataset.chat; Audio.play('click'); render(); });
+    scr.querySelectorAll('[data-reply]').forEach((b) => b.onclick = () => {
+      const r = REPLIES[+b.dataset.reply];
+      const th = threads();
+      th[chatWith].push({ f: 'm', text: r.q, t: Math.round(G.time || 0) });
+      Audio.play('click');
+      render();
+      setTimeout(() => {
+        if (!isOpen() || app !== 'messages') return;
+        const line = chatWith === 'groot' ? 'I am Groot.' : U.pick(r.a.filter((x) => x !== 'I am Groot.' && x !== 'I am Groot!' && x !== 'I am Groot?'));
+        push(chatWith, line);
+        if (isOpen() && app === 'messages') render();
+      }, 900 + Math.random() * 900);
+    });
+    scr.querySelectorAll('[data-tog]').forEach((b) => b.onclick = () => {
+      Main.menuAction({ toggle: b.dataset.tog });
+      render();
+    });
+    const wipe = scr.querySelector('#ph-wipe');
+    if (wipe) {
+      let armed = 0;
+      wipe.onclick = () => {
+        if (Date.now() < armed) { Main.reset(); return; }
+        armed = Date.now() + 4000; wipe.textContent = 'SURE?'; Audio.play('alarm');
+        setTimeout(() => { if (Date.now() >= armed) wipe.textContent = 'ERASE'; }, 4100);
+      };
+    }
     scr.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => {
       const s = SITES.find((x) => x.key === b.dataset.go);
       close();
@@ -15667,26 +16304,30 @@ const Phone = (() => {
       else Atlas.go(s);
     });
     scr.querySelectorAll('[data-find]').forEach((b) => b.onclick = () => {
-      const w = G.wombats.find((x) => x.id === b.dataset.find);
+      const w = G.wombats.find((x) => String(x.id) === b.dataset.find);
       if (!w) return;
       close();
       if (G.mode !== 'grove') { Main.setMode('grove'); }
       setTimeout(() => { Grove.panTo(w.x); FX.comic(w.x, w.y - 40, 'HERE!', { ink: '#d8f0a0', edge: '#5d9440', life: 0.9 }); }, 200);
     });
     scr.querySelectorAll('[data-papers]').forEach((b) => b.onclick = () => {
-      const w = G.wombats.find((x) => x.id === b.dataset.papers);
+      const w = G.wombats.find((x) => String(x.id) === b.dataset.papers);
       if (w) { close(); UI.openWombat(w); }
     });
   }
+  function back() {
+    if (app === 'messages' && chatWith) { chatWith = null; render(); return; }
+    app = 'home'; render();
+  }
   function key(e) {
     if (!isOpen()) return false;
-    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (app === 'home') close(); else { app = 'home'; render(); } return true; }
+    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (app === 'home') close(); else back(); return true; }
     const n = parseInt(e.key, 10) - 1;
     if (app === 'home' && n >= 0 && n < APPS.length) { app = APPS[n].key; Audio.play('click'); render(); return true; }
     return false;
   }
 
-  return { init, open, close, toggle, isOpen, render, key, gardenJobs, careOf, careList, APPS };
+  return { init, open, close, toggle, back, isOpen, render, key, push, unread, gardenJobs, careOf, careList, APPS };
 })();
 </script>
 
@@ -15717,7 +16358,7 @@ const UI = (() => {
     $('b-back').hidden = G.mode === 'grove';
     const dot = $('b-phone-dot');
     if (dot) {
-      const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length : 0;
+      const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length + Phone.unread() : 0;
       dot.hidden = jobs === 0;
     }
     refreshList();
@@ -16145,7 +16786,10 @@ const UI = (() => {
       G.wd += each * sold;
       G.stats.sold = (G.stats.sold || 0) + sold;
       FX.coinBurst(320, 200, 6);
-      if (pawnMode === 'cult') Guide.paid(each * sold);
+      if (pawnMode === 'cult') {
+        Guide.paid(each * sold);
+        if (sold >= 5) setTimeout(() => Phone.push('cultist', `${sold} in one go. The order thanks you. I thank you more.`), 3000);
+      }
     } else {
       const god = GOD_BY_KEY[d.k];
       if ((G.artifacts[d.k] || 0) < n) return;
@@ -16199,8 +16843,8 @@ const UI = (() => {
     // the phone: a button in the corner, and P from anywhere
     $('b-phone').onclick = () => Phone.toggle();
     $('ph-close').onclick = () => Phone.close();
-    $('ph-home').onclick = () => Phone.open('home');
-    $('ph-back').onclick = () => Phone.open('home');
+    $('ph-home-btn').onclick = () => Phone.open('home');
+    $('ph-back').onclick = () => Phone.back();
     $('b-summon').onclick = () => Ritual.summon();
     $('b-unstage').onclick = () => Ritual.clearStage();
     document.addEventListener('keydown', (e) => {
@@ -16298,9 +16942,9 @@ const Menu = (() => {
   // sleep on the warm side of a mound, and one is up and about looking at
   // things. They each run a little loop of their own.
   const MOB = [
-    { x: 250, y: 318, dir: 1, tx: 330, state: 'walk', st: 0, anim: 0, pelt: 'brown', sc: 1.5, home: [200, 380] },
-    { x: 330, y: 286, dir: -1, tx: 300, state: 'sleep', st: 0, anim: 0, pelt: 'sand', sc: 1.3, home: [240, 400] },
-    { x: 150, y: 348, dir: 1, tx: 220, state: 'graze', st: 0, anim: 0, pelt: 'grey', sc: 1.6, home: [70, 300] },
+    { x: 250, y: 318, dir: 1, tx: 330, state: 'walk', st: 0, anim: 0, pelt: 'brown', sc: 1.5, home: [150, 420] },
+    { x: 380, y: 282, dir: -1, tx: 340, state: 'sleep', st: 0, anim: 0, pelt: 'sand', sc: 1.2, home: [280, 470] },
+    { x: 120, y: 348, dir: 1, tx: 200, state: 'graze', st: 0, anim: 0, pelt: 'grey', sc: 1.6, home: [60, 260] },
   ];
   const hearts = [];
   function wombatLoop(dt) {
@@ -16315,7 +16959,7 @@ const Menu = (() => {
       } else if (w.st > (w.state === 'sleep' ? 9 : w.state === 'happy' ? 1.4 : 4 + Math.random() * 4)) {
         w.st = 0;
         if (Math.random() < 0.25) { w.state = 'sleep'; }
-        else { w.state = 'walk'; w.tx = w.home[0] + Math.random() * (w.home[1] - w.home[0]); w.y = 284 + Math.random() * 66; }
+        else { w.state = 'walk'; w.tx = w.home[0] + Math.random() * (w.home[1] - w.home[0]); w.y = 272 + Math.random() * 84; }
       }
       if (w.state === 'happy' && Math.random() < dt * 5) hearts.push({ x: w.x, y: w.y - 26, t: 0 });
       if (w.state === 'graze' && Math.random() < dt * 2.2) hearts.push({ x: w.x + w.dir * 14, y: w.y - 6, t: 0, leaf: 1 });
@@ -16419,81 +17063,146 @@ const Menu = (() => {
   // in the canopy with rope between them, flowers through the grass, moss over
   // every log and stone, a pond, birds going over and three wombats in it.
   const LX = 470, LY = 150;                             // the lantern, on the near house
-  const FLOWERS = [], TUFTS = [], STONES = [], LILY = [];
+  const FLOWERS = [], TUFTS = [], STONES = [];
   (() => {
     const r = Art.rng(7711);
-    const wet = (x, y) => Math.hypot((x - 96) / 86, (y - 336) / 30) < 1.05;
-    for (let i = 0; i < 130; i++) { const x = r() * VW, y = 240 + r() * 122; if (!wet(x, y)) FLOWERS.push({ x, y, v: Math.floor(r() * 5), ph: r() * TAU, s: 0.7 + r() * 0.6 }); }
-    for (let i = 0; i < 220; i++) { const x = r() * VW, y = 232 + r() * 130; if (!wet(x, y)) TUFTS.push({ x, y, h: 4 + r() * 7, ph: r() * TAU, tone: Math.floor(r() * 3) }); }
-    for (let i = 0; i < 16; i++) { const x = r() * VW, y = 252 + r() * 106; if (!wet(x, y)) STONES.push({ x, y, w: 7 + r() * 16, h: 4 + r() * 7 }); }
-    for (let i = 0; i < 6; i++) LILY.push({ x: 40 + r() * 112, y: 322 + r() * 30, r: 5 + r() * 5, ph: r() * TAU });
+    for (let i = 0; i < 74; i++) FLOWERS.push({ x: 14 + r() * (VW - 28), y: 212 + r() * 150, v: Math.floor(r() * 5), ph: r() * TAU, s: 1.5 + r() * 1.5 });
+    for (let i = 0; i < 240; i++) TUFTS.push({ x: r() * VW, y: 206 + r() * 156, h: 4 + r() * 8, ph: r() * TAU, tone: Math.floor(r() * 3) });
+    for (let i = 0; i < 18; i++) STONES.push({ x: r() * VW, y: 226 + r() * 132, w: 7 + r() * 16, h: 4 + r() * 7 });
   })();
   const BIRDS = [];
   for (let i = 0; i < 7; i++) BIRDS.push({ x: Math.random() * VW, y: 30 + Math.random() * 90, sp: 16 + Math.random() * 26, ph: Math.random() * TAU, dir: Math.random() < 0.5 ? -1 : 1, s: 0.7 + Math.random() * 0.6 });
   const FLOW = ['#f2d0e0', '#f5cd5c', '#c4a8e8', '#f0f0e0', '#e88a6a'];
 
+  // ---- the ground ------------------------------------------------------------
+  // Not a lawn. The same worn soil the plot is made of, with the treeline
+  // throwing a band of shade across the back of it and the grass coming back
+  // in patches, which is exactly what you are looking at all game.
+  let floorTex = null;
+  function floorCanvas() {
+    if (floorTex) return floorTex;
+    const h = VH - HORIZON + 10;
+    const { c, g } = Art.cv(VW, h);
+    const r = Art.rng(4242);
+    for (let i = 0; i < 10; i++) {                        // bands of soil, front to back
+      const k = i / 9;
+      g.fillStyle = U.mix('#4a3628', '#6b5238', k);
+      g.fillRect(0, Math.round((h * i) / 10), VW, Math.ceil(h / 10) + 1);
+    }
+    for (let i = 0; i < 900; i++) {                       // grit
+      const x = Math.round(r() * VW), y = Math.round(r() * h);
+      g.fillStyle = ['#3b2a1b', '#553d27', '#75573a', '#9b7a52'][Math.floor(r() * 4)];
+      g.fillRect(x, y, 1 + Math.floor(r() * 2), 1);
+    }
+    for (let i = 0; i < 80; i++) {                        // pebbles
+      const x = Math.round(r() * VW), y = Math.round(6 + r() * (h - 12));
+      const w = 2 + Math.floor(r() * 3);
+      g.fillStyle = '#6b6455'; g.fillRect(x, y, w, 2);
+      g.fillStyle = '#8d8573'; g.fillRect(x, y, w, 1);
+      g.fillStyle = 'rgba(24,20,16,0.45)'; g.fillRect(x, y + 2, w + 1, 1);
+    }
+    for (let i = 0; i < 26; i++) {                        // cart ruts and scuffs
+      const x = Math.round(r() * VW), y = Math.round(r() * h), w = 14 + Math.round(r() * 40);
+      g.fillStyle = 'rgba(38,26,16,0.3)'; g.fillRect(x, y, w, 2);
+    }
+    floorTex = c;
+    return c;
+  }
+  // the patches of grass that have taken, painted once and kept
+  let grassTex = null;
+  function grassCanvas() {
+    if (grassTex) return grassTex;
+    const h = VH - HORIZON + 10;
+    const { c, g } = Art.cv(VW, h);
+    const r = Art.rng(1717);
+    for (let i = 0; i < 26; i++) {
+      const cx = r() * VW, cy = 16 + r() * (h - 24), rx = 26 + r() * 60, ry = 8 + r() * 20;
+      for (let k = 0; k < 260; k++) {                     // a scatter, not an ellipse
+        const a = r() * TAU, d = Math.sqrt(r());
+        const x = Math.round(cx + Math.cos(a) * rx * d), y = Math.round(cy + Math.sin(a) * ry * d);
+        g.fillStyle = ['#3f6330', '#4f7a34', '#5d9440'][Math.floor(r() * 3)];
+        g.fillRect(x, y, 2, 1);
+      }
+    }
+    grassTex = c;
+    return c;
+  }
+  function drawFloor(g, day) {
+    g.drawImage(floorCanvas(), 0, HORIZON - 6);
+    g.globalAlpha = 0.5 + day * 0.3;
+    g.drawImage(grassCanvas(), 0, HORIZON - 6);
+    g.globalAlpha = 1;
+    // the treeline throws a band of shade across the back of the clearing
+    for (let i = 0; i < 8; i++) {
+      g.globalAlpha = 0.3 * (1 - i / 8);
+      Art.rect(g, 0, HORIZON - 6 + i * 7, VW, 7, '#12100e');
+    }
+    g.globalAlpha = 1;
+  }
+  // the split-rail fence that runs down both sides of every plot in this game
+  function railFence(g) {
+    // it runs away from you, so it spreads outward as it comes forward, the
+    // same as the one round the plot
+    const at = (side, y) => (side < 0 ? 52 : VW - 52) + side * (y - HORIZON) * 0.26;
+    for (const side of [-1, 1]) {
+      for (let i = 6; i >= 0; i--) {
+        const y = HORIZON + 30 + i * 26;
+        const x = at(side, y);
+        const h = 26 + i * 3;
+        if (i < 6) {                                       // the rails, behind the post
+          const y2 = y + 26, x2 = at(side, y2);
+          for (const off of [-0.7, -0.38]) {
+            const a = y + h * off, b = y2 + (h + 3) * off;
+            Art.poly(g, [[x, a], [x2, b], [x2, b + 6], [x, a + 6]], '#241810');
+            Art.poly(g, [[x, a + 1], [x2, b + 1], [x2, b + 5], [x, a + 5]], '#6b4d34');
+            Art.poly(g, [[x, a + 1], [x2, b + 1], [x2, b + 2.4], [x, a + 2.4]], '#8a6446');
+          }
+        }
+        Art.rect(g, x - 4, y - h, 9, h + 4, '#241810');    // the post
+        Art.rect(g, x - 3, y - h, 6, h + 3, '#5d4430');
+        Art.rect(g, x - 3, y - h, 2, h + 3, '#7d5f42');
+        Art.rect(g, x - 4, y - h - 2, 9, 3, '#3a2a1c');    // the cap
+        g.fillStyle = PAL.moss1;                            // moss up the foot of it
+        g.fillRect(Math.round(x - 4), Math.round(y - 5), 9, 7);
+        g.fillStyle = PAL.moss2; g.fillRect(Math.round(x - 3), Math.round(y - 9), 5, 4);
+        g.fillStyle = PAL.moss3; g.fillRect(Math.round(x - 1), Math.round(y - 12), 3, 3);
+      }
+    }
+  }
+
   // one flower: a stalk, two leaves and a four-petal head
   function flower(g, f) {
-    const sway = Math.sin(t * 1.1 + f.ph) * 1.6;
-    const h = 7 * f.s;
-    g.fillStyle = '#3f6a2c';
-    for (let i = 0; i < h; i++) g.fillRect(Math.round(f.x + sway * (i / h) * (i / h)), Math.round(f.y - i), 1, 1);
+    const sway = Math.sin(t * 1.1 + f.ph) * 2.2;
+    const h = Math.round(8 * f.s);
+    const st = Math.max(1, Math.round(f.s * 0.8));
+    g.fillStyle = '#2f5a22';
+    for (let i = 0; i < h; i++) g.fillRect(Math.round(f.x + sway * (i / h) * (i / h)), Math.round(f.y - i), st + 1, 1);
+    g.fillStyle = '#4f8a36';
+    for (let i = 0; i < h; i++) g.fillRect(Math.round(f.x + sway * (i / h) * (i / h)), Math.round(f.y - i), st, 1);
     const hx = Math.round(f.x + sway), hy = Math.round(f.y - h);
-    g.fillStyle = '#4f8a36'; g.fillRect(hx - 2, Math.round(f.y - h * 0.5), 2, 1); g.fillRect(hx + 1, Math.round(f.y - h * 0.7), 2, 1);
-    const c = FLOW[f.v];
-    g.fillStyle = U.shade(c, -0.3);
-    g.fillRect(hx - 2, hy - 1, 5, 3); g.fillRect(hx - 1, hy - 2, 3, 5);
+    // two leaves off the stalk, sized with it
+    const lw = Math.round(3 * f.s);
+    g.fillStyle = '#3f6a2c';
+    g.fillRect(hx - lw - 1, Math.round(f.y - h * 0.45), lw, 2);
+    g.fillRect(hx + st, Math.round(f.y - h * 0.68), lw, 2);
+    g.fillStyle = '#5d9440';
+    g.fillRect(hx - lw - 1, Math.round(f.y - h * 0.45), lw - 1, 1);
+    // the head: four petals round a middle, all on the pixel grid
+    const c = FLOW[f.v], dk = U.shade(c, -0.34), lt = U.shade(c, 0.28);
+    const pr = Math.max(2, Math.round(2.4 * f.s));
+    g.fillStyle = dk;
+    g.fillRect(hx - pr * 2, hy - pr, pr * 4, pr * 2);
+    g.fillRect(hx - pr, hy - pr * 2, pr * 2, pr * 4);
     g.fillStyle = c;
-    g.fillRect(hx - 1, hy - 1, 3, 3); g.fillRect(hx - 2, hy, 1, 1); g.fillRect(hx + 2, hy, 1, 1);
-    g.fillStyle = '#ffeeb0'; g.fillRect(hx, hy, 1, 1);
-  }
-  // a treehouse: a platform round a trunk, plank walls, a shingle roof, a
-  // window with the light on and a ladder down
-  function treehouse(g, x, y, w, h, flip, lamp) {
-    const D = '#3a2a1c', M = '#5c4430', L = '#7d5f42', H2 = '#9a7a58';
-    Art.rect(g, x - w / 2 - 6, y, w + 12, 5, D);                      // the platform
-    Art.rect(g, x - w / 2 - 6, y, w + 12, 2, L);
-    for (let i = 0; i < 5; i++) Art.rect(g, x - w / 2 - 4 + i * (w / 4), y + 5, 3, 7, D);   // joists
-    Art.rect(g, x - w / 2, y - h, w, h, D);                           // the box
-    for (let i = 0; i < h / 5; i++) {
-      Art.rect(g, x - w / 2 + 1, y - h + i * 5, w - 2, 4, i % 2 ? M : L);
-      Art.rect(g, x - w / 2 + 1, y - h + i * 5, w - 2, 1, H2);
-    }
-    for (let i = 0; i < 9; i++) {                                     // the roof
-      const rw = w / 2 + 9 - i * (w / 22);
-      Art.rect(g, x - rw, y - h - 2 - i * 2.4, rw * 2, 3, '#4a3a2e');
-      Art.rect(g, x - rw, y - h - 2 - i * 2.4, rw * 2, 1, '#6d5644');
-      if (i % 3 === 0) { g.fillStyle = PAL.moss1; g.fillRect(Math.round(x - rw + 2), Math.round(y - h - 2 - i * 2.4), Math.round(rw * 0.6), 2); }
-    }
-    const wx = x + (flip ? -1 : 1) * w * 0.16;                        // the window
-    const glow2 = 0.6 + 0.4 * Math.sin(t * 1.6 + x);
-    Art.rect(g, wx - 8, y - h * 0.72, 16, 14, D);
-    Art.rect(g, wx - 6, y - h * 0.72 + 2, 12, 10, `rgba(250,220,140,${(0.55 + glow2 * 0.4).toFixed(2)})`);
-    Art.rect(g, wx - 1, y - h * 0.72 + 2, 2, 10, M);
-    Art.rect(g, wx - 6, y - h * 0.72 + 6, 12, 2, M);
-    if (lamp) Art.glow(g, wx, y - h * 0.62, 34 + glow2 * 8, '#ffd88c', 0.14 + glow2 * 0.08, 6);
-    // a flower box under the window and moss along the platform edge
-    Art.rect(g, wx - 9, y - h * 0.72 + 14, 18, 5, D);
-    for (let i = 0; i < 5; i++) { g.fillStyle = FLOW[i % FLOW.length]; g.fillRect(Math.round(wx - 7 + i * 3.4), Math.round(y - h * 0.72 + 12), 2, 2); }
-    g.fillStyle = PAL.moss1;
-    for (let i = 0; i < 6; i++) g.fillRect(Math.round(x - w / 2 - 6 + i * ((w + 12) / 6)), y + 1, 5, 3);
-    // a rail
-    Art.rect(g, x - w / 2 - 6, y - 12, 2, 12, D);
-    Art.rect(g, x + w / 2 + 4, y - 12, 2, 12, D);
-    Art.rect(g, x - w / 2 - 6, y - 13, w + 12, 2, M);
-  }
-  function ropeBridge(g, x0, y0, x1, y1) {
-    const n = 26;
-    for (let i = 0; i <= n; i++) {
-      const k = i / n;
-      const sag = Math.sin(k * Math.PI) * 13 + Math.sin(t * 0.8 + k * 4) * 1.2;
-      const px = U.lerp(x0, x1, k), py = U.lerp(y0, y1, k) + sag;
-      g.fillStyle = '#6b5232'; g.fillRect(Math.round(px), Math.round(py), 3, 2);       // the planks
-      g.fillStyle = '#8a6a44'; g.fillRect(Math.round(px), Math.round(py), 3, 1);
-      g.fillStyle = '#4a3a22';                                                        // the hand rope
-      g.fillRect(Math.round(px), Math.round(py - 12 - Math.sin(k * Math.PI) * 2), 2, 1);
-      if (i % 5 === 0) g.fillRect(Math.round(px), Math.round(py - 12), 1, 12);
-    }
+    g.fillRect(hx - pr * 2 + 1, hy - pr + 1, pr * 4 - 2, pr * 2 - 2);
+    g.fillRect(hx - pr + 1, hy - pr * 2 + 1, pr * 2 - 2, pr * 4 - 2);
+    g.fillStyle = lt;
+    g.fillRect(hx - pr * 2 + 1, hy - pr + 1, pr - 1, pr);
+    g.fillRect(hx - pr + 1, hy - pr * 2 + 1, pr, pr - 1);
+    g.fillStyle = '#ffeeb0';
+    g.fillRect(hx - Math.round(pr * 0.6), hy - Math.round(pr * 0.6), Math.round(pr * 1.2), Math.round(pr * 1.2));
+    g.fillStyle = '#e0a82e';
+    g.fillRect(hx - Math.round(pr * 0.3), hy - Math.round(pr * 0.3), Math.max(1, Math.round(pr * 0.6)), Math.max(1, Math.round(pr * 0.6)));
   }
   function bird(g, b) {
     const x = ((b.x + t * b.sp * b.dir) % (VW + 60) + VW + 60) % (VW + 60) - 30;
@@ -16537,31 +17246,8 @@ const Menu = (() => {
       g.globalAlpha = 1;
     }
 
-    // ---- the grass floor ---------------------------------------------------
-    for (let i = 0; i < 10; i++) {
-      const k = i / 9;
-      g.fillStyle = U.mix(U.mix('#2e4a24', '#4f7a34', day), U.mix('#3f6330', '#6d9c42', day), k);
-      g.fillRect(0, HORIZON + 4 + i * ((VH - HORIZON) / 10), VW, Math.ceil((VH - HORIZON) / 10) + 1);
-    }
-    // the pond, over on the left
-    const PX2 = 96, PY2 = 336, PR = 86;
-    Art.ell(g, PX2, PY2, PR + 6, 34, '#3f5a30');
-    Art.ell(g, PX2, PY2, PR + 2, 31, '#5a6a3a');
-    Art.ell(g, PX2, PY2, PR, 28, U.mix('#254a58', '#3f8ca0', day));
-    Art.ell(g, PX2, PY2 - 3, PR - 10, 20, U.mix('#2f6070', '#5fb0c2', day));
-    Art.ell(g, PX2 - PR * 0.3, PY2 - 8, PR * 0.3, 6, U.mix('#3f7a90', '#9fdcea', day));
-    for (let i = 0; i < 5; i++) {                            // ripples
-      const rw = PR * (0.3 + i * 0.16), a = 0.3 - i * 0.05;
-      g.globalAlpha = a * (0.6 + 0.4 * Math.sin(t * 1.4 + i));
-      Art.ellBand(g, PX2, PY2 - 2, rw, rw * 0.3, '#bfe4f4', 0.7, 0.14);
-      g.globalAlpha = 1;
-    }
-    for (const l of LILY) {                                  // lily pads
-      const ly = l.y + Math.sin(t * 0.9 + l.ph) * 1.2;
-      Art.ell(g, l.x, ly, l.r, l.r * 0.42, '#3f7a34');
-      Art.ell(g, l.x - l.r * 0.2, ly - 0.6, l.r * 0.5, l.r * 0.2, '#5d9440');
-      if (l.r > 8) { g.fillStyle = '#f2d0e0'; g.fillRect(Math.round(l.x + 2), Math.round(ly - 3), 3, 3); }
-    }
+    // ---- the floor of it: the same worn soil as your own plot -------------
+    drawFloor(g, day);
     // mossy stones and logs
     for (const st of STONES) {
       Art.ell(g, st.x, st.y, st.w, st.h, '#5b5a58');
@@ -16591,17 +17277,8 @@ const Menu = (() => {
         g.drawImage(img, Math.round(tr.x - w / 2 + sway), Math.round(tr.y - h), Math.round(w), Math.round(h));
       }
     }
-    ropeBridge(g, 216, 186, 380, 180);
-    ropeBridge(g, 392, 184, 520, 168);
-    treehouse(g, 196, 192, 66, 52, false, false);
-    treehouse(g, 384, 186, 58, 46, true, false);
-    treehouse(g, 536, 174, 74, 58, false, true);
-    // ladders down from the near house
-    for (let i = 0; i < 14; i++) {
-      Art.rect(g, 524, 200 + i * 8, 3, 6, '#4a3a22');
-      Art.rect(g, 548, 200 + i * 8, 3, 6, '#4a3a22');
-      Art.rect(g, 524, 202 + i * 8, 27, 2, '#6b5232');
-    }
+    // the fence down both sides, the same split rail as the plot
+    railFence(g);
     lantern(g, 0.82 + 0.18 * Math.sin(t * 9));
     titleSign(g);
 
@@ -16640,8 +17317,14 @@ const Menu = (() => {
   function wombatShadowPass(g) { }
   function lantern(g, flick) {
     Art.glow(g, LX, LY + 10, 92 * flick, '#ffd88c', 0.34 * flick, 9);
-    g.fillStyle = '#1a1410'; g.fillRect(LX - 1, 0, 2, LY - 14);
-    for (let i = 0; i < 5; i++) { g.fillStyle = '#4a4038'; g.fillRect(LX - 2, 10 + i * 22, 4, 3); }
+    // the bough it hangs off, and the chain
+    Art.rect(g, LX - 46, LY - 74, 56, 7, '#2a1d15');
+    Art.rect(g, LX - 46, LY - 74, 56, 3, '#5d4430');
+    Art.rect(g, LX - 46, LY - 68, 56, 2, '#1d1410');
+    g.fillStyle = PAL.moss1;
+    for (let i = 0; i < 6; i++) g.fillRect(Math.round(LX - 44 + i * 9), LY - 76, 6, 3);
+    g.fillStyle = '#1a1410'; g.fillRect(LX - 1, LY - 70, 2, 56);
+    for (let i = 0; i < 4; i++) { g.fillStyle = '#4a4038'; g.fillRect(LX - 2, LY - 66 + i * 13, 4, 3); }
     g.fillStyle = '#0c0a08'; g.fillRect(LX - 9, LY - 15, 18, 4);
     g.fillStyle = '#57493a'; g.fillRect(LX - 8, LY - 14, 16, 2);
     g.fillStyle = '#0c0a08'; g.fillRect(LX - 8, LY - 11, 16, 22);
@@ -16999,7 +17682,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
+      msgs: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0 },
       pointer: { x: 320, y: 240, on: false },
       paused: false, muted: false, musicOff: false, lastSave: Date.now(), seen: false,
@@ -17364,6 +18047,6 @@ const Main = (() => {
   }
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
-  return { save, reset, setMode, back, openingBeats, toMenu, startGame, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
+  return { save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
 })();
 </script>

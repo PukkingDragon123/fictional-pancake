@@ -60,6 +60,10 @@ const Sky = (() => {
       front = opts[Math.floor(Math.random() * opts.length)];
       nextFront = WEATHER[front].mins * 60;
       if (G) UI.toast(`<b>${WEATHER[front].name}</b> &mdash; ${WEATHER[front].blurb}`, '');
+      // somebody always has something to say about the weather
+      if (G && front === 'storm') Phone.push('shaz', 'big one coming in over the flats!! get them inside 😬');
+      else if (G && front === 'rain') Phone.push('bee', 'rain on. my lot are all indoors sulking. yours will love it');
+      else if (G && front === 'clear' && Math.random() < 0.5) Phone.push('fish', 'flat calm out here. perfect. i will catch nothing again');
     }
     const w = wet();
     // rain: a column of drops falling across the whole screen
@@ -107,12 +111,12 @@ const Sky = (() => {
   }
   // the wash the hour paints over a scene: warm at dawn, blue at night
   const TINTS = {
-    night:     ['#16264e', 0.46],
-    dawn:      ['#f0a070', 0.24],
+    night:     ['#101c3e', 0.6],
+    dawn:      ['#f0a070', 0.26],
     morning:   ['#fff0c0', 0.1],
     afternoon: ['#ffe8b0', 0.06],
     evening:   ['#ffb070', 0.18],
-    dusk:      ['#8a5a9a', 0.3],
+    dusk:      ['#6a4a8a', 0.38],
   };
   function tint() {
     const [col, a] = TINTS[partOfDay()] || TINTS.afternoon;
@@ -160,20 +164,18 @@ const Sky = (() => {
     }
     if (flash > 0.01) { g.fillStyle = `rgba(226,236,255,${(flash * 0.5).toFixed(2)})`; g.fillRect(0, 0, W, H); }
   }
-  // clouds drawn behind a scene's trees, in world space
+  // Clouds drawn behind a scene's trees, in world space. Same blocky pixel
+  // cloud the transition uses, so the sky matches the curtain.
   function drawClouds(g, W, H, scroll = 0, alpha = 1) {
     const n = front === 'clear' ? 3 : front === 'fair' ? 7 : 16;
     const oa = g.globalAlpha;
+    const dark = cover() > 0.4;
     for (let i = 0; i < n; i++) {
       const c = clouds[i];
+      if (!c.prof) { c.prof = FX.cloudShape(2300 + i * 53); c.px = 2 + Math.round(c.w / 34); }
       const x = c.x - scroll * (0.2 + c.lay * 0.12);
-      g.globalAlpha = oa * alpha * (c.a + cover() * 0.3);
-      const col = cover() > 0.4 ? '#8f98a4' : '#f4f6f8';
-      Art.ell(g, x, c.y, c.w, c.h, col);
-      Art.ell(g, x - c.w * 0.4, c.y + c.h * 0.3, c.w * 0.5, c.h * 0.7, col);
-      Art.ell(g, x + c.w * 0.36, c.y + c.h * 0.24, c.w * 0.42, c.h * 0.64, col);
-      g.globalAlpha = oa * alpha * (c.a + cover() * 0.3) * 0.5;
-      Art.ellBand(g, x, c.y, c.w, c.h, U.shade(col, 0.28), 0, 0.4);
+      g.globalAlpha = oa * alpha * (c.a + cover() * 0.35) * 1.6;
+      FX.pixelCloud(g, x, c.y, c.prof, c.px, dark);
     }
     g.globalAlpha = oa;
   }

@@ -12,17 +12,123 @@ const Phone = (() => {
   const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
   // ---- the apps -------------------------------------------------------------
+  // Every app on the home screen, in the order they sit on it. `tint` is the
+  // icon's own colour, the way every phone gives an app one.
   const APPS = [
-    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: '#d8a52f' },
-    { key: 'herd', name: 'Herd', icon: 'wombat', tint: '#c98a6c' },
-    { key: 'map', name: 'Places', icon: 'map', tint: '#57b6c9' },
-    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: '#84bb59' },
-    { key: 'sky', name: 'Sky', icon: 't_water', tint: '#9fd8e6' },
-    { key: 'purse', name: 'Purse', icon: 'wdollar', tint: '#f5cd5c' },
+    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: ['#f7c53f', '#b07a10'] },
+    { key: 'herd', name: 'Herd', icon: 'wombat', tint: ['#d79a76', '#8a5138'] },
+    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: ['#7fce63', '#2f7a30'] },
+    { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#6fc4ec', '#1f6fae'] },
+    { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#ff9a6a', '#c4386a'] },
+    { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#3a3f52', '#14161f'] },
+    { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#a9b0bd', '#5c636f'] },
+    { key: 'help', name: 'Tips', icon: 'basket', tint: ['#c49bff', '#6b3fc4'] },
   ];
-  const TITLE = Object.fromEntries(APPS.map((a) => [a.key, a.name]));
+  const DOCK = ['messages', 'map', 'quests', 'herd'];
+  const ALL = APPS.concat([
+    { key: 'messages', name: 'Messages', icon: 'msg', tint: ['#5ce06a', '#1f9a34'] },
+    { key: 'map', name: 'Places', icon: 'map', tint: ['#7fd6b0', '#1f7a6a'] },
+  ]);
+  const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
+  const TITLE = Object.fromEntries(ALL.map((a) => [a.key, a.name]));
 
   function init(g) { G = g; }
+
+  // ---- the wallpaper -----------------------------------------------------------
+  // Painted once, in the same pixels as the game: the grove at dusk from the
+  // top of the ridge, with the moon up and the lamp on in somebody's window.
+  let wallURL = null;
+  function wallpaper() {
+    if (wallURL) return wallURL;
+    // Drawn small and blown up, so every pixel in it is four on the screen.
+    const W2 = 110, H2 = 238;
+    const { c, g } = Art.cv(W2, H2);
+    const r = Art.rng(31337);
+    const HZ = Math.round(H2 * 0.58);
+    const BANDS = ['#151033', '#1c1640', '#271e4f', '#372660', '#4e2f6a', '#6d3c68', '#8e4a62', '#b9675a', '#dd9a62', '#f6d089'];
+    for (let i = 0; i < BANDS.length; i++) {
+      g.fillStyle = BANDS[i];
+      g.fillRect(0, Math.round((HZ * i) / BANDS.length), W2, Math.ceil(HZ / BANDS.length) + 1);
+    }
+    // stars, thicker toward the top
+    for (let i = 0; i < 60; i++) {
+      const x = Math.round(r() * W2), y = Math.round(r() * r() * HZ * 0.8);
+      g.fillStyle = r() < 0.35 ? '#ffffff' : '#cfd6f2';
+      g.fillRect(x, y, 1, 1);
+    }
+    // the moon: a crescent, stepped, four blocks to a step
+    const mx = 74, my = 30, mr = 11;
+    for (let yy = -mr; yy <= mr; yy++) {
+      const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
+      if (w < 1) continue;
+      g.fillStyle = '#f2ecff'; g.fillRect(mx - w, my + yy, w * 2, 1);
+    }
+    for (let yy = -mr; yy <= mr; yy++) {                 // the bite out of it
+      const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
+      const w2 = Math.round(Math.sqrt(Math.max(0, mr * mr - (yy * 0.95) * (yy * 0.95))));
+      if (w < 1) continue;
+      g.fillStyle = BANDS[Math.min(BANDS.length - 1, Math.max(0, Math.floor(((my + yy) / HZ) * BANDS.length)))];
+      g.fillRect(mx - w + 5, my + yy, w2 * 2, 1);
+    }
+    for (const [dx, dy, rr] of [[-6, -2, 2], [-4, 5, 1]]) {   // a couple of seas
+      g.fillStyle = '#d3c6ec';
+      g.fillRect(mx + dx - rr, my + dy - rr, rr * 2 + 1, rr * 2 + 1);
+    }
+    // three ranks of conifer, each lower, darker and bigger
+    const RANK = [['#3a3358', 0.00, 10, 7], ['#241f3e', 0.045, 15, 9], ['#141324', 0.1, 22, 12]];
+    RANK.forEach(([col, off, hgt, wid]) => {
+      const baseY = Math.round(HZ + off * H2);
+      g.fillStyle = col;
+      let x = -4;
+      while (x < W2 + 6) {
+        const w = Math.max(3, Math.round(wid * (0.6 + r() * 0.8)));
+        const h = Math.round(hgt * (0.7 + r() * 0.8));
+        const steps = Math.max(3, Math.round(h / 3));
+        for (let i = 0; i < steps; i++) {
+          const ww = Math.max(1, Math.round((w * (steps - i)) / steps / 2));
+          g.fillRect(x - ww, baseY - h + Math.round((h * i) / steps), ww * 2, Math.ceil(h / steps) + 1);
+        }
+        g.fillRect(x - 1, baseY - 3, 2, 3);                 // a trunk
+        x += Math.max(3, Math.round(w * 0.7));
+      }
+      g.fillRect(0, baseY, W2, H2 - baseY);
+    });
+    // the ground, and grass through it
+    const gy = Math.round(HZ + 0.1 * H2);
+    for (let i = 0; i < 7; i++) {
+      g.fillStyle = U.mix('#101a12', '#223522', i / 6);
+      g.fillRect(0, gy + Math.round(((H2 - gy) * i) / 7), W2, Math.ceil((H2 - gy) / 7) + 1);
+    }
+    for (let i = 0; i < 260; i++) {
+      const x = Math.round(r() * W2), y = gy + Math.round(r() * (H2 - gy));
+      g.fillStyle = ['#1e3320', '#284523', '#33542a'][Math.floor(r() * 3)];
+      g.fillRect(x, y, 2, 1);
+    }
+    // a hut with the lamp on
+    const hx = 30, hy = gy + Math.round((H2 - gy) * 0.4);
+    g.fillStyle = '#0b1210'; g.fillRect(hx - 14, hy - 16, 28, 17);
+    g.fillStyle = '#241c14'; g.fillRect(hx - 13, hy - 15, 26, 15);
+    for (let i = 0; i < 5; i++) { g.fillStyle = '#17110c'; g.fillRect(hx - 13, hy - 14 + i * 3, 26, 1); }
+    for (let i = 0; i < 7; i++) { g.fillStyle = i % 2 ? '#2a2118' : '#1c150f'; g.fillRect(hx - 18 + i * 1.4, hy - 17 - i * 2, 36 - i * 2.8, 2); }
+    g.fillStyle = '#3a2a1c'; g.fillRect(hx - 5, hy - 10, 7, 10);   // the door
+    g.fillStyle = '#f5cd5c'; g.fillRect(hx + 4, hy - 11, 7, 6);    // the window
+    g.fillStyle = '#fff2c8'; g.fillRect(hx + 5, hy - 10, 5, 4);
+    for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(245,205,92,${(0.09 - i * 0.013).toFixed(3)})`; g.fillRect(hx - 2 - i * 4, hy - 16 - i * 4, 22 + i * 8, 16 + i * 8); }
+    // a fence running away down the right
+    for (let i = 0; i < 6; i++) {
+      const fy = gy + 8 + i * 14, fx = 96 + i * 3;
+      g.fillStyle = '#1a1510'; g.fillRect(fx, fy - 12, 3, 13);
+      if (i < 5) { g.fillStyle = '#24190f'; g.fillRect(fx, fy - 9, 5, 2); g.fillRect(fx, fy - 5, 5, 2); }
+    }
+    // and a wombat asleep in the foreground
+    try {
+      const img = Sprites.wombat('sleep', 1, 'brown', 1, 'adult');
+      const sc = 1.3, w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+      g.drawImage(img, Math.round(W2 * 0.56 - w / 2), Math.round(H2 * 0.94 - h), w, h);
+    } catch (e) { }
+    wallURL = c.toDataURL('image/png');
+    return wallURL;
+  }
 
   // ---- opening and closing --------------------------------------------------
   function open(which) {
@@ -30,10 +136,17 @@ const Phone = (() => {
     UI.closePanels();
     app = which || 'home';
     $('panel-phone').hidden = false;
+    const wall = $('panel-phone').querySelector('.phwall');
+    if (wall && !wall.dataset.on) { wall.style.backgroundImage = `url(${wallpaper()})`; wall.dataset.on = '1'; }
     G.paused = true;
     Audio.play('click');
     render();
     if (!raf) raf = requestAnimationFrame(tick);
+  }
+  // A 24-hour clock, the way a phone shows it
+  function clock24() {
+    const h = Math.floor(Sky.hour()), m = Math.floor((Sky.hour() % 1) * 60);
+    return `${h}:${String(m).padStart(2, '0')}`;
   }
   function close() {
     if ($('panel-phone').hidden) return;
@@ -50,9 +163,7 @@ const Phone = (() => {
     raf = requestAnimationFrame(tick);
     t = ms / 1000;
     const c = $('ph-clock');
-    if (c) c.textContent = Sky.clockText();
-    const w = $('ph-wx');
-    if (w) w.textContent = Sky.def().name;
+    if (c) c.textContent = clock24();
   }
 
   // ---- little pieces everyone uses ------------------------------------------
@@ -61,22 +172,39 @@ const Phone = (() => {
   const ic = (n, cls = '') => Icons.img(n, cls);
 
   // ---- the home screen ------------------------------------------------------
-  function home() {
+  // ---- the home screen -------------------------------------------------------
+  // A widget across the top with the job in hand and the weather, then the grid,
+  // then the dock. Badges are real counts of things that want doing.
+  function badges() {
     const q = Guide.current();
-    const needs = careList();
-    const badge = { quests: q ? 1 : 0, herd: needs.length, garden: gardenJobs().length, map: 0, sky: 0, purse: 0 };
-    return `<div class="phpage">
-      <div class="phhead">
-        <b>${Sky.partOfDay().toUpperCase()}</b>
-        <span>${esc(Sky.def().blurb)}</span>
-      </div>
-      <div class="phgrid">${APPS.map((a) => `
-        <button class="phapp" data-app="${a.key}" style="--tint:${a.tint}">
-          ${ic(a.icon)}<b>${a.name}</b>
-          ${badge[a.key] ? `<i class="phdot">${badge[a.key]}</i>` : ''}
-        </button>`).join('')}</div>
-      <div class="phnote">${q ? `<b>NOW:</b> ${esc(q.title)}` : '<b>NOW:</b> whatever you like'}</div>
-    </div>`;
+    return {
+      quests: q ? 1 : 0,
+      herd: careList().length,
+      garden: gardenJobs().length,
+      messages: unread(),
+    };
+  }
+  function appIcon(a, badge) {
+    return `<button class="phapp" data-app="${a.key}">
+      <i class="phico" style="--t1:${a.tint[0]};--t2:${a.tint[1]}">${ic(a.icon)}</i>
+      <b>${a.name}</b>${badge ? `<i class="phdot">${badge > 99 ? '99' : badge}</i>` : ''}
+    </button>`;
+  }
+  function paintHome() {
+    const b = badges();
+    const q = Guide.current();
+    const d = Sky.def();
+    $('ph-widget').innerHTML = `
+      <h5>${Sky.partOfDay().toUpperCase()} &middot; ${esc(d.name).toUpperCase()}</h5>
+      <p>${q ? esc(q.title) : 'Nothing owing. The wood is yours.'}</p>
+      <div class="phwrow">
+        <span>${ic('wdollar', 'sm')} ${U.fmt(G.wd)}</span>
+        <span>${ic('wombat', 'sm')} ${G.wombats.length}</span>
+        <span>${ic('c_broadleaf', 'sm')} ${(World.crops || []).length}</span>
+      </div>`;
+    $('ph-grid').innerHTML = APPS.map((a) => appIcon(a, b[a.key])).join('');
+    $('ph-dock').innerHTML = DOCK.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
+    wire($('ph-home-view'));
   }
 
   // ---- jobs -----------------------------------------------------------------
@@ -250,20 +378,206 @@ const Phone = (() => {
     return html;
   }
 
+  // ---- messages --------------------------------------------------------------
+  // Everyone in the district has your number. Threads live in the save, new
+  // lines arrive as things happen, and you can text back — badly.
+  const PEOPLE = {
+    cultist: { name: 'The Hooded One', sub: 'no surname given' },
+    shaz: { name: 'Shaz', sub: 'Wombat Mart' },
+    groot: { name: 'Groot', sub: 'the cellar' },
+    bee: { name: 'Maud', sub: 'the hives' },
+    fish: { name: 'Errol', sub: 'the lake' },
+    post: { name: 'Bev', sub: 'the round' },
+    bake: { name: 'Nonna', sub: 'the bakery' },
+    bota: { name: 'Dr Finch', sub: 'botany' },
+    bard: { name: 'Little Ash', sub: 'the Flats' },
+  };
+  // What each of them opens with, so the inbox is never empty.
+  const SEED_MSGS = {
+    cultist: ['You have my number now. Do not lose it.', 'Anything square, I will buy. Any hour.'],
+    shaz: ['hiii its shaz from the mart!! 😄', 'we got the good pies in. do not tell head office'],
+    groot: ['I am Groot.'],
+    bake: ['i left something on the fence post. eat it today not tomorrow'],
+  };
+  // The canned things you are able to say back, and what they say to that.
+  const REPLIES = [
+    { q: 'Thanks!', a: ['No trouble.', 'Any time.', 'You are very welcome.', 'I am Groot.'] },
+    { q: 'How are you?', a: ['Tired. The usual.', 'Better for asking.', 'Up since four.', 'I am Groot!'] },
+    { q: 'Come and see the wombats.', a: ['Try and stop me.', 'Sunday. I will bring something.', 'I was going to invite myself anyway.', 'I am Groot?'] },
+    { q: 'Busy right now.', a: ['Understood.', 'Go on then.', 'I will leave you to it.', 'I am Groot.'] },
+  ];
+  function threads() {
+    if (!G.msgs) G.msgs = {};
+    for (const k of Object.keys(SEED_MSGS)) {
+      if (!G.msgs[k]) G.msgs[k] = SEED_MSGS[k].map((text, i) => ({ f: 't', text, t: i }));
+    }
+    return G.msgs;
+  }
+  function unread() {
+    const th = threads();
+    return Object.keys(th).filter((k) => th[k].some((m) => m.f === 't' && !m.seen)).length;
+  }
+  // Anything in the game can drop somebody a line.
+  function push(who, text) {
+    if (!PEOPLE[who]) return;
+    const th = threads();
+    if (!th[who]) th[who] = [];
+    th[who].push({ f: 't', text, t: Math.round((G.time || 0)) });
+    if (th[who].length > 40) th[who].splice(0, th[who].length - 40);
+    if (typeof UI !== 'undefined' && UI.refreshHUD) UI.refreshHUD();
+  }
+  // a little round portrait for the thread list
+  function avatar(who) {
+    const c = document.createElement('canvas');
+    c.width = 40; c.height = 40;
+    const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
+    let img = null, sc = 1;
+    if (who === 'cultist') { img = Sprites.cultist(2, 'idle'); sc = 40 / img.height * 1.9; }
+    else if (who === 'shaz') { img = Sprites.cashier(2, 'talk'); sc = 40 / img.height * 1.9; }
+    else if (who === 'groot') { img = Sprites.groot(2, 'talk'); sc = 40 / img.height * 1.9; }
+    else if (Sprites.VILLAGERS[who]) { img = Sprites.villager(who, 2, 'talk'); sc = 40 / img.height * 2.1; }
+    if (!img) return c;
+    const w = img.width * sc, h = img.height * sc;
+    g2.drawImage(img, Math.round(20 - w / 2), Math.round(30 - h * 0.62), Math.round(w), Math.round(h));
+    return c;
+  }
+  let chatWith = null;
+  function messages() {
+    const th = threads();
+    if (chatWith && th[chatWith]) {
+      const list = th[chatWith];
+      for (const m of list) m.seen = 1;
+      return `<div class="phchat">${list.map((m) => `<div class="phmsg ${m.f === 't' ? 'them' : 'me'}">${esc(m.text)}</div>`).join('')}</div>
+        <div class="phreplies">${REPLIES.map((r, i) => `<button class="phreply" data-reply="${i}">${esc(r.q)}</button>`).join('')}</div>`;
+    }
+    const keys = Object.keys(th).filter((k) => PEOPLE[k] && th[k].length);
+    if (!keys.length) return `<div class="phcard big"><div class="phcardh"><b>No messages</b></div><p>Nobody has your number yet. Meet a few people.</p></div>`;
+    return keys.map((k) => {
+      const last = th[k][th[k].length - 1];
+      const un = th[k].some((m) => m.f === 't' && !m.seen);
+      return `<button class="phthread" data-chat="${k}">
+        <span class="phava" data-ava="${k}"></span>
+        <span class="phtx"><b>${esc(PEOPLE[k].name)}</b><small>${last.f === 'm' ? 'You: ' : ''}${esc(last.text)}</small></span>
+        ${un ? '<i class="phunread"></i>' : ''}
+      </button>`;
+    }).join('');
+  }
+
+  // ---- settings ---------------------------------------------------------------
+  function settings() {
+    const st = Main.settings;
+    const row = (k, name, sub, on) => `<div class="phset"><span>${esc(name)}<small>${esc(sub)}</small></span>
+      <button class="phsw ${on ? 'on' : ''}" data-tog="${k}"><i></i></button></div>`;
+    return `<div class="phsub">SOUND</div>
+      <div class="phgroup">
+        ${row('muted', 'Silent', 'everything off', st.muted)}
+        ${row('musicOff', 'Music', 'the wood has a tune', !st.musicOff)}
+      </div>
+      <div class="phsub">DISPLAY</div>
+      <div class="phgroup">
+        ${row('shake', 'Screen shake', 'things land harder', st.shake !== false)}
+        ${row('bigText', 'Larger text', 'for reading across a room', !!st.bigText)}
+      </div>
+      <div class="phsub">ABOUT</div>
+      <div class="phgroup">
+        <div class="phset"><span>Wombat OS<small>version 38, built in a wood</small></span></div>
+        <div class="phset"><span>Storage<small>${(World.crops || []).length} plants &middot; ${G.wombats.length} wombats &middot; ${Object.keys(G.summoned || {}).length} gods</small></span></div>
+        <div class="phset"><span>Time in the grove<small>${U.time(Math.round(G.time || 0))}</small></span></div>
+      </div>
+      <div class="phsub">DANGER</div>
+      <div class="phgroup">
+        <div class="phset"><span>Erase this grove<small>everything, permanently</small></span>
+          <button class="phgo" data-wipe="1" id="ph-wipe">ERASE</button></div>
+      </div>`;
+  }
+
+  // ---- photos ------------------------------------------------------------------
+  function photos() {
+    if (!G.wombats.length) return `<div class="phcard big"><div class="phcardh"><b>No photos</b></div><p>Nothing to photograph yet.</p></div>`;
+    return `<div class="phsub">${G.wombats.length} PHOTO${G.wombats.length > 1 ? 'S' : ''}</div>
+      <div class="phphotos">${G.wombats.map((w) => `<div class="phphoto" data-shot="${w.id}"><em>${esc(w.name)}</em></div>`).join('')}</div>
+      <div class="phsub">FAVOURITES</div>
+      <div class="phcard"><p>Every one of them, obviously.</p></div>`;
+  }
+
+  // ---- tips --------------------------------------------------------------------
+  function help() {
+    const TIPS = [
+      ['t_sickle', 'The tool tray', 'Right-click, or press Tab. Pick one and it rides with the pointer.'],
+      ['t_hoe', 'Beds', 'Hoe bare soil, sow on it, water it, pick it when it glows.'],
+      ['c_broadleaf', 'Three kinds of plant', 'Crops are picked once. Trees take minutes and fruit forever. Magical seed wants one strange thing and sulks until it gets it.'],
+      ['wombat', 'Carrying', 'Drag a wombat and she comes off the ground. The pond is a drink, a hill is a sit, the truck means she is coming with you.'],
+      ['wdollar', 'Cubes', 'The hooded one buys every one of them, and pays better for a load.'],
+      ['map', 'Getting about', 'Places will drive you anywhere from where you are standing.'],
+    ];
+    return TIPS.map(([i, t2, b]) => `<div class="phcard"><div class="phcardh">${ic(i)}<b>${esc(t2)}</b></div><p>${esc(b)}</p></div>`).join('');
+  }
+
   // ---- drawing --------------------------------------------------------------
-  const BODY = { home, quests, herd, map: places, garden, sky, purse };
+  const BODY = { quests, herd, map: places, garden, sky, purse, messages, settings, photos, help };
   function render() {
+    const homeV = $('ph-home-view'), appV = $('ph-app-view');
+    if (!homeV || !appV) return;
+    if (app === 'home') {
+      homeV.hidden = false; appV.hidden = true;
+      paintHome();
+      return;
+    }
+    homeV.hidden = true; appV.hidden = false;
     const scr = $('ph-screen');
-    if (!scr) return;
-    $('ph-title').textContent = app === 'home' ? 'WOMBAT OS' : TITLE[app].toUpperCase();
-    $('ph-back').hidden = app === 'home';
+    $('ph-title').textContent = app === 'messages' && chatWith ? PEOPLE[chatWith].name : TITLE[app] || 'App';
+    $('ph-back').textContent = app === 'messages' && chatWith ? '‹ Messages' : '‹ Home';
     scr.className = 'phscreen app-' + app;
-    scr.innerHTML = (BODY[app] || home)();
+    scr.innerHTML = (BODY[app] || help)();
     scr.scrollTop = 0;
+    // the bits that need a canvas painting into them
+    scr.querySelectorAll('[data-ava]').forEach((el) => el.appendChild(avatar(el.dataset.ava)));
+    scr.querySelectorAll('[data-shot]').forEach((el) => {
+      const w = G.wombats.find((x) => String(x.id) === el.dataset.shot);
+      if (!w) return;
+      const c = document.createElement('canvas');
+      c.width = 60; c.height = 48;
+      const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
+      const poses = ['idle', 'happy', 'sit', 'graze', 'sleep'];
+      const img = Sprites.wombat(poses[(w.name.length + w.x | 0) % poses.length], 2, w.pelt, 1, w.age);
+      g2.fillStyle = '#4a6a3a'; g2.fillRect(0, 0, 60, 48);
+      g2.fillStyle = '#5d8a44'; g2.fillRect(0, 34, 60, 14);
+      g2.drawImage(img, Math.round(30 - img.width / 2), Math.round(42 - img.height));
+      el.insertBefore(c, el.firstChild);
+    });
     wire(scr);
   }
   function wire(scr) {
-    scr.querySelectorAll('[data-app]').forEach((b) => b.onclick = () => { app = b.dataset.app; Audio.play('click'); render(); });
+    scr.querySelectorAll('[data-app]').forEach((b) => b.onclick = () => {
+      app = b.dataset.app; chatWith = null; Audio.play('click'); render();
+    });
+    scr.querySelectorAll('[data-chat]').forEach((b) => b.onclick = () => { chatWith = b.dataset.chat; Audio.play('click'); render(); });
+    scr.querySelectorAll('[data-reply]').forEach((b) => b.onclick = () => {
+      const r = REPLIES[+b.dataset.reply];
+      const th = threads();
+      th[chatWith].push({ f: 'm', text: r.q, t: Math.round(G.time || 0) });
+      Audio.play('click');
+      render();
+      setTimeout(() => {
+        if (!isOpen() || app !== 'messages') return;
+        const line = chatWith === 'groot' ? 'I am Groot.' : U.pick(r.a.filter((x) => x !== 'I am Groot.' && x !== 'I am Groot!' && x !== 'I am Groot?'));
+        push(chatWith, line);
+        if (isOpen() && app === 'messages') render();
+      }, 900 + Math.random() * 900);
+    });
+    scr.querySelectorAll('[data-tog]').forEach((b) => b.onclick = () => {
+      Main.menuAction({ toggle: b.dataset.tog });
+      render();
+    });
+    const wipe = scr.querySelector('#ph-wipe');
+    if (wipe) {
+      let armed = 0;
+      wipe.onclick = () => {
+        if (Date.now() < armed) { Main.reset(); return; }
+        armed = Date.now() + 4000; wipe.textContent = 'SURE?'; Audio.play('alarm');
+        setTimeout(() => { if (Date.now() >= armed) wipe.textContent = 'ERASE'; }, 4100);
+      };
+    }
     scr.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => {
       const s = SITES.find((x) => x.key === b.dataset.go);
       close();
@@ -271,24 +585,28 @@ const Phone = (() => {
       else Atlas.go(s);
     });
     scr.querySelectorAll('[data-find]').forEach((b) => b.onclick = () => {
-      const w = G.wombats.find((x) => x.id === b.dataset.find);
+      const w = G.wombats.find((x) => String(x.id) === b.dataset.find);
       if (!w) return;
       close();
       if (G.mode !== 'grove') { Main.setMode('grove'); }
       setTimeout(() => { Grove.panTo(w.x); FX.comic(w.x, w.y - 40, 'HERE!', { ink: '#d8f0a0', edge: '#5d9440', life: 0.9 }); }, 200);
     });
     scr.querySelectorAll('[data-papers]').forEach((b) => b.onclick = () => {
-      const w = G.wombats.find((x) => x.id === b.dataset.papers);
+      const w = G.wombats.find((x) => String(x.id) === b.dataset.papers);
       if (w) { close(); UI.openWombat(w); }
     });
   }
+  function back() {
+    if (app === 'messages' && chatWith) { chatWith = null; render(); return; }
+    app = 'home'; render();
+  }
   function key(e) {
     if (!isOpen()) return false;
-    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (app === 'home') close(); else { app = 'home'; render(); } return true; }
+    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (app === 'home') close(); else back(); return true; }
     const n = parseInt(e.key, 10) - 1;
     if (app === 'home' && n >= 0 && n < APPS.length) { app = APPS[n].key; Audio.play('click'); render(); return true; }
     return false;
   }
 
-  return { init, open, close, toggle, isOpen, render, key, gardenJobs, careOf, careList, APPS };
+  return { init, open, close, toggle, back, isOpen, render, key, push, unread, gardenJobs, careOf, careList, APPS };
 })();
