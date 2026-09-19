@@ -1,17 +1,17 @@
 // ---- The grove ------------------------------------------------------------
 const Grove = (() => {
   let G = null;
-  const W = 1024, H = 462;               // the grove itself
+  const W = 1760, H = 462;               // the grove itself, and it is a long way across
   const VW = 640, VH = 360;              // what fits on screen at once
   const ZOOM = VH / H;                   // the whole depth of the grove fits the window
   const SKY = 126, GROUND = SKY + 2;
   const WALK = { x0: 30, x1: W - 30, y0: GROUND + 34, y1: H - 58 };
   // Wombats keep to the land you own; decor is always placed on the home plot.
   const roam = () => { const s = ownedSpan(G); return { x0: s.x0 + 24, x1: s.x1 - 24 }; };
-  const SEED = { x: 512, y: 300 };
-  const POST = { x: 392, y: 282 };
-  const TRUCK = { x: 648, y: 372, parked: true, t: 1 };   // always here; it is how you leave
-  const PARK = 656;                      // where the truck stops when called: the east edge of the clearing
+  const SEED = { x: 860, y: 300 };
+  const POST = { x: 740, y: 282 };
+  const TRUCK = { x: 996, y: 372, parked: true, t: 1 };   // always here; it is how you leave
+  const PARK = 1004;                     // where the truck stops when called: the east edge of the clearing
   const drops = [], objects = [], ants = [], birds = [], owls = [], coins = [], slashes = [], foods = [];
   let hoverW = null, hoverSpot = null, hoverObj = null, cartT = 0, troughT = 0, hoverPlot = null;
   // Picking an animal up is a drag, not a click: grab, move the pointer far
@@ -143,9 +143,11 @@ const Grove = (() => {
     } else {
       const r = Art.rng(8675309);
       const spots = [
-        ['fallen', 604, 258], ['ruin', 418, 268], ['stump', 452, 230], ['ruin', 560, 288],
-        ['fallen', 168, 300], ['fallen', 360, 322], ['ruin', 252, 238], ['ruin', 720, 300],
-        ['ruin', 900, 246], ['stump', 96, 272], ['stump', 790, 316], ['stump', 116, 312],
+        ['fallen', 952, 258], ['ruin', 766, 268], ['stump', 800, 230], ['ruin', 908, 288],
+        ['fallen', 516, 300], ['fallen', 708, 322], ['ruin', 600, 238], ['ruin', 1068, 300],
+        ['ruin', 1248, 246], ['stump', 444, 272], ['stump', 1138, 316], ['stump', 464, 312],
+        ['fallen', 180, 286], ['ruin', 96, 316], ['stump', 268, 244], ['stump', 320, 330],
+        ['fallen', 1520, 268], ['ruin', 1636, 302], ['stump', 1424, 236], ['stump', 1700, 320],
         ['stump', 960, 300], ['fallen', 820, 214],
       ];
       spots.forEach(([kind, x, y], i) => objects.push({ id: U.uid(), kind, x, y, v: i % 3, gone: 0 }));

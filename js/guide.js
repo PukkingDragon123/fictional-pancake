@@ -6,7 +6,7 @@ const Guide = (() => {
   // When the notebook is full he goes. `vanish` counts down the teleport, and
   // after that he is away for a while before the hut turns up with him in it.
   let vanish = 0, huts = 0;
-  const HUT = { x: 376, y: 0 };
+  const HUT = { x: 724, y: 0 };
   // the speech bubble: what she is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
   const REWARD = [12, 18, 24, 0, 20, 20, 24, 30, 30, 36, 60, 90];
@@ -83,7 +83,7 @@ const Guide = (() => {
     G = g;
     if (!G.visited) G.visited = {};
     if (typeof G.step !== 'number') G.step = 0;
-    cult.x = cult.tx = 240;
+    cult.x = cult.tx = 588;
     vanish = 0;
     huts = G.cultAway === 2 ? 1 : 0;        // a hut already standing does not grow again
   }

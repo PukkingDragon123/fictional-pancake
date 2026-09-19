@@ -154,10 +154,14 @@ const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
 // You start with one small clearing. The land either side is fenced off and
 // choked with weeds until you pay for it. Buying widens the camera, the ground
 // you can work, and how many wombats will settle.
+// Five plots across a long clearing. You start on the one in the middle and
+// buy your way outward; the far two are a project.
 const PLOTS = [
-  { key: 'west', name: 'Fern Hollow', x0: 4,   x1: 340,  cost: 260 },
-  { key: 'home', name: 'Home Plot',   x0: 340, x1: 700,  cost: 0 },
-  { key: 'east', name: 'Stone Ridge', x0: 700, x1: 1020, cost: 720 },
+  { key: 'far_west', name: 'Old Quarry Side', x0: 4,    x1: 330,  cost: 2600 },
+  { key: 'west',     name: 'Fern Hollow',     x0: 330,  x1: 690,  cost: 260 },
+  { key: 'home',     name: 'Home Plot',       x0: 690,  x1: 1075, cost: 0 },
+  { key: 'east',     name: 'Stone Ridge',     x0: 1075, x1: 1435, cost: 720 },
+  { key: 'far_east', name: 'The Long Acre',   x0: 1435, x1: 1756, cost: 1800 },
 ];
 const PLOT_BY_KEY = Object.fromEntries(PLOTS.map((p) => [p.key, p]));
 const ownsPlot = (g, k) => !!(g.plots && g.plots[k]);
@@ -178,7 +182,7 @@ function plotSign(g, p) {
   return null;
 }
 
-const ZONE = { x: 512, y: 288, rx: 118, ry: 52 };
+const ZONE = { x: 860, y: 288, rx: 118, ry: 52 };
 const inZone = (x, y) => ((x - ZONE.x) / ZONE.rx) ** 2 + ((y - ZONE.y) / ZONE.ry) ** 2 <= 1;
 const ZONE_GRASS = 0.55;                 // how green the clearing has to be
 

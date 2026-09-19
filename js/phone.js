@@ -21,6 +21,8 @@ const Phone = (() => {
     { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#6fc4ec', '#1f6fae'] },
     { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#ff9a6a', '#c4386a'] },
     { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#3a3f52', '#14161f'] },
+    { key: 'camera', name: 'Camera', icon: 'camera', tint: ['#4a4f6a', '#1a1c28'] },
+    { key: 'feed', name: 'Wombagram', icon: 'heart', tint: ['#ff7aa8', '#8a2f5e'] },
     { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#a9b0bd', '#5c636f'] },
     { key: 'help', name: 'Tips', icon: 'basket', tint: ['#c49bff', '#6b3fc4'] },
   ];
@@ -131,9 +133,52 @@ const Phone = (() => {
   }
 
   // ---- opening and closing --------------------------------------------------
+  // ---- the lock screen -------------------------------------------------------
+  // The phone comes out of your pocket locked, with the time across it and
+  // whatever has happened since you last looked stacked underneath. Swipe it,
+  // or press anything, and it opens.
+  let locked = true;
+  function notifications() {
+    const out = [];
+    const q = Guide.current();
+    if (q) out.push({ app: 'Jobs', icon: 't_sickle', title: q.title, body: q.where });
+    const th = threads();
+    for (const k of Object.keys(th)) {
+      const un = th[k].filter((m) => m.f === 't' && !m.seen);
+      if (!un.length) continue;
+      out.push({ app: 'Messages', icon: 'msg', title: PEOPLE[k].name, body: un[un.length - 1].text, go: 'messages' });
+    }
+    for (const c of careList().slice(0, 2)) out.push({ app: 'Herd', icon: c.icon, title: c.what, body: c.where, go: 'herd' });
+    for (const j of gardenJobs().slice(0, 2)) out.push({ app: 'Garden', icon: j.icon, title: j.what, body: j.where, go: 'garden' });
+    const d = Sky.def();
+    out.push({ app: 'Weather', icon: d.icon, title: d.name, body: d.blurb, go: 'sky' });
+    return out.slice(0, 6);
+  }
+  function paintLock() {
+    const el = $('ph-lock');
+    if (!el) return;
+    const n = notifications();
+    el.innerHTML = `
+      <div class="phlockclock">
+        <b>${clock24()}</b>
+        <span>${esc(Sky.partOfDay())} &middot; ${esc(Sky.def().name)}</span>
+      </div>
+      <div class="phnotes">${n.map((x) => `<button class="phnote" ${x.go ? `data-app="${x.go}"` : 'data-app="quests"'}>
+        <i class="phnico">${ic(x.icon)}</i>
+        <span class="phntx"><b>${esc(x.app)}</b><em>${esc(x.title)}</em><small>${esc(x.body)}</small></span>
+      </button>`).join('')}</div>
+      <div class="phswipe">SWIPE UP TO OPEN</div>`;
+    el.querySelectorAll('[data-app]').forEach((b) => b.onclick = (e) => {
+      e.stopPropagation();
+      locked = false; app = b.dataset.app; Audio.play('click'); render();
+    });
+    el.onclick = () => { locked = false; app = 'home'; Audio.play('click'); render(); };
+  }
+
   function open(which) {
     if (!G) return;
     UI.closePanels();
+    if (which) locked = false;
     app = which || 'home';
     $('panel-phone').hidden = false;
     const wall = $('panel-phone').querySelector('.phwall');
@@ -150,6 +195,7 @@ const Phone = (() => {
   }
   function close() {
     if ($('panel-phone').hidden) return;
+    relock();
     $('panel-phone').hidden = true;
     G.paused = false;
     cancelAnimationFrame(raf); raf = 0;
@@ -157,7 +203,7 @@ const Phone = (() => {
     UI.refreshAll();
   }
   const isOpen = () => !$('panel-phone').hidden;
-  function toggle() { if (isOpen()) close(); else open('home'); }
+  function toggle() { if (isOpen()) close(); else open(); }
   function tick(ms) {
     if (!isOpen()) { raf = 0; return; }
     raf = requestAnimationFrame(tick);
@@ -493,8 +539,11 @@ const Phone = (() => {
 
   // ---- photos ------------------------------------------------------------------
   function photos() {
-    if (!G.wombats.length) return `<div class="phcard big"><div class="phcardh"><b>No photos</b></div><p>Nothing to photograph yet.</p></div>`;
-    return `<div class="phsub">${G.wombats.length} PHOTO${G.wombats.length > 1 ? 'S' : ''}</div>
+    const roll = (G.shots || []).length
+      ? `<div class="phsub">CAMERA ROLL</div><div class="phphotos">${(G.shots || []).map((sh) => `<div class="phphoto"><img src="${sh.url}" alt=""></div>`).join('')}</div>`
+      : `<div class="phsub">CAMERA ROLL</div><div class="phcard"><p>Nothing yet. Open Camera and press the button.</p></div>`;
+    if (!G.wombats.length) return roll;
+    return roll + `<div class="phsub">${G.wombats.length} PORTRAIT${G.wombats.length > 1 ? 'S' : ''}</div>
       <div class="phphotos">${G.wombats.map((w) => `<div class="phphoto" data-shot="${w.id}"><em>${esc(w.name)}</em></div>`).join('')}</div>
       <div class="phsub">FAVOURITES</div>
       <div class="phcard"><p>Every one of them, obviously.</p></div>`;
@@ -513,11 +562,68 @@ const Phone = (() => {
     return TIPS.map(([i, t2, b]) => `<div class="phcard"><div class="phcardh">${ic(i)}<b>${esc(t2)}</b></div><p>${esc(b)}</p></div>`).join('');
   }
 
+  // ---- the camera --------------------------------------------------------------
+  // It photographs whatever is on the screen behind the phone, which is the
+  // whole point of a camera. Shots go in Photos and can be posted.
+  function camera() {
+    return `<div class="phcam">
+        <div class="phviewfinder" id="ph-vf"></div>
+        <div class="phcamrow">
+          <span class="phdim">${(G.shots || []).length} in the roll</span>
+          <button class="phshutter" id="ph-shutter"></button>
+          <span class="phdim">wombat cam</span>
+        </div>
+      </div>`;
+  }
+  function takeShot() {
+    try {
+      const src = document.getElementById('game');
+      const c = document.createElement('canvas');
+      c.width = 160; c.height = 120;
+      const g2 = c.getContext('2d');
+      g2.imageSmoothingEnabled = false;
+      g2.drawImage(src, 0, 0, 160, 120);
+      if (!G.shots) G.shots = [];
+      G.shots.unshift({ url: c.toDataURL('image/png'), t: Math.round(G.time || 0), likes: 0, cap: '' });
+      if (G.shots.length > 12) G.shots.length = 12;
+      Audio.play('click'); Audio.play('pop');
+      UI.toast('<b>snap</b> &mdash; it is in your camera roll', 'good');
+    } catch (e) { UI.toast('the camera would not focus', 'bad'); }
+  }
+  // ---- the feed ------------------------------------------------------------------
+  // Everyone in the district posts about your wombats. Your own shots go in
+  // among theirs, and the likes climb while you watch.
+  const FEED = [
+    { who: 'shaz', text: 'day off. drove out to the grove again. NO REGRETS', likes: 412 },
+    { who: 'bee', text: 'the clover came good this year. thank the wombats', likes: 88 },
+    { who: 'bard', text: 'new song. four verses. the wombats of the grove 🎵', likes: 1204 },
+    { who: 'bota', text: 'Unconfirmed sighting below the tree line. Investigating.', likes: 37 },
+    { who: 'post', text: 'nothing in the post for the grove. again. lovely walk though', likes: 51 },
+    { who: 'cultist', text: 'Cubes bought. Cash paid. No questions asked. Open all hours.', likes: 9 },
+  ];
+  function feed() {
+    const mine = (G.shots || []).map((sh, i) => `
+      <div class="phpost">
+        <div class="phposth"><i class="phava2" data-ava="me"></i><b>you</b><span class="phdim">just now</span></div>
+        <img class="phshot" src="${sh.url}" alt="">
+        <div class="phlikes" data-like="${i}">${ic('heart', 'sm')} ${sh.likes + 24}</div>
+      </div>`).join('');
+    const theirs = FEED.map((f) => `
+      <div class="phpost">
+        <div class="phposth"><i class="phava2" data-ava="${f.who}"></i><b>${esc(PEOPLE[f.who] ? PEOPLE[f.who].name : f.who)}</b></div>
+        <p>${esc(f.text)}</p>
+        <div class="phlikes">${ic('heart', 'sm')} ${f.likes}</div>
+      </div>`).join('');
+    return (mine || '') + theirs;
+  }
+
   // ---- drawing --------------------------------------------------------------
-  const BODY = { quests, herd, map: places, garden, sky, purse, messages, settings, photos, help };
+  const BODY = { quests, herd, map: places, garden, sky, purse, messages, settings, photos, help, camera, feed };
   function render() {
-    const homeV = $('ph-home-view'), appV = $('ph-app-view');
+    const homeV = $('ph-home-view'), appV = $('ph-app-view'), lockV = $('ph-lock');
     if (!homeV || !appV) return;
+    if (lockV) lockV.hidden = !locked;
+    if (locked) { homeV.hidden = true; appV.hidden = true; paintLock(); return; }
     if (app === 'home') {
       homeV.hidden = false; appV.hidden = true;
       paintHome();
@@ -544,6 +650,28 @@ const Phone = (() => {
       g2.fillStyle = '#5d8a44'; g2.fillRect(0, 34, 60, 14);
       g2.drawImage(img, Math.round(30 - img.width / 2), Math.round(42 - img.height));
       el.insertBefore(c, el.firstChild);
+    });
+    // the viewfinder is a live picture of what is behind the phone
+    const vf = scr.querySelector('#ph-vf');
+    if (vf) {
+      try {
+        const src = document.getElementById('game');
+        const c = document.createElement('canvas');
+        c.width = 160; c.height = 120;
+        const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
+        g2.drawImage(src, 0, 0, 160, 120);
+        vf.style.backgroundImage = `url(${c.toDataURL('image/png')})`;
+      } catch (e) { }
+    }
+    const sh = scr.querySelector('#ph-shutter');
+    if (sh) sh.onclick = () => { takeShot(); render(); };
+    scr.querySelectorAll('[data-ava]').forEach((el) => {
+      if (el.dataset.ava === 'me') { el.style.background = '#4a7a3a'; return; }
+      el.appendChild(avatar(el.dataset.ava));
+    });
+    scr.querySelectorAll('[data-like]').forEach((el) => el.onclick = () => {
+      const sh2 = (G.shots || [])[+el.dataset.like];
+      if (sh2) { sh2.likes += 1 + Math.floor(Math.random() * 9); Audio.play('pop'); render(); }
     });
     wire(scr);
   }
@@ -597,12 +725,16 @@ const Phone = (() => {
     });
   }
   function back() {
+    if (locked) { locked = false; app = 'home'; render(); return; }
     if (app === 'messages' && chatWith) { chatWith = null; render(); return; }
     app = 'home'; render();
   }
+  // Putting it away locks it again, so it always comes out on the lock screen.
+  function relock() { locked = true; chatWith = null; app = 'home'; }
   function key(e) {
     if (!isOpen()) return false;
-    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (app === 'home') close(); else back(); return true; }
+    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (locked || app === 'home') close(); else back(); return true; }
+    if (locked) { locked = false; app = 'home'; render(); return true; }
     const n = parseInt(e.key, 10) - 1;
     if (app === 'home' && n >= 0 && n < APPS.length) { app = APPS[n].key; Audio.play('click'); render(); return true; }
     return false;

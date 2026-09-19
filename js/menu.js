@@ -100,71 +100,59 @@ const Menu = (() => {
   function setSave(v) { hasSave = !!v; }
   function enter() { t = 0; page = 'home'; confirm = null; hover = null; rumour = Math.floor(Math.random() * RUMOURS.length); Audio.setMode('menu'); }
 
-  // ---- the title -----------------------------------------------------------
-  // A long board of weathered oak hung off the canopy on two ropes, with moss
-  // over the top edge, the name burnt into it and a couple of flowers growing
-  // out of the corner. It sways, because it is hanging.
+  // ---- the kit -----------------------------------------------------------
+  // The same interface the rest of the game wears, drawn on the canvas: a
+  // cream page inside a thick teal frame, a teal plate across the top of it,
+  // and pale green slabs for anything you can press. Corners are cut in one
+  // step, never curved.
+  const KIT = {
+    ink: '#20261f',
+    t0: '#1b3a34', t1: '#2b6257', t2: '#3f8f7d', t3: '#5cb49c', t4: '#8fd9c0',
+    p0: '#b89c6a', p1: '#d8bd8e', p2: '#f2e2bc', p3: '#f7ecd2', p4: '#fdf6e4',
+    g0: '#2f5a28', g1: '#4d8440', g2: '#77b862', g3: '#a4dc8c', g4: '#cdf2b8',
+    d0: '#6f4f08', d2: '#dcae22', d3: '#f5d24a', d4: '#ffeba0',
+  };
+  // a box with one step cut out of each corner
+  function cut(g, x, y, w, h, col, c = 3) {
+    Art.rect(g, x + c, y, w - c * 2, h, col);
+    Art.rect(g, x, y + c, w, h - c * 2, col);
+  }
+  // the page: frame, dark line, lit lip, corner studs
+  function board(g, x, y, w, h) {
+    cut(g, x - 3, y - 3, w + 6, h + 6, KIT.ink, 4);
+    cut(g, x, y, w, h, KIT.t2, 3);
+    cut(g, x + 4, y + 4, w - 8, h - 8, KIT.t0, 2);
+    cut(g, x + 6, y + 6, w - 12, h - 12, KIT.p1, 2);
+    cut(g, x + 8, y + 8, w - 16, h - 16, KIT.p2, 2);
+    Art.rect(g, x + 8, y + 8, w - 16, 3, KIT.p3);
+    for (const [sx, sy] of [[x + 1, y + 1], [x + w - 8, y + 1], [x + 1, y + h - 8], [x + w - 8, y + h - 8]]) {
+      Art.rect(g, sx, sy, 7, 7, KIT.t4);
+      Art.rect(g, sx, sy + 4, 7, 3, KIT.t2);
+    }
+  }
+  // the plate that carries a heading
+  function plate(g, x, y, w, h, text, scale = 2) {
+    Art.rect(g, x - 2, y - 2, w + 4, h + 4, KIT.ink);
+    Art.rect(g, x, y, w, h, KIT.t2);
+    Art.rect(g, x, y, w, 3, KIT.t3);
+    Art.rect(g, x, y + h - 3, w, 3, KIT.t0);
+    Art.rect(g, x + 3, y + 3, 4, h - 6, KIT.d2);
+    Art.rect(g, x + w - 7, y + 3, 4, h - 6, KIT.d2);
+    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2 + 1, { scale, color: '#0f2a24', align: 'center' });
+    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2, { scale, color: '#eafaf4', align: 'center' });
+  }
+  // the name of the game, on the biggest plate there is
   function titleSign(g) {
-    const cx = VW / 2, w = 366, h = 62, y = 28;
-    const sway = Math.sin(t * 0.55) * 0.028;
-    g.save();
-    g.translate(cx, y - 34);
-    g.rotate(sway);
-    g.translate(-cx, -(y - 34));
-    // the two ropes up into the leaves
-    for (const rx of [cx - w / 2 + 22, cx + w / 2 - 22]) {
-      for (let i = 0; i < 34; i++) {
-        g.fillStyle = i % 2 ? '#6b5232' : '#4a3a22';
-        g.fillRect(Math.round(rx + Math.sin(i * 0.9) * 1), y - 34 - i, 2, 1);
-      }
-      Art.ell(g, rx + 1, y - 2, 4, 4, '#3a2a18');                 // the iron ring
-      Art.ellBand(g, rx + 1, y - 2, 4, 4, '#8a7a58', 0.5, 0.5);
+    const cx = VW / 2, w = 340, h = 92, y = 24;
+    const bob = Math.sin(t * 1.1) * 1.4;
+    board(g, cx - w / 2, y + bob, w, h);
+    plate(g, cx - w / 2 + 14, y + bob + 14, w - 28, 30, 'WOMBAT', 3);
+    plate(g, cx - w / 2 + 14, y + bob + 50, w - 28, 30, 'GODS', 3);
+    // two gold pips, because every heading in this kit has them
+    for (const sx of [cx - w / 2 + 4, cx + w / 2 - 10]) {
+      Art.rect(g, sx, y + bob + h / 2 - 5, 6, 10, KIT.d3);
+      Art.rect(g, sx, y + bob + h / 2 - 5, 6, 4, KIT.d4);
     }
-    // the board: five planks, dark edge, lit top
-    Art.rect(g, cx - w / 2 - 4, y - 4, w + 8, h + 8, '#20160e');
-    for (let i = 0; i < 5; i++) {
-      const py = y + i * (h / 5);
-      Art.rect(g, cx - w / 2, py, w, h / 5, i % 2 ? '#6b4a2c' : '#7d5738');
-      Art.rect(g, cx - w / 2, py, w, 2, '#9a7452');
-      Art.rect(g, cx - w / 2, py + h / 5 - 2, w, 2, '#4a3220');
-    }
-    // grain, knots and a split
-    const r = Art.rng(3311);
-    for (let i = 0; i < 40; i++) {
-      const gx = cx - w / 2 + r() * w, gy = y + r() * h;
-      g.fillStyle = 'rgba(58,38,22,0.4)';
-      g.fillRect(Math.round(gx), Math.round(gy), 6 + Math.round(r() * 18), 1);
-    }
-    for (const [kx, ky] of [[cx - w * 0.36, y + h * 0.7], [cx + w * 0.4, y + h * 0.3]]) {
-      Art.ell(g, kx, ky, 5, 4, '#4a3220');
-      Art.ell(g, kx, ky, 3, 2.4, '#3a2618');
-    }
-    // two iron straps across it
-    for (const sx of [cx - w / 2 + 16, cx + w / 2 - 20]) {
-      Art.rect(g, sx, y, 5, h, '#2e3038');
-      Art.rect(g, sx, y, 2, h, '#565b68');
-      for (let i = 0; i < 4; i++) { g.fillStyle = '#8b90a0'; g.fillRect(Math.round(sx + 1), Math.round(y + 8 + i * (h / 4)), 2, 2); }
-    }
-    // moss along the top and in the corners, because nothing here stays clean
-    for (let i = 0; i < w; i += 3) {
-      const hgt = 2 + Math.round(Math.abs(Math.sin(i * 0.31)) * 5);
-      g.fillStyle = i % 6 < 3 ? '#4f7a34' : '#3f6a2c';
-      g.fillRect(Math.round(cx - w / 2 + i), y - hgt + 1, 3, hgt + 2);
-      if (i % 9 === 0) { g.fillStyle = '#84bb59'; g.fillRect(Math.round(cx - w / 2 + i), y - hgt, 2, 2); }
-    }
-    g.fillStyle = '#3f6a2c';
-    Art.ell(g, cx - w / 2 + 10, y + h - 4, 16, 6, '#3f6a2c');
-    Art.ell(g, cx + w / 2 - 12, y + h - 3, 13, 5, '#4f7a34');
-    for (let i = 0; i < 4; i++) { g.fillStyle = FLOW[i % FLOW.length]; g.fillRect(Math.round(cx - w / 2 + 4 + i * 6), Math.round(y + h - 10), 3, 3); }
-    // the name, burnt in: a dark cut with a lit lower lip
-    const ty = y + 14;
-    Font.draw(g, 'WOMBAT', cx, ty + 2, { scale: 4, align: 'center', color: '#2a1a0e' });
-    Font.draw(g, 'WOMBAT', cx, ty, { scale: 4, align: 'center', color: '#f0dcab' });
-    Font.draw(g, 'WOMBAT', cx, ty - 1, { scale: 4, align: 'center', color: '#fff6d8' });
-    Font.draw(g, 'GODS', cx, ty + 32, { scale: 4, align: 'center', color: '#2a1a0e' });
-    Font.draw(g, 'GODS', cx, ty + 30, { scale: 4, align: 'center', color: '#f0dcab' });
-    Font.draw(g, 'GODS', cx, ty + 29, { scale: 4, align: 'center', color: '#fff6d8' });
-    g.restore();
   }
 
   // ---- the paradise --------------------------------------------------------
@@ -446,73 +434,31 @@ const Menu = (() => {
   }
 
   // ---- plates --------------------------------------------------------------
-  // ---- signs ---------------------------------------------------------------
-  // Everything you can press is a board of the same weathered oak as the title,
-  // hung on two short ropes, with moss over its top edge and iron at the
-  // corners. Hover and it swings a little and the moss catches the light.
-  function plaque(g, x, y, w, h, hot, tone) {
-    const D = '#20160e', M = hot ? '#8a6038' : '#6b4a2c', L = hot ? '#9c7046' : '#7d5738', H2 = hot ? '#b98c5e' : '#9a7452';
-    g.fillStyle = 'rgba(12,18,8,0.45)'; g.fillRect(x + 4, y + 6, w, h);
-    Art.rect(g, x - 3, y - 3, w + 6, h + 6, D);
-    const rows = Math.max(2, Math.round(h / 13));
-    for (let i = 0; i < rows; i++) {
-      const py = y + i * (h / rows);
-      Art.rect(g, x, py, w, h / rows, i % 2 ? M : L);
-      Art.rect(g, x, py, w, 2, H2);
-      Art.rect(g, x, py + h / rows - 2, w, 2, '#4a3220');
-    }
-    const r = Art.rng(Math.round(x * 7 + y * 13 + w));
-    for (let i = 0; i < Math.round(w / 12); i++) {                    // grain
-      g.fillStyle = 'rgba(58,38,22,0.35)';
-      g.fillRect(Math.round(x + r() * w), Math.round(y + r() * h), 5 + Math.round(r() * 14), 1);
-    }
-    // iron straps at the ends
-    for (const sx of [x + 5, x + w - 9]) {
-      Art.rect(g, sx, y, 4, h, '#2e3038');
-      Art.rect(g, sx, y, 2, h, hot ? '#6e7484' : '#565b68');
-      g.fillStyle = '#8b90a0'; g.fillRect(Math.round(sx + 1), Math.round(y + 4), 2, 2); g.fillRect(Math.round(sx + 1), Math.round(y + h - 6), 2, 2);
-    }
-    // moss along the top, thicker where it has been left alone longest
-    for (let i = 0; i < w; i += 3) {
-      const hgt = 1 + Math.round(Math.abs(Math.sin(i * 0.27 + x)) * 4);
-      g.fillStyle = i % 6 < 3 ? (hot ? '#5d9440' : '#4f7a34') : (hot ? '#4f7a34' : '#3f6a2c');
-      g.fillRect(Math.round(x + i), y - hgt, 3, hgt + 2);
-      if (i % 12 === 0) { g.fillStyle = hot ? '#a8d878' : '#84bb59'; g.fillRect(Math.round(x + i), y - hgt - 1, 2, 2); }
-    }
-    // and a little in the bottom corners
-    Art.ell(g, x + 8, y + h - 2, 11, 4, '#3f6a2c');
-    Art.ell(g, x + w - 9, y + h - 1, 9, 3, '#4f7a34');
-  }
-  // two short ropes, so a sign reads as hung rather than nailed on
-  function hang(g, b, lift) {
-    for (const rx of [b.x + 14, b.x + b.w - 16]) {
-      for (let i = 0; i < 12 + lift; i++) {
-        g.fillStyle = i % 2 ? '#6b5232' : '#4a3a22';
-        g.fillRect(Math.round(rx), Math.round(b.y - 12 - lift + i), 2, 1);
-      }
-    }
+  // ---- buttons ---------------------------------------------------------------
+  // A pale green slab with a lit top edge, a dark base and one line round it,
+  // which drops four pixels when the pointer is over it. It is the same button
+  // the panels use, drawn with rectangles instead of CSS.
+  function plaque(g, x, y, w, h, hot) {
+    cut(g, x - 2, y - 2, w + 4, h + 4, KIT.ink, 3);
+    cut(g, x, y, w, h, hot ? KIT.g3 : KIT.g2, 2);
+    Art.rect(g, x + 2, y, w - 4, 3, hot ? KIT.g4 : KIT.g3);
+    Art.rect(g, x + 2, y + h - 4, w - 4, 4, hot ? KIT.g1 : KIT.g0);
+    Art.rect(g, x, y + 3, 2, h - 7, hot ? KIT.g4 : KIT.g3);
+    Art.rect(g, x + w - 2, y + 3, 2, h - 7, hot ? KIT.g1 : KIT.g0);
   }
   function bigButton(g, b, label, sub, scale) {
     const hot = hover === b.id;
-    const lift = hot ? -3 : 0;
-    const tilt = hot ? Math.sin(t * 6) * 0.012 : Math.sin(t * 0.7 + b.x) * 0.004;
-    hang(g, b, -lift);
-    g.save();
-    g.translate(b.x + b.w / 2, b.y - 12);
-    g.rotate(tilt);
-    g.translate(-(b.x + b.w / 2), -(b.y - 12));
-    plaque(g, b.x, b.y + lift, b.w, b.h, hot);
-    const cy = b.y + lift + (sub ? 10 : (b.h - (scale || 2) * 7) / 2);
-    Font.draw(g, label, b.x + b.w / 2, cy + 2, { scale: scale || 2, color: '#2a1a0e', align: 'center' });
-    Font.draw(g, label, b.x + b.w / 2, cy, {
-      scale: scale || 2, color: hot ? '#fff3d0' : '#f0dcab', align: 'center',
-    });
-    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + (scale || 2) * 7 + 5, { scale: 1, color: hot ? '#e0c88e' : '#b89a72', align: 'center' });
-    if (hot) {                                            // two carved ticks
-      Font.draw(g, '>', b.x + 14, cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: '#f5cd5c' });
-      Font.draw(g, '<', b.x + b.w - 14 - Font.width('<', scale || 2), cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: '#f5cd5c' });
+    const drop = hot ? 0 : 4;
+    Art.rect(g, b.x - 2, b.y + 4, b.w + 4, b.h, KIT.ink);          // the shadow it sits on
+    plaque(g, b.x, b.y + drop, b.w, b.h, hot);
+    const cy = b.y + drop + (sub ? 9 : (b.h - (scale || 2) * 7) / 2);
+    Font.draw(g, label, b.x + b.w / 2, cy + 1, { scale: scale || 2, color: hot ? '#1d3a18' : '#23401c', align: 'center' });
+    Font.draw(g, label, b.x + b.w / 2, cy, { scale: scale || 2, color: hot ? '#f2ffe6' : '#eaffd8', align: 'center' });
+    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + (scale || 2) * 7 + 4, { scale: 1, color: hot ? '#2f5a28' : '#3d6b34', align: 'center' });
+    if (hot) {
+      Font.draw(g, '>', b.x + 9, cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.d3 });
+      Font.draw(g, '<', b.x + b.w - 9 - Font.width('<', scale || 2), cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.d3 });
     }
-    g.restore();
   }
 
   // ---- the things living on the title screen ------------------------------
@@ -568,27 +514,32 @@ const Menu = (() => {
   }
   function drawHome(g) {
     buttons = [];
-    owl(g, 74, 196, t);
-    signpost(g, 286, 356, t);
-    const BW = 250, BX = VW - BW - 30;
-    buttons.push({ id: 'enter', x: BX, y: 196, w: BW, h: 50 });
-    buttons.push({ id: 'settings', x: BX, y: 256, w: BW, h: 36 });
-    buttons.push({ id: 'help', x: BX, y: 300, w: BW, h: 30 });
+    owl(g, 74, 186, t);
+    signpost(g, 216, 356, t);
+    // the buttons live on a page of their own, the way every menu in this
+    // kit does: a cream board in a teal frame with a plate across the top
+    const BW = 258, PADX = 16;
+    const PX = VW - BW - PADX * 2 - 22, PY = 148, PW = BW + PADX * 2, PH = 186;
+    board(g, PX, PY, PW, PH);
+    plate(g, PX + 12, PY + 11, PW - 24, 24, hasSave ? 'WELCOME BACK' : 'A NEW WOOD', 1);
+    const BX = PX + PADX;
+    buttons.push({ id: 'enter', x: BX, y: PY + 44, w: BW, h: 48 });
+    buttons.push({ id: 'settings', x: BX, y: PY + 100, w: BW, h: 32 });
+    buttons.push({ id: 'help', x: BX, y: PY + 140, w: BW, h: 32 });
     bigButton(g, buttons[0], 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
     bigButton(g, buttons[1], 'SETTINGS', null, 2);
     bigButton(g, buttons[2], 'HOW TO PLAY', null, 2);
-    // the rumour, on a torn strip of paper pinned under the buttons
+    // the rumour, on a little plate along the bottom of the screen
     const line = RUMOURS[rumour % RUMOURS.length];
-    const w = Font.width(line, 1) + 18;
-    const rx = BX + BW / 2, ry = 344;
-    g.globalAlpha = 0.8;
-    Art.rect(g, rx - w / 2, ry - 4, w, 15, 'rgba(8,6,4,0.55)');
-    Art.rect(g, rx - w / 2 + 1, ry - 3, w - 2, 13, '#2a2418');
-    g.globalAlpha = 1;
-    Font.draw(g, line, rx, ry, { scale: 1, color: '#a8a08a', align: 'center' });
+    const w = Font.width(line, 1) + 26;
+    const rx = VW / 2, ry = VH - 18;
+    cut(g, rx - w / 2 - 2, ry - 3, w + 4, 18, KIT.ink, 3);
+    cut(g, rx - w / 2, ry - 1, w, 14, KIT.p2, 2);
+    Art.rect(g, rx - w / 2 + 2, ry - 1, w - 4, 2, KIT.p4);
+    Font.draw(g, line, rx, ry + 3, { scale: 1, color: '#7a6440', align: 'center' });
     // and the wombats you have, if there are any to come back to
     if (hasSave) {
-      Font.draw(g, 'A SAVE IS WAITING', BX + BW / 2, 182, { scale: 1, color: '#84bb59', align: 'center', shadow: '#0e1a08' });
+      Font.draw(g, 'A GROVE IS WAITING FOR YOU', PX + PW / 2, PY + PH - 14, { scale: 1, color: '#2f5a28', align: 'center' });
     }
   }
 
@@ -603,23 +554,21 @@ const Menu = (() => {
   ];
   function drawHelp(g) {
     buttons = [];
-    const PW = 470, PX = (VW - PW) / 2, PY = 44, PH = 272;
-    plaque(g, PX, PY, PW, PH, false);
-    Font.draw(g, 'HOW TO PLAY', VW / 2, PY + 12, { scale: 2, color: '#f5cd5c', align: 'center', shadow: '#160c06' });
+    const PW = 476, PX = (VW - PW) / 2, PY = 38, PH = 288;
+    board(g, PX, PY, PW, PH);
+    plate(g, PX + 14, PY + 12, PW - 28, 26, 'HOW TO PLAY');
     HELP.forEach(([ico, title, body], i) => {
       const ry = PY + 42 + i * 34;
-      g.fillStyle = i % 2 ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.12)';
-      g.fillRect(PX + 12, ry - 2, PW - 24, 32);
-      Icons.blit(g, ico, PX + 16, ry, 1.2);
-      Font.draw(g, title, PX + 44, ry, { scale: 1, color: '#f5cd5c' });
-      Font.draw(g, body, PX + 44, ry + 11, { scale: 1, color: '#cfc2a2' });
+      Art.rect(g, PX + 16, ry - 2, PW - 32, 32, i % 2 ? KIT.p3 : KIT.p1);
+      Art.rect(g, PX + 16, ry - 2, PW - 32, 1, KIT.p4);
+      Icons.blit(g, ico, PX + 20, ry, 1.2);
+      Font.draw(g, title, PX + 48, ry, { scale: 1, color: '#2b6257' });
+      Font.draw(g, body, PX + 48, ry + 11, { scale: 1, color: '#7a6440' });
     });
     const by = PY + PH - 34;
     buttons.push({ id: 'back', x: PX + 14, y: by, w: PW - 28, h: 26 });
-    const bh = hover === 'back';
-    g.fillStyle = bh ? 'rgba(255,216,140,0.18)' : 'rgba(0,0,0,0.3)';
-    g.fillRect(PX + 14, by, PW - 28, 26);
-    Font.draw(g, 'BACK', VW / 2, by + 8, { scale: 1, color: bh ? '#ffe9a8' : '#cfc2a2', align: 'center' });
+    plaque(g, PX + 14, by, PW - 28, 26, hover === 'back');
+    Font.draw(g, 'BACK', VW / 2, by + 9, { scale: 1, color: '#eaffd8', align: 'center' });
   }
 
   const SETTINGS = [
@@ -630,37 +579,37 @@ const Menu = (() => {
   ];
   function drawSettings(g) {
     buttons = [];
-    const PW = 420, PX = (VW - PW) / 2, PY = 84, PH = 216;
-    plaque(g, PX, PY, PW, PH, false);
-    Font.draw(g, 'SETTINGS', VW / 2, PY + 12, { scale: 2, color: '#f5cd5c', align: 'center', shadow: '#160c06' });
+    const PW = 424, PX = (VW - PW) / 2, PY = 80, PH = 224;
+    board(g, PX, PY, PW, PH);
+    plate(g, PX + 14, PY + 12, PW - 28, 26, 'SETTINGS');
     SETTINGS.forEach((s2, i) => {
       const ry = PY + 42 + i * 30;
       const val = s2.inv ? !G[s2.key] : !!G[s2.key];
       const hot = hover === 'set:' + s2.key;
       buttons.push({ id: 'set:' + s2.key, x: PX + 14, y: ry, w: PW - 28, h: 24, kind: 'toggle', k: s2.key });
-      g.fillStyle = hot ? 'rgba(255,216,140,0.14)' : 'rgba(0,0,0,0.3)';
-      g.fillRect(PX + 14, ry, PW - 28, 24);
-      Font.draw(g, s2.name, PX + 26, ry + 8, { scale: 1, color: '#efe0c2' });
-      const tx = PX + PW - 92, tw = 66;
-      g.fillStyle = '#0a0810'; g.fillRect(tx, ry + 4, tw, 16);
-      g.fillStyle = val ? '#3f8f4a' : '#5a4038'; g.fillRect(tx + 1, ry + 5, tw - 2, 14);
+      Art.rect(g, PX + 16, ry, PW - 32, 24, hot ? KIT.p4 : KIT.p1);
+      Art.rect(g, PX + 16, ry, PW - 32, 1, KIT.p4);
+      Font.draw(g, s2.name, PX + 28, ry + 9, { scale: 1, color: '#4a3a22' });
+      const tx = PX + PW - 96, tw = 68;
+      Art.rect(g, tx - 2, ry + 3, tw + 4, 18, KIT.ink);
+      Art.rect(g, tx, ry + 5, tw, 14, val ? KIT.g1 : '#8a7a62');
+      Art.rect(g, tx, ry + 5, tw, 3, val ? KIT.g2 : '#a89a80');
       const kx = val ? tx + tw - 20 : tx + 2;
-      g.fillStyle = '#efe0c2'; g.fillRect(kx, ry + 6, 18, 12);
+      Art.rect(g, kx, ry + 6, 18, 12, KIT.p4);
+      Art.rect(g, kx, ry + 6, 18, 3, '#ffffff');
       Font.draw(g, val ? s2.on : s2.off, val ? tx + 16 : tx + tw - 16, ry + 9, {
-        scale: 1, align: 'center', color: val ? '#dff5d8' : '#d8bdb2',
+        scale: 1, align: 'center', color: val ? '#eaffd8' : '#3a3228',
       });
     });
     const dy = PY + PH - 42;
     buttons.push({ id: 'wipe', x: PX + 14, y: dy, w: PW - 28, h: 28, kind: 'wipe' });
     const wh = hover === 'wipe';
-    g.fillStyle = wh ? '#8a2f24' : '#2a1a16'; g.fillRect(PX + 14, dy, PW - 28, 28);
-    Art.rect(g, PX + 14, dy, PW - 28, 1, wh ? '#e07a6a' : '#4a3028');
-    Art.rect(g, PX + 14, dy + 27, PW - 28, 1, wh ? '#e07a6a' : '#4a3028');
-    Art.rect(g, PX + 14, dy, 1, 28, wh ? '#e07a6a' : '#4a3028');
-    Art.rect(g, PX + PW - 15, dy, 1, 28, wh ? '#e07a6a' : '#4a3028');
-    Font.draw(g, 'RESET ALL DATA', VW / 2, dy + 6, { scale: 1, color: wh ? '#ffd9cf' : '#9a7a70', align: 'center' });
+    cut(g, PX + 14, dy, PW - 28, 28, KIT.ink, 3);
+    cut(g, PX + 16, dy + 2, PW - 32, 24, wh ? '#e07a4a' : '#96491a', 2);
+    Art.rect(g, PX + 18, dy + 2, PW - 36, 3, wh ? '#f2b07a' : '#c96e24');
+    Font.draw(g, 'RESET ALL DATA', VW / 2, dy + 6, { scale: 1, color: '#fff2e0', align: 'center' });
     Font.draw(g, hasSave ? 'ERASES YOUR GROVE AND STARTS OVER' : 'NOTHING SAVED YET', VW / 2, dy + 17, {
-      scale: 1, color: wh ? '#e0a89c' : '#6a534c', align: 'center',
+      scale: 1, color: wh ? '#ffd9c0' : '#e8b898', align: 'center',
     });
     backButton(g);
   }
@@ -672,12 +621,12 @@ const Menu = (() => {
 
   function drawConfirm(g) {
     g.fillStyle = 'rgba(6,4,10,0.74)'; g.fillRect(0, 0, VW, VH);
-    const PW = 340, PX = (VW - PW) / 2, PY = 116, PH = 128;
-    plaque(g, PX, PY, PW, PH, false, '#3a1a16');
-    Font.draw(g, 'ARE YOU SURE?', VW / 2, PY + 14, { scale: 2, color: '#ff9a8a', align: 'center', shadow: '#160c06' });
-    const lines = Font.wrap(confirm.text.toUpperCase(), PW - 40, 1);
-    lines.forEach((l, i) => Font.draw(g, l, VW / 2, PY + 46 + i * 11, { scale: 1, color: '#efe0c2', align: 'center' }));
-    Font.draw(g, 'THIS CANNOT BE UNDONE', VW / 2, PY + 72, { scale: 1, color: '#b08078', align: 'center' });
+    const PW = 344, PX = (VW - PW) / 2, PY = 112, PH = 136;
+    board(g, PX, PY, PW, PH);
+    plate(g, PX + 14, PY + 12, PW - 28, 26, 'ARE YOU SURE?');
+    const lines = Font.wrap(confirm.text.toUpperCase(), PW - 44, 1);
+    lines.forEach((l, i) => Font.draw(g, l, VW / 2, PY + 50 + i * 11, { scale: 1, color: '#4a3a22', align: 'center' }));
+    Font.draw(g, 'THIS CANNOT BE UNDONE', VW / 2, PY + 78, { scale: 1, color: '#96491a', align: 'center' });
     const by = PY + PH - 34;
     buttons.push({ id: 'yes', x: PX + 18, y: by, w: 140, h: 24, kind: 'confirm' });
     buttons.push({ id: 'no', x: PX + PW - 158, y: by, w: 140, h: 24, kind: 'confirm' });

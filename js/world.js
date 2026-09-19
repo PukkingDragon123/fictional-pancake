@@ -3,7 +3,7 @@
 // water; when one matures it stains the ground layer and puts up blades, and
 // blades carry a little spring physics so anything walking through parts them.
 const World = (() => {
-  const W = 1024, H = 462;          // the grove is wider and deeper than the view; the camera pans
+  const W = 1760, H = 462;          // the grove is much wider than the view; the camera pans
   const SKY = 126, GROUND = SKY + 2;
   let G = null;
   let grass = null, soil = null, sample = null;

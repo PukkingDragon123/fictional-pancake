@@ -47,15 +47,26 @@ const Art = (() => {
     return { c, g };
   }
   // Pixel-snapped filled ellipse
+  // A round shape, drawn the way a pixel artist draws one: the rows are
+  // quantised into steps so the edge reads as a staircase rather than a curve.
+  // Nothing in this game should look like a vector circle, and the step size
+  // grows with the shape, so a big blob is visibly blocky.
   function ell(g, cx, cy, rx, ry, col) {
     if (col) g.fillStyle = col;
     const y0 = Math.floor(cy - ry), y1 = Math.ceil(cy + ry);
-    for (let y = y0; y <= y1; y++) {
-      const dy = (y + 0.5 - cy) / ry;
-      if (dy < -1 || dy > 1) continue;
-      const w = Math.sqrt(1 - dy * dy) * rx;
-      const xa = Math.round(cx - w), xb = Math.round(cx + w);
-      if (xb > xa) g.fillRect(xa, y, xb - xa, 1);
+    const step = ry < 4 ? 1 : ry < 9 ? 2 : ry < 18 ? 3 : 4;
+    let y = y0;
+    while (y <= y1) {
+      // take the width at the middle of this band, so the whole band is one run
+      const my = y + step / 2;
+      const dy = (my - cy) / ry;
+      if (dy >= -1 && dy <= 1) {
+        const w = Math.sqrt(1 - dy * dy) * rx;
+        const xa = Math.round(cx - w), xb = Math.round(cx + w);
+        const h = Math.min(step, y1 - y + 1);
+        if (xb > xa && h > 0) g.fillRect(xa, y, xb - xa, h);
+      }
+      y += step;
     }
   }
   // Ellipse arc band (for bellies / highlights): only rows in [ta,tb] of the height
