@@ -102,44 +102,76 @@ const Menu = (() => {
 
   // ---- the kit -----------------------------------------------------------
   // The same interface the rest of the game wears, drawn on the canvas: a
-  // cream page inside a thick teal frame, a teal plate across the top of it,
-  // and pale green slabs for anything you can press. Corners are cut in one
-  // step, never curved.
+  // tan parchment page held in a cover of dark oiled wood, teal iron brackets
+  // bolted over the corners, a red ribbon down one edge, wood plank banners
+  // for the headings and beaten gold for anything you can press. Corners are
+  // cut in one step, never curved.
   const KIT = {
-    ink: '#20261f',
-    t0: '#1b3a34', t1: '#2b6257', t2: '#3f8f7d', t3: '#5cb49c', t4: '#8fd9c0',
-    p0: '#b89c6a', p1: '#d8bd8e', p2: '#f2e2bc', p3: '#f7ecd2', p4: '#fdf6e4',
-    g0: '#2f5a28', g1: '#4d8440', g2: '#77b862', g3: '#a4dc8c', g4: '#cdf2b8',
-    d0: '#6f4f08', d2: '#dcae22', d3: '#f5d24a', d4: '#ffeba0',
+    ink: '#140c06',
+    t0: '#1e1208', t1: '#35200f', t2: '#5a3619', t3: '#8c5c30', t4: '#a87642',
+    i0: '#10333f', i1: '#1c5568', i2: '#2f7f96', i3: '#4fa6be', i4: '#8fd4e4',
+    p0: '#8a6f45', p1: '#ab8a5c', p2: '#ddc39a', p3: '#ecd6ac', p4: '#f7ecd2',
+    g0: '#7a4f06', g1: '#a9750d', g2: '#d8a41c', g3: '#f2c936', g4: '#ffe98a',
+    d0: '#10333f', d2: '#2f7f96', d3: '#4fa6be', d4: '#8fd4e4',
+    rib: '#a8323a', rib0: '#6d1a22',
   };
   // a box with one step cut out of each corner
   function cut(g, x, y, w, h, col, c = 3) {
     Art.rect(g, x + c, y, w - c * 2, h, col);
     Art.rect(g, x, y + c, w, h - c * 2, col);
   }
-  // the page: frame, dark line, lit lip, corner studs
+  // the page: a wooden cover, a parchment leaf inside it, four iron brackets
+  // bolted over the corners and a ribbon hanging out of the top
   function board(g, x, y, w, h) {
     cut(g, x - 3, y - 3, w + 6, h + 6, KIT.ink, 4);
-    cut(g, x, y, w, h, KIT.t2, 3);
-    cut(g, x + 4, y + 4, w - 8, h - 8, KIT.t0, 2);
-    cut(g, x + 6, y + 6, w - 12, h - 12, KIT.p1, 2);
-    cut(g, x + 8, y + 8, w - 16, h - 16, KIT.p2, 2);
-    Art.rect(g, x + 8, y + 8, w - 16, 3, KIT.p3);
-    for (const [sx, sy] of [[x + 1, y + 1], [x + w - 8, y + 1], [x + 1, y + h - 8], [x + w - 8, y + h - 8]]) {
-      Art.rect(g, sx, sy, 7, 7, KIT.t4);
-      Art.rect(g, sx, sy + 4, 7, 3, KIT.t2);
+    cut(g, x, y, w, h, KIT.t2, 3);                                  // the wood cover
+    Art.rect(g, x + 3, y + 3, w - 6, 2, KIT.t3);                    // light on the top board
+    Art.rect(g, x + 3, y + h - 5, w - 6, 2, KIT.t0);
+    for (let gx = x + 6; gx < x + w - 6; gx += 7) {                 // the grain in it
+      Art.rect(g, gx, y + 3, 1, h - 6, gx % 2 ? KIT.t1 : KIT.t3);
     }
+    cut(g, x + 5, y + 5, w - 10, h - 10, KIT.t0, 2);                // the dark rebate
+    cut(g, x + 7, y + 7, w - 14, h - 14, KIT.p0, 2);
+    cut(g, x + 8, y + 8, w - 16, h - 16, KIT.p2, 2);                // the parchment leaf
+    Art.rect(g, x + 8, y + 8, w - 16, 3, KIT.p3);
+    for (let gx = x + 12; gx < x + w - 12; gx += 9) {               // the tooth of the paper
+      Art.rect(g, gx, y + 11, 1, h - 22, KIT.p3);
+    }
+    // the iron corner brackets: two arms and a rivet on each
+    for (const [sx, sy, dx, dy] of [[x + 2, y + 2, 1, 1], [x + w - 3, y + 2, -1, 1],
+      [x + 2, y + h - 3, 1, -1], [x + w - 3, y + h - 3, -1, -1]]) {
+      const ax = dx > 0 ? sx : sx - 17, ay = dy > 0 ? sy : sy - 5;
+      const bx = dx > 0 ? sx : sx - 5, by2 = dy > 0 ? sy : sy - 17;
+      Art.rect(g, ax, ay, 18, 6, KIT.i1);
+      Art.rect(g, bx, by2, 6, 18, KIT.i1);
+      Art.rect(g, ax, dy > 0 ? ay : ay + 4, 18, 2, dy > 0 ? KIT.i3 : KIT.i0);
+      Art.rect(g, dx > 0 ? bx : bx + 4, by2, 2, 18, dx > 0 ? KIT.i3 : KIT.i0);
+      Art.rect(g, dx > 0 ? sx + 2 : sx - 4, dy > 0 ? sy + 2 : sy - 4, 2, 2, KIT.i4);
+    }
+    // the ribbon bookmark, hung over the top edge a third of the way along
+    const rx0 = Math.round(x + w * 0.3);
+    Art.rect(g, rx0 - 1, y - 7, 8, 24, KIT.ink);
+    Art.rect(g, rx0, y - 6, 6, 22, KIT.rib);
+    Art.rect(g, rx0, y - 6, 2, 22, '#c9525a');
+    Art.rect(g, rx0, y + 12, 6, 4, KIT.rib0);
   }
-  // the plate that carries a heading
+  // the heading: a plank of dark wood with an iron cap hammered on each end
   function plate(g, x, y, w, h, text, scale = 2) {
     Art.rect(g, x - 2, y - 2, w + 4, h + 4, KIT.ink);
-    Art.rect(g, x, y, w, h, KIT.t2);
-    Art.rect(g, x, y, w, 3, KIT.t3);
-    Art.rect(g, x, y + h - 3, w, 3, KIT.t0);
-    Art.rect(g, x + 3, y + 3, 4, h - 6, KIT.d2);
-    Art.rect(g, x + w - 7, y + 3, 4, h - 6, KIT.d2);
-    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2 + 1, { scale, color: '#0f2a24', align: 'center' });
-    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2, { scale, color: '#eafaf4', align: 'center' });
+    Art.rect(g, x, y, w, h, KIT.t1);
+    Art.rect(g, x, y, w, 3, KIT.t3);                          // light along the top board
+    Art.rect(g, x, y + h - 4, w, 4, KIT.t0);
+    Art.rect(g, x + 8, y + Math.round(h / 2), w - 16, 1, KIT.t0);   // the seam between planks
+    for (let gx = x + 12; gx < x + w - 12; gx += 11) Art.rect(g, gx, y + 4, 1, h - 9, KIT.t2);
+    for (const [cx, sd] of [[x, 1], [x + w - 9, -1]]) {       // the iron caps
+      Art.rect(g, cx, y - 1, 9, h + 2, KIT.i1);
+      Art.rect(g, cx, y - 1, 9, 2, KIT.i3);
+      Art.rect(g, cx, y + h - 1, 9, 2, KIT.i0);
+      Art.rect(g, sd > 0 ? cx + 8 : cx, y - 1, 1, h + 2, KIT.i0);
+      Art.rect(g, cx + 3, y + h / 2 - 1, 3, 3, KIT.i4);       // the rivet in it
+    }
+    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2 + 1, { scale, color: '#1a0f06', align: 'center' });
+    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2, { scale, color: KIT.p4, align: 'center' });
   }
   // the name of the game, on the biggest plate there is
   function titleSign(g) {
@@ -148,10 +180,20 @@ const Menu = (() => {
     board(g, cx - w / 2, y + bob, w, h);
     plate(g, cx - w / 2 + 14, y + bob + 14, w - 28, 30, 'WOMBAT', 3);
     plate(g, cx - w / 2 + 14, y + bob + 50, w - 28, 30, 'GODS', 3);
-    // two gold pips, because every heading in this kit has them
-    for (const sx of [cx - w / 2 + 4, cx + w / 2 - 10]) {
-      Art.rect(g, sx, y + bob + h / 2 - 5, 6, 10, KIT.d3);
-      Art.rect(g, sx, y + bob + h / 2 - 5, 6, 4, KIT.d4);
+    // a length of chain down each side of the cover, because it is that sort
+    // of book, and a gold boss where the two plates meet
+    for (const sx of [cx - w / 2 - 7, cx + w / 2 + 1]) {
+      for (let ly = 0; ly < h - 6; ly += 7) {
+        Art.rect(g, sx, y + bob + 4 + ly, 6, 5, KIT.ink);
+        Art.rect(g, sx + 1, y + bob + 5 + ly, 4, 3, ly % 14 ? KIT.i2 : KIT.i1);
+        Art.rect(g, sx + 1, y + bob + 5 + ly, 4, 1, KIT.i4);
+      }
+    }
+    for (const sx of [cx - w / 2 + 3, cx + w / 2 - 9]) {
+      Art.rect(g, sx - 1, y + bob + h / 2 - 6, 8, 12, KIT.ink);
+      Art.rect(g, sx, y + bob + h / 2 - 5, 6, 10, KIT.g2);
+      Art.rect(g, sx, y + bob + h / 2 - 5, 6, 3, KIT.g4);
+      Art.rect(g, sx, y + bob + h / 2 + 2, 6, 3, KIT.g0);
     }
   }
 
@@ -435,7 +477,7 @@ const Menu = (() => {
 
   // ---- plates --------------------------------------------------------------
   // ---- buttons ---------------------------------------------------------------
-  // A pale green slab with a lit top edge, a dark base and one line round it,
+  // A slab of beaten gold with a lit top edge, a dark base and one line round it,
   // which drops four pixels when the pointer is over it. It is the same button
   // the panels use, drawn with rectangles instead of CSS.
   function plaque(g, x, y, w, h, hot) {
@@ -452,12 +494,12 @@ const Menu = (() => {
     Art.rect(g, b.x - 2, b.y + 4, b.w + 4, b.h, KIT.ink);          // the shadow it sits on
     plaque(g, b.x, b.y + drop, b.w, b.h, hot);
     const cy = b.y + drop + (sub ? 9 : (b.h - (scale || 2) * 7) / 2);
-    Font.draw(g, label, b.x + b.w / 2, cy + 1, { scale: scale || 2, color: hot ? '#1d3a18' : '#23401c', align: 'center' });
-    Font.draw(g, label, b.x + b.w / 2, cy, { scale: scale || 2, color: hot ? '#f2ffe6' : '#eaffd8', align: 'center' });
-    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + (scale || 2) * 7 + 4, { scale: 1, color: hot ? '#2f5a28' : '#3d6b34', align: 'center' });
+    Font.draw(g, label, b.x + b.w / 2, cy + 1, { scale: scale || 2, color: hot ? '#ffe98a' : '#f0d27a', align: 'center' });
+    Font.draw(g, label, b.x + b.w / 2, cy, { scale: scale || 2, color: hot ? '#3a2003' : '#4a2c04', align: 'center' });
+    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + (scale || 2) * 7 + 4, { scale: 1, color: hot ? '#5e3a04' : '#6b4406', align: 'center' });
     if (hot) {
-      Font.draw(g, '>', b.x + 9, cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.d3 });
-      Font.draw(g, '<', b.x + b.w - 9 - Font.width('<', scale || 2), cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.d3 });
+      Font.draw(g, '>', b.x + 9, cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.i0 });
+      Font.draw(g, '<', b.x + b.w - 9 - Font.width('<', scale || 2), cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.i0 });
     }
   }
 
@@ -536,10 +578,10 @@ const Menu = (() => {
     cut(g, rx - w / 2 - 2, ry - 3, w + 4, 18, KIT.ink, 3);
     cut(g, rx - w / 2, ry - 1, w, 14, KIT.p2, 2);
     Art.rect(g, rx - w / 2 + 2, ry - 1, w - 4, 2, KIT.p4);
-    Font.draw(g, line, rx, ry + 3, { scale: 1, color: '#7a6440', align: 'center' });
+    Font.draw(g, line, rx, ry + 3, { scale: 1, color: '#6b4a26', align: 'center' });
     // and the wombats you have, if there are any to come back to
     if (hasSave) {
-      Font.draw(g, 'A GROVE IS WAITING FOR YOU', PX + PW / 2, PY + PH - 14, { scale: 1, color: '#2f5a28', align: 'center' });
+      Font.draw(g, 'A GROVE IS WAITING FOR YOU', PX + PW / 2, PY + PH - 14, { scale: 1, color: '#7a4f06', align: 'center' });
     }
   }
 
@@ -554,21 +596,24 @@ const Menu = (() => {
   ];
   function drawHelp(g) {
     buttons = [];
-    const PW = 476, PX = (VW - PW) / 2, PY = 38, PH = 288;
+    const PW = 500, PX = (VW - PW) / 2, PY = 20, PH = 322;
     board(g, PX, PY, PW, PH);
     plate(g, PX + 14, PY + 12, PW - 28, 26, 'HOW TO PLAY');
+    const BW = PW - 74;                       // what a line of body has room for
     HELP.forEach(([ico, title, body], i) => {
-      const ry = PY + 42 + i * 34;
-      Art.rect(g, PX + 16, ry - 2, PW - 32, 32, i % 2 ? KIT.p3 : KIT.p1);
-      Art.rect(g, PX + 16, ry - 2, PW - 32, 1, KIT.p4);
-      Icons.blit(g, ico, PX + 20, ry, 1.2);
-      Font.draw(g, title, PX + 48, ry, { scale: 1, color: '#2b6257' });
-      Font.draw(g, body, PX + 48, ry + 11, { scale: 1, color: '#7a6440' });
+      const ry = PY + 44 + i * 40;
+      Art.rect(g, PX + 16, ry - 3, PW - 32, 38, i % 2 ? KIT.p3 : KIT.p1);
+      Art.rect(g, PX + 16, ry - 3, PW - 32, 1, KIT.p4);
+      Icons.blit(g, ico, PX + 20, ry + 4, 1.2);
+      Font.draw(g, title, PX + 50, ry, { scale: 1, color: '#1c5568' });
+      Font.wrap(body, BW, 1).slice(0, 2).forEach((ln, j) => {
+        Font.draw(g, ln, PX + 50, ry + 11 + j * 10, { scale: 1, color: '#6b4a26' });
+      });
     });
     const by = PY + PH - 34;
     buttons.push({ id: 'back', x: PX + 14, y: by, w: PW - 28, h: 26 });
     plaque(g, PX + 14, by, PW - 28, 26, hover === 'back');
-    Font.draw(g, 'BACK', VW / 2, by + 9, { scale: 1, color: '#eaffd8', align: 'center' });
+    Font.draw(g, 'BACK', VW / 2, by + 9, { scale: 1, color: '#4a2c04', align: 'center' });
   }
 
   const SETTINGS = [
@@ -589,16 +634,16 @@ const Menu = (() => {
       buttons.push({ id: 'set:' + s2.key, x: PX + 14, y: ry, w: PW - 28, h: 24, kind: 'toggle', k: s2.key });
       Art.rect(g, PX + 16, ry, PW - 32, 24, hot ? KIT.p4 : KIT.p1);
       Art.rect(g, PX + 16, ry, PW - 32, 1, KIT.p4);
-      Font.draw(g, s2.name, PX + 28, ry + 9, { scale: 1, color: '#4a3a22' });
+      Font.draw(g, s2.name, PX + 28, ry + 9, { scale: 1, color: '#3a2410' });
       const tx = PX + PW - 96, tw = 68;
       Art.rect(g, tx - 2, ry + 3, tw + 4, 18, KIT.ink);
-      Art.rect(g, tx, ry + 5, tw, 14, val ? KIT.g1 : '#8a7a62');
-      Art.rect(g, tx, ry + 5, tw, 3, val ? KIT.g2 : '#a89a80');
+      Art.rect(g, tx, ry + 5, tw, 14, val ? KIT.i1 : '#5c4a30');
+      Art.rect(g, tx, ry + 5, tw, 3, val ? KIT.i3 : '#7a6444');
       const kx = val ? tx + tw - 20 : tx + 2;
       Art.rect(g, kx, ry + 6, 18, 12, KIT.p4);
       Art.rect(g, kx, ry + 6, 18, 3, '#ffffff');
       Font.draw(g, val ? s2.on : s2.off, val ? tx + 16 : tx + tw - 16, ry + 9, {
-        scale: 1, align: 'center', color: val ? '#eaffd8' : '#3a3228',
+        scale: 1, align: 'center', color: val ? '#d8f2fa' : '#2a2016',
       });
     });
     const dy = PY + PH - 42;

@@ -209,23 +209,17 @@ const Sprites = (() => {
       paws(footX - thick * 0.62, footY - 1.4, thick * 1.24, tone);
     };
     // a proper eye: dark, round, with a lid over it and a catchlight in it
-    // A big cartoon eye: a black bead with two square catchlights in it and a
-    // short lit brow over the top. Blocks, not discs.
+    // The eye is a bead. One small dark dot with a single lit pixel in it,
+    // set wide and low on the face, which is what makes an animal look kind
+    // and not very bright. No iris, no lids, no brow.
     const eye = (x, y, closed) => {
-      if (closed) {
-        R(x - 2.2, y - 0.3, 4.6, 1.2, fur.ink);
-        R(x - 1.6, y + 1, 3.4, 0.9, fur.dark);
-        R(x - 2.6, y - 2.2, 5.2, 1, fur.dark);
-        return;
-      }
-      R(x - 2.4, y - 2.2, 4.8, 4.6, fur.mid);                   // the socket it sits in
-      R(x - 2, y - 2.5, 4, 5.2, fur.mid);
-      R(x - 1.9, y - 1.9, 3.8, 3.9, fur.ink);                   // the bead
-      R(x - 2.2, y - 1.4, 4.4, 2.9, fur.ink);
-      R(x - 1.5, y - 0.1, 3, 2, fur.eye || '#4a2f20');          // a warm iris under it
-      R(x - 1.3, y - 1.5, 1.5, 1.5, PAL.cream);                 // the big catchlight
-      R(x + 0.6, y + 0.7, 0.8, 0.8, PAL.cream);                 // and the little one
-      R(x - 2.4, y - 3.3, 4.8, 1, fur.dark);                    // the brow over the top
+      // a pale patch of fur first, so the bead never sinks into the shadow of
+      // the skull. It is also most of why she looks like she is not thinking.
+      pill(x - 0.2, y, 3, 2.6, fur.light, 1.1);
+      if (closed) { R(x - 1.6, y - 0.4, 3.2, 1.1, fur.ink); return; }
+      R(x - 1.3, y - 1.6, 2.6, 3.2, fur.ink);          // the bead. That is all it is.
+      R(x - 1.7, y - 1.2, 3.4, 2.4, fur.ink);          // knocked round by one step
+      R(x - 1.3, y - 1.2, 1, 1, PAL.cream);            // one square of shine in it
     };
     // The nose. A wombat's whole face is the nose: a broad bare pad, wider than
     // it is tall, sat on the very tip of the muzzle. A solid black blob is
@@ -248,12 +242,12 @@ const Sprites = (() => {
     };
     // Ears: rounded triangles set wide and high, with the inner ear showing.
     const ears = (lx, rx, y, lift, flop) => {
-      const er = 4.4 * HK;
+      const er = 2.9 * HK;
       const fl = (flop || 0) * 0.9;            // they swing a little as the animal moves
       const one = (ex, ey, base, inner, tuft) => {
         ex += fl;
-        pill(ex, ey, er, er * 0.92, fur.ink, er * 0.42);          // the line round it
-        pill(ex, ey, er - 0.6, er * 0.92 - 0.6, base, er * 0.42);
+        pill(ex, ey, er + 0.5, er * 0.92 + 0.5, fur.ink, er * 0.42);   // the line round it
+        pill(ex, ey, er - 0.3, er * 0.92 - 0.3, base, er * 0.42);
         pill(ex, ey + er * 0.08, er * 0.5, er * 0.5, inner, er * 0.2);        // the inner ear
         R(ex - er * 0.5, ey - er * 0.7, er, er * 0.34, U.shade(base, 0.3));   // light on the top
         for (let i = -1; i <= 1; i++) R(ex + i * 1.4, ey - er * 1.06, 1, 1.2, tuft);   // fluff on the rim
@@ -341,8 +335,8 @@ const Sprites = (() => {
     const sq = p.squash, br = (p.breathe || 0) * 0.16;
     // Fatter. A wombat is a barrel with a head on it, and a cartoon one is
     // wider still: nearly half again as deep as it used to be.
-    const bw = 12.6 * (1 + sq * 0.6), bh = (9.2 + br) * (1 - sq);
-    const by = 14.6 + bob + (9.2 - bh);
+    const bw = 12.6 * (1 + sq * 0.6), bh = (11.6 + br) * (1 - sq);
+    const by = 14.2 + bob + (11.6 - bh);
     const tiltF = (t) => U.lerp(-p.rear, p.front, t) * 0.5;
     // ---- legs, in two passes ------------------------------------------------
     // The two on the far side go down before the body and are drawn in the
@@ -360,11 +354,11 @@ const Sprites = (() => {
         if (L2.far !== far) continue;
         const lift = (p.leg[L2.i] || 0) + p.tuck * 4;
         const fwd = (p.legX[L2.i] || 0);
-        const hipY = by + bh - 3 + tiltF((L2.x - 7) / 26) + bob * 0.2;
-        const floorY = Math.min(GY, by + bh + 4.6);
+        const hipY = by + bh - 2.2 + tiltF((L2.x - 7) / 26) + bob * 0.2;
+        const floorY = Math.min(GY, by + bh + 3.4);
         const tone = far ? fur.dark : (L2.front ? fur.base : fur.mid);
         legOf(L2.x + (far ? -1.2 : 0), hipY + (far ? -0.8 : 0), floorY - (far ? 1 : 0),
-          lift, fwd, p.knee[L2.i] || 0, L2.front ? 3.3 : 3.8, tone, L2.front);
+          lift, fwd, p.knee[L2.i] || 0, L2.front ? 4 : 4.5, tone, L2.front);
       }
     };
     drawLegs(true);
@@ -378,9 +372,9 @@ const Sprites = (() => {
     pill(17.4 - bw * 0.46, by0 + 0.4, bw * 0.58, bh * 0.95, fur.base, CUT * 0.9);
     pill(17.4 + bw * 0.42, by0 + 0.3, bw * 0.56, bh * 0.92, fur.base, CUT * 0.9);
     // the light along the spine and the pale belly under it, as flat bands
-    R(17.4 - bw + CUT * 0.5, by0 - bh + 0.4, bw * 2 - CUT, bh * 0.44, fur.mid);
-    R(17.4 - bw + CUT * 1.1, by0 - bh + 0.4, bw * 2 - CUT * 2.2, bh * 0.2, fur.light);
-    R(17.4 - bw + CUT * 0.7, by0 + bh - bh * 0.42, bw * 2 - CUT * 1.4, bh * 0.4, fur.light);
+    R(17.4 - bw + CUT * 0.5, by0 - bh + 0.4, bw * 2 - CUT, bh * 0.3, fur.mid);
+    R(17.4 - bw + CUT * 1.1, by0 - bh + 0.4, bw * 2 - CUT * 2.2, bh * 0.15, fur.light);
+    R(17.4 - bw + CUT * 0.8, by0 + bh - bh * 0.3, bw * 2 - CUT * 1.6, bh * 0.28, fur.light);
     R(17.4 - bw + CUT * 0.5, by0 + bh - 1.2, bw * 2 - CUT, 1.2, fur.mid);
     saddle(15.6, by0 - bh * 0.34, 9.5, bh * 0.44);
     pill(17.4 - bw - 0.8, by0 + bh * 0.34 + (p.tail || 0) * 0.5, 1.8, 2, fur.mid, 0.8);   // the tail nub
@@ -389,10 +383,10 @@ const Sprites = (() => {
     // A round skull that sits a touch lower than the shoulders, a short blunt
     // muzzle off the front of it, and the nose pad right on the tip. Sized off
     // life: the head is about a quarter of the body, not a third.
-    const hx = 32.4 + p.headFwd + (p.headSw || 0) * 0.5, hy = 12.6 + bob + p.headDip + p.front * 0.6 + (p.breathe || 0) * 0.2;
+    const hx = 31.4 + p.headFwd + (p.headSw || 0) * 0.5, hy = 12.8 + bob + p.headDip + p.front * 0.6 + (p.breathe || 0) * 0.2;
     // A cartoon head: bigger than life, squarer than life, sat low on the
     // shoulders so the whole animal reads as one round heavy thing.
-    const SK = 7.2 * HK, SKY = 6.6 * HK;
+    const SK = 8.2 * HK, SKY = 8 * HK;
     const HCUT = Math.max(1.6, SKY * 0.4);
     pill(hx - 3.4, hy + 1.4, SK * 0.78, SKY * 0.78, fur.dark, HCUT * 0.8);   // the neck
     pill(hx, hy, SK + 0.6, SKY + 0.6, fur.ink, HCUT + 0.5);                  // the line round it
@@ -408,9 +402,12 @@ const Sprites = (() => {
     R(mx - SK * 0.38, my + SKY * 0.12, SK * 0.72, SKY * 0.3, fur.light);     // the pale chin
     R(hx - SK * 0.82, hy + SKY * 0.24, SK * 0.68, SKY * 0.34, fur.light);   // the cheek
     Art.speckle(g, X(hx - 1), Y(hy - SKY * 0.5), SK * 0.7 * K, SKY * 0.34 * K, fur.mid, 7, 3);
-    ears(hx - SK * 0.72, hx + SK * 0.22, hy - SKY - 1.2 * HK, p.ear, p.earFlop);
-    eye(hx + SK * 0.1, hy - SKY * 0.2, p.blink);
-    nose(mx + SK * 0.1, my - SKY * 0.06, 4.4, 3.2);
+    ears(hx - SK * 0.96, hx - SK * 0.46, hy - SKY - 0.44 * HK, p.ear, p.earFlop);
+    // one eye. It is a side view. Set it high on the skull and a long way
+    // back from that enormous nose: the gap between the two is what makes her
+    // look content and completely empty-headed.
+    eye(hx + SK * 0.02, hy - SKY * 0.3, p.blink);
+    nose(mx + SK * 0.24, my + SKY * 0.04, 5.2, 3.7);
     if (p.hurt > 0) {                                             // little stars over the head
       for (let i = 0; i < 3; i++) { const a = p.hurt * 4 + i * 2.1; R(hx - 3 + Math.cos(a) * 7, hy - 9 + Math.sin(a) * 2, 1.4, 1.4, PAL.gold3); }
     }
