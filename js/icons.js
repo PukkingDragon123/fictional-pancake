@@ -406,6 +406,111 @@ const Icons = (() => {
     b_tacky: (d) => { d.R(5, 2, 6, 4, S3); d.R(4, 6, 8, 8, G1); d.R(4, 6, 8, 1, G3); d.R(5, 13, 2, 3, G2); },
     b_double: (d) => { d.E(5.5, 9, 4.4, 4.4, G2); d.E(10.5, 7, 4.4, 4.4, G3); d.E(4.6, 8, 1.6, 1.6, G4); d.E(9.6, 6, 1.6, 1.6, G4); },
     b_shield: (d) => { d.L(3, 3, 8, 2, S3, 2); d.L(13, 3, 8, 2, S3, 2); d.R(3, 3, 10, 6, S3); d.L(3, 9, 8, 15, S3, 2); d.L(13, 9, 8, 15, S3, 2); d.R(5, 5, 6, 5, D3); d.R(7, 6, 2, 4, D5); },
+    // --- the phone's own set -------------------------------------------------
+    // The phone does not borrow the game's icons any more. It has its own,
+    // drawn at 20 pixels in wood, brass and parchment, so a tile reads as a
+    // little carved plaque rather than a tool lying on the grass.
+    // One palette for all of them, so the set hangs together.
+    ph_jobs: { res: 20, draw: (d) => {                      // a nailed-up list
+      d.R(3, 2, 14, 16, '#3d2714'); d.R(4, 3, 12, 14, '#ddc39a');
+      d.R(4, 3, 12, 2, '#f0dcb0');
+      d.R(6, 6, 2, 2, '#2f7f96'); d.R(6, 10, 2, 2, '#2f7f96'); d.R(6, 14, 2, 2, '#8a6f45');
+      d.R(9, 7, 6, 1, '#6b4a26'); d.R(9, 11, 6, 1, '#6b4a26'); d.R(9, 15, 4, 1, '#8a6f45');
+      d.R(9, 1, 2, 3, '#d8a41c'); d.R(9, 1, 2, 1, '#ffe98a');
+    } },
+    ph_herd: { res: 20, draw: (d) => {                      // her, head on
+      d.R(4, 7, 12, 10, '#8a5b3a'); d.R(3, 9, 14, 7, '#8a5b3a');
+      d.R(4, 7, 12, 3, '#a87249'); d.R(5, 7, 10, 1, '#c28d5e');
+      d.R(3, 4, 4, 4, '#6d452c'); d.R(13, 4, 4, 4, '#6d452c');       // the ears
+      d.R(4, 5, 2, 2, '#a87249'); d.R(14, 5, 2, 2, '#a87249');
+      d.R(6, 10, 3, 3, '#f0dcb0'); d.R(11, 10, 3, 3, '#f0dcb0');     // the eye patches
+      d.R(7, 11, 2, 2, '#140c06'); d.R(12, 11, 2, 2, '#140c06');     // the beads
+      d.R(7, 11, 1, 1, '#f7ecd2'); d.R(12, 11, 1, 1, '#f7ecd2');
+      d.R(7, 14, 6, 3, '#3a2a22'); d.R(8, 14, 4, 1, '#5e4438');      // the nose
+    } },
+    ph_garden: { res: 20, draw: (d) => {                    // a sprout in a bed
+      d.R(2, 13, 16, 5, '#4a2f16'); d.R(2, 13, 16, 1, '#6b4423');
+      for (let i = 0; i < 4; i++) d.R(3 + i * 4, 15, 2, 1, '#35200f');
+      d.R(9, 5, 2, 9, '#4d7430');
+      d.P([[9, 9], [3, 7], [4, 11], [9, 12]], '#74a449');
+      d.P([[11, 7], [17, 5], [16, 9], [11, 10]], '#a0cd72');
+      d.R(8, 2, 4, 3, '#f2c936'); d.R(9, 2, 2, 1, '#ffe98a');
+    } },
+    ph_places: { res: 20, draw: (d) => {                    // a signpost at a fork
+      d.R(9, 3, 2, 15, '#6b4423'); d.R(9, 3, 1, 15, '#8c5c30');
+      d.R(2, 5, 8, 4, '#4d2f16'); d.R(2, 5, 8, 1, '#8c5c30');
+      d.R(3, 6, 6, 2, '#ddc39a');
+      d.R(10, 10, 8, 4, '#4d2f16'); d.R(10, 10, 8, 1, '#8c5c30');
+      d.R(11, 11, 6, 2, '#ddc39a');
+      d.R(3, 17, 14, 2, '#2f4a1c');
+    } },
+    ph_msg: { res: 20, draw: (d) => {                       // a folded letter
+      d.R(2, 4, 16, 12, '#3d2714'); d.R(3, 5, 14, 10, '#f0dcb0');
+      d.P([[3, 5], [17, 5], [10, 11]], '#ddc39a');
+      d.P([[3, 6], [17, 6], [10, 11]], '#c9a878');
+      d.R(8, 11, 4, 4, '#a8323a'); d.R(9, 12, 2, 1, '#c9525a');      // the wax seal
+    } },
+    ph_camera: { res: 20, draw: (d) => {                    // a box camera
+      d.R(1, 5, 18, 12, '#2a2419'); d.R(2, 6, 16, 10, '#4d4233');
+      d.R(2, 6, 16, 2, '#6b5c44');
+      d.R(6, 2, 6, 3, '#2a2419'); d.R(7, 3, 4, 1, '#4d4233');
+      d.R(6, 8, 8, 8, '#17120c'); d.R(7, 9, 6, 6, '#1c5568');
+      d.R(8, 10, 4, 4, '#4fa6be'); d.R(8, 10, 2, 2, '#cdeff8');
+      d.R(15, 8, 2, 2, '#d8a41c'); d.R(15, 8, 2, 1, '#ffe98a');
+    } },
+    ph_larder: { res: 20, draw: (d) => {                    // a crate with a coin
+      d.R(2, 6, 16, 12, '#5a3a1c'); d.R(2, 6, 16, 2, '#8c5c30');
+      d.R(2, 16, 16, 2, '#35200f');
+      d.R(6, 6, 2, 12, '#3d2714'); d.R(12, 6, 2, 12, '#3d2714');
+      d.R(2, 11, 16, 1, '#3d2714');
+      d.E(14, 5, 4, 4, '#7a4f06'); d.E(14, 4.4, 3.4, 3.4, '#d8a41c');
+      d.R(13, 3, 2, 3, '#ffe98a');
+    } },
+    ph_settings: { res: 20, draw: (d) => {                  // a wooden cog, brass teeth
+      for (const [tx, ty] of [[8, 0], [8, 16], [0, 8], [16, 8]]) {   // four brass teeth
+        d.R(tx, ty, 4, 4, '#a9750d'); d.R(tx, ty, 4, 1, '#d8a41c');
+      }
+      for (const [tx, ty] of [[2.5, 2.5], [14.5, 2.5], [2.5, 14.5], [14.5, 14.5]]) {
+        d.R(tx, ty, 3, 3, '#a9750d');
+      }
+      d.R(3, 3, 14, 14, '#6b4423'); d.R(4, 4, 12, 12, '#8c5c30');
+      d.R(4, 4, 12, 2, '#a87642'); d.R(4, 14, 12, 2, '#4d2f16');
+      d.R(7, 7, 6, 6, '#1e1208'); d.R(8, 8, 4, 4, '#3d2714');
+    } },
+    // --- the phone's small change: notifications, weather, the key ----------
+    ph_bell: { res: 20, draw: (d) => {                      // brass, for a notice
+      d.R(9, 1, 2, 2, '#7a4f06');                           // the loop on top
+      d.R(6, 4, 8, 8, '#a9750d');                           // the dome
+      d.R(5, 7, 10, 5, '#a9750d');
+      d.R(7, 3, 6, 2, '#d8a41c');
+      d.R(7, 5, 4, 6, '#d8a41c'); d.R(7, 5, 2, 5, '#ffe98a');
+      d.R(3, 12, 14, 3, '#d8a41c');                         // the flared skirt
+      d.R(3, 12, 14, 1, '#ffe98a'); d.R(3, 14, 14, 1, '#7a4f06');
+      d.R(9, 15, 3, 3, '#7a4f06'); d.R(9, 15, 2, 2, '#a9750d');   // the clapper
+    } },
+    ph_sun: { res: 20, draw: (d) => {
+      d.E(10, 10, 5, 5, '#a9750d'); d.E(10, 9.4, 4.2, 4.2, '#f2c936'); d.E(8.6, 8.4, 2, 2, '#ffe98a');
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; d.R(10 + Math.cos(a) * 7 - 1, 10 + Math.sin(a) * 7 - 1, 2, 2, '#d8a41c'); }
+    } },
+    ph_rain: { res: 20, draw: (d) => {
+      d.R(3, 4, 14, 6, '#5a6470'); d.R(3, 4, 14, 2, '#8a94a0'); d.R(5, 2, 9, 3, '#7a848f');
+      for (let i = 0; i < 4; i++) d.R(4 + i * 4, 12 + (i % 2) * 2, 2, 4, '#4fa6be');
+    } },
+    ph_moon: { res: 20, draw: (d) => {                      // full, with craters
+      d.E(10, 10, 7, 7, '#8a6f45'); d.E(10, 9.4, 6.2, 6.2, '#ddc39a');
+      d.E(8.4, 8, 3, 2.6, '#f0dcb0');
+      d.E(12.4, 7.4, 1.6, 1.4, '#ab8a5c'); d.E(7.4, 12, 2, 1.8, '#ab8a5c');
+      d.E(13, 12.6, 1.4, 1.2, '#ab8a5c');
+      d.R(2, 4, 2, 2, '#f7ecd2'); d.R(17, 15, 2, 2, '#f7ecd2');
+    } },
+    ph_key: { res: 20, draw: (d) => {                       // the phone, for the frame
+      d.R(3, 1, 14, 18, '#17120c'); d.R(4, 2, 12, 16, '#5a4d38');
+      d.R(4, 2, 12, 2, '#8a7752'); d.R(4, 16, 12, 2, '#2a2418');
+      d.R(5, 5, 10, 10, '#0c110d'); d.R(6, 6, 8, 8, '#2f4a1c');
+      d.R(6, 6, 8, 2, '#4d7430');
+      d.R(7, 9, 6, 1, '#a0cd72'); d.R(7, 11, 4, 1, '#a0cd72');
+      d.R(8, 3, 4, 1, '#2a2418'); d.R(8, 16, 4, 1, '#8a7752');
+    } },
     b_feather: (d) => { d.L(4, 14, 12, 3, C, 1); for (let i = 0; i < 6; i++) { const t = i / 6, x = U.lerp(4, 12, t), y = U.lerp(14, 3, t); d.L(x, y, x - 3 + i * 0.4, y - 1, PAL.parch1, 1); d.L(x, y, x + 2, y + 1, PAL.parch0, 1); } },
   };
 

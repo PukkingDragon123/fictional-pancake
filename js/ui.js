@@ -25,6 +25,7 @@ const UI = (() => {
     if (dot) {
       const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length + Phone.unread() : 0;
       dot.hidden = jobs === 0;
+      dot.textContent = jobs > 9 ? '9+' : String(jobs);
     }
     refreshList();
     refreshNotebook();

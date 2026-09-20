@@ -856,8 +856,8 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 /* the screen, sunk into the case */
 .phglass {
   position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
-  overflow: hidden; background: #0c110d;
-  box-shadow: inset 0 0 0 3px #080b08, 0 0 0 3px #17120c, 0 0 0 5px #5a4d38;
+  overflow: hidden; background: #241708;
+  box-shadow: inset 0 0 0 3px #0e0904, 0 0 0 3px #17120c, 0 0 0 5px #5a4d38;
 }
 /* the scanline and the dark corners of an old screen, over everything */
 .phglass::after {
@@ -867,43 +867,48 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
     radial-gradient(120% 90% at 50% 50%, transparent 58%, rgba(0,0,0,0.42) 100%);
 }
 .phwall {
-  position: absolute; inset: 0; pointer-events: none; background: #16200f;
+  position: absolute; inset: 0; pointer-events: none; background: #2a1a0c;
   background-size: 100% 100%; background-repeat: no-repeat; image-rendering: pixelated;
 }
 
 /* the status strip */
 .phstatus {
   position: relative; z-index: 3; flex: 0 0 auto; display: flex; align-items: center; gap: 6px;
-  padding: 5px 10px; font-size: 12px; color: #e8f0d8; letter-spacing: 1px;
-  background: rgba(8,12,8,0.72); box-shadow: inset 0 -2px 0 rgba(90,120,70,0.28);
+  padding: 5px 10px; font-size: 12px; color: #f0dcb0; letter-spacing: 1px;
+  background: rgba(20,12,6,0.74); box-shadow: inset 0 -2px 0 rgba(140,92,48,0.4);
 }
 .phstatus b { font-weight: 400; }
 .phisland { display: none; }
 .phsig { margin-left: auto; display: flex; align-items: flex-end; gap: 2px; height: 10px; }
-.phsig i { width: 3px; background: #cfe6b8; }
+.phsig i { width: 3px; background: #f0dcb0; }
 .phsig i:nth-child(1) { height: 3px } .phsig i:nth-child(2) { height: 5px }
-.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 10px; background: #4a5a3a }
+.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 10px; background: #5a4326 }
 .phwifi { width: 12px; height: 10px; background:
-  linear-gradient(#cfe6b8 0 0) 4px 7px/4px 3px no-repeat,
-  linear-gradient(#cfe6b8 0 0) 2px 3px/8px 2px no-repeat,
-  linear-gradient(#cfe6b8 0 0) 0 0/12px 2px no-repeat; }
-.phbatt { position: relative; width: 20px; height: 11px; padding: 2px; box-shadow: inset 0 0 0 2px #8ba878; }
-.phbatt::after { content: ''; position: absolute; right: -4px; top: 3px; width: 3px; height: 5px; background: #8ba878; }
-.phbatt i { display: block; width: 74%; height: 100%; background: #cfe6b8; }
+  linear-gradient(#f0dcb0 0 0) 4px 7px/4px 3px no-repeat,
+  linear-gradient(#f0dcb0 0 0) 2px 3px/8px 2px no-repeat,
+  linear-gradient(#f0dcb0 0 0) 0 0/12px 2px no-repeat; }
+.phbatt { position: relative; width: 20px; height: 11px; padding: 2px; box-shadow: inset 0 0 0 2px #a8875a; }
+.phbatt::after { content: ''; position: absolute; right: -4px; top: 3px; width: 3px; height: 5px; background: #a8875a; }
+.phbatt i { display: block; width: 74%; height: 100%; background: #f0dcb0; }
 
 /* the home screen */
 .phhome-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 8px 12px 0; }
 .phwidget {
-  margin: 4px 0 12px; padding: 9px 11px; color: #edf3e0;
-  background: rgba(10,16,10,0.78); box-shadow: inset 0 0 0 2px #2e3a26, inset 0 2px 0 rgba(160,190,130,0.16);
+  margin: 4px 0 12px; padding: 8px 10px; color: #3a2410;
+  background: #ddc39a; box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0, 0 0 0 2px #1e1208;
 }
-.phwidget h5 { margin: 0 0 3px; font-size: 11px; font-weight: 400; letter-spacing: 2px; color: #8fae74; }
+.phwidget h5 { display: flex; align-items: center; gap: 5px; margin: 0 0 3px; font-size: 11px; font-weight: 400;
+  letter-spacing: 2px; color: #7a4f06; }
 .phwidget p { margin: 0; font-size: 14px; line-height: 1.4; }
-.phwidget .phwrow { display: flex; gap: 12px; margin-top: 7px; font-size: 12px; color: #b3c79c; }
+.phwidget .phwrow { display: flex; gap: 12px; margin-top: 6px; font-size: 12px; color: #6b4a26; }
 .phwidget .phwrow span { display: flex; align-items: center; gap: 4px; }
 .phwidget img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
 
-.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 6px; align-content: start; }
+/* the tiles are screwed to a board, so the labels always have something dark
+   behind them instead of whatever the wallpaper happens to be doing */
+.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 6px; align-content: start;
+  padding: 8px 7px 6px; background: rgba(28,17,8,0.72);
+  box-shadow: inset 0 0 0 2px #5a3a1c, inset 0 2px 0 #8c5c30, 0 0 0 2px #140c06; }
 .phapp {
   position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 0; border: 0; background: none; cursor: pointer; font-family: inherit;
@@ -912,20 +917,20 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
    a lit band across the top, a dark band under it, one line round it */
 .phapp i.phico {
   display: flex; align-items: center; justify-content: center;
-  width: 100%; aspect-ratio: 1; background: var(--t2, #23281c);
+  width: 100%; aspect-ratio: 1; background: var(--t2, #3d2714);
   box-shadow:
-    inset 0 3px 0 var(--t1, #4a5240), inset 0 -3px 0 rgba(0,0,0,0.5),
-    inset 3px 0 0 rgba(255,255,255,0.08), inset -3px 0 0 rgba(0,0,0,0.3),
-    0 0 0 2px #0a0d08;
+    inset 0 3px 0 var(--t1, #6b4423), inset 0 -3px 0 rgba(0,0,0,0.55),
+    inset 3px 0 0 rgba(255,220,170,0.1), inset -3px 0 0 rgba(0,0,0,0.35),
+    0 0 0 2px #a9750d, 0 0 0 4px #1e1208;
 }
 .phapp img.ico { width: 60%; height: 60%; image-rendering: pixelated; }
 .phapp b { display: block; width: 100%; height: 12px; line-height: 12px; font-size: 10px; font-weight: 400;
-  color: #e4eed4; letter-spacing: 0.5px; text-shadow: 1px 1px 0 #0a0d08;
+  color: #f0dcb0; letter-spacing: 0.5px; text-shadow: 1px 1px 0 #1e1208;
   overflow: hidden; white-space: nowrap; text-overflow: clip; }
 .phapp:hover i.phico { box-shadow:
-  inset 0 3px 0 var(--t1, #4a5240), inset 0 -3px 0 rgba(0,0,0,0.5),
-  inset 3px 0 0 rgba(255,255,255,0.08), inset -3px 0 0 rgba(0,0,0,0.3),
-  0 0 0 2px #0a0d08, 0 0 0 4px var(--gd2); }
+  inset 0 3px 0 var(--t1, #6b4423), inset 0 -3px 0 rgba(0,0,0,0.55),
+  inset 3px 0 0 rgba(255,220,170,0.1), inset -3px 0 0 rgba(0,0,0,0.35),
+  0 0 0 2px var(--gd3), 0 0 0 4px #1e1208, 0 0 0 6px var(--gd0); }
 .phapp:active { transform: translateY(2px); }
 .phdot {
   position: absolute; top: -4px; right: -2px; min-width: 16px; height: 16px; line-height: 16px;
@@ -933,30 +938,29 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   box-shadow: 0 0 0 2px #0a0d08;
 }
 .phdots { display: flex; gap: 5px; justify-content: center; margin: 10px 0 8px; }
-.phdots i { width: 5px; height: 5px; background: #4a5a3a; }
-.phdots i.on { background: #cfe6b8; }
+.phdots { display: none; }
 .phdock {
   margin: auto 0 10px; padding: 8px 6px;
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-  background: rgba(8,12,8,0.7); box-shadow: inset 0 0 0 2px #2e3a26;
+  background: rgba(30,18,8,0.82); box-shadow: inset 0 0 0 2px #5a3a1c, inset 0 2px 0 #8c5c30;
 }
 .phdock .phapp b { display: none; }
 
 /* an app, open */
 .phapp-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
-  background: #101610; animation: phopen .12s steps(3, end); }
+  background: #2e1e0e; animation: phopen .12s steps(3, end); }
 @keyframes phopen { from { opacity: 0 } to { opacity: 1 } }
 .phnav { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 10px;
-  background: #1b2418; box-shadow: inset 0 2px 0 #2e3a26, inset 0 -3px 0 #0a0d08; }
-.phnav b { flex: 1 1 auto; text-align: center; font-size: 14px; font-weight: 400; color: #e4eed4; letter-spacing: 1px; }
+  background: #4d2f16; box-shadow: inset 0 2px 0 #8c5c30, inset 0 -3px 0 #1e1208; }
+.phnav b { flex: 1 1 auto; text-align: center; font-size: 14px; font-weight: 400; color: #f0dcb0; letter-spacing: 1px; }
 .phnav-sp { flex: 0 0 56px; }
 .phback { flex: 0 0 56px; text-align: left; padding: 3px 0; border: 0; background: none; cursor: pointer;
   font-family: inherit; font-size: 13px; color: #d8a41c; }
 .phback:hover { color: #ffe98a; }
 .phscreen { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 9px 10px 16px; display: flex; flex-direction: column; gap: 6px; }
 .phscreen::-webkit-scrollbar { width: 6px; }
-.phscreen::-webkit-scrollbar-track { background: #0a0d08; }
-.phscreen::-webkit-scrollbar-thumb { background: #3e4a34; }
+.phscreen::-webkit-scrollbar-track { background: #1e1208; }
+.phscreen::-webkit-scrollbar-thumb { background: #6b4423; }
 
 /* the one key under the screen */
 .phbar {
@@ -968,153 +972,169 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 /* while the phone is out, the toasts move into the bottom corner: dead centre
    is where the home key sits, and you want to be able to see the key you are
    about to press */
-#panel-phone:not([hidden]) ~ #toasts { left: 16px; transform: none; align-items: flex-start; }
+#panel-phone:not([hidden]) ~ #toasts { left: 16px; bottom: 76px; transform: none; align-items: flex-start; }
 .phbar:active { transform: translateX(-50%) translateY(3px); box-shadow: inset 0 3px 0 #8a7752, inset 0 -2px 0 #2a2418, 0 0 0 3px var(--ol); }
 
 /* cards and rows inside an app */
-.phcard { min-width: 0; padding: 9px 10px; background: #1a2318; box-shadow: inset 0 0 0 2px #2e3a26, inset 0 2px 0 rgba(150,180,120,0.12); }
-.phcard.big { background: #22301d; box-shadow: inset 0 0 0 2px #435239, inset 0 2px 0 rgba(150,180,120,0.16); }
+.phcard { min-width: 0; padding: 9px 10px; background: #ddc39a;
+  box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0, 0 0 0 2px #1e1208; }
+.phcard.big { background: #ecd6ac; box-shadow: inset 0 0 0 2px #ab8a5c, inset 0 2px 0 #f7ecd2, 0 0 0 2px #1e1208; }
 .phcard.shut { opacity: 0.45; }
-.phcardh { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #e4eed4; }
+.phcardh { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #3a2410; }
 .phcardh img.ico { width: 20px; height: 20px; image-rendering: pixelated; }
 .phcardh b { flex: 0 1 auto; font-weight: 400; }
 .phcardh .phdim { margin-left: auto; }
-.phcard p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; color: #a8bd92; }
-.phmeta { display: flex; flex-wrap: wrap; gap: 3px 11px; margin-top: 6px; font-size: 11px; color: #83996d; }
+.phcard p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; color: #6b4a26; }
+.phmeta { display: flex; flex-wrap: wrap; gap: 3px 11px; margin-top: 6px; font-size: 11px; color: #8a6f45; }
 .phmeta img.ico { width: 13px; height: 13px; vertical-align: -2px; image-rendering: pixelated; }
-.phsub { margin: 9px 1px 0; font-size: 10px; letter-spacing: 2px; color: #7b9166; }
-.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px; font-size: 12px; color: #d3e2c0;
-  background: #161e14; box-shadow: inset 0 0 0 2px #283322; }
+.phsub { margin: 9px 1px 0; font-size: 10px; letter-spacing: 2px; color: #c9a878; }
+.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px; font-size: 12px; color: #3a2410;
+  background: #c9a878; box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #ddc39a; }
 .phrow.done { opacity: 0.4; }
 .phrow img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
 .phrow b { font-weight: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.phnum { margin-left: auto; color: var(--gd3); }
-.phdim { font-size: 11px; color: #7b9166; }
+.phnum { margin-left: auto; color: #7a4f06; }
+.phdim { font-size: 11px; color: #6b4a26; }
 .phrow .phdim { margin-left: auto; text-align: right; }
 /* a meter: a dark trough with a flat bar in it and one lit line on top */
-.phbar2 { height: 8px; margin: 5px 0 0; background: #0a0d08; box-shadow: inset 0 0 0 2px #283322; overflow: hidden; }
+.phbar2 { height: 8px; margin: 5px 0 0; background: #3d2714; box-shadow: inset 0 0 0 2px #1e1208; overflow: hidden; }
 .phbar2 i { display: block; height: 100%; box-shadow: inset 0 2px 0 rgba(255,255,255,0.28); }
-.phstat { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px; color: #83996d; }
+.phstat { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px; color: #6b4a26; }
 .phstat span { flex: 0 0 48px; }
 .phstat .phbar2 { flex: 1 1 auto; margin: 0; }
 .phwant { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .phwant em { font-style: normal; font-size: 10px; letter-spacing: 1px; padding: 3px 7px; color: #2a1a04; background: var(--gd2);
   box-shadow: inset 0 2px 0 var(--gd3), 0 0 0 2px #0a0d08; }
-.phok { margin-top: 6px; font-size: 11px; color: #8fd46a; }
+.phok { margin-top: 6px; font-size: 11px; color: #4d7430; }
 .phacts { display: flex; gap: 5px; margin-top: 9px; }
 .phbtn {
   flex: 1 1 auto; padding: 8px 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
-  color: #dbe8c8; background: #2f3d28;
-  box-shadow: inset 0 3px 0 #475738, inset 0 -3px 0 #141a10, 0 0 0 2px #0a0d08;
+  color: #f0dcb0; background: #5a3a1c;
+  box-shadow: inset 0 3px 0 #8c5c30, inset 0 -3px 0 #1e1208, 0 0 0 2px #140c06;
 }
-.phbtn.go { color: #2a1a04; background: var(--gd2); box-shadow: inset 0 3px 0 var(--gd3), inset 0 -3px 0 var(--gd0), 0 0 0 2px #0a0d08; }
+.phbtn.go { color: #2a1a04; background: var(--gd2); box-shadow: inset 0 3px 0 var(--gd3), inset 0 -3px 0 var(--gd0), 0 0 0 2px #140c06; }
 .phbtn:hover { filter: brightness(1.16); }
 .phbtn:active { transform: translateY(2px); }
 
 /* settings */
-.phgroup { background: #1a2318; box-shadow: inset 0 0 0 2px #2e3a26; }
-.phset { display: flex; align-items: center; gap: 10px; padding: 10px 11px; font-size: 13px; color: #e4eed4;
-  box-shadow: inset 0 -2px 0 #283322; }
+.phgroup { background: #ddc39a; box-shadow: inset 0 0 0 2px #8a6f45, 0 0 0 2px #1e1208; }
+.phset { display: flex; align-items: center; gap: 10px; padding: 10px 11px; font-size: 13px; color: #3a2410;
+  box-shadow: inset 0 -2px 0 #ab8a5c; }
 .phset:last-child { box-shadow: none; }
 .phset span { flex: 1 1 auto; }
-.phset small { display: block; font-size: 10px; color: #7b9166; }
+.phset small { display: block; font-size: 10px; color: #8a6f45; }
 /* a square switch: a trough with a square knob that steps from end to end */
 .phsw { position: relative; flex: 0 0 auto; width: 42px; height: 22px; border: 0; cursor: pointer;
-  background: #232d1e; box-shadow: inset 0 0 0 2px #0a0d08, inset 0 2px 0 #151c12; }
-.phsw i { position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #8a9c74;
-  box-shadow: inset 0 2px 0 #b4c79c, inset 0 -2px 0 #4a5a38; transition: left .1s steps(3, end); }
-.phsw.on { background: #1c5568; box-shadow: inset 0 0 0 2px #0a0d08, inset 0 2px 0 #2f7f96; }
+  background: #5a3a1c; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #3d2714; }
+.phsw i { position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #a87642;
+  box-shadow: inset 0 2px 0 #c9a878, inset 0 -2px 0 #5a3a1c; transition: left .1s steps(3, end); }
+.phsw.on { background: #1c5568; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #2f7f96; }
 .phsw.on i { left: 23px; background: #8fd4e4; box-shadow: inset 0 2px 0 #cdeff8, inset 0 -2px 0 #2f7f96; }
 .phset .phgo { flex: 0 0 auto; padding: 6px 12px; border: 0; cursor: pointer;
   font-family: inherit; font-size: 11px; color: #fff2e0; background: #8a3a1e;
-  box-shadow: inset 0 2px 0 #b85a32, inset 0 -2px 0 #4a1a0a, 0 0 0 2px #0a0d08; }
+  box-shadow: inset 0 2px 0 #b85a32, inset 0 -2px 0 #4a1a0a, 0 0 0 2px #140c06; }
 
 /* messages */
 .phthread { display: flex; align-items: center; gap: 9px; padding: 8px 9px; cursor: pointer;
-  border: 0; width: 100%; text-align: left; font-family: inherit; background: #161e14; color: #e4eed4;
-  box-shadow: inset 0 0 0 2px #283322; }
-.phthread:hover { background: #1f2a1b; }
-.phava { flex: 0 0 auto; width: 34px; height: 34px; overflow: hidden; background: #232d1e;
-  box-shadow: inset 0 0 0 2px #3e4a34; display: flex; align-items: flex-end; justify-content: center; }
+  border: 0; width: 100%; text-align: left; font-family: inherit; background: #c9a878; color: #3a2410;
+  box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #ddc39a; }
+.phthread:hover { background: #ddc39a; }
+.phava { flex: 0 0 auto; width: 34px; height: 34px; overflow: hidden; background: #5a3a1c;
+  box-shadow: inset 0 0 0 2px #3d2714; display: flex; align-items: flex-end; justify-content: center; }
 .phava canvas { image-rendering: pixelated; }
 .phthread .phtx { flex: 1 1 auto; min-width: 0; }
 .phthread .phtx b { display: block; font-size: 13px; font-weight: 400; }
-.phthread .phtx small { display: block; font-size: 11px; color: #83996d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.phunread { flex: 0 0 auto; width: 8px; height: 8px; background: var(--gd3); box-shadow: 0 0 0 2px #0a0d08; }
+.phthread .phtx small { display: block; font-size: 11px; color: #6b4a26; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.phunread { flex: 0 0 auto; width: 8px; height: 8px; background: #a8323a; box-shadow: 0 0 0 2px #1e1208; }
 .phchat { display: flex; flex-direction: column; gap: 6px; }
 /* a bubble with one step out of each corner, like everything else here */
 .phmsg { max-width: 80%; padding: 7px 10px; font-size: 12.5px; line-height: 1.4;
   clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
     100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
     4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 4px 4px); }
-.phmsg.them { align-self: flex-start; background: #2c3826; color: #edf3e0; }
-.phmsg.me { align-self: flex-end; background: #1c5568; color: #e6f7fc; }
+.phmsg.them { align-self: flex-start; background: #ecd6ac; color: #3a2410; }
+.phmsg.me { align-self: flex-end; background: #6b4423; color: #f7ecd2; }
 .phreplies { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
 .phreply { padding: 7px 11px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
-  color: #ffe98a; background: #2a2010; box-shadow: inset 0 0 0 2px var(--gd0); }
-.phreply:hover { background: #3d2f16; color: #fff; }
+  color: #ffe98a; background: #3d2714; box-shadow: inset 0 0 0 2px var(--gd0); }
+.phreply:hover { background: #5a3a1c; color: #fff; }
 
 /* photos */
 .phphotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #1a2318;
-  box-shadow: inset 0 0 0 2px #2e3a26; display: flex; align-items: flex-end; justify-content: center; }
+.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #3d2714;
+  box-shadow: inset 0 0 0 2px #8a6f45; display: flex; align-items: flex-end; justify-content: center; }
 .phphoto canvas { image-rendering: pixelated; width: 100%; height: 100%; object-fit: contain; }
 .phphoto img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
 .phphoto em { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-style: normal; font-size: 9px;
-  color: #edf3e0; background: rgba(8,12,8,0.78); }
+  color: #f0dcb0; background: rgba(20,12,6,0.8); }
 
 /* the lock screen */
 .phlock { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column;
   padding: 14px 12px 0; cursor: pointer; animation: phopen .14s steps(3, end); }
-.phlockclock { text-align: center; margin: 10px 0 16px; color: #edf3e0; }
-.phlockclock b { display: block; font-size: 46px; font-weight: 400; line-height: 1; text-shadow: 3px 3px 0 rgba(8,12,8,0.7); }
-.phlockclock span { display: block; margin-top: 6px; font-size: 12px; letter-spacing: 1px; color: #c3d6a8; text-shadow: 2px 2px 0 rgba(8,12,8,0.7); }
+.phlockclock { text-align: center; margin: 10px 0 16px; color: #f7ecd2; }
+.phlockclock b { display: block; font-size: 46px; font-weight: 400; line-height: 1; text-shadow: 3px 3px 0 rgba(20,12,6,0.8); }
+.phlockclock span { display: block; margin-top: 6px; font-size: 12px; letter-spacing: 1px; color: #ddc39a; text-shadow: 2px 2px 0 rgba(20,12,6,0.8); }
 .phnotes { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; min-height: 0; }
 .phnotes::-webkit-scrollbar { width: 0; }
 .phnote { display: flex; align-items: flex-start; gap: 8px; width: 100%; text-align: left; padding: 8px 10px;
-  border: 0; cursor: pointer; font-family: inherit; color: #edf3e0;
-  background: rgba(10,16,10,0.8); box-shadow: inset 0 0 0 2px #2e3a26; }
-.phnote:hover { background: rgba(26,38,22,0.9); }
+  border: 0; cursor: pointer; font-family: inherit; color: #3a2410;
+  background: rgba(221,195,154,0.94); box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0; }
+.phnote:hover { background: #f0dcb0; }
 .phnico { flex: 0 0 auto; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
-  background: #232d1e; box-shadow: inset 0 0 0 2px #3e4a34; }
+  background: #4d2f16; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #8c5c30; }
 .phnico img.ico { width: 17px; height: 17px; image-rendering: pixelated; }
 .phntx { flex: 1 1 auto; min-width: 0; }
-.phntx b { display: block; font-size: 10px; font-weight: 400; letter-spacing: 1.5px; color: #8fae74; }
+.phntx b { display: block; font-size: 10px; font-weight: 400; letter-spacing: 1.5px; color: #7a4f06; }
 .phntx em { display: block; font-style: normal; font-size: 13px; }
-.phntx small { display: block; font-size: 11px; color: #a8bd92; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phntx small { display: block; font-size: 11px; color: #6b4a26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .phswipe { margin-top: auto; padding: 12px 0 16px; text-align: center; font-size: 10px; letter-spacing: 3px;
-  color: #a8bd92; text-shadow: 2px 2px 0 rgba(8,12,8,0.7); }
+  color: #ddc39a; text-shadow: 2px 2px 0 rgba(20,12,6,0.8); }
 
 /* camera */
 .phcam { display: flex; flex-direction: column; gap: 10px; height: 100%; }
 .phviewfinder { flex: 1 1 auto; min-height: 170px; background: #000 center/cover no-repeat;
-  image-rendering: pixelated; box-shadow: inset 0 0 0 3px #2e3a26, inset 0 0 0 5px #0a0d08; }
+  image-rendering: pixelated; box-shadow: inset 0 0 0 3px #8a6f45, inset 0 0 0 5px #1e1208; }
 .phcamrow { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 10px; }
 .phshutter { width: 48px; height: 48px; border: 0; cursor: pointer; background: #b8412c;
-  box-shadow: inset 0 4px 0 #e07050, inset 0 -4px 0 #6a1e10, 0 0 0 3px #0a0d08, 0 0 0 6px #5a4d38; }
+  box-shadow: inset 0 4px 0 #e07050, inset 0 -4px 0 #6a1e10, 0 0 0 3px #140c06, 0 0 0 6px #8c5c30; }
 .phshutter:active { transform: translateY(3px); }
-
-/* the feed */
-.phpost { background: #161e14; box-shadow: inset 0 0 0 2px #283322; }
-.phposth { display: flex; align-items: center; gap: 8px; padding: 8px 10px; font-size: 12px; color: #e4eed4; }
-.phposth b { font-weight: 400; }
-.phposth .phdim { margin-left: auto; }
-.phava2 { flex: 0 0 auto; width: 26px; height: 26px; overflow: hidden; background: #232d1e;
-  box-shadow: inset 0 0 0 2px #3e4a34; display: flex; align-items: flex-end; justify-content: center; }
-.phava2 canvas { image-rendering: pixelated; transform: scale(0.7); transform-origin: bottom center; }
-.phpost p { margin: 0; padding: 0 10px 9px; font-size: 12px; line-height: 1.45; color: #a8bd92; }
-.phshot { display: block; width: 100%; image-rendering: pixelated; }
-.phlikes { display: flex; align-items: center; gap: 6px; padding: 7px 10px; font-size: 11px; color: #e08a9a; cursor: pointer; }
-.phlikes img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
 
 /* Everything inside a scrolling screen keeps its own height; the column must
    not squeeze its children or long posts get clipped. */
 .phscreen > * { flex: 0 0 auto; }
-.phpost, .phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub { flex: 0 0 auto; }
+.phscreen.app-camera > .phcam { flex: 1 1 auto; }
+.phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub, .phcam { flex: 0 0 auto; }
 
-/* the little phone button down in the corner of the frame */
-.mbtn.phonebtn { position: relative; }
-.mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }
+/* ---- the phone button on the frame --------------------------------------
+   Not a small square with a glyph on it any more. A phone sat in a wooden
+   holster screwed to the corner of the frame, with what it is called, the key
+   that opens it, and a brass tally of everything waiting inside. */
+.phonebtn {
+  position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px;
+  border: 0; cursor: pointer; font-family: var(--f); text-align: left;
+  background: #5a3a1c;
+  box-shadow:
+    inset 0 3px 0 #8c5c30, inset 0 -4px 0 #2a1a0c,
+    inset 3px 0 0 #6b4423, inset -3px 0 0 #3d2714,
+    0 0 0 3px var(--ol), 0 5px 0 3px rgba(0,0,0,0.45);
+}
+.phonebtn img.ico { width: 26px; height: 26px; image-rendering: pixelated; }
+.phonebtn .pbtx { display: flex; flex-direction: column; line-height: 1; }
+.phonebtn .pbtx b { font-size: 15px; font-weight: 400; letter-spacing: 1.5px; color: #f0dcb0; text-shadow: 1px 2px 0 #1e1208; }
+.phonebtn .pbtx small { margin-top: 3px; font-size: 10px; letter-spacing: 1.5px; color: #c9a878; }
+.phonebtn:hover { background: #6b4423; }
+.phonebtn:hover .pbtx b { color: #ffe98a; }
+.phonebtn:active { transform: translateY(4px); box-shadow:
+  inset 0 3px 0 #8c5c30, inset 0 -3px 0 #2a1a0c,
+  inset 3px 0 0 #6b4423, inset -3px 0 0 #3d2714,
+  0 0 0 3px var(--ol), 0 1px 0 3px rgba(0,0,0,0.45); }
+/* the tally: a brass tag hung on the top corner */
+.phonebtn i {
+  position: absolute; top: -9px; right: -9px; min-width: 20px; height: 20px; line-height: 20px;
+  padding: 0 3px; font-style: normal; font-size: 12px; text-align: center;
+  color: #2a1a04; background: var(--gd2);
+  box-shadow: inset 0 2px 0 var(--gd4), inset 0 -2px 0 var(--gd0), 0 0 0 3px var(--ol);
+}
 </style>
 
 <div id="app">
@@ -1134,7 +1154,11 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
-      <button class="mbtn phonebtn" id="b-phone" title="Your phone (P)"><img class="ico sm" data-ico="phone" alt=""><i id="b-phone-dot" hidden></i></button>
+      <button class="phonebtn" id="b-phone" title="Your phone (P)">
+        <img class="ico" data-ico="ph_key" alt="">
+        <span class="pbtx"><b>PHONE</b><small>press P</small></span>
+        <i id="b-phone-dot" hidden>0</i>
+      </button>
     </div>
 
     <div id="zoomer" hidden>
@@ -5834,6 +5858,111 @@ const Icons = (() => {
     b_tacky: (d) => { d.R(5, 2, 6, 4, S3); d.R(4, 6, 8, 8, G1); d.R(4, 6, 8, 1, G3); d.R(5, 13, 2, 3, G2); },
     b_double: (d) => { d.E(5.5, 9, 4.4, 4.4, G2); d.E(10.5, 7, 4.4, 4.4, G3); d.E(4.6, 8, 1.6, 1.6, G4); d.E(9.6, 6, 1.6, 1.6, G4); },
     b_shield: (d) => { d.L(3, 3, 8, 2, S3, 2); d.L(13, 3, 8, 2, S3, 2); d.R(3, 3, 10, 6, S3); d.L(3, 9, 8, 15, S3, 2); d.L(13, 9, 8, 15, S3, 2); d.R(5, 5, 6, 5, D3); d.R(7, 6, 2, 4, D5); },
+    // --- the phone's own set -------------------------------------------------
+    // The phone does not borrow the game's icons any more. It has its own,
+    // drawn at 20 pixels in wood, brass and parchment, so a tile reads as a
+    // little carved plaque rather than a tool lying on the grass.
+    // One palette for all of them, so the set hangs together.
+    ph_jobs: { res: 20, draw: (d) => {                      // a nailed-up list
+      d.R(3, 2, 14, 16, '#3d2714'); d.R(4, 3, 12, 14, '#ddc39a');
+      d.R(4, 3, 12, 2, '#f0dcb0');
+      d.R(6, 6, 2, 2, '#2f7f96'); d.R(6, 10, 2, 2, '#2f7f96'); d.R(6, 14, 2, 2, '#8a6f45');
+      d.R(9, 7, 6, 1, '#6b4a26'); d.R(9, 11, 6, 1, '#6b4a26'); d.R(9, 15, 4, 1, '#8a6f45');
+      d.R(9, 1, 2, 3, '#d8a41c'); d.R(9, 1, 2, 1, '#ffe98a');
+    } },
+    ph_herd: { res: 20, draw: (d) => {                      // her, head on
+      d.R(4, 7, 12, 10, '#8a5b3a'); d.R(3, 9, 14, 7, '#8a5b3a');
+      d.R(4, 7, 12, 3, '#a87249'); d.R(5, 7, 10, 1, '#c28d5e');
+      d.R(3, 4, 4, 4, '#6d452c'); d.R(13, 4, 4, 4, '#6d452c');       // the ears
+      d.R(4, 5, 2, 2, '#a87249'); d.R(14, 5, 2, 2, '#a87249');
+      d.R(6, 10, 3, 3, '#f0dcb0'); d.R(11, 10, 3, 3, '#f0dcb0');     // the eye patches
+      d.R(7, 11, 2, 2, '#140c06'); d.R(12, 11, 2, 2, '#140c06');     // the beads
+      d.R(7, 11, 1, 1, '#f7ecd2'); d.R(12, 11, 1, 1, '#f7ecd2');
+      d.R(7, 14, 6, 3, '#3a2a22'); d.R(8, 14, 4, 1, '#5e4438');      // the nose
+    } },
+    ph_garden: { res: 20, draw: (d) => {                    // a sprout in a bed
+      d.R(2, 13, 16, 5, '#4a2f16'); d.R(2, 13, 16, 1, '#6b4423');
+      for (let i = 0; i < 4; i++) d.R(3 + i * 4, 15, 2, 1, '#35200f');
+      d.R(9, 5, 2, 9, '#4d7430');
+      d.P([[9, 9], [3, 7], [4, 11], [9, 12]], '#74a449');
+      d.P([[11, 7], [17, 5], [16, 9], [11, 10]], '#a0cd72');
+      d.R(8, 2, 4, 3, '#f2c936'); d.R(9, 2, 2, 1, '#ffe98a');
+    } },
+    ph_places: { res: 20, draw: (d) => {                    // a signpost at a fork
+      d.R(9, 3, 2, 15, '#6b4423'); d.R(9, 3, 1, 15, '#8c5c30');
+      d.R(2, 5, 8, 4, '#4d2f16'); d.R(2, 5, 8, 1, '#8c5c30');
+      d.R(3, 6, 6, 2, '#ddc39a');
+      d.R(10, 10, 8, 4, '#4d2f16'); d.R(10, 10, 8, 1, '#8c5c30');
+      d.R(11, 11, 6, 2, '#ddc39a');
+      d.R(3, 17, 14, 2, '#2f4a1c');
+    } },
+    ph_msg: { res: 20, draw: (d) => {                       // a folded letter
+      d.R(2, 4, 16, 12, '#3d2714'); d.R(3, 5, 14, 10, '#f0dcb0');
+      d.P([[3, 5], [17, 5], [10, 11]], '#ddc39a');
+      d.P([[3, 6], [17, 6], [10, 11]], '#c9a878');
+      d.R(8, 11, 4, 4, '#a8323a'); d.R(9, 12, 2, 1, '#c9525a');      // the wax seal
+    } },
+    ph_camera: { res: 20, draw: (d) => {                    // a box camera
+      d.R(1, 5, 18, 12, '#2a2419'); d.R(2, 6, 16, 10, '#4d4233');
+      d.R(2, 6, 16, 2, '#6b5c44');
+      d.R(6, 2, 6, 3, '#2a2419'); d.R(7, 3, 4, 1, '#4d4233');
+      d.R(6, 8, 8, 8, '#17120c'); d.R(7, 9, 6, 6, '#1c5568');
+      d.R(8, 10, 4, 4, '#4fa6be'); d.R(8, 10, 2, 2, '#cdeff8');
+      d.R(15, 8, 2, 2, '#d8a41c'); d.R(15, 8, 2, 1, '#ffe98a');
+    } },
+    ph_larder: { res: 20, draw: (d) => {                    // a crate with a coin
+      d.R(2, 6, 16, 12, '#5a3a1c'); d.R(2, 6, 16, 2, '#8c5c30');
+      d.R(2, 16, 16, 2, '#35200f');
+      d.R(6, 6, 2, 12, '#3d2714'); d.R(12, 6, 2, 12, '#3d2714');
+      d.R(2, 11, 16, 1, '#3d2714');
+      d.E(14, 5, 4, 4, '#7a4f06'); d.E(14, 4.4, 3.4, 3.4, '#d8a41c');
+      d.R(13, 3, 2, 3, '#ffe98a');
+    } },
+    ph_settings: { res: 20, draw: (d) => {                  // a wooden cog, brass teeth
+      for (const [tx, ty] of [[8, 0], [8, 16], [0, 8], [16, 8]]) {   // four brass teeth
+        d.R(tx, ty, 4, 4, '#a9750d'); d.R(tx, ty, 4, 1, '#d8a41c');
+      }
+      for (const [tx, ty] of [[2.5, 2.5], [14.5, 2.5], [2.5, 14.5], [14.5, 14.5]]) {
+        d.R(tx, ty, 3, 3, '#a9750d');
+      }
+      d.R(3, 3, 14, 14, '#6b4423'); d.R(4, 4, 12, 12, '#8c5c30');
+      d.R(4, 4, 12, 2, '#a87642'); d.R(4, 14, 12, 2, '#4d2f16');
+      d.R(7, 7, 6, 6, '#1e1208'); d.R(8, 8, 4, 4, '#3d2714');
+    } },
+    // --- the phone's small change: notifications, weather, the key ----------
+    ph_bell: { res: 20, draw: (d) => {                      // brass, for a notice
+      d.R(9, 1, 2, 2, '#7a4f06');                           // the loop on top
+      d.R(6, 4, 8, 8, '#a9750d');                           // the dome
+      d.R(5, 7, 10, 5, '#a9750d');
+      d.R(7, 3, 6, 2, '#d8a41c');
+      d.R(7, 5, 4, 6, '#d8a41c'); d.R(7, 5, 2, 5, '#ffe98a');
+      d.R(3, 12, 14, 3, '#d8a41c');                         // the flared skirt
+      d.R(3, 12, 14, 1, '#ffe98a'); d.R(3, 14, 14, 1, '#7a4f06');
+      d.R(9, 15, 3, 3, '#7a4f06'); d.R(9, 15, 2, 2, '#a9750d');   // the clapper
+    } },
+    ph_sun: { res: 20, draw: (d) => {
+      d.E(10, 10, 5, 5, '#a9750d'); d.E(10, 9.4, 4.2, 4.2, '#f2c936'); d.E(8.6, 8.4, 2, 2, '#ffe98a');
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; d.R(10 + Math.cos(a) * 7 - 1, 10 + Math.sin(a) * 7 - 1, 2, 2, '#d8a41c'); }
+    } },
+    ph_rain: { res: 20, draw: (d) => {
+      d.R(3, 4, 14, 6, '#5a6470'); d.R(3, 4, 14, 2, '#8a94a0'); d.R(5, 2, 9, 3, '#7a848f');
+      for (let i = 0; i < 4; i++) d.R(4 + i * 4, 12 + (i % 2) * 2, 2, 4, '#4fa6be');
+    } },
+    ph_moon: { res: 20, draw: (d) => {                      // full, with craters
+      d.E(10, 10, 7, 7, '#8a6f45'); d.E(10, 9.4, 6.2, 6.2, '#ddc39a');
+      d.E(8.4, 8, 3, 2.6, '#f0dcb0');
+      d.E(12.4, 7.4, 1.6, 1.4, '#ab8a5c'); d.E(7.4, 12, 2, 1.8, '#ab8a5c');
+      d.E(13, 12.6, 1.4, 1.2, '#ab8a5c');
+      d.R(2, 4, 2, 2, '#f7ecd2'); d.R(17, 15, 2, 2, '#f7ecd2');
+    } },
+    ph_key: { res: 20, draw: (d) => {                       // the phone, for the frame
+      d.R(3, 1, 14, 18, '#17120c'); d.R(4, 2, 12, 16, '#5a4d38');
+      d.R(4, 2, 12, 2, '#8a7752'); d.R(4, 16, 12, 2, '#2a2418');
+      d.R(5, 5, 10, 10, '#0c110d'); d.R(6, 6, 8, 8, '#2f4a1c');
+      d.R(6, 6, 8, 2, '#4d7430');
+      d.R(7, 9, 6, 1, '#a0cd72'); d.R(7, 11, 4, 1, '#a0cd72');
+      d.R(8, 3, 4, 1, '#2a2418'); d.R(8, 16, 4, 1, '#8a7752');
+    } },
     b_feather: (d) => { d.L(4, 14, 12, 3, C, 1); for (let i = 0; i < 6; i++) { const t = i / 6, x = U.lerp(4, 12, t), y = U.lerp(14, 3, t); d.L(x, y, x - 3 + i * 0.4, y - 1, PAL.parch1, 1); d.L(x, y, x + 2, y + 1, PAL.parch0, 1); } },
   };
 
@@ -15900,8 +16029,8 @@ const Talk = (() => {
 // ===== js/phone.js =====
 // ---- The phone ---------------------------------------------------------------
 // Everything you would otherwise have to remember lives in here: what the
-// hooded one has asked for, how each wombat is doing, what is in the beds, what
-// the sky is doing, where you can drive and what is in the purse. It opens over
+// hooded one has asked for, how each wombat is doing, what is in the beds,
+// what is in the truck and where you can drive. It opens over
 // whatever scene you are in and pauses the world while it is up, because that
 // is what a phone does to a person.
 const Phone = (() => {
@@ -15915,21 +16044,17 @@ const Phone = (() => {
   // Every app on the home screen, in the order they sit on it. `tint` is the
   // icon's own colour, the way every phone gives an app one.
   const APPS = [
-    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: ['#c99a2a', '#6b4d08'] },
-    { key: 'herd', name: 'Herd', icon: 'wombat', tint: ['#9a6a4c', '#4e2e1e'] },
-    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: ['#638f45', '#25401c'] },
-    { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#4a8ca6', '#173d4e'] },
-    { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#a8664a', '#4e2230'] },
-    { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#5a4d38', '#241d12'] },
-    { key: 'camera', name: 'Camera', icon: 'camera', tint: ['#45483c', '#191b14'] },
-    { key: 'feed', name: 'Gram', icon: 'heart', tint: ['#a05068', '#42182c'] },
-    { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#7a8078', '#33382f'] },
-    { key: 'help', name: 'Tips', icon: 'basket', tint: ['#7a6a9a', '#2e2544'] },
+    { key: 'quests', name: 'Jobs', icon: 'ph_jobs', tint: ['#6b4423', '#3d2714'] },
+    { key: 'herd', name: 'Herd', icon: 'ph_herd', tint: ['#6b4423', '#3d2714'] },
+    { key: 'garden', name: 'Garden', icon: 'ph_garden', tint: ['#6b4423', '#3d2714'] },
+    { key: 'larder', name: 'Larder', icon: 'ph_larder', tint: ['#6b4423', '#3d2714'] },
+    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#6b4423', '#3d2714'] },
+    { key: 'settings', name: 'Settings', icon: 'ph_settings', tint: ['#6b4423', '#3d2714'] },
   ];
   const DOCK = ['messages', 'map', 'quests', 'herd'];
   const ALL = APPS.concat([
-    { key: 'messages', name: 'Messages', icon: 'msg', tint: ['#5c8f4a', '#1e3a18'] },
-    { key: 'map', name: 'Places', icon: 'map', tint: ['#4e8f7c', '#173a32'] },
+    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#6b4423', '#3d2714'] },
+    { key: 'map', name: 'Places', icon: 'ph_places', tint: ['#6b4423', '#3d2714'] },
   ]);
   const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
   const TITLE = Object.fromEntries(ALL.map((a) => [a.key, a.name]));
@@ -15947,7 +16072,7 @@ const Phone = (() => {
     const { c, g } = Art.cv(W2, H2);
     const r = Art.rng(31337);
     const HZ = Math.round(H2 * 0.58);
-    const BANDS = ['#151033', '#1c1640', '#271e4f', '#372660', '#4e2f6a', '#6d3c68', '#8e4a62', '#b9675a', '#dd9a62', '#f6d089'];
+    const BANDS = ['#2b1a10', '#3a2413', '#4c2f16', '#633c19', '#7d4c1d', '#9a5f23', '#b8762c', '#d0913a', '#e2b055', '#f2d087'];
     for (let i = 0; i < BANDS.length; i++) {
       g.fillStyle = BANDS[i];
       g.fillRect(0, Math.round((HZ * i) / BANDS.length), W2, Math.ceil(HZ / BANDS.length) + 1);
@@ -15955,7 +16080,7 @@ const Phone = (() => {
     // stars, thicker toward the top
     for (let i = 0; i < 60; i++) {
       const x = Math.round(r() * W2), y = Math.round(r() * r() * HZ * 0.8);
-      g.fillStyle = r() < 0.35 ? '#ffffff' : '#cfd6f2';
+      g.fillStyle = r() < 0.35 ? '#fff4d8' : '#e0c294';
       g.fillRect(x, y, 1, 1);
     }
     // the moon: a crescent, stepped, four blocks to a step
@@ -15963,7 +16088,7 @@ const Phone = (() => {
     for (let yy = -mr; yy <= mr; yy++) {
       const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
       if (w < 1) continue;
-      g.fillStyle = '#f2ecff'; g.fillRect(mx - w, my + yy, w * 2, 1);
+      g.fillStyle = '#f7ecd2'; g.fillRect(mx - w, my + yy, w * 2, 1);
     }
     for (let yy = -mr; yy <= mr; yy++) {                 // the bite out of it
       const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
@@ -15973,11 +16098,11 @@ const Phone = (() => {
       g.fillRect(mx - w + 5, my + yy, w2 * 2, 1);
     }
     for (const [dx, dy, rr] of [[-6, -2, 2], [-4, 5, 1]]) {   // a couple of seas
-      g.fillStyle = '#d3c6ec';
+      g.fillStyle = '#ddc39a';
       g.fillRect(mx + dx - rr, my + dy - rr, rr * 2 + 1, rr * 2 + 1);
     }
     // three ranks of conifer, each lower, darker and bigger
-    const RANK = [['#3a3358', 0.00, 10, 7], ['#241f3e', 0.045, 15, 9], ['#141324', 0.1, 22, 12]];
+    const RANK = [['#4a3a22', 0.00, 10, 7], ['#31281a', 0.045, 15, 9], ['#1e1810', 0.1, 22, 12]];
     RANK.forEach(([col, off, hgt, wid]) => {
       const baseY = Math.round(HZ + off * H2);
       g.fillStyle = col;
@@ -15998,12 +16123,12 @@ const Phone = (() => {
     // the ground, and grass through it
     const gy = Math.round(HZ + 0.1 * H2);
     for (let i = 0; i < 7; i++) {
-      g.fillStyle = U.mix('#101a12', '#223522', i / 6);
+      g.fillStyle = U.mix('#1a1409', '#34291a', i / 6);
       g.fillRect(0, gy + Math.round(((H2 - gy) * i) / 7), W2, Math.ceil((H2 - gy) / 7) + 1);
     }
     for (let i = 0; i < 260; i++) {
       const x = Math.round(r() * W2), y = gy + Math.round(r() * (H2 - gy));
-      g.fillStyle = ['#1e3320', '#284523', '#33542a'][Math.floor(r() * 3)];
+      g.fillStyle = ['#2a2113', '#3d3020', '#4d3d22'][Math.floor(r() * 3)];
       g.fillRect(x, y, 2, 1);
     }
     // a hut with the lamp on
@@ -16038,20 +16163,22 @@ const Phone = (() => {
   // whatever has happened since you last looked stacked underneath. Swipe it,
   // or press anything, and it opens.
   let locked = true;
+  // Every notice wears the icon of the app it came out of, the way a notice
+  // on a real phone does. Nothing here borrows a tool out of the grove.
   function notifications() {
     const out = [];
     const q = Guide.current();
-    if (q) out.push({ app: 'Jobs', icon: 't_sickle', title: q.title, body: q.where });
+    if (q) out.push({ app: 'Jobs', icon: 'ph_jobs', title: q.title, body: q.where, go: 'quests' });
     const th = threads();
     for (const k of Object.keys(th)) {
       const un = th[k].filter((m) => m.f === 't' && !m.seen);
       if (!un.length) continue;
-      out.push({ app: 'Messages', icon: 'msg', title: PEOPLE[k].name, body: un[un.length - 1].text, go: 'messages' });
+      out.push({ app: 'Messages', icon: 'ph_msg', title: PEOPLE[k].name, body: un[un.length - 1].text, go: 'messages' });
     }
-    for (const c of careList().slice(0, 2)) out.push({ app: 'Herd', icon: c.icon, title: c.what, body: c.where, go: 'herd' });
-    for (const j of gardenJobs().slice(0, 2)) out.push({ app: 'Garden', icon: j.icon, title: j.what, body: j.where, go: 'garden' });
-    const d = Sky.def();
-    out.push({ app: 'Weather', icon: d.icon, title: d.name, body: d.blurb, go: 'sky' });
+    for (const c of careList().slice(0, 2)) out.push({ app: 'Herd', icon: 'ph_herd', title: c.what, body: c.where, go: 'herd' });
+    for (const j of gardenJobs().slice(0, 2)) out.push({ app: 'Garden', icon: 'ph_garden', title: j.what, body: j.where, go: 'garden' });
+    const load = OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
+    if (load) out.push({ app: 'Larder', icon: 'ph_larder', title: load + ' in the truck', body: 'the hooded one buys these', go: 'larder' });
     return out.slice(0, 6);
   }
   function paintLock() {
@@ -16127,6 +16254,7 @@ const Phone = (() => {
       quests: q ? 1 : 0,
       herd: careList().length,
       garden: gardenJobs().length,
+      larder: OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0),
       messages: unread(),
     };
   }
@@ -16141,12 +16269,12 @@ const Phone = (() => {
     const q = Guide.current();
     const d = Sky.def();
     $('ph-widget').innerHTML = `
-      <h5>${Sky.partOfDay().toUpperCase()} &middot; ${esc(d.name).toUpperCase()}</h5>
+      <h5>${ic(Sky.isNight() ? 'ph_moon' : Sky.wet() > 0.2 ? 'ph_rain' : 'ph_sun', 'sm')} ${Sky.partOfDay().toUpperCase()} &middot; ${esc(d.name).toUpperCase()}</h5>
       <p>${q ? esc(q.title) : 'Nothing owing. The wood is yours.'}</p>
       <div class="phwrow">
-        <span>${ic('wdollar', 'sm')} ${U.fmt(G.wd)}</span>
-        <span>${ic('wombat', 'sm')} ${G.wombats.length}</span>
-        <span>${ic('c_broadleaf', 'sm')} ${(World.crops || []).length}</span>
+        <span>${ic('ph_larder', 'sm')} ${U.fmt(G.wd)}</span>
+        <span>${ic('ph_herd', 'sm')} ${G.wombats.length}</span>
+        <span>${ic('ph_garden', 'sm')} ${(World.crops || []).length}</span>
       </div>`;
     $('ph-grid').innerHTML = APPS.map((a) => appIcon(a, b[a.key])).join('');
     $('ph-dock').innerHTML = DOCK.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
@@ -16287,31 +16415,17 @@ const Phone = (() => {
     }).join('');
   }
 
-  // ---- the sky --------------------------------------------------------------
-  function sky() {
-    const d = Sky.def();
-    const light = Math.round(Sky.light() * 100);
-    return `<div class="phcard big">
-        <div class="phcardh">${ic(d.icon)}<b>${esc(d.name)}</b><span class="phdim">${Sky.clockText()}</span></div>
-        <p>${esc(d.blurb)}</p>
-        <div class="phstat"><span>daylight</span>${bar(light, 100, '#f5cd5c')}</div>
-        <div class="phstat"><span>cloud</span>${bar(Sky.cover() * 100, 100, '#8b849c')}</div>
-        <div class="phstat"><span>rain</span>${bar(Sky.wet() * 100, 100, '#57b6c9')}</div>
-      </div>
-      <div class="phsub">WHAT IT MEANS</div>
-      ${row(`${ic('t_water')}<b>Rain waters the beds</b><span class="phdim">for nothing</span>`)}
-      ${row(`${ic('c_runeberry')}<b>Some seed only grows at night</b><span class="phdim">moonbell, runeberry</span>`)}
-      ${row(`${ic('c_emberleaf')}<b>Some seed hates the wet</b><span class="phdim">emberleaf</span>`)}
-      <div class="phsub">THE DAY</div>
-      ${row(`<b>${esc(Sky.partOfDay())}</b><span class="phdim">a full day is twelve minutes</span>`)}`;
-  }
-
-  // ---- the purse ------------------------------------------------------------
-  function purse() {
+  // ---- the larder ------------------------------------------------------------
+  // The money, what is in the back of the truck and what is on the shelf, on
+  // one page. It replaces the wallet, the weather and the wombagram, none of
+  // which said anything the grove was not already saying out loud.
+  function larder() {
     const offs = OFFER_ORDER.filter((k) => (G.offerings[k] || 0) + (G.blessed[k] || 0) > 0);
     const food = CROPS.filter((c) => (G.food[c.key] || 0) > 0);
-    let html = `<div class="phcard big"><div class="phcardh">${ic('wdollar')}<b>${U.fmt(G.wd)} W$</b></div>
-      <div class="phmeta"><span>earned ${U.fmt(Math.round(G.stats.earned || 0))}</span><span>${G.wombats.length} in the herd</span></div></div>`;
+    const d = Sky.def();
+    let html = `<div class="phcard big"><div class="phcardh">${ic('ph_larder')}<b>${U.fmt(G.wd)} W$</b></div>
+      <div class="phmeta"><span>earned ${U.fmt(Math.round(G.stats.earned || 0))}</span><span>${G.wombats.length} in the herd</span></div></div>
+      ${row(`${ic(Sky.isNight() ? 'ph_moon' : Sky.wet() > 0.2 ? 'ph_rain' : 'ph_sun')}<b>${esc(d.name)}</b><span class="phdim">${esc(d.blurb)}</span>`)}`;
     if (offs.length) {
       html += `<div class="phsub">IN THE TRUCK</div>` + offs.map((k) => row(
         `${ic(OFFERINGS[k].icon)}<b>${esc(OFFERINGS[k].name)}</b><span class="phnum">${(G.offerings[k] || 0) + (G.blessed[k] || 0)}</span><span class="phdim">the hooded one buys these</span>`)).join('');
@@ -16437,43 +16551,22 @@ const Phone = (() => {
       </div>`;
   }
 
-  // ---- photos ------------------------------------------------------------------
-  function photos() {
-    const roll = (G.shots || []).length
-      ? `<div class="phsub">CAMERA ROLL</div><div class="phphotos">${(G.shots || []).map((sh) => `<div class="phphoto"><img src="${sh.url}" alt=""></div>`).join('')}</div>`
-      : `<div class="phsub">CAMERA ROLL</div><div class="phcard"><p>Nothing yet. Open Camera and press the button.</p></div>`;
-    if (!G.wombats.length) return roll;
-    return roll + `<div class="phsub">${G.wombats.length} PORTRAIT${G.wombats.length > 1 ? 'S' : ''}</div>
-      <div class="phphotos">${G.wombats.map((w) => `<div class="phphoto" data-shot="${w.id}"><em>${esc(w.name)}</em></div>`).join('')}</div>
-      <div class="phsub">FAVOURITES</div>
-      <div class="phcard"><p>Every one of them, obviously.</p></div>`;
-  }
-
-  // ---- tips --------------------------------------------------------------------
-  function help() {
-    const TIPS = [
-      ['t_sickle', 'The tool tray', 'Right-click, or press Tab. Pick one and it rides with the pointer.'],
-      ['t_hoe', 'Beds', 'Hoe bare soil, sow on it, water it, pick it when it glows.'],
-      ['c_broadleaf', 'Three kinds of plant', 'Crops are picked once. Trees take minutes and fruit forever. Magical seed wants one strange thing and sulks until it gets it.'],
-      ['wombat', 'Carrying', 'Drag a wombat and she comes off the ground. The pond is a drink, a hill is a sit, the truck means she is coming with you.'],
-      ['wdollar', 'Cubes', 'The hooded one buys every one of them, and pays better for a load.'],
-      ['map', 'Getting about', 'Places will drive you anywhere from where you are standing.'],
-    ];
-    return TIPS.map(([i, t2, b]) => `<div class="phcard"><div class="phcardh">${ic(i)}<b>${esc(t2)}</b></div><p>${esc(b)}</p></div>`).join('');
-  }
-
   // ---- the camera --------------------------------------------------------------
   // It photographs whatever is on the screen behind the phone, which is the
-  // whole point of a camera. Shots go in Photos and can be posted.
+  // whole point of a camera. The roll sits underneath the shutter.
   function camera() {
+    const shots = G.shots || [];
+    const roll = shots.length
+      ? `<div class="phsub">THE ROLL</div><div class="phphotos">${shots.map((sh) => `<div class="phphoto"><img src="${sh.url}" alt=""></div>`).join('')}</div>`
+      : '';
     return `<div class="phcam">
         <div class="phviewfinder" id="ph-vf"></div>
         <div class="phcamrow">
-          <span class="phdim">${(G.shots || []).length} in the roll</span>
+          <span class="phdim">${shots.length} in the roll</span>
           <button class="phshutter" id="ph-shutter"></button>
           <span class="phdim">wombat cam</span>
         </div>
-      </div>`;
+      </div>${roll}`;
   }
   function takeShot() {
     try {
@@ -16490,35 +16583,8 @@ const Phone = (() => {
       UI.toast('<b>snap</b> &mdash; it is in your camera roll', 'good');
     } catch (e) { UI.toast('the camera would not focus', 'bad'); }
   }
-  // ---- the feed ------------------------------------------------------------------
-  // Everyone in the district posts about your wombats. Your own shots go in
-  // among theirs, and the likes climb while you watch.
-  const FEED = [
-    { who: 'shaz', text: 'day off. drove out to the grove again. NO REGRETS', likes: 412 },
-    { who: 'bee', text: 'the clover came good this year. thank the wombats', likes: 88 },
-    { who: 'bard', text: 'new song. four verses. the wombats of the grove 🎵', likes: 1204 },
-    { who: 'bota', text: 'Unconfirmed sighting below the tree line. Investigating.', likes: 37 },
-    { who: 'post', text: 'nothing in the post for the grove. again. lovely walk though', likes: 51 },
-    { who: 'cultist', text: 'Cubes bought. Cash paid. No questions asked. Open all hours.', likes: 9 },
-  ];
-  function feed() {
-    const mine = (G.shots || []).map((sh, i) => `
-      <div class="phpost">
-        <div class="phposth"><i class="phava2" data-ava="me"></i><b>you</b><span class="phdim">just now</span></div>
-        <img class="phshot" src="${sh.url}" alt="">
-        <div class="phlikes" data-like="${i}">${ic('heart', 'sm')} ${sh.likes + 24}</div>
-      </div>`).join('');
-    const theirs = FEED.map((f) => `
-      <div class="phpost">
-        <div class="phposth"><i class="phava2" data-ava="${f.who}"></i><b>${esc(PEOPLE[f.who] ? PEOPLE[f.who].name : f.who)}</b></div>
-        <p>${esc(f.text)}</p>
-        <div class="phlikes">${ic('heart', 'sm')} ${f.likes}</div>
-      </div>`).join('');
-    return (mine || '') + theirs;
-  }
-
   // ---- drawing --------------------------------------------------------------
-  const BODY = { quests, herd, map: places, garden, sky, purse, messages, settings, photos, help, camera, feed };
+  const BODY = { quests, herd, map: places, garden, larder, messages, settings, camera };
   function render() {
     const homeV = $('ph-home-view'), appV = $('ph-app-view'), lockV = $('ph-lock');
     if (!homeV || !appV) return;
@@ -16534,23 +16600,10 @@ const Phone = (() => {
     $('ph-title').textContent = app === 'messages' && chatWith ? PEOPLE[chatWith].name : TITLE[app] || 'App';
     $('ph-back').textContent = app === 'messages' && chatWith ? '‹ Messages' : '‹ Home';
     scr.className = 'phscreen app-' + app;
-    scr.innerHTML = (BODY[app] || help)();
+    scr.innerHTML = (BODY[app] || quests)();
     scr.scrollTop = 0;
     // the bits that need a canvas painting into them
     scr.querySelectorAll('[data-ava]').forEach((el) => el.appendChild(avatar(el.dataset.ava)));
-    scr.querySelectorAll('[data-shot]').forEach((el) => {
-      const w = G.wombats.find((x) => String(x.id) === el.dataset.shot);
-      if (!w) return;
-      const c = document.createElement('canvas');
-      c.width = 60; c.height = 48;
-      const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
-      const poses = ['idle', 'happy', 'sit', 'graze', 'sleep'];
-      const img = Sprites.wombat(poses[(w.name.length + w.x | 0) % poses.length], 2, w.pelt, 1, w.age);
-      g2.fillStyle = '#4a6a3a'; g2.fillRect(0, 0, 60, 48);
-      g2.fillStyle = '#5d8a44'; g2.fillRect(0, 34, 60, 14);
-      g2.drawImage(img, Math.round(30 - img.width / 2), Math.round(42 - img.height));
-      el.insertBefore(c, el.firstChild);
-    });
     // the viewfinder is a live picture of what is behind the phone
     const vf = scr.querySelector('#ph-vf');
     if (vf) {
@@ -16565,14 +16618,6 @@ const Phone = (() => {
     }
     const sh = scr.querySelector('#ph-shutter');
     if (sh) sh.onclick = () => { takeShot(); render(); };
-    scr.querySelectorAll('[data-ava]').forEach((el) => {
-      if (el.dataset.ava === 'me') { el.style.background = '#4a7a3a'; return; }
-      el.appendChild(avatar(el.dataset.ava));
-    });
-    scr.querySelectorAll('[data-like]').forEach((el) => el.onclick = () => {
-      const sh2 = (G.shots || [])[+el.dataset.like];
-      if (sh2) { sh2.likes += 1 + Math.floor(Math.random() * 9); Audio.play('pop'); render(); }
-    });
     wire(scr);
   }
   function wire(scr) {
@@ -16673,6 +16718,7 @@ const UI = (() => {
     if (dot) {
       const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length + Phone.unread() : 0;
       dot.hidden = jobs === 0;
+      dot.textContent = jobs > 9 ? '9+' : String(jobs);
     }
     refreshList();
     refreshNotebook();
@@ -17765,13 +17811,14 @@ const Menu = (() => {
     // the buttons live on a page of their own, the way every menu in this
     // kit does: a cream board in a teal frame with a plate across the top
     const BW = 258, PADX = 16;
-    const PX = VW - BW - PADX * 2 - 22, PY = 148, PW = BW + PADX * 2, PH = 186;
+    // No banner across the top. The three buttons are the whole page: the
+    // board was spending a quarter of itself telling you where you were.
+    const PX = VW - BW - PADX * 2 - 22, PY = 164, PW = BW + PADX * 2, PH = 152;
     board(g, PX, PY, PW, PH);
-    plate(g, PX + 12, PY + 11, PW - 24, 24, hasSave ? 'WELCOME BACK' : 'A NEW WOOD', 1);
     const BX = PX + PADX;
-    buttons.push({ id: 'enter', x: BX, y: PY + 44, w: BW, h: 48 });
-    buttons.push({ id: 'settings', x: BX, y: PY + 100, w: BW, h: 32 });
-    buttons.push({ id: 'help', x: BX, y: PY + 140, w: BW, h: 32 });
+    buttons.push({ id: 'enter', x: BX, y: PY + 16, w: BW, h: 48 });
+    buttons.push({ id: 'settings', x: BX, y: PY + 72, w: BW, h: 32 });
+    buttons.push({ id: 'help', x: BX, y: PY + 112, w: BW, h: 32 });
     bigButton(g, buttons[0], 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
     bigButton(g, buttons[1], 'SETTINGS', null, 2);
     bigButton(g, buttons[2], 'HOW TO PLAY', null, 2);
@@ -17783,10 +17830,6 @@ const Menu = (() => {
     cut(g, rx - w / 2, ry - 1, w, 14, KIT.p2, 2);
     Art.rect(g, rx - w / 2 + 2, ry - 1, w - 4, 2, KIT.p4);
     Font.draw(g, line, rx, ry + 3, { scale: 1, color: '#6b4a26', align: 'center' });
-    // and the wombats you have, if there are any to come back to
-    if (hasSave) {
-      Font.draw(g, 'A GROVE IS WAITING FOR YOU', PX + PW / 2, PY + PH - 14, { scale: 1, color: '#7a4f06', align: 'center' });
-    }
   }
 
   // a short page of how it works, so the title screen can answer the question

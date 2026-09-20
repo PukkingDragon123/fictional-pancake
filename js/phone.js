@@ -1,7 +1,7 @@
 // ---- The phone ---------------------------------------------------------------
 // Everything you would otherwise have to remember lives in here: what the
-// hooded one has asked for, how each wombat is doing, what is in the beds, what
-// the sky is doing, where you can drive and what is in the purse. It opens over
+// hooded one has asked for, how each wombat is doing, what is in the beds,
+// what is in the truck and where you can drive. It opens over
 // whatever scene you are in and pauses the world while it is up, because that
 // is what a phone does to a person.
 const Phone = (() => {
@@ -15,21 +15,17 @@ const Phone = (() => {
   // Every app on the home screen, in the order they sit on it. `tint` is the
   // icon's own colour, the way every phone gives an app one.
   const APPS = [
-    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: ['#c99a2a', '#6b4d08'] },
-    { key: 'herd', name: 'Herd', icon: 'wombat', tint: ['#9a6a4c', '#4e2e1e'] },
-    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: ['#638f45', '#25401c'] },
-    { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#4a8ca6', '#173d4e'] },
-    { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#a8664a', '#4e2230'] },
-    { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#5a4d38', '#241d12'] },
-    { key: 'camera', name: 'Camera', icon: 'camera', tint: ['#45483c', '#191b14'] },
-    { key: 'feed', name: 'Gram', icon: 'heart', tint: ['#a05068', '#42182c'] },
-    { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#7a8078', '#33382f'] },
-    { key: 'help', name: 'Tips', icon: 'basket', tint: ['#7a6a9a', '#2e2544'] },
+    { key: 'quests', name: 'Jobs', icon: 'ph_jobs', tint: ['#6b4423', '#3d2714'] },
+    { key: 'herd', name: 'Herd', icon: 'ph_herd', tint: ['#6b4423', '#3d2714'] },
+    { key: 'garden', name: 'Garden', icon: 'ph_garden', tint: ['#6b4423', '#3d2714'] },
+    { key: 'larder', name: 'Larder', icon: 'ph_larder', tint: ['#6b4423', '#3d2714'] },
+    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#6b4423', '#3d2714'] },
+    { key: 'settings', name: 'Settings', icon: 'ph_settings', tint: ['#6b4423', '#3d2714'] },
   ];
   const DOCK = ['messages', 'map', 'quests', 'herd'];
   const ALL = APPS.concat([
-    { key: 'messages', name: 'Messages', icon: 'msg', tint: ['#5c8f4a', '#1e3a18'] },
-    { key: 'map', name: 'Places', icon: 'map', tint: ['#4e8f7c', '#173a32'] },
+    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#6b4423', '#3d2714'] },
+    { key: 'map', name: 'Places', icon: 'ph_places', tint: ['#6b4423', '#3d2714'] },
   ]);
   const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
   const TITLE = Object.fromEntries(ALL.map((a) => [a.key, a.name]));
@@ -47,7 +43,7 @@ const Phone = (() => {
     const { c, g } = Art.cv(W2, H2);
     const r = Art.rng(31337);
     const HZ = Math.round(H2 * 0.58);
-    const BANDS = ['#151033', '#1c1640', '#271e4f', '#372660', '#4e2f6a', '#6d3c68', '#8e4a62', '#b9675a', '#dd9a62', '#f6d089'];
+    const BANDS = ['#2b1a10', '#3a2413', '#4c2f16', '#633c19', '#7d4c1d', '#9a5f23', '#b8762c', '#d0913a', '#e2b055', '#f2d087'];
     for (let i = 0; i < BANDS.length; i++) {
       g.fillStyle = BANDS[i];
       g.fillRect(0, Math.round((HZ * i) / BANDS.length), W2, Math.ceil(HZ / BANDS.length) + 1);
@@ -55,7 +51,7 @@ const Phone = (() => {
     // stars, thicker toward the top
     for (let i = 0; i < 60; i++) {
       const x = Math.round(r() * W2), y = Math.round(r() * r() * HZ * 0.8);
-      g.fillStyle = r() < 0.35 ? '#ffffff' : '#cfd6f2';
+      g.fillStyle = r() < 0.35 ? '#fff4d8' : '#e0c294';
       g.fillRect(x, y, 1, 1);
     }
     // the moon: a crescent, stepped, four blocks to a step
@@ -63,7 +59,7 @@ const Phone = (() => {
     for (let yy = -mr; yy <= mr; yy++) {
       const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
       if (w < 1) continue;
-      g.fillStyle = '#f2ecff'; g.fillRect(mx - w, my + yy, w * 2, 1);
+      g.fillStyle = '#f7ecd2'; g.fillRect(mx - w, my + yy, w * 2, 1);
     }
     for (let yy = -mr; yy <= mr; yy++) {                 // the bite out of it
       const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
@@ -73,11 +69,11 @@ const Phone = (() => {
       g.fillRect(mx - w + 5, my + yy, w2 * 2, 1);
     }
     for (const [dx, dy, rr] of [[-6, -2, 2], [-4, 5, 1]]) {   // a couple of seas
-      g.fillStyle = '#d3c6ec';
+      g.fillStyle = '#ddc39a';
       g.fillRect(mx + dx - rr, my + dy - rr, rr * 2 + 1, rr * 2 + 1);
     }
     // three ranks of conifer, each lower, darker and bigger
-    const RANK = [['#3a3358', 0.00, 10, 7], ['#241f3e', 0.045, 15, 9], ['#141324', 0.1, 22, 12]];
+    const RANK = [['#4a3a22', 0.00, 10, 7], ['#31281a', 0.045, 15, 9], ['#1e1810', 0.1, 22, 12]];
     RANK.forEach(([col, off, hgt, wid]) => {
       const baseY = Math.round(HZ + off * H2);
       g.fillStyle = col;
@@ -98,12 +94,12 @@ const Phone = (() => {
     // the ground, and grass through it
     const gy = Math.round(HZ + 0.1 * H2);
     for (let i = 0; i < 7; i++) {
-      g.fillStyle = U.mix('#101a12', '#223522', i / 6);
+      g.fillStyle = U.mix('#1a1409', '#34291a', i / 6);
       g.fillRect(0, gy + Math.round(((H2 - gy) * i) / 7), W2, Math.ceil((H2 - gy) / 7) + 1);
     }
     for (let i = 0; i < 260; i++) {
       const x = Math.round(r() * W2), y = gy + Math.round(r() * (H2 - gy));
-      g.fillStyle = ['#1e3320', '#284523', '#33542a'][Math.floor(r() * 3)];
+      g.fillStyle = ['#2a2113', '#3d3020', '#4d3d22'][Math.floor(r() * 3)];
       g.fillRect(x, y, 2, 1);
     }
     // a hut with the lamp on
@@ -138,20 +134,22 @@ const Phone = (() => {
   // whatever has happened since you last looked stacked underneath. Swipe it,
   // or press anything, and it opens.
   let locked = true;
+  // Every notice wears the icon of the app it came out of, the way a notice
+  // on a real phone does. Nothing here borrows a tool out of the grove.
   function notifications() {
     const out = [];
     const q = Guide.current();
-    if (q) out.push({ app: 'Jobs', icon: 't_sickle', title: q.title, body: q.where });
+    if (q) out.push({ app: 'Jobs', icon: 'ph_jobs', title: q.title, body: q.where, go: 'quests' });
     const th = threads();
     for (const k of Object.keys(th)) {
       const un = th[k].filter((m) => m.f === 't' && !m.seen);
       if (!un.length) continue;
-      out.push({ app: 'Messages', icon: 'msg', title: PEOPLE[k].name, body: un[un.length - 1].text, go: 'messages' });
+      out.push({ app: 'Messages', icon: 'ph_msg', title: PEOPLE[k].name, body: un[un.length - 1].text, go: 'messages' });
     }
-    for (const c of careList().slice(0, 2)) out.push({ app: 'Herd', icon: c.icon, title: c.what, body: c.where, go: 'herd' });
-    for (const j of gardenJobs().slice(0, 2)) out.push({ app: 'Garden', icon: j.icon, title: j.what, body: j.where, go: 'garden' });
-    const d = Sky.def();
-    out.push({ app: 'Weather', icon: d.icon, title: d.name, body: d.blurb, go: 'sky' });
+    for (const c of careList().slice(0, 2)) out.push({ app: 'Herd', icon: 'ph_herd', title: c.what, body: c.where, go: 'herd' });
+    for (const j of gardenJobs().slice(0, 2)) out.push({ app: 'Garden', icon: 'ph_garden', title: j.what, body: j.where, go: 'garden' });
+    const load = OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
+    if (load) out.push({ app: 'Larder', icon: 'ph_larder', title: load + ' in the truck', body: 'the hooded one buys these', go: 'larder' });
     return out.slice(0, 6);
   }
   function paintLock() {
@@ -227,6 +225,7 @@ const Phone = (() => {
       quests: q ? 1 : 0,
       herd: careList().length,
       garden: gardenJobs().length,
+      larder: OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0),
       messages: unread(),
     };
   }
@@ -241,12 +240,12 @@ const Phone = (() => {
     const q = Guide.current();
     const d = Sky.def();
     $('ph-widget').innerHTML = `
-      <h5>${Sky.partOfDay().toUpperCase()} &middot; ${esc(d.name).toUpperCase()}</h5>
+      <h5>${ic(Sky.isNight() ? 'ph_moon' : Sky.wet() > 0.2 ? 'ph_rain' : 'ph_sun', 'sm')} ${Sky.partOfDay().toUpperCase()} &middot; ${esc(d.name).toUpperCase()}</h5>
       <p>${q ? esc(q.title) : 'Nothing owing. The wood is yours.'}</p>
       <div class="phwrow">
-        <span>${ic('wdollar', 'sm')} ${U.fmt(G.wd)}</span>
-        <span>${ic('wombat', 'sm')} ${G.wombats.length}</span>
-        <span>${ic('c_broadleaf', 'sm')} ${(World.crops || []).length}</span>
+        <span>${ic('ph_larder', 'sm')} ${U.fmt(G.wd)}</span>
+        <span>${ic('ph_herd', 'sm')} ${G.wombats.length}</span>
+        <span>${ic('ph_garden', 'sm')} ${(World.crops || []).length}</span>
       </div>`;
     $('ph-grid').innerHTML = APPS.map((a) => appIcon(a, b[a.key])).join('');
     $('ph-dock').innerHTML = DOCK.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
@@ -387,31 +386,17 @@ const Phone = (() => {
     }).join('');
   }
 
-  // ---- the sky --------------------------------------------------------------
-  function sky() {
-    const d = Sky.def();
-    const light = Math.round(Sky.light() * 100);
-    return `<div class="phcard big">
-        <div class="phcardh">${ic(d.icon)}<b>${esc(d.name)}</b><span class="phdim">${Sky.clockText()}</span></div>
-        <p>${esc(d.blurb)}</p>
-        <div class="phstat"><span>daylight</span>${bar(light, 100, '#f5cd5c')}</div>
-        <div class="phstat"><span>cloud</span>${bar(Sky.cover() * 100, 100, '#8b849c')}</div>
-        <div class="phstat"><span>rain</span>${bar(Sky.wet() * 100, 100, '#57b6c9')}</div>
-      </div>
-      <div class="phsub">WHAT IT MEANS</div>
-      ${row(`${ic('t_water')}<b>Rain waters the beds</b><span class="phdim">for nothing</span>`)}
-      ${row(`${ic('c_runeberry')}<b>Some seed only grows at night</b><span class="phdim">moonbell, runeberry</span>`)}
-      ${row(`${ic('c_emberleaf')}<b>Some seed hates the wet</b><span class="phdim">emberleaf</span>`)}
-      <div class="phsub">THE DAY</div>
-      ${row(`<b>${esc(Sky.partOfDay())}</b><span class="phdim">a full day is twelve minutes</span>`)}`;
-  }
-
-  // ---- the purse ------------------------------------------------------------
-  function purse() {
+  // ---- the larder ------------------------------------------------------------
+  // The money, what is in the back of the truck and what is on the shelf, on
+  // one page. It replaces the wallet, the weather and the wombagram, none of
+  // which said anything the grove was not already saying out loud.
+  function larder() {
     const offs = OFFER_ORDER.filter((k) => (G.offerings[k] || 0) + (G.blessed[k] || 0) > 0);
     const food = CROPS.filter((c) => (G.food[c.key] || 0) > 0);
-    let html = `<div class="phcard big"><div class="phcardh">${ic('wdollar')}<b>${U.fmt(G.wd)} W$</b></div>
-      <div class="phmeta"><span>earned ${U.fmt(Math.round(G.stats.earned || 0))}</span><span>${G.wombats.length} in the herd</span></div></div>`;
+    const d = Sky.def();
+    let html = `<div class="phcard big"><div class="phcardh">${ic('ph_larder')}<b>${U.fmt(G.wd)} W$</b></div>
+      <div class="phmeta"><span>earned ${U.fmt(Math.round(G.stats.earned || 0))}</span><span>${G.wombats.length} in the herd</span></div></div>
+      ${row(`${ic(Sky.isNight() ? 'ph_moon' : Sky.wet() > 0.2 ? 'ph_rain' : 'ph_sun')}<b>${esc(d.name)}</b><span class="phdim">${esc(d.blurb)}</span>`)}`;
     if (offs.length) {
       html += `<div class="phsub">IN THE TRUCK</div>` + offs.map((k) => row(
         `${ic(OFFERINGS[k].icon)}<b>${esc(OFFERINGS[k].name)}</b><span class="phnum">${(G.offerings[k] || 0) + (G.blessed[k] || 0)}</span><span class="phdim">the hooded one buys these</span>`)).join('');
@@ -537,43 +522,22 @@ const Phone = (() => {
       </div>`;
   }
 
-  // ---- photos ------------------------------------------------------------------
-  function photos() {
-    const roll = (G.shots || []).length
-      ? `<div class="phsub">CAMERA ROLL</div><div class="phphotos">${(G.shots || []).map((sh) => `<div class="phphoto"><img src="${sh.url}" alt=""></div>`).join('')}</div>`
-      : `<div class="phsub">CAMERA ROLL</div><div class="phcard"><p>Nothing yet. Open Camera and press the button.</p></div>`;
-    if (!G.wombats.length) return roll;
-    return roll + `<div class="phsub">${G.wombats.length} PORTRAIT${G.wombats.length > 1 ? 'S' : ''}</div>
-      <div class="phphotos">${G.wombats.map((w) => `<div class="phphoto" data-shot="${w.id}"><em>${esc(w.name)}</em></div>`).join('')}</div>
-      <div class="phsub">FAVOURITES</div>
-      <div class="phcard"><p>Every one of them, obviously.</p></div>`;
-  }
-
-  // ---- tips --------------------------------------------------------------------
-  function help() {
-    const TIPS = [
-      ['t_sickle', 'The tool tray', 'Right-click, or press Tab. Pick one and it rides with the pointer.'],
-      ['t_hoe', 'Beds', 'Hoe bare soil, sow on it, water it, pick it when it glows.'],
-      ['c_broadleaf', 'Three kinds of plant', 'Crops are picked once. Trees take minutes and fruit forever. Magical seed wants one strange thing and sulks until it gets it.'],
-      ['wombat', 'Carrying', 'Drag a wombat and she comes off the ground. The pond is a drink, a hill is a sit, the truck means she is coming with you.'],
-      ['wdollar', 'Cubes', 'The hooded one buys every one of them, and pays better for a load.'],
-      ['map', 'Getting about', 'Places will drive you anywhere from where you are standing.'],
-    ];
-    return TIPS.map(([i, t2, b]) => `<div class="phcard"><div class="phcardh">${ic(i)}<b>${esc(t2)}</b></div><p>${esc(b)}</p></div>`).join('');
-  }
-
   // ---- the camera --------------------------------------------------------------
   // It photographs whatever is on the screen behind the phone, which is the
-  // whole point of a camera. Shots go in Photos and can be posted.
+  // whole point of a camera. The roll sits underneath the shutter.
   function camera() {
+    const shots = G.shots || [];
+    const roll = shots.length
+      ? `<div class="phsub">THE ROLL</div><div class="phphotos">${shots.map((sh) => `<div class="phphoto"><img src="${sh.url}" alt=""></div>`).join('')}</div>`
+      : '';
     return `<div class="phcam">
         <div class="phviewfinder" id="ph-vf"></div>
         <div class="phcamrow">
-          <span class="phdim">${(G.shots || []).length} in the roll</span>
+          <span class="phdim">${shots.length} in the roll</span>
           <button class="phshutter" id="ph-shutter"></button>
           <span class="phdim">wombat cam</span>
         </div>
-      </div>`;
+      </div>${roll}`;
   }
   function takeShot() {
     try {
@@ -590,35 +554,8 @@ const Phone = (() => {
       UI.toast('<b>snap</b> &mdash; it is in your camera roll', 'good');
     } catch (e) { UI.toast('the camera would not focus', 'bad'); }
   }
-  // ---- the feed ------------------------------------------------------------------
-  // Everyone in the district posts about your wombats. Your own shots go in
-  // among theirs, and the likes climb while you watch.
-  const FEED = [
-    { who: 'shaz', text: 'day off. drove out to the grove again. NO REGRETS', likes: 412 },
-    { who: 'bee', text: 'the clover came good this year. thank the wombats', likes: 88 },
-    { who: 'bard', text: 'new song. four verses. the wombats of the grove 🎵', likes: 1204 },
-    { who: 'bota', text: 'Unconfirmed sighting below the tree line. Investigating.', likes: 37 },
-    { who: 'post', text: 'nothing in the post for the grove. again. lovely walk though', likes: 51 },
-    { who: 'cultist', text: 'Cubes bought. Cash paid. No questions asked. Open all hours.', likes: 9 },
-  ];
-  function feed() {
-    const mine = (G.shots || []).map((sh, i) => `
-      <div class="phpost">
-        <div class="phposth"><i class="phava2" data-ava="me"></i><b>you</b><span class="phdim">just now</span></div>
-        <img class="phshot" src="${sh.url}" alt="">
-        <div class="phlikes" data-like="${i}">${ic('heart', 'sm')} ${sh.likes + 24}</div>
-      </div>`).join('');
-    const theirs = FEED.map((f) => `
-      <div class="phpost">
-        <div class="phposth"><i class="phava2" data-ava="${f.who}"></i><b>${esc(PEOPLE[f.who] ? PEOPLE[f.who].name : f.who)}</b></div>
-        <p>${esc(f.text)}</p>
-        <div class="phlikes">${ic('heart', 'sm')} ${f.likes}</div>
-      </div>`).join('');
-    return (mine || '') + theirs;
-  }
-
   // ---- drawing --------------------------------------------------------------
-  const BODY = { quests, herd, map: places, garden, sky, purse, messages, settings, photos, help, camera, feed };
+  const BODY = { quests, herd, map: places, garden, larder, messages, settings, camera };
   function render() {
     const homeV = $('ph-home-view'), appV = $('ph-app-view'), lockV = $('ph-lock');
     if (!homeV || !appV) return;
@@ -634,23 +571,10 @@ const Phone = (() => {
     $('ph-title').textContent = app === 'messages' && chatWith ? PEOPLE[chatWith].name : TITLE[app] || 'App';
     $('ph-back').textContent = app === 'messages' && chatWith ? '‹ Messages' : '‹ Home';
     scr.className = 'phscreen app-' + app;
-    scr.innerHTML = (BODY[app] || help)();
+    scr.innerHTML = (BODY[app] || quests)();
     scr.scrollTop = 0;
     // the bits that need a canvas painting into them
     scr.querySelectorAll('[data-ava]').forEach((el) => el.appendChild(avatar(el.dataset.ava)));
-    scr.querySelectorAll('[data-shot]').forEach((el) => {
-      const w = G.wombats.find((x) => String(x.id) === el.dataset.shot);
-      if (!w) return;
-      const c = document.createElement('canvas');
-      c.width = 60; c.height = 48;
-      const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
-      const poses = ['idle', 'happy', 'sit', 'graze', 'sleep'];
-      const img = Sprites.wombat(poses[(w.name.length + w.x | 0) % poses.length], 2, w.pelt, 1, w.age);
-      g2.fillStyle = '#4a6a3a'; g2.fillRect(0, 0, 60, 48);
-      g2.fillStyle = '#5d8a44'; g2.fillRect(0, 34, 60, 14);
-      g2.drawImage(img, Math.round(30 - img.width / 2), Math.round(42 - img.height));
-      el.insertBefore(c, el.firstChild);
-    });
     // the viewfinder is a live picture of what is behind the phone
     const vf = scr.querySelector('#ph-vf');
     if (vf) {
@@ -665,14 +589,6 @@ const Phone = (() => {
     }
     const sh = scr.querySelector('#ph-shutter');
     if (sh) sh.onclick = () => { takeShot(); render(); };
-    scr.querySelectorAll('[data-ava]').forEach((el) => {
-      if (el.dataset.ava === 'me') { el.style.background = '#4a7a3a'; return; }
-      el.appendChild(avatar(el.dataset.ava));
-    });
-    scr.querySelectorAll('[data-like]').forEach((el) => el.onclick = () => {
-      const sh2 = (G.shots || [])[+el.dataset.like];
-      if (sh2) { sh2.likes += 1 + Math.floor(Math.random() * 9); Audio.play('pop'); render(); }
-    });
     wire(scr);
   }
   function wire(scr) {

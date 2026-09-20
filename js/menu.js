@@ -561,13 +561,14 @@ const Menu = (() => {
     // the buttons live on a page of their own, the way every menu in this
     // kit does: a cream board in a teal frame with a plate across the top
     const BW = 258, PADX = 16;
-    const PX = VW - BW - PADX * 2 - 22, PY = 148, PW = BW + PADX * 2, PH = 186;
+    // No banner across the top. The three buttons are the whole page: the
+    // board was spending a quarter of itself telling you where you were.
+    const PX = VW - BW - PADX * 2 - 22, PY = 164, PW = BW + PADX * 2, PH = 152;
     board(g, PX, PY, PW, PH);
-    plate(g, PX + 12, PY + 11, PW - 24, 24, hasSave ? 'WELCOME BACK' : 'A NEW WOOD', 1);
     const BX = PX + PADX;
-    buttons.push({ id: 'enter', x: BX, y: PY + 44, w: BW, h: 48 });
-    buttons.push({ id: 'settings', x: BX, y: PY + 100, w: BW, h: 32 });
-    buttons.push({ id: 'help', x: BX, y: PY + 140, w: BW, h: 32 });
+    buttons.push({ id: 'enter', x: BX, y: PY + 16, w: BW, h: 48 });
+    buttons.push({ id: 'settings', x: BX, y: PY + 72, w: BW, h: 32 });
+    buttons.push({ id: 'help', x: BX, y: PY + 112, w: BW, h: 32 });
     bigButton(g, buttons[0], 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
     bigButton(g, buttons[1], 'SETTINGS', null, 2);
     bigButton(g, buttons[2], 'HOW TO PLAY', null, 2);
@@ -579,10 +580,6 @@ const Menu = (() => {
     cut(g, rx - w / 2, ry - 1, w, 14, KIT.p2, 2);
     Art.rect(g, rx - w / 2 + 2, ry - 1, w - 4, 2, KIT.p4);
     Font.draw(g, line, rx, ry + 3, { scale: 1, color: '#6b4a26', align: 'center' });
-    // and the wombats you have, if there are any to come back to
-    if (hasSave) {
-      Font.draw(g, 'A GROVE IS WAITING FOR YOU', PX + PW / 2, PY + PH - 14, { scale: 1, color: '#7a4f06', align: 'center' });
-    }
   }
 
   // a short page of how it works, so the title screen can answer the question
