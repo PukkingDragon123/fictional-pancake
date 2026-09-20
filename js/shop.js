@@ -26,7 +26,7 @@ const Shop = (() => {
     else if (p.sprite === 'tool') toolCard(g, p.icon);
     else if (p.sprite === 'snack') product(g, p.snack);
     else jar(g, tint, p.icon);
-    Art.outline(c, PAL.ink, 1);
+    Art.outline(c, '#000000', 1);
     return c;
   }
   // ---- a real product on the shelf ----------------------------------------

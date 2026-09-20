@@ -528,7 +528,7 @@ const Icons = (() => {
       P: (pts, col) => Art.poly(g, pts, col),
       LB: (x0, y0, x1, y1, w0, w1, col) => Art.limb(g, x0, y0, x1, y1, w0, w1, col),
     });
-    Art.outline(c, '#0a0810', 1);           // the same black line as everything else
+    Art.outline(c, '#000000', 1);           // the same black line as everything else
     return c;
   }
   function canvas(name) {

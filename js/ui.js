@@ -55,7 +55,7 @@ const UI = (() => {
   function refreshNotebook() { }           // the cultist speaks for herself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
-  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair', 'mound', 'pond'];
+  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair', 'mound', 'pond', 'paint', 'build'];
   let wheelRing = 'tools', wheelAt = { x: 320, y: 180 };
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
@@ -163,31 +163,9 @@ const UI = (() => {
   function pickTool() { }
 
   // ---- shrine -------------------------------------------------------------
-  function refreshRitual() {
-    const box = $('gods');
-    box.innerHTML = '';
-    const staged = Ritual.staged();
-    for (const god of GODS) {
-      const done = !!G.summoned[god.key];
-      const need = Ritual.need(god);
-      const ok = !done && Ritual.meets(god);
-      const el = document.createElement('div');
-      el.className = 'gcard' + (ok ? ' ready' : '') + (done ? ' done' : '');
-      const rows = Object.keys(need).map((k) => {
-        const have = staged[k] || 0;
-        return `<span class="${have >= need[k] ? 'ok' : 'no'}">${ic(OFFERINGS[k].icon)}${have}/${need[k]}</span>`;
-      }).join('');
-      el.innerHTML = `${ic(god.glyph)}<div class="need">${done ? `<span class="ok">${ic(god.artIcon)}</span>` : rows}</div>`;
-      el.onmouseenter = (e) => showTip(e, `<b>${god.name}</b><br><span class="dim">${god.title}</span><br>${god.blessing}${done ? '<br><span class="good">summoned</span>' : ''}`);
-      el.onmouseleave = hideTip;
-      el.onclick = () => { if (ok) Ritual.summon(); else Audio.play('error'); };
-      box.appendChild(el);
-    }
-    $('b-summon').disabled = !Ritual.readyGod();
-    const box2 = $('offer-slots');
-    box2.innerHTML = '';
-    offerSlots(box2, (k, e) => Ritual.stage(k, e.shiftKey ? 5 : 1));
-  }
+  // The shrine has no interface. Everything it has to say is cut into the
+  // walls of the shaft, so there is nothing here to refresh.
+  function refreshRitual() { }
   function offerSlots(box, onClick, keys) {
     let i = 0;
     for (const k of OFFER_ORDER) {
@@ -527,7 +505,11 @@ const UI = (() => {
     $('money').hidden = intro; $('mini').hidden = intro; $('side').hidden = intro;
     $('zoomer').hidden = mode !== 'grove';
     if (intro) { closeWheel(); $('checklist').hidden = true; }
-    $('ov-shrine').hidden = mode !== 'shrine';
+    $('ov-shrine').hidden = true;
+    // The shaft has no interface. The purse and the phone go away with it;
+    // the only thing left on screen is the way back out.
+    $('money').hidden = mode === 'shrine';
+    $('b-phone').hidden = mode === 'shrine';
     $('ov-shop').hidden = mode !== 'shop';
     $('ov-nursery').hidden = mode !== 'nursery';
     closeWheel();

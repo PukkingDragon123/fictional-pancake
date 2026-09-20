@@ -488,7 +488,7 @@ const Sprites = (() => {
     g.save(); g.translate(0, PAD);
     drawWombat(g, fur, name, f, age);
     g.restore();
-    Art.outline(c, PAL.ink);
+    Art.outline(c, '#000000', 1);
     img = facing < 0 ? Art.flip(c) : c;
     cache.set(key, img);
     return img;
@@ -673,7 +673,7 @@ const Sprites = (() => {
       g.globalAlpha = za;
       Font.draw(g, 'z', zs[0], zs[1], { scale: 1, color: '#dfeaff' });
       g.globalAlpha = 1;
-      g.restore(); Art.outline(c, '#0a0810', 1); cache.set(key, c); return c;
+      g.restore(); Art.outline(c, '#000000', 1); cache.set(key, c); return c;
     }
 
     // ---- the skeleton ------------------------------------------------------
@@ -908,7 +908,7 @@ const Sprites = (() => {
       }
     }
     g.restore();
-    Art.outline(c, '#0a0810', 1);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c);
     return c;
   }
@@ -1108,7 +1108,7 @@ const Sprites = (() => {
       P([[hx + 3.2, my - 0.4], [hx + 5, my - 0.4], [hx + 4.1, my + 1]], '#fdf6ea');
       P([[hx - 5, my - 0.4], [hx - 3.2, my - 0.4], [hx - 4.1, my + 1]], '#fdf6ea');
     }
-    Art.outline(c, '#0a1018', 1);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c);
     return c;
   }
@@ -1305,7 +1305,7 @@ const Sprites = (() => {
       Art.poly(g, [[hx - 5.4, my - 2], [hx, my + 2.2], [hx + 5.4, my - 2], [hx, my + 0.2]], '#2a1c10');
       Art.poly(g, [[hx - 3.6, my - 1], [hx, my + 1.2], [hx + 3.6, my - 1], [hx, my + 0.2]], '#7a3a34');
     }
-    Art.outline(c, '#0a0810', 1);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c);
     return c;
   }
@@ -1365,7 +1365,7 @@ const Sprites = (() => {
       Art.line(g, 7, 7, 6, by - 3, A, 1);
       Art.line(g, 13, 7, 13, by - 4, A, 1);
     }
-    Art.outline(c, PAL.ink, 0.85);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c); return c;
   }
   // ---- forest birds -------------------------------------------------------
@@ -1393,7 +1393,7 @@ const Sprites = (() => {
       Art.poly(g, [[11, 8], [4, 4 + flap], [2, 8 + flap], [10, 11]], K2);
       Art.poly(g, [[13, 8], [20, 4 - flap], [22, 8 - flap], [14, 11]], K3);
     }
-    Art.outline(c, '#05040a', 0.8);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c); return c;
   }
   function owl(frame) {
@@ -1415,7 +1415,7 @@ const Sprites = (() => {
     }
     Art.poly(g, [[12, 10], [10, 13], [14, 13]], '#d8a52f');
     Art.rect(g, 8, 23, 2.4, 3, '#d8a52f'); Art.rect(g, 13.6, 23, 2.4, 3, '#d8a52f');
-    Art.outline(c, PAL.ink, 0.8);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c); return c;
   }
   // ---- shop mascot: a lollipop with a wombat face -------------------------
@@ -1442,7 +1442,7 @@ const Sprites = (() => {
     Art.rect(g, 17 + tilt, 25, 7, 2, '#4a2c20');
     Art.rect(g, 10 + tilt, 9, 5, 4.4, '#bd8763');
     Art.rect(g, 25 + tilt, 9, 5, 4.4, '#bd8763');
-    Art.outline(c, PAL.ink, 0.8);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c); return c;
   }
 
@@ -1485,7 +1485,7 @@ const Sprites = (() => {
     // halo
     Art.ell(g, 17, 2.6, 4.6, 1.7, tint || PAL.gold3);
     Art.ell(g, 17, 2.6, 3, 0.9, 'rgba(0,0,0,0)');
-    Art.outline(c, PAL.ink, 0.9);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c); return c;
   }
 
@@ -1537,7 +1537,7 @@ const Sprites = (() => {
     }
     // regalia
     drawRegalia(g, god, cx, hy, base, f);
-    Art.outline(c, PAL.ink, 0.95);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c); return c;
   }
   function drawRegalia(g, god, cx, hy, base, f) {
@@ -1723,6 +1723,13 @@ const Sprites = (() => {
       hat: 'wide', prop: 'press', why: 'looking for a plant' },
     bard: { name: 'Little Ash', skin: '#f0cba0', hair: '#f5cd5c', shirt: '#7a58a8', pants: '#4a3a6a',
       hat: 'none', prop: 'lute', why: 'with a song about you' },
+    // the three behind the counters in town
+    grimm: { name: 'Grimm', skin: '#c9b8a8', hair: '#2a2630', shirt: '#2e2436', pants: '#1c1822',
+      hat: 'cap', prop: 'sack', why: 'behind the pawnshop counter' },
+    joiner: { name: 'Odger', skin: '#d8a878', hair: '#8a6a3a', shirt: '#9a6a3a', pants: '#5a3a1c',
+      hat: 'none', prop: 'press', why: 'up to the elbows in shavings' },
+    warren: { name: 'Mrs Warren', skin: '#e0b088', hair: '#b8b0a0', shirt: '#2f5a44', pants: '#3a4438',
+      hat: 'wide', prop: 'hive', why: 'minding the livestock' },
   };
   function villager(kind, frame, pose = 'idle') {
     const K = VILLAGERS[kind] || VILLAGERS.bee;
@@ -1859,7 +1866,7 @@ const Sprites = (() => {
         for (let i = 0; i < 3; i++) Art.rect(g, px - 0.6 + i, py - 16, 1, 3, '#cfc4b0');
         break;
     }
-    Art.outline(c, PAL.ink);
+    Art.outline(c, '#000000', 1);
     cache.set(key, c);
     return c;
   }

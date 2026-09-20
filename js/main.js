@@ -98,7 +98,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      Sky.init(G); World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
+      Sky.init(G); World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Town.init(G);
       Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -147,11 +147,16 @@ const Main = (() => {
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
     else if (mode === 'nursery') Nursery.enter();
+    else if (mode === 'shrine') Ritual.enter();
+    else if (mode === 'town') Town.enter();
+    if (mode !== 'shrine') Ritual.leave();
+    if (mode !== 'town') Town.leave();
     Audio.setMode('pen');
     save();
   }
   function back() {
-    if (G.mode === 'shrine' || G.mode === 'shop' || G.mode === 'nursery') setMode('map');
+    if (G.mode === 'town' && Town.inside) { Town.key('Escape'); return; }
+    if (G.mode === 'shrine' || G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'town') setMode('map');
     else setMode('grove');
   }
 
@@ -183,7 +188,11 @@ const Main = (() => {
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel() || G.paused) return;
       const p = pm;
-      if (e.button === 2) { if (G.mode === 'grove') UI.openWheel(p.x, p.y); return; }
+      if (e.button === 2) {
+        if (G.mode === 'grove') UI.openWheel(p.x, p.y);
+        else if (G.mode === 'shrine') Ritual.press(p.x, p.y, true);
+        return;
+      }
       if (UI.wheelOpen()) { UI.closeWheel(); return; }
       down = true; lastP = null; downP = p; moved = 0; panning = false;
       screenP = p;
@@ -196,6 +205,8 @@ const Main = (() => {
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
+      else if (G.mode === 'shrine') Ritual.press(p.x, p.y, false);
+      else if (G.mode === 'town') Town.press(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -204,6 +215,7 @@ const Main = (() => {
       const wp = world(p);
       G.pointer.x = wp.x; G.pointer.y = wp.y; G.pointer.on = true;
       if (G.mode === 'intro') { Intro.move(p.x, p.y); return; }
+      if (G.mode === 'shrine') { Ritual.move(p.x); return; }
       if (Ritual.active) return;
       if (downP) moved = Math.max(moved, Math.hypot(p.x - downP.x, p.y - downP.y));
       if (down) {
@@ -214,12 +226,14 @@ const Main = (() => {
         }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'nursery') { Nursery.move(p.x, p.y); UI.hideTip(); return; }
+        if (G.mode === 'town') { Town.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
       else if (G.mode === 'nursery') tip = Nursery.hover(p.x, p.y);
+      else if (G.mode === 'town') tip = Town.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
@@ -240,11 +254,17 @@ const Main = (() => {
     canvas.addEventListener('wheel', (e) => {
       if (G.mode === 'grove') {
         e.preventDefault();
+        // with the hammer or the ground brush out, the wheel changes what is
+        // on the end of it rather than how close you are standing
+        if (G.tool === 'build') { Grove.cycleBuild(e.deltaY < 0 ? -1 : 1); return; }
+        if (G.tool === 'paint') { Grove.cyclePaint(e.deltaY < 0 ? -1 : 1); return; }
         if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8);
         else { const p = pos(e); Grove.zoomBy(e.deltaY < 0 ? 1.14 : 1 / 1.14, p.x, p.y); }
       }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'nursery') { e.preventDefault(); Nursery.wheel(e.deltaY * 0.6); }
+      else if (G.mode === 'shrine') { e.preventDefault(); Ritual.wheel(e.deltaY); }
+      else if (G.mode === 'town') { e.preventDefault(); Town.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
     document.addEventListener('keydown', (e) => {
@@ -253,6 +273,7 @@ const Main = (() => {
       if (G.mode === 'menu') { if (!FX.curtaining && Menu.key(e.key)) e.preventDefault(); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel()) return;
+      if (G.mode === 'shrine' && Ritual.keyDown(e.key)) { e.preventDefault(); return; }
       if (e.key === 'Tab' || e.key === ' ') { if (G.mode === 'grove') { e.preventDefault(); if (UI.wheelOpen()) UI.closeWheel(); else UI.openWheel(screenP.x, screenP.y); } return; }
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (UI.wheelOpen()) { UI.closeWheel(); return; }
@@ -315,6 +336,7 @@ const Main = (() => {
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);
       else if (G.mode === 'nursery') Nursery.update(real);
+      else if (G.mode === 'town') Town.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
@@ -334,6 +356,7 @@ const Main = (() => {
       else if (G.mode === 'shrine') Ritual.renderShrine(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
+      else if (G.mode === 'town') Town.render(g);
       else Nursery.render(g);
       g.restore();
     }
@@ -368,7 +391,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Grove.init(G); Ritual.init(G); Atlas.init(G); Town.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

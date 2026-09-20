@@ -243,6 +243,46 @@ const Grove = (() => {
     return w;
   }
 
+  // ---- furniture standing in the clearing ----------------------------------
+  // Bought in town, carried home in a crate, and stood wherever you like. It
+  // sorts into the scene by its feet like everything else, so a bench in front
+  // of a tree is in front of the tree.
+  let buildI = 0, paintI = 0;
+  function crateKeys() { return Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0); }
+  function buildKey() { const ks = crateKeys(); return ks.length ? ks[buildI % ks.length] : null; }
+  function cycleBuild(d) { const ks = crateKeys(); if (ks.length) { buildI = (buildI + d + ks.length * 4) % ks.length; Audio.play('click'); } }
+  function paintCode() { return World.PAINT_ORDER[paintI % World.PAINT_ORDER.length].code; }
+  function paintName() { return World.PAINT_ORDER[paintI % World.PAINT_ORDER.length].name; }
+  function cyclePaint(d) { paintI = (paintI + d + World.PAINT_ORDER.length * 4) % World.PAINT_ORDER.length; Audio.play('click'); }
+  function furnAt(x, y) {
+    for (const f of (G.furniture || [])) {
+      const d = FURN_BY_KEY[f.key]; if (!d) continue;
+      if (Math.abs(x - f.x) < d.w / 2 + 3 && y > f.y - d.h - 4 && y < f.y + 6) return f;
+    }
+    return null;
+  }
+  function drawFurn(g) {
+    for (const f of (G.furniture || [])) Props.drawFurniture(g, f.key, f.x, f.y, 1);
+  }
+  // the ghost that follows the pointer while the hammer is out
+  function drawBuildGhost(g) {
+    if (G.tool === 'build') {
+      const key = buildKey();
+      if (!key) return;
+      const p = G.pointer;
+      g.save(); g.globalAlpha = 0.6;
+      Props.drawFurniture(g, key, p.x, Math.max(GROUND + 6, p.y), 1);
+      g.restore();
+      const d = FURN_BY_KEY[key];
+      Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 5, { scale: 1, color: '#000000', align: 'center' });
+      Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 4, { scale: 1, color: '#f2c936', align: 'center' });
+    } else if (G.tool === 'paint') {
+      const p = G.pointer;
+      Font.draw(g, paintName().toUpperCase(), p.x, p.y - 26, { scale: 1, color: '#000000', align: 'center' });
+      Font.draw(g, paintName().toUpperCase(), p.x, p.y - 27, { scale: 1, color: '#f2c936', align: 'center' });
+    }
+  }
+
   function update(dt) {
     Wild.update(dt);
     updateFoods(dt);
@@ -701,6 +741,32 @@ const Grove = (() => {
       Wild.place(tool, x, y);
       return true;
     }
+    if (tool === 'paint') {
+      const r = World.brushRadius(18);
+      World.paintGround(paintCode(), x, y, r);
+      return true;
+    }
+    if (tool === 'build') {
+      if (!first) return true;
+      // clicking a piece already standing there takes it back up
+      const hit = furnAt(x, y);
+      if (hit) {
+        G.furniture.splice(G.furniture.indexOf(hit), 1);
+        if (!G.crates) G.crates = {};
+        G.crates[hit.key] = (G.crates[hit.key] || 0) + 1;
+        Audio.play('click'); FX.dust(hit.x, hit.y, 6, PAL.soil3);
+        UI.refreshHUD(); return true;
+      }
+      const key = buildKey();
+      if (!key) { Audio.play('error'); UI.toast('nothing to put down &mdash; the joiner in town sells it', 'bad'); return true; }
+      if (y < GROUND + 6 || y > GROUND + 190) { Audio.play('error'); UI.toast('not there', 'bad'); return true; }
+      if (!G.furniture) G.furniture = [];
+      G.furniture.push({ key, x: Math.round(x), y: Math.round(y) });
+      G.crates[key]--; if (!G.crates[key]) delete G.crates[key];
+      Audio.play('place'); FX.dust(x, y, 8, PAL.soil2);
+      UI.refreshHUD(); Main.save();
+      return true;
+    }
     if (tool === 'drag') {
       if (!first) return true;
       const v = Wild.visitorAt(x, y);
@@ -969,6 +1035,10 @@ const Grove = (() => {
       const dx = PLOT_BY_KEY.home.x0 + 20 + d.spot[0] * (PLOT_BY_KEY.home.x1 - PLOT_BY_KEY.home.x0 - 40), dy = WALK.y0 + d.spot[1] * (WALK.y1 - WALK.y0);
       items.push({ y: dy, fn: () => { const img = Props.get(d.key === 'nest' ? 'crate' : 'rock'); g.drawImage(img, Math.round(dx - img.width / 2), Math.round(dy - img.height + 4)); } });
     }
+    for (const fn of (G.furniture || [])) {
+      const d = FURN_BY_KEY[fn.key];
+      if (d) items.push({ y: fn.y, fn: () => Props.drawFurniture(g, fn.key, fn.x, fn.y, 1) });
+    }
     items.push({ y: -1, fn: () => World.drawCrops(g) });
     for (const it of World.cropItems(g)) items.push(it);   // fruit trees stand tall enough to sort
     for (const w of G.wombats) items.push({ y: w.y, fn: () => drawWombat(g, w) });
@@ -982,6 +1052,7 @@ const Grove = (() => {
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
     drawPlotPrompt(g, L, R);
+    drawBuildGhost(g);          // the piece riding on the pointer, and what it is
 
     // crows
     for (const b of birds) {
@@ -1587,6 +1658,7 @@ const Grove = (() => {
 
   return {
     init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, zoomBy, zoomTo, zoomFrac, edgeScroll, addWombat, newWombat, feed, pet, offline,
+    cycleBuild, cyclePaint, furnAt,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, TRUCK, GROUND, WALK, W, H, VW,

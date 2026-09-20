@@ -19,7 +19,15 @@ const World = (() => {
     let set = stamps.get(key);
     if (set) return set;
     set = [];
-    const cols = { grass: [PAL.moss1, PAL.moss2, PAL.moss3, PAL.moss4], soil: [PAL.soil1, PAL.soil2, PAL.soil3], mask: ['#fff'] }[kind] || ['#fff'];
+    // Four kinds of ground you can lay down, plus the mask that lifts it again.
+    const cols = {
+      grass: [PAL.moss1, PAL.moss2, PAL.moss3, PAL.moss4],
+      soil: [PAL.soil1, PAL.soil2, PAL.soil3],
+      sand: ['#b8a172', '#cbb68c', '#ddcba4', '#a08a5e'],
+      ash: ['#4a4450', '#5c5662', '#6e6874', '#3a3540'],
+      clay: ['#8a4a32', '#a05a3c', '#b06a48', '#70382a'],
+      mask: ['#fff'],
+    }[kind] || ['#fff'];
     for (let v = 0; v < 4; v++) {
       const d = r * 2 + 2;
       const { c, g } = Art.cv(d, d);
@@ -32,6 +40,9 @@ const World = (() => {
         let col = cols[Math.floor(rnd() * cols.length)];
         if (kind === 'grass' && dist < 0.4 && rnd() < 0.3) col = PAL.moss4;
         if (kind === 'soil' && Math.floor(y / 3) % 2 === 0 && rnd() < 0.5) col = PAL.soil1;
+        if (kind === 'sand' && rnd() < 0.12) col = '#f0e2bc';
+        if (kind === 'ash' && rnd() < 0.08) col = '#2a2530';
+        if (kind === 'clay' && Math.floor(y / 4) % 2 === 0 && rnd() < 0.4) col = '#70382a';
         g.fillStyle = col; g.fillRect(x, y, 1, 1);
       }
       set.push(c);
@@ -72,6 +83,7 @@ const World = (() => {
     } else for (const w of s.weeds) weeds.push(mkWeed(w.x, w.y, w.v || 0, w.s || 1, w.hp));
     if (Array.isArray(s.strokes)) for (const k of s.strokes) {
       if (k[0] === 'g') { paint(grass, 'grass', k[1], k[2], k[3]); erase(soil, k[1], k[2], k[3]); }
+      else if (PAINTS[k[0]]) { paint(soil, PAINTS[k[0]], k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
       else { paint(soil, 'soil', k[1], k[2], k[3]); erase(grass, k[1], k[2], k[3]); }
     }
     if (Array.isArray(s.blades)) for (const b of s.blades) blades.push(mkBlade(b.x, b.y, b.v, b.h));
@@ -90,6 +102,27 @@ const World = (() => {
     if (!s.strokes) s.strokes = [];
     s.strokes.push([kind, Math.round(x), Math.round(y), r]);
     if (s.strokes.length > 4600) s.strokes.splice(0, 700);
+  }
+  // ---- the ground brush ----------------------------------------------------
+  // The hoe and the grass seed were always painting the ground; this is the
+  // same thing with a choice of what to lay down and no farming attached. It
+  // is the only tool in the game that does nothing but change how a place
+  // looks, which is reason enough for it to exist.
+  const PAINTS = { s: 'sand', a: 'ash', c: 'clay', d: 'soil' };
+  const PAINT_ORDER = [
+    { code: 'd', kind: 'soil',  name: 'Bare earth' },
+    { code: 's', kind: 'sand',  name: 'Sand' },
+    { code: 'c', kind: 'clay',  name: 'Red clay' },
+    { code: 'a', kind: 'ash',   name: 'Ash' },
+  ];
+  function paintGround(code, x, y, r) {
+    if (y < GROUND) return false;
+    const kind = PAINTS[code];
+    if (!kind) return false;
+    paint(soil, kind, x, y, r);
+    erase(grass, x, y, r);
+    record(code, x, y, r);
+    return true;
   }
   function brushRadius(base) {
     let r = base;
@@ -615,6 +648,7 @@ const World = (() => {
   return {
     init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, cropItems, drawCursor,
     sowGrass, till, clearWeeds, hitWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
+    paintGround, PAINT_ORDER,
     fraction, zoneFraction, measure, ripe, growTime, grown, kindOf, needMet, magic, prune, plantAt, plantTip,
     get weeds() { return weeds; }, get crops() { return crops; },
     get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },

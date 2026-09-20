@@ -114,6 +114,8 @@ const SUBTOOLS = [
   { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
   { key: 'mound', name: 'Hill',  icon: 'u_burrow', radius: 26, cost: 120, desc: 'Raise a grassy hill. They like to sit on it.' },
   { key: 'pond',  name: 'Pond',  icon: 'd_pool',   radius: 24, cost: 260, desc: 'Dig a pond. Frogs and dragonflies move in.' },
+  { key: 'paint', name: 'Ground', icon: 't_hoe',   radius: 20, desc: 'Lay sand, clay or ash over the ground. Wheel to change it.' },
+  { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture about the clearing. Click a piece to take it up again.' },
 ];
 // Nothing is handed over at once. The cultist teaches a tool, then you own it.
 const GATES = {
@@ -218,6 +220,7 @@ const SITES = [
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
+  { key: 'town',   name: 'Bellowby',     x: 470, y: 254, icon: 'shop',    mode: 'town',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
   { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },
@@ -300,7 +303,6 @@ const ROOT_NAMES = ['Soil', 'Beast', 'Rite'];
 
 // ---- Things to buy with W$ ------------------------------------------------
 const UPGRADES = [
-  { key: 'shrine',  name: 'Plinth',   icon: 'u_shrine',  base: 220, mult: 2.1,  max: 6, desc: (l) => `Plinth ${l}. A wider base holds more.` },
   { key: 'haggle',  name: 'Haggling', icon: 'u_seats',   base: 260, mult: 2.1,  max: 5, desc: (l) => l ? `He pays ${l * 8}% more for a cube.` : 'Learn what a cube is actually worth.' },
   { key: 'shade',   name: 'Shade Cloth', icon: 'u_cart',  base: 200, mult: 2.0,  max: 4, desc: (l) => l ? `Beds dry out ${l * 15}% slower.` : 'Keeps the sun off the beds.' },
   { key: 'toys',    name: 'Toy Box',  icon: 'd_nest',    base: 180, mult: 2.2,  max: 4, desc: (l) => l ? `Wombats get bored ${l * 16}% slower.` : 'Balls, logs and a knotted rope.' },
@@ -419,3 +421,36 @@ const RARE_CHANCE = 0.07;
 const NAMES = ['Wilbur', 'Doris', 'Chonk', 'Beans', 'Mabel', 'Gus', 'Pudding', 'Winnie', 'Bruce', 'Nugget', 'Sheila', 'Tubs', 'Barnaby', 'Pip', 'Marge', 'Otis', 'Bramble', 'Kip', 'Nella', 'Dot'];
 const RESTORE_TARGET = 172000;  // painted grass pixels that count as a whole forest
                                 // (the grove floor is about 238k, so this is most of it)
+
+// ---- Furniture ------------------------------------------------------------
+// Things you buy in town and stand about the grove wherever you like. Unlike
+// DECOR, which has one fixed spot each and is really an upgrade wearing a hat,
+// furniture is placed by hand, picked back up, and is worth what you paid for
+// it minus a little. Most of it does something small; some of it is just nice.
+const FURNITURE = [
+  { key: 'bench',   name: 'Log Bench',     cost: 90,   w: 46, h: 20, hap: 0.10, blurb: 'Split log on two rounds. Somewhere to sit and watch them.' },
+  { key: 'table',   name: 'Trestle Table', cost: 140,  w: 52, h: 26, hap: 0.08, blurb: 'Two trestles and a top. Every wood needs one.' },
+  { key: 'lantern', name: 'Post Lantern',  cost: 180,  w: 16, h: 52, hap: 0.14, light: 1, blurb: 'A candle in a box on a post. Burns all night.' },
+  { key: 'barrel',  name: 'Rain Barrel',   cost: 160,  w: 26, h: 30, water: 1,  blurb: 'Catches the rain. Beds near it dry out slower.' },
+  { key: 'trough2', name: 'Stone Trough',  cost: 210,  w: 44, h: 18, thirst: 1, blurb: 'Cut from one block. They drink from it.' },
+  { key: 'scare',   name: 'Scarecrow',     cost: 120,  w: 22, h: 54, blurb: 'Sack head, crossed sticks, one boot. Keeps the crows honest.' },
+  { key: 'hive',    name: 'Bee Skep',      cost: 240,  w: 24, h: 26, hap: 0.10, blurb: 'Straw skep on a stand. Maud will be pleased.' },
+  { key: 'arch',    name: 'Rose Arch',     cost: 320,  w: 56, h: 60, hap: 0.18, blurb: 'Bent willow with something climbing it.' },
+  { key: 'well',    name: 'Old Well',      cost: 460,  w: 40, h: 46, water: 2,  blurb: 'Stone ring, a roof, a bucket on a rope. Deep.' },
+  { key: 'statue',  name: 'Wombat Statue', cost: 780,  w: 32, h: 44, favor: 0.08, blurb: 'Carved by someone who had only had one described to them.' },
+  { key: 'firepit', name: 'Fire Pit',      cost: 350,  w: 40, h: 18, hap: 0.22, light: 1, blurb: 'A ring of stones and a heap of ash. Sit round it.' },
+  { key: 'shrine2', name: 'Wayside Shrine',cost: 900,  w: 28, h: 50, favor: 0.14, blurb: 'A box on a pole with something unpleasant inside it.' },
+];
+const FURN_BY_KEY = Object.fromEntries(FURNITURE.map((f) => [f.key, f]));
+
+// ---- The town -------------------------------------------------------------
+// Four fronts on one street. The mart and the cellar are out on the road; these
+// three are in town proper, and each one has somebody behind the counter.
+const TOWN_SHOPS = [
+  { key: 'pawn', name: 'GRIMM & SON', sub: 'PAWNBROKER', x: 180, col: '#6b2c3a', roof: '#3d1a24', keeper: 'grimm',
+    line: 'Bring me something old. I will not ask where it came from.' },
+  { key: 'furn', name: 'THE JOINERY', sub: 'FURNITURE', x: 560, col: '#5a3a1c', roof: '#35200f', keeper: 'joiner',
+    line: 'Everything in here I made. Mind the varnish.' },
+  { key: 'pets', name: 'WARREN & CO', sub: 'LIVESTOCK & TOOLS', x: 940, col: '#2f5a44', roof: '#1a3528', keeper: 'warren',
+    line: 'Wombats out the back, tools on the wall. No refunds on either.' },
+];

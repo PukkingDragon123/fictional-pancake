@@ -609,7 +609,7 @@ const Intro = (() => {
     for (let i = 0; i < 9; i++) Art.rect(g, 34 + i * 7, 20, 3, 3, '#7ec8e8');
     Art.poly(g, [[10, 22], [20, 19], [20, 24], [10, 25]], '#7ec8e8');
     Art.rect(g, 6, 26, 114, 2, '#c1912a');
-    Art.outline(c, '#1c1008', 1);
+    Art.outline(c, '#000000', 1);
     planeC = c; return c;
   }
   function routeBanner(g, a, b, k) {

@@ -39,6 +39,24 @@ const FUR = [
 for (const f of FUR) { f.belly = f.light; f.ear = f.mid; }
 const FUR_BY_KEY = Object.fromEntries(FUR.map((f) => [f.key, f]));
 
+// Nothing in this game is ever smoothed. Every 2D context, wherever it is
+// made and by whom, comes back with interpolation off, so a sprite blown up
+// eight times is eight hard squares and never a smear. One hook, once, is the
+// only way to be sure of that across thirty files.
+(() => {
+  const real = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (kind, attrs) {
+    const ctx = real.call(this, kind, attrs);
+    if (ctx && kind === '2d') {
+      ctx.imageSmoothingEnabled = false;
+      ctx.mozImageSmoothingEnabled = false;
+      ctx.webkitImageSmoothingEnabled = false;
+      ctx.msImageSmoothingEnabled = false;
+    }
+    return ctx;
+  };
+})();
+
 const Art = (() => {
   function cv(w, h) {
     const c = document.createElement('canvas');

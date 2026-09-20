@@ -11,7 +11,7 @@ const Props = (() => {
     // No dither pass: the grain read as a filter smeared over the whole scene.
     Art.topLight(o.c, 'rgba(255,244,214,0.3)', 2);
     Art.underShade(o.c, 'rgba(18,12,24,0.3)', 2);
-    Art.outline(o.c, '#0a0810', 1);                 // everything wears the same black line
+    Art.outline(o.c, '#000000', 1);                 // everything wears the same black line
     cache.set(key, o.c);
     return o.c;
   }
@@ -23,7 +23,7 @@ const Props = (() => {
     if (c) return c;
     const o = Art.cv(w, h);
     draw(o.g, w, h);
-    Art.outline(o.c, '#0a0810', 1);
+    Art.outline(o.c, '#000000', 1);
     cache.set(key, o.c);
     return o.c;
   }
@@ -1199,11 +1199,158 @@ const Props = (() => {
       for (let k = 6; k < len; k += 7) Art.rect(g, sx - 1, sy + k, 3, 2, '#3c6129');
       Art.ell(g, sx, sy + len, 2, 2.4, '#6da348');
     }
-    Art.outline(c, PAL.ink, 0.55);
+    Art.outline(c, '#000000', 1);
     const res = { canvas: c, anchors, topY, base };
     cache.set(key, res);
     return res;
   }
 
-  return { P, get: (n, v) => P[n](v), drawCrop, drawTree, drawFruit, buildLifeTree, clear: () => cache.clear() };
+
+  // ---- furniture -----------------------------------------------------------
+  // Twelve things you can buy in town and stand about the grove. Each is drawn
+  // once into a cache at its own size, in blocks, with one black line round it.
+  const WD = ['#2a1a0c', '#4d2f16', '#6b4423', '#8c5c30', '#a87642', '#c9a878'];
+  const ST = ['#2a2630', '#43404c', '#5e5a68', '#7d7987', '#a09ba8'];
+  function plank(g, x, y, w, h, c0) {
+    Art.rect(g, x, y, w, h, WD[c0]);
+    Art.rect(g, x, y, w, 2, WD[c0 + 1]);
+    Art.rect(g, x, y + h - 2, w, 2, WD[Math.max(0, c0 - 1)]);
+    for (let i = 4; i < w - 2; i += 7) Art.rect(g, x + i, y + 1, 1, h - 2, WD[Math.max(0, c0 - 1)]);
+  }
+  function stoneBlock(g, x, y, w, h, s = 2) {
+    Art.rect(g, x, y, w, h, ST[s]);
+    Art.rect(g, x, y, w, 2, ST[s + 1]);
+    Art.rect(g, x, y + h - 2, w, 2, ST[Math.max(0, s - 1)]);
+    for (let i = 5; i < w - 3; i += 9) Art.rect(g, x + i, y + 2, 1, h - 4, ST[Math.max(0, s - 1)]);
+  }
+  function flame(g, x, y, s, t) {
+    const f = Math.sin(t * 8) > 0 ? 1 : 0;
+    Art.rect(g, x, y - s * 3 - f, s, s * 3, '#7a2a08');
+    Art.rect(g, x, y - s * 2 - f, s, s * 2, '#f2a01c');
+    Art.rect(g, x, y - s - f, s, s, '#ffe98a');
+  }
+  const FURN = {
+    bench: (g, w, h) => {
+      plank(g, 2, 4, w - 4, 7, 3);
+      Art.rect(g, 6, 11, 7, h - 11, WD[2]); Art.rect(g, w - 13, 11, 7, h - 11, WD[2]);
+      Art.rect(g, 6, 11, 2, h - 11, WD[3]); Art.rect(g, w - 13, 11, 2, h - 11, WD[3]);
+    },
+    table: (g, w, h) => {
+      plank(g, 0, 3, w, 8, 4);
+      Art.rect(g, 5, 11, 5, h - 11, WD[2]); Art.rect(g, w - 10, 11, 5, h - 11, WD[2]);
+      Art.rect(g, 8, 16, w - 16, 3, WD[2]);
+    },
+    lantern: (g, w, h) => {
+      Art.rect(g, w / 2 - 3, 14, 6, h - 16, WD[2]); Art.rect(g, w / 2 - 3, 14, 2, h - 16, WD[3]);
+      Art.rect(g, 1, h - 5, w - 2, 5, ST[2]);
+      Art.rect(g, 1, 2, w - 2, 14, '#1e1208');
+      Art.rect(g, 3, 4, w - 6, 10, '#f2c936');
+      Art.rect(g, 4, 5, w - 8, 4, '#ffe98a');
+      Art.rect(g, w / 2 - 1, 0, 2, 3, ST[3]);
+      Art.rect(g, 1, 2, w - 2, 2, '#a9750d');
+    },
+    barrel: (g, w, h) => {
+      Art.rect(g, 1, 3, w - 2, h - 3, WD[2]);
+      Art.rect(g, 3, 3, w - 6, h - 3, WD[3]);
+      Art.rect(g, 4, 3, 3, h - 3, WD[4]);
+      Art.rect(g, 1, 7, w - 2, 3, ST[2]); Art.rect(g, 1, h - 9, w - 2, 3, ST[2]);
+      Art.rect(g, 1, 7, w - 2, 1, ST[3]); Art.rect(g, 1, h - 9, w - 2, 1, ST[3]);
+      Art.rect(g, 3, 1, w - 6, 3, '#2f5a68');
+      Art.rect(g, 4, 1, w - 8, 1, '#4fa6be');
+    },
+    trough2: (g, w, h) => {
+      stoneBlock(g, 0, 2, w, h - 2, 2);
+      Art.rect(g, 3, 4, w - 6, 6, '#173d4e');
+      Art.rect(g, 4, 4, w - 8, 2, '#2f7f96');
+      Art.rect(g, 6, 5, 4, 1, '#8fd4e4');
+    },
+    scare: (g, w, h) => {
+      Art.rect(g, w / 2 - 2, 12, 4, h - 12, WD[2]);
+      Art.rect(g, 0, 20, w, 3, WD[2]);
+      Art.rect(g, w / 2 - 6, 1, 12, 12, '#c9a878');
+      Art.rect(g, w / 2 - 6, 1, 12, 3, '#ddc39a');
+      Art.rect(g, w / 2 - 4, 5, 2, 2, '#1e1208'); Art.rect(g, w / 2 + 2, 5, 2, 2, '#1e1208');
+      Art.rect(g, w / 2 - 3, 9, 6, 1, '#1e1208');
+      Art.rect(g, w / 2 - 7, 13, 14, 10, '#7a3a2a');
+      Art.rect(g, w / 2 - 7, 13, 14, 2, '#a05040');
+      for (let i = 0; i < 4; i++) Art.rect(g, 2 + i * 5, 22, 2, 5, '#c9a878');
+    },
+    hive: (g, w, h) => {
+      Art.rect(g, 1, h - 6, w - 2, 6, WD[2]);
+      for (let i = 0; i < 5; i++) {
+        const iw = w - 4 - i * 2, ix = (w - iw) / 2;
+        Art.rect(g, ix, h - 10 - i * 4, iw, 4, '#c9a45a');
+        Art.rect(g, ix, h - 10 - i * 4, iw, 1, '#e0bf7a');
+      }
+      Art.rect(g, w / 2 - 2, h - 9, 4, 4, '#2a1a0c');
+      Art.rect(g, 3, 3, 2, 2, '#f2c936'); Art.rect(g, w - 6, 7, 2, 2, '#f2c936');
+    },
+    arch: (g, w, h) => {
+      Art.rect(g, 2, 10, 5, h - 10, WD[2]); Art.rect(g, w - 7, 10, 5, h - 10, WD[2]);
+      for (let i = 0; i < 7; i++) {
+        const t = i / 6, x = 2 + t * (w - 7), y = 10 - Math.sin(t * Math.PI) * 9;
+        Art.rect(g, x, y, 6, 5, WD[2]);
+      }
+      const r = Art.rng(9);
+      for (let i = 0; i < 26; i++) {
+        const t = r(), x = 2 + t * (w - 6), y = 10 - Math.sin(t * Math.PI) * 9 + r() * (h - 14);
+        Art.rect(g, x, y, 3, 3, r() < 0.34 ? '#4d7430' : '#74a449');
+        if (r() < 0.3) Art.rect(g, x, y, 2, 2, r() < 0.5 ? '#c9525a' : '#f0dcb0');
+      }
+    },
+    well: (g, w, h) => {
+      stoneBlock(g, 0, h - 20, w, 20, 2);
+      Art.rect(g, 4, h - 18, w - 8, 6, '#0c1418');
+      Art.rect(g, 6, h - 17, w - 12, 3, '#173d4e');
+      Art.rect(g, 3, h - 34, 4, 16, WD[2]); Art.rect(g, w - 7, h - 34, 4, 16, WD[2]);
+      for (let i = 0; i < 6; i++) Art.rect(g, 1 + i * 3, h - 40 + Math.abs(i - 2.5) * 2, w - 2 - i * 6, 4, '#5a3a1c');
+      Art.rect(g, 0, h - 42, w, 5, '#3d2714');
+      Art.rect(g, 0, h - 42, w, 2, '#6b4423');
+      Art.rect(g, w / 2 - 1, h - 36, 2, 10, '#8a7752');
+      Art.rect(g, w / 2 - 4, h - 27, 8, 6, WD[2]);
+    },
+    statue: (g, w, h) => {
+      stoneBlock(g, 2, h - 12, w - 4, 12, 1);
+      Art.rect(g, 5, h - 34, w - 10, 24, ST[2]);
+      Art.rect(g, 5, h - 34, w - 10, 3, ST[3]);
+      Art.rect(g, 7, h - 44, w - 14, 12, ST[2]);
+      Art.rect(g, 7, h - 44, w - 14, 3, ST[3]);
+      Art.rect(g, 4, h - 44, 5, 5, ST[2]); Art.rect(g, w - 9, h - 44, 5, 5, ST[2]);
+      Art.rect(g, 10, h - 39, 3, 3, '#0c0a10'); Art.rect(g, w - 13, h - 39, 3, 3, '#0c0a10');
+      Art.rect(g, w / 2 - 3, h - 35, 6, 3, '#0c0a10');
+      Art.rect(g, 6, h - 20, 4, 3, '#4d7430');
+    },
+    firepit: (g, w, h) => {
+      for (let i = 0; i < 7; i++) {
+        const sx = 1 + i * ((w - 8) / 6);
+        Art.rect(g, sx, h - 9 - (i % 2) * 2, 7, 9, ST[1 + (i % 3)]);
+        Art.rect(g, sx, h - 9 - (i % 2) * 2, 7, 2, ST[2 + (i % 2)]);
+      }
+      Art.rect(g, 8, h - 13, w - 16, 5, '#2a1a12');
+      Art.rect(g, 10, h - 16, 5, 4, WD[1]); Art.rect(g, w - 15, h - 15, 5, 3, WD[1]);
+      flame(g, w / 2 - 4, h - 12, 3, 0.1); flame(g, w / 2 + 1, h - 13, 3, 0.4);
+    },
+    shrine2: (g, w, h) => {
+      Art.rect(g, w / 2 - 3, 20, 6, h - 20, WD[1]);
+      Art.rect(g, 1, 6, w - 2, 16, '#2a1a0c');
+      Art.rect(g, 3, 8, w - 6, 12, '#150c14');
+      for (let i = 0; i < 5; i++) Art.rect(g, i * 2, 2 + Math.abs(i - 2) * 2, w - i * 4, 5, '#3d2714');
+      Art.rect(g, 7, 11, 3, 3, '#c42a1e'); Art.rect(g, w - 10, 11, 3, 3, '#c42a1e');
+      Art.rect(g, w / 2 - 2, 16, 4, 2, '#e8dcc0');
+      Art.rect(g, 2, h - 6, w - 4, 3, ST[1]);
+    },
+  };
+  // A piece of furniture, drawn at the size the catalogue says it is.
+  function furniture(key) {
+    const def = FURN_BY_KEY[key];
+    if (!def || !FURN[key]) return null;
+    return cached('fn:' + key, def.w, def.h, (g, w, h) => FURN[key](g, w, h));
+  }
+  function drawFurniture(g, key, x, y, scale = 1) {
+    const c = furniture(key);
+    if (!c) return;
+    g.drawImage(c, Math.round(x - (c.width * scale) / 2), Math.round(y - c.height * scale), Math.round(c.width * scale), Math.round(c.height * scale));
+  }
+
+  return { P, get: (n, v) => P[n](v), drawCrop, drawTree, drawFruit, buildLifeTree, furniture, drawFurniture, clear: () => cache.clear() };
 })();
