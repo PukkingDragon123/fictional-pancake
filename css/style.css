@@ -790,272 +790,319 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
 /* =========================================================================
    THE PHONE
-   A phone, drawn as a phone: titanium rail, rounded glass, Dynamic Island,
-   a wallpaper behind a grid of rounded app icons, a dock, and the home bar.
-   It is the one object in this game that is not made of wood or pixels,
-   because it is the thing in your pocket and it should look like it.
+   Not a slab of glass. An old handheld out of the same drawer as everything
+   else in this game: a pressed iron case with brass rivets, a speaker grille
+   punched across the top, a screen sunk into the shell behind a scanline,
+   and one chunky key under it. Every corner is square or cut in one step,
+   every edge is a flat band of colour, and there is not a gradient or a
+   blur anywhere in it.
    ========================================================================= */
 .phone {
   position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at 50% 46%, rgba(20,14,26,0.52) 0%, rgba(8,5,12,0.84) 72%);
-  animation: phfade .18s ease-out;
+  background: rgba(10,7,4,0.84);
+  animation: phfade .12s steps(3, end);
 }
 @keyframes phfade { from { opacity: 0 } to { opacity: 1 } }
+
+/* the case */
 .phshell {
-  --ph-h: min(94vh, 780px);
-  position: relative; flex: 0 0 auto; height: var(--ph-h); width: calc(var(--ph-h) * 393 / 852);
+  --ph-h: min(94vh, 720px);
+  --case: #3d3529; --lit: #6b5c44; --dk: #17120c; --rivet: #a9750d;
+  position: relative; flex: 0 0 auto; height: var(--ph-h); width: calc(var(--ph-h) * 356 / 640);
   min-width: 0; max-width: 96vw;
-  display: flex; padding: 4px; border-radius: 56px;
-  background:
-    linear-gradient(118deg, #f2f4f8 0%, #9aa1ad 12%, #6e7683 26%, #cfd5de 40%, #7d848f 56%, #aab1bc 72%, #5f666f 88%, #e6eaf0 100%);
+  display: flex; flex-direction: column; padding: 30px 12px 62px;
+  background: var(--case);
   box-shadow:
-    0 0 0 1px rgba(0,0,0,0.6), 0 26px 60px rgba(0,0,0,0.55), 0 0 90px rgba(0,0,0,0.45),
-    inset 0 0 0 3px rgba(255,255,255,0.14);
-  animation: phin .3s cubic-bezier(0.3, 1.4, 0.5, 1);
+    inset 0 4px 0 0 var(--lit), inset 0 -5px 0 0 var(--dk),
+    inset 4px 0 0 0 #4a4132, inset -4px 0 0 0 #2a2419,
+    0 0 0 4px var(--ol), 0 10px 0 4px rgba(0,0,0,0.45);
+  animation: phin .16s steps(4, end);
 }
-@keyframes phin { from { transform: translateY(30px) scale(0.93); opacity: 0 } to { transform: none; opacity: 1 } }
-/* the side buttons */
-.phshell i[class^="phbtn-"] { position: absolute; background: linear-gradient(180deg, #d8dde4, #8e959f); border-radius: 2px; }
-.phbtn-silent { left: -2px; top: 16%; width: 3px; height: 3.2%; }
-.phbtn-up     { left: -2px; top: 24%; width: 3px; height: 6.4%; }
-.phbtn-down   { left: -2px; top: 33%; width: 3px; height: 6.4%; }
-.phbtn-wake   { right: -2px; top: 27%; width: 3px; height: 9%; }
+@keyframes phin { from { transform: translateY(18px); opacity: 0 } to { transform: none; opacity: 1 } }
+/* the speaker grille punched across the top, and a sensor dot beside it */
+.phshell::before {
+  content: ''; position: absolute; left: 50%; top: 12px; width: 78px; height: 8px; margin-left: -46px;
+  background: repeating-linear-gradient(90deg, var(--dk) 0 4px, transparent 4px 8px);
+  box-shadow: 30px 0 0 0 var(--dk), 34px 0 0 0 var(--dk);
+}
+/* the maker's stamp under the screen, because an old thing always has one */
+.phshell::after {
+  content: 'WOMBAT CO.'; position: absolute; left: 14px; bottom: 21px;
+  font-size: 9px; letter-spacing: 2px; color: #6b5c44;
+}
+/* the side keys: brass nubs, square */
+.phshell i[class^="phbtn-"] { position: absolute; background: var(--rivet); box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #d8a41c; }
+.phbtn-silent { left: -6px; top: 17%; width: 5px; height: 3%; }
+.phbtn-up     { left: -6px; top: 25%; width: 5px; height: 6%; }
+.phbtn-down   { left: -6px; top: 33%; width: 5px; height: 6%; }
+.phbtn-wake   { right: -6px; top: 27%; width: 5px; height: 9%; }
 .phclose {
-  position: absolute; right: -14px; top: -14px; width: 34px; height: 34px; border: 0; cursor: pointer;
-  border-radius: 50%; font-family: var(--f); font-size: 19px; line-height: 1;
-  color: #efe9dd; background: #2a2c38; box-shadow: 0 0 0 2px #0a0710, 0 4px 10px rgba(0,0,0,0.5);
+  position: absolute; right: -16px; top: -16px; width: 32px; height: 32px; border: 0; cursor: pointer;
+  font-family: var(--f); font-size: 18px; line-height: 1; color: #f0e2c4;
+  background: #8a3a1e; box-shadow: inset 0 3px 0 #b85a32, inset 0 -3px 0 #4a1a0a, 0 0 0 3px var(--ol);
 }
-.phclose:hover { background: #3c3f50; }
+.phclose:hover { background: #a8492a; }
+.phclose:active { transform: translateY(2px); }
+
+/* the screen, sunk into the case */
 .phglass {
-  position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
-  border-radius: 52px; background: #06070c;
-  box-shadow: inset 0 0 0 2px #05040a;
+  position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
+  overflow: hidden; background: #0c110d;
+  box-shadow: inset 0 0 0 3px #080b08, 0 0 0 3px #17120c, 0 0 0 5px #5a4d38;
 }
-/* the wallpaper: a hill, a wood and a sky, all in flat bands */
+/* the scanline and the dark corners of an old screen, over everything */
+.phglass::after {
+  content: ''; position: absolute; inset: 0; z-index: 9; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 90% at 50% 50%, transparent 58%, rgba(0,0,0,0.42) 100%);
+}
 .phwall {
-  position: absolute; inset: 0; pointer-events: none; background: #1d2417;
+  position: absolute; inset: 0; pointer-events: none; background: #16200f;
   background-size: 100% 100%; background-repeat: no-repeat; image-rendering: pixelated;
 }
-/* the status bar and the island */
+
+/* the status strip */
 .phstatus {
-  position: relative; z-index: 3; flex: 0 0 auto; display: flex; align-items: center; gap: 5px;
-  padding: 13px 26px 4px; font-size: 13px; color: #fff; letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  position: relative; z-index: 3; flex: 0 0 auto; display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; font-size: 12px; color: #e8f0d8; letter-spacing: 1px;
+  background: rgba(8,12,8,0.72); box-shadow: inset 0 -2px 0 rgba(90,120,70,0.28);
 }
 .phstatus b { font-weight: 400; }
-.phisland {
-  position: absolute; left: 50%; top: 9px; width: 30%; height: 26px; margin-left: -15%;
-  background: #000; border-radius: 14px;
-  box-shadow: inset -20px 0 0 -14px #14141c;
-}
-.phsig { margin-left: auto; display: flex; align-items: flex-end; gap: 2px; height: 11px; }
-.phsig i { width: 3px; background: #fff; border-radius: 1px; }
-.phsig i:nth-child(1) { height: 4px } .phsig i:nth-child(2) { height: 6px }
-.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 11px; opacity: 0.4 }
-.phwifi { width: 14px; height: 11px; background:
-  radial-gradient(circle at 50% 100%, #fff 0 2px, transparent 2px),
-  radial-gradient(circle at 50% 100%, transparent 0 4px, #fff 4px 5.5px, transparent 5.5px),
-  radial-gradient(circle at 50% 100%, transparent 0 7.5px, #fff 7.5px 9px, transparent 9px); }
-.phbatt { width: 24px; height: 12px; border: 1px solid rgba(255,255,255,0.55); border-radius: 3px; padding: 1.5px;
-  position: relative; }
-.phbatt::after { content: ''; position: absolute; right: -3px; top: 4px; width: 2px; height: 4px; background: rgba(255,255,255,0.55); border-radius: 0 1px 1px 0; }
-.phbatt i { display: block; width: 76%; height: 100%; background: #fff; border-radius: 1.5px; }
+.phisland { display: none; }
+.phsig { margin-left: auto; display: flex; align-items: flex-end; gap: 2px; height: 10px; }
+.phsig i { width: 3px; background: #cfe6b8; }
+.phsig i:nth-child(1) { height: 3px } .phsig i:nth-child(2) { height: 5px }
+.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 10px; background: #4a5a3a }
+.phwifi { width: 12px; height: 10px; background:
+  linear-gradient(#cfe6b8 0 0) 4px 7px/4px 3px no-repeat,
+  linear-gradient(#cfe6b8 0 0) 2px 3px/8px 2px no-repeat,
+  linear-gradient(#cfe6b8 0 0) 0 0/12px 2px no-repeat; }
+.phbatt { position: relative; width: 20px; height: 11px; padding: 2px; box-shadow: inset 0 0 0 2px #8ba878; }
+.phbatt::after { content: ''; position: absolute; right: -4px; top: 3px; width: 3px; height: 5px; background: #8ba878; }
+.phbatt i { display: block; width: 74%; height: 100%; background: #cfe6b8; }
 
 /* the home screen */
-.phhome-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 10px 18px 0; }
+.phhome-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 8px 12px 0; }
 .phwidget {
-  margin: 6px 2px 14px; padding: 12px 14px; border-radius: 20px; color: #f2f5ff;
-  background: rgba(22,20,34,0.46); backdrop-filter: blur(8px);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+  margin: 4px 0 12px; padding: 9px 11px; color: #edf3e0;
+  background: rgba(10,16,10,0.78); box-shadow: inset 0 0 0 2px #2e3a26, inset 0 2px 0 rgba(160,190,130,0.16);
 }
-.phwidget h5 { margin: 0 0 4px; font-size: 12px; font-weight: 400; letter-spacing: 1.5px; color: #b9c2dc; }
-.phwidget p { margin: 0; font-size: 15px; line-height: 1.45; }
-.phwidget .phwrow { display: flex; gap: 12px; margin-top: 8px; font-size: 12px; color: #c9d2ea; }
+.phwidget h5 { margin: 0 0 3px; font-size: 11px; font-weight: 400; letter-spacing: 2px; color: #8fae74; }
+.phwidget p { margin: 0; font-size: 14px; line-height: 1.4; }
+.phwidget .phwrow { display: flex; gap: 12px; margin-top: 7px; font-size: 12px; color: #b3c79c; }
 .phwidget .phwrow span { display: flex; align-items: center; gap: 4px; }
 .phwidget img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
-.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 8px; align-content: start; }
+
+.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 6px; align-content: start; }
 .phapp {
-  position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 0; border: 0; background: none; cursor: pointer; font-family: inherit;
-  transition: transform .12s cubic-bezier(.2,2.2,.4,1);
 }
+/* an app tile is a slot out of the same kit as the inventory: flat colour,
+   a lit band across the top, a dark band under it, one line round it */
 .phapp i.phico {
   display: flex; align-items: center; justify-content: center;
-  width: 100%; aspect-ratio: 1; border-radius: 24%;
-  background: linear-gradient(170deg, var(--t1, #4a4f6a), var(--t2, #23263a));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 3px 8px rgba(0,0,0,0.45);
+  width: 100%; aspect-ratio: 1; background: var(--t2, #23281c);
+  box-shadow:
+    inset 0 3px 0 var(--t1, #4a5240), inset 0 -3px 0 rgba(0,0,0,0.5),
+    inset 3px 0 0 rgba(255,255,255,0.08), inset -3px 0 0 rgba(0,0,0,0.3),
+    0 0 0 2px #0a0d08;
 }
-.phapp img.ico { width: 62%; height: 62%; image-rendering: pixelated; }
-.phapp b { font-size: 11px; font-weight: 400; color: #fff; letter-spacing: 0.3px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-.phapp:hover { transform: scale(1.08); }
-.phapp:active { transform: scale(0.9); }
+.phapp img.ico { width: 60%; height: 60%; image-rendering: pixelated; }
+.phapp b { display: block; width: 100%; height: 12px; line-height: 12px; font-size: 10px; font-weight: 400;
+  color: #e4eed4; letter-spacing: 0.5px; text-shadow: 1px 1px 0 #0a0d08;
+  overflow: hidden; white-space: nowrap; text-overflow: clip; }
+.phapp:hover i.phico { box-shadow:
+  inset 0 3px 0 var(--t1, #4a5240), inset 0 -3px 0 rgba(0,0,0,0.5),
+  inset 3px 0 0 rgba(255,255,255,0.08), inset -3px 0 0 rgba(0,0,0,0.3),
+  0 0 0 2px #0a0d08, 0 0 0 4px var(--gd2); }
+.phapp:active { transform: translateY(2px); }
 .phdot {
-  position: absolute; top: -5px; right: -3px; min-width: 19px; height: 19px; line-height: 19px;
-  font-size: 11px; font-style: normal; text-align: center; color: #fff; background: #ff3b30;
-  border-radius: 10px; box-shadow: 0 0 0 2px rgba(0,0,0,0.35);
+  position: absolute; top: -4px; right: -2px; min-width: 16px; height: 16px; line-height: 16px;
+  font-size: 10px; font-style: normal; text-align: center; color: #fff2e0; background: #b8412c;
+  box-shadow: 0 0 0 2px #0a0d08;
 }
-.phdots { display: flex; gap: 6px; justify-content: center; margin: 14px 0 10px; }
-.phdots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); }
-.phdots i.on { background: #fff; }
+.phdots { display: flex; gap: 5px; justify-content: center; margin: 10px 0 8px; }
+.phdots i { width: 5px; height: 5px; background: #4a5a3a; }
+.phdots i.on { background: #cfe6b8; }
 .phdock {
-  margin: auto 0 16px; padding: 12px 10px; border-radius: 30px;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-  background: rgba(30,28,44,0.45); backdrop-filter: blur(10px);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.09);
+  margin: auto 0 10px; padding: 8px 6px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  background: rgba(8,12,8,0.7); box-shadow: inset 0 0 0 2px #2e3a26;
 }
 .phdock .phapp b { display: none; }
 
 /* an app, open */
 .phapp-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
-  background: #0f1016; animation: phopen .18s ease-out; }
-@keyframes phopen { from { transform: scale(0.9); opacity: 0 } to { transform: none; opacity: 1 } }
-.phnav { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 14px 10px;
-  border-bottom: 1px solid #23243a; background: rgba(18,19,28,0.9); }
-.phnav b { flex: 1 1 auto; text-align: center; font-size: 15px; font-weight: 400; color: #e6ecff; }
-.phnav-sp { flex: 0 0 62px; }
-.phback { flex: 0 0 62px; text-align: left; padding: 4px 0; border: 0; background: none; cursor: pointer;
-  font-family: inherit; font-size: 14px; color: #6fa8ff; }
-.phback:hover { color: #9cc4ff; }
-.phscreen { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 10px 12px 18px; display: flex; flex-direction: column; gap: 7px; }
+  background: #101610; animation: phopen .12s steps(3, end); }
+@keyframes phopen { from { opacity: 0 } to { opacity: 1 } }
+.phnav { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  background: #1b2418; box-shadow: inset 0 2px 0 #2e3a26, inset 0 -3px 0 #0a0d08; }
+.phnav b { flex: 1 1 auto; text-align: center; font-size: 14px; font-weight: 400; color: #e4eed4; letter-spacing: 1px; }
+.phnav-sp { flex: 0 0 56px; }
+.phback { flex: 0 0 56px; text-align: left; padding: 3px 0; border: 0; background: none; cursor: pointer;
+  font-family: inherit; font-size: 13px; color: #d8a41c; }
+.phback:hover { color: #ffe98a; }
+.phscreen { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 9px 10px 16px; display: flex; flex-direction: column; gap: 6px; }
 .phscreen::-webkit-scrollbar { width: 6px; }
-.phscreen::-webkit-scrollbar-thumb { background: #33354c; border-radius: 3px; }
-.phbar { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 4;
-  width: 36%; height: 5px; border: 0; border-radius: 3px; background: rgba(255,255,255,0.65); cursor: pointer; }
-.phbar:hover { background: #fff; }
+.phscreen::-webkit-scrollbar-track { background: #0a0d08; }
+.phscreen::-webkit-scrollbar-thumb { background: #3e4a34; }
+
+/* the one key under the screen */
+.phbar {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 4;
+  width: 72px; height: 28px; border: 0; cursor: pointer;
+  background: #5a4d38; box-shadow: inset 0 3px 0 #8a7752, inset 0 -4px 0 #2a2418, 0 0 0 3px var(--ol);
+}
+.phbar:hover { background: #6b5c44; }
+/* while the phone is out, the toasts move into the bottom corner: dead centre
+   is where the home key sits, and you want to be able to see the key you are
+   about to press */
+#panel-phone:not([hidden]) ~ #toasts { left: 16px; transform: none; align-items: flex-start; }
+.phbar:active { transform: translateX(-50%) translateY(3px); box-shadow: inset 0 3px 0 #8a7752, inset 0 -2px 0 #2a2418, 0 0 0 3px var(--ol); }
 
 /* cards and rows inside an app */
-.phcard { min-width: 0; padding: 10px 12px; border-radius: 14px; background: #1b1d2a; box-shadow: inset 0 0 0 1px #2a2e46; }
-.phcard.big { background: linear-gradient(170deg, #232741, #171a29); box-shadow: inset 0 0 0 1px #3a4062; }
-.phcard.shut { opacity: 0.5; }
-.phcardh { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #e6ecff; }
-.phcardh img.ico { width: 22px; height: 22px; image-rendering: pixelated; }
+.phcard { min-width: 0; padding: 9px 10px; background: #1a2318; box-shadow: inset 0 0 0 2px #2e3a26, inset 0 2px 0 rgba(150,180,120,0.12); }
+.phcard.big { background: #22301d; box-shadow: inset 0 0 0 2px #435239, inset 0 2px 0 rgba(150,180,120,0.16); }
+.phcard.shut { opacity: 0.45; }
+.phcardh { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #e4eed4; }
+.phcardh img.ico { width: 20px; height: 20px; image-rendering: pixelated; }
 .phcardh b { flex: 0 1 auto; font-weight: 400; }
 .phcardh .phdim { margin-left: auto; }
-.phcard p { margin: 6px 0 0; font-size: 13px; line-height: 1.55; color: #aeb6d0; }
-.phmeta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 7px; font-size: 12px; color: #8d94ae; }
+.phcard p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; color: #a8bd92; }
+.phmeta { display: flex; flex-wrap: wrap; gap: 3px 11px; margin-top: 6px; font-size: 11px; color: #83996d; }
 .phmeta img.ico { width: 13px; height: 13px; vertical-align: -2px; image-rendering: pixelated; }
-.phsub { margin: 10px 2px 1px; font-size: 11px; letter-spacing: 1.6px; color: #6f7794; }
-.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 11px; font-size: 13px; color: #d4dbf0;
-  border-radius: 12px; background: #16182a; }
-.phrow.done { opacity: 0.45; }
+.phsub { margin: 9px 1px 0; font-size: 10px; letter-spacing: 2px; color: #7b9166; }
+.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px; font-size: 12px; color: #d3e2c0;
+  background: #161e14; box-shadow: inset 0 0 0 2px #283322; }
+.phrow.done { opacity: 0.4; }
 .phrow img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
 .phrow b { font-weight: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.phnum { margin-left: auto; color: #f5cd5c; font-variant-numeric: tabular-nums; }
-.phdim { font-size: 12px; color: #7d85a2; font-style: italic; }
+.phnum { margin-left: auto; color: var(--gd3); }
+.phdim { font-size: 11px; color: #7b9166; }
 .phrow .phdim { margin-left: auto; text-align: right; }
-.phbar2 { height: 6px; margin: 0 0 4px; border-radius: 3px; background: #0e0f18; overflow: hidden; }
-.phbar2 i { display: block; height: 100%; border-radius: 3px; }
-.phstat { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 12px; color: #8d94ae; }
-.phstat span { flex: 0 0 52px; }
-.phstat .phbar2 { flex: 1 1 auto; margin: 0; height: 8px; }
-.phwant { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
-.phwant em { font-style: normal; font-size: 11px; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 9px; color: #1a0e08; background: #ffb340; }
-.phok { margin-top: 7px; font-size: 12px; color: #30d158; }
-.phacts { display: flex; gap: 6px; margin-top: 10px; }
+/* a meter: a dark trough with a flat bar in it and one lit line on top */
+.phbar2 { height: 8px; margin: 5px 0 0; background: #0a0d08; box-shadow: inset 0 0 0 2px #283322; overflow: hidden; }
+.phbar2 i { display: block; height: 100%; box-shadow: inset 0 2px 0 rgba(255,255,255,0.28); }
+.phstat { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px; color: #83996d; }
+.phstat span { flex: 0 0 48px; }
+.phstat .phbar2 { flex: 1 1 auto; margin: 0; }
+.phwant { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.phwant em { font-style: normal; font-size: 10px; letter-spacing: 1px; padding: 3px 7px; color: #2a1a04; background: var(--gd2);
+  box-shadow: inset 0 2px 0 var(--gd3), 0 0 0 2px #0a0d08; }
+.phok { margin-top: 6px; font-size: 11px; color: #8fd46a; }
+.phacts { display: flex; gap: 5px; margin-top: 9px; }
 .phbtn {
-  flex: 1 1 auto; padding: 9px 4px; border: 0; border-radius: 11px; cursor: pointer; font-family: inherit; font-size: 13px;
-  color: #dfe5f6; background: #2c3150;
-  transition: transform .14s cubic-bezier(.2,2.2,.4,1), filter .1s;
+  flex: 1 1 auto; padding: 8px 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
+  color: #dbe8c8; background: #2f3d28;
+  box-shadow: inset 0 3px 0 #475738, inset 0 -3px 0 #141a10, 0 0 0 2px #0a0d08;
 }
-.phbtn.go { color: #06121a; background: linear-gradient(180deg, #7fd7ee, #2f9ec0); }
-.phbtn:hover { filter: brightness(1.18); }
-.phbtn:active { transform: scale(0.95); }
+.phbtn.go { color: #2a1a04; background: var(--gd2); box-shadow: inset 0 3px 0 var(--gd3), inset 0 -3px 0 var(--gd0), 0 0 0 2px #0a0d08; }
+.phbtn:hover { filter: brightness(1.16); }
+.phbtn:active { transform: translateY(2px); }
 
-/* settings: iOS-style grouped rows with switches */
-.phgroup { border-radius: 14px; overflow: hidden; background: #1b1d2a; }
-.phset { display: flex; align-items: center; gap: 10px; padding: 12px 13px; font-size: 14px; color: #e6ecff;
-  border-bottom: 1px solid #23253a; }
-.phset:last-child { border-bottom: 0; }
+/* settings */
+.phgroup { background: #1a2318; box-shadow: inset 0 0 0 2px #2e3a26; }
+.phset { display: flex; align-items: center; gap: 10px; padding: 10px 11px; font-size: 13px; color: #e4eed4;
+  box-shadow: inset 0 -2px 0 #283322; }
+.phset:last-child { box-shadow: none; }
 .phset span { flex: 1 1 auto; }
-.phset small { display: block; font-size: 11px; color: #7d85a2; }
-.phsw { position: relative; flex: 0 0 auto; width: 46px; height: 27px; border: 0; border-radius: 14px; cursor: pointer;
-  background: #3a3d52; transition: background .16s; }
-.phsw i { position: absolute; left: 3px; top: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4); transition: left .16s cubic-bezier(.3,1.6,.5,1); }
-.phsw.on { background: #30d158; }
-.phsw.on i { left: 22px; }
-.phset .phgo { flex: 0 0 auto; padding: 7px 14px; border: 0; border-radius: 10px; cursor: pointer;
-  font-family: inherit; font-size: 12px; color: #fff; background: #ff453a; }
+.phset small { display: block; font-size: 10px; color: #7b9166; }
+/* a square switch: a trough with a square knob that steps from end to end */
+.phsw { position: relative; flex: 0 0 auto; width: 42px; height: 22px; border: 0; cursor: pointer;
+  background: #232d1e; box-shadow: inset 0 0 0 2px #0a0d08, inset 0 2px 0 #151c12; }
+.phsw i { position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #8a9c74;
+  box-shadow: inset 0 2px 0 #b4c79c, inset 0 -2px 0 #4a5a38; transition: left .1s steps(3, end); }
+.phsw.on { background: #1c5568; box-shadow: inset 0 0 0 2px #0a0d08, inset 0 2px 0 #2f7f96; }
+.phsw.on i { left: 23px; background: #8fd4e4; box-shadow: inset 0 2px 0 #cdeff8, inset 0 -2px 0 #2f7f96; }
+.phset .phgo { flex: 0 0 auto; padding: 6px 12px; border: 0; cursor: pointer;
+  font-family: inherit; font-size: 11px; color: #fff2e0; background: #8a3a1e;
+  box-shadow: inset 0 2px 0 #b85a32, inset 0 -2px 0 #4a1a0a, 0 0 0 2px #0a0d08; }
 
 /* messages */
-.phthread { display: flex; align-items: center; gap: 10px; padding: 10px 11px; border-radius: 14px; cursor: pointer;
-  border: 0; width: 100%; text-align: left; font-family: inherit; background: #16182a; color: #e6ecff; }
-.phthread:hover { background: #1f2236; }
-.phava { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #2a2e46;
-  display: flex; align-items: flex-end; justify-content: center; }
+.phthread { display: flex; align-items: center; gap: 9px; padding: 8px 9px; cursor: pointer;
+  border: 0; width: 100%; text-align: left; font-family: inherit; background: #161e14; color: #e4eed4;
+  box-shadow: inset 0 0 0 2px #283322; }
+.phthread:hover { background: #1f2a1b; }
+.phava { flex: 0 0 auto; width: 34px; height: 34px; overflow: hidden; background: #232d1e;
+  box-shadow: inset 0 0 0 2px #3e4a34; display: flex; align-items: flex-end; justify-content: center; }
 .phava canvas { image-rendering: pixelated; }
 .phthread .phtx { flex: 1 1 auto; min-width: 0; }
-.phthread .phtx b { display: block; font-size: 14px; font-weight: 400; }
-.phthread .phtx small { display: block; font-size: 12px; color: #8d94ae; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.phunread { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: #0a84ff; }
+.phthread .phtx b { display: block; font-size: 13px; font-weight: 400; }
+.phthread .phtx small { display: block; font-size: 11px; color: #83996d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.phunread { flex: 0 0 auto; width: 8px; height: 8px; background: var(--gd3); box-shadow: 0 0 0 2px #0a0d08; }
 .phchat { display: flex; flex-direction: column; gap: 6px; }
-.phmsg { max-width: 78%; padding: 8px 12px; border-radius: 18px; font-size: 13.5px; line-height: 1.45; }
-.phmsg.them { align-self: flex-start; background: #2a2d3e; color: #eef2ff; border-bottom-left-radius: 5px; }
-.phmsg.me { align-self: flex-end; background: #0a84ff; color: #fff; border-bottom-right-radius: 5px; }
-.phreplies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.phreply { padding: 8px 13px; border: 0; border-radius: 16px; cursor: pointer; font-family: inherit; font-size: 12.5px;
-  color: #9cc4ff; background: #1c2135; box-shadow: inset 0 0 0 1px #2e3654; }
-.phreply:hover { background: #253052; color: #cfe1ff; }
+/* a bubble with one step out of each corner, like everything else here */
+.phmsg { max-width: 80%; padding: 7px 10px; font-size: 12.5px; line-height: 1.4;
+  clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 4px 4px); }
+.phmsg.them { align-self: flex-start; background: #2c3826; color: #edf3e0; }
+.phmsg.me { align-self: flex-end; background: #1c5568; color: #e6f7fc; }
+.phreplies { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+.phreply { padding: 7px 11px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
+  color: #ffe98a; background: #2a2010; box-shadow: inset 0 0 0 2px var(--gd0); }
+.phreply:hover { background: #3d2f16; color: #fff; }
 
 /* photos */
 .phphotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #22304a; display: flex; align-items: flex-end; justify-content: center; }
+.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #1a2318;
+  box-shadow: inset 0 0 0 2px #2e3a26; display: flex; align-items: flex-end; justify-content: center; }
 .phphoto canvas { image-rendering: pixelated; width: 100%; height: 100%; object-fit: contain; }
-.phphoto em { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-style: normal; font-size: 10px;
-  color: #fff; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.7)); }
+.phphoto img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.phphoto em { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-style: normal; font-size: 9px;
+  color: #edf3e0; background: rgba(8,12,8,0.78); }
 
-/* the little phone button down in the corner of the frame */
-.mbtn.phonebtn { position: relative; }
-.mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }
-
-
-
-/* ---- the lock screen and the two new apps -------------------------------- */
+/* the lock screen */
 .phlock { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column;
-  padding: 18px 16px 0; cursor: pointer; animation: phopen .2s ease-out; }
-.phlockclock { text-align: center; margin: 14px 0 20px; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
-.phlockclock b { display: block; font-size: 56px; font-weight: 400; line-height: 1; letter-spacing: -2px; }
-.phlockclock span { display: block; margin-top: 8px; font-size: 13px; color: #dfe6f8; }
-.phnotes { display: flex; flex-direction: column; gap: 7px; overflow-y: auto; min-height: 0; }
+  padding: 14px 12px 0; cursor: pointer; animation: phopen .14s steps(3, end); }
+.phlockclock { text-align: center; margin: 10px 0 16px; color: #edf3e0; }
+.phlockclock b { display: block; font-size: 46px; font-weight: 400; line-height: 1; text-shadow: 3px 3px 0 rgba(8,12,8,0.7); }
+.phlockclock span { display: block; margin-top: 6px; font-size: 12px; letter-spacing: 1px; color: #c3d6a8; text-shadow: 2px 2px 0 rgba(8,12,8,0.7); }
+.phnotes { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; min-height: 0; }
 .phnotes::-webkit-scrollbar { width: 0; }
-.phnote { display: flex; align-items: flex-start; gap: 9px; width: 100%; text-align: left; padding: 9px 11px;
-  border: 0; border-radius: 16px; cursor: pointer; font-family: inherit;
-  background: rgba(32,30,48,0.55); backdrop-filter: blur(8px); color: #eef2ff;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.09); }
-.phnote:hover { background: rgba(48,46,70,0.7); }
-.phnico { flex: 0 0 auto; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.12); }
-.phnico img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
+.phnote { display: flex; align-items: flex-start; gap: 8px; width: 100%; text-align: left; padding: 8px 10px;
+  border: 0; cursor: pointer; font-family: inherit; color: #edf3e0;
+  background: rgba(10,16,10,0.8); box-shadow: inset 0 0 0 2px #2e3a26; }
+.phnote:hover { background: rgba(26,38,22,0.9); }
+.phnico { flex: 0 0 auto; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+  background: #232d1e; box-shadow: inset 0 0 0 2px #3e4a34; }
+.phnico img.ico { width: 17px; height: 17px; image-rendering: pixelated; }
 .phntx { flex: 1 1 auto; min-width: 0; }
-.phntx b { display: block; font-size: 11px; font-weight: 400; letter-spacing: 1px; color: #aab3cc; }
-.phntx em { display: block; font-style: normal; font-size: 13.5px; }
-.phntx small { display: block; font-size: 12px; color: #9aa3bd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.phswipe { margin-top: auto; padding: 14px 0 22px; text-align: center; font-size: 11px; letter-spacing: 2px;
-  color: rgba(255,255,255,0.6); }
+.phntx b { display: block; font-size: 10px; font-weight: 400; letter-spacing: 1.5px; color: #8fae74; }
+.phntx em { display: block; font-style: normal; font-size: 13px; }
+.phntx small { display: block; font-size: 11px; color: #a8bd92; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phswipe { margin-top: auto; padding: 12px 0 16px; text-align: center; font-size: 10px; letter-spacing: 3px;
+  color: #a8bd92; text-shadow: 2px 2px 0 rgba(8,12,8,0.7); }
 
 /* camera */
-.phcam { display: flex; flex-direction: column; gap: 12px; height: 100%; }
-.phviewfinder { flex: 1 1 auto; min-height: 180px; border-radius: 12px; background: #000 center/cover no-repeat;
-  image-rendering: pixelated; box-shadow: inset 0 0 0 2px #2a2e46; }
-.phcamrow { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 6px 4px 12px; }
-.phshutter { width: 58px; height: 58px; border: 0; border-radius: 50%; cursor: pointer; background: #fff;
-  box-shadow: 0 0 0 4px #0f1016, 0 0 0 6px #fff; }
-.phshutter:active { transform: scale(0.92); }
-.phphoto img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.phcam { display: flex; flex-direction: column; gap: 10px; height: 100%; }
+.phviewfinder { flex: 1 1 auto; min-height: 170px; background: #000 center/cover no-repeat;
+  image-rendering: pixelated; box-shadow: inset 0 0 0 3px #2e3a26, inset 0 0 0 5px #0a0d08; }
+.phcamrow { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 10px; }
+.phshutter { width: 48px; height: 48px; border: 0; cursor: pointer; background: #b8412c;
+  box-shadow: inset 0 4px 0 #e07050, inset 0 -4px 0 #6a1e10, 0 0 0 3px #0a0d08, 0 0 0 6px #5a4d38; }
+.phshutter:active { transform: translateY(3px); }
 
 /* the feed */
-.phpost { border-radius: 14px; overflow: hidden; background: #16182a; }
-.phposth { display: flex; align-items: center; gap: 8px; padding: 9px 11px; font-size: 13px; color: #e6ecff; }
+.phpost { background: #161e14; box-shadow: inset 0 0 0 2px #283322; }
+.phposth { display: flex; align-items: center; gap: 8px; padding: 8px 10px; font-size: 12px; color: #e4eed4; }
 .phposth b { font-weight: 400; }
 .phposth .phdim { margin-left: auto; }
-.phava2 { flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; background: #2a2e46;
-  display: flex; align-items: flex-end; justify-content: center; }
+.phava2 { flex: 0 0 auto; width: 26px; height: 26px; overflow: hidden; background: #232d1e;
+  box-shadow: inset 0 0 0 2px #3e4a34; display: flex; align-items: flex-end; justify-content: center; }
 .phava2 canvas { image-rendering: pixelated; transform: scale(0.7); transform-origin: bottom center; }
-.phpost p { margin: 0; padding: 0 11px 10px; font-size: 13px; line-height: 1.5; color: #b9c2dc; }
+.phpost p { margin: 0; padding: 0 10px 9px; font-size: 12px; line-height: 1.45; color: #a8bd92; }
 .phshot { display: block; width: 100%; image-rendering: pixelated; }
-.phlikes { display: flex; align-items: center; gap: 6px; padding: 8px 11px; font-size: 12px; color: #ff7aa8; cursor: pointer; }
-.phlikes img.ico { width: 15px; height: 15px; image-rendering: pixelated; }
+.phlikes { display: flex; align-items: center; gap: 6px; padding: 7px 10px; font-size: 11px; color: #e08a9a; cursor: pointer; }
+.phlikes img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
+
 /* Everything inside a scrolling screen keeps its own height; the column must
    not squeeze its children or long posts get clipped. */
 .phscreen > * { flex: 0 0 auto; }
 .phpost, .phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub { flex: 0 0 auto; }
+
+/* the little phone button down in the corner of the frame */
+.mbtn.phonebtn { position: relative; }
+.mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }

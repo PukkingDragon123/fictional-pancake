@@ -15,21 +15,21 @@ const Phone = (() => {
   // Every app on the home screen, in the order they sit on it. `tint` is the
   // icon's own colour, the way every phone gives an app one.
   const APPS = [
-    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: ['#f7c53f', '#b07a10'] },
-    { key: 'herd', name: 'Herd', icon: 'wombat', tint: ['#d79a76', '#8a5138'] },
-    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: ['#7fce63', '#2f7a30'] },
-    { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#6fc4ec', '#1f6fae'] },
-    { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#ff9a6a', '#c4386a'] },
-    { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#3a3f52', '#14161f'] },
-    { key: 'camera', name: 'Camera', icon: 'camera', tint: ['#4a4f6a', '#1a1c28'] },
-    { key: 'feed', name: 'Wombagram', icon: 'heart', tint: ['#ff7aa8', '#8a2f5e'] },
-    { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#a9b0bd', '#5c636f'] },
-    { key: 'help', name: 'Tips', icon: 'basket', tint: ['#c49bff', '#6b3fc4'] },
+    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: ['#c99a2a', '#6b4d08'] },
+    { key: 'herd', name: 'Herd', icon: 'wombat', tint: ['#9a6a4c', '#4e2e1e'] },
+    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: ['#638f45', '#25401c'] },
+    { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#4a8ca6', '#173d4e'] },
+    { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#a8664a', '#4e2230'] },
+    { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#5a4d38', '#241d12'] },
+    { key: 'camera', name: 'Camera', icon: 'camera', tint: ['#45483c', '#191b14'] },
+    { key: 'feed', name: 'Gram', icon: 'heart', tint: ['#a05068', '#42182c'] },
+    { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#7a8078', '#33382f'] },
+    { key: 'help', name: 'Tips', icon: 'basket', tint: ['#7a6a9a', '#2e2544'] },
   ];
   const DOCK = ['messages', 'map', 'quests', 'herd'];
   const ALL = APPS.concat([
-    { key: 'messages', name: 'Messages', icon: 'msg', tint: ['#5ce06a', '#1f9a34'] },
-    { key: 'map', name: 'Places', icon: 'map', tint: ['#7fd6b0', '#1f7a6a'] },
+    { key: 'messages', name: 'Messages', icon: 'msg', tint: ['#5c8f4a', '#1e3a18'] },
+    { key: 'map', name: 'Places', icon: 'map', tint: ['#4e8f7c', '#173a32'] },
   ]);
   const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
   const TITLE = Object.fromEntries(ALL.map((a) => [a.key, a.name]));
@@ -213,7 +213,7 @@ const Phone = (() => {
   }
 
   // ---- little pieces everyone uses ------------------------------------------
-  const bar = (v, max, col) => `<div class="phbar"><i style="width:${Math.round(U.clamp(v / max, 0, 1) * 100)}%;background:${col}"></i></div>`;
+  const bar = (v, max, col) => `<div class="phbar2"><i style="width:${Math.round(U.clamp(v / max, 0, 1) * 100)}%;background:${col}"></i></div>`;
   const row = (inner, cls = '') => `<div class="phrow ${cls}">${inner}</div>`;
   const ic = (n, cls = '') => Icons.img(n, cls);
 
@@ -526,7 +526,7 @@ const Phone = (() => {
       </div>
       <div class="phsub">ABOUT</div>
       <div class="phgroup">
-        <div class="phset"><span>Wombat OS<small>version 38, built in a wood</small></span></div>
+        <div class="phset"><span>Wombat OS<small>version 41, built in a wood</small></span></div>
         <div class="phset"><span>Storage<small>${(World.crops || []).length} plants &middot; ${G.wombats.length} wombats &middot; ${Object.keys(G.summoned || {}).length} gods</small></span></div>
         <div class="phset"><span>Time in the grove<small>${U.time(Math.round(G.time || 0))}</small></span></div>
       </div>

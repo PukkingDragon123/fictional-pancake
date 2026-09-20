@@ -799,275 +799,322 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
 /* =========================================================================
    THE PHONE
-   A phone, drawn as a phone: titanium rail, rounded glass, Dynamic Island,
-   a wallpaper behind a grid of rounded app icons, a dock, and the home bar.
-   It is the one object in this game that is not made of wood or pixels,
-   because it is the thing in your pocket and it should look like it.
+   Not a slab of glass. An old handheld out of the same drawer as everything
+   else in this game: a pressed iron case with brass rivets, a speaker grille
+   punched across the top, a screen sunk into the shell behind a scanline,
+   and one chunky key under it. Every corner is square or cut in one step,
+   every edge is a flat band of colour, and there is not a gradient or a
+   blur anywhere in it.
    ========================================================================= */
 .phone {
   position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at 50% 46%, rgba(20,14,26,0.52) 0%, rgba(8,5,12,0.84) 72%);
-  animation: phfade .18s ease-out;
+  background: rgba(10,7,4,0.84);
+  animation: phfade .12s steps(3, end);
 }
 @keyframes phfade { from { opacity: 0 } to { opacity: 1 } }
+
+/* the case */
 .phshell {
-  --ph-h: min(94vh, 780px);
-  position: relative; flex: 0 0 auto; height: var(--ph-h); width: calc(var(--ph-h) * 393 / 852);
+  --ph-h: min(94vh, 720px);
+  --case: #3d3529; --lit: #6b5c44; --dk: #17120c; --rivet: #a9750d;
+  position: relative; flex: 0 0 auto; height: var(--ph-h); width: calc(var(--ph-h) * 356 / 640);
   min-width: 0; max-width: 96vw;
-  display: flex; padding: 4px; border-radius: 56px;
-  background:
-    linear-gradient(118deg, #f2f4f8 0%, #9aa1ad 12%, #6e7683 26%, #cfd5de 40%, #7d848f 56%, #aab1bc 72%, #5f666f 88%, #e6eaf0 100%);
+  display: flex; flex-direction: column; padding: 30px 12px 62px;
+  background: var(--case);
   box-shadow:
-    0 0 0 1px rgba(0,0,0,0.6), 0 26px 60px rgba(0,0,0,0.55), 0 0 90px rgba(0,0,0,0.45),
-    inset 0 0 0 3px rgba(255,255,255,0.14);
-  animation: phin .3s cubic-bezier(0.3, 1.4, 0.5, 1);
+    inset 0 4px 0 0 var(--lit), inset 0 -5px 0 0 var(--dk),
+    inset 4px 0 0 0 #4a4132, inset -4px 0 0 0 #2a2419,
+    0 0 0 4px var(--ol), 0 10px 0 4px rgba(0,0,0,0.45);
+  animation: phin .16s steps(4, end);
 }
-@keyframes phin { from { transform: translateY(30px) scale(0.93); opacity: 0 } to { transform: none; opacity: 1 } }
-/* the side buttons */
-.phshell i[class^="phbtn-"] { position: absolute; background: linear-gradient(180deg, #d8dde4, #8e959f); border-radius: 2px; }
-.phbtn-silent { left: -2px; top: 16%; width: 3px; height: 3.2%; }
-.phbtn-up     { left: -2px; top: 24%; width: 3px; height: 6.4%; }
-.phbtn-down   { left: -2px; top: 33%; width: 3px; height: 6.4%; }
-.phbtn-wake   { right: -2px; top: 27%; width: 3px; height: 9%; }
+@keyframes phin { from { transform: translateY(18px); opacity: 0 } to { transform: none; opacity: 1 } }
+/* the speaker grille punched across the top, and a sensor dot beside it */
+.phshell::before {
+  content: ''; position: absolute; left: 50%; top: 12px; width: 78px; height: 8px; margin-left: -46px;
+  background: repeating-linear-gradient(90deg, var(--dk) 0 4px, transparent 4px 8px);
+  box-shadow: 30px 0 0 0 var(--dk), 34px 0 0 0 var(--dk);
+}
+/* the maker's stamp under the screen, because an old thing always has one */
+.phshell::after {
+  content: 'WOMBAT CO.'; position: absolute; left: 14px; bottom: 21px;
+  font-size: 9px; letter-spacing: 2px; color: #6b5c44;
+}
+/* the side keys: brass nubs, square */
+.phshell i[class^="phbtn-"] { position: absolute; background: var(--rivet); box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #d8a41c; }
+.phbtn-silent { left: -6px; top: 17%; width: 5px; height: 3%; }
+.phbtn-up     { left: -6px; top: 25%; width: 5px; height: 6%; }
+.phbtn-down   { left: -6px; top: 33%; width: 5px; height: 6%; }
+.phbtn-wake   { right: -6px; top: 27%; width: 5px; height: 9%; }
 .phclose {
-  position: absolute; right: -14px; top: -14px; width: 34px; height: 34px; border: 0; cursor: pointer;
-  border-radius: 50%; font-family: var(--f); font-size: 19px; line-height: 1;
-  color: #efe9dd; background: #2a2c38; box-shadow: 0 0 0 2px #0a0710, 0 4px 10px rgba(0,0,0,0.5);
+  position: absolute; right: -16px; top: -16px; width: 32px; height: 32px; border: 0; cursor: pointer;
+  font-family: var(--f); font-size: 18px; line-height: 1; color: #f0e2c4;
+  background: #8a3a1e; box-shadow: inset 0 3px 0 #b85a32, inset 0 -3px 0 #4a1a0a, 0 0 0 3px var(--ol);
 }
-.phclose:hover { background: #3c3f50; }
+.phclose:hover { background: #a8492a; }
+.phclose:active { transform: translateY(2px); }
+
+/* the screen, sunk into the case */
 .phglass {
-  position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
-  border-radius: 52px; background: #06070c;
-  box-shadow: inset 0 0 0 2px #05040a;
+  position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
+  overflow: hidden; background: #0c110d;
+  box-shadow: inset 0 0 0 3px #080b08, 0 0 0 3px #17120c, 0 0 0 5px #5a4d38;
 }
-/* the wallpaper: a hill, a wood and a sky, all in flat bands */
+/* the scanline and the dark corners of an old screen, over everything */
+.phglass::after {
+  content: ''; position: absolute; inset: 0; z-index: 9; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 90% at 50% 50%, transparent 58%, rgba(0,0,0,0.42) 100%);
+}
 .phwall {
-  position: absolute; inset: 0; pointer-events: none; background: #1d2417;
+  position: absolute; inset: 0; pointer-events: none; background: #16200f;
   background-size: 100% 100%; background-repeat: no-repeat; image-rendering: pixelated;
 }
-/* the status bar and the island */
+
+/* the status strip */
 .phstatus {
-  position: relative; z-index: 3; flex: 0 0 auto; display: flex; align-items: center; gap: 5px;
-  padding: 13px 26px 4px; font-size: 13px; color: #fff; letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  position: relative; z-index: 3; flex: 0 0 auto; display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; font-size: 12px; color: #e8f0d8; letter-spacing: 1px;
+  background: rgba(8,12,8,0.72); box-shadow: inset 0 -2px 0 rgba(90,120,70,0.28);
 }
 .phstatus b { font-weight: 400; }
-.phisland {
-  position: absolute; left: 50%; top: 9px; width: 30%; height: 26px; margin-left: -15%;
-  background: #000; border-radius: 14px;
-  box-shadow: inset -20px 0 0 -14px #14141c;
-}
-.phsig { margin-left: auto; display: flex; align-items: flex-end; gap: 2px; height: 11px; }
-.phsig i { width: 3px; background: #fff; border-radius: 1px; }
-.phsig i:nth-child(1) { height: 4px } .phsig i:nth-child(2) { height: 6px }
-.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 11px; opacity: 0.4 }
-.phwifi { width: 14px; height: 11px; background:
-  radial-gradient(circle at 50% 100%, #fff 0 2px, transparent 2px),
-  radial-gradient(circle at 50% 100%, transparent 0 4px, #fff 4px 5.5px, transparent 5.5px),
-  radial-gradient(circle at 50% 100%, transparent 0 7.5px, #fff 7.5px 9px, transparent 9px); }
-.phbatt { width: 24px; height: 12px; border: 1px solid rgba(255,255,255,0.55); border-radius: 3px; padding: 1.5px;
-  position: relative; }
-.phbatt::after { content: ''; position: absolute; right: -3px; top: 4px; width: 2px; height: 4px; background: rgba(255,255,255,0.55); border-radius: 0 1px 1px 0; }
-.phbatt i { display: block; width: 76%; height: 100%; background: #fff; border-radius: 1.5px; }
+.phisland { display: none; }
+.phsig { margin-left: auto; display: flex; align-items: flex-end; gap: 2px; height: 10px; }
+.phsig i { width: 3px; background: #cfe6b8; }
+.phsig i:nth-child(1) { height: 3px } .phsig i:nth-child(2) { height: 5px }
+.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 10px; background: #4a5a3a }
+.phwifi { width: 12px; height: 10px; background:
+  linear-gradient(#cfe6b8 0 0) 4px 7px/4px 3px no-repeat,
+  linear-gradient(#cfe6b8 0 0) 2px 3px/8px 2px no-repeat,
+  linear-gradient(#cfe6b8 0 0) 0 0/12px 2px no-repeat; }
+.phbatt { position: relative; width: 20px; height: 11px; padding: 2px; box-shadow: inset 0 0 0 2px #8ba878; }
+.phbatt::after { content: ''; position: absolute; right: -4px; top: 3px; width: 3px; height: 5px; background: #8ba878; }
+.phbatt i { display: block; width: 74%; height: 100%; background: #cfe6b8; }
 
 /* the home screen */
-.phhome-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 10px 18px 0; }
+.phhome-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 8px 12px 0; }
 .phwidget {
-  margin: 6px 2px 14px; padding: 12px 14px; border-radius: 20px; color: #f2f5ff;
-  background: rgba(22,20,34,0.46); backdrop-filter: blur(8px);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+  margin: 4px 0 12px; padding: 9px 11px; color: #edf3e0;
+  background: rgba(10,16,10,0.78); box-shadow: inset 0 0 0 2px #2e3a26, inset 0 2px 0 rgba(160,190,130,0.16);
 }
-.phwidget h5 { margin: 0 0 4px; font-size: 12px; font-weight: 400; letter-spacing: 1.5px; color: #b9c2dc; }
-.phwidget p { margin: 0; font-size: 15px; line-height: 1.45; }
-.phwidget .phwrow { display: flex; gap: 12px; margin-top: 8px; font-size: 12px; color: #c9d2ea; }
+.phwidget h5 { margin: 0 0 3px; font-size: 11px; font-weight: 400; letter-spacing: 2px; color: #8fae74; }
+.phwidget p { margin: 0; font-size: 14px; line-height: 1.4; }
+.phwidget .phwrow { display: flex; gap: 12px; margin-top: 7px; font-size: 12px; color: #b3c79c; }
 .phwidget .phwrow span { display: flex; align-items: center; gap: 4px; }
 .phwidget img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
-.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 8px; align-content: start; }
+
+.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 6px; align-content: start; }
 .phapp {
-  position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 0; border: 0; background: none; cursor: pointer; font-family: inherit;
-  transition: transform .12s cubic-bezier(.2,2.2,.4,1);
 }
+/* an app tile is a slot out of the same kit as the inventory: flat colour,
+   a lit band across the top, a dark band under it, one line round it */
 .phapp i.phico {
   display: flex; align-items: center; justify-content: center;
-  width: 100%; aspect-ratio: 1; border-radius: 24%;
-  background: linear-gradient(170deg, var(--t1, #4a4f6a), var(--t2, #23263a));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 3px 8px rgba(0,0,0,0.45);
+  width: 100%; aspect-ratio: 1; background: var(--t2, #23281c);
+  box-shadow:
+    inset 0 3px 0 var(--t1, #4a5240), inset 0 -3px 0 rgba(0,0,0,0.5),
+    inset 3px 0 0 rgba(255,255,255,0.08), inset -3px 0 0 rgba(0,0,0,0.3),
+    0 0 0 2px #0a0d08;
 }
-.phapp img.ico { width: 62%; height: 62%; image-rendering: pixelated; }
-.phapp b { font-size: 11px; font-weight: 400; color: #fff; letter-spacing: 0.3px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-.phapp:hover { transform: scale(1.08); }
-.phapp:active { transform: scale(0.9); }
+.phapp img.ico { width: 60%; height: 60%; image-rendering: pixelated; }
+.phapp b { display: block; width: 100%; height: 12px; line-height: 12px; font-size: 10px; font-weight: 400;
+  color: #e4eed4; letter-spacing: 0.5px; text-shadow: 1px 1px 0 #0a0d08;
+  overflow: hidden; white-space: nowrap; text-overflow: clip; }
+.phapp:hover i.phico { box-shadow:
+  inset 0 3px 0 var(--t1, #4a5240), inset 0 -3px 0 rgba(0,0,0,0.5),
+  inset 3px 0 0 rgba(255,255,255,0.08), inset -3px 0 0 rgba(0,0,0,0.3),
+  0 0 0 2px #0a0d08, 0 0 0 4px var(--gd2); }
+.phapp:active { transform: translateY(2px); }
 .phdot {
-  position: absolute; top: -5px; right: -3px; min-width: 19px; height: 19px; line-height: 19px;
-  font-size: 11px; font-style: normal; text-align: center; color: #fff; background: #ff3b30;
-  border-radius: 10px; box-shadow: 0 0 0 2px rgba(0,0,0,0.35);
+  position: absolute; top: -4px; right: -2px; min-width: 16px; height: 16px; line-height: 16px;
+  font-size: 10px; font-style: normal; text-align: center; color: #fff2e0; background: #b8412c;
+  box-shadow: 0 0 0 2px #0a0d08;
 }
-.phdots { display: flex; gap: 6px; justify-content: center; margin: 14px 0 10px; }
-.phdots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); }
-.phdots i.on { background: #fff; }
+.phdots { display: flex; gap: 5px; justify-content: center; margin: 10px 0 8px; }
+.phdots i { width: 5px; height: 5px; background: #4a5a3a; }
+.phdots i.on { background: #cfe6b8; }
 .phdock {
-  margin: auto 0 16px; padding: 12px 10px; border-radius: 30px;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-  background: rgba(30,28,44,0.45); backdrop-filter: blur(10px);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.09);
+  margin: auto 0 10px; padding: 8px 6px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  background: rgba(8,12,8,0.7); box-shadow: inset 0 0 0 2px #2e3a26;
 }
 .phdock .phapp b { display: none; }
 
 /* an app, open */
 .phapp-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
-  background: #0f1016; animation: phopen .18s ease-out; }
-@keyframes phopen { from { transform: scale(0.9); opacity: 0 } to { transform: none; opacity: 1 } }
-.phnav { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 14px 10px;
-  border-bottom: 1px solid #23243a; background: rgba(18,19,28,0.9); }
-.phnav b { flex: 1 1 auto; text-align: center; font-size: 15px; font-weight: 400; color: #e6ecff; }
-.phnav-sp { flex: 0 0 62px; }
-.phback { flex: 0 0 62px; text-align: left; padding: 4px 0; border: 0; background: none; cursor: pointer;
-  font-family: inherit; font-size: 14px; color: #6fa8ff; }
-.phback:hover { color: #9cc4ff; }
-.phscreen { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 10px 12px 18px; display: flex; flex-direction: column; gap: 7px; }
+  background: #101610; animation: phopen .12s steps(3, end); }
+@keyframes phopen { from { opacity: 0 } to { opacity: 1 } }
+.phnav { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  background: #1b2418; box-shadow: inset 0 2px 0 #2e3a26, inset 0 -3px 0 #0a0d08; }
+.phnav b { flex: 1 1 auto; text-align: center; font-size: 14px; font-weight: 400; color: #e4eed4; letter-spacing: 1px; }
+.phnav-sp { flex: 0 0 56px; }
+.phback { flex: 0 0 56px; text-align: left; padding: 3px 0; border: 0; background: none; cursor: pointer;
+  font-family: inherit; font-size: 13px; color: #d8a41c; }
+.phback:hover { color: #ffe98a; }
+.phscreen { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 9px 10px 16px; display: flex; flex-direction: column; gap: 6px; }
 .phscreen::-webkit-scrollbar { width: 6px; }
-.phscreen::-webkit-scrollbar-thumb { background: #33354c; border-radius: 3px; }
-.phbar { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 4;
-  width: 36%; height: 5px; border: 0; border-radius: 3px; background: rgba(255,255,255,0.65); cursor: pointer; }
-.phbar:hover { background: #fff; }
+.phscreen::-webkit-scrollbar-track { background: #0a0d08; }
+.phscreen::-webkit-scrollbar-thumb { background: #3e4a34; }
+
+/* the one key under the screen */
+.phbar {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 4;
+  width: 72px; height: 28px; border: 0; cursor: pointer;
+  background: #5a4d38; box-shadow: inset 0 3px 0 #8a7752, inset 0 -4px 0 #2a2418, 0 0 0 3px var(--ol);
+}
+.phbar:hover { background: #6b5c44; }
+/* while the phone is out, the toasts move into the bottom corner: dead centre
+   is where the home key sits, and you want to be able to see the key you are
+   about to press */
+#panel-phone:not([hidden]) ~ #toasts { left: 16px; transform: none; align-items: flex-start; }
+.phbar:active { transform: translateX(-50%) translateY(3px); box-shadow: inset 0 3px 0 #8a7752, inset 0 -2px 0 #2a2418, 0 0 0 3px var(--ol); }
 
 /* cards and rows inside an app */
-.phcard { min-width: 0; padding: 10px 12px; border-radius: 14px; background: #1b1d2a; box-shadow: inset 0 0 0 1px #2a2e46; }
-.phcard.big { background: linear-gradient(170deg, #232741, #171a29); box-shadow: inset 0 0 0 1px #3a4062; }
-.phcard.shut { opacity: 0.5; }
-.phcardh { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #e6ecff; }
-.phcardh img.ico { width: 22px; height: 22px; image-rendering: pixelated; }
+.phcard { min-width: 0; padding: 9px 10px; background: #1a2318; box-shadow: inset 0 0 0 2px #2e3a26, inset 0 2px 0 rgba(150,180,120,0.12); }
+.phcard.big { background: #22301d; box-shadow: inset 0 0 0 2px #435239, inset 0 2px 0 rgba(150,180,120,0.16); }
+.phcard.shut { opacity: 0.45; }
+.phcardh { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #e4eed4; }
+.phcardh img.ico { width: 20px; height: 20px; image-rendering: pixelated; }
 .phcardh b { flex: 0 1 auto; font-weight: 400; }
 .phcardh .phdim { margin-left: auto; }
-.phcard p { margin: 6px 0 0; font-size: 13px; line-height: 1.55; color: #aeb6d0; }
-.phmeta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 7px; font-size: 12px; color: #8d94ae; }
+.phcard p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; color: #a8bd92; }
+.phmeta { display: flex; flex-wrap: wrap; gap: 3px 11px; margin-top: 6px; font-size: 11px; color: #83996d; }
 .phmeta img.ico { width: 13px; height: 13px; vertical-align: -2px; image-rendering: pixelated; }
-.phsub { margin: 10px 2px 1px; font-size: 11px; letter-spacing: 1.6px; color: #6f7794; }
-.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 11px; font-size: 13px; color: #d4dbf0;
-  border-radius: 12px; background: #16182a; }
-.phrow.done { opacity: 0.45; }
+.phsub { margin: 9px 1px 0; font-size: 10px; letter-spacing: 2px; color: #7b9166; }
+.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px; font-size: 12px; color: #d3e2c0;
+  background: #161e14; box-shadow: inset 0 0 0 2px #283322; }
+.phrow.done { opacity: 0.4; }
 .phrow img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
 .phrow b { font-weight: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.phnum { margin-left: auto; color: #f5cd5c; font-variant-numeric: tabular-nums; }
-.phdim { font-size: 12px; color: #7d85a2; font-style: italic; }
+.phnum { margin-left: auto; color: var(--gd3); }
+.phdim { font-size: 11px; color: #7b9166; }
 .phrow .phdim { margin-left: auto; text-align: right; }
-.phbar2 { height: 6px; margin: 0 0 4px; border-radius: 3px; background: #0e0f18; overflow: hidden; }
-.phbar2 i { display: block; height: 100%; border-radius: 3px; }
-.phstat { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 12px; color: #8d94ae; }
-.phstat span { flex: 0 0 52px; }
-.phstat .phbar2 { flex: 1 1 auto; margin: 0; height: 8px; }
-.phwant { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
-.phwant em { font-style: normal; font-size: 11px; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 9px; color: #1a0e08; background: #ffb340; }
-.phok { margin-top: 7px; font-size: 12px; color: #30d158; }
-.phacts { display: flex; gap: 6px; margin-top: 10px; }
+/* a meter: a dark trough with a flat bar in it and one lit line on top */
+.phbar2 { height: 8px; margin: 5px 0 0; background: #0a0d08; box-shadow: inset 0 0 0 2px #283322; overflow: hidden; }
+.phbar2 i { display: block; height: 100%; box-shadow: inset 0 2px 0 rgba(255,255,255,0.28); }
+.phstat { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px; color: #83996d; }
+.phstat span { flex: 0 0 48px; }
+.phstat .phbar2 { flex: 1 1 auto; margin: 0; }
+.phwant { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.phwant em { font-style: normal; font-size: 10px; letter-spacing: 1px; padding: 3px 7px; color: #2a1a04; background: var(--gd2);
+  box-shadow: inset 0 2px 0 var(--gd3), 0 0 0 2px #0a0d08; }
+.phok { margin-top: 6px; font-size: 11px; color: #8fd46a; }
+.phacts { display: flex; gap: 5px; margin-top: 9px; }
 .phbtn {
-  flex: 1 1 auto; padding: 9px 4px; border: 0; border-radius: 11px; cursor: pointer; font-family: inherit; font-size: 13px;
-  color: #dfe5f6; background: #2c3150;
-  transition: transform .14s cubic-bezier(.2,2.2,.4,1), filter .1s;
+  flex: 1 1 auto; padding: 8px 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
+  color: #dbe8c8; background: #2f3d28;
+  box-shadow: inset 0 3px 0 #475738, inset 0 -3px 0 #141a10, 0 0 0 2px #0a0d08;
 }
-.phbtn.go { color: #06121a; background: linear-gradient(180deg, #7fd7ee, #2f9ec0); }
-.phbtn:hover { filter: brightness(1.18); }
-.phbtn:active { transform: scale(0.95); }
+.phbtn.go { color: #2a1a04; background: var(--gd2); box-shadow: inset 0 3px 0 var(--gd3), inset 0 -3px 0 var(--gd0), 0 0 0 2px #0a0d08; }
+.phbtn:hover { filter: brightness(1.16); }
+.phbtn:active { transform: translateY(2px); }
 
-/* settings: iOS-style grouped rows with switches */
-.phgroup { border-radius: 14px; overflow: hidden; background: #1b1d2a; }
-.phset { display: flex; align-items: center; gap: 10px; padding: 12px 13px; font-size: 14px; color: #e6ecff;
-  border-bottom: 1px solid #23253a; }
-.phset:last-child { border-bottom: 0; }
+/* settings */
+.phgroup { background: #1a2318; box-shadow: inset 0 0 0 2px #2e3a26; }
+.phset { display: flex; align-items: center; gap: 10px; padding: 10px 11px; font-size: 13px; color: #e4eed4;
+  box-shadow: inset 0 -2px 0 #283322; }
+.phset:last-child { box-shadow: none; }
 .phset span { flex: 1 1 auto; }
-.phset small { display: block; font-size: 11px; color: #7d85a2; }
-.phsw { position: relative; flex: 0 0 auto; width: 46px; height: 27px; border: 0; border-radius: 14px; cursor: pointer;
-  background: #3a3d52; transition: background .16s; }
-.phsw i { position: absolute; left: 3px; top: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4); transition: left .16s cubic-bezier(.3,1.6,.5,1); }
-.phsw.on { background: #30d158; }
-.phsw.on i { left: 22px; }
-.phset .phgo { flex: 0 0 auto; padding: 7px 14px; border: 0; border-radius: 10px; cursor: pointer;
-  font-family: inherit; font-size: 12px; color: #fff; background: #ff453a; }
+.phset small { display: block; font-size: 10px; color: #7b9166; }
+/* a square switch: a trough with a square knob that steps from end to end */
+.phsw { position: relative; flex: 0 0 auto; width: 42px; height: 22px; border: 0; cursor: pointer;
+  background: #232d1e; box-shadow: inset 0 0 0 2px #0a0d08, inset 0 2px 0 #151c12; }
+.phsw i { position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #8a9c74;
+  box-shadow: inset 0 2px 0 #b4c79c, inset 0 -2px 0 #4a5a38; transition: left .1s steps(3, end); }
+.phsw.on { background: #1c5568; box-shadow: inset 0 0 0 2px #0a0d08, inset 0 2px 0 #2f7f96; }
+.phsw.on i { left: 23px; background: #8fd4e4; box-shadow: inset 0 2px 0 #cdeff8, inset 0 -2px 0 #2f7f96; }
+.phset .phgo { flex: 0 0 auto; padding: 6px 12px; border: 0; cursor: pointer;
+  font-family: inherit; font-size: 11px; color: #fff2e0; background: #8a3a1e;
+  box-shadow: inset 0 2px 0 #b85a32, inset 0 -2px 0 #4a1a0a, 0 0 0 2px #0a0d08; }
 
 /* messages */
-.phthread { display: flex; align-items: center; gap: 10px; padding: 10px 11px; border-radius: 14px; cursor: pointer;
-  border: 0; width: 100%; text-align: left; font-family: inherit; background: #16182a; color: #e6ecff; }
-.phthread:hover { background: #1f2236; }
-.phava { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #2a2e46;
-  display: flex; align-items: flex-end; justify-content: center; }
+.phthread { display: flex; align-items: center; gap: 9px; padding: 8px 9px; cursor: pointer;
+  border: 0; width: 100%; text-align: left; font-family: inherit; background: #161e14; color: #e4eed4;
+  box-shadow: inset 0 0 0 2px #283322; }
+.phthread:hover { background: #1f2a1b; }
+.phava { flex: 0 0 auto; width: 34px; height: 34px; overflow: hidden; background: #232d1e;
+  box-shadow: inset 0 0 0 2px #3e4a34; display: flex; align-items: flex-end; justify-content: center; }
 .phava canvas { image-rendering: pixelated; }
 .phthread .phtx { flex: 1 1 auto; min-width: 0; }
-.phthread .phtx b { display: block; font-size: 14px; font-weight: 400; }
-.phthread .phtx small { display: block; font-size: 12px; color: #8d94ae; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.phunread { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: #0a84ff; }
+.phthread .phtx b { display: block; font-size: 13px; font-weight: 400; }
+.phthread .phtx small { display: block; font-size: 11px; color: #83996d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.phunread { flex: 0 0 auto; width: 8px; height: 8px; background: var(--gd3); box-shadow: 0 0 0 2px #0a0d08; }
 .phchat { display: flex; flex-direction: column; gap: 6px; }
-.phmsg { max-width: 78%; padding: 8px 12px; border-radius: 18px; font-size: 13.5px; line-height: 1.45; }
-.phmsg.them { align-self: flex-start; background: #2a2d3e; color: #eef2ff; border-bottom-left-radius: 5px; }
-.phmsg.me { align-self: flex-end; background: #0a84ff; color: #fff; border-bottom-right-radius: 5px; }
-.phreplies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.phreply { padding: 8px 13px; border: 0; border-radius: 16px; cursor: pointer; font-family: inherit; font-size: 12.5px;
-  color: #9cc4ff; background: #1c2135; box-shadow: inset 0 0 0 1px #2e3654; }
-.phreply:hover { background: #253052; color: #cfe1ff; }
+/* a bubble with one step out of each corner, like everything else here */
+.phmsg { max-width: 80%; padding: 7px 10px; font-size: 12.5px; line-height: 1.4;
+  clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 4px 4px); }
+.phmsg.them { align-self: flex-start; background: #2c3826; color: #edf3e0; }
+.phmsg.me { align-self: flex-end; background: #1c5568; color: #e6f7fc; }
+.phreplies { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+.phreply { padding: 7px 11px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
+  color: #ffe98a; background: #2a2010; box-shadow: inset 0 0 0 2px var(--gd0); }
+.phreply:hover { background: #3d2f16; color: #fff; }
 
 /* photos */
 .phphotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #22304a; display: flex; align-items: flex-end; justify-content: center; }
+.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #1a2318;
+  box-shadow: inset 0 0 0 2px #2e3a26; display: flex; align-items: flex-end; justify-content: center; }
 .phphoto canvas { image-rendering: pixelated; width: 100%; height: 100%; object-fit: contain; }
-.phphoto em { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-style: normal; font-size: 10px;
-  color: #fff; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.7)); }
+.phphoto img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.phphoto em { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-style: normal; font-size: 9px;
+  color: #edf3e0; background: rgba(8,12,8,0.78); }
 
-/* the little phone button down in the corner of the frame */
-.mbtn.phonebtn { position: relative; }
-.mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }
-
-
-
-/* ---- the lock screen and the two new apps -------------------------------- */
+/* the lock screen */
 .phlock { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column;
-  padding: 18px 16px 0; cursor: pointer; animation: phopen .2s ease-out; }
-.phlockclock { text-align: center; margin: 14px 0 20px; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
-.phlockclock b { display: block; font-size: 56px; font-weight: 400; line-height: 1; letter-spacing: -2px; }
-.phlockclock span { display: block; margin-top: 8px; font-size: 13px; color: #dfe6f8; }
-.phnotes { display: flex; flex-direction: column; gap: 7px; overflow-y: auto; min-height: 0; }
+  padding: 14px 12px 0; cursor: pointer; animation: phopen .14s steps(3, end); }
+.phlockclock { text-align: center; margin: 10px 0 16px; color: #edf3e0; }
+.phlockclock b { display: block; font-size: 46px; font-weight: 400; line-height: 1; text-shadow: 3px 3px 0 rgba(8,12,8,0.7); }
+.phlockclock span { display: block; margin-top: 6px; font-size: 12px; letter-spacing: 1px; color: #c3d6a8; text-shadow: 2px 2px 0 rgba(8,12,8,0.7); }
+.phnotes { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; min-height: 0; }
 .phnotes::-webkit-scrollbar { width: 0; }
-.phnote { display: flex; align-items: flex-start; gap: 9px; width: 100%; text-align: left; padding: 9px 11px;
-  border: 0; border-radius: 16px; cursor: pointer; font-family: inherit;
-  background: rgba(32,30,48,0.55); backdrop-filter: blur(8px); color: #eef2ff;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.09); }
-.phnote:hover { background: rgba(48,46,70,0.7); }
-.phnico { flex: 0 0 auto; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.12); }
-.phnico img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
+.phnote { display: flex; align-items: flex-start; gap: 8px; width: 100%; text-align: left; padding: 8px 10px;
+  border: 0; cursor: pointer; font-family: inherit; color: #edf3e0;
+  background: rgba(10,16,10,0.8); box-shadow: inset 0 0 0 2px #2e3a26; }
+.phnote:hover { background: rgba(26,38,22,0.9); }
+.phnico { flex: 0 0 auto; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+  background: #232d1e; box-shadow: inset 0 0 0 2px #3e4a34; }
+.phnico img.ico { width: 17px; height: 17px; image-rendering: pixelated; }
 .phntx { flex: 1 1 auto; min-width: 0; }
-.phntx b { display: block; font-size: 11px; font-weight: 400; letter-spacing: 1px; color: #aab3cc; }
-.phntx em { display: block; font-style: normal; font-size: 13.5px; }
-.phntx small { display: block; font-size: 12px; color: #9aa3bd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.phswipe { margin-top: auto; padding: 14px 0 22px; text-align: center; font-size: 11px; letter-spacing: 2px;
-  color: rgba(255,255,255,0.6); }
+.phntx b { display: block; font-size: 10px; font-weight: 400; letter-spacing: 1.5px; color: #8fae74; }
+.phntx em { display: block; font-style: normal; font-size: 13px; }
+.phntx small { display: block; font-size: 11px; color: #a8bd92; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phswipe { margin-top: auto; padding: 12px 0 16px; text-align: center; font-size: 10px; letter-spacing: 3px;
+  color: #a8bd92; text-shadow: 2px 2px 0 rgba(8,12,8,0.7); }
 
 /* camera */
-.phcam { display: flex; flex-direction: column; gap: 12px; height: 100%; }
-.phviewfinder { flex: 1 1 auto; min-height: 180px; border-radius: 12px; background: #000 center/cover no-repeat;
-  image-rendering: pixelated; box-shadow: inset 0 0 0 2px #2a2e46; }
-.phcamrow { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 6px 4px 12px; }
-.phshutter { width: 58px; height: 58px; border: 0; border-radius: 50%; cursor: pointer; background: #fff;
-  box-shadow: 0 0 0 4px #0f1016, 0 0 0 6px #fff; }
-.phshutter:active { transform: scale(0.92); }
-.phphoto img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.phcam { display: flex; flex-direction: column; gap: 10px; height: 100%; }
+.phviewfinder { flex: 1 1 auto; min-height: 170px; background: #000 center/cover no-repeat;
+  image-rendering: pixelated; box-shadow: inset 0 0 0 3px #2e3a26, inset 0 0 0 5px #0a0d08; }
+.phcamrow { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 10px; }
+.phshutter { width: 48px; height: 48px; border: 0; cursor: pointer; background: #b8412c;
+  box-shadow: inset 0 4px 0 #e07050, inset 0 -4px 0 #6a1e10, 0 0 0 3px #0a0d08, 0 0 0 6px #5a4d38; }
+.phshutter:active { transform: translateY(3px); }
 
 /* the feed */
-.phpost { border-radius: 14px; overflow: hidden; background: #16182a; }
-.phposth { display: flex; align-items: center; gap: 8px; padding: 9px 11px; font-size: 13px; color: #e6ecff; }
+.phpost { background: #161e14; box-shadow: inset 0 0 0 2px #283322; }
+.phposth { display: flex; align-items: center; gap: 8px; padding: 8px 10px; font-size: 12px; color: #e4eed4; }
 .phposth b { font-weight: 400; }
 .phposth .phdim { margin-left: auto; }
-.phava2 { flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; background: #2a2e46;
-  display: flex; align-items: flex-end; justify-content: center; }
+.phava2 { flex: 0 0 auto; width: 26px; height: 26px; overflow: hidden; background: #232d1e;
+  box-shadow: inset 0 0 0 2px #3e4a34; display: flex; align-items: flex-end; justify-content: center; }
 .phava2 canvas { image-rendering: pixelated; transform: scale(0.7); transform-origin: bottom center; }
-.phpost p { margin: 0; padding: 0 11px 10px; font-size: 13px; line-height: 1.5; color: #b9c2dc; }
+.phpost p { margin: 0; padding: 0 10px 9px; font-size: 12px; line-height: 1.45; color: #a8bd92; }
 .phshot { display: block; width: 100%; image-rendering: pixelated; }
-.phlikes { display: flex; align-items: center; gap: 6px; padding: 8px 11px; font-size: 12px; color: #ff7aa8; cursor: pointer; }
-.phlikes img.ico { width: 15px; height: 15px; image-rendering: pixelated; }
+.phlikes { display: flex; align-items: center; gap: 6px; padding: 7px 10px; font-size: 11px; color: #e08a9a; cursor: pointer; }
+.phlikes img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
+
 /* Everything inside a scrolling screen keeps its own height; the column must
    not squeeze its children or long posts get clipped. */
 .phscreen > * { flex: 0 0 auto; }
 .phpost, .phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub { flex: 0 0 auto; }
+
+/* the little phone button down in the corner of the frame */
+.mbtn.phonebtn { position: relative; }
+.mbtn.phonebtn i { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: #ff7a5a; box-shadow: 0 0 0 2px var(--ol); }
 </style>
 
 <div id="app">
@@ -1165,8 +1212,8 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
           <div class="phnav"><button class="phback" id="ph-back">&lsaquo; Home</button><b id="ph-title">App</b><span class="phnav-sp"></span></div>
           <div class="phscreen" id="ph-screen"></div>
         </div>
-        <button class="phbar" id="ph-home-btn" title="Home"></button>
       </div>
+      <button class="phbar" id="ph-home-btn" title="Home"></button>
       <button class="phclose" id="ph-close" title="Put it away (P)">&times;</button>
     </div>
   </div>
@@ -2396,8 +2443,10 @@ const Sprites = (() => {
         p.earFlop = Math.sin(t * TAU) * 0.4; p.headSw = Math.sin(t * TAU * 0.5) * 0.6;
         break;
       }
-      case 'lie': p.lie = 1; p.breathe = Math.sin(t * TAU) * 0.8; p.bob = p.breathe * 0.7; p.blink = f === 2 ? 1 : 0; break;
-      case 'sleep': p.lie = 1; p.sleep = 1; p.blink = 1; p.z = f * 0.6; p.breathe = Math.sin(t * TAU) * 1; p.bob = p.breathe * 0.8; break;
+      case 'lie': p.lie = 1; p.breathe = Math.sin(t * TAU) * 0.8; p.blink = f === 2 ? 1 : 0; p.earFlop = Math.sin(t * TAU) * 0.3; break;
+      // Asleep she does not bob up and down in the air. The breath swells the
+      // barrel and nothing else moves but the ears and the z drifting off her.
+      case 'sleep': p.lie = 1; p.sleep = 1; p.blink = 1; p.z = t; p.breathe = Math.sin(t * TAU); p.earFlop = Math.sin(t * TAU) * 0.5; break;
       case 'eat': {
         // head down, then a proper chew with the jaw and the ears
         p.headDip = 6.4 + Math.sin(t * TAU) * 0.8; p.headFwd = 2.4; p.front = 3.2; p.rear = -1;
@@ -2587,18 +2636,52 @@ const Sprites = (() => {
 
     // ---- lying flat, asleep or not ------------------------------------------
     if (p.lie) {
-      E(19, 20.5 + p.bob, 14, 6, fur.base);
-      R(6, 18 + p.bob, 26, 6, fur.base);
-      saddle(18, 18, 11, 3);
-      E(30, 18.5 + p.bob, 8 * HK, 6 * HK, fur.base);
-      E(32, 20, 5 * HK, 3.5 * HK, fur.light);
-      ears(25, 33, 13 + p.bob, 0);
-      eye(29.5, 17 + p.bob, p.blink);
-      nose(33.5, 19 + p.bob, 6.5, 4.5);
-      R(7, 24.5, 6, 2.2, fur.deep); R(14, 25, 5, 1.6, fur.deep); R(25, 25, 5, 1.6, fur.deep);
-      if (p.sleep) {                                             // the z, drifting up
-        const zx = 36 + p.z * 1.2, zy = 4 - p.z * 3;
-        R(zx, zy, 4, 1, PAL.div4); R(zx + 2, zy + 1, 1, 1, PAL.div4); R(zx + 1, zy + 2, 1, 1, PAL.div4); R(zx, zy + 3, 4, 1, PAL.div4);
+      const br = p.breathe;
+      // the barrel, down on its side and flat along the ground. She is the
+      // same animal lying down as standing up: the breath widens her a little
+      // and pushes the top of her up, and she never leaves the floor.
+      const LW = 13.4, LH = 5.4 + br * 0.45;
+      const lcx = 16.4, lcy = GY - LH;
+      const LCUT = Math.max(1.6, LH * 0.5);
+      pill(lcx, lcy, LW + 0.7, LH + 0.7, fur.ink, LCUT + 0.5);
+      pill(lcx, lcy, LW, LH, fur.dark, LCUT);
+      pill(lcx, lcy - 0.4, LW - 0.6, LH - 0.6, fur.base, LCUT);
+      pill(lcx - LW * 0.5, lcy + 0.3, LW * 0.52, LH * 0.94, fur.base, LCUT * 0.9);   // the rump
+      R(lcx - LW + LCUT * 0.7, lcy - LH + 0.4, LW * 2 - LCUT * 1.4, LH * 0.34, fur.mid);
+      R(lcx - LW + LCUT * 1.3, lcy - LH + 0.4, LW * 2 - LCUT * 2.6, LH * 0.16, fur.light);
+      saddle(lcx - 1.4, lcy - LH * 0.28, 9, LH * 0.4);
+      pill(lcx - LW - 0.8, lcy + LH * 0.3, 1.8, 1.7, fur.mid, 0.8);                  // the tail nub
+      // the legs folded under her, so only the paws show along the belly
+      for (const [px, pw] of [[lcx - LW * 0.66, 5], [lcx - LW * 0.08, 4.4], [lcx + LW * 0.46, 4.6]]) {
+        R(px, GY - 2.2, pw, 2.2, fur.dark);
+        R(px + 0.5, GY - 2.4, pw - 1, 1, U.shade(fur.dark, 0.12));
+        R(px, GY - 0.9, pw, 0.9, fur.ink);
+      }
+      // the head, put down on the ground with the chin resting on it
+      const HW = 6.8 * HK, HH = 5.8 * HK;
+      const hx2 = lcx + LW + HW * 0.46, hy2 = GY - HH - 0.3 + br * 0.12;
+      const HC = Math.max(1.6, HH * 0.44);
+      pill(hx2 - HW * 0.62, hy2 + 0.9, HW * 0.78, HH * 0.78, fur.dark, HC * 0.8);    // the neck
+      pill(hx2, hy2, HW + 0.6, HH + 0.6, fur.ink, HC + 0.5);
+      pill(hx2, hy2, HW, HH, fur.dark, HC);
+      pill(hx2, hy2 - 0.4, HW - 0.6, HH - 0.6, fur.base, HC);
+      R(hx2 - HW + HC * 0.7, hy2 - HH + 0.4, HW * 2 - HC * 1.4, HH * 0.34, fur.mid);
+      const mx2 = hx2 + HW * 0.54, my2 = hy2 + HH * 0.34;                            // the muzzle, laid flat
+      pill(mx2, my2, HW * 0.52, HH * 0.44, fur.dark, HC * 0.6);
+      pill(mx2, my2 - 0.4, HW * 0.46, HH * 0.38, fur.base, HC * 0.6);
+      R(mx2 - HW * 0.34, my2 + HH * 0.08, HW * 0.66, HH * 0.28, fur.light);
+      ears(hx2 - HW * 0.92, hx2 - HW * 0.42, hy2 - HH - 0.36 * HK, 0, p.earFlop);
+      eye(hx2 + HW * 0.02, hy2 - HH * 0.24, p.blink);
+      nose(mx2 + HW * 0.22, my2 + HH * 0.06, 4.6, 3.3);
+      if (p.sleep) {
+        // three z, each one rising and fading on its own part of the loop
+        for (let i = 0; i < 3; i++) {
+          const u = (p.z + i / 3) % 1;
+          if (u > 0.86) continue;
+          const zx = hx2 + 3 + u * 6, zy = hy2 - HH - 2 - u * 15;
+          const zc = u > 0.58 ? PAL.div5 : PAL.div4;
+          R(zx, zy, 4, 1, zc); R(zx + 2, zy + 1, 1, 1, zc); R(zx + 1, zy + 2, 1, 1, zc); R(zx, zy + 3, 4, 1, zc);
+        }
       }
       glow();
       return;
@@ -2606,20 +2689,45 @@ const Sprites = (() => {
 
     // ---- sitting up on the rump ---------------------------------------------
     if (p.sit) {
-      const by = 14 + p.bob;
-      E(20, by + 2, 9.5, 10.5, fur.base);                        // a tall pear of a body
-      E(19, by + 8, 10.5, 6, fur.base);
-      E(19, by + 6, 6.5, 6, fur.light);                          // pale belly
-      saddle(16, by - 1, 6, 5);
-      R(12, 23.6, 6, 3, fur.deep); R(22, 23.6, 6, 3, fur.deep);  // rear feet splayed
-      R(12, 25.6, 6, 1, fur.ink); R(22, 25.6, 6, 1, fur.ink);
-      E(23, by - 8, 7.5 * HK, 6.8 * HK, fur.base);               // head on top
-      ears(18, 27, by - 14.6, p.ear);
-      eye(21, by - 9.5, p.blink); eye(26.5, by - 9.5, p.blink);
-      nose(23, by - 6.5, 6.5, 4.5);
-      const py = by + 4 - p.reach * 3;                          // front paws held up
-      E(15, py, 2.6, 2.4, fur.mid); E(23, py - 1, 2.6, 2.4, fur.base);
-      R(13.5, py + 1, 3, 1, fur.ink); R(21.5, py, 3, 1, fur.ink);
+      const br = p.breathe;
+      // Sat down on her rump, facing you: a wide base flat on the ground, a
+      // narrower chest on top of it, and the head straight above that. It is
+      // the only view with two eyes in it, so they are set well apart and the
+      // nose is small, or the whole face goes to one dark blob.
+      const RW = 9.8, RH = 5.4;
+      const ry2 = GY - RH;
+      pill(20, ry2, RW + 0.7, RH + 0.7, fur.ink, RH * 0.5);                  // the rump
+      pill(20, ry2, RW, RH, fur.dark, RH * 0.46);
+      pill(20, ry2 - 0.4, RW - 0.6, RH - 0.6, fur.base, RH * 0.46);
+      R(12, GY - 2.6, 6.4, 2.6, fur.dark); R(21.6, GY - 2.6, 6.4, 2.6, fur.mid);   // hind feet splayed
+      R(12, GY - 1, 6.4, 1, fur.ink); R(21.6, GY - 1, 6.4, 1, fur.ink);
+      for (let i = 0; i < 3; i++) { R(13 + i * 2, GY - 3.4, 1, 1, fur.ink); R(22.6 + i * 2, GY - 3.4, 1, 1, fur.ink); }
+      const CW3 = 7.8 + br * 0.25, CH3 = 6.6;
+      const cy3 = 15.2 - br * 0.2;
+      pill(20.4, cy3, CW3 + 0.7, CH3 + 0.7, fur.ink, CH3 * 0.44);            // the chest
+      pill(20.4, cy3, CW3, CH3, fur.dark, CH3 * 0.42);
+      pill(20.4, cy3 - 0.4, CW3 - 0.6, CH3 - 0.6, fur.base, CH3 * 0.42);
+      pill(20.4, cy3 + 2, CW3 * 0.6, CH3 * 0.5, fur.light, CH3 * 0.3);       // the pale belly
+      saddle(19.4, cy3 - CH3 * 0.4, 6.4, 3);
+      const py = cy3 + 4.4 - p.reach * 3;                                    // the front paws
+      for (const [px2, tone] of [[15.4, fur.mid], [24.4, fur.base]]) {
+        pill(px2, py, 2.6, 2.3, fur.ink, 1);
+        pill(px2, py - 0.3, 2.2, 1.9, tone, 0.9);
+        R(px2 - 1.8, py + 1.4, 3.6, 1, fur.ink);
+      }
+      const SW = 8 * HK, SH = 7.4 * HK, sy = 5.6 + br * 0.2;                 // the head
+      const SC2 = Math.max(1.6, SH * 0.42);
+      pill(22.4, sy, SW + 0.6, SH + 0.6, fur.ink, SC2 + 0.5);
+      pill(22.4, sy, SW, SH, fur.dark, SC2);
+      pill(22.4, sy - 0.5, SW - 0.6, SH - 0.6, fur.base, SC2);
+      R(22.4 - SW + SC2, sy - SH + 0.4, SW * 2 - SC2 * 2, SH * 0.3, fur.mid);
+      R(22.4 - SW + SC2 * 1.6, sy - SH + 0.4, SW * 2 - SC2 * 3.2, SH * 0.14, fur.light);
+      pill(22.4, sy + SH * 0.42, SW * 0.5, SH * 0.34, fur.dark, SC2 * 0.5);  // the muzzle
+      pill(22.4, sy + SH * 0.4, SW * 0.44, SH * 0.28, fur.base, SC2 * 0.5);
+      ears(22.4 - SW * 0.78, 22.4 + SW * 0.78, sy - SH - 0.3 * HK, p.ear, p.earFlop);
+      eye(22.4 - 3.7, sy - SH * 0.16, p.blink);
+      eye(22.4 + 3.7, sy - SH * 0.16, p.blink);
+      nose(22.4, sy + SH * 0.5, 4.4, 3);
       glow();
       return;
     }
@@ -3925,11 +4033,14 @@ const Sprites = (() => {
         break;
     }
     if (opts.blessed) {
+      // sparks over the top of it, not two dots on the front: a blessed cube
+      // is lit from above, it is not looking at you.
       const e = Math.max(1, Math.round(w / 9));
-      g.fillStyle = PAL.div5; g.fillRect(-w / 4 - e / 2, -h / 8, e, e); g.fillRect(w / 4 - e / 2, -h / 8, e, e);
+      g.fillStyle = PAL.div5;
+      g.fillRect(-w / 6 - e / 2, y0 - e * 2, e, e);
+      g.fillRect(w / 5 - e / 2, y0 - e * 3, e, e);
+      g.fillRect(-e / 2, y0 - e * 4, e, e);
     }
-    // every cube has a little face on it. It is a lump of poop and it is happy.
-    if (opts.face) cubeFace(g, opts.face, w, h, px);
     if (opts.outline) {                                      // a pixel border, never a stroke
       const o = Math.max(1, Math.round(px));
       g.fillStyle = opts.outline;
@@ -3937,29 +4048,6 @@ const Sprites = (() => {
       g.fillRect(x0, y0, o, h); g.fillRect(x0 + w - o, y0, o, h);
     }
   }
-  function cubeFace(g, mood, w, h, px) {
-    const e = Math.max(1.4, px * 1.15);
-    const ex = Math.min(w * 0.22, e * 2.4), ey = -h * 0.1;
-    const dark = '#1a1016', white = '#fdf3dc';
-    for (const s of [-1, 1]) {
-      if (mood === 'blink') { g.fillStyle = dark; g.fillRect(-ex * 0 + s * ex - e, ey, e * 2, e * 0.7); continue; }
-      g.fillStyle = white; g.fillRect(s * ex - e, ey - e, e * 2, e * 2);
-      g.fillStyle = dark;
-      const look = mood === 'fall' ? -e * 0.4 : mood === 'ready' ? e * 0.3 : 0;
-      g.fillRect(s * ex - e * 0.4 + look, ey - e * 0.4, e * 0.9, e * 1.1);
-    }
-    g.fillStyle = dark;
-    const my = ey + e * 2.1;
-    if (mood === 'fall') { g.fillRect(-e, my - e * 0.3, e * 2, e * 1.5); g.fillStyle = '#c26b7a'; g.fillRect(-e * 0.5, my + e * 0.6, e, e * 0.5); }
-    else if (mood === 'ready') { g.fillRect(-e * 1.1, my, e * 2.2, e * 0.6); g.fillRect(-e * 1.6, my - e * 0.5, e * 0.6, e * 0.6); g.fillRect(e, my - e * 0.5, e * 0.6, e * 0.6); }
-    else { g.fillRect(-e * 1.2, my, e * 2.4, e * 0.6); g.fillRect(-e * 1.8, my - e * 0.6, e * 0.6, e * 0.6); g.fillRect(e * 1.2, my - e * 0.6, e * 0.6, e * 0.6); }
-    if (mood !== 'fall') {                                    // a blush on each cheek
-      g.fillStyle = 'rgba(200,110,120,0.42)';
-      g.fillRect(-ex - e * 1.9, ey + e * 0.9, e * 1.5, e * 0.8);
-      g.fillRect(ex + e * 0.4, ey + e * 0.9, e * 1.5, e * 0.8);
-    }
-  }
-
   // ---- villagers -------------------------------------------------------------
   // The people who live down the road. One routine builds all of them: a chibi
   // human on two stubby legs, and a table of kits says what they wear, what
@@ -10248,8 +10336,7 @@ const Grove = (() => {
       const k = d.sq0 * Math.exp(-7 * d.sqT) * Math.cos(d.sqT * 24);
       g.translate(0, (h / 2) * k); g.scale(1 + k, 1 - k);
     }
-    Sprites.drawCube(g, def, w, h, { blessed: d.blessed, outline: held ? PAL.gold4 : d.blessed ? PAL.div4 : null,
-      face: held ? 'ready' : (((G.time + d.t) % 6) < 0.16 ? 'blink' : 'happy') });
+    Sprites.drawCube(g, def, w, h, { blessed: d.blessed, outline: held ? PAL.gold4 : d.blessed ? PAL.div4 : null });
     g.restore();
     if (d.blessed && Math.sin(d.t * 7) > 0.4) { g.fillStyle = PAL.div5; g.fillRect(d.x + w / 2 - 2, d.y - d.z - h - 3, 2, 2); }
   }
@@ -15828,21 +15915,21 @@ const Phone = (() => {
   // Every app on the home screen, in the order they sit on it. `tint` is the
   // icon's own colour, the way every phone gives an app one.
   const APPS = [
-    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: ['#f7c53f', '#b07a10'] },
-    { key: 'herd', name: 'Herd', icon: 'wombat', tint: ['#d79a76', '#8a5138'] },
-    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: ['#7fce63', '#2f7a30'] },
-    { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#6fc4ec', '#1f6fae'] },
-    { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#ff9a6a', '#c4386a'] },
-    { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#3a3f52', '#14161f'] },
-    { key: 'camera', name: 'Camera', icon: 'camera', tint: ['#4a4f6a', '#1a1c28'] },
-    { key: 'feed', name: 'Wombagram', icon: 'heart', tint: ['#ff7aa8', '#8a2f5e'] },
-    { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#a9b0bd', '#5c636f'] },
-    { key: 'help', name: 'Tips', icon: 'basket', tint: ['#c49bff', '#6b3fc4'] },
+    { key: 'quests', name: 'Jobs', icon: 't_sickle', tint: ['#c99a2a', '#6b4d08'] },
+    { key: 'herd', name: 'Herd', icon: 'wombat', tint: ['#9a6a4c', '#4e2e1e'] },
+    { key: 'garden', name: 'Garden', icon: 'c_broadleaf', tint: ['#638f45', '#25401c'] },
+    { key: 'sky', name: 'Weather', icon: 't_water', tint: ['#4a8ca6', '#173d4e'] },
+    { key: 'photos', name: 'Photos', icon: 'camera', tint: ['#a8664a', '#4e2230'] },
+    { key: 'purse', name: 'Wallet', icon: 'wdollar', tint: ['#5a4d38', '#241d12'] },
+    { key: 'camera', name: 'Camera', icon: 'camera', tint: ['#45483c', '#191b14'] },
+    { key: 'feed', name: 'Gram', icon: 'heart', tint: ['#a05068', '#42182c'] },
+    { key: 'settings', name: 'Settings', icon: 'gear', tint: ['#7a8078', '#33382f'] },
+    { key: 'help', name: 'Tips', icon: 'basket', tint: ['#7a6a9a', '#2e2544'] },
   ];
   const DOCK = ['messages', 'map', 'quests', 'herd'];
   const ALL = APPS.concat([
-    { key: 'messages', name: 'Messages', icon: 'msg', tint: ['#5ce06a', '#1f9a34'] },
-    { key: 'map', name: 'Places', icon: 'map', tint: ['#7fd6b0', '#1f7a6a'] },
+    { key: 'messages', name: 'Messages', icon: 'msg', tint: ['#5c8f4a', '#1e3a18'] },
+    { key: 'map', name: 'Places', icon: 'map', tint: ['#4e8f7c', '#173a32'] },
   ]);
   const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
   const TITLE = Object.fromEntries(ALL.map((a) => [a.key, a.name]));
@@ -16026,7 +16113,7 @@ const Phone = (() => {
   }
 
   // ---- little pieces everyone uses ------------------------------------------
-  const bar = (v, max, col) => `<div class="phbar"><i style="width:${Math.round(U.clamp(v / max, 0, 1) * 100)}%;background:${col}"></i></div>`;
+  const bar = (v, max, col) => `<div class="phbar2"><i style="width:${Math.round(U.clamp(v / max, 0, 1) * 100)}%;background:${col}"></i></div>`;
   const row = (inner, cls = '') => `<div class="phrow ${cls}">${inner}</div>`;
   const ic = (n, cls = '') => Icons.img(n, cls);
 
@@ -16339,7 +16426,7 @@ const Phone = (() => {
       </div>
       <div class="phsub">ABOUT</div>
       <div class="phgroup">
-        <div class="phset"><span>Wombat OS<small>version 38, built in a wood</small></span></div>
+        <div class="phset"><span>Wombat OS<small>version 41, built in a wood</small></span></div>
         <div class="phset"><span>Storage<small>${(World.crops || []).length} plants &middot; ${G.wombats.length} wombats &middot; ${Object.keys(G.summoned || {}).length} gods</small></span></div>
         <div class="phset"><span>Time in the grove<small>${U.time(Math.round(G.time || 0))}</small></span></div>
       </div>

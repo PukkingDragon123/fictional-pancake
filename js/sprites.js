@@ -100,8 +100,10 @@ const Sprites = (() => {
         p.earFlop = Math.sin(t * TAU) * 0.4; p.headSw = Math.sin(t * TAU * 0.5) * 0.6;
         break;
       }
-      case 'lie': p.lie = 1; p.breathe = Math.sin(t * TAU) * 0.8; p.bob = p.breathe * 0.7; p.blink = f === 2 ? 1 : 0; break;
-      case 'sleep': p.lie = 1; p.sleep = 1; p.blink = 1; p.z = f * 0.6; p.breathe = Math.sin(t * TAU) * 1; p.bob = p.breathe * 0.8; break;
+      case 'lie': p.lie = 1; p.breathe = Math.sin(t * TAU) * 0.8; p.blink = f === 2 ? 1 : 0; p.earFlop = Math.sin(t * TAU) * 0.3; break;
+      // Asleep she does not bob up and down in the air. The breath swells the
+      // barrel and nothing else moves but the ears and the z drifting off her.
+      case 'sleep': p.lie = 1; p.sleep = 1; p.blink = 1; p.z = t; p.breathe = Math.sin(t * TAU); p.earFlop = Math.sin(t * TAU) * 0.5; break;
       case 'eat': {
         // head down, then a proper chew with the jaw and the ears
         p.headDip = 6.4 + Math.sin(t * TAU) * 0.8; p.headFwd = 2.4; p.front = 3.2; p.rear = -1;
@@ -291,18 +293,52 @@ const Sprites = (() => {
 
     // ---- lying flat, asleep or not ------------------------------------------
     if (p.lie) {
-      E(19, 20.5 + p.bob, 14, 6, fur.base);
-      R(6, 18 + p.bob, 26, 6, fur.base);
-      saddle(18, 18, 11, 3);
-      E(30, 18.5 + p.bob, 8 * HK, 6 * HK, fur.base);
-      E(32, 20, 5 * HK, 3.5 * HK, fur.light);
-      ears(25, 33, 13 + p.bob, 0);
-      eye(29.5, 17 + p.bob, p.blink);
-      nose(33.5, 19 + p.bob, 6.5, 4.5);
-      R(7, 24.5, 6, 2.2, fur.deep); R(14, 25, 5, 1.6, fur.deep); R(25, 25, 5, 1.6, fur.deep);
-      if (p.sleep) {                                             // the z, drifting up
-        const zx = 36 + p.z * 1.2, zy = 4 - p.z * 3;
-        R(zx, zy, 4, 1, PAL.div4); R(zx + 2, zy + 1, 1, 1, PAL.div4); R(zx + 1, zy + 2, 1, 1, PAL.div4); R(zx, zy + 3, 4, 1, PAL.div4);
+      const br = p.breathe;
+      // the barrel, down on its side and flat along the ground. She is the
+      // same animal lying down as standing up: the breath widens her a little
+      // and pushes the top of her up, and she never leaves the floor.
+      const LW = 13.4, LH = 5.4 + br * 0.45;
+      const lcx = 16.4, lcy = GY - LH;
+      const LCUT = Math.max(1.6, LH * 0.5);
+      pill(lcx, lcy, LW + 0.7, LH + 0.7, fur.ink, LCUT + 0.5);
+      pill(lcx, lcy, LW, LH, fur.dark, LCUT);
+      pill(lcx, lcy - 0.4, LW - 0.6, LH - 0.6, fur.base, LCUT);
+      pill(lcx - LW * 0.5, lcy + 0.3, LW * 0.52, LH * 0.94, fur.base, LCUT * 0.9);   // the rump
+      R(lcx - LW + LCUT * 0.7, lcy - LH + 0.4, LW * 2 - LCUT * 1.4, LH * 0.34, fur.mid);
+      R(lcx - LW + LCUT * 1.3, lcy - LH + 0.4, LW * 2 - LCUT * 2.6, LH * 0.16, fur.light);
+      saddle(lcx - 1.4, lcy - LH * 0.28, 9, LH * 0.4);
+      pill(lcx - LW - 0.8, lcy + LH * 0.3, 1.8, 1.7, fur.mid, 0.8);                  // the tail nub
+      // the legs folded under her, so only the paws show along the belly
+      for (const [px, pw] of [[lcx - LW * 0.66, 5], [lcx - LW * 0.08, 4.4], [lcx + LW * 0.46, 4.6]]) {
+        R(px, GY - 2.2, pw, 2.2, fur.dark);
+        R(px + 0.5, GY - 2.4, pw - 1, 1, U.shade(fur.dark, 0.12));
+        R(px, GY - 0.9, pw, 0.9, fur.ink);
+      }
+      // the head, put down on the ground with the chin resting on it
+      const HW = 6.8 * HK, HH = 5.8 * HK;
+      const hx2 = lcx + LW + HW * 0.46, hy2 = GY - HH - 0.3 + br * 0.12;
+      const HC = Math.max(1.6, HH * 0.44);
+      pill(hx2 - HW * 0.62, hy2 + 0.9, HW * 0.78, HH * 0.78, fur.dark, HC * 0.8);    // the neck
+      pill(hx2, hy2, HW + 0.6, HH + 0.6, fur.ink, HC + 0.5);
+      pill(hx2, hy2, HW, HH, fur.dark, HC);
+      pill(hx2, hy2 - 0.4, HW - 0.6, HH - 0.6, fur.base, HC);
+      R(hx2 - HW + HC * 0.7, hy2 - HH + 0.4, HW * 2 - HC * 1.4, HH * 0.34, fur.mid);
+      const mx2 = hx2 + HW * 0.54, my2 = hy2 + HH * 0.34;                            // the muzzle, laid flat
+      pill(mx2, my2, HW * 0.52, HH * 0.44, fur.dark, HC * 0.6);
+      pill(mx2, my2 - 0.4, HW * 0.46, HH * 0.38, fur.base, HC * 0.6);
+      R(mx2 - HW * 0.34, my2 + HH * 0.08, HW * 0.66, HH * 0.28, fur.light);
+      ears(hx2 - HW * 0.92, hx2 - HW * 0.42, hy2 - HH - 0.36 * HK, 0, p.earFlop);
+      eye(hx2 + HW * 0.02, hy2 - HH * 0.24, p.blink);
+      nose(mx2 + HW * 0.22, my2 + HH * 0.06, 4.6, 3.3);
+      if (p.sleep) {
+        // three z, each one rising and fading on its own part of the loop
+        for (let i = 0; i < 3; i++) {
+          const u = (p.z + i / 3) % 1;
+          if (u > 0.86) continue;
+          const zx = hx2 + 3 + u * 6, zy = hy2 - HH - 2 - u * 15;
+          const zc = u > 0.58 ? PAL.div5 : PAL.div4;
+          R(zx, zy, 4, 1, zc); R(zx + 2, zy + 1, 1, 1, zc); R(zx + 1, zy + 2, 1, 1, zc); R(zx, zy + 3, 4, 1, zc);
+        }
       }
       glow();
       return;
@@ -310,20 +346,45 @@ const Sprites = (() => {
 
     // ---- sitting up on the rump ---------------------------------------------
     if (p.sit) {
-      const by = 14 + p.bob;
-      E(20, by + 2, 9.5, 10.5, fur.base);                        // a tall pear of a body
-      E(19, by + 8, 10.5, 6, fur.base);
-      E(19, by + 6, 6.5, 6, fur.light);                          // pale belly
-      saddle(16, by - 1, 6, 5);
-      R(12, 23.6, 6, 3, fur.deep); R(22, 23.6, 6, 3, fur.deep);  // rear feet splayed
-      R(12, 25.6, 6, 1, fur.ink); R(22, 25.6, 6, 1, fur.ink);
-      E(23, by - 8, 7.5 * HK, 6.8 * HK, fur.base);               // head on top
-      ears(18, 27, by - 14.6, p.ear);
-      eye(21, by - 9.5, p.blink); eye(26.5, by - 9.5, p.blink);
-      nose(23, by - 6.5, 6.5, 4.5);
-      const py = by + 4 - p.reach * 3;                          // front paws held up
-      E(15, py, 2.6, 2.4, fur.mid); E(23, py - 1, 2.6, 2.4, fur.base);
-      R(13.5, py + 1, 3, 1, fur.ink); R(21.5, py, 3, 1, fur.ink);
+      const br = p.breathe;
+      // Sat down on her rump, facing you: a wide base flat on the ground, a
+      // narrower chest on top of it, and the head straight above that. It is
+      // the only view with two eyes in it, so they are set well apart and the
+      // nose is small, or the whole face goes to one dark blob.
+      const RW = 9.8, RH = 5.4;
+      const ry2 = GY - RH;
+      pill(20, ry2, RW + 0.7, RH + 0.7, fur.ink, RH * 0.5);                  // the rump
+      pill(20, ry2, RW, RH, fur.dark, RH * 0.46);
+      pill(20, ry2 - 0.4, RW - 0.6, RH - 0.6, fur.base, RH * 0.46);
+      R(12, GY - 2.6, 6.4, 2.6, fur.dark); R(21.6, GY - 2.6, 6.4, 2.6, fur.mid);   // hind feet splayed
+      R(12, GY - 1, 6.4, 1, fur.ink); R(21.6, GY - 1, 6.4, 1, fur.ink);
+      for (let i = 0; i < 3; i++) { R(13 + i * 2, GY - 3.4, 1, 1, fur.ink); R(22.6 + i * 2, GY - 3.4, 1, 1, fur.ink); }
+      const CW3 = 7.8 + br * 0.25, CH3 = 6.6;
+      const cy3 = 15.2 - br * 0.2;
+      pill(20.4, cy3, CW3 + 0.7, CH3 + 0.7, fur.ink, CH3 * 0.44);            // the chest
+      pill(20.4, cy3, CW3, CH3, fur.dark, CH3 * 0.42);
+      pill(20.4, cy3 - 0.4, CW3 - 0.6, CH3 - 0.6, fur.base, CH3 * 0.42);
+      pill(20.4, cy3 + 2, CW3 * 0.6, CH3 * 0.5, fur.light, CH3 * 0.3);       // the pale belly
+      saddle(19.4, cy3 - CH3 * 0.4, 6.4, 3);
+      const py = cy3 + 4.4 - p.reach * 3;                                    // the front paws
+      for (const [px2, tone] of [[15.4, fur.mid], [24.4, fur.base]]) {
+        pill(px2, py, 2.6, 2.3, fur.ink, 1);
+        pill(px2, py - 0.3, 2.2, 1.9, tone, 0.9);
+        R(px2 - 1.8, py + 1.4, 3.6, 1, fur.ink);
+      }
+      const SW = 8 * HK, SH = 7.4 * HK, sy = 5.6 + br * 0.2;                 // the head
+      const SC2 = Math.max(1.6, SH * 0.42);
+      pill(22.4, sy, SW + 0.6, SH + 0.6, fur.ink, SC2 + 0.5);
+      pill(22.4, sy, SW, SH, fur.dark, SC2);
+      pill(22.4, sy - 0.5, SW - 0.6, SH - 0.6, fur.base, SC2);
+      R(22.4 - SW + SC2, sy - SH + 0.4, SW * 2 - SC2 * 2, SH * 0.3, fur.mid);
+      R(22.4 - SW + SC2 * 1.6, sy - SH + 0.4, SW * 2 - SC2 * 3.2, SH * 0.14, fur.light);
+      pill(22.4, sy + SH * 0.42, SW * 0.5, SH * 0.34, fur.dark, SC2 * 0.5);  // the muzzle
+      pill(22.4, sy + SH * 0.4, SW * 0.44, SH * 0.28, fur.base, SC2 * 0.5);
+      ears(22.4 - SW * 0.78, 22.4 + SW * 0.78, sy - SH - 0.3 * HK, p.ear, p.earFlop);
+      eye(22.4 - 3.7, sy - SH * 0.16, p.blink);
+      eye(22.4 + 3.7, sy - SH * 0.16, p.blink);
+      nose(22.4, sy + SH * 0.5, 4.4, 3);
       glow();
       return;
     }
@@ -1629,11 +1690,14 @@ const Sprites = (() => {
         break;
     }
     if (opts.blessed) {
+      // sparks over the top of it, not two dots on the front: a blessed cube
+      // is lit from above, it is not looking at you.
       const e = Math.max(1, Math.round(w / 9));
-      g.fillStyle = PAL.div5; g.fillRect(-w / 4 - e / 2, -h / 8, e, e); g.fillRect(w / 4 - e / 2, -h / 8, e, e);
+      g.fillStyle = PAL.div5;
+      g.fillRect(-w / 6 - e / 2, y0 - e * 2, e, e);
+      g.fillRect(w / 5 - e / 2, y0 - e * 3, e, e);
+      g.fillRect(-e / 2, y0 - e * 4, e, e);
     }
-    // every cube has a little face on it. It is a lump of poop and it is happy.
-    if (opts.face) cubeFace(g, opts.face, w, h, px);
     if (opts.outline) {                                      // a pixel border, never a stroke
       const o = Math.max(1, Math.round(px));
       g.fillStyle = opts.outline;
@@ -1641,29 +1705,6 @@ const Sprites = (() => {
       g.fillRect(x0, y0, o, h); g.fillRect(x0 + w - o, y0, o, h);
     }
   }
-  function cubeFace(g, mood, w, h, px) {
-    const e = Math.max(1.4, px * 1.15);
-    const ex = Math.min(w * 0.22, e * 2.4), ey = -h * 0.1;
-    const dark = '#1a1016', white = '#fdf3dc';
-    for (const s of [-1, 1]) {
-      if (mood === 'blink') { g.fillStyle = dark; g.fillRect(-ex * 0 + s * ex - e, ey, e * 2, e * 0.7); continue; }
-      g.fillStyle = white; g.fillRect(s * ex - e, ey - e, e * 2, e * 2);
-      g.fillStyle = dark;
-      const look = mood === 'fall' ? -e * 0.4 : mood === 'ready' ? e * 0.3 : 0;
-      g.fillRect(s * ex - e * 0.4 + look, ey - e * 0.4, e * 0.9, e * 1.1);
-    }
-    g.fillStyle = dark;
-    const my = ey + e * 2.1;
-    if (mood === 'fall') { g.fillRect(-e, my - e * 0.3, e * 2, e * 1.5); g.fillStyle = '#c26b7a'; g.fillRect(-e * 0.5, my + e * 0.6, e, e * 0.5); }
-    else if (mood === 'ready') { g.fillRect(-e * 1.1, my, e * 2.2, e * 0.6); g.fillRect(-e * 1.6, my - e * 0.5, e * 0.6, e * 0.6); g.fillRect(e, my - e * 0.5, e * 0.6, e * 0.6); }
-    else { g.fillRect(-e * 1.2, my, e * 2.4, e * 0.6); g.fillRect(-e * 1.8, my - e * 0.6, e * 0.6, e * 0.6); g.fillRect(e * 1.2, my - e * 0.6, e * 0.6, e * 0.6); }
-    if (mood !== 'fall') {                                    // a blush on each cheek
-      g.fillStyle = 'rgba(200,110,120,0.42)';
-      g.fillRect(-ex - e * 1.9, ey + e * 0.9, e * 1.5, e * 0.8);
-      g.fillRect(ex + e * 0.4, ey + e * 0.9, e * 1.5, e * 0.8);
-    }
-  }
-
   // ---- villagers -------------------------------------------------------------
   // The people who live down the road. One routine builds all of them: a chibi
   // human on two stubby legs, and a table of kits says what they wear, what
