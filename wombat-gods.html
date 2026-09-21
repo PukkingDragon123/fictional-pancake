@@ -7640,13 +7640,16 @@ const Sky = (() => {
     return h < 5 ? 'night' : h < 8 ? 'dawn' : h < 12 ? 'morning' : h < 16 ? 'afternoon' : h < 19 ? 'evening' : h < 22 ? 'dusk' : 'night';
   }
   // the wash the hour paints over a scene: warm at dawn, blue at night
+  // The light over the wood. It leans warm through the middle of the day and
+  // the night is lifted off the floor: a wood at midnight should still be a
+  // place you can see your wombats in, not a black screen with eyes in it.
   const TINTS = {
-    night:     ['#101c3e', 0.6],
-    dawn:      ['#f0a070', 0.26],
-    morning:   ['#fff0c0', 0.1],
-    afternoon: ['#ffe8b0', 0.06],
-    evening:   ['#ffb070', 0.18],
-    dusk:      ['#6a4a8a', 0.38],
+    night:     ['#1a2c56', 0.46],
+    dawn:      ['#ffb488', 0.24],
+    morning:   ['#fff4cc', 0.14],
+    afternoon: ['#ffeec0', 0.1],
+    evening:   ['#ffbc82', 0.2],
+    dusk:      ['#7e5c9c', 0.3],
   };
   function tint() {
     const [col, a] = TINTS[partOfDay()] || TINTS.afternoon;
@@ -8186,7 +8189,11 @@ const World = (() => {
   // a dozen alphas, which at any zoom read as television static rather than as
   // ground. It is drawn in two-pixel blocks now, off five flat colours, at full
   // opacity, with the grain going the way a cart would have dragged it.
-  const DIRT = ['#3a2616', '#4f3520', '#6b482a', '#8a6038', '#a87c4a'];
+  // Earth under a canopy, not a building site. Warm brown with the green of
+  // the wood sitting in it, a narrow range so it reads as one surface, and a
+  // little life in the top two steps so the floor is not a sheet of orange.
+  const DIRT = ['#3f3527', '#4e4231', '#5e503b', '#6f5f45', '#7e6d50'];
+  const TUFT = ['#3d4e2a', '#4d6334', '#5f7a40', '#78964f'];
   const PXG = 2;
   function dirtTex() {
     if (dirt) return dirt;
@@ -8234,12 +8241,24 @@ const World = (() => {
       }
     }
     // a scatter of small stones, each one a block with a lit top
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 50; i++) {
       const x = Math.floor(r() * W / PXG) * PXG, y = Math.floor(r() * h / PXG) * PXG;
       const ww = PXG * (1 + Math.floor(r() * 2));
-      g.fillStyle = '#2a2430'; g.fillRect(x, y, ww + PXG, PXG * 2);
-      g.fillStyle = '#6a6078'; g.fillRect(x, y, ww, PXG);
-      g.fillStyle = '#9a90a8'; g.fillRect(x, y, PXG, PXG);
+      g.fillStyle = '#2e2a24'; g.fillRect(x, y, ww + PXG, PXG * 2);
+      g.fillStyle = '#6a6458'; g.fillRect(x, y, ww, PXG);
+      g.fillStyle = '#948d7c'; g.fillRect(x, y, PXG, PXG);
+    }
+    // and the wood coming through it: little tufts of what is left alive.
+    // Without these the floor is one flat sheet at the zoom you actually play.
+    for (let i = 0; i < 340; i++) {
+      const x = Math.floor(r() * W / PXG) * PXG, y = Math.floor(r() * h / PXG) * PXG;
+      const c0 = TUFT[Math.floor(r() * TUFT.length)];
+      const wide = r() < 0.4;
+      g.fillStyle = '#2b3520';
+      g.fillRect(x, y, PXG * (wide ? 3 : 2), PXG * 2);
+      g.fillStyle = c0;
+      g.fillRect(x, y, PXG * (wide ? 2 : 1), PXG);
+      if (r() < 0.3) { g.fillStyle = '#8fae5e'; g.fillRect(x, y - PXG, PXG, PXG); }
     }
     dirt = c;
     return dirt;
@@ -8249,12 +8268,14 @@ const World = (() => {
     g.drawImage(dirtTex(), 0, GROUND - 2);
     if (f > 0.01) {                          // the green creeping back
       g.globalAlpha = Math.min(0.55, f * 0.7);
-      g.fillStyle = U.mix('#4d6a3a', '#3f6a30', f);
+      g.fillStyle = U.mix('#55803c', '#477f33', f);
       g.fillRect(0, GROUND - 2, W, H - GROUND + 2);
       g.globalAlpha = 1;
     }
     // the treeline throws a band of shade across the back of the plot
-    for (let i = 0; i < 8; i++) Art.dither(g, 0, GROUND - 2 + i * 6, W, 6, '#0e0c12', 0.5 * (1 - i / 8));
+    // the treeline throws shade forward, but as a long soft run rather than the
+    // hard black stripe it used to lay across the top of the plot
+    for (let i = 0; i < 16; i++) Art.dither(g, 0, GROUND - 2 + i * 5, W, 5, '#1a2416', 0.26 * (1 - i / 16));
     g.drawImage(grass, 0, 0);
     g.drawImage(soil, 0, 0);
   }
@@ -11189,9 +11210,20 @@ const Ritual = (() => {
   const S = {
     world: null, bodies: [], hand: null, next: null,
     camY: 0, tCam: 0, top: 0, best: 0, settle: 0,
-    eyes: [], tallow: [], sparks: [],
+    eyes: [], tallow: [], sparks: [], bits: [],
     dread: 0, heart: 0, t: 0, shake: 0,
     toppleT: 0, lastTop: 0, grantT: 0, entered: false,
+    // ---- the vigil -------------------------------------------------------
+    foes: [], spawnT: 3, censer: 0, swing: 0, swingX: 0, swingY: 0,
+    cool: 0, stolen: 0, kills: 0, combo: 0, comboT: 0, wave: 0, cry: '', cryT: 0,
+  };
+
+  // What each kind of tribute is actually for. The physics was already in the
+  // table; this is the half sentence that tells you why you would spend one.
+  const USE = {
+    plain: 'filler', rich: 'filler', husk: 'light — they carry it off',
+    resin: 'sticky — welds what it touches', stone: 'heavy — it crushes',
+    slab: 'wide — fixes a lean', gold: 'rich — it draws them', rune: 'rich — it draws them',
   };
 
   // How high a god has to be able to reach. It comes off what it used to ask
@@ -11232,6 +11264,9 @@ const Ritual = (() => {
     S.camY = 0; S.tCam = 0; S.top = 0; S.best = 0; S.settle = 0; S.t = 0;
     S.dread = 0; S.heart = 0; S.toppleT = 0; S.lastTop = 0; S.grantT = 0;
     S.hand = null; S.next = null; S.entered = true;
+    S.foes.length = 0; S.bits.length = 0;
+    S.spawnT = 2.2; S.censer = 0; S.swing = 0; S.cool = 0;
+    S.stolen = 0; S.kills = 0; S.combo = 0; S.comboT = 0; S.lit = 0; S.cryT = 0;
     // the altar, and the two walls, are the only things that do not move
     const floor = new Physics.Body({ x: W / 2, y: 26, width: SHAFT - 8, height: 52, isStatic: true, friction: 0.95 });
     const wl = new Physics.Body({ x: LX - 40, y: -4000, width: 80, height: 9000, isStatic: true, friction: 0.5 });
@@ -11289,14 +11324,207 @@ const Ritual = (() => {
       restitution: def.restitution, adhesion: def.adhesion,
       angularDamping: 0.4,
     });
-    b.userData = { def, blessed: bl, lit: 0 };
+    b.userData = { def, blessed: bl, lit: 0, shake: 0, held: null };
     S.world.add(b);
     S.bodies.push(b);
     Audio.play('place');
     FX.shake(0.6);
+    // every stone laid feeds the brazier on the chain beside you
+    S.censer = Math.min(1, S.censer + (def.key === 'stone' ? 0.2 : 0.13));
     S.hand = null;
     setTimeout(() => { if (S.entered) deal(); }, 90);
     UI.refreshHUD();
+  }
+
+  // ---- the other cult ------------------------------------------------------
+  // You are not the only one down here. Wardlings come up the walls out of the
+  // dark, latch onto whatever you have just laid, and drag it off. They are
+  // small and stupid and there are a great many of them, and everything you do
+  // about them is a choice: swing at one, drop a block on it, or spend the
+  // brazier and take the whole screen.
+  function mkFoe(big) {
+    const side = Math.random() < 0.5 ? -1 : 1;
+    return {
+      x: side < 0 ? LX - 14 : RX + 14,
+      y: S.camY + U.rand(-40, H * 0.42),
+      vx: 0, vy: 0, state: 'climb', hold: 0, hp: big ? 2 : 1, big: !!big,
+      f: Math.random() * 9, side, target: null, hurt: 0, dead: 0, carry: null,
+    };
+  }
+  function foeSpeed() { return (92 + S.best * 4) * (1 + S.dread * 0.5); }
+  // How fast they come. Gold and rune in the tower bring them quicker, which is
+  // the price of stacking the valuable stuff.
+  function spawnGap() {
+    let greed = 0;
+    for (const b of S.bodies) { const k = (b.userData.def || {}).key; if (k === 'gold' || k === 'rune') greed++; }
+    const base = Math.max(0.9, 3.4 - S.best * 0.09);
+    return Math.max(0.45, base - greed * 0.14);
+  }
+  // the block a wardling wants: the highest one it can actually reach
+  function pickTarget() {
+    let best = null;
+    for (const b of S.bodies) {
+      if (b.userData.held) continue;
+      if (b.userData.def && b.userData.def.adhesion > 0 && b.contacts > 1) continue;  // resin is welded down
+      if (!best || b.y < best.y) best = b;
+    }
+    return best;
+  }
+  function stealFrom(f) {
+    const b = f.target;
+    if (!b) { f.state = 'climb'; return; }
+    S.world.remove(b);
+    const i = S.bodies.indexOf(b); if (i >= 0) S.bodies.splice(i, 1);
+    f.carry = b.userData.def;
+    f.state = 'carry';
+    f.target = null;
+    S.stolen++;
+    S.combo = 0;
+    Audio.play('error');
+    FX.shake(3);
+    say(U.pick(['THIEF!', 'MINE!', 'NO!']), '#e0705a');
+  }
+  function killFoe(f, how) {
+    if (f.dead) return;
+    f.dead = 0.5;
+    // Kill one that is halfway down the shaft with your stone and it drops it.
+    // Chasing a thief is worth more than swatting the one next to you, which
+    // is the whole reason to keep an eye on the bottom of the screen.
+    if (f.state === 'carry' && f.carry) {
+      const def = f.carry, sc = 21;
+      const nb = new Physics.Body({
+        x: U.clamp(f.x, LX + 16, RX - 16), y: f.y, angle: U.rand(-0.4, 0.4),
+        width: def.w * sc, height: def.h * sc,
+        density: def.density, friction: def.friction,
+        restitution: def.restitution, adhesion: def.adhesion, angularDamping: 0.4,
+      });
+      nb.vy = -80;
+      nb.userData = { def, blessed: false, lit: 0, shake: 0, held: null };
+      S.world.add(nb); S.bodies.push(nb);
+      S.stolen = Math.max(0, S.stolen - 1);
+      f.carry = null;
+      say('GOT IT BACK', '#92dc5e');
+      Cult.give(3);
+    }
+    S.kills++;
+    S.combo++; S.comboT = 2.2;
+    S.censer = Math.min(1, S.censer + 0.06);
+    Cult.give(1);
+    for (let i = 0; i < 9; i++) {
+      S.bits.push({ x: f.x, y: f.y, vx: U.rand(-70, 70), vy: -U.rand(20, 110),
+        life: U.rand(0.4, 0.9), c: U.pick(['#3d1f78', '#6b32bd', '#c42a1e', '#0d0a12']) });
+    }
+    Audio.play(how === 'crush' ? 'thud' : 'pop');
+    FX.shake(how === 'crush' ? 3 : 1.4);
+    if (S.combo >= 3) say(S.combo + ' IN A ROW', '#ffd95c');
+    else if (how === 'crush') say(U.pick(['SPLAT!', 'CRUNCH!', 'FLAT.']), '#c898ff');
+  }
+  function say(t2, col) { S.cry = t2; S.cryT = 1.1; S.cryCol = col || '#ffd95c'; }
+
+  // the censer: spend a full brazier and everything on screen burns
+  function flare() {
+    if (S.censer < 1) { Audio.play('error'); return; }
+    S.censer = 0;
+    S.swing = 0.45; S.swingX = W / 2; S.swingY = S.camY;
+    let n = 0;
+    for (const f of S.foes) if (!f.dead) { killFoe(f, 'burn'); n++; }
+    FX.flash('#ffb83c', 0.55); FX.shake(7);
+    Audio.play('chime'); Audio.play('bless');
+    if (n) say('THE CENSER  x' + n, '#ffd95c'); else say('THE CENSER', '#ffd95c');
+    lightNext();
+  }
+  // a swing of the arm at one of them
+  function strike(x, y) {
+    if (S.cool > 0) return false;
+    // a swing has a bit of reach, so you are not asked to be pixel accurate
+    // at something scurrying up a wall in the dark
+    let hit = null, bd = 1e9;
+    for (const f of S.foes) {
+      if (f.dead) continue;
+      const dd = Math.hypot(f.x - x, (f.y - S.camY + H / 2) - y);
+      const reach = f.big ? 40 : 32;
+      if (dd < reach && dd < bd) { bd = dd; hit = f; }
+    }
+    S.cool = 0.22;
+    S.swing = 0.22; S.swingX = x; S.swingY = S.camY - H / 2 + y;
+    Audio.play('swing') || Audio.play('click');
+    if (!hit) return false;
+    hit.hp--; hit.hurt = 0.3;
+    if (hit.hp <= 0) killFoe(hit, 'hit');
+    else { Audio.play('thud'); say('!', '#e0705a'); }
+    return true;
+  }
+  // the candles you have lit are the only score there is; the censer lights one
+  function lightNext() { S.lit = (S.lit || 0) + 1; }
+
+  function updateFoes(dt) {
+    if (S.grantT > 0) return;
+    // they only come once there is something worth taking
+    if (S.bodies.length >= 1) {
+      S.spawnT -= dt;
+      if (S.spawnT <= 0) {
+        S.spawnT = spawnGap();
+        const big = S.best > 9 && Math.random() < Math.min(0.42, (S.best - 9) * 0.05);
+        S.foes.push(mkFoe(big));
+        if (big) say('SOMETHING BIG', '#e0705a');
+        // above ten notches they start arriving in twos and threes
+        const extra = S.best > 10 ? 1 + Math.floor(Math.random() * Math.min(2, (S.best - 10) / 6)) : 0;
+        for (let e = 0; e < extra; e++) S.foes.push(mkFoe(false));
+      }
+    }
+    const sp = foeSpeed();
+    for (let i = S.foes.length - 1; i >= 0; i--) {
+      const f = S.foes[i];
+      f.f += dt * 9;
+      if (f.hurt > 0) f.hurt -= dt;
+      if (f.dead) { f.dead -= dt; if (f.dead <= 0) S.foes.splice(i, 1); continue; }
+      if (f.state === 'climb') {
+        if (!f.target || S.bodies.indexOf(f.target) < 0 || f.target.userData.held) f.target = pickTarget();
+        if (!f.target) { f.y -= sp * 0.4 * dt; if (f.y < S.camY - H) S.foes.splice(i, 1); continue; }
+        const tx = f.target.x + (f.side < 0 ? -f.target.width / 2 - 5 : f.target.width / 2 + 5);
+        const ty = f.target.y;
+        const dx = tx - f.x, dy = ty - f.y, d = Math.hypot(dx, dy) || 1;
+        f.x += (dx / d) * sp * dt; f.y += (dy / d) * sp * dt;
+        if (d < 7) { f.state = 'grab'; f.hold = 0; f.target.userData.held = f; }
+      } else if (f.state === 'grab') {
+        const b = f.target;
+        if (!b || S.bodies.indexOf(b) < 0) { f.state = 'climb'; f.target = null; continue; }
+        f.x = b.x + (f.side < 0 ? -b.width / 2 - 5 : b.width / 2 + 5);
+        f.y = b.y;
+        f.hold += dt;
+        b.userData.shake = 1;
+        // it heaves on the block, which really does shift it
+        b.vx += f.side * 26 * dt;
+        b.w += f.side * 0.6 * dt;
+        if (f.hold > (f.big ? 1.1 : 1.9)) { b.userData.held = null; stealFrom(f); }
+      } else if (f.state === 'carry') {
+        f.y += sp * 1.5 * dt;
+        f.x += f.side * 12 * dt;
+        if (f.y > S.camY + H) S.foes.splice(i, 1);
+      }
+    }
+    // a block coming down hard flattens whatever is under it
+    for (const b of S.bodies) {
+      if (b.vy < 150) continue;
+      const bb = b.aabb();
+      for (const f of S.foes) {
+        if (f.dead || f.state === 'carry') continue;
+        if (f.x > bb.minX - 4 && f.x < bb.maxX + 4 && f.y > bb.minY - 4 && f.y < bb.maxY + 8) {
+          if (f.target) f.target.userData.held = null;
+          killFoe(f, 'crush');
+        }
+      }
+    }
+    for (const b of S.bodies) if (b.userData.shake > 0) b.userData.shake -= dt * 2;
+    if (S.cool > 0) S.cool -= dt;
+    if (S.swing > 0) S.swing -= dt;
+    if (S.cryT > 0) S.cryT -= dt;
+    if (S.comboT > 0) { S.comboT -= dt; if (S.comboT <= 0) S.combo = 0; }
+    for (let i = S.bits.length - 1; i >= 0; i--) {
+      const p2 = S.bits[i];
+      p2.life -= dt; p2.x += p2.vx * dt; p2.y += p2.vy * dt; p2.vy += 320 * dt;
+      if (p2.life <= 0) S.bits.splice(i, 1);
+    }
   }
 
   // the highest point of anything that is settled and is part of the tower
@@ -11320,6 +11548,7 @@ const Ritual = (() => {
     for (let i = S.bodies.length - 1; i >= 0; i--) {
       if (S.bodies[i].y > 260) { S.world.remove(S.bodies[i]); S.bodies.splice(i, 1); }
     }
+    updateFoes(dt);
     S.top = towerTop();
     const h = notches(S.top);
     if (h > S.best) {
@@ -11393,7 +11622,7 @@ const Ritual = (() => {
     for (let y = topRow; y < cam + H / 2 + PX; y += PX) {
       const sy = Math.round(y + off);
       const d = U.clamp(1 - (-y) / 900, 0.1, 1);
-      g.fillStyle = U.mix('#0a0509', '#241521', d);
+      g.fillStyle = U.mix('#140b13', '#33202e', d);
       g.fillRect(LX, sy, SHAFT, PX);
     }
     // the sigil scratched into the back wall, brighter the higher you get
@@ -11422,7 +11651,7 @@ const Ritual = (() => {
       if (n === 0) continue;
       const sy = Math.round(-n * CUBIT + off);
       const five = n % 5 === 0;
-      const reached = n <= S.best;
+      const reached = n <= S.best || (five && n / 5 <= (S.lit || 0));
       const col = reached ? (five ? '#f2c936' : '#a9750d') : (five ? '#4a3a2a' : '#2e2420');
       g.fillStyle = col;
       g.fillRect(LX - (five ? 21 : 12), sy, five ? 21 : 12, PX);
@@ -11448,8 +11677,34 @@ const Ritual = (() => {
     altar(g, off);
     // the tower
     for (const b of S.bodies) drawBlock(g, b, off);
+    // the other cult, coming up out of the dark
+    for (const f of S.foes) drawFoe(g, f, off);
+    for (const p2 of S.bits) {
+      const sy = Math.round(p2.y + off);
+      g.fillStyle = p2.c; g.fillRect(Math.round(p2.x), sy, PX, PX);
+    }
     // the chain down the left with what you have left hung on it
     chain(g, off);
+    // the brazier on its chain: what you have saved up to burn them with
+    brazier(g, off);
+    // the swing of the censer
+    if (S.swing > 0) {
+      const k = 1 - S.swing / 0.45;
+      const sx = Math.round(S.swingX), sy = Math.round(S.swingY + off);
+      const rr = Math.round((10 + k * 46) / PX) * PX;
+      for (let a3 = -0.9; a3 < 0.9; a3 += 0.12) {
+        const px = Math.round((sx + Math.cos(a3 - 1.2) * rr) / PX) * PX;
+        const py = Math.round((sy + Math.sin(a3 - 1.2) * rr) / PX) * PX;
+        g.fillStyle = k < 0.5 ? '#fff3b8' : '#efb625';
+        g.fillRect(px, py, PX * 2, PX * 2);
+      }
+    }
+    // what somebody just shouted, cut in the air rather than in a panel
+    if (S.cryT > 0) {
+      const cy = Math.round(S.camY - 40 + off - (1 - S.cryT / 1.1) * 12);
+      Font.draw(g, S.cry, W / 2, cy + 2, { scale: 2, color: '#000000', align: 'center' });
+      Font.draw(g, S.cry, W / 2, cy, { scale: 2, color: S.cryCol || '#ffd95c', align: 'center' });
+    }
     // what is in your hand, and the shaft of light it will fall down
     if (S.hand) {
       const hx = Math.round(S.hand.x), hy = Math.round(S.camY - HAND_UP + S.hand.wob + off);
@@ -11460,12 +11715,19 @@ const Ritual = (() => {
       }
       g.save();
       g.translate(hx, hy); g.rotate(S.hand.angle);
-      Sprites.drawCube(g, def, def.w * 21, def.h * 21, { outline: '#f2c936' });
+      Sprites.drawCube(g, def, def.w * 21, def.h * 21, { outline: '#efb625' });
       g.restore();
+      // what the thing in your hand is good for. It is the only instruction in
+      // the scene and it is scratched in the air beside your own hand.
+      const u = USE[S.hand.key];
+      if (u) {
+        Font.draw(g, u, hx, hy - 22, { scale: 1, color: '#000000', align: 'center' });
+        Font.draw(g, u, hx, hy - 23, { scale: 1, color: '#c898ff', align: 'center' });
+      }
     }
     // The dark closes in the higher you are. Not a soft oval: bands of black
     // stepped in from each edge, so even the darkness is made of pixels.
-    const v = 0.3 + S.dread * 0.45 + Math.sin(S.heart * TAU) * 0.04;
+    const v = 0.22 + S.dread * 0.36 + Math.sin(S.heart * TAU) * 0.04;
     const bands = 9, step = 9;
     for (let i = 0; i < bands; i++) {
       const a2 = (v * (i + 1)) / bands;
@@ -11493,10 +11755,14 @@ const Ritual = (() => {
     const def = d.def || OFFERINGS.plain;
     const sy = Math.round(b.y + off);
     if (sy < -60 || sy > H + 60) return;
+    const sh = d.shake > 0 ? Math.round(Math.sin(S.t * 40) * 2) : 0;
     g.save();
-    g.translate(Math.round(b.x), sy);
+    g.translate(Math.round(b.x) + sh, sy);
     g.rotate(b.angle);
-    Sprites.drawCube(g, def, b.width, b.height, { blessed: d.blessed, outline: '#000000' });
+    Sprites.drawCube(g, def, b.width, b.height, {
+      blessed: d.blessed,
+      outline: d.shake > 0 ? '#e8402a' : (d.def && d.def.adhesion > 0 && b.contacts > 1 ? '#9a5cf0' : '#000000'),
+    });
     g.restore();
   }
   // the altar: a slab of black stone with a gutter round it
@@ -11552,6 +11818,76 @@ const Ritual = (() => {
       g.restore();
     }
   }
+  // A wardling: a small hood, two lit eyes, two feet and a pair of hands. It
+  // is not much of a design and it is not supposed to be; there are forty of
+  // them and you need to read one at a glance in the dark.
+  function drawFoe(g, f, off) {
+    const sy = Math.round(f.y + off), sx = Math.round(f.x);
+    if (sy < -30 || sy > H + 30) return;
+    if (f.dead) {
+      const k = 1 - f.dead / 0.5;
+      g.fillStyle = k < 0.5 ? '#c898ff' : '#3d1f78';
+      const w2 = Math.round((10 - k * 8) / PX) * PX;
+      g.fillRect(sx - w2 / 2, sy + 4, w2, PX);
+      return;
+    }
+    const sc = f.big ? 2.1 : 1.45;
+    const bob = (Math.floor(f.f) % 2) ? PX : 0;
+    const w2 = Math.round(9 * sc / PX) * PX, h2 = Math.round(12 * sc / PX) * PX;
+    const body = f.hurt > 0 ? '#e0705a' : (f.big ? '#4e1a1a' : '#241238');
+    const trim = f.hurt > 0 ? '#ffd0b0' : (f.big ? '#902418' : '#3d1f78');
+    g.fillStyle = '#000000';
+    g.fillRect(sx - w2 / 2 - PX, sy - h2 + bob - PX, w2 + PX * 2, h2 + PX * 2);
+    g.fillStyle = body;
+    g.fillRect(sx - w2 / 2, sy - h2 + bob, w2, h2);
+    g.fillStyle = trim;                                   // the hood's lit edge
+    g.fillRect(sx - w2 / 2, sy - h2 + bob, w2, PX);
+    g.fillRect(sx - w2 / 2, sy - h2 + bob, PX, h2);
+    g.fillStyle = '#000000';                              // the dark under the hood
+    g.fillRect(sx - w2 / 2 + PX, sy - h2 + bob + PX * 2, w2 - PX * 2, PX * 3);
+    g.fillStyle = f.hurt > 0 ? '#fff3b8' : '#e8402a';     // the two eyes in it
+    g.fillRect(sx - w2 / 2 + PX, sy - h2 + bob + PX * 3, PX, PX);
+    g.fillRect(sx + w2 / 2 - PX * 2, sy - h2 + bob + PX * 3, PX, PX);
+    g.fillStyle = trim;                                   // feet
+    g.fillRect(sx - w2 / 2 + PX, sy + bob, PX, PX);
+    g.fillRect(sx + w2 / 2 - PX * 2, sy + bob - (bob ? PX : 0), PX, PX);
+    if (f.state === 'grab') {                             // the hands on your stone
+      g.fillStyle = '#c898ff';
+      g.fillRect(sx + (f.side < 0 ? w2 / 2 : -w2 / 2 - PX), sy - h2 / 2, PX * 2, PX);
+    }
+    if (f.state === 'carry' && f.carry) {
+      g.save(); g.translate(sx, sy + 10);
+      Sprites.drawCube(g, f.carry, 13, 11, { outline: '#000000' });
+      g.restore();
+    }
+  }
+  // the brazier hung on a chain beside you, which is the censer meter
+  function brazier(g, off) {
+    const bx = RX - 12, by = Math.round(S.camY - HAND_UP + 30 + off);
+    for (let y = by - 40; y < by; y += 7) {                // its chain
+      g.fillStyle = '#000000'; g.fillRect(bx - 2, y, 5, 5);
+      g.fillStyle = '#6b32bd'; g.fillRect(bx - 1, y + 1, 3, 3);
+    }
+    g.fillStyle = '#000000'; g.fillRect(bx - 9, by, 19, 15);
+    g.fillStyle = '#3f2712'; g.fillRect(bx - 7, by + 2, 15, 11);
+    g.fillStyle = '#7d4f26'; g.fillRect(bx - 7, by + 2, 15, 2);
+    const fill = Math.round(S.censer * 11);
+    if (fill > 0) {
+      g.fillStyle = S.censer >= 1 ? '#efb625' : '#902418';
+      g.fillRect(bx - 7, by + 13 - fill, 15, fill);
+      g.fillStyle = S.censer >= 1 ? '#fff3b8' : '#d84428';
+      g.fillRect(bx - 7, by + 13 - fill, 15, 2);
+    }
+    if (S.censer >= 1) {                                  // it is ready: it burns
+      const fl = Math.floor(S.t * 9) % 2;
+      g.fillStyle = '#902418'; g.fillRect(bx - 4, by - 8 - fl * 2, 3, 9);
+      g.fillStyle = '#efb625'; g.fillRect(bx - 4, by - 5 - fl * 2, 3, 6);
+      g.fillStyle = '#fff3b8'; g.fillRect(bx - 4, by - 2, 3, 3);
+      g.fillStyle = '#902418'; g.fillRect(bx + 2, by - 6 + fl * 2, 3, 7);
+      g.fillStyle = '#efb625'; g.fillRect(bx + 2, by - 3 + fl * 2, 3, 4);
+    }
+  }
+
   // the thing that opens when a god leans down
   function maw(g, cx, cy, k) {
     const w = Math.round(80 + k * 190), h = Math.round(20 + k * 90);
@@ -11597,9 +11933,12 @@ const Ritual = (() => {
 
   // ---- input ---------------------------------------------------------------
   function move(x) { if (S.hand) S.hand.x = U.clamp(x, LX + 14, RX - 14); }
+  // A click on or near one of them is a swing; a click on empty air is a
+  // drop. That way you never have to change tool in the middle of a rush.
   function press(x, y, right) {
+    if (right) { if (S.hand) { S.hand.angle += Math.PI / 2; Audio.play('click'); } return; }
+    if (strike(x, y)) return;
     if (!S.hand) return;
-    if (right) { S.hand.angle += Math.PI / 2; Audio.play('click'); return; }
     S.hand.x = U.clamp(x, LX + 14, RX - 14);
     drop();
   }
@@ -11609,7 +11948,8 @@ const Ritual = (() => {
     if (k === 'ArrowLeft' || k === 'a' || k === 'A') { move((S.hand ? S.hand.x : W / 2) - 12); return true; }
     if (k === 'ArrowRight' || k === 'd' || k === 'D') { move((S.hand ? S.hand.x : W / 2) + 12); return true; }
     if (k === 'ArrowUp' || k === 'w' || k === 'W') { if (S.hand) { S.hand.angle += Math.PI / 2; Audio.play('click'); } return true; }
-    if (k === 'ArrowDown' || k === 's' || k === 'S' || k === ' ') { drop(); return true; }
+    if (k === 'ArrowDown' || k === 's' || k === 'S') { drop(); return true; }
+    if (k === ' ' || k === 'f' || k === 'F') { flare(); return true; }
     if (k === 'q' || k === 'Q') { cycle(-1); return true; }
     if (k === 'e' || k === 'E') { cycle(1); return true; }
     return false;
@@ -11715,6 +12055,10 @@ const Ritual = (() => {
     summon() { }, stage, unstage, clearStage, move, press, wheel, keyDown,
     staged, readyGod, meets, need, available, held, climbOf, nextGod,
     get height() { return S.best; },
+    debug() { return { h: S.best, foes: S.foes.length, blocks: S.bodies.length, stolen: S.stolen, kills: S.kills, censer: +S.censer.toFixed(2),
+      spawnT: +S.spawnT.toFixed(2), cam: Math.round(S.camY), top: Math.round(S.top),
+      f0: S.foes[0] ? { st: S.foes[0].state, x: Math.round(S.foes[0].x), y: Math.round(S.foes[0].y), hold: +S.foes[0].hold.toFixed(1), t: !!S.foes[0].target } : null }; },
+    flare, strike, fillCenser() { S.censer = 1; },
     get active() { return scene.on; },
     get god() { return scene.god; },
   };

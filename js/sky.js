@@ -110,13 +110,16 @@ const Sky = (() => {
     return h < 5 ? 'night' : h < 8 ? 'dawn' : h < 12 ? 'morning' : h < 16 ? 'afternoon' : h < 19 ? 'evening' : h < 22 ? 'dusk' : 'night';
   }
   // the wash the hour paints over a scene: warm at dawn, blue at night
+  // The light over the wood. It leans warm through the middle of the day and
+  // the night is lifted off the floor: a wood at midnight should still be a
+  // place you can see your wombats in, not a black screen with eyes in it.
   const TINTS = {
-    night:     ['#101c3e', 0.6],
-    dawn:      ['#f0a070', 0.26],
-    morning:   ['#fff0c0', 0.1],
-    afternoon: ['#ffe8b0', 0.06],
-    evening:   ['#ffb070', 0.18],
-    dusk:      ['#6a4a8a', 0.38],
+    night:     ['#1a2c56', 0.46],
+    dawn:      ['#ffb488', 0.24],
+    morning:   ['#fff4cc', 0.14],
+    afternoon: ['#ffeec0', 0.1],
+    evening:   ['#ffbc82', 0.2],
+    dusk:      ['#7e5c9c', 0.3],
   };
   function tint() {
     const [col, a] = TINTS[partOfDay()] || TINTS.afternoon;

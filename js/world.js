@@ -447,7 +447,11 @@ const World = (() => {
   // a dozen alphas, which at any zoom read as television static rather than as
   // ground. It is drawn in two-pixel blocks now, off five flat colours, at full
   // opacity, with the grain going the way a cart would have dragged it.
-  const DIRT = ['#3a2616', '#4f3520', '#6b482a', '#8a6038', '#a87c4a'];
+  // Earth under a canopy, not a building site. Warm brown with the green of
+  // the wood sitting in it, a narrow range so it reads as one surface, and a
+  // little life in the top two steps so the floor is not a sheet of orange.
+  const DIRT = ['#3f3527', '#4e4231', '#5e503b', '#6f5f45', '#7e6d50'];
+  const TUFT = ['#3d4e2a', '#4d6334', '#5f7a40', '#78964f'];
   const PXG = 2;
   function dirtTex() {
     if (dirt) return dirt;
@@ -495,12 +499,24 @@ const World = (() => {
       }
     }
     // a scatter of small stones, each one a block with a lit top
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 50; i++) {
       const x = Math.floor(r() * W / PXG) * PXG, y = Math.floor(r() * h / PXG) * PXG;
       const ww = PXG * (1 + Math.floor(r() * 2));
-      g.fillStyle = '#2a2430'; g.fillRect(x, y, ww + PXG, PXG * 2);
-      g.fillStyle = '#6a6078'; g.fillRect(x, y, ww, PXG);
-      g.fillStyle = '#9a90a8'; g.fillRect(x, y, PXG, PXG);
+      g.fillStyle = '#2e2a24'; g.fillRect(x, y, ww + PXG, PXG * 2);
+      g.fillStyle = '#6a6458'; g.fillRect(x, y, ww, PXG);
+      g.fillStyle = '#948d7c'; g.fillRect(x, y, PXG, PXG);
+    }
+    // and the wood coming through it: little tufts of what is left alive.
+    // Without these the floor is one flat sheet at the zoom you actually play.
+    for (let i = 0; i < 340; i++) {
+      const x = Math.floor(r() * W / PXG) * PXG, y = Math.floor(r() * h / PXG) * PXG;
+      const c0 = TUFT[Math.floor(r() * TUFT.length)];
+      const wide = r() < 0.4;
+      g.fillStyle = '#2b3520';
+      g.fillRect(x, y, PXG * (wide ? 3 : 2), PXG * 2);
+      g.fillStyle = c0;
+      g.fillRect(x, y, PXG * (wide ? 2 : 1), PXG);
+      if (r() < 0.3) { g.fillStyle = '#8fae5e'; g.fillRect(x, y - PXG, PXG, PXG); }
     }
     dirt = c;
     return dirt;
@@ -510,12 +526,14 @@ const World = (() => {
     g.drawImage(dirtTex(), 0, GROUND - 2);
     if (f > 0.01) {                          // the green creeping back
       g.globalAlpha = Math.min(0.55, f * 0.7);
-      g.fillStyle = U.mix('#4d6a3a', '#3f6a30', f);
+      g.fillStyle = U.mix('#55803c', '#477f33', f);
       g.fillRect(0, GROUND - 2, W, H - GROUND + 2);
       g.globalAlpha = 1;
     }
     // the treeline throws a band of shade across the back of the plot
-    for (let i = 0; i < 8; i++) Art.dither(g, 0, GROUND - 2 + i * 6, W, 6, '#0e0c12', 0.5 * (1 - i / 8));
+    // the treeline throws shade forward, but as a long soft run rather than the
+    // hard black stripe it used to lay across the top of the plot
+    for (let i = 0; i < 16; i++) Art.dither(g, 0, GROUND - 2 + i * 5, W, 5, '#1a2416', 0.26 * (1 - i / 16));
     g.drawImage(grass, 0, 0);
     g.drawImage(soil, 0, 0);
   }
