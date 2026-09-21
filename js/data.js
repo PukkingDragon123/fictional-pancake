@@ -112,9 +112,12 @@ const SUBTOOLS = [
   { key: 'seed',  name: 'Seed',  icon: 't_seed',  radius: 13, desc: 'Sow on tilled soil. Water it.' },
   { key: 'moss',  name: 'Grass', icon: 't_moss',  radius: 19, desc: 'Sow grass. It sprouts slowly.' },
   { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
-  { key: 'mound', name: 'Hill',  icon: 'u_burrow', radius: 26, cost: 120, desc: 'Raise a grassy hill. They like to sit on it.' },
-  { key: 'pond',  name: 'Pond',  icon: 'd_pool',   radius: 24, cost: 260, desc: 'Dig a pond. Frogs and dragonflies move in.' },
-  { key: 'paint', name: 'Ground', icon: 't_hoe',   radius: 20, desc: 'Lay sand, clay or ash over the ground. Wheel to change it.' },
+  // ---- the terrain set ----------------------------------------------------
+  // One tool, four things it does, the wheel picks which. Raising ground makes
+  // a grassy hill; digging it out fills with water; levelling takes either back
+  // down to flat; and the brush lays a different ground over the top.
+  { key: 'terra', name: 'Terrain', icon: 'u_burrow', radius: 26, terra: true,
+    desc: 'Raise, dig, level and lay ground. Wheel to change which.' },
   { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture about the clearing. Click a piece to take it up again.' },
 ];
 // Nothing is handed over at once. The cultist teaches a tool, then you own it.
@@ -123,8 +126,8 @@ const GATES = {
   sickle: () => true,
   destroy: (g) => g.step >= 1,
   farm: (g) => g.step >= 2,
-  mound: (g) => g.step >= 5,
-  pond: (g) => g.step >= 5,
+  terra: (g) => g.step >= 5,
+  build: (g) => g.step >= 3,
   moss: (g) => g.step >= 2,
   hoe: (g) => g.step >= 3,
   seed: (g) => g.step >= 3,
@@ -141,8 +144,8 @@ const GATE_WHY = {
   water: 'the wrecks go first',
   food: 'sow the grass first',
   pair: 'needs a nest',
-  mound: 'load the truck first',
-  pond: 'load the truck first',
+  terra: 'load the truck first',
+  build: 'the grove first',
 };
 const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
 
@@ -220,7 +223,6 @@ const SITES = [
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
-  { key: 'town',   name: 'Bellowby',     x: 470, y: 254, icon: 'shop',    mode: 'town',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
   { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },
@@ -319,6 +321,17 @@ const DECOR = [
 ];
 // Which of the above are garden-centre stock rather than corner-shop stock.
 // The mart skips these; Groot's cellar sells them alongside the seed.
+// What the terrain tool is set to do. Each has its own cost and its own undo.
+const TERRA_MODES = [
+  { key: 'raise', name: 'Raise', icon: 'u_burrow', cost: 120, r: 26, blurb: 'A grassy hill. They like to sit on top of one.' },
+  { key: 'dig',   name: 'Dig',   icon: 'd_pool',   cost: 260, r: 24, blurb: 'Down to the water table. Frogs move in.' },
+  { key: 'level', name: 'Level', icon: 't_hoe',    cost: 40,  r: 30, blurb: 'Flatten a hill or fill a hole back in.' },
+  { key: 'earth', name: 'Earth', icon: 't_hoe',    cost: 0,   r: 20, paint: 'd', blurb: 'Bare earth.' },
+  { key: 'sand',  name: 'Sand',  icon: 't_hoe',    cost: 0,   r: 20, paint: 's', blurb: 'Pale sand.' },
+  { key: 'clay',  name: 'Clay',  icon: 't_hoe',    cost: 0,   r: 20, paint: 'c', blurb: 'Red clay.' },
+  { key: 'ash',   name: 'Ash',   icon: 't_hoe',    cost: 0,   r: 20, paint: 'a', blurb: 'Cold ash. The cult likes it.' },
+];
+
 const GARDEN_UP = { trough: 1 };
 const GARDEN_DEC = { nest: 1, pool: 1 };
 
@@ -406,7 +419,9 @@ const poopPrice = (key, n, g) => {
   const bulk = 1 + Math.min(0.5, Math.max(0, n - 1) * 0.04);     // he pays more for a load
   const gg = g || (typeof window !== 'undefined' ? window.G : null) || {};
   const talk = 1 + ((gg.up || {}).haggle || 0) * 0.08;
-  return Math.round(base * bulk * talk);
+  // your standing in the cult, and whatever the day is doing
+  const faith = (typeof Cult !== 'undefined' && Cult.payMult) ? Cult.payMult() : 1;
+  return Math.max(1, Math.round(base * bulk * talk * faith));
 };
 
 // ---- Breeding -------------------------------------------------------------
@@ -443,14 +458,3 @@ const FURNITURE = [
 ];
 const FURN_BY_KEY = Object.fromEntries(FURNITURE.map((f) => [f.key, f]));
 
-// ---- The town -------------------------------------------------------------
-// Four fronts on one street. The mart and the cellar are out on the road; these
-// three are in town proper, and each one has somebody behind the counter.
-const TOWN_SHOPS = [
-  { key: 'pawn', name: 'GRIMM & SON', sub: 'PAWNBROKER', x: 180, col: '#6b2c3a', roof: '#3d1a24', keeper: 'grimm',
-    line: 'Bring me something old. I will not ask where it came from.' },
-  { key: 'furn', name: 'THE JOINERY', sub: 'FURNITURE', x: 560, col: '#5a3a1c', roof: '#35200f', keeper: 'joiner',
-    line: 'Everything in here I made. Mind the varnish.' },
-  { key: 'pets', name: 'WARREN & CO', sub: 'LIVESTOCK & TOOLS', x: 940, col: '#2f5a44', roof: '#1a3528', keeper: 'warren',
-    line: 'Wombats out the back, tools on the wall. No refunds on either.' },
-];

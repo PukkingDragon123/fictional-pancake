@@ -351,7 +351,7 @@ const World = (() => {
       const p = sprouts[i];
       const rate = p.wet > 0 ? 1.9 : 0.75;
       if (p.wet > 0) p.wet -= dt;
-      p.t += dt * rate * (G.blessings.burrowseidon ? 1.3 : 1);
+      p.t += dt * rate * (G.blessings.burrowseidon ? 1.3 : 1) * Cult.growMult();
       if (p.t >= 16) { bloom(p); sprouts.splice(i, 1); }
     }
     // ---- the beds -----------------------------------------------------------
@@ -363,9 +363,10 @@ const World = (() => {
       const tree = def.kind === 'tree';
       if (rain > 0) { c.wet = Math.min(tree ? 40 : 22, c.wet + dt * rain * 1.6); c.thirst = 0; }
       const wet = c.wet > 0;
-      const drink = (tree ? (def.thirsty || 1) : 1) * (1 - 0.15 * (G.up.shade || 0));
+      // Sour Ground drinks it twice as fast; a Warden's beds never dry at all
+      const drink = (tree ? (def.thirsty || 1) : 1) * (1 - 0.15 * (G.up.shade || 0)) * Cult.dryMult();
       if (wet) c.wet -= dt * drink; else c.thirst += dt * drink;
-      const blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm;
+      const blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm * Cult.growMult();
       if (def.kind === 'magic') {
         // magical seed only counts the hours it is happy
         const ok = needMet(c);
@@ -376,6 +377,12 @@ const World = (() => {
         else {
           c.wild = Math.min(2.4, c.wild + dt / 150);          // it goes leggy if nobody prunes it
           const health = (wet ? 1.25 : c.thirst > 50 ? 0.25 : 0.7) * (c.wild > 1 ? 0.45 : 1);
+          // Too Many Crows: something comes down and takes one off the tree
+          if (c.fr > 0 && Cult.has('crows') && Math.random() < dt * 0.02) {
+            c.fr--;
+            FX.burst(c.x, c.y - 30, 5, { color: ['#2a2430', '#4f4768'], speed: 40, gravity: -20, life: 0.6, size: 2 });
+            Audio.play('pop');
+          }
           if (c.fr < FRUIT_CAP) {
             c.ft += dt * health * blessed;
             if (c.ft >= (def.fruitEvery || 40)) {
@@ -436,57 +443,68 @@ const World = (() => {
   // A painted dirt bed, built once: banded tone, dithered grit, stones and
   // cracks. The green wash on top is how much of the forest has come back.
   let dirt = null;
+  // The floor of the wood. It used to be nine thousand one-pixel dots at half
+  // a dozen alphas, which at any zoom read as television static rather than as
+  // ground. It is drawn in two-pixel blocks now, off five flat colours, at full
+  // opacity, with the grain going the way a cart would have dragged it.
+  const DIRT = ['#3a2616', '#4f3520', '#6b482a', '#8a6038', '#a87c4a'];
+  const PXG = 2;
   function dirtTex() {
     if (dirt) return dirt;
     const h = H - GROUND + 4;
     const { c, g } = Art.cv(W, h);
     const r = Art.rng(2468);
-    for (let y = 0; y < h; y++) {
+    // the base: five bands, lighter toward the front, each a hard step
+    for (let y = 0; y < h; y += PXG) {
       const t = y / h;
-      g.fillStyle = U.mix('#463f33', '#6d6252', U.easeOut(t));
-      g.fillRect(0, y, W, 1);
+      g.fillStyle = DIRT[Math.min(4, Math.floor(U.easeOut(t) * 4.6))];
+      g.fillRect(0, y, W, PXG);
     }
-    for (let i = 0; i < 9000; i++) {
-      const x = Math.floor(r() * W), y = Math.floor(r() * h);
-      g.globalAlpha = 0.16 + r() * 0.3;
-      g.fillStyle = ['#5b5344', '#776c59', '#3c362c', '#847863'][Math.floor(r() * 4)];
-      g.fillRect(x, y, 1, 1);
+    // clumps: a few hundred two-pixel blocks, never a lone pixel
+    for (let i = 0; i < 1400; i++) {
+      const x = Math.floor(r() * W / PXG) * PXG, y = Math.floor(r() * h / PXG) * PXG;
+      const t = y / h, base = Math.min(4, Math.floor(U.easeOut(t) * 4.6));
+      const step = base + (r() < 0.5 ? -1 : 1);
+      if (step < 0 || step > 4) continue;
+      g.fillStyle = DIRT[step];
+      const n = r() < 0.25 ? 2 : 1;
+      g.fillRect(x, y, PXG * n, PXG);
     }
-    g.globalAlpha = 1;
-    for (let i = 0; i < 46; i++) {          // damp and dry patches
-      const x = r() * W, y = 6 + r() * (h - 12), rx = 14 + r() * 30, ry = 5 + r() * 11;
-      const col = r() < 0.5 ? 'rgba(48,42,34,0.28)' : 'rgba(140,128,104,0.16)';
-      Art.ell(g, x, y, rx, ry, col);
-      Art.speckle(g, x, y, rx, ry, r() < 0.5 ? '#3f3a30' : '#7d735f', 26, i);
-    }
-    for (let i = 0; i < 26; i++) {          // cracks and cart ruts
-      let x = r() * W, y = 10 + r() * (h - 20);
-      const dir = r() < 0.5 ? 1 : -1, n = 4 + Math.floor(r() * 6);
-      for (let k = 0; k < n; k++) {
-        g.fillStyle = 'rgba(34,28,22,0.5)';
-        g.fillRect(Math.round(x), Math.round(y), 3 + Math.floor(r() * 4), 1);
-        g.fillStyle = 'rgba(150,138,116,0.16)';
-        g.fillRect(Math.round(x), Math.round(y) + 1, 3, 1);
-        x += dir * (3 + r() * 4); y += (r() - 0.5) * 2.4;
+    // patches of damp and dry, as solid stepped ovals rather than alpha washes
+    for (let i = 0; i < 22; i++) {
+      const cx = r() * W, cy = 6 + r() * (h - 12), rx = 18 + r() * 34, ry = 6 + r() * 10;
+      const col = r() < 0.5 ? '#33220f' : '#b98a55';
+      for (let y = -ry; y <= ry; y += PXG) {
+        const ww = Math.round((rx * Math.sqrt(Math.max(0, 1 - (y / ry) * (y / ry)))) / PXG) * PXG;
+        if (ww < PXG) continue;
+        g.fillStyle = col;
+        g.fillRect(Math.round((cx - ww) / PXG) * PXG, Math.round((cy + y) / PXG) * PXG, ww * 2, PXG);
       }
     }
-    for (let i = 0; i < 70; i++) {          // pebbles
-      const x = Math.round(r() * W), y = Math.round(6 + r() * (h - 12));
-      const w2 = 2 + Math.floor(r() * 3);
-      g.fillStyle = '#6b6455'; g.fillRect(x, y, w2, 2);
-      g.fillStyle = '#8d8573'; g.fillRect(x, y, w2, 1);
-      g.fillStyle = 'rgba(24,20,16,0.45)'; g.fillRect(x, y + 2, w2 + 1, 1);
+    // ruts: two hard lines each, a dark one and a lit one under it
+    for (let i = 0; i < 18; i++) {
+      let x = Math.round(r() * W / PXG) * PXG, y = Math.round((8 + r() * (h - 16)) / PXG) * PXG;
+      const n = 5 + Math.floor(r() * 7);
+      for (let k = 0; k < n; k++) {
+        const len = (2 + Math.floor(r() * 4)) * PXG;
+        g.fillStyle = '#2a1a0c'; g.fillRect(x, y, len, PXG);
+        g.fillStyle = '#a87c4a'; g.fillRect(x, y + PXG, len, PXG);
+        x += len + (r() < 0.4 ? PXG : 0);
+        y += (r() < 0.3 ? (r() < 0.5 ? PXG : -PXG) : 0);
+        if (x > W) break;
+      }
     }
-    for (let i = 0; i < 16; i++) {          // little bones and twigs
-      const x = Math.round(r() * W), y = Math.round(10 + r() * (h - 16));
-      g.fillStyle = '#4a4034';
-      g.fillRect(x, y, 5 + Math.floor(r() * 4), 1);
-      g.fillRect(x + 2, y - 1, 2, 1);
+    // a scatter of small stones, each one a block with a lit top
+    for (let i = 0; i < 60; i++) {
+      const x = Math.floor(r() * W / PXG) * PXG, y = Math.floor(r() * h / PXG) * PXG;
+      const ww = PXG * (1 + Math.floor(r() * 2));
+      g.fillStyle = '#2a2430'; g.fillRect(x, y, ww + PXG, PXG * 2);
+      g.fillStyle = '#6a6078'; g.fillRect(x, y, ww, PXG);
+      g.fillStyle = '#9a90a8'; g.fillRect(x, y, PXG, PXG);
     }
     dirt = c;
-    return c;
+    return dirt;
   }
-
   function drawGround(g) {
     const f = fraction();
     g.drawImage(dirtTex(), 0, GROUND - 2);

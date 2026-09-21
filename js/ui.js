@@ -27,6 +27,14 @@ const UI = (() => {
       dot.hidden = jobs === 0;
       dot.textContent = jobs > 9 ? '9+' : String(jobs);
     }
+    const fr = $('faith-rank'), fb = $('faith-bar');
+    if (fr && typeof Cult !== 'undefined' && Cult.rank()) {
+      const r = Cult.rank(), n = Cult.nextRank();
+      fr.textContent = r.name.toUpperCase();
+      fb.firstElementChild.style.width = Math.round(Cult.progress() * 100) + '%';
+      $('faith').classList.toggle('full', !n);
+      $('faith').hidden = G.mode === 'shrine' || G.mode === 'intro' || G.mode === 'menu';
+    }
     refreshList();
     refreshNotebook();
   }
@@ -55,7 +63,7 @@ const UI = (() => {
   function refreshNotebook() { }           // the cultist speaks for herself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
-  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair', 'mound', 'pond', 'paint', 'build'];
+  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair', 'terra', 'build'];
   let wheelRing = 'tools', wheelAt = { x: 320, y: 180 };
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
@@ -509,6 +517,7 @@ const UI = (() => {
     // The shaft has no interface. The purse and the phone go away with it;
     // the only thing left on screen is the way back out.
     $('money').hidden = mode === 'shrine';
+    $('faith').hidden = mode === 'shrine' || mode === 'intro' || mode === 'menu';
     $('b-phone').hidden = mode === 'shrine';
     $('ov-shop').hidden = mode !== 'shop';
     $('ov-nursery').hidden = mode !== 'nursery';

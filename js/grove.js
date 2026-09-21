@@ -247,13 +247,12 @@ const Grove = (() => {
   // Bought in town, carried home in a crate, and stood wherever you like. It
   // sorts into the scene by its feet like everything else, so a bench in front
   // of a tree is in front of the tree.
-  let buildI = 0, paintI = 0;
+  let buildI = 0, terraI = 0;
   function crateKeys() { return Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0); }
   function buildKey() { const ks = crateKeys(); return ks.length ? ks[buildI % ks.length] : null; }
   function cycleBuild(d) { const ks = crateKeys(); if (ks.length) { buildI = (buildI + d + ks.length * 4) % ks.length; Audio.play('click'); } }
-  function paintCode() { return World.PAINT_ORDER[paintI % World.PAINT_ORDER.length].code; }
-  function paintName() { return World.PAINT_ORDER[paintI % World.PAINT_ORDER.length].name; }
-  function cyclePaint(d) { paintI = (paintI + d + World.PAINT_ORDER.length * 4) % World.PAINT_ORDER.length; Audio.play('click'); }
+  function terraMode() { return TERRA_MODES[terraI % TERRA_MODES.length]; }
+  function cycleTerra(d) { terraI = (terraI + d + TERRA_MODES.length * 4) % TERRA_MODES.length; Audio.play('click'); }
   function furnAt(x, y) {
     for (const f of (G.furniture || [])) {
       const d = FURN_BY_KEY[f.key]; if (!d) continue;
@@ -276,10 +275,11 @@ const Grove = (() => {
       const d = FURN_BY_KEY[key];
       Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 5, { scale: 1, color: '#000000', align: 'center' });
       Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 4, { scale: 1, color: '#f2c936', align: 'center' });
-    } else if (G.tool === 'paint') {
-      const p = G.pointer;
-      Font.draw(g, paintName().toUpperCase(), p.x, p.y - 26, { scale: 1, color: '#000000', align: 'center' });
-      Font.draw(g, paintName().toUpperCase(), p.x, p.y - 27, { scale: 1, color: '#f2c936', align: 'center' });
+    } else if (G.tool === 'terra') {
+      const p = G.pointer, m = terraMode();
+      const label = m.name.toUpperCase() + (m.cost ? '  ' + m.cost : '');
+      Font.draw(g, label, p.x, p.y - 26, { scale: 1, color: '#000000', align: 'center' });
+      Font.draw(g, label, p.x, p.y - 27, { scale: 1, color: '#f2c936', align: 'center' });
     }
   }
 
@@ -328,8 +328,11 @@ const Grove = (() => {
       if (w.thirst == null) w.thirst = U.rand(0, 25);
       if (w.bored == null) w.bored = U.rand(0, 25);
       const dry = Sky.wet() > 0 ? 0.55 : 1;
-      w.thirst = U.clamp(w.thirst + dt * 0.5 * dry, 0, 100);
-      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42) * (1 - 0.16 * (G.up.toys || 0)), 0, 100);
+      // your standing in the cult, and whatever the day is doing, slow this
+      // down or speed it up. A Kind Wind stops it entirely.
+      const faith = Cult.calmMult();
+      w.thirst = U.clamp(w.thirst + dt * 0.5 * dry * faith, 0, 100);
+      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42) * (1 - 0.16 * (G.up.toys || 0)) * faith, 0, 100);
       // enrichment: a nest, a paddling pool, a hill or a friend all count
       if (G.decor.nest || G.decor.pool || Wild.mounds.length || G.wombats.length > 1) {
         if (w.state !== 'sleep' && Math.random() < dt * 0.5) w.bored = Math.max(0, w.bored - 1.6);
@@ -597,6 +600,7 @@ const Grove = (() => {
     w.thirst = Math.max(0, (w.thirst || 0) - (def.kind === 'tree' ? 22 : 9));   // juice in it
     w.state = 'eat'; w.stateT = 1.9; w.sq = 0.32; w.chew = 1.9;
     G.stats.fed++;
+    Cult.give(1);                       // feeding one of them is a small devotion
     Audio.play('munch');
     FX.comic(w.x, w.y - 38, U.pick(['NOM!', 'CHOMP!', 'MUNCH!']), { ink: '#f5cd5c', edge: '#a97c1e', life: 0.7 });
     FX.burst(w.x + w.dir * 18, w.y - 12, 7, { color: [def.color, PAL.moss4], speed: 50, gravity: 240, life: 0.5, size: 2 });
@@ -638,11 +642,12 @@ const Grove = (() => {
         x: w.x - w.dir * 16, y: w.y + U.rand(-2, 2), z: 9, vz: U.rand(100, 160),
         vx: -w.dir * U.rand(18, 48), spin: 0, vs: U.rand(-4, 4),
         type: w.age === 'juvenile' ? 'plain' : def.offering,
-        blessed: U.chance(bless), t: -i * 0.15, id: U.uid(),
+        blessed: U.chance(bless) || Cult.blessed(), t: -i * 0.15, id: U.uid(),
       });
     }
     w.stomach = 'empty'; w.food = null; w.state = 'idle'; w.stateT = 1.1; w.sq = -0.26;
     G.stats.left += n;
+    Cult.give(n * 2);                   // and what she leaves is the tribute itself
     Audio.play('plop'); FX.shake(1.6);
     FX.dust(w.x - w.dir * 14, w.y + 2, 8, PAL.soil3);
     FX.comic(w.x - w.dir * 18, w.y - 30, U.pick(['PLOP!', 'THUD!', 'CLONK!']), { ink: '#d8b285', edge: '#7d5f42', life: 0.7 });
@@ -736,14 +741,17 @@ const Grove = (() => {
       Audio.play('error'); UI.toast('too far out', 'bad');
       return true;
     }
-    if (tool === 'mound' || tool === 'pond') {
+    if (tool === 'terra') {
+      const m = terraMode();
+      if (m.paint) { World.paintGround(m.paint, x, y, World.brushRadius(m.r)); return true; }
       if (!first) return true;
-      Wild.place(tool, x, y);
-      return true;
-    }
-    if (tool === 'paint') {
-      const r = World.brushRadius(18);
-      World.paintGround(paintCode(), x, y, r);
+      if (m.key === 'raise') Wild.place('mound', x, y);
+      else if (m.key === 'dig') Wild.place('pond', x, y);
+      else if (m.key === 'level') {
+        if (G.wd < m.cost) { Audio.play('error'); UI.toast('not enough', 'bad'); return true; }
+        if (Wild.level(x, y, m.r)) { G.wd -= m.cost; UI.toast('levelled', 'good'); }
+        else { Audio.play('error'); UI.toast('nothing to level there', 'bad'); }
+      }
       return true;
     }
     if (tool === 'build') {
@@ -1658,7 +1666,7 @@ const Grove = (() => {
 
   return {
     init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, zoomBy, zoomTo, zoomFrac, edgeScroll, addWombat, newWombat, feed, pet, offline,
-    cycleBuild, cyclePaint, furnAt,
+    cycleBuild, cycleTerra, terraMode, furnAt,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, TRUCK, GROUND, WALK, W, H, VW,

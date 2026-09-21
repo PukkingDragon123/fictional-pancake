@@ -71,6 +71,12 @@ const Nursery = (() => {
       out.push({ id: 'dec:' + d.key, kind: 'dec', key: d.key, name: d.name, icon: d.icon,
         price: d.cost, sold: !!G.decor[d.key], blurb: d.desc });
     }
+    // Furniture is yard stock: it stands out the back between the benches and
+    // you carry it home in a crate and put it down where you like.
+    for (const f of FURNITURE) {
+      out.push({ id: 'fn:' + f.key, kind: 'fn', key: f.key, name: f.name, icon: 'd_nest',
+        furn: f, price: f.cost, sold: false, blurb: f.blurb });
+    }
     return out;
   }
   const BAY_W = 150;
@@ -81,7 +87,8 @@ const Nursery = (() => {
     const plain = list.filter((p) => p.kind === 'seed' && p.pkind === 'crop');
     const trees = list.filter((p) => p.kind === 'seed' && p.pkind === 'tree');
     const magic = list.filter((p) => p.kind === 'seed' && p.pkind === 'magic');
-    const goods = list.filter((p) => p.kind !== 'seed');
+    const furn = list.filter((p) => p.kind === 'fn');
+    const goods = list.filter((p) => p.kind !== 'seed' && p.kind !== 'fn');
     let x = 190;
     bays = [];
     const place = (arr, kind, label) => {
@@ -95,6 +102,7 @@ const Nursery = (() => {
     place(trees, 'bench', 'THE ORCHARD');
     place(magic, 'vault', 'THE BACK SHELF');
     place(goods, 'goods', 'GARDEN GOODS');
+    place(furn, 'goods', 'THE YARD');
     worldW = Math.max(VW + 200, x + 260);
   }
 
@@ -135,6 +143,7 @@ const Nursery = (() => {
       else if (p.kind === 'tier') { if (nextTier(G, p.key)) G.tiers[p.key] = tierIndex(G, p.key) + 1; }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = 1;
+      else if (p.kind === 'fn') { if (!G.crates) G.crates = {}; G.crates[p.key] = (G.crates[p.key] || 0) + 1; }
     }
     const n = basket.length;
     basket.length = 0;
@@ -696,7 +705,11 @@ const Nursery = (() => {
       const sx = x - 13 + ((i * 7) % 26), sy = y - 7 + ((i * 5) % 4);
       Art.rect(g, sx, sy, 3 + (i % 3), 1, i % 2 ? '#c2a15c' : '#9c8040');
     }
-    Icons.blit(g, s.p.icon, Math.round(x - 16), Math.round(y - 40), 2);   // what is in it
+    // furniture shows the actual piece; everything else shows its icon
+    if (s.p.furn) {
+      const d = s.p.furn, sc = Math.min(1.6, 34 / Math.max(d.w, d.h));
+      Props.drawFurniture(g, d.key, Math.round(x), Math.round(y - 6), sc);
+    } else Icons.blit(g, s.p.icon, Math.round(x - 16), Math.round(y - 40), 2);   // what is in it
     if (s.p.sold) {                                                // a SOLD card over it
       Art.rect(g, x - 17, y - 2, 34, 11, '#3a1a14');
       Art.rect(g, x - 16, y - 1, 32, 9, '#a8402c');

@@ -70,6 +70,7 @@ const Ritual = (() => {
     G.blessings[god.key] = true;
     G.artifacts[god.key] = (G.artifacts[god.key] || 0) + 1;
     G.stats.summons = (G.stats.summons || 0) + 1;
+    Cult.give(120 + god.tier * 60);     // a god answering is worth a rank on its own
     if (god.key === 'demewombra') G.seeds.runeberry = (G.seeds.runeberry || 0) + 3;
     FX.setSlowmo(1, true); FX.vignette(0); FX.letterbox(false); FX.cine.tDesat = 0;
     Audio.setMode('pen');
@@ -306,6 +307,7 @@ const Ritual = (() => {
     const h = notches(S.top);
     if (h > S.best) {
       S.best = h;
+      Cult.give(2);                     // every notch of the climb is noticed
       if (h % 5 === 0) { Audio.play('chime'); FX.flash('#2a1030', 0.18); }
       S.dread = Math.min(1, S.best / 34);
     }

@@ -106,14 +106,16 @@ const Menu = (() => {
   // bolted over the corners, a red ribbon down one edge, wood plank banners
   // for the headings and beaten gold for anything you can press. Corners are
   // cut in one step, never curved.
+  // The same warm wood and violet iron the rest of the interface wears. The
+  // iron used to be teal; the gods come in violet, so the iron does too.
   const KIT = {
-    ink: '#140c06',
-    t0: '#1e1208', t1: '#35200f', t2: '#5a3619', t3: '#8c5c30', t4: '#a87642',
-    i0: '#10333f', i1: '#1c5568', i2: '#2f7f96', i3: '#4fa6be', i4: '#8fd4e4',
-    p0: '#8a6f45', p1: '#ab8a5c', p2: '#ddc39a', p3: '#ecd6ac', p4: '#f7ecd2',
-    g0: '#7a4f06', g1: '#a9750d', g2: '#d8a41c', g3: '#f2c936', g4: '#ffe98a',
-    d0: '#10333f', d2: '#2f7f96', d3: '#4fa6be', d4: '#8fd4e4',
-    rib: '#a8323a', rib0: '#6d1a22',
+    ink: '#0d0a12',
+    t0: '#241509', t1: '#3f2712', t2: '#6a4020', t3: '#a46b36', t4: '#c68c4c',
+    i0: '#1d0f38', i1: '#3d1f78', i2: '#6b32bd', i3: '#9a5cf0', i4: '#c898ff',
+    p0: '#9c7f4e', p1: '#c09b62', p2: '#edd3a2', p3: '#f6e4ba', p4: '#fffae8',
+    g0: '#7a4c06', g1: '#bd8410', g2: '#efb625', g3: '#ffd95c', g4: '#fff3b8',
+    d0: '#1d0f38', d2: '#6b32bd', d3: '#9a5cf0', d4: '#c898ff',
+    rib: '#d84428', rib0: '#902418',
   };
   // a box with one step cut out of each corner
   function cut(g, x, y, w, h, col, c = 3) {

@@ -72,6 +72,27 @@ const Wild = (() => {
     if (near(mounds, x, y, 14) || near(ponds, x, y, 14)) return 'too close to another';
     return null;
   }
+  // Take a hill down or fill a hole in. Cheap, because undoing a mistake
+  // should never cost as much as making it.
+  function level(x, y, r) {
+    let n = 0;
+    for (let i = mounds.length - 1; i >= 0; i--) {
+      const m = mounds[i];
+      if (Math.hypot(m.x - x, (m.y - y) * 1.6) < r + m.r * 0.5) { mounds.splice(i, 1); n++; }
+    }
+    for (let i = ponds.length - 1; i >= 0; i--) {
+      const p2 = ponds[i];
+      if (Math.hypot(p2.x - x, (p2.y - y) * 1.6) < r + p2.r * 0.5) {
+        ponds.splice(i, 1); n++;
+        for (let j = frogs.length - 1; j >= 0; j--) if (frogs[j].pond === p2) frogs.splice(j, 1);
+      }
+    }
+    if (!n) return false;
+    FX.dust(x, y, 12, PAL.soil2);
+    Audio.play('dig');
+    UI.refreshHUD(); Main.save();
+    return true;
+  }
   function place(kind, x, y) {
     const why = canPlace(kind, x, y);
     if (why) { Audio.play('error'); UI.toast(why, 'bad'); return false; }
@@ -749,7 +770,7 @@ const Wild = (() => {
 
   return {
     init, save, update, drawGround, items,
-    place, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
+    place, level, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
     get mounds() { return mounds; }, get ponds() { return ponds; },
     get bugs() { return bugs; },
     bugsNear(x, y, r) { let n = 0; for (const b of bugs) if (Math.hypot(b.x - x, (b.y - y) * 1.4) < r) n++; return n; },

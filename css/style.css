@@ -6,30 +6,35 @@
   font-weight: 400; font-style: normal; font-display: block;
 }
 /* Wombat Gods - the interface is an old book: a dark oiled-wood cover with
-   teal iron brackets bolted into the corners, a tan parchment page inside it,
-   wooden plank banners for every heading with iron caps on the ends, and gold
-   buttons that sink four pixels when you press them. Everything is cut from
-   whole pixels and has one dark line round it. */
+   violet iron brackets bolted into the corners, a warm parchment page inside
+   it, wooden plank banners for every heading with iron caps on the ends, and
+   gold buttons that sink four pixels when you press them. Everything is cut
+   from whole pixels and has one black line round it.
+
+   The theme has been lifted: the wood is warmer, the gold is brighter, and the
+   cold teal that used to hold it together is now the violet the gods come in.
+   It should read as a wood somebody loves, with a cult living at the bottom of
+   it, rather than as a cellar. */
 :root {
-  --ol: #140c06;                                      /* the one dark line */
-  --stink: #e6d8b8;
-  --pp0: #1a1008; --pp1: #2a1a0e; --pp2: #3d2714; --pp3: #56381d;   /* the ground behind it all */
-  /* old wood: the cover, the planks, the rails */
-  --wd0: #1e1208; --wd1: #35200f; --wd2: #4d2f16; --wd3: #6b4423; --wd4: #8c5c30; --wd5: #a87642;
+  --ol: #0d0a12;                                      /* the one black line */
+  --stink: #f2e6c8;
+  --pp0: #1d1310; --pp1: #2e1d18; --pp2: #442a20; --pp3: #5e3a28;   /* the ground behind it all */
+  /* warm wood: the cover, the planks, the rails */
+  --wd0: #241509; --wd1: #3f2712; --wd2: #5c381a; --wd3: #7d4f26; --wd4: #a46b36; --wd5: #c68c4c;
   /* parchment: the page */
-  --pg0: #8a6f45; --pg1: #ab8a5c; --pg2: #c9a878; --pg3: #ddc39a; --pg4: #f0dcb0;
-  /* teal iron: brackets, caps, small buttons */
-  --tl0: #10333f; --tl1: #1c5568; --tl2: #2f7f96; --tl3: #4fa6be; --tl4: #8fd4e4;
+  --pg0: #9c7f4e; --pg1: #c09b62; --pg2: #dcba82; --pg3: #edd3a2; --pg4: #f9e8be;
+  /* violet iron: brackets, caps, small buttons. The colour the gods arrive in. */
+  --tl0: #1d0f38; --tl1: #3d1f78; --tl2: #6b32bd; --tl3: #9a5cf0; --tl4: #c898ff;
   /* gold: every button worth pressing */
-  --gd0: #7a4f06; --gd1: #a9750d; --gd2: #d8a41c; --gd3: #f2c936; --gd4: #ffe98a;
+  --gd0: #7a4c06; --gd1: #bd8410; --gd2: #efb625; --gd3: #ffd95c; --gd4: #fff3b8;
   /* rust: anything that closes or destroys */
-  --am0: #3f1a07; --am1: #6d2f0d; --am2: #9c4816; --am3: #c96a24;
-  --gr0: #2f4a1c; --gr1: #4d7430; --gr2: #74a449; --gr3: #a0cd72;
+  --am0: #4a1c08; --am1: #7e360f; --am2: #b4551a; --am3: #e07d2c;
+  --gr0: #2f5a1c; --gr1: #558534; --gr2: #83bb4e; --gr3: #b2e07c;
   --sl0: #1a2a48; --sl1: #3f5f8f; --sl2: #5a7cae; --sl3: #8fa9d0;
-  --pk1: #a8465e; --pk2: #c85f7a; --pk3: #e894a8;
-  --ink: #3a2410; --ink2: #6b4a26;
-  --m3: #5d9440; --m4: #84bb59;
-  --cream: #f0dcb0; --parch: #c9a878;
+  --pk1: #c04a6a; --pk2: #e4708e; --pk3: #ffa8bc;
+  --ink: #3f2510; --ink2: #7a5428;
+  --m3: #63b83d; --m4: #92dc5e;
+  --cream: #f9e8be; --parch: #dcba82;
   --f: 'WombatPixel', monospace;
   --ft: 'WombatPixel', monospace;
 }
@@ -37,7 +42,7 @@
 [hidden] { display: none !important; }
 html, body { margin: 0; height: 100%; overflow: hidden; color: var(--ink); font-family: var(--f); font-size: 16px;
   -webkit-font-smoothing: none; font-smooth: never; text-rendering: geometricPrecision;
-  background: #1a1008; }
+  background: #1d1310; }
 button { font-family: var(--f); cursor: pointer; color: var(--cream); font-size: 16px; }
 img.ico { width: 26px; height: 26px; image-rendering: pixelated; display: block; }
 img.ico.sm { width: 18px; height: 18px; }
@@ -46,7 +51,7 @@ img.ico.xl { width: 48px; height: 48px; }
 .dim { color: var(--ink2); } .good { color: #3f6b1c; } .warn { color: #9a2a1a; }
 #app { display: flex; height: 100vh; width: 100vw; }
 #stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
-  background: #1a1008; }
+  background: #1d1310; }
 #frame { position: relative; line-height: 0;
   box-shadow: 0 0 0 4px var(--wd3), 0 0 0 8px var(--wd1), 0 0 0 11px var(--ol),
     0 12px 0 5px rgba(0,0,0,0.5), 0 0 90px rgba(0,0,0,0.6); }
@@ -1095,6 +1100,21 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 .phscreen > * { flex: 0 0 auto; }
 .phscreen.app-camera > .phcam { flex: 1 1 auto; }
 .phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub, .phcam { flex: 0 0 auto; }
+
+/* ---- your standing in the cult -------------------------------------------
+   A small plaque under the purse: what they call you, and how far off the next
+   thing they will call you. Violet, because that is the colour the gods come
+   in and this is the only part of the interface that belongs to them. */
+#faith {
+  position: absolute; left: 18px; top: 74px; z-index: 6;
+  display: flex; flex-direction: column; gap: 3px; padding: 5px 9px 6px;
+  background: var(--tl1);
+  box-shadow: inset 0 3px 0 var(--tl2), inset 0 -3px 0 var(--tl0), 0 0 0 3px var(--ol), 0 4px 0 3px rgba(0,0,0,0.4);
+}
+#faith span { font-size: 13px; letter-spacing: 2px; color: var(--tl4); text-shadow: 1px 2px 0 var(--tl0); }
+#faith i { display: block; width: 92px; height: 7px; background: var(--tl0); box-shadow: inset 0 0 0 2px #0d0a12; }
+#faith i em { display: block; height: 100%; width: 0; background: var(--gd2); box-shadow: inset 0 2px 0 var(--gd4); transition: width .3s steps(6, end); }
+#faith.full i em { background: var(--tl3); box-shadow: inset 0 2px 0 var(--tl4); }
 
 /* ---- the phone button on the frame --------------------------------------
    Not a small square with a glyph on it any more. A phone sat in a wooden

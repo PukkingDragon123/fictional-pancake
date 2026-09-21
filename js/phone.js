@@ -253,11 +253,21 @@ const Phone = (() => {
   }
 
   // ---- jobs -----------------------------------------------------------------
+  // the day's omen and where you stand, on top of the jobs
+  function faithCard() {
+    const o = Cult.omen(), r = Cult.rank(), n = Cult.nextRank();
+    return `<div class="phcard big"><div class="phcardh">${ic('ph_bell')}<b>${esc(r.name)}</b>
+        <span class="phdim">${n ? U.fmt(Math.max(0, n.at - Cult.devotion)) + ' to go' : 'the top'}</span></div>
+      <p>${esc(r.perk)}</p>
+      ${bar(Cult.progress() * 100, 100, '#9a5cf0')}</div>` +
+      (o ? `<div class="phcard"><div class="phcardh">${ic(o.icon)}<b>${esc(o.name)}</b>
+        <span class="phdim">${o.good ? 'good' : 'ill'}</span></div><p>${esc(o.line)}</p></div>` : '');
+  }
   function quests() {
     const q = Guide.current();
     const where = q ? (q.where || 'in the grove') : '';
     const list = G.mode === 'grove' && !G.arrived ? Grove.tasks() : [];
-    let html = '';
+    let html = faithCard();
     if (q) {
       html += `<div class="phcard big">
         <div class="phcardh">${ic(q.icon)}<b>${esc(q.title)}</b></div>

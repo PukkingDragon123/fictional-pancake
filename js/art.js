@@ -7,21 +7,25 @@
 // inherit (ash, bone, dead wood), the living one you restore (moss, soil,
 // bark), and the divine (violet, gold, cold cyan) that breaks through when a
 // god is summoned.
+// One palette for the whole game, and a short one. Every ramp is five steps
+// with a real gap between each, so a shape reads by its colour and not only by
+// the black line round it. It is warmer and more saturated than it was: this
+// is a wood somebody loves, with a cult living at the bottom of it.
 const PAL = {
-  ink: '#120e14', ink2: '#241d2a',
-  stone0: '#1c1a24', stone1: '#2c2836', stone2: '#443e52', stone3: '#625a72', stone4: '#8b849c',
-  bone: '#cfc4b0', boneD: '#a89a84', ash: '#8a8290', ashD: '#5f5868', dust: '#6b6470',
-  dead0: '#2e241d', dead1: '#463629', dead2: '#67523d', dead3: '#8a7156',
-  moss0: '#1d3419', moss1: '#2f4f24', moss2: '#436f2f', moss3: '#5d9440', moss4: '#84bb59', moss5: '#b3dd86',
-  soil0: '#241810', soil1: '#3b2a1b', soil2: '#553d27', soil3: '#75573a', soil4: '#9b7a52',
-  bark0: '#2a1d15', bark1: '#412e20', bark2: '#5d4430', bark3: '#7d5f42',
-  gold0: '#6d4a10', gold1: '#a97c1e', gold2: '#d8a52f', gold3: '#f5cd5c', gold4: '#ffeeb0',
-  div0: '#1b1030', div1: '#33205c', div2: '#563391', div3: '#8354c9', div4: '#b98ef0', div5: '#e6d6ff',
-  cyan0: '#123c46', cyan1: '#22707f', cyan2: '#3fa8ba', cyan3: '#79dced', cyan4: '#c2f4ff',
-  red0: '#4a1712', red1: '#7e2a20', red2: '#b8412c', red3: '#e0705a',
-  parch0: '#d8c69c', parch1: '#efdcb4', cream: '#fdf3dc',
-  water0: '#1b4a5c', water1: '#2f7f96', water2: '#57b6c9', water3: '#9fe2ee',
-  rot0: '#4a4a22', rot1: '#6e6a2c', rot2: '#96903c',
+  ink: '#0d0a12', ink2: '#221a2c',
+  stone0: '#1e1b2a', stone1: '#332d46', stone2: '#4f4768', stone3: '#756b93', stone4: '#a599c4',
+  bone: '#ecdcc0', boneD: '#c4ab8a', ash: '#9a90a8', ashD: '#6a5f7c', dust: '#7c7090',
+  dead0: '#33251b', dead1: '#523d28', dead2: '#7a5c3c', dead3: '#a4805a',
+  moss0: '#1d3d18', moss1: '#2f6122', moss2: '#458c2c', moss3: '#63b83d', moss4: '#92dc5e', moss5: '#c8f593',
+  soil0: '#2a1a0e', soil1: '#4a2f18', soil2: '#6e4726', soil3: '#9a6838', soil4: '#c99358',
+  bark0: '#2e1d12', bark1: '#4c3320', bark2: '#704c2e', bark3: '#9c6d45',
+  gold0: '#7a4c06', gold1: '#bd8410', gold2: '#efb625', gold3: '#ffd95c', gold4: '#fff3b8',
+  div0: '#1d0f38', div1: '#3d1f78', div2: '#6b32bd', div3: '#9a5cf0', div4: '#c898ff', div5: '#f0e0ff',
+  cyan0: '#0f3d4e', cyan1: '#1f7d96', cyan2: '#38bcd6', cyan3: '#7cecff', cyan4: '#ccf8ff',
+  red0: '#4e1010', red1: '#902418', red2: '#d84428', red3: '#ff7d58',
+  parch0: '#e4cf9e', parch1: '#f6e4ba', cream: '#fffae8',
+  water0: '#154a62', water1: '#2b8fae', water2: '#4fcbe4', water3: '#a8f2ff',
+  rot0: '#565622', rot1: '#827c2c', rot2: '#b0a83c',
 };
 
 // Wombat pelts. The first four are common; the rest are the rare variants

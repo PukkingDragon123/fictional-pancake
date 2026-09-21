@@ -15,30 +15,35 @@
   font-weight: 400; font-style: normal; font-display: block;
 }
 /* Wombat Gods - the interface is an old book: a dark oiled-wood cover with
-   teal iron brackets bolted into the corners, a tan parchment page inside it,
-   wooden plank banners for every heading with iron caps on the ends, and gold
-   buttons that sink four pixels when you press them. Everything is cut from
-   whole pixels and has one dark line round it. */
+   violet iron brackets bolted into the corners, a warm parchment page inside
+   it, wooden plank banners for every heading with iron caps on the ends, and
+   gold buttons that sink four pixels when you press them. Everything is cut
+   from whole pixels and has one black line round it.
+
+   The theme has been lifted: the wood is warmer, the gold is brighter, and the
+   cold teal that used to hold it together is now the violet the gods come in.
+   It should read as a wood somebody loves, with a cult living at the bottom of
+   it, rather than as a cellar. */
 :root {
-  --ol: #140c06;                                      /* the one dark line */
-  --stink: #e6d8b8;
-  --pp0: #1a1008; --pp1: #2a1a0e; --pp2: #3d2714; --pp3: #56381d;   /* the ground behind it all */
-  /* old wood: the cover, the planks, the rails */
-  --wd0: #1e1208; --wd1: #35200f; --wd2: #4d2f16; --wd3: #6b4423; --wd4: #8c5c30; --wd5: #a87642;
+  --ol: #0d0a12;                                      /* the one black line */
+  --stink: #f2e6c8;
+  --pp0: #1d1310; --pp1: #2e1d18; --pp2: #442a20; --pp3: #5e3a28;   /* the ground behind it all */
+  /* warm wood: the cover, the planks, the rails */
+  --wd0: #241509; --wd1: #3f2712; --wd2: #5c381a; --wd3: #7d4f26; --wd4: #a46b36; --wd5: #c68c4c;
   /* parchment: the page */
-  --pg0: #8a6f45; --pg1: #ab8a5c; --pg2: #c9a878; --pg3: #ddc39a; --pg4: #f0dcb0;
-  /* teal iron: brackets, caps, small buttons */
-  --tl0: #10333f; --tl1: #1c5568; --tl2: #2f7f96; --tl3: #4fa6be; --tl4: #8fd4e4;
+  --pg0: #9c7f4e; --pg1: #c09b62; --pg2: #dcba82; --pg3: #edd3a2; --pg4: #f9e8be;
+  /* violet iron: brackets, caps, small buttons. The colour the gods arrive in. */
+  --tl0: #1d0f38; --tl1: #3d1f78; --tl2: #6b32bd; --tl3: #9a5cf0; --tl4: #c898ff;
   /* gold: every button worth pressing */
-  --gd0: #7a4f06; --gd1: #a9750d; --gd2: #d8a41c; --gd3: #f2c936; --gd4: #ffe98a;
+  --gd0: #7a4c06; --gd1: #bd8410; --gd2: #efb625; --gd3: #ffd95c; --gd4: #fff3b8;
   /* rust: anything that closes or destroys */
-  --am0: #3f1a07; --am1: #6d2f0d; --am2: #9c4816; --am3: #c96a24;
-  --gr0: #2f4a1c; --gr1: #4d7430; --gr2: #74a449; --gr3: #a0cd72;
+  --am0: #4a1c08; --am1: #7e360f; --am2: #b4551a; --am3: #e07d2c;
+  --gr0: #2f5a1c; --gr1: #558534; --gr2: #83bb4e; --gr3: #b2e07c;
   --sl0: #1a2a48; --sl1: #3f5f8f; --sl2: #5a7cae; --sl3: #8fa9d0;
-  --pk1: #a8465e; --pk2: #c85f7a; --pk3: #e894a8;
-  --ink: #3a2410; --ink2: #6b4a26;
-  --m3: #5d9440; --m4: #84bb59;
-  --cream: #f0dcb0; --parch: #c9a878;
+  --pk1: #c04a6a; --pk2: #e4708e; --pk3: #ffa8bc;
+  --ink: #3f2510; --ink2: #7a5428;
+  --m3: #63b83d; --m4: #92dc5e;
+  --cream: #f9e8be; --parch: #dcba82;
   --f: 'WombatPixel', monospace;
   --ft: 'WombatPixel', monospace;
 }
@@ -46,7 +51,7 @@
 [hidden] { display: none !important; }
 html, body { margin: 0; height: 100%; overflow: hidden; color: var(--ink); font-family: var(--f); font-size: 16px;
   -webkit-font-smoothing: none; font-smooth: never; text-rendering: geometricPrecision;
-  background: #1a1008; }
+  background: #1d1310; }
 button { font-family: var(--f); cursor: pointer; color: var(--cream); font-size: 16px; }
 img.ico { width: 26px; height: 26px; image-rendering: pixelated; display: block; }
 img.ico.sm { width: 18px; height: 18px; }
@@ -55,7 +60,7 @@ img.ico.xl { width: 48px; height: 48px; }
 .dim { color: var(--ink2); } .good { color: #3f6b1c; } .warn { color: #9a2a1a; }
 #app { display: flex; height: 100vh; width: 100vw; }
 #stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
-  background: #1a1008; }
+  background: #1d1310; }
 #frame { position: relative; line-height: 0;
   box-shadow: 0 0 0 4px var(--wd3), 0 0 0 8px var(--wd1), 0 0 0 11px var(--ol),
     0 12px 0 5px rgba(0,0,0,0.5), 0 0 90px rgba(0,0,0,0.6); }
@@ -1105,6 +1110,21 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 .phscreen.app-camera > .phcam { flex: 1 1 auto; }
 .phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub, .phcam { flex: 0 0 auto; }
 
+/* ---- your standing in the cult -------------------------------------------
+   A small plaque under the purse: what they call you, and how far off the next
+   thing they will call you. Violet, because that is the colour the gods come
+   in and this is the only part of the interface that belongs to them. */
+#faith {
+  position: absolute; left: 18px; top: 74px; z-index: 6;
+  display: flex; flex-direction: column; gap: 3px; padding: 5px 9px 6px;
+  background: var(--tl1);
+  box-shadow: inset 0 3px 0 var(--tl2), inset 0 -3px 0 var(--tl0), 0 0 0 3px var(--ol), 0 4px 0 3px rgba(0,0,0,0.4);
+}
+#faith span { font-size: 13px; letter-spacing: 2px; color: var(--tl4); text-shadow: 1px 2px 0 var(--tl0); }
+#faith i { display: block; width: 92px; height: 7px; background: var(--tl0); box-shadow: inset 0 0 0 2px #0d0a12; }
+#faith i em { display: block; height: 100%; width: 0; background: var(--gd2); box-shadow: inset 0 2px 0 var(--gd4); transition: width .3s steps(6, end); }
+#faith.full i em { background: var(--tl3); box-shadow: inset 0 2px 0 var(--tl4); }
+
 /* ---- the phone button on the frame --------------------------------------
    Not a small square with a glyph on it any more. A phone sat in a wooden
    holster screwed to the corner of the frame, with what it is called, the key
@@ -1144,6 +1164,7 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
     <div id="tip" hidden></div>
 
     <div id="money"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
+    <div id="faith" title="your standing in the cult"><span id="faith-rank">STRAY</span><i id="faith-bar"><em></em></i></div>
     <div id="checklist" hidden></div>
 
     <div id="side">
@@ -1535,21 +1556,25 @@ const Font = (() => {
 // inherit (ash, bone, dead wood), the living one you restore (moss, soil,
 // bark), and the divine (violet, gold, cold cyan) that breaks through when a
 // god is summoned.
+// One palette for the whole game, and a short one. Every ramp is five steps
+// with a real gap between each, so a shape reads by its colour and not only by
+// the black line round it. It is warmer and more saturated than it was: this
+// is a wood somebody loves, with a cult living at the bottom of it.
 const PAL = {
-  ink: '#120e14', ink2: '#241d2a',
-  stone0: '#1c1a24', stone1: '#2c2836', stone2: '#443e52', stone3: '#625a72', stone4: '#8b849c',
-  bone: '#cfc4b0', boneD: '#a89a84', ash: '#8a8290', ashD: '#5f5868', dust: '#6b6470',
-  dead0: '#2e241d', dead1: '#463629', dead2: '#67523d', dead3: '#8a7156',
-  moss0: '#1d3419', moss1: '#2f4f24', moss2: '#436f2f', moss3: '#5d9440', moss4: '#84bb59', moss5: '#b3dd86',
-  soil0: '#241810', soil1: '#3b2a1b', soil2: '#553d27', soil3: '#75573a', soil4: '#9b7a52',
-  bark0: '#2a1d15', bark1: '#412e20', bark2: '#5d4430', bark3: '#7d5f42',
-  gold0: '#6d4a10', gold1: '#a97c1e', gold2: '#d8a52f', gold3: '#f5cd5c', gold4: '#ffeeb0',
-  div0: '#1b1030', div1: '#33205c', div2: '#563391', div3: '#8354c9', div4: '#b98ef0', div5: '#e6d6ff',
-  cyan0: '#123c46', cyan1: '#22707f', cyan2: '#3fa8ba', cyan3: '#79dced', cyan4: '#c2f4ff',
-  red0: '#4a1712', red1: '#7e2a20', red2: '#b8412c', red3: '#e0705a',
-  parch0: '#d8c69c', parch1: '#efdcb4', cream: '#fdf3dc',
-  water0: '#1b4a5c', water1: '#2f7f96', water2: '#57b6c9', water3: '#9fe2ee',
-  rot0: '#4a4a22', rot1: '#6e6a2c', rot2: '#96903c',
+  ink: '#0d0a12', ink2: '#221a2c',
+  stone0: '#1e1b2a', stone1: '#332d46', stone2: '#4f4768', stone3: '#756b93', stone4: '#a599c4',
+  bone: '#ecdcc0', boneD: '#c4ab8a', ash: '#9a90a8', ashD: '#6a5f7c', dust: '#7c7090',
+  dead0: '#33251b', dead1: '#523d28', dead2: '#7a5c3c', dead3: '#a4805a',
+  moss0: '#1d3d18', moss1: '#2f6122', moss2: '#458c2c', moss3: '#63b83d', moss4: '#92dc5e', moss5: '#c8f593',
+  soil0: '#2a1a0e', soil1: '#4a2f18', soil2: '#6e4726', soil3: '#9a6838', soil4: '#c99358',
+  bark0: '#2e1d12', bark1: '#4c3320', bark2: '#704c2e', bark3: '#9c6d45',
+  gold0: '#7a4c06', gold1: '#bd8410', gold2: '#efb625', gold3: '#ffd95c', gold4: '#fff3b8',
+  div0: '#1d0f38', div1: '#3d1f78', div2: '#6b32bd', div3: '#9a5cf0', div4: '#c898ff', div5: '#f0e0ff',
+  cyan0: '#0f3d4e', cyan1: '#1f7d96', cyan2: '#38bcd6', cyan3: '#7cecff', cyan4: '#ccf8ff',
+  red0: '#4e1010', red1: '#902418', red2: '#d84428', red3: '#ff7d58',
+  parch0: '#e4cf9e', parch1: '#f6e4ba', cream: '#fffae8',
+  water0: '#154a62', water1: '#2b8fae', water2: '#4fcbe4', water3: '#a8f2ff',
+  rot0: '#565622', rot1: '#827c2c', rot2: '#b0a83c',
 };
 
 // Wombat pelts. The first four are common; the rest are the rare variants
@@ -6642,9 +6667,12 @@ const SUBTOOLS = [
   { key: 'seed',  name: 'Seed',  icon: 't_seed',  radius: 13, desc: 'Sow on tilled soil. Water it.' },
   { key: 'moss',  name: 'Grass', icon: 't_moss',  radius: 19, desc: 'Sow grass. It sprouts slowly.' },
   { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
-  { key: 'mound', name: 'Hill',  icon: 'u_burrow', radius: 26, cost: 120, desc: 'Raise a grassy hill. They like to sit on it.' },
-  { key: 'pond',  name: 'Pond',  icon: 'd_pool',   radius: 24, cost: 260, desc: 'Dig a pond. Frogs and dragonflies move in.' },
-  { key: 'paint', name: 'Ground', icon: 't_hoe',   radius: 20, desc: 'Lay sand, clay or ash over the ground. Wheel to change it.' },
+  // ---- the terrain set ----------------------------------------------------
+  // One tool, four things it does, the wheel picks which. Raising ground makes
+  // a grassy hill; digging it out fills with water; levelling takes either back
+  // down to flat; and the brush lays a different ground over the top.
+  { key: 'terra', name: 'Terrain', icon: 'u_burrow', radius: 26, terra: true,
+    desc: 'Raise, dig, level and lay ground. Wheel to change which.' },
   { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture about the clearing. Click a piece to take it up again.' },
 ];
 // Nothing is handed over at once. The cultist teaches a tool, then you own it.
@@ -6653,8 +6681,8 @@ const GATES = {
   sickle: () => true,
   destroy: (g) => g.step >= 1,
   farm: (g) => g.step >= 2,
-  mound: (g) => g.step >= 5,
-  pond: (g) => g.step >= 5,
+  terra: (g) => g.step >= 5,
+  build: (g) => g.step >= 3,
   moss: (g) => g.step >= 2,
   hoe: (g) => g.step >= 3,
   seed: (g) => g.step >= 3,
@@ -6671,8 +6699,8 @@ const GATE_WHY = {
   water: 'the wrecks go first',
   food: 'sow the grass first',
   pair: 'needs a nest',
-  mound: 'load the truck first',
-  pond: 'load the truck first',
+  terra: 'load the truck first',
+  build: 'the grove first',
 };
 const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
 
@@ -6750,7 +6778,6 @@ const SITES = [
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'ritual', name: 'Ritual Site',  x: 424, y: 132, icon: 'shrine',  mode: 'shrine', need: 0, gate: (g) => OFFER_ORDER.some((k) => (g.offerings[k] || 0) + (g.blessed[k] || 0) > 0), why: 'bring an offering' },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
-  { key: 'town',   name: 'Bellowby',     x: 470, y: 254, icon: 'shop',    mode: 'town',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'quarry', name: 'Old Quarry',   x: 96,  y: 104, icon: 'o_stone', need: 3 },
   { key: 'lake',   name: 'Still Lake',   x: 566, y: 78,  icon: 'g_tide',  need: 5 },
   { key: 'deep',   name: 'The Deepwood', x: 292, y: 58,  icon: 'a_owl',   need: 8 },
@@ -6849,6 +6876,17 @@ const DECOR = [
 ];
 // Which of the above are garden-centre stock rather than corner-shop stock.
 // The mart skips these; Groot's cellar sells them alongside the seed.
+// What the terrain tool is set to do. Each has its own cost and its own undo.
+const TERRA_MODES = [
+  { key: 'raise', name: 'Raise', icon: 'u_burrow', cost: 120, r: 26, blurb: 'A grassy hill. They like to sit on top of one.' },
+  { key: 'dig',   name: 'Dig',   icon: 'd_pool',   cost: 260, r: 24, blurb: 'Down to the water table. Frogs move in.' },
+  { key: 'level', name: 'Level', icon: 't_hoe',    cost: 40,  r: 30, blurb: 'Flatten a hill or fill a hole back in.' },
+  { key: 'earth', name: 'Earth', icon: 't_hoe',    cost: 0,   r: 20, paint: 'd', blurb: 'Bare earth.' },
+  { key: 'sand',  name: 'Sand',  icon: 't_hoe',    cost: 0,   r: 20, paint: 's', blurb: 'Pale sand.' },
+  { key: 'clay',  name: 'Clay',  icon: 't_hoe',    cost: 0,   r: 20, paint: 'c', blurb: 'Red clay.' },
+  { key: 'ash',   name: 'Ash',   icon: 't_hoe',    cost: 0,   r: 20, paint: 'a', blurb: 'Cold ash. The cult likes it.' },
+];
+
 const GARDEN_UP = { trough: 1 };
 const GARDEN_DEC = { nest: 1, pool: 1 };
 
@@ -6936,7 +6974,9 @@ const poopPrice = (key, n, g) => {
   const bulk = 1 + Math.min(0.5, Math.max(0, n - 1) * 0.04);     // he pays more for a load
   const gg = g || (typeof window !== 'undefined' ? window.G : null) || {};
   const talk = 1 + ((gg.up || {}).haggle || 0) * 0.08;
-  return Math.round(base * bulk * talk);
+  // your standing in the cult, and whatever the day is doing
+  const faith = (typeof Cult !== 'undefined' && Cult.payMult) ? Cult.payMult() : 1;
+  return Math.max(1, Math.round(base * bulk * talk * faith));
 };
 
 // ---- Breeding -------------------------------------------------------------
@@ -6972,18 +7012,6 @@ const FURNITURE = [
   { key: 'shrine2', name: 'Wayside Shrine',cost: 900,  w: 28, h: 50, favor: 0.14, blurb: 'A box on a pole with something unpleasant inside it.' },
 ];
 const FURN_BY_KEY = Object.fromEntries(FURNITURE.map((f) => [f.key, f]));
-
-// ---- The town -------------------------------------------------------------
-// Four fronts on one street. The mart and the cellar are out on the road; these
-// three are in town proper, and each one has somebody behind the counter.
-const TOWN_SHOPS = [
-  { key: 'pawn', name: 'GRIMM & SON', sub: 'PAWNBROKER', x: 180, col: '#6b2c3a', roof: '#3d1a24', keeper: 'grimm',
-    line: 'Bring me something old. I will not ask where it came from.' },
-  { key: 'furn', name: 'THE JOINERY', sub: 'FURNITURE', x: 560, col: '#5a3a1c', roof: '#35200f', keeper: 'joiner',
-    line: 'Everything in here I made. Mind the varnish.' },
-  { key: 'pets', name: 'WARREN & CO', sub: 'LIVESTOCK & TOOLS', x: 940, col: '#2f5a44', roof: '#1a3528', keeper: 'warren',
-    line: 'Wombats out the back, tools on the wall. No refunds on either.' },
-];
 </script>
 
 <script>
@@ -8062,7 +8090,7 @@ const World = (() => {
       const p = sprouts[i];
       const rate = p.wet > 0 ? 1.9 : 0.75;
       if (p.wet > 0) p.wet -= dt;
-      p.t += dt * rate * (G.blessings.burrowseidon ? 1.3 : 1);
+      p.t += dt * rate * (G.blessings.burrowseidon ? 1.3 : 1) * Cult.growMult();
       if (p.t >= 16) { bloom(p); sprouts.splice(i, 1); }
     }
     // ---- the beds -----------------------------------------------------------
@@ -8074,9 +8102,10 @@ const World = (() => {
       const tree = def.kind === 'tree';
       if (rain > 0) { c.wet = Math.min(tree ? 40 : 22, c.wet + dt * rain * 1.6); c.thirst = 0; }
       const wet = c.wet > 0;
-      const drink = (tree ? (def.thirsty || 1) : 1) * (1 - 0.15 * (G.up.shade || 0));
+      // Sour Ground drinks it twice as fast; a Warden's beds never dry at all
+      const drink = (tree ? (def.thirsty || 1) : 1) * (1 - 0.15 * (G.up.shade || 0)) * Cult.dryMult();
       if (wet) c.wet -= dt * drink; else c.thirst += dt * drink;
-      const blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm;
+      const blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm * Cult.growMult();
       if (def.kind === 'magic') {
         // magical seed only counts the hours it is happy
         const ok = needMet(c);
@@ -8087,6 +8116,12 @@ const World = (() => {
         else {
           c.wild = Math.min(2.4, c.wild + dt / 150);          // it goes leggy if nobody prunes it
           const health = (wet ? 1.25 : c.thirst > 50 ? 0.25 : 0.7) * (c.wild > 1 ? 0.45 : 1);
+          // Too Many Crows: something comes down and takes one off the tree
+          if (c.fr > 0 && Cult.has('crows') && Math.random() < dt * 0.02) {
+            c.fr--;
+            FX.burst(c.x, c.y - 30, 5, { color: ['#2a2430', '#4f4768'], speed: 40, gravity: -20, life: 0.6, size: 2 });
+            Audio.play('pop');
+          }
           if (c.fr < FRUIT_CAP) {
             c.ft += dt * health * blessed;
             if (c.ft >= (def.fruitEvery || 40)) {
@@ -8147,57 +8182,68 @@ const World = (() => {
   // A painted dirt bed, built once: banded tone, dithered grit, stones and
   // cracks. The green wash on top is how much of the forest has come back.
   let dirt = null;
+  // The floor of the wood. It used to be nine thousand one-pixel dots at half
+  // a dozen alphas, which at any zoom read as television static rather than as
+  // ground. It is drawn in two-pixel blocks now, off five flat colours, at full
+  // opacity, with the grain going the way a cart would have dragged it.
+  const DIRT = ['#3a2616', '#4f3520', '#6b482a', '#8a6038', '#a87c4a'];
+  const PXG = 2;
   function dirtTex() {
     if (dirt) return dirt;
     const h = H - GROUND + 4;
     const { c, g } = Art.cv(W, h);
     const r = Art.rng(2468);
-    for (let y = 0; y < h; y++) {
+    // the base: five bands, lighter toward the front, each a hard step
+    for (let y = 0; y < h; y += PXG) {
       const t = y / h;
-      g.fillStyle = U.mix('#463f33', '#6d6252', U.easeOut(t));
-      g.fillRect(0, y, W, 1);
+      g.fillStyle = DIRT[Math.min(4, Math.floor(U.easeOut(t) * 4.6))];
+      g.fillRect(0, y, W, PXG);
     }
-    for (let i = 0; i < 9000; i++) {
-      const x = Math.floor(r() * W), y = Math.floor(r() * h);
-      g.globalAlpha = 0.16 + r() * 0.3;
-      g.fillStyle = ['#5b5344', '#776c59', '#3c362c', '#847863'][Math.floor(r() * 4)];
-      g.fillRect(x, y, 1, 1);
+    // clumps: a few hundred two-pixel blocks, never a lone pixel
+    for (let i = 0; i < 1400; i++) {
+      const x = Math.floor(r() * W / PXG) * PXG, y = Math.floor(r() * h / PXG) * PXG;
+      const t = y / h, base = Math.min(4, Math.floor(U.easeOut(t) * 4.6));
+      const step = base + (r() < 0.5 ? -1 : 1);
+      if (step < 0 || step > 4) continue;
+      g.fillStyle = DIRT[step];
+      const n = r() < 0.25 ? 2 : 1;
+      g.fillRect(x, y, PXG * n, PXG);
     }
-    g.globalAlpha = 1;
-    for (let i = 0; i < 46; i++) {          // damp and dry patches
-      const x = r() * W, y = 6 + r() * (h - 12), rx = 14 + r() * 30, ry = 5 + r() * 11;
-      const col = r() < 0.5 ? 'rgba(48,42,34,0.28)' : 'rgba(140,128,104,0.16)';
-      Art.ell(g, x, y, rx, ry, col);
-      Art.speckle(g, x, y, rx, ry, r() < 0.5 ? '#3f3a30' : '#7d735f', 26, i);
-    }
-    for (let i = 0; i < 26; i++) {          // cracks and cart ruts
-      let x = r() * W, y = 10 + r() * (h - 20);
-      const dir = r() < 0.5 ? 1 : -1, n = 4 + Math.floor(r() * 6);
-      for (let k = 0; k < n; k++) {
-        g.fillStyle = 'rgba(34,28,22,0.5)';
-        g.fillRect(Math.round(x), Math.round(y), 3 + Math.floor(r() * 4), 1);
-        g.fillStyle = 'rgba(150,138,116,0.16)';
-        g.fillRect(Math.round(x), Math.round(y) + 1, 3, 1);
-        x += dir * (3 + r() * 4); y += (r() - 0.5) * 2.4;
+    // patches of damp and dry, as solid stepped ovals rather than alpha washes
+    for (let i = 0; i < 22; i++) {
+      const cx = r() * W, cy = 6 + r() * (h - 12), rx = 18 + r() * 34, ry = 6 + r() * 10;
+      const col = r() < 0.5 ? '#33220f' : '#b98a55';
+      for (let y = -ry; y <= ry; y += PXG) {
+        const ww = Math.round((rx * Math.sqrt(Math.max(0, 1 - (y / ry) * (y / ry)))) / PXG) * PXG;
+        if (ww < PXG) continue;
+        g.fillStyle = col;
+        g.fillRect(Math.round((cx - ww) / PXG) * PXG, Math.round((cy + y) / PXG) * PXG, ww * 2, PXG);
       }
     }
-    for (let i = 0; i < 70; i++) {          // pebbles
-      const x = Math.round(r() * W), y = Math.round(6 + r() * (h - 12));
-      const w2 = 2 + Math.floor(r() * 3);
-      g.fillStyle = '#6b6455'; g.fillRect(x, y, w2, 2);
-      g.fillStyle = '#8d8573'; g.fillRect(x, y, w2, 1);
-      g.fillStyle = 'rgba(24,20,16,0.45)'; g.fillRect(x, y + 2, w2 + 1, 1);
+    // ruts: two hard lines each, a dark one and a lit one under it
+    for (let i = 0; i < 18; i++) {
+      let x = Math.round(r() * W / PXG) * PXG, y = Math.round((8 + r() * (h - 16)) / PXG) * PXG;
+      const n = 5 + Math.floor(r() * 7);
+      for (let k = 0; k < n; k++) {
+        const len = (2 + Math.floor(r() * 4)) * PXG;
+        g.fillStyle = '#2a1a0c'; g.fillRect(x, y, len, PXG);
+        g.fillStyle = '#a87c4a'; g.fillRect(x, y + PXG, len, PXG);
+        x += len + (r() < 0.4 ? PXG : 0);
+        y += (r() < 0.3 ? (r() < 0.5 ? PXG : -PXG) : 0);
+        if (x > W) break;
+      }
     }
-    for (let i = 0; i < 16; i++) {          // little bones and twigs
-      const x = Math.round(r() * W), y = Math.round(10 + r() * (h - 16));
-      g.fillStyle = '#4a4034';
-      g.fillRect(x, y, 5 + Math.floor(r() * 4), 1);
-      g.fillRect(x + 2, y - 1, 2, 1);
+    // a scatter of small stones, each one a block with a lit top
+    for (let i = 0; i < 60; i++) {
+      const x = Math.floor(r() * W / PXG) * PXG, y = Math.floor(r() * h / PXG) * PXG;
+      const ww = PXG * (1 + Math.floor(r() * 2));
+      g.fillStyle = '#2a2430'; g.fillRect(x, y, ww + PXG, PXG * 2);
+      g.fillStyle = '#6a6078'; g.fillRect(x, y, ww, PXG);
+      g.fillStyle = '#9a90a8'; g.fillRect(x, y, PXG, PXG);
     }
     dirt = c;
-    return c;
+    return dirt;
   }
-
   function drawGround(g) {
     const f = fraction();
     g.drawImage(dirtTex(), 0, GROUND - 2);
@@ -8452,6 +8498,27 @@ const Wild = (() => {
     if (y < walk.y0 - 6 || y > walk.y1 + 10) return 'not on the path';
     if (near(mounds, x, y, 14) || near(ponds, x, y, 14)) return 'too close to another';
     return null;
+  }
+  // Take a hill down or fill a hole in. Cheap, because undoing a mistake
+  // should never cost as much as making it.
+  function level(x, y, r) {
+    let n = 0;
+    for (let i = mounds.length - 1; i >= 0; i--) {
+      const m = mounds[i];
+      if (Math.hypot(m.x - x, (m.y - y) * 1.6) < r + m.r * 0.5) { mounds.splice(i, 1); n++; }
+    }
+    for (let i = ponds.length - 1; i >= 0; i--) {
+      const p2 = ponds[i];
+      if (Math.hypot(p2.x - x, (p2.y - y) * 1.6) < r + p2.r * 0.5) {
+        ponds.splice(i, 1); n++;
+        for (let j = frogs.length - 1; j >= 0; j--) if (frogs[j].pond === p2) frogs.splice(j, 1);
+      }
+    }
+    if (!n) return false;
+    FX.dust(x, y, 12, PAL.soil2);
+    Audio.play('dig');
+    UI.refreshHUD(); Main.save();
+    return true;
   }
   function place(kind, x, y) {
     const why = canPlace(kind, x, y);
@@ -9130,7 +9197,7 @@ const Wild = (() => {
 
   return {
     init, save, update, drawGround, items,
-    place, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
+    place, level, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
     get mounds() { return mounds; }, get ponds() { return ponds; },
     get bugs() { return bugs; },
     bugsNear(x, y, r) { let n = 0; for (const b of bugs) if (Math.hypot(b.x - x, (b.y - y) * 1.4) < r) n++; return n; },
@@ -9391,13 +9458,12 @@ const Grove = (() => {
   // Bought in town, carried home in a crate, and stood wherever you like. It
   // sorts into the scene by its feet like everything else, so a bench in front
   // of a tree is in front of the tree.
-  let buildI = 0, paintI = 0;
+  let buildI = 0, terraI = 0;
   function crateKeys() { return Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0); }
   function buildKey() { const ks = crateKeys(); return ks.length ? ks[buildI % ks.length] : null; }
   function cycleBuild(d) { const ks = crateKeys(); if (ks.length) { buildI = (buildI + d + ks.length * 4) % ks.length; Audio.play('click'); } }
-  function paintCode() { return World.PAINT_ORDER[paintI % World.PAINT_ORDER.length].code; }
-  function paintName() { return World.PAINT_ORDER[paintI % World.PAINT_ORDER.length].name; }
-  function cyclePaint(d) { paintI = (paintI + d + World.PAINT_ORDER.length * 4) % World.PAINT_ORDER.length; Audio.play('click'); }
+  function terraMode() { return TERRA_MODES[terraI % TERRA_MODES.length]; }
+  function cycleTerra(d) { terraI = (terraI + d + TERRA_MODES.length * 4) % TERRA_MODES.length; Audio.play('click'); }
   function furnAt(x, y) {
     for (const f of (G.furniture || [])) {
       const d = FURN_BY_KEY[f.key]; if (!d) continue;
@@ -9420,10 +9486,11 @@ const Grove = (() => {
       const d = FURN_BY_KEY[key];
       Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 5, { scale: 1, color: '#000000', align: 'center' });
       Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 4, { scale: 1, color: '#f2c936', align: 'center' });
-    } else if (G.tool === 'paint') {
-      const p = G.pointer;
-      Font.draw(g, paintName().toUpperCase(), p.x, p.y - 26, { scale: 1, color: '#000000', align: 'center' });
-      Font.draw(g, paintName().toUpperCase(), p.x, p.y - 27, { scale: 1, color: '#f2c936', align: 'center' });
+    } else if (G.tool === 'terra') {
+      const p = G.pointer, m = terraMode();
+      const label = m.name.toUpperCase() + (m.cost ? '  ' + m.cost : '');
+      Font.draw(g, label, p.x, p.y - 26, { scale: 1, color: '#000000', align: 'center' });
+      Font.draw(g, label, p.x, p.y - 27, { scale: 1, color: '#f2c936', align: 'center' });
     }
   }
 
@@ -9472,8 +9539,11 @@ const Grove = (() => {
       if (w.thirst == null) w.thirst = U.rand(0, 25);
       if (w.bored == null) w.bored = U.rand(0, 25);
       const dry = Sky.wet() > 0 ? 0.55 : 1;
-      w.thirst = U.clamp(w.thirst + dt * 0.5 * dry, 0, 100);
-      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42) * (1 - 0.16 * (G.up.toys || 0)), 0, 100);
+      // your standing in the cult, and whatever the day is doing, slow this
+      // down or speed it up. A Kind Wind stops it entirely.
+      const faith = Cult.calmMult();
+      w.thirst = U.clamp(w.thirst + dt * 0.5 * dry * faith, 0, 100);
+      w.bored = U.clamp(w.bored + dt * (charm.dream ? 0.2 : 0.42) * (1 - 0.16 * (G.up.toys || 0)) * faith, 0, 100);
       // enrichment: a nest, a paddling pool, a hill or a friend all count
       if (G.decor.nest || G.decor.pool || Wild.mounds.length || G.wombats.length > 1) {
         if (w.state !== 'sleep' && Math.random() < dt * 0.5) w.bored = Math.max(0, w.bored - 1.6);
@@ -9741,6 +9811,7 @@ const Grove = (() => {
     w.thirst = Math.max(0, (w.thirst || 0) - (def.kind === 'tree' ? 22 : 9));   // juice in it
     w.state = 'eat'; w.stateT = 1.9; w.sq = 0.32; w.chew = 1.9;
     G.stats.fed++;
+    Cult.give(1);                       // feeding one of them is a small devotion
     Audio.play('munch');
     FX.comic(w.x, w.y - 38, U.pick(['NOM!', 'CHOMP!', 'MUNCH!']), { ink: '#f5cd5c', edge: '#a97c1e', life: 0.7 });
     FX.burst(w.x + w.dir * 18, w.y - 12, 7, { color: [def.color, PAL.moss4], speed: 50, gravity: 240, life: 0.5, size: 2 });
@@ -9782,11 +9853,12 @@ const Grove = (() => {
         x: w.x - w.dir * 16, y: w.y + U.rand(-2, 2), z: 9, vz: U.rand(100, 160),
         vx: -w.dir * U.rand(18, 48), spin: 0, vs: U.rand(-4, 4),
         type: w.age === 'juvenile' ? 'plain' : def.offering,
-        blessed: U.chance(bless), t: -i * 0.15, id: U.uid(),
+        blessed: U.chance(bless) || Cult.blessed(), t: -i * 0.15, id: U.uid(),
       });
     }
     w.stomach = 'empty'; w.food = null; w.state = 'idle'; w.stateT = 1.1; w.sq = -0.26;
     G.stats.left += n;
+    Cult.give(n * 2);                   // and what she leaves is the tribute itself
     Audio.play('plop'); FX.shake(1.6);
     FX.dust(w.x - w.dir * 14, w.y + 2, 8, PAL.soil3);
     FX.comic(w.x - w.dir * 18, w.y - 30, U.pick(['PLOP!', 'THUD!', 'CLONK!']), { ink: '#d8b285', edge: '#7d5f42', life: 0.7 });
@@ -9880,14 +9952,17 @@ const Grove = (() => {
       Audio.play('error'); UI.toast('too far out', 'bad');
       return true;
     }
-    if (tool === 'mound' || tool === 'pond') {
+    if (tool === 'terra') {
+      const m = terraMode();
+      if (m.paint) { World.paintGround(m.paint, x, y, World.brushRadius(m.r)); return true; }
       if (!first) return true;
-      Wild.place(tool, x, y);
-      return true;
-    }
-    if (tool === 'paint') {
-      const r = World.brushRadius(18);
-      World.paintGround(paintCode(), x, y, r);
+      if (m.key === 'raise') Wild.place('mound', x, y);
+      else if (m.key === 'dig') Wild.place('pond', x, y);
+      else if (m.key === 'level') {
+        if (G.wd < m.cost) { Audio.play('error'); UI.toast('not enough', 'bad'); return true; }
+        if (Wild.level(x, y, m.r)) { G.wd -= m.cost; UI.toast('levelled', 'good'); }
+        else { Audio.play('error'); UI.toast('nothing to level there', 'bad'); }
+      }
       return true;
     }
     if (tool === 'build') {
@@ -10802,10 +10877,138 @@ const Grove = (() => {
 
   return {
     init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, zoomBy, zoomTo, zoomFrac, edgeScroll, addWombat, newWombat, feed, pet, offline,
-    cycleBuild, cyclePaint, furnAt,
+    cycleBuild, cycleTerra, terraMode, furnAt,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, TRUCK, GROUND, WALK, W, H, VW,
+  };
+})();
+</script>
+
+<script>
+// ===== js/cult.js =====
+// ---- The cult: devotion, rank and the omen of the day ----------------------
+// The grove had a goal and no ladder to it. This is the ladder. Everything you
+// already do — feeding them, selling what they leave, getting a tower high
+// enough for something to reach — pays devotion, devotion buys rank, and each
+// rank hands you something that changes how the rest of it plays.
+//
+// On top of that, every day the hooded one reads an omen off whatever he reads
+// omens off. It lasts the day, it is half good and half not, and it is the
+// reason no two days in the wood are quite the same.
+const Cult = (() => {
+  let G = null;
+
+  // ---- the ladder ---------------------------------------------------------
+  const RANKS = [
+    { key: 'stray',   name: 'Stray',      at: 0,    perk: 'Nobody has noticed you yet.' },
+    { key: 'novice',  name: 'Novice',     at: 40,   perk: 'The hooded one pays 10% more for a cube.', pay: 0.10 },
+    { key: 'acolyte', name: 'Acolyte',    at: 140,  perk: 'Wombats stay happy a third longer.', calm: 0.33 },
+    { key: 'deacon',  name: 'Deacon',     at: 340,  perk: 'Seed comes up half again as fast.', grow: 0.5 },
+    { key: 'warden',  name: 'Warden',     at: 700,  perk: 'The hooded one pays 25% more, and the beds never dry.', pay: 0.25, wet: 1 },
+    { key: 'vessel',  name: 'Vessel',     at: 1300, perk: 'Every cube she leaves is blessed.', bless: 1 },
+    { key: 'hollow',  name: 'The Hollow', at: 2400, perk: 'They come when you call. All of them.', favor: 1 },
+  ];
+  // ---- the omens ----------------------------------------------------------
+  // Each is one line you can act on, and one number that actually changes.
+  const OMENS = [
+    { key: 'fat',    name: 'A Fat Moon',      icon: 'ph_moon', good: 1, line: 'Everything she leaves is worth a quarter more today.', pay: 0.25 },
+    { key: 'green',  name: 'The Green Hour',  icon: 'ph_garden', good: 1, line: 'Seed doubles its speed until dark.', grow: 1 },
+    { key: 'kind',   name: 'A Kind Wind',     icon: 'ph_sun', good: 1, line: 'Nothing gets bored and nothing gets thirsty today.', calm: 1 },
+    { key: 'gilt',   name: 'Gilt Morning',    icon: 'ph_larder', good: 1, line: 'One in six cubes comes out gilded.', gilt: 1 },
+    { key: 'deep',   name: 'The Deep Listens', icon: 'ph_bell', good: 1, line: 'Devotion counts double while it lasts.', dev: 1 },
+    { key: 'sour',   name: 'Sour Ground',     icon: 'ph_rain', good: 0, line: 'The beds drink twice as fast. Keep the can handy.', thirsty: 1 },
+    { key: 'hungry', name: 'A Hungry Day',    icon: 'ph_herd', good: 0, line: 'They eat through it faster and sulk sooner.', hungry: 1 },
+    { key: 'quiet',  name: 'The Quiet',       icon: 'ph_jobs', good: 0, line: 'He is not buying well today. A fifth off everything.', pay: -0.2 },
+    { key: 'crows',  name: 'Too Many Crows',  icon: 'ph_places', good: 0, line: 'Something is taking the fruit. Pick it early.', crows: 1 },
+  ];
+  const RANK_BY_KEY = Object.fromEntries(RANKS.map((r) => [r.key, r]));
+  const OMEN_BY_KEY = Object.fromEntries(OMENS.map((o) => [o.key, o]));
+
+  function init(g) {
+    G = g;
+    if (typeof G.devotion !== 'number') G.devotion = 0;
+    if (!G.rank) G.rank = 'stray';
+    if (!G.omen || typeof G.omenDay !== 'number') roll(true);
+  }
+
+  // ---- devotion ------------------------------------------------------------
+  const rank = () => RANK_BY_KEY[G.rank] || RANKS[0];
+  const rankIndex = () => Math.max(0, RANKS.findIndex((r) => r.key === G.rank));
+  const nextRank = () => RANKS[rankIndex() + 1] || null;
+  function progress() {
+    const n = nextRank();
+    if (!n) return 1;
+    const cur = rank().at;
+    return U.clamp((G.devotion - cur) / (n.at - cur), 0, 1);
+  }
+  // Every perk of every rank you have passed is yours; they stack.
+  function perk(key) {
+    let v = 0;
+    for (let i = 0; i <= rankIndex(); i++) v += RANKS[i][key] || 0;
+    const o = omen();
+    if (o && o[key]) v += o[key];
+    return v;
+  }
+  function has(key) { return perk(key) > 0; }
+
+  function give(n, why) {
+    if (!G || !n) return;
+    const o = omen();
+    const mult = o && o.dev ? 2 : 1;
+    G.devotion += n * mult;
+    // one gift can carry you past more than one rank, and each is announced
+    let up = null;
+    for (let guard = 0; guard < RANKS.length; guard++) {
+      const n2 = nextRank();
+      if (!n2 || G.devotion < n2.at) break;
+      G.rank = n2.key; up = n2;
+      UI.toast(`<b>${n2.name}</b> &mdash; ${n2.perk}`, 'good');
+    }
+    if (up) {
+      Audio.play('bless'); Audio.play('chime');
+      FX.title(up.name.toUpperCase(), { size: 18, color: PAL.div4, dur: 2.6, style: 'slam', sub: 'the cult knows your name' });
+      FX.confettiBurst(320, 150, 70);
+      Main.save();
+    }
+    UI.refreshHUD();
+  }
+
+  // ---- the omen ------------------------------------------------------------
+  function omen() { return OMEN_BY_KEY[G.omen] || null; }
+  function dayNumber() { return Math.floor((G.time || 0) / 720); }
+  function roll(silent) {
+    const pool = OMENS.filter((o) => o.key !== G.omen);
+    const o = pool[Math.floor(Math.random() * pool.length)];
+    G.omen = o.key;
+    G.omenDay = dayNumber();
+    if (silent) return;
+    Audio.play(o.good ? 'chime' : 'growl');
+    UI.toast(`<b>${o.name}</b> &mdash; ${o.line}`, o.good ? 'good' : 'bad');
+  }
+  function update() {
+    if (!G) return;
+    if (dayNumber() !== G.omenDay) roll(false);
+  }
+
+  // ---- what the rest of the game asks --------------------------------------
+  // A multiplier on what the hooded one pays, which is where most of the
+  // money in this game comes from.
+  function payMult() { return 1 + perk('pay'); }
+  // How much slower a wombat gets bored and thirsty.
+  function calmMult() { return 1 / (1 + perk('calm')) * (has('hungry') ? 1.6 : 1); }
+  // How much faster things grow.
+  function growMult() { return 1 + perk('grow'); }
+  // Whether beds hold their water.
+  function dryMult() { return has('thirsty') ? 2 : (has('wet') ? 0 : 1); }
+  // Whether what she leaves comes out blessed, and whether it comes out gilded.
+  function blessed() { return has('bless') || (has('gilt') && Math.random() < 0.17); }
+
+  return {
+    init, update, give, roll, omen, rank, nextRank, progress, perk, has,
+    payMult, calmMult, growMult, dryMult, blessed,
+    get devotion() { return G ? G.devotion : 0; },
+    RANKS, OMENS,
   };
 })();
 </script>
@@ -10884,6 +11087,7 @@ const Ritual = (() => {
     G.blessings[god.key] = true;
     G.artifacts[god.key] = (G.artifacts[god.key] || 0) + 1;
     G.stats.summons = (G.stats.summons || 0) + 1;
+    Cult.give(120 + god.tier * 60);     // a god answering is worth a rank on its own
     if (god.key === 'demewombra') G.seeds.runeberry = (G.seeds.runeberry || 0) + 3;
     FX.setSlowmo(1, true); FX.vignette(0); FX.letterbox(false); FX.cine.tDesat = 0;
     Audio.setMode('pen');
@@ -11120,6 +11324,7 @@ const Ritual = (() => {
     const h = notches(S.top);
     if (h > S.best) {
       S.best = h;
+      Cult.give(2);                     // every notch of the climb is noticed
       if (h % 5 === 0) { Audio.play('chime'); FX.flash('#2a1030', 0.18); }
       S.dread = Math.min(1, S.best / 34);
     }
@@ -11513,490 +11718,6 @@ const Ritual = (() => {
     get active() { return scene.on; },
     get god() { return scene.god; },
   };
-})();
-</script>
-
-<script>
-// ===== js/town.js =====
-// ---- The town: a street, three fronts, and somebody behind each counter ----
-// Out past the grove there is one street with a gutter down the middle of it.
-// Grimm buys what the gods leave you, Odger sells the things you stand about
-// the clearing, and Mrs Warren has wombats out the back and tools on the wall.
-// You walk the street, you go in a door, and you deal with a person.
-const Town = (() => {
-  let G = null;
-  const W = 640, H = 360;
-  const ROAD = 286;                     // where the road surface sits
-  const STREET = 1180;                  // how long the street is
-  let camX = 0, tCam = 0, t = 0;
-  let inside = null;                    // null on the street, else a shop key
-  let hoverI = -1, keeperT = 0, say = '', sayT = 0;
-  let page = 0;
-  const folk = [];
-  const smoke = [];
-
-  function init(g) { G = g; }
-  function enter() {
-    inside = null; camX = 0; tCam = 0; t = 0; page = 0; say = ''; sayT = 0;
-    folk.length = 0;
-    const kinds = ['bee', 'fish', 'post', 'bake', 'bota', 'bard'];
-    for (let i = 0; i < 7; i++) {
-      folk.push({
-        kind: kinds[i % kinds.length], x: U.rand(40, STREET - 40), y: ROAD + U.rand(18, 52),
-        dir: U.chance(0.5) ? 1 : -1, sp: U.rand(15, 30), f: U.rand(0, 8), wait: U.rand(0, 5),
-      });
-    }
-    smoke.length = 0;
-    Audio.setMode('pen');
-  }
-  function leave() { inside = null; }
-
-  // ---- what each counter deals in -----------------------------------------
-  // The pawnbroker buys; the other two sell. One shape of row for all three,
-  // so the three interiors are the same shop with different stock in it.
-  function stockOf(key) {
-    if (key === 'pawn') {
-      const out = [];
-      for (const god of GODS) {
-        const n = G.artifacts[god.key] || 0;
-        if (n > 0) out.push({ id: 'art:' + god.key, name: god.artifact, n, price: god.artValue, sell: true, col: god.color, god });
-      }
-      for (const k of ['gold', 'rune']) {
-        const d = OFFERINGS[k], n = (G.offerings[k] || 0) + (G.blessed[k] || 0);
-        if (n > 0) out.push({ id: 'off:' + k, name: d.name + ' cube', n, price: d.sell || d.value, sell: true, col: d.color, off: d });
-      }
-      return out;
-    }
-    if (key === 'furn') {
-      return FURNITURE.map((f) => ({ id: 'fn:' + f.key, name: f.name, price: f.cost, blurb: f.blurb, furn: f,
-        n: (G.furniture || []).filter((x) => x.key === f.key).length }));
-    }
-    // Warren's: livestock and iron
-    const out = [{ id: 'wombat', name: 'A wombat', price: WOMBAT_PRICE(G.wombats.length + 1),
-      blurb: 'Out the back. Comes with papers and an opinion.', wombat: true, n: G.wombats.length }];
-    for (const u of UPGRADES) {
-      const lvl = (G.up[u.key] || 0);
-      if (lvl >= u.max) continue;
-      out.push({ id: 'up:' + u.key, name: u.name + (lvl ? ' ' + (lvl + 1) : ''), price: Math.round(u.base * Math.pow(u.mult, lvl)),
-        blurb: u.desc(lvl), up: u, n: lvl, icon: u.icon });
-    }
-    return out;
-  }
-  function priceOf(r) { return r.price; }
-  function afford(r) { return G.wd >= priceOf(r); }
-
-  function buy(r) {
-    if (r.sell) {
-      // Grimm counts it out, takes his cut, and it is gone
-      const pay = Math.round(r.price * 0.92);
-      if (r.god) { G.artifacts[r.god.key]--; if (!G.artifacts[r.god.key]) delete G.artifacts[r.god.key]; }
-      else if (r.off) {
-        const k = r.off.key;
-        if ((G.offerings[k] || 0) > 0) G.offerings[k]--; else G.blessed[k]--;
-      }
-      G.wd += pay;
-      G.stats.earned = (G.stats.earned || 0) + pay;
-      G.stats.sold = (G.stats.sold || 0) + 1;
-      Audio.play('coin'); UI.pingPurse();
-      talk(U.pick(['That will do.', 'I have seen worse.', 'Do not ask what I do with it.', 'Counted and gone.']));
-      UI.refreshHUD(); Main.save();
-      return;
-    }
-    if (!afford(r)) { Audio.play('error'); talk('Come back with the money.'); return; }
-    G.wd -= priceOf(r);
-    if (r.furn) {
-      if (!G.furniture) G.furniture = [];
-      if (!G.crates) G.crates = {};
-      G.crates[r.furn.key] = (G.crates[r.furn.key] || 0) + 1;
-      talk('It will be in the clearing when you get back.');
-      UI.toast(`<b>${r.furn.name}</b> &mdash; put it down with the hammer`, 'good');
-    } else if (r.wombat) {
-      Grove.addWombat({});
-      talk('Mind she does not eat the seat covers.');
-      UI.toast('<b>a wombat</b> &mdash; she is in the clearing', 'good');
-    } else if (r.up) {
-      G.up[r.up.key] = (G.up[r.up.key] || 0) + 1;
-      talk('Sharpened, oiled and yours.');
-    }
-    Audio.play('buy'); UI.pingPurse(); UI.refreshHUD(); Main.save();
-  }
-  function talk(s) { say = s; sayT = 3.4; keeperT = 0.5; }
-
-  // ---- update --------------------------------------------------------------
-  function update(dt) {
-    t += dt;
-    if (sayT > 0) sayT -= dt;
-    if (keeperT > 0) keeperT -= dt;
-    if (inside) { if (Math.random() < dt * 2.5) smokePuff(); stepSmoke(dt); return; }
-    camX = U.lerp(camX, tCam, 1 - Math.pow(0.002, dt));
-    for (const p of folk) {
-      p.wait -= dt;
-      if (p.wait > 0) { p.f += dt * 5; continue; }
-      p.x += p.dir * p.sp * dt;
-      p.f += dt * 7;
-      if (p.x < 24) { p.x = 24; p.dir = 1; p.wait = U.rand(0.5, 2.5); }
-      if (p.x > STREET - 24) { p.x = STREET - 24; p.dir = -1; p.wait = U.rand(0.5, 2.5); }
-      if (U.chance(dt * 0.12)) { p.dir *= -1; p.wait = U.rand(0.4, 2); }
-    }
-    if (Math.random() < dt * 3) smokePuff();
-    stepSmoke(dt);
-  }
-  function smokePuff() {
-    const s = TOWN_SHOPS[Math.floor(Math.random() * TOWN_SHOPS.length)];
-    smoke.push({ x: s.x + 54, y: ROAD - 128, vx: U.rand(4, 14), vy: -U.rand(10, 20), life: U.rand(2.4, 4.2), r: U.rand(3, 6) });
-    if (smoke.length > 60) smoke.shift();
-  }
-  function stepSmoke(dt) {
-    for (let i = smoke.length - 1; i >= 0; i--) {
-      const s = smoke[i];
-      s.life -= dt; s.x += s.vx * dt; s.y += s.vy * dt; s.r += dt * 3;
-      if (s.life <= 0) smoke.splice(i, 1);
-    }
-  }
-
-  // ---- the street ----------------------------------------------------------
-  const PXB = 2;
-  function render(g) {
-    if (inside) { renderInside(g); return; }
-    const light = Sky.light();
-    const night = Sky.isNight();
-    // sky and the hills behind the roofs
-    const SKYK = night ? ['#0d0a18', '#161230', '#241a3e'] : ['#7ea8c4', '#9cc0d4', '#c0d8e0'];
-    const SKYN = Math.ceil(ROAD / 10);
-    for (let i = 0; i < SKYN; i++) {
-      g.fillStyle = U.mix(SKYK[0], SKYK[2], i / (SKYN - 1));
-      g.fillRect(0, i * 10, W, 11);
-    }
-    g.save();
-    g.translate(-Math.round(camX), 0);
-    Sky.drawClouds(g, camX * 0.2, 0, W + 40, 130);
-    g.restore();
-    // far hills
-    g.save(); g.translate(-Math.round(camX * 0.25), 0);
-    for (let i = 0; i < 26; i++) {
-      const hx = i * 62, hh = 40 + ((i * 37) % 44);
-      for (let s = 0; s < hh; s += PXB) {
-        // wide at the bottom, narrow at the top: a hill, not a funnel
-        const ww = Math.round((12 + (s / hh) * 56) / PXB) * PXB;
-        g.fillStyle = U.mix('#5a6a62', '#3c4a4e', s / hh);
-        g.fillRect(hx + (62 - ww) / 2, ROAD - 40 - hh + s, ww, PXB);
-      }
-    }
-    g.restore();
-    // the ground the hills stand on, so there is no band of sky under them
-    for (let y = ROAD - 42; y < ROAD; y += PXB) {
-      g.fillStyle = U.mix('#4a5240', '#6b5a44', (y - (ROAD - 42)) / 42);
-      g.fillRect(0, y, W, PXB);
-    }
-    g.save();
-    g.translate(-Math.round(camX), 0);
-    // the road: packed dirt with a gutter down the middle
-    for (let y = ROAD; y < H; y += PXB) {
-      const k = (y - ROAD) / (H - ROAD);
-      g.fillStyle = U.mix('#6b5a44', '#463a2c', k);
-      g.fillRect(0, y, STREET, PXB);
-    }
-    const r = Art.rng(4242);
-    for (let i = 0; i < 700; i++) {
-      const x = Math.round(r() * STREET / PXB) * PXB, y = ROAD + Math.round(r() * (H - ROAD) / PXB) * PXB;
-      g.fillStyle = ['#7a6850', '#564634', '#3d3226'][Math.floor(r() * 3)];
-      g.fillRect(x, y, PXB, PXB);
-    }
-    // the gutter
-    for (let x = 0; x < STREET; x += PXB) {
-      g.fillStyle = '#2e2620'; g.fillRect(x, ROAD + 44, PXB, 6);
-      g.fillStyle = '#1d3a3e'; g.fillRect(x, ROAD + 46, PXB, 2);
-    }
-    // the fronts
-    TOWN_SHOPS.forEach((s, i) => front(g, s, i));
-    // cobbles along the footpath
-    for (let x = 0; x < STREET; x += 12) {
-      g.fillStyle = (x / 12) % 2 ? '#585046' : '#4a443c';
-      g.fillRect(x, ROAD - 4, 11, 5);
-      g.fillStyle = '#000000'; g.fillRect(x + 11, ROAD - 4, 1, 5);
-    }
-    // the people
-    for (const p of folk) {
-      const img = Sprites.villager(p.kind, Math.floor(p.f), p.wait > 0 ? 'idle' : 'walk');
-      const fl = p.dir < 0 ? Art.flip(img) : img;
-      g.drawImage(fl, Math.round(p.x - fl.width / 2), Math.round(p.y - fl.height));
-    }
-    // chimney smoke
-    for (const s of smoke) {
-      const a = U.clamp(s.life / 3, 0, 1) * 0.35;
-      g.fillStyle = `rgba(210,205,220,${a.toFixed(2)})`;
-      const rr = Math.max(PXB, Math.round(s.r / PXB) * PXB);
-      g.fillRect(Math.round(s.x / PXB) * PXB, Math.round(s.y / PXB) * PXB, rr, rr);
-    }
-    g.restore();
-    if (night) { g.fillStyle = 'rgba(14,10,30,0.5)'; g.fillRect(0, 0, W, H); }
-    else if (light < 0.85) { g.fillStyle = `rgba(40,26,20,${((0.85 - light) * 0.5).toFixed(2)})`; g.fillRect(0, 0, W, H); }
-    // the only words on the street are painted on the signs, and this one,
-    // which tells you which door your hand is on
-    if (hoverI >= 0) {
-      const s = TOWN_SHOPS[hoverI];
-      const sx = Math.round(s.x + 54 - camX);
-      Font.draw(g, 'GO IN', sx, ROAD + 18, { scale: 1, color: '#1a1008', align: 'center' });
-      Font.draw(g, 'GO IN', sx, ROAD + 17, { scale: 1, color: '#f2c936', align: 'center' });
-    }
-  }
-  // one shopfront: stone footing, boarded wall, a shuttered window, a door,
-  // a swinging sign and a tiled roof
-  function front(g, s, i) {
-    const x = s.x, base = ROAD;
-    const BW = 108, BH = 132;
-    const y0 = base - BH;
-    // the wall
-    g.fillStyle = '#000000'; g.fillRect(x - 3, y0 - 3, BW + 6, BH + 6);
-    for (let yy = y0; yy < base; yy += 6) {
-      g.fillStyle = (Math.round((yy - y0) / 6) % 2) ? s.col : U.shade(s.col, 0.12);
-      g.fillRect(x, yy, BW, 6);
-      g.fillStyle = U.shade(s.col, 0.24); g.fillRect(x, yy, BW, 1);
-      g.fillStyle = U.shade(s.col, -0.3); g.fillRect(x, yy + 5, BW, 1);
-    }
-    // the footing
-    for (let bx = 0; bx < BW; bx += 14) {
-      g.fillStyle = bx % 28 ? '#4a443c' : '#585046';
-      g.fillRect(x + bx, base - 20, 13, 20);
-      g.fillStyle = '#000000'; g.fillRect(x + bx + 13, base - 20, 1, 20);
-    }
-    // the roof: overhanging tiles in three courses
-    for (let c = 0; c < 4; c++) {
-      const rw = BW + 20 - c * 5, rx = x + (BW - rw) / 2, ry = y0 - 8 - c * 7;
-      g.fillStyle = '#000000'; g.fillRect(rx - 2, ry - 2, rw + 4, 11);
-      g.fillStyle = s.roof; g.fillRect(rx, ry, rw, 9);
-      g.fillStyle = U.shade(s.roof, 0.3); g.fillRect(rx, ry, rw, 2);
-      for (let tx = 0; tx < rw; tx += 9) { g.fillStyle = U.shade(s.roof, -0.35); g.fillRect(rx + tx, ry + 2, 1, 7); }
-    }
-    // the chimney
-    g.fillStyle = '#000000'; g.fillRect(x + 48, y0 - 54, 16, 24);
-    g.fillStyle = '#5a4438'; g.fillRect(x + 50, y0 - 52, 12, 22);
-    g.fillStyle = '#7a6050'; g.fillRect(x + 50, y0 - 52, 12, 3);
-    // the window, shuttered, with whatever is behind it lit
-    const wx = x + 10, wy = y0 + 26;
-    g.fillStyle = '#000000'; g.fillRect(wx - 3, wy - 3, 42, 40);
-    g.fillStyle = '#2a1f14'; g.fillRect(wx, wy, 36, 34);
-    g.fillStyle = Sky.isNight() ? '#f2c936' : '#8fb4c4'; g.fillRect(wx + 3, wy + 3, 30, 28);
-    g.fillStyle = 'rgba(255,255,255,0.22)'; g.fillRect(wx + 3, wy + 3, 30, 6);
-    g.fillStyle = '#2a1f14'; g.fillRect(wx + 17, wy, 3, 34); g.fillRect(wx, wy + 15, 36, 3);
-    // the door
-    const dx = x + 62, dy = base - 56;
-    g.fillStyle = '#000000'; g.fillRect(dx - 3, dy - 3, 38, 59);
-    g.fillStyle = '#3d2714'; g.fillRect(dx, dy, 32, 56);
-    for (let px = 0; px < 32; px += 8) { g.fillStyle = px % 16 ? '#4d2f16' : '#5a3a1c'; g.fillRect(dx + px, dy, 7, 56); }
-    g.fillStyle = '#6b4423'; g.fillRect(dx, dy, 32, 3);
-    g.fillStyle = '#d8a41c'; g.fillRect(dx + 25, dy + 28, 4, 4);
-    g.fillStyle = '#a9750d'; g.fillRect(dx + 4, dy + 8, 24, 3);
-    // the step
-    g.fillStyle = '#585046'; g.fillRect(dx - 4, base - 5, 40, 5);
-    g.fillStyle = '#000000'; g.fillRect(dx - 4, base, 40, 1);
-    // the sign, hung on an iron bracket and swinging
-    const sw = Math.sin(t * 1.1 + i) * 0.045;
-    const bx = x + BW + 4, by = y0 + 14;
-    g.fillStyle = '#2a2630'; g.fillRect(x + BW, by - 4, 22, 3);
-    g.save();
-    g.translate(bx + 14, by);
-    g.rotate(sw);
-    const SW2 = 84, SH2 = 38;
-    g.fillStyle = '#2a2630'; g.fillRect(-1, -4, 2, 8);
-    g.fillStyle = '#000000'; g.fillRect(-SW2 / 2 - 3, 3, SW2 + 6, SH2 + 6);
-    g.fillStyle = '#3d2714'; g.fillRect(-SW2 / 2, 6, SW2, SH2);
-    g.fillStyle = '#5a3a1c'; g.fillRect(-SW2 / 2 + 3, 9, SW2 - 6, SH2 - 6);
-    g.fillStyle = '#2a1a0c'; g.fillRect(-SW2 / 2 + 3, 9, SW2 - 6, 2);
-    Font.draw(g, s.name, 0, 14, { scale: 1, color: '#1a1008', align: 'center' });
-    Font.draw(g, s.name, 0, 13, { scale: 1, color: '#f0dcb0', align: 'center' });
-    Font.draw(g, s.sub, 0, 26, { scale: 1, color: '#a9750d', align: 'center' });
-    g.restore();
-    // the lamp beside the door
-    g.fillStyle = '#2a2630'; g.fillRect(x + 100, base - 74, 3, 74);
-    g.fillStyle = '#000000'; g.fillRect(x + 94, base - 86, 15, 14);
-    g.fillStyle = Sky.isNight() ? '#f2c936' : '#6b5a40'; g.fillRect(x + 96, base - 84, 11, 10);
-    if (Sky.isNight()) { g.fillStyle = 'rgba(242,201,54,0.10)'; g.fillRect(x + 84, base - 96, 35, 60); }
-  }
-
-  // ---- inside a shop -------------------------------------------------------
-  // The same room three times over: a floor, a back wall, a counter, a person
-  // behind it and their stock laid out on the boards in front of them.
-  function shopAt(key) { return TOWN_SHOPS.find((s) => s.key === key); }
-  const ROWH = 30, LISTX = 40, LISTY = 150, LISTW = 350, PER = 6;
-  function rows() { return stockOf(inside); }
-  function renderInside(g) {
-    const s = shopAt(inside);
-    const all = rows();
-    const page0 = page * PER;
-    // the room
-    for (let y = 0; y < 210; y += 6) {                       // the back wall, boarded
-      g.fillStyle = (Math.round(y / 6) % 2) ? U.shade(s.col, -0.42) : U.shade(s.col, -0.34);
-      g.fillRect(0, y, W, 6);
-      g.fillStyle = U.shade(s.col, -0.22); g.fillRect(0, y, W, 1);
-    }
-    for (let y = 210; y < H; y += 4) {                        // the floorboards
-      g.fillStyle = (Math.round(y / 4) % 2) ? '#4d2f16' : '#5a3a1c';
-      g.fillRect(0, y, W, 4);
-      g.fillStyle = '#35200f'; g.fillRect(0, y + 3, W, 1);
-    }
-    for (let x = 0; x < W; x += 74) { g.fillStyle = '#2a1a0c'; g.fillRect(x, 210, 2, H - 210); }
-    // the shelves along the back, with the shop's own clutter on them
-    for (let sh = 0; sh < 3; sh++) {
-      const y = 44 + sh * 46;
-      g.fillStyle = '#000000'; g.fillRect(330, y, W - 330, 8);
-      g.fillStyle = '#6b4423'; g.fillRect(330, y + 1, W - 330, 6);
-      g.fillStyle = '#8c5c30'; g.fillRect(330, y + 1, W - 330, 2);
-      clutter(g, s.key, sh, y);
-    }
-    // the window on the left with the street outside it
-    g.fillStyle = '#000000'; g.fillRect(28, 32, 120, 96);
-    g.fillStyle = Sky.isNight() ? '#1a1430' : '#8fb4c4'; g.fillRect(33, 37, 110, 86);
-    g.fillStyle = Sky.isNight() ? '#2a2050' : '#a8c8d4'; g.fillRect(33, 37, 110, 30);
-    g.fillStyle = '#4a3a2a'; g.fillRect(33, 76, 110, 4); g.fillRect(86, 37, 4, 86);
-    g.fillStyle = '#3d2714'; g.fillRect(28, 124, 120, 8);
-    // the counter
-    g.fillStyle = '#000000'; g.fillRect(392, 196, W - 392, 8);
-    g.fillStyle = '#7a4f24'; g.fillRect(396, 200, W - 396, H - 200);
-    g.fillStyle = '#9a6a34'; g.fillRect(396, 200, W - 396, 5);
-    for (let x = 400; x < W; x += 16) { g.fillStyle = '#5a3a1c'; g.fillRect(x, 206, 1, H - 206); }
-    // the keeper behind it
-    const kf = Math.floor(t * (keeperT > 0 ? 8 : 4));
-    const img = Sprites.villager(s.keeper, kf, keeperT > 0 ? 'talk' : 'idle');
-    g.drawImage(img, 470, 200 - img.height + 6);
-    // what they are saying, on a board propped on the counter
-    const line = sayT > 0 ? say : s.line;
-    const ws = Font.wrap(line, 150, 1);
-    g.fillStyle = '#000000'; g.fillRect(396, 96, 232, 18 + ws.length * 11);
-    g.fillStyle = '#ddc39a'; g.fillRect(399, 99, 226, 12 + ws.length * 11);
-    g.fillStyle = '#f0dcb0'; g.fillRect(399, 99, 226, 3);
-    ws.forEach((l, i) => Font.draw(g, l, 512, 106 + i * 11, { scale: 1, color: '#3a2410', align: 'center' }));
-    // the stock, laid out on the boards
-    Font.draw(g, s.sub, LISTX, 138, { scale: 1, color: '#c9a878' });
-    if (!all.length) {
-      Font.draw(g, inside === 'pawn' ? 'NOTHING WORTH BUYING ON YOU' : 'SOLD OUT', LISTX, LISTY + 10, { scale: 1, color: '#8a6f45' });
-    }
-    for (let i = 0; i < PER; i++) {
-      const r = all[page0 + i];
-      if (!r) break;
-      const y = LISTY + i * ROWH;
-      const hot = hoverI === i;
-      const can = r.sell || afford(r);
-      g.fillStyle = '#000000'; g.fillRect(LISTX - 2, y - 2, LISTW + 4, ROWH - 2);
-      g.fillStyle = hot ? '#ecd6ac' : '#c9a878'; g.fillRect(LISTX, y, LISTW, ROWH - 6);
-      g.fillStyle = hot ? '#f7ecd2' : '#ddc39a'; g.fillRect(LISTX, y, LISTW, 2);
-      // the thing itself, drawn small on the left of its row
-      g.save();
-      g.translate(LISTX + 16, y + ROWH - 9);
-      if (r.furn) { const sc = Math.min(1, 20 / Math.max(r.furn.w, r.furn.h)); Props.drawFurniture(g, r.furn.key, 0, 2, sc); }
-      else if (r.off) { Sprites.drawCube(g, r.off, 16, 14, { outline: '#000000' }); }
-      else if (r.god) { g.fillStyle = '#000000'; g.fillRect(-8, -16, 16, 16); g.fillStyle = r.god.color; g.fillRect(-7, -15, 14, 14); g.fillStyle = r.god.eye; g.fillRect(-3, -11, 3, 3); }
-      else if (r.wombat) {
-        const wi = Sprites.wombat('idle', Math.floor(t * 4), 'brown', 1, 'adult');
-        const sc = 0.6;
-        g.drawImage(wi, -wi.width * sc / 2, -wi.height * sc + 5, Math.round(wi.width * sc), Math.round(wi.height * sc));
-      }
-      else if (r.icon) Icons.blit(g, r.icon, -8, -16, 1);
-      g.restore();
-      Font.draw(g, r.name.toUpperCase(), LISTX + 34, y + 5, { scale: 1, color: can ? '#3a2410' : '#8a6f45' });
-      if (r.blurb) Font.draw(g, Font.wrap(r.blurb, 210, 1)[0], LISTX + 34, y + 15, { scale: 1, color: '#7a5a34' });
-      if (r.n) Font.draw(g, 'x' + r.n, LISTX + LISTW - 96, y + 5, { scale: 1, color: '#7a5a34' });
-      const pl = (r.sell ? '+' : '') + U.fmt(r.sell ? Math.round(r.price * 0.92) : r.price) + ' W$';
-      Font.draw(g, pl, LISTX + LISTW - 8, y + 5, { scale: 1, color: r.sell ? '#3d6b1c' : (can ? '#7a4f06' : '#a03020'), align: 'right' });
-    }
-    // the pages, as two arrows cut in the boards
-    const pages = Math.ceil(all.length / PER);
-    if (pages > 1) {
-      Font.draw(g, '< ' + (page + 1) + '/' + pages + ' >', LISTX + LISTW / 2, LISTY + PER * ROWH + 4, { scale: 1, color: '#c9a878', align: 'center' });
-    }
-    // the way out
-    g.fillStyle = '#000000'; g.fillRect(16, H - 32, 70, 24);
-    g.fillStyle = '#5a3a1c'; g.fillRect(19, H - 29, 64, 18);
-    g.fillStyle = '#8c5c30'; g.fillRect(19, H - 29, 64, 2);
-    Font.draw(g, 'OUT', 51, H - 24, { scale: 1, color: '#f0dcb0', align: 'center' });
-  }
-  // the junk on the shelves, which is how you tell whose shop you are in
-  function clutter(g, key, sh, y) {
-    const r = Art.rng(sh * 31 + key.length * 977);
-    for (let i = 0; i < 6; i++) {
-      const x = 340 + i * 48 + r() * 8;
-      if (key === 'pawn') {
-        const cols = ['#d8a41c', '#8fd4e4', '#c42a1e', '#a09ba8', '#7a6a9a'];
-        const c = cols[Math.floor(r() * cols.length)];
-        const w2 = 8 + Math.round(r() * 8), h2 = 10 + Math.round(r() * 12);
-        g.fillStyle = '#000000'; g.fillRect(x - 1, y - h2 - 1, w2 + 2, h2 + 2);
-        g.fillStyle = c; g.fillRect(x, y - h2, w2, h2);
-        g.fillStyle = U.shade(c, 0.35); g.fillRect(x, y - h2, w2, 2);
-      } else if (key === 'furn') {
-        const w2 = 6 + Math.round(r() * 6), h2 = 14 + Math.round(r() * 16);
-        g.fillStyle = '#000000'; g.fillRect(x - 1, y - h2 - 1, w2 + 2, h2 + 2);
-        g.fillStyle = ['#6b4423', '#8c5c30', '#a87642'][Math.floor(r() * 3)];
-        g.fillRect(x, y - h2, w2, h2);
-        g.fillStyle = '#c9a878'; g.fillRect(x, y - h2, w2, 2);
-      } else {
-        const h2 = 12 + Math.round(r() * 10);
-        g.fillStyle = '#000000'; g.fillRect(x - 1, y - h2 - 1, 12, h2 + 2);
-        g.fillStyle = '#5e5a68'; g.fillRect(x, y - h2, 10, h2);
-        g.fillStyle = '#a09ba8'; g.fillRect(x, y - h2, 10, 2);
-        g.fillStyle = '#6b4423'; g.fillRect(x + 3, y - h2 + 4, 4, h2 - 4);
-      }
-    }
-  }
-
-  // ---- input ---------------------------------------------------------------
-  function doorAt(sx) {
-    const x = sx + camX;
-    for (let i = 0; i < TOWN_SHOPS.length; i++) {
-      const s = TOWN_SHOPS[i];
-      if (x > s.x + 52 && x < s.x + 102) return i;
-    }
-    return -1;
-  }
-  function press(x, y) {
-    if (!inside) {
-      if (y > ROAD - 60) {
-        const i = doorAt(x);
-        if (i >= 0) { inside = TOWN_SHOPS[i].key; page = 0; hoverI = -1; say = ''; Audio.play('click'); return; }
-      }
-      return;
-    }
-    if (x < 90 && y > H - 34) { inside = null; hoverI = -1; Audio.play('click'); return; }
-    const all = rows(), pages = Math.ceil(all.length / PER);
-    if (pages > 1 && y > LISTY + PER * ROWH - 2 && y < LISTY + PER * ROWH + 18) {
-      page = (page + (x < LISTX + LISTW / 2 ? pages - 1 : 1)) % pages;
-      Audio.play('click'); return;
-    }
-    const i = rowAt(x, y);
-    if (i >= 0) { const r = all[page * PER + i]; if (r) buy(r); }
-  }
-  function rowAt(x, y) {
-    if (x < LISTX || x > LISTX + LISTW) return -1;
-    const i = Math.floor((y - LISTY) / ROWH);
-    if (i < 0 || i >= PER) return -1;
-    if (y - LISTY - i * ROWH > ROWH - 6) return -1;
-    return i;
-  }
-  function move(x, y) {
-    if (inside) { hoverI = rowAt(x, y); return; }
-    hoverI = y > ROAD - 60 ? doorAt(x) : -1;
-    // walking the street: the view follows the pointer toward the edges
-    if (x < 120) tCam = Math.max(0, tCam - (120 - x) * 0.06);
-    else if (x > W - 120) tCam = Math.min(STREET - W, tCam + (x - (W - 120)) * 0.06);
-  }
-  function hover(x, y) {
-    move(x, y);
-    if (inside) {
-      const r = rows()[page * PER + hoverI];
-      if (!r) return null;
-      return `<b>${r.name}</b>${r.blurb ? '<br>' + r.blurb : ''}<br>${r.sell ? 'Grimm pays <b>' + U.fmt(Math.round(r.price * 0.92)) + '</b> W$' : '<b>' + U.fmt(r.price) + '</b> W$'}`;
-    }
-    if (hoverI >= 0) { const s = TOWN_SHOPS[hoverI]; return `<b>${s.name}</b><br>${s.sub.toLowerCase()}`; }
-    return null;
-  }
-  function release() { }
-  function wheel(d) { if (!inside) tCam = U.clamp(tCam + d * 0.8, 0, STREET - W); }
-  function key(k) {
-    if (k === 'Escape' || k === 'Backspace') { if (inside) { inside = null; return true; } return false; }
-    return false;
-  }
-
-  return { init, enter, leave, update, render, press, move, release, hover, wheel, key,
-    get inside() { return inside; } };
 })();
 </script>
 
@@ -14888,6 +14609,12 @@ const Nursery = (() => {
       out.push({ id: 'dec:' + d.key, kind: 'dec', key: d.key, name: d.name, icon: d.icon,
         price: d.cost, sold: !!G.decor[d.key], blurb: d.desc });
     }
+    // Furniture is yard stock: it stands out the back between the benches and
+    // you carry it home in a crate and put it down where you like.
+    for (const f of FURNITURE) {
+      out.push({ id: 'fn:' + f.key, kind: 'fn', key: f.key, name: f.name, icon: 'd_nest',
+        furn: f, price: f.cost, sold: false, blurb: f.blurb });
+    }
     return out;
   }
   const BAY_W = 150;
@@ -14898,7 +14625,8 @@ const Nursery = (() => {
     const plain = list.filter((p) => p.kind === 'seed' && p.pkind === 'crop');
     const trees = list.filter((p) => p.kind === 'seed' && p.pkind === 'tree');
     const magic = list.filter((p) => p.kind === 'seed' && p.pkind === 'magic');
-    const goods = list.filter((p) => p.kind !== 'seed');
+    const furn = list.filter((p) => p.kind === 'fn');
+    const goods = list.filter((p) => p.kind !== 'seed' && p.kind !== 'fn');
     let x = 190;
     bays = [];
     const place = (arr, kind, label) => {
@@ -14912,6 +14640,7 @@ const Nursery = (() => {
     place(trees, 'bench', 'THE ORCHARD');
     place(magic, 'vault', 'THE BACK SHELF');
     place(goods, 'goods', 'GARDEN GOODS');
+    place(furn, 'goods', 'THE YARD');
     worldW = Math.max(VW + 200, x + 260);
   }
 
@@ -14952,6 +14681,7 @@ const Nursery = (() => {
       else if (p.kind === 'tier') { if (nextTier(G, p.key)) G.tiers[p.key] = tierIndex(G, p.key) + 1; }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = 1;
+      else if (p.kind === 'fn') { if (!G.crates) G.crates = {}; G.crates[p.key] = (G.crates[p.key] || 0) + 1; }
     }
     const n = basket.length;
     basket.length = 0;
@@ -15513,7 +15243,11 @@ const Nursery = (() => {
       const sx = x - 13 + ((i * 7) % 26), sy = y - 7 + ((i * 5) % 4);
       Art.rect(g, sx, sy, 3 + (i % 3), 1, i % 2 ? '#c2a15c' : '#9c8040');
     }
-    Icons.blit(g, s.p.icon, Math.round(x - 16), Math.round(y - 40), 2);   // what is in it
+    // furniture shows the actual piece; everything else shows its icon
+    if (s.p.furn) {
+      const d = s.p.furn, sc = Math.min(1.6, 34 / Math.max(d.w, d.h));
+      Props.drawFurniture(g, d.key, Math.round(x), Math.round(y - 6), sc);
+    } else Icons.blit(g, s.p.icon, Math.round(x - 16), Math.round(y - 40), 2);   // what is in it
     if (s.p.sold) {                                                // a SOLD card over it
       Art.rect(g, x - 17, y - 2, 34, 11, '#3a1a14');
       Art.rect(g, x - 16, y - 1, 32, 9, '#a8402c');
@@ -17432,11 +17166,21 @@ const Phone = (() => {
   }
 
   // ---- jobs -----------------------------------------------------------------
+  // the day's omen and where you stand, on top of the jobs
+  function faithCard() {
+    const o = Cult.omen(), r = Cult.rank(), n = Cult.nextRank();
+    return `<div class="phcard big"><div class="phcardh">${ic('ph_bell')}<b>${esc(r.name)}</b>
+        <span class="phdim">${n ? U.fmt(Math.max(0, n.at - Cult.devotion)) + ' to go' : 'the top'}</span></div>
+      <p>${esc(r.perk)}</p>
+      ${bar(Cult.progress() * 100, 100, '#9a5cf0')}</div>` +
+      (o ? `<div class="phcard"><div class="phcardh">${ic(o.icon)}<b>${esc(o.name)}</b>
+        <span class="phdim">${o.good ? 'good' : 'ill'}</span></div><p>${esc(o.line)}</p></div>` : '');
+  }
   function quests() {
     const q = Guide.current();
     const where = q ? (q.where || 'in the grove') : '';
     const list = G.mode === 'grove' && !G.arrived ? Grove.tasks() : [];
-    let html = '';
+    let html = faithCard();
     if (q) {
       html += `<div class="phcard big">
         <div class="phcardh">${ic(q.icon)}<b>${esc(q.title)}</b></div>
@@ -17870,6 +17614,14 @@ const UI = (() => {
       dot.hidden = jobs === 0;
       dot.textContent = jobs > 9 ? '9+' : String(jobs);
     }
+    const fr = $('faith-rank'), fb = $('faith-bar');
+    if (fr && typeof Cult !== 'undefined' && Cult.rank()) {
+      const r = Cult.rank(), n = Cult.nextRank();
+      fr.textContent = r.name.toUpperCase();
+      fb.firstElementChild.style.width = Math.round(Cult.progress() * 100) + '%';
+      $('faith').classList.toggle('full', !n);
+      $('faith').hidden = G.mode === 'shrine' || G.mode === 'intro' || G.mode === 'menu';
+    }
     refreshList();
     refreshNotebook();
   }
@@ -17898,7 +17650,7 @@ const UI = (() => {
   function refreshNotebook() { }           // the cultist speaks for herself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
-  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair', 'mound', 'pond', 'paint', 'build'];
+  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair', 'terra', 'build'];
   let wheelRing = 'tools', wheelAt = { x: 320, y: 180 };
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
@@ -18352,6 +18104,7 @@ const UI = (() => {
     // The shaft has no interface. The purse and the phone go away with it;
     // the only thing left on screen is the way back out.
     $('money').hidden = mode === 'shrine';
+    $('faith').hidden = mode === 'shrine' || mode === 'intro' || mode === 'menu';
     $('b-phone').hidden = mode === 'shrine';
     $('ov-shop').hidden = mode !== 'shop';
     $('ov-nursery').hidden = mode !== 'nursery';
@@ -18488,14 +18241,16 @@ const Menu = (() => {
   // bolted over the corners, a red ribbon down one edge, wood plank banners
   // for the headings and beaten gold for anything you can press. Corners are
   // cut in one step, never curved.
+  // The same warm wood and violet iron the rest of the interface wears. The
+  // iron used to be teal; the gods come in violet, so the iron does too.
   const KIT = {
-    ink: '#140c06',
-    t0: '#1e1208', t1: '#35200f', t2: '#5a3619', t3: '#8c5c30', t4: '#a87642',
-    i0: '#10333f', i1: '#1c5568', i2: '#2f7f96', i3: '#4fa6be', i4: '#8fd4e4',
-    p0: '#8a6f45', p1: '#ab8a5c', p2: '#ddc39a', p3: '#ecd6ac', p4: '#f7ecd2',
-    g0: '#7a4f06', g1: '#a9750d', g2: '#d8a41c', g3: '#f2c936', g4: '#ffe98a',
-    d0: '#10333f', d2: '#2f7f96', d3: '#4fa6be', d4: '#8fd4e4',
-    rib: '#a8323a', rib0: '#6d1a22',
+    ink: '#0d0a12',
+    t0: '#241509', t1: '#3f2712', t2: '#6a4020', t3: '#a46b36', t4: '#c68c4c',
+    i0: '#1d0f38', i1: '#3d1f78', i2: '#6b32bd', i3: '#9a5cf0', i4: '#c898ff',
+    p0: '#9c7f4e', p1: '#c09b62', p2: '#edd3a2', p3: '#f6e4ba', p4: '#fffae8',
+    g0: '#7a4c06', g1: '#bd8410', g2: '#efb625', g3: '#ffd95c', g4: '#fff3b8',
+    d0: '#1d0f38', d2: '#6b32bd', d3: '#9a5cf0', d4: '#c898ff',
+    rib: '#d84428', rib0: '#902418',
   };
   // a box with one step cut out of each corner
   function cut(g, x, y, w, h, col, c = 3) {
@@ -19164,6 +18919,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
+      devotion: 0, rank: 'stray', omen: null, omenDay: -1, crates: {}, furniture: [],
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -19247,7 +19003,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      Sky.init(G); World.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Town.init(G);
+      Sky.init(G); World.init(G); Cult.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
       Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -19297,15 +19053,12 @@ const Main = (() => {
     else if (mode === 'shop') Shop.enter();
     else if (mode === 'nursery') Nursery.enter();
     else if (mode === 'shrine') Ritual.enter();
-    else if (mode === 'town') Town.enter();
     if (mode !== 'shrine') Ritual.leave();
-    if (mode !== 'town') Town.leave();
     Audio.setMode('pen');
     save();
   }
   function back() {
-    if (G.mode === 'town' && Town.inside) { Town.key('Escape'); return; }
-    if (G.mode === 'shrine' || G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'town') setMode('map');
+    if (G.mode === 'shrine' || G.mode === 'shop' || G.mode === 'nursery') setMode('map');
     else setMode('grove');
   }
 
@@ -19355,7 +19108,6 @@ const Main = (() => {
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
       else if (G.mode === 'shrine') Ritual.press(p.x, p.y, false);
-      else if (G.mode === 'town') Town.press(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -19375,14 +19127,12 @@ const Main = (() => {
         }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'nursery') { Nursery.move(p.x, p.y); UI.hideTip(); return; }
-        if (G.mode === 'town') { Town.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
       else if (G.mode === 'nursery') tip = Nursery.hover(p.x, p.y);
-      else if (G.mode === 'town') tip = Town.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
@@ -19406,14 +19156,13 @@ const Main = (() => {
         // with the hammer or the ground brush out, the wheel changes what is
         // on the end of it rather than how close you are standing
         if (G.tool === 'build') { Grove.cycleBuild(e.deltaY < 0 ? -1 : 1); return; }
-        if (G.tool === 'paint') { Grove.cyclePaint(e.deltaY < 0 ? -1 : 1); return; }
+        if (G.tool === 'terra') { Grove.cycleTerra(e.deltaY < 0 ? -1 : 1); return; }
         if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8);
         else { const p = pos(e); Grove.zoomBy(e.deltaY < 0 ? 1.14 : 1 / 1.14, p.x, p.y); }
       }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'nursery') { e.preventDefault(); Nursery.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'shrine') { e.preventDefault(); Ritual.wheel(e.deltaY); }
-      else if (G.mode === 'town') { e.preventDefault(); Town.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
     document.addEventListener('keydown', (e) => {
@@ -19485,12 +19234,12 @@ const Main = (() => {
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);
       else if (G.mode === 'nursery') Nursery.update(real);
-      else if (G.mode === 'town') Town.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
     // The rite pauses the world but its own effects must keep running, or
     // bolts and roots spawned during the cutscene never expire.
+    if (playing && !G.paused) Cult.update();       // the day turns, the omen turns with it
     FX.updateWorld(Ritual.active ? real : (G.paused ? 0 : real));
 
     g.setTransform(1, 0, 0, 1, 0, 0);
@@ -19505,7 +19254,6 @@ const Main = (() => {
       else if (G.mode === 'shrine') Ritual.renderShrine(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
-      else if (G.mode === 'town') Town.render(g);
       else Nursery.render(g);
       g.restore();
     }
@@ -19540,7 +19288,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Ritual.init(G); Atlas.init(G); Town.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Cult.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();
