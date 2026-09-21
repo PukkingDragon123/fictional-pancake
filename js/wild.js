@@ -93,6 +93,77 @@ const Wild = (() => {
     UI.refreshHUD(); Main.save();
     return true;
   }
+  // ---- sculpting -----------------------------------------------------------
+  // Held down and dragged, not clicked. A stroke finds whatever is already
+  // under the brush and grows it; if there is nothing it starts something
+  // small. Ground you have already paid for is free to keep shaping, so a hill
+  // is one purchase and then as much fiddling as you like.
+  const MAX_R = 74, MIN_R = 13;
+  function sculpt(kind, x, y, br, first) {
+    const list = kind === 'raise' ? mounds : ponds;
+    const other = kind === 'raise' ? ponds : mounds;
+    // a stroke over the opposite kind takes it down first
+    for (let i = other.length - 1; i >= 0; i--) {
+      const o = other[i];
+      if (Math.hypot(o.x - x, (o.y - y) * 1.6) < br * 0.7) {
+        o.r -= br * 0.05;
+        if (o.r < MIN_R) {
+          other.splice(i, 1);
+          if (kind === 'raise') for (let j = frogs.length - 1; j >= 0; j--) if (frogs[j].pond === o) frogs.splice(j, 1);
+        }
+        return true;
+      }
+    }
+    // grow whatever is already here
+    let near = null, nd = 1e9;
+    for (const m of list) {
+      const d = Math.hypot(m.x - x, (m.y - y) * 1.6);
+      if (d < br + m.r * 0.6 && d < nd) { nd = d; near = m; }
+    }
+    if (near) {
+      if (near.r < MAX_R) near.r = Math.min(MAX_R, near.r + br * 0.055);
+      // and it drifts toward the brush, so a stroke pulls the shape along
+      near.x = U.lerp(near.x, x, 0.02);
+      near.y = U.lerp(near.y, y, 0.012);
+      if (kind === 'raise') World.sowGrass(x, y, 14);
+      return true;
+    }
+    // nothing here: start one, and that is the only part you pay for
+    if (!first) return false;
+    const why = canPlace(kind === 'raise' ? 'mound' : 'pond', x, y);
+    if (why) { Audio.play('error'); UI.toast(why, 'bad'); return false; }
+    const cost = kind === 'raise' ? MOUND_COST : POND_COST;
+    if (G.wd < cost) { Audio.play('error'); UI.toast('not enough for that', 'bad'); return false; }
+    G.wd -= cost;
+    const seed = Math.floor(Math.random() * 1e6);
+    if (kind === 'raise') { mounds.push(mkMound(x, y, MIN_R + 3, seed)); World.sowGrass(x, y, 16); }
+    else {
+      const p2 = mkPond(x, y, MIN_R + 3, seed);
+      ponds.push(p2); World.till(x, y, 16);
+      for (let i = 0; i < 2; i++) frogs.push(mkFrog(p2));
+    }
+    FX.dust(x, y, 8, PAL.soil3);
+    Audio.play('dig');
+    UI.refreshHUD();
+    return true;
+  }
+  // a stroke that flattens instead of raising
+  function flatten(x, y, br) {
+    let any = false;
+    for (const list of [mounds, ponds]) {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const m = list[i];
+        if (Math.hypot(m.x - x, (m.y - y) * 1.6) > br + m.r * 0.5) continue;
+        m.r -= br * 0.07;
+        any = true;
+        if (m.r < MIN_R) {
+          list.splice(i, 1);
+          for (let j = frogs.length - 1; j >= 0; j--) if (frogs[j].pond === m) frogs.splice(j, 1);
+        }
+      }
+    }
+    return any;
+  }
   function place(kind, x, y) {
     const why = canPlace(kind, x, y);
     if (why) { Audio.play('error'); UI.toast(why, 'bad'); return false; }
@@ -770,7 +841,7 @@ const Wild = (() => {
 
   return {
     init, save, update, drawGround, items,
-    place, level, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
+    place, level, sculpt, flatten, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
     get mounds() { return mounds; }, get ponds() { return ponds; },
     get bugs() { return bugs; },
     bugsNear(x, y, r) { let n = 0; for (const b of bugs) if (Math.hypot(b.x - x, (b.y - y) * 1.4) < r) n++; return n; },

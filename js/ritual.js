@@ -74,7 +74,9 @@ const Ritual = (() => {
     if (god.key === 'demewombra') G.seeds.runeberry = (G.seeds.runeberry || 0) + 3;
     FX.setSlowmo(1, true); FX.vignette(0); FX.letterbox(false); FX.cine.tDesat = 0;
     Audio.setMode('pen');
-    UI.showBlessing(god);
+    // it says its piece, and offers you one thing on top of the blessing
+    if (typeof Rite !== 'undefined') Rite.god(god);
+    else UI.showBlessing(god);
     Main.save();
   }
 

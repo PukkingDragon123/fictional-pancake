@@ -103,13 +103,12 @@ img.ico.xl { width: 48px; height: 48px; }
 .x:hover, .bx:hover { background: linear-gradient(180deg, #e08a44 0 32%, #c96a24 32% 72%, #9c4816 72% 100%); }
 /* the teal-iron variant, for the small square icon buttons */
 .mbtn {
-  position: relative; display: flex; align-items: center; justify-content: center; padding: 7px 9px;
-  border: 3px solid var(--ol);
-  background: linear-gradient(180deg, var(--tl3) 0 30%, var(--tl2) 30% 70%, var(--tl1) 70% 100%);
-  box-shadow: inset 0 2px 0 var(--tl4), inset 0 -2px 0 var(--tl0), 0 4px 0 0 var(--tl0), 0 4px 0 3px var(--ol);
+  position: relative; display: flex; align-items: center; justify-content: center; padding: 4px;
+  border: 0; background: none; box-shadow: none;
+  filter: drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000) drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000) drop-shadow(0 4px 0 rgba(0,0,0,0.45));
 }
-.mbtn:hover { background: linear-gradient(180deg, var(--tl4) 0 30%, var(--tl3) 30% 70%, var(--tl2) 70% 100%); }
-.mbtn img.ico { width: 22px; height: 22px; }
+.mbtn:hover { filter: drop-shadow(2px 0 0 var(--tl3)) drop-shadow(-2px 0 0 var(--tl3)) drop-shadow(0 2px 0 var(--tl3)) drop-shadow(0 -2px 0 var(--tl3)); }
+.mbtn img.ico { width: 30px; height: 30px; }
 /* greyed out, and it wins over every colour variant above */
 .btn:disabled, .act:disabled, .act.go:disabled, .buy:disabled, .rbtn:disabled {
   background: linear-gradient(180deg, #9a8b72 0 32%, #7a6e59 32% 72%, #5b5142 72% 100%) !important;
@@ -129,71 +128,70 @@ img.ico.xl { width: 48px; height: 48px; }
 @keyframes pop2 { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes slide { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 
-/* ---- the purse: a small plank on the wall -------------------------------- */
+/* ---- the head-up ---------------------------------------------------------
+   There are no boxes over the wood any more. The purse, your standing and the
+   list are drawn straight onto the scene as pixel art with a hard black line
+   behind every glyph, so nothing is covered up by a plank of interface. What
+   is left is icons, runes and numbers floating over the grove. */
 #money {
-  position: absolute; left: 18px; top: 16px; z-index: 6;
-  display: flex; align-items: center; gap: 9px; padding: 8px 16px;
+  position: absolute; left: 16px; top: 12px; z-index: 6;
+  display: flex; align-items: center; gap: 6px; padding: 0;
   font-variant-numeric: tabular-nums; pointer-events: none;
-  background: linear-gradient(180deg, var(--wd3) 0 30%, var(--wd2) 30% 72%, var(--wd1) 72% 100%);
-  border: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 var(--wd4), inset 0 -3px 0 var(--wd0), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
+  background: none; border: 0; box-shadow: none;
 }
-#money::before, #money::after {
-  content: ''; position: absolute; top: 3px; bottom: 3px; width: 6px;
-  background: linear-gradient(180deg, var(--gd3), var(--gd1));
+/* one recipe for every word floating over the scene: a fat black stroke under
+   the fill, so it reads on leaves, on bark and on the sky alike */
+.hudtext, #money b, #faith span, #checklist h4, .task {
+  -webkit-text-stroke: 4px #000; paint-order: stroke fill;
+  text-shadow: 0 3px 0 rgba(0,0,0,0.5);
 }
-#money::before { left: 3px; } #money::after { right: 3px; }
-#money b { font-weight: 400; color: var(--gd4); font-family: var(--ft); font-size: 24px; text-shadow: 0 2px 0 var(--wd0); margin: 0 6px; }
-#money img.ico { width: 30px; height: 30px; }
+#money b {
+  font-weight: 400; color: var(--gd3); font-family: var(--ft); font-size: 26px; margin: 0;
+}
+#money img.ico { width: 32px; height: 32px; filter: drop-shadow(0 3px 0 rgba(0,0,0,0.5)); }
 #money.bump { animation: bump 0.32s ease-out; }
-#money.low { top: 98px; }
+#money.low { top: 12px; }
 
-/* ---- the to-do page ------------------------------------------------------ */
+/* your standing, as a row of runes rather than a plaque */
+#faith {
+  position: absolute; left: 18px; top: 50px; z-index: 6;
+  display: flex; align-items: center; gap: 6px; padding: 0;
+  background: none; box-shadow: none; pointer-events: none;
+}
+#faith span { font-size: 15px; letter-spacing: 3px; color: var(--tl4); }
+#faith i {
+  display: block; width: 74px; height: 8px; background: rgba(8,4,14,0.75);
+  box-shadow: 0 0 0 2px #000;
+}
+#faith i em { display: block; height: 100%; width: 0; background: var(--tl3); box-shadow: inset 0 2px 0 var(--tl4); transition: width .3s steps(6, end); }
+#faith.full i em { background: var(--gd2); box-shadow: inset 0 2px 0 var(--gd4); }
+
+/* ---- the list, pinned to nothing ---------------------------------------- */
 #checklist {
-  position: absolute; right: 22px; top: 26px; z-index: 6; width: 224px;
-  padding: 0 0 6px; pointer-events: none; color: var(--ink);
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.06) 0 2px, rgba(255,220,170,0.05) 2px 5px, rgba(0,0,0,0) 5px 11px),
-    linear-gradient(180deg, var(--pg3), var(--pg1));
-  border: 7px solid var(--wd2);
-  box-shadow:
-    inset 0 0 0 2px var(--wd0), inset 0 0 0 4px var(--pg0), inset 0 4px 0 4px var(--pg4),
-    0 0 0 3px var(--ol), 0 8px 0 3px rgba(0,0,0,0.5);
+  position: absolute; right: 20px; top: 16px; z-index: 6; width: 224px;
+  padding: 0; pointer-events: none; color: var(--pg4);
+  background: none; border: 0; box-shadow: none;
 }
-#checklist::after {                      /* iron brackets on the corners */
-  content: ''; position: absolute; inset: -7px; pointer-events: none;
-  background:
-    linear-gradient(180deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 0 0/20px 7px no-repeat,
-    linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 0 0/7px 20px no-repeat,
-    linear-gradient(180deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 0/20px 7px no-repeat,
-    linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 0/7px 20px no-repeat,
-    linear-gradient(180deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 0 100%/20px 7px no-repeat,
-    linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 0 100%/7px 20px no-repeat,
-    linear-gradient(180deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 100%/20px 7px no-repeat,
-    linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 100%/7px 20px no-repeat;
-}
+#checklist::after { content: none; }
 #checklist h4 {
-  position: relative; z-index: 1; margin: 0 0 8px; padding: 7px 12px 6px;
-  text-align: center; line-height: 1; letter-spacing: 3px;
-  color: #f4dfae; font-family: var(--ft); font-weight: 400; font-size: 16px;
-  text-shadow: 0 2px 0 var(--wd0);
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 3px, rgba(255,214,150,0.05) 3px 7px, rgba(0,0,0,0) 7px 15px),
-    linear-gradient(180deg, var(--wd4) 0 16%, var(--wd3) 16% 58%, var(--wd2) 58% 100%);
-  border-bottom: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 var(--wd5), inset 0 -3px 0 var(--wd0);
+  position: relative; z-index: 1; margin: 0 0 6px; padding: 0 2px 4px;
+  text-align: right; line-height: 1; letter-spacing: 4px;
+  color: var(--gd3); font-family: var(--ft); font-weight: 400; font-size: 17px;
+  background: none; border: 0;
 }
-.task { padding: 4px 11px 6px; font-size: 16px; color: var(--ink); }
-.trow { display: flex; align-items: center; gap: 7px; }
+.task {
+  display: flex; align-items: center; gap: 7px; padding: 2px 2px 3px; font-size: 17px;
+  color: var(--pg4);
+}
+.task img.ico { filter: drop-shadow(0 2px 0 rgba(0,0,0,0.6)); }
 .task .tname { flex: 1 1 auto; font-family: var(--ft); font-weight: 400; font-size: 16px;
-  color: #4a2e10; white-space: nowrap; }
-.task .tnum { flex: 0 0 auto; }
-.task .box { position: relative; width: 14px; height: 14px; flex: none;
-  background: var(--pg1); border: 2px solid var(--ol); box-shadow: inset 0 2px 0 var(--pg0); }
-.task .box i { position: absolute; left: -1px; top: -6px; width: 16px; height: 16px;
-  background: linear-gradient(45deg, transparent 44%, var(--gr2) 44% 62%, transparent 62%),
-              linear-gradient(-45deg, transparent 44%, var(--gr2) 44% 62%, transparent 62%); }
-.task.done { opacity: 0.7; }
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task .tnum { flex: 0 0 auto; color: var(--gd3); }
+.task .box { position: relative; width: 13px; height: 13px; flex: none;
+  background: rgba(8,4,14,0.8); box-shadow: 0 0 0 2px #000; }
+.task .box i { position: absolute; left: -2px; top: -7px; width: 17px; height: 17px;
+  background: no-repeat center/contain; }
+.task.done { opacity: 0.66; }
 .task.done .tname { color: var(--gr1); text-decoration: line-through; }
 .task.done .tnum { color: var(--gr1); }
 .task.done .box i { animation: tick 0.35s ease-out; transform-origin: center; }
@@ -217,13 +215,17 @@ img.ico.xl { width: 48px; height: 48px; }
 
 /* ---- corner buttons ------------------------------------------------------ */
 #side { position: absolute; right: 20px; bottom: 18px; z-index: 6; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
-.rbtn { padding: 8px 10px; }
+.rbtn {
+  padding: 4px; border: 0; background: none; box-shadow: none;
+  filter: drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000) drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000) drop-shadow(0 4px 0 rgba(0,0,0,0.45));
+}
+.rbtn:hover { filter: drop-shadow(2px 0 0 var(--gd3)) drop-shadow(-2px 0 0 var(--gd3)) drop-shadow(0 2px 0 var(--gd3)) drop-shadow(0 -2px 0 var(--gd3)); }
 .rbtn img.ico { width: 30px; height: 30px; }
 .rbtn.big { padding: 10px 12px; }
 .rbtn.big img.ico { width: 38px; height: 38px; }
-.rbtn.on, .rbtn.full { background: linear-gradient(180deg, #a8d878 0 26%, #6ea83e 26% 64%, #44762a 64% 100%);
-  box-shadow: inset 0 0 0 2px rgba(232,255,200,0.45), 0 5px 0 0 #2a4d18, 0 5px 0 3px var(--ol); }
-.rbtn b { font-weight: 700; font-size: 16px; color: #3d2606; font-family: var(--ft); }
+.rbtn.on, .rbtn.full { filter: drop-shadow(2px 0 0 var(--gr2)) drop-shadow(-2px 0 0 var(--gr2)) drop-shadow(0 2px 0 var(--gr2)) drop-shadow(0 -2px 0 var(--gr2)); }
+.rbtn b { font-weight: 400; font-size: 18px; color: var(--gd3); font-family: var(--ft);
+  -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
 #mini { position: absolute; left: 18px; bottom: 16px; z-index: 6; display: flex; gap: 9px; }
 
 /* ---- tooltip ------------------------------------------------------------- */
@@ -1109,21 +1111,6 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 .phscreen > * { flex: 0 0 auto; }
 .phscreen.app-camera > .phcam { flex: 1 1 auto; }
 .phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub, .phcam { flex: 0 0 auto; }
-
-/* ---- your standing in the cult -------------------------------------------
-   A small plaque under the purse: what they call you, and how far off the next
-   thing they will call you. Violet, because that is the colour the gods come
-   in and this is the only part of the interface that belongs to them. */
-#faith {
-  position: absolute; left: 18px; top: 74px; z-index: 6;
-  display: flex; flex-direction: column; gap: 3px; padding: 5px 9px 6px;
-  background: var(--tl1);
-  box-shadow: inset 0 3px 0 var(--tl2), inset 0 -3px 0 var(--tl0), 0 0 0 3px var(--ol), 0 4px 0 3px rgba(0,0,0,0.4);
-}
-#faith span { font-size: 13px; letter-spacing: 2px; color: var(--tl4); text-shadow: 1px 2px 0 var(--tl0); }
-#faith i { display: block; width: 92px; height: 7px; background: var(--tl0); box-shadow: inset 0 0 0 2px #0d0a12; }
-#faith i em { display: block; height: 100%; width: 0; background: var(--gd2); box-shadow: inset 0 2px 0 var(--gd4); transition: width .3s steps(6, end); }
-#faith.full i em { background: var(--tl3); box-shadow: inset 0 2px 0 var(--tl4); }
 
 /* ---- the phone button on the frame --------------------------------------
    Not a small square with a glyph on it any more. A phone sat in a wooden
@@ -6652,30 +6639,47 @@ const MAGIC_EFFECT = {
 };
 const CROP_BY_KEY = Object.fromEntries(CROPS.map((c) => [c.key, c]));
 
-// ---- Tools ---------------------------------------------------------------
-// The dock holds seven. Farm opens a flyout with the four ground brushes.
+// ---- Spells ---------------------------------------------------------------
+// You do not own tools. The hooded one taught you the first few and the rest
+// you take off the gods, a word at a time, by stacking what the wombats leave
+// until something up there is willing to trade. Everything you do to the wood
+// is a spell; the sickle is Reap and the watering can is Rain.
+//
+// `cost` is devotion, spent on the spot. Most of them are free: the
+// expensive ones are the ones that make something out of nothing.
 const TOOLS = [
-  { key: 'drag',    name: 'Hand',   icon: 't_drag',    radius: 0,  desc: 'Drag poop to the truck. Pet. Pick.' },
-  { key: 'food',    name: 'Food',   icon: 't_food',    radius: 0,  desc: 'Pick a food, then put it on the ground.' },
-  { key: 'farm',    name: 'Farm',   icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'Hoe, seed, grass, water.' },
-  { key: 'sickle',  name: 'Sickle', icon: 't_sickle',  radius: 22, desc: 'Cut the weeds.' },
-  { key: 'destroy', name: 'Haul',   icon: 't_destroy', radius: 0,  desc: 'Ants carry it off, for a fee.' },
-  { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  desc: 'Pair two adults.' },
+  { key: 'drag',    name: 'Hand',     rune: 'I',    icon: 't_drag',    radius: 0,  desc: 'Your own hand. Lift, carry, pet, pick.' },
+  { key: 'food',    name: 'Offering', rune: 'II',   icon: 't_food',    radius: 0,  desc: 'Set food down where they will find it.' },
+  { key: 'farm',    name: 'Tending',  rune: 'III',  icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'The four words for growing things.' },
+  { key: 'sickle',  name: 'Reap',     rune: 'IV',   icon: 't_sickle',  radius: 22, desc: 'The weeds lie down where you point.' },
+  { key: 'destroy', name: 'Unmake',   rune: 'V',    icon: 't_destroy', radius: 0,  desc: 'Ants take it apart and carry it off.' },
+  { key: 'pair',    name: 'Binding',  rune: 'VI',   icon: 't_pair',    radius: 0,  desc: 'Two of them, and then three of them.' },
 ];
 const SUBTOOLS = [
-  { key: 'hoe',   name: 'Hoe',   icon: 't_hoe',   radius: 15, desc: 'Till bare ground into beds.' },
-  { key: 'seed',  name: 'Seed',  icon: 't_seed',  radius: 13, desc: 'Sow on tilled soil. Water it.' },
-  { key: 'moss',  name: 'Grass', icon: 't_moss',  radius: 19, desc: 'Sow grass. It sprouts slowly.' },
-  { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
-  // ---- the terrain set ----------------------------------------------------
-  // One tool, four things it does, the wheel picks which. Raising ground makes
-  // a grassy hill; digging it out fills with water; levelling takes either back
-  // down to flat; and the brush lays a different ground over the top.
-  { key: 'terra', name: 'Terrain', icon: 'u_burrow', radius: 26, terra: true,
-    desc: 'Raise, dig, level and lay ground. Wheel to change which.' },
-  { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture about the clearing. Click a piece to take it up again.' },
+  { key: 'hoe',   name: 'Furrow',   rune: 'i',   icon: 't_hoe',   radius: 15, desc: 'Bare ground opens into a bed.' },
+  { key: 'seed',  name: 'Quicken',  rune: 'ii',  icon: 't_seed',  radius: 13, desc: 'Sow on an open bed and it takes.' },
+  { key: 'moss',  name: 'Greening', rune: 'iii', icon: 't_moss',  radius: 19, desc: 'Grass comes up out of dead ground.' },
+  { key: 'water', name: 'Rain',     rune: 'iv',  icon: 't_water', radius: 22, desc: 'A small rain, exactly where you want it.' },
+  // ---- shaping the ground -------------------------------------------------
+  // Held down, not clicked. The ground rises and falls under the brush the
+  // whole time you drag, which is what makes it feel like earth and not like
+  // placing a prop.
+  { key: 'terra', name: 'Shape',    rune: 'vii', icon: 'u_burrow', radius: 26, terra: true,
+    desc: 'Hold and drag. The ground follows your hand. Wheel to change what it does.' },
+  { key: 'build', name: 'Raise',    rune: 'viii', icon: 'd_nest',  radius: 0,  desc: 'Stand a thing where you point. Point at it again to take it back.' },
+  // ---- the words you take off the gods ------------------------------------
+  { key: 'call',  name: 'Call',     rune: 'ix',  icon: 'wombat',   radius: 0, cost: 60,
+    desc: 'Something comes up out of the ground. You do not get to pick what.' },
+  { key: 'hasten', name: 'Hasten',  rune: 'x',   icon: 'c_broadleaf', radius: 18, cost: 12,
+    desc: 'A whole season passes over one bed while you watch.' },
+  { key: 'solace', name: 'Solace',  rune: 'xi',  icon: 'heart',    radius: 0, cost: 25,
+    desc: 'Every one of them forgets whatever was wrong.' },
+  { key: 'rot',   name: 'Rot',      rune: 'xii', icon: 'o_rune',   radius: 20, cost: 35,
+    desc: 'Weeds turn to tribute where they stand. It is not a nice spell.' },
 ];
-// Nothing is handed over at once. The cultist teaches a tool, then you own it.
+// Nothing is handed over at once. The first words come off the hooded one as
+// you work; the last four you buy off the gods with devotion, which means you
+// get them by stacking what she leaves until something answers.
 const GATES = {
   drag: () => true,
   sickle: () => true,
@@ -6689,6 +6693,10 @@ const GATES = {
   water: (g) => g.step >= 2,        // grass needs a drink before the wombat comes
   food: (g) => g.step >= 3,
   pair: (g) => !!g.decor.nest,
+  hasten: (g) => (g.devotion || 0) >= 90,
+  solace: (g) => (g.devotion || 0) >= 220,
+  rot:    (g) => (g.devotion || 0) >= 430,
+  call:   (g) => (g.devotion || 0) >= 760,
 };
 const GATE_WHY = {
   destroy: 'clear the weeds first',
@@ -6701,6 +6709,17 @@ const GATE_WHY = {
   pair: 'needs a nest',
   terra: 'load the truck first',
   build: 'the grove first',
+  hasten: '90 devotion &mdash; stack for it',
+  solace: '220 devotion &mdash; stack for it',
+  rot: '430 devotion &mdash; stack for it',
+  call: '760 devotion &mdash; stack for it',
+};
+// When a spell first comes within reach, the wood tells you about it.
+const SPELL_LEARN = {
+  hasten: ['HASTEN', 'a season in a heartbeat'],
+  solace: ['SOLACE', 'nobody remembers being sad'],
+  rot:    ['ROT', 'the weeds pay tribute now'],
+  call:   ['CALL', 'something comes up out of the ground'],
 };
 const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
 
@@ -7866,6 +7885,37 @@ const World = (() => {
     record(code, x, y, r);
     return true;
   }
+  // ---- what the god-words do to the ground --------------------------------
+  // Hasten runs a whole season over one bed. Rot turns the weeds in reach
+  // straight into tribute and leaves nothing behind.
+  function hasten(x, y, r) {
+    let n = 0;
+    for (const c of crops) {
+      if (Math.hypot(c.x - x, (c.y - y) * 1.4) > r) continue;
+      const def = CROP_BY_KEY[c.k] || {};
+      c.wet = Math.max(c.wet, 12); c.thirst = 0; c.stall = 0; c.wild = 0;
+      if (!grown(c)) c.t = growTime(c.k) + 0.1;
+      else if (def.kind === 'tree') c.fr = Math.min(FRUIT_CAP, c.fr + 2);
+      n++;
+    }
+    for (const p2 of sprouts) {
+      if (Math.hypot(p2.x - x, (p2.y - y) * 1.4) > r) continue;
+      p2.t = 99; n++;
+    }
+    return n;
+  }
+  function rot(x, y, r) {
+    let n = 0;
+    for (let i = weeds.length - 1; i >= 0; i--) {
+      const w2 = weeds[i];
+      if (Math.hypot(w2.x - x, (w2.y - y) * 1.4) > r) continue;
+      FX.burst(w2.x, w2.y, 6, { color: ['#6b32bd', '#9a5cf0', '#2f6122'], speed: 50, gravity: 40, life: 0.6, size: 2 });
+      weeds.splice(i, 1); n++;
+      if (n >= 6) break;
+    }
+    if (n) measure();
+    return n;
+  }
   function brushRadius(base) {
     let r = base;
     if (G.fruits.broadbrush) r *= 1.35;
@@ -8426,7 +8476,7 @@ const World = (() => {
   return {
     init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, cropItems, drawCursor,
     sowGrass, till, clearWeeds, hitWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
-    paintGround, PAINT_ORDER,
+    paintGround, PAINT_ORDER, hasten, rot,
     fraction, zoneFraction, measure, ripe, growTime, grown, kindOf, needMet, magic, prune, plantAt, plantTip,
     get weeds() { return weeds; }, get crops() { return crops; },
     get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },
@@ -8540,6 +8590,77 @@ const Wild = (() => {
     Audio.play('dig');
     UI.refreshHUD(); Main.save();
     return true;
+  }
+  // ---- sculpting -----------------------------------------------------------
+  // Held down and dragged, not clicked. A stroke finds whatever is already
+  // under the brush and grows it; if there is nothing it starts something
+  // small. Ground you have already paid for is free to keep shaping, so a hill
+  // is one purchase and then as much fiddling as you like.
+  const MAX_R = 74, MIN_R = 13;
+  function sculpt(kind, x, y, br, first) {
+    const list = kind === 'raise' ? mounds : ponds;
+    const other = kind === 'raise' ? ponds : mounds;
+    // a stroke over the opposite kind takes it down first
+    for (let i = other.length - 1; i >= 0; i--) {
+      const o = other[i];
+      if (Math.hypot(o.x - x, (o.y - y) * 1.6) < br * 0.7) {
+        o.r -= br * 0.05;
+        if (o.r < MIN_R) {
+          other.splice(i, 1);
+          if (kind === 'raise') for (let j = frogs.length - 1; j >= 0; j--) if (frogs[j].pond === o) frogs.splice(j, 1);
+        }
+        return true;
+      }
+    }
+    // grow whatever is already here
+    let near = null, nd = 1e9;
+    for (const m of list) {
+      const d = Math.hypot(m.x - x, (m.y - y) * 1.6);
+      if (d < br + m.r * 0.6 && d < nd) { nd = d; near = m; }
+    }
+    if (near) {
+      if (near.r < MAX_R) near.r = Math.min(MAX_R, near.r + br * 0.055);
+      // and it drifts toward the brush, so a stroke pulls the shape along
+      near.x = U.lerp(near.x, x, 0.02);
+      near.y = U.lerp(near.y, y, 0.012);
+      if (kind === 'raise') World.sowGrass(x, y, 14);
+      return true;
+    }
+    // nothing here: start one, and that is the only part you pay for
+    if (!first) return false;
+    const why = canPlace(kind === 'raise' ? 'mound' : 'pond', x, y);
+    if (why) { Audio.play('error'); UI.toast(why, 'bad'); return false; }
+    const cost = kind === 'raise' ? MOUND_COST : POND_COST;
+    if (G.wd < cost) { Audio.play('error'); UI.toast('not enough for that', 'bad'); return false; }
+    G.wd -= cost;
+    const seed = Math.floor(Math.random() * 1e6);
+    if (kind === 'raise') { mounds.push(mkMound(x, y, MIN_R + 3, seed)); World.sowGrass(x, y, 16); }
+    else {
+      const p2 = mkPond(x, y, MIN_R + 3, seed);
+      ponds.push(p2); World.till(x, y, 16);
+      for (let i = 0; i < 2; i++) frogs.push(mkFrog(p2));
+    }
+    FX.dust(x, y, 8, PAL.soil3);
+    Audio.play('dig');
+    UI.refreshHUD();
+    return true;
+  }
+  // a stroke that flattens instead of raising
+  function flatten(x, y, br) {
+    let any = false;
+    for (const list of [mounds, ponds]) {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const m = list[i];
+        if (Math.hypot(m.x - x, (m.y - y) * 1.6) > br + m.r * 0.5) continue;
+        m.r -= br * 0.07;
+        any = true;
+        if (m.r < MIN_R) {
+          list.splice(i, 1);
+          for (let j = frogs.length - 1; j >= 0; j--) if (frogs[j].pond === m) frogs.splice(j, 1);
+        }
+      }
+    }
+    return any;
   }
   function place(kind, x, y) {
     const why = canPlace(kind, x, y);
@@ -9218,7 +9339,7 @@ const Wild = (() => {
 
   return {
     init, save, update, drawGround, items,
-    place, level, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
+    place, level, sculpt, flatten, canPlace, onPond, onMound, visitorAt, talkTo, spawnVisitor,
     get mounds() { return mounds; }, get ponds() { return ponds; },
     get bugs() { return bugs; },
     bugsNear(x, y, r) { let n = 0; for (const b of bugs) if (Math.hypot(b.x - x, (b.y - y) * 1.4) < r) n++; return n; },
@@ -9513,6 +9634,60 @@ const Grove = (() => {
       Font.draw(g, label, p.x, p.y - 26, { scale: 1, color: '#000000', align: 'center' });
       Font.draw(g, label, p.x, p.y - 27, { scale: 1, color: '#f2c936', align: 'center' });
     }
+  }
+
+  // ---- casting ------------------------------------------------------------
+  const SPELL_COST = { call: 60, hasten: 12, solace: 25, rot: 35 };
+  function runes(x, y, col, n = 14) {
+    for (let i = 0; i < n; i++) {
+      const a3 = (i / n) * TAU;
+      FX.spawn({ x: x + Math.cos(a3) * 8, y: y + Math.sin(a3) * 5, vx: Math.cos(a3) * 40, vy: Math.sin(a3) * 24 - 30,
+        life: U.rand(0.5, 1.1), size: 2, color: col, gravity: -14 });
+    }
+  }
+  function cast(key, x, y) {
+    if (key === 'call') {
+      if (G.wombats.length >= capacity()) { Audio.play('error'); UI.toast('nowhere to put another one', 'bad'); return false; }
+      // whatever comes up is whatever comes up; the rare pelts are rarer
+      const pool = FUR.filter((f) => f.rare <= (U.chance(0.12) ? 2 : U.chance(0.3) ? 1 : 0));
+      const pelt = U.pick(pool).key;
+      runes(x, y, PAL.div4, 24);
+      FX.comic(x, y - 40, 'CALL', { ink: '#c898ff', edge: '#3d1f78', life: 1 });
+      const w = addWombat({ pelt, x, y: U.clamp(y, WALK.y0, WALK.y1) });
+      UI.toast(`<b>${w.name}</b> came up out of the ground &mdash; ${FUR_BY_KEY[pelt].name}`, 'good');
+      return true;
+    }
+    if (key === 'hasten') {
+      const n = World.hasten(x, y, 30);
+      if (!n) { Audio.play('error'); UI.toast('nothing growing there', 'bad'); return false; }
+      runes(x, y, PAL.moss5, 16);
+      FX.comic(x, y - 30, 'HASTEN', { ink: '#c8f593', edge: '#2f6122', life: 0.8 });
+      return true;
+    }
+    if (key === 'solace') {
+      if (!G.wombats.length) { Audio.play('error'); UI.toast('nobody to comfort', 'bad'); return false; }
+      for (const w of G.wombats) {
+        w.hap = Math.min(hapCap(), w.hap + 42); w.bored = 0; w.thirst = 0; w.grump = 0;
+        runes(w.x, w.y - 10, PAL.cyan3, 8);
+        FX.float(w.x, w.y - 40, '\u2661', { color: '#ffa8bc', size: 9 });
+      }
+      FX.comic(x, y - 30, 'SOLACE', { ink: '#ffa8bc', edge: '#902418', life: 0.9 });
+      return true;
+    }
+    if (key === 'rot') {
+      const got = World.rot(x, y, 34);
+      if (!got) { Audio.play('error'); UI.toast('no weeds in reach', 'bad'); return false; }
+      for (let i = 0; i < got; i++) {
+        drops.push({ x: x + U.rand(-26, 26), y: U.clamp(y + U.rand(-10, 14), WALK.y0, WALK.y1),
+          z: 30 + i * 6, vz: 40, type: U.chance(0.2) ? 'rich' : 'plain', blessed: U.chance(0.1), t: -i * 0.1, id: U.uid() });
+      }
+      runes(x, y, '#9a5cf0', 20);
+      FX.comic(x, y - 30, 'ROT', { ink: '#c898ff', edge: '#1d0f38', life: 0.9 });
+      G.stats.left += got;
+      Cult.give(got);
+      return true;
+    }
+    return false;
   }
 
   function update(dt) {
@@ -9973,17 +10148,27 @@ const Grove = (() => {
       Audio.play('error'); UI.toast('too far out', 'bad');
       return true;
     }
-    if (tool === 'terra') {
-      const m = terraMode();
-      if (m.paint) { World.paintGround(m.paint, x, y, World.brushRadius(m.r)); return true; }
+    // ---- the words you took off the gods --------------------------------
+    // Each one spends devotion, which is the only currency the cult keeps, so
+    // casting is always a choice between a spell now and a rank later.
+    if (SPELL_COST[tool]) {
       if (!first) return true;
-      if (m.key === 'raise') Wild.place('mound', x, y);
-      else if (m.key === 'dig') Wild.place('pond', x, y);
-      else if (m.key === 'level') {
-        if (G.wd < m.cost) { Audio.play('error'); UI.toast('not enough', 'bad'); return true; }
-        if (Wild.level(x, y, m.r)) { G.wd -= m.cost; UI.toast('levelled', 'good'); }
-        else { Audio.play('error'); UI.toast('nothing to level there', 'bad'); }
-      }
+      const cost = SPELL_COST[tool];
+      if ((G.devotion || 0) < cost) { Audio.play('error'); UI.toast('not enough devotion', 'bad'); return true; }
+      if (!cast(tool, x, y)) return true;
+      G.devotion -= cost;
+      Audio.play('bless'); FX.flash('#9a5cf0', 0.24);
+      UI.refreshHUD(); Main.save();
+      return true;
+    }
+    if (tool === 'terra') {
+      // Held down and dragged. Everything here is a stroke, not a click: the
+      // ground swells and sinks under the brush the whole time you hold it.
+      const m = terraMode();
+      const br = World.brushRadius(m.r);
+      if (m.paint) { World.paintGround(m.paint, x, y, br); return true; }
+      if (m.key === 'raise' || m.key === 'dig') { Wild.sculpt(m.key, x, y, br, first); return true; }
+      if (m.key === 'level') Wild.flatten(x, y, br);
       return true;
     }
     if (tool === 'build') {
@@ -10944,6 +11129,8 @@ const Cult = (() => {
     { key: 'crows',  name: 'Too Many Crows',  icon: 'ph_places', good: 0, line: 'Something is taking the fruit. Pick it early.', crows: 1 },
   ];
   const RANK_BY_KEY = Object.fromEntries(RANKS.map((r) => [r.key, r]));
+  // the title screen reads saves it has not loaded, so the table is global
+  if (typeof window !== 'undefined') window.CULT_RANKS_BY_KEY = RANK_BY_KEY;
   const OMEN_BY_KEY = Object.fromEntries(OMENS.map((o) => [o.key, o]));
 
   function init(g) {
@@ -10988,9 +11175,21 @@ const Cult = (() => {
     }
     if (up) {
       Audio.play('bless'); Audio.play('chime');
-      FX.title(up.name.toUpperCase(), { size: 18, color: PAL.div4, dur: 2.6, style: 'slam', sub: 'the cult knows your name' });
       FX.confettiBurst(320, 150, 70);
+      // he has something to say about it, and you get to answer
+      if (typeof Rite !== 'undefined' && G.mode !== 'shrine') Rite.rank(up);
+      else FX.title(up.name.toUpperCase(), { size: 18, color: PAL.div4, dur: 2.6, style: 'slam', sub: 'the cult knows your name' });
       Main.save();
+    }
+    // and a word coming within reach is worth stopping for
+    if (typeof SPELL_LEARN !== 'undefined') {
+      if (!G.learned) G.learned = {};
+      for (const k of Object.keys(SPELL_LEARN)) {
+        if (G.learned[k] || !unlocked(G, k)) continue;
+        G.learned[k] = 1;
+        if (typeof Rite !== 'undefined' && G.mode !== 'shrine') Rite.learn(k);
+        else UI.toast('<b>' + SPELL_LEARN[k][0] + '</b> &mdash; ' + SPELL_LEARN[k][1], 'good');
+      }
     }
     UI.refreshHUD();
   }
@@ -11031,6 +11230,292 @@ const Cult = (() => {
     get devotion() { return G ? G.devotion : 0; },
     RANKS, OMENS,
   };
+})();
+</script>
+
+<script>
+// ===== js/rite.js =====
+// ---- Dialogue, and the choices in it ---------------------------------------
+// The wood talks to you at the moments that matter: when a god answers, when
+// the cult moves you up a rank, and the first time you take a word off one of
+// them. It is drawn on the canvas like everything else — a dark room, whoever
+// is speaking lit in the middle of it, the line typing itself out, and two or
+// three things you can say back. What you say changes something.
+const Rite = (() => {
+  let G = null;
+  const W = 640, H = 360;
+  const PX = 3;
+  let sc = null;              // the running scene
+  let t = 0;
+
+  function init(g) { G = g; }
+  const active = () => !!sc;
+
+  // ---- who is talking -------------------------------------------------------
+  // Each speaker is a face drawn straight into the scene rather than an asset,
+  // so a new one costs four lines instead of a sprite sheet.
+  const WHO = {
+    hood: { name: 'THE HOODED ONE', col: '#3d1f78', lit: '#9a5cf0', eye: '#e8402a' },
+    god:  { name: '', col: '#1d0f38', lit: '#c898ff', eye: '#fff3b8' },
+    wood: { name: 'THE WOOD', col: '#2f6122', lit: '#92dc5e', eye: '#ffd95c' },
+  };
+
+  // ---- the scenes -----------------------------------------------------------
+  // A scene is a list of beats. A beat is a line, or a line with choices on it.
+  // A choice carries `then`, which is run when you pick it, and may push a
+  // reply beat of its own.
+  const SCENES = {
+    // the first time the cult moves you up
+    rank: (rank) => ([
+      { who: 'hood', say: 'You have been counted. They call you ' + rank.name + ' now.' },
+      { who: 'hood', say: rank.perk },
+      {
+        who: 'hood', say: 'Say something. It is customary.',
+        choices: [
+          { text: 'I did it for the wombats.', tip: '+devotion',
+            then: () => { Cult.give(20); }, reply: 'Then you will go further than most of them did.' },
+          { text: 'What do I get?', tip: '+coin',
+            then: () => { G.wd += 120; UI.pingPurse(); }, reply: 'Take it and stop asking.' },
+          { text: 'Nothing.', tip: 'he likes this',
+            then: () => { Cult.give(45); }, reply: 'Good. The quiet ones last.' },
+        ],
+      },
+    ]),
+    // a god has just taken your tower
+    god: (god) => ([
+      { who: 'god', name: god.name.toUpperCase(), col: god.color, say: 'SOMETHING VERY LARGE HAS NOTICED YOU.' },
+      { who: 'god', name: god.name.toUpperCase(), col: god.color, say: god.blessing },
+      {
+        who: 'god', name: god.name.toUpperCase(), col: god.color,
+        say: 'IT IS WILLING TO GIVE YOU ONE MORE THING.',
+        choices: [
+          { text: 'A relic I can sell.', tip: 'coin now',
+            then: () => { G.wd += Math.round(god.artValue * 0.7); UI.pingPurse(); },
+            reply: 'THEN TAKE THE GOLD AND BE COMMON.' },
+          { text: 'One of your own wombats.', tip: 'a rare pelt',
+            then: () => {
+              const rare = FUR.filter((f) => f.rare >= 1);
+              Grove.addWombat({ pelt: U.pick(rare).key });
+            },
+            reply: 'SHE IS YOURS. SHE WAS ALWAYS GOING TO BE.' },
+          { text: 'Teach me something.', tip: '+120 devotion',
+            then: () => { Cult.give(120); },
+            reply: 'THE WORD IS LONG AND YOU WILL FORGET MOST OF IT.' },
+        ],
+      },
+    ]),
+    // the first time a god-word comes within reach
+    learn: (key, title, line) => ([
+      { who: 'wood', say: 'Something has come loose in your head.' },
+      { who: 'wood', name: title, say: line },
+      {
+        who: 'wood', say: 'It is on the wheel with the rest of them now.',
+        choices: [
+          { text: 'Good.', then: () => { }, reply: 'It usually is, at first.' },
+        ],
+      },
+    ]),
+  };
+
+  // ---- running one ----------------------------------------------------------
+  function play(list, onDone) {
+    if (sc) return;
+    sc = { beats: list, i: 0, typed: 0, pick: -1, reply: null, onDone, done: false };
+    t = 0;
+    G.paused = true;
+    FX.letterbox(true);
+    Audio.play('chime');
+  }
+  function rank(r) { play(SCENES.rank(r)); }
+  function god(gd) { play(SCENES.god(gd)); }
+  function learn(key) {
+    const s = SPELL_LEARN[key];
+    if (!s) return;
+    play(SCENES.learn(key, s[0], s[1]));
+  }
+  function beat() { return sc ? sc.beats[sc.i] : null; }
+  function full() { const b = beat(); return b ? (sc.reply || b.say).length : 0; }
+
+  function advance() {
+    if (!sc) return;
+    const b = beat();
+    const text = sc.reply || b.say;
+    if (sc.typed < text.length) { sc.typed = text.length; return; }   // first click fills the line
+    if (sc.reply) { sc.reply = null; sc.typed = 0; sc.pick = -1; step(); return; }
+    if (b.choices && sc.pick < 0) return;                             // waiting on you
+    step();
+  }
+  function step() {
+    sc.i++;
+    sc.typed = 0;
+    if (sc.i >= sc.beats.length) finish();
+  }
+  function choose(n) {
+    const b = beat();
+    if (!b || !b.choices || sc.reply) return;
+    const c = b.choices[n];
+    if (!c) return;
+    sc.pick = n;
+    Audio.play('click');
+    try { c.then && c.then(); } catch (e) { }
+    if (c.reply) { sc.reply = c.reply; sc.typed = 0; }
+    else step();
+  }
+  function finish() {
+    const done = sc.onDone;
+    sc = null;
+    G.paused = false;
+    FX.letterbox(false);
+    UI.refreshHUD();
+    Main.save();
+    if (done) done();
+  }
+  function skip() { if (sc) finish(); }
+
+  function update(dt) {
+    if (!sc) return;
+    t += dt;
+    const b = beat();
+    if (!b) { finish(); return; }
+    const text = sc.reply || b.say;
+    if (sc.typed < text.length) sc.typed = Math.min(text.length, sc.typed + dt * 46);
+  }
+
+  // ---- drawing --------------------------------------------------------------
+  function render(g) {
+    if (!sc) return;
+    const b = beat();
+    if (!b) return;
+    const who = WHO[b.who] || WHO.hood;
+    const col = b.col || who.col;
+    // the room goes out
+    g.fillStyle = 'rgba(8,4,14,0.86)'; g.fillRect(0, 0, W, H);
+    // a slow ring of runes behind whoever is talking
+    ring(g, W / 2, 118, col);
+    // the speaker
+    face(g, W / 2, 118, who, col, b.who === 'god');
+    // the name, cut across a plank of nothing
+    const nm = b.name || who.name;
+    if (nm) {
+      Font.draw(g, nm, W / 2, 186, { scale: 2, color: '#000000', align: 'center' });
+      Font.draw(g, nm, W / 2, 184, { scale: 2, color: b.col || who.lit, align: 'center' });
+    }
+    // the line, typing itself out
+    const text = sc.reply || b.say;
+    const shown = text.slice(0, Math.floor(sc.typed));
+    const lines = Font.wrap(shown, 520, 1);
+    lines.slice(0, 4).forEach((l, i) => {
+      Font.draw(g, l, W / 2, 212 + i * 13, { scale: 1, color: '#000000', align: 'center' });
+      Font.draw(g, l, W / 2, 211 + i * 13, { scale: 1, color: '#f6e4ba', align: 'center' });
+    });
+    // what you can say back
+    const opts = (!sc.reply && b.choices && sc.typed >= text.length) ? b.choices : null;
+    if (opts) {
+      opts.forEach((c, i) => {
+        const y = 246 + i * 26;
+        const hot = sc.hover === i;
+        g.fillStyle = '#000000'; g.fillRect(96, y - 3, 448, 23);
+        g.fillStyle = hot ? '#3d1f78' : '#1d0f38'; g.fillRect(99, y, 442, 17);
+        g.fillStyle = hot ? '#9a5cf0' : '#3d1f78'; g.fillRect(99, y, 442, 2);
+        g.fillStyle = hot ? '#c898ff' : '#6b32bd'; g.fillRect(99, y, 3, 17);
+        Font.draw(g, String(i + 1), 106, y + 5, { scale: 1, color: hot ? '#ffd95c' : '#6b32bd' });
+        Font.draw(g, c.text, 118, y + 5, { scale: 1, color: hot ? '#fffae8' : '#c09b62' });
+        if (c.tip) Font.draw(g, c.tip, 532, y + 5, { scale: 1, color: '#ffd95c', align: 'right' });
+      });
+    } else if (sc.typed >= text.length) {
+      const bl = Math.floor(t * 3) % 2;
+      Font.draw(g, bl ? '▼' : ' ', W / 2, 262, { scale: 1, color: '#ffd95c', align: 'center' });
+    }
+  }
+  // a hood with nothing in it, or a god, which is a hood with too much in it
+  function face(g, cx, cy, who, col, big) {
+    const R = big ? 56 : 44;
+    // the shoulders
+    g.fillStyle = '#000000'; g.fillRect(cx - R - 3, cy - 3, R * 2 + 6, R + 9);
+    g.fillStyle = col; g.fillRect(cx - R, cy, R * 2, R + 4);
+    g.fillStyle = U.shade(col, 0.28); g.fillRect(cx - R, cy, R * 2, PX);
+    // the hood
+    for (let y = -R; y < 6; y += PX) {
+      const k = (y + R) / (R + 6);
+      const ww = Math.round((R * Math.sqrt(Math.max(0, 1 - Math.pow(1 - k, 2)))) / PX) * PX;
+      g.fillStyle = '#000000'; g.fillRect(cx - ww - PX, cy + y, ww * 2 + PX * 2, PX);
+      g.fillStyle = col; g.fillRect(cx - ww, cy + y, ww * 2, PX);
+      if (k > 0.72) { g.fillStyle = U.shade(col, 0.3); g.fillRect(cx - ww, cy + y, PX * 2, PX); }
+    }
+    // a lit rim all the way round, so it is a hood and not a dome
+    for (let y = -R; y < 6; y += PX) {
+      const k = (y + R) / (R + 6);
+      const ww = Math.round((R * Math.sqrt(Math.max(0, 1 - Math.pow(1 - k, 2)))) / PX) * PX;
+      if (ww < PX) continue;
+      g.fillStyle = U.shade(col, 0.42);
+      g.fillRect(cx - ww, cy + y, PX * 2, PX);
+      g.fillStyle = U.shade(col, -0.34);
+      g.fillRect(cx + ww - PX * 2, cy + y, PX * 2, PX);
+    }
+    // the fold of cloth down the front of it
+    g.fillStyle = U.shade(col, -0.26);
+    g.fillRect(cx - PX, cy - R * 0.18, PX * 2, R * 0.7);
+    // the dark inside it
+    g.fillStyle = '#000000';
+    g.fillRect(cx - R * 0.56, cy - R * 0.62, R * 1.12, R * 0.9);
+    g.fillStyle = U.shade(col, -0.5);
+    g.fillRect(cx - R * 0.6, cy - R * 0.66, R * 1.2, PX);
+    g.fillRect(cx - R * 0.6, cy - R * 0.66, PX, R * 0.94);
+    g.fillRect(cx + R * 0.6 - PX, cy - R * 0.66, PX, R * 0.94);
+    // and the eyes in the dark
+    const blink = Math.sin(t * 1.7) > 0.96 ? 0 : 1;
+    if (blink) {
+      const ey = cy - R * 0.28, ex = R * 0.26;
+      g.fillStyle = who.eye;
+      const n = big ? 3 : 1;
+      for (let i = 0; i < n; i++) {
+        const oy = ey - i * PX * 3;
+        g.fillRect(cx - ex - PX, oy, PX * 2, PX * 2);
+        g.fillRect(cx + ex - PX, oy, PX * 2, PX * 2);
+      }
+    }
+  }
+  // the runes turning slowly behind them
+  function ring(g, cx, cy, col) {
+    const R = 104;
+    const n = 22;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * TAU + t * 0.25;
+      const x = Math.round((cx + Math.cos(a) * R) / PX) * PX;
+      const y = Math.round((cy + Math.sin(a) * R * 0.6) / PX) * PX;
+      const lit = (Math.sin(t * 2 + i) + 1) / 2;
+      g.fillStyle = U.rgba(U.shade(col, 0.5), 0.45 + lit * 0.55);
+      g.fillRect(x, y, PX, PX * 2);
+      if (i % 3 === 0) g.fillRect(x - PX, y + PX, PX * 3, PX);
+    }
+  }
+
+  // ---- input ----------------------------------------------------------------
+  function rowAt(y) {
+    const b = beat();
+    if (!b || !b.choices || sc.reply) return -1;
+    const i = Math.floor((y - 243) / 26);
+    return (i >= 0 && i < b.choices.length) ? i : -1;
+  }
+  function move(x, y) { if (sc) sc.hover = (x > 96 && x < 544) ? rowAt(y) : -1; }
+  function press(x, y) {
+    if (!sc) return;
+    const i = (x > 96 && x < 544) ? rowAt(y) : -1;
+    if (i >= 0) { choose(i); return; }
+    advance();
+  }
+  function key(k) {
+    if (!sc) return false;
+    const b = beat();
+    if (b && b.choices && !sc.reply && sc.typed >= full()) {
+      const n = parseInt(k, 10) - 1;
+      if (n >= 0 && n < b.choices.length) { choose(n); return true; }
+    }
+    if (k === ' ' || k === 'Enter' || k === 'Escape') { advance(); return true; }
+    return false;
+  }
+
+  return { init, update, render, press, move, key, rank, god, learn, play, skip, active };
 })();
 </script>
 
@@ -11112,7 +11597,9 @@ const Ritual = (() => {
     if (god.key === 'demewombra') G.seeds.runeberry = (G.seeds.runeberry || 0) + 3;
     FX.setSlowmo(1, true); FX.vignette(0); FX.letterbox(false); FX.cine.tDesat = 0;
     Audio.setMode('pen');
-    UI.showBlessing(god);
+    // it says its piece, and offers you one thing on top of the blessing
+    if (typeof Rite !== 'undefined') Rite.god(god);
+    else UI.showBlessing(god);
     Main.save();
   }
 
@@ -17964,7 +18451,16 @@ const UI = (() => {
       fr.textContent = r.name.toUpperCase();
       fb.firstElementChild.style.width = Math.round(Cult.progress() * 100) + '%';
       $('faith').classList.toggle('full', !n);
-      $('faith').hidden = G.mode === 'shrine' || G.mode === 'intro' || G.mode === 'menu';
+      // The head-up belongs to the game. It is not on the title screen, it is
+      // not in the shaft, and it gets out of the way while somebody is talking.
+      const rite = typeof Rite !== 'undefined' && Rite.active();
+      const off = rite || G.mode === 'menu' || G.mode === 'intro';
+      $('faith').hidden = off || G.mode === 'shrine';
+      $('money').hidden = off || G.mode === 'shrine';
+      $('mini').hidden = off;
+      $('side').hidden = off;
+      $('zoomer').hidden = off || G.mode !== 'grove';
+      if (off) $('checklist').hidden = true;
     }
     refreshList();
     refreshNotebook();
@@ -18447,8 +18943,8 @@ const UI = (() => {
     $('ov-shrine').hidden = true;
     // The shaft has no interface. The purse and the phone go away with it;
     // the only thing left on screen is the way back out.
-    $('money').hidden = mode === 'shrine';
-    $('faith').hidden = mode === 'shrine' || mode === 'intro' || mode === 'menu';
+    $('money').hidden = intro || mode === 'shrine';
+    $('faith').hidden = intro || mode === 'shrine';
     $('b-phone').hidden = mode === 'shrine';
     $('ov-shop').hidden = mode !== 'shop';
     $('ov-nursery').hidden = mode !== 'nursery';
@@ -18686,13 +19182,67 @@ const Menu = (() => {
   const FLOWERS = [], TUFTS = [], STONES = [];
   (() => {
     const r = Art.rng(7711);
-    for (let i = 0; i < 74; i++) FLOWERS.push({ x: 14 + r() * (VW - 28), y: 212 + r() * 150, v: Math.floor(r() * 5), ph: r() * TAU, s: 1.5 + r() * 1.5 });
-    for (let i = 0; i < 240; i++) TUFTS.push({ x: r() * VW, y: 206 + r() * 156, h: 4 + r() * 8, ph: r() * TAU, tone: Math.floor(r() * 3) });
-    for (let i = 0; i < 18; i++) STONES.push({ x: r() * VW, y: 226 + r() * 132, w: 7 + r() * 16, h: 4 + r() * 7 });
+    for (let i = 0; i < 128; i++) FLOWERS.push({ x: 14 + r() * (VW - 28), y: 212 + r() * 150, v: Math.floor(r() * 5), ph: r() * TAU, s: 1.5 + r() * 1.5 });
+    for (let i = 0; i < 420; i++) TUFTS.push({ x: r() * VW, y: 206 + r() * 156, h: 4 + r() * 8, ph: r() * TAU, tone: Math.floor(r() * 3) });
+    for (let i = 0; i < 30; i++) STONES.push({ x: r() * VW, y: 226 + r() * 132, w: 7 + r() * 16, h: 4 + r() * 7 });
   })();
   const BIRDS = [];
-  for (let i = 0; i < 7; i++) BIRDS.push({ x: Math.random() * VW, y: 30 + Math.random() * 90, sp: 16 + Math.random() * 26, ph: Math.random() * TAU, dir: Math.random() < 0.5 ? -1 : 1, s: 0.7 + Math.random() * 0.6 });
-  const FLOW = ['#f2d0e0', '#f5cd5c', '#c4a8e8', '#f0f0e0', '#e88a6a'];
+  for (let i = 0; i < 11; i++) BIRDS.push({ x: Math.random() * VW, y: 24 + Math.random() * 100, sp: 16 + Math.random() * 26, ph: Math.random() * TAU, dir: Math.random() < 0.5 ? -1 : 1, s: 0.7 + Math.random() * 0.6 });
+  const FLOW = ['#ffd6e6', '#ffd95c', '#c898ff', '#fffae8', '#ff9a72'];
+
+  // ---- the small life ------------------------------------------------------
+  // A title screen wants things to look at. Motes in the light, bugs over the
+  // flowers, mushrooms in the leaf litter, a moth round the lantern, and a line
+  // of ants going somewhere with a crumb.
+  const MOTES = [], BUGS = [], SHROOMS = [], ANTS = [];
+  (() => {
+    const r = Art.rng(5150);
+    for (let i = 0; i < 70; i++) MOTES.push({ x: r() * VW, y: 60 + r() * 260, ph: r() * TAU, sp: 3 + r() * 9, a: 0.25 + r() * 0.5 });
+    for (let i = 0; i < 16; i++) BUGS.push({ x: r() * VW, y: 200 + r() * 150, ph: r() * TAU, rx: 12 + r() * 26, ry: 5 + r() * 9, sp: 0.5 + r(), v: Math.floor(r() * 3) });
+    for (let i = 0; i < 26; i++) SHROOMS.push({ x: 10 + r() * (VW - 20), y: 214 + r() * 146, v: Math.floor(r() * 3), s: 1 + r() * 0.8 });
+    for (let i = 0; i < 14; i++) ANTS.push({ o: i * 11, load: i % 5 === 0 });
+  })();
+  const SHROOM_COL = [['#d84428', '#ffd6c8'], ['#c09b62', '#f6e4ba'], ['#9a5cf0', '#e0cfff']];
+  function smallLife(g, front) {
+    // mushrooms in the litter, which sort with the ground
+    if (!front) {
+      for (const m of SHROOMS) {
+        const [cap, dot] = SHROOM_COL[m.v];
+        const w2 = Math.round(5 * m.s), h2 = Math.round(4 * m.s);
+        Art.rect(g, m.x - 1, m.y - 3, 2, 4, '#e8dcc0');
+        Art.rect(g, m.x - w2 / 2 - 1, m.y - 6, w2 + 2, h2 + 1, '#000000');
+        Art.rect(g, m.x - w2 / 2, m.y - 6, w2, h2, cap);
+        Art.rect(g, m.x - w2 / 2, m.y - 6, w2, 1, U.shade(cap, 0.35));
+        Art.rect(g, m.x - 1, m.y - 5, 1, 1, dot);
+      }
+      return;
+    }
+    // motes hanging in the light
+    for (const m of MOTES) {
+      const y = m.y + Math.sin(t * 0.4 + m.ph) * 7;
+      const x = m.x + Math.cos(t * 0.25 + m.ph) * 11;
+      Art.rect(g, Math.round(x), Math.round(y), 1, 1, U.rgba('#fff4d0', m.a * (0.5 + 0.5 * Math.sin(t * 2 + m.ph))));
+    }
+    // bugs going round and round over the flowers
+    for (const b of BUGS) {
+      const x = Math.round(b.x + Math.cos(t * b.sp + b.ph) * b.rx);
+      const y = Math.round(b.y + Math.sin(t * b.sp * 1.4 + b.ph) * b.ry);
+      const col = ['#ffd95c', '#c898ff', '#fffae8'][b.v];
+      Art.rect(g, x - 1, y - 1, 3, 3, '#000000');
+      Art.rect(g, x, y, 2, 1, col);
+      const wing = Math.floor(t * 18 + b.ph) % 2;
+      Art.rect(g, x - 1, y - 1 + wing, 1, 1, '#fffae8');
+      Art.rect(g, x + 2, y - 1 + wing, 1, 1, '#fffae8');
+    }
+    // and a line of ants across the front of the clearing
+    for (const a2 of ANTS) {
+      const p2 = ((t * 11 + a2.o) % (VW + 40)) - 20;
+      const y = 352 + Math.sin(p2 * 0.06) * 3;
+      Art.rect(g, Math.round(p2), Math.round(y), 2, 2, '#1d1208');
+      Art.rect(g, Math.round(p2) + 2, Math.round(y), 1, 1, '#1d1208');
+      if (a2.load) Art.rect(g, Math.round(p2) - 2, Math.round(y) - 2, 3, 3, '#92dc5e');
+    }
+  }
 
   // ---- the ground ------------------------------------------------------------
   // Not a lawn. The same worn soil the plot is made of, with the treeline
@@ -18868,6 +19418,7 @@ const Menu = (() => {
 
     // ---- the floor of it: the same worn soil as your own plot -------------
     drawFloor(g, day);
+    smallLife(g, false);              // mushrooms come up out of the litter
     // mossy stones and logs
     for (const st of STONES) {
       Art.ell(g, st.x, st.y, st.w, st.h, '#5b5a58');
@@ -18886,6 +19437,7 @@ const Menu = (() => {
       }
     }
     for (const f of FLOWERS) flower(g, f);
+    smallLife(g, true);               // motes, bugs and a line of ants over it all
 
     // ---- the near trees and the houses in them -----------------------------
     for (let d = 2; d < RANKS.length; d++) {
@@ -19044,15 +19596,47 @@ const Menu = (() => {
     const BW = 258, PADX = 16;
     // No banner across the top. The three buttons are the whole page: the
     // board was spending a quarter of itself telling you where you were.
-    const PX = VW - BW - PADX * 2 - 22, PY = 164, PW = BW + PADX * 2, PH = 152;
+    const PX = VW - BW - PADX * 2 - 22, PY = 96, PW = BW + PADX * 2, PH = 236;
     board(g, PX, PY, PW, PH);
     const BX = PX + PADX;
-    buttons.push({ id: 'enter', x: BX, y: PY + 16, w: BW, h: 48 });
-    buttons.push({ id: 'settings', x: BX, y: PY + 72, w: BW, h: 32 });
-    buttons.push({ id: 'help', x: BX, y: PY + 112, w: BW, h: 32 });
-    bigButton(g, buttons[0], 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
-    bigButton(g, buttons[1], 'SETTINGS', null, 2);
-    bigButton(g, buttons[2], 'HOW TO PLAY', null, 2);
+    // ---- three groves ------------------------------------------------------
+    // Each one is a strip of parchment with what is in it burned across it.
+    // The one you are standing in has a candle beside it; the × wipes one.
+    const slots = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList() : [{ n: 1, empty: !hasSave }];
+    const here = (typeof Main !== 'undefined' && Main.slot) || 1;
+    slots.forEach((sl, i) => {
+      const y = PY + 14 + i * 30;
+      const on = sl.n === here;
+      const hot = hover === 'slot:' + sl.n;
+      buttons.push({ id: 'slot:' + sl.n, x: BX, y, w: BW - 26, h: 26 });
+      cut(g, BX - 2, y - 2, BW - 22, 30, KIT.ink, 3);
+      cut(g, BX, y, BW - 26, 26, on ? KIT.p3 : hot ? KIT.p2 : KIT.p1, 2);
+      Art.rect(g, BX, y, BW - 26, 2, KIT.p4);
+      if (on) { Art.rect(g, BX - 9, y + 6, 5, 14, KIT.ink); Art.rect(g, BX - 8, y + 7, 3, 12, '#e8dcc0'); Art.rect(g, BX - 8, y + 3, 3, 4, KIT.g3); }
+      Font.draw(g, 'GROVE ' + sl.n, BX + 7, y + 4, { scale: 1, color: '#3a2410' });
+      if (sl.empty) {
+        Font.draw(g, 'EMPTY', BX + 7, y + 15, { scale: 1, color: '#8a6f45' });
+      } else {
+        Font.draw(g, sl.rank.toUpperCase(), BX + 62, y + 4, { scale: 1, color: '#1c5568' });
+        Font.draw(g, U.fmt(sl.wd) + ' W$', BX + BW - 34, y + 4, { scale: 1, color: '#7a4f06', align: 'right' });
+        Font.draw(g, sl.wombats + ' WOMBAT' + (sl.wombats === 1 ? '' : 'S') + '  ' + sl.gods + '/9 GODS',
+          BX + 7, y + 15, { scale: 1, color: '#6b4a26' });
+        // and the way to be rid of it
+        buttons.push({ id: 'wipe:' + sl.n, x: BX + BW - 22, y, w: 22, h: 26 });
+        const wh = hover === 'wipe:' + sl.n;
+        cut(g, BX + BW - 24, y - 2, 26, 30, KIT.ink, 3);
+        cut(g, BX + BW - 22, y, 22, 26, wh ? '#d84428' : '#902418', 2);
+        Art.rect(g, BX + BW - 22, y, 22, 2, '#e07d2c');
+        Font.draw(g, 'X', BX + BW - 11, y + 9, { scale: 1, color: '#fff3b8', align: 'center' });
+      }
+    });
+    buttons.push({ id: 'enter', x: BX, y: PY + 112, w: BW, h: 48 });
+    buttons.push({ id: 'settings', x: BX, y: PY + 168, w: BW, h: 26 });
+    buttons.push({ id: 'help', x: BX, y: PY + 200, w: BW, h: 26 });
+    const bEnter = buttons.find((b2) => b2.id === 'enter');
+    bigButton(g, bEnter, 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
+    bigButton(g, buttons.find((b2) => b2.id === 'settings'), 'SETTINGS', null, 1);
+    bigButton(g, buttons.find((b2) => b2.id === 'help'), 'HOW TO PLAY', null, 1);
     // the rumour, on a little plate along the bottom of the screen
     const line = RUMOURS[rumour % RUMOURS.length];
     const w = Font.width(line, 1) + 26;
@@ -19229,6 +19813,13 @@ const Menu = (() => {
       confirm = { text: 'your grove, every wombat and every god', go: () => onAct({ wipe: true }) };
       return;
     }
+    // picking a grove, or burning one
+    if (h.id.startsWith('slot:')) { onAct({ slot: +h.id.slice(5) }); Audio.play('click'); return; }
+    if (h.id.startsWith('wipe:')) {
+      const n = +h.id.slice(5);
+      confirm = { text: 'grove ' + n + ', every wombat in it and every god', go: () => onAct({ wipeSlot: n }) };
+      return;
+    }
     if (h.id === 'settings') { page = 'settings'; return; }
     if (h.id === 'help') { page = 'help'; return; }
     if (h.id === 'back') { page = 'home'; return; }
@@ -19248,8 +19839,15 @@ const Menu = (() => {
 // ===== js/main.js =====
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
-  const KEY = 'wombat-gods-v6';
+  // Three groves, kept apart, and the one you were last in is remembered so
+  // the title screen opens on it.
+  const KEY_BASE = 'wombat-gods-v6';
+  const SLOTS = [1, 2, 3];
+  const keyOf = (n) => KEY_BASE + (n > 1 ? ':' + n : '');
+  let slot = 1;
+  const KEY = () => keyOf(slot);
   let booted = null;                           // whatever the store held at boot
+  const slotSaves = {};                        // what is in each of the three
   let playing = false;                         // false means we are at the title
   let settings = { muted: false, musicOff: false, shake: true, bigText: false };
   const W = 640, H = 360;
@@ -19280,7 +19878,8 @@ const Main = (() => {
       if (!playing) return;
       const body = Object.assign({}, G, { paused: false, pointer: undefined });
       booted = body;
-      Store.put(KEY, body);
+      Store.put(KEY(), body);
+      slotSaves[slot] = body;
     } catch (e) { }
   }
   function load(d) {
@@ -19319,7 +19918,34 @@ const Main = (() => {
     setTimeout(() => UI.toast('the grove is dead', 'bad'), 1400);
     setTimeout(() => UI.toast('clear the list and one will come'), 6400);
   }
-  function reset() { Store.clear(KEY).then(() => location.reload(), () => location.reload()); }
+  function reset() { Store.clear(KEY()).then(() => location.reload(), () => location.reload()); }
+  // ---- the three groves ---------------------------------------------------
+  // A card on the title screen for each: what it has in it, or that it is
+  // empty. Wiping one asks twice and only touches that one.
+  function slotInfo(n) {
+    const d = slotSaves[n];
+    if (!d) return { n, empty: true };
+    const rank = (CULT_RANKS_BY_KEY[d.rank] || {}).name || 'Stray';
+    return {
+      n, empty: false, rank,
+      wd: d.wd || 0, wombats: (d.wombats || []).length,
+      gods: Object.keys(d.summoned || {}).length,
+      time: d.time || 0,
+    };
+  }
+  function slotList() { return SLOTS.map(slotInfo); }
+  function pickSlot(n) {
+    slot = n;
+    booted = slotSaves[n] || null;
+    try { localStorage.setItem(KEY_BASE + ':last', String(n)); } catch (e) { }
+    Menu.setSave(booted);
+  }
+  function wipeSlot(n) {
+    slotSaves[n] = null;
+    Store.clear(keyOf(n));
+    if (n === slot) { booted = null; Menu.setSave(null); }
+    Audio.play('error');
+  }
 
   // ---- the title screen ----------------------------------------------------
   // Nothing is loaded until you walk in, so the title can stand on its own.
@@ -19347,7 +19973,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      Sky.init(G); World.init(G); Cult.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
+      Sky.init(G); World.init(G); Cult.init(G); Rite.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
       Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -19363,6 +19989,8 @@ const Main = (() => {
     }, () => { if (!G.seen && G.introDone) openingBeats(); });
   }
   function menuAction(a) {
+    if (a.slot) { pickSlot(a.slot); return; }
+    if (a.wipeSlot) { wipeSlot(a.wipeSlot); return; }
     if (a.play) { startGame(); return; }
     if (a.toggle) {
       settings[a.toggle] = !settings[a.toggle];
@@ -19373,7 +20001,8 @@ const Main = (() => {
     }
     if (a.wipe) {
       booted = null;
-      Store.clear(KEY);
+      slotSaves[slot] = null;
+      Store.clear(KEY());
       Menu.setSave(null);
       Audio.play('error');
     }
@@ -19431,6 +20060,7 @@ const Main = (() => {
       canvas.setPointerCapture?.(e.pointerId);
       const pm = pos(e);
       if (G.mode === 'menu') { if (!FX.curtaining) Menu.press(pm.x, pm.y); return; }
+      if (Rite.active()) { Rite.press(pm.x, pm.y); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel() || G.paused) return;
       const p = pm;
@@ -19447,7 +20077,7 @@ const Main = (() => {
         const w = world(p);
         if (Guide.hit(w.x, w.y)) { Guide.poke(); down = false; return; }
         const consumed = Grove.press(w.x, w.y, true);
-        if (consumed) lastP = w;
+        if (consumed || G.tool === 'terra') lastP = w;
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
@@ -19456,6 +20086,7 @@ const Main = (() => {
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
       if (G.mode === 'menu') { Menu.move(p.x, p.y); return; }
+      if (Rite.active()) { Rite.move(p.x, p.y); return; }
       screenP = p;
       const wp = world(p);
       G.pointer.x = wp.x; G.pointer.y = wp.y; G.pointer.on = true;
@@ -19513,6 +20144,7 @@ const Main = (() => {
       if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
       Audio.init();
       if (G.mode === 'menu') { if (!FX.curtaining && Menu.key(e.key)) e.preventDefault(); return; }
+      if (Rite.active()) { if (Rite.key(e.key)) e.preventDefault(); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel()) return;
       if (G.mode === 'shrine' && Ritual.keyDown(e.key)) { e.preventDefault(); return; }
@@ -19583,6 +20215,12 @@ const Main = (() => {
     }
     // The rite pauses the world but its own effects must keep running, or
     // bolts and roots spawned during the cutscene never expire.
+    // Shaping the ground is a held spell: it keeps working while the button is
+    // down even if your hand is perfectly still, the way a sculpting brush does.
+    if (playing && !G.paused && down && !panning && G.mode === 'grove' && G.tool === 'terra' && lastP) {
+      Grove.press(lastP.x, lastP.y, false);
+    }
+    Rite.update(real);                            // dialogue runs while the world is held
     if (playing && !G.paused) Cult.update();       // the day turns, the omen turns with it
     FX.updateWorld(Ritual.active ? real : (G.paused ? 0 : real));
 
@@ -19601,6 +20239,7 @@ const Main = (() => {
       else Nursery.render(g);
       g.restore();
     }
+    Rite.render(g);                   // whoever is talking stands in front of it all
     FX.drawCoins(g, false);           // money on its way to the corner
     FX.drawCinema(g, W, H);
     FX.drawTrees(g, W, H);            // the curtain sits above everything
@@ -19626,13 +20265,16 @@ const Main = (() => {
     resize();
     splash();
     Sprites.init();
-    booted = await Store.boot(KEY);
+    // read all three, then open on the one you were last in
+    try { slot = Math.min(3, Math.max(1, parseInt(localStorage.getItem(KEY_BASE + ':last') || '1', 10) || 1)); } catch (e) { slot = 1; }
+    for (const n of SLOTS) slotSaves[n] = await Store.boot(keyOf(n));
+    booted = slotSaves[slot];
     settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false }, Store.settings());
     G = fresh();
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Cult.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Cult.init(G); Rite.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();
@@ -19644,6 +20286,7 @@ const Main = (() => {
   }
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
-  return { save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
+  return {
+    slotList, pickSlot, wipeSlot, get slot() { return slot; }, save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
 })();
 </script>

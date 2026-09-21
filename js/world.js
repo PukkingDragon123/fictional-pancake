@@ -124,6 +124,37 @@ const World = (() => {
     record(code, x, y, r);
     return true;
   }
+  // ---- what the god-words do to the ground --------------------------------
+  // Hasten runs a whole season over one bed. Rot turns the weeds in reach
+  // straight into tribute and leaves nothing behind.
+  function hasten(x, y, r) {
+    let n = 0;
+    for (const c of crops) {
+      if (Math.hypot(c.x - x, (c.y - y) * 1.4) > r) continue;
+      const def = CROP_BY_KEY[c.k] || {};
+      c.wet = Math.max(c.wet, 12); c.thirst = 0; c.stall = 0; c.wild = 0;
+      if (!grown(c)) c.t = growTime(c.k) + 0.1;
+      else if (def.kind === 'tree') c.fr = Math.min(FRUIT_CAP, c.fr + 2);
+      n++;
+    }
+    for (const p2 of sprouts) {
+      if (Math.hypot(p2.x - x, (p2.y - y) * 1.4) > r) continue;
+      p2.t = 99; n++;
+    }
+    return n;
+  }
+  function rot(x, y, r) {
+    let n = 0;
+    for (let i = weeds.length - 1; i >= 0; i--) {
+      const w2 = weeds[i];
+      if (Math.hypot(w2.x - x, (w2.y - y) * 1.4) > r) continue;
+      FX.burst(w2.x, w2.y, 6, { color: ['#6b32bd', '#9a5cf0', '#2f6122'], speed: 50, gravity: 40, life: 0.6, size: 2 });
+      weeds.splice(i, 1); n++;
+      if (n >= 6) break;
+    }
+    if (n) measure();
+    return n;
+  }
   function brushRadius(base) {
     let r = base;
     if (G.fruits.broadbrush) r *= 1.35;
@@ -684,7 +715,7 @@ const World = (() => {
   return {
     init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, cropItems, drawCursor,
     sowGrass, till, clearWeeds, hitWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
-    paintGround, PAINT_ORDER,
+    paintGround, PAINT_ORDER, hasten, rot,
     fraction, zoneFraction, measure, ripe, growTime, grown, kindOf, needMet, magic, prune, plantAt, plantTip,
     get weeds() { return weeds; }, get crops() { return crops; },
     get blades() { return blades; }, get sprouts() { return sprouts; }, get flowers() { return flowers; },

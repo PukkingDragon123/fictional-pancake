@@ -283,6 +283,60 @@ const Grove = (() => {
     }
   }
 
+  // ---- casting ------------------------------------------------------------
+  const SPELL_COST = { call: 60, hasten: 12, solace: 25, rot: 35 };
+  function runes(x, y, col, n = 14) {
+    for (let i = 0; i < n; i++) {
+      const a3 = (i / n) * TAU;
+      FX.spawn({ x: x + Math.cos(a3) * 8, y: y + Math.sin(a3) * 5, vx: Math.cos(a3) * 40, vy: Math.sin(a3) * 24 - 30,
+        life: U.rand(0.5, 1.1), size: 2, color: col, gravity: -14 });
+    }
+  }
+  function cast(key, x, y) {
+    if (key === 'call') {
+      if (G.wombats.length >= capacity()) { Audio.play('error'); UI.toast('nowhere to put another one', 'bad'); return false; }
+      // whatever comes up is whatever comes up; the rare pelts are rarer
+      const pool = FUR.filter((f) => f.rare <= (U.chance(0.12) ? 2 : U.chance(0.3) ? 1 : 0));
+      const pelt = U.pick(pool).key;
+      runes(x, y, PAL.div4, 24);
+      FX.comic(x, y - 40, 'CALL', { ink: '#c898ff', edge: '#3d1f78', life: 1 });
+      const w = addWombat({ pelt, x, y: U.clamp(y, WALK.y0, WALK.y1) });
+      UI.toast(`<b>${w.name}</b> came up out of the ground &mdash; ${FUR_BY_KEY[pelt].name}`, 'good');
+      return true;
+    }
+    if (key === 'hasten') {
+      const n = World.hasten(x, y, 30);
+      if (!n) { Audio.play('error'); UI.toast('nothing growing there', 'bad'); return false; }
+      runes(x, y, PAL.moss5, 16);
+      FX.comic(x, y - 30, 'HASTEN', { ink: '#c8f593', edge: '#2f6122', life: 0.8 });
+      return true;
+    }
+    if (key === 'solace') {
+      if (!G.wombats.length) { Audio.play('error'); UI.toast('nobody to comfort', 'bad'); return false; }
+      for (const w of G.wombats) {
+        w.hap = Math.min(hapCap(), w.hap + 42); w.bored = 0; w.thirst = 0; w.grump = 0;
+        runes(w.x, w.y - 10, PAL.cyan3, 8);
+        FX.float(w.x, w.y - 40, '\u2661', { color: '#ffa8bc', size: 9 });
+      }
+      FX.comic(x, y - 30, 'SOLACE', { ink: '#ffa8bc', edge: '#902418', life: 0.9 });
+      return true;
+    }
+    if (key === 'rot') {
+      const got = World.rot(x, y, 34);
+      if (!got) { Audio.play('error'); UI.toast('no weeds in reach', 'bad'); return false; }
+      for (let i = 0; i < got; i++) {
+        drops.push({ x: x + U.rand(-26, 26), y: U.clamp(y + U.rand(-10, 14), WALK.y0, WALK.y1),
+          z: 30 + i * 6, vz: 40, type: U.chance(0.2) ? 'rich' : 'plain', blessed: U.chance(0.1), t: -i * 0.1, id: U.uid() });
+      }
+      runes(x, y, '#9a5cf0', 20);
+      FX.comic(x, y - 30, 'ROT', { ink: '#c898ff', edge: '#1d0f38', life: 0.9 });
+      G.stats.left += got;
+      Cult.give(got);
+      return true;
+    }
+    return false;
+  }
+
   function update(dt) {
     Wild.update(dt);
     updateFoods(dt);
@@ -741,17 +795,27 @@ const Grove = (() => {
       Audio.play('error'); UI.toast('too far out', 'bad');
       return true;
     }
-    if (tool === 'terra') {
-      const m = terraMode();
-      if (m.paint) { World.paintGround(m.paint, x, y, World.brushRadius(m.r)); return true; }
+    // ---- the words you took off the gods --------------------------------
+    // Each one spends devotion, which is the only currency the cult keeps, so
+    // casting is always a choice between a spell now and a rank later.
+    if (SPELL_COST[tool]) {
       if (!first) return true;
-      if (m.key === 'raise') Wild.place('mound', x, y);
-      else if (m.key === 'dig') Wild.place('pond', x, y);
-      else if (m.key === 'level') {
-        if (G.wd < m.cost) { Audio.play('error'); UI.toast('not enough', 'bad'); return true; }
-        if (Wild.level(x, y, m.r)) { G.wd -= m.cost; UI.toast('levelled', 'good'); }
-        else { Audio.play('error'); UI.toast('nothing to level there', 'bad'); }
-      }
+      const cost = SPELL_COST[tool];
+      if ((G.devotion || 0) < cost) { Audio.play('error'); UI.toast('not enough devotion', 'bad'); return true; }
+      if (!cast(tool, x, y)) return true;
+      G.devotion -= cost;
+      Audio.play('bless'); FX.flash('#9a5cf0', 0.24);
+      UI.refreshHUD(); Main.save();
+      return true;
+    }
+    if (tool === 'terra') {
+      // Held down and dragged. Everything here is a stroke, not a click: the
+      // ground swells and sinks under the brush the whole time you hold it.
+      const m = terraMode();
+      const br = World.brushRadius(m.r);
+      if (m.paint) { World.paintGround(m.paint, x, y, br); return true; }
+      if (m.key === 'raise' || m.key === 'dig') { Wild.sculpt(m.key, x, y, br, first); return true; }
+      if (m.key === 'level') Wild.flatten(x, y, br);
       return true;
     }
     if (tool === 'build') {

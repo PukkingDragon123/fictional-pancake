@@ -34,6 +34,8 @@ const Cult = (() => {
     { key: 'crows',  name: 'Too Many Crows',  icon: 'ph_places', good: 0, line: 'Something is taking the fruit. Pick it early.', crows: 1 },
   ];
   const RANK_BY_KEY = Object.fromEntries(RANKS.map((r) => [r.key, r]));
+  // the title screen reads saves it has not loaded, so the table is global
+  if (typeof window !== 'undefined') window.CULT_RANKS_BY_KEY = RANK_BY_KEY;
   const OMEN_BY_KEY = Object.fromEntries(OMENS.map((o) => [o.key, o]));
 
   function init(g) {
@@ -78,9 +80,21 @@ const Cult = (() => {
     }
     if (up) {
       Audio.play('bless'); Audio.play('chime');
-      FX.title(up.name.toUpperCase(), { size: 18, color: PAL.div4, dur: 2.6, style: 'slam', sub: 'the cult knows your name' });
       FX.confettiBurst(320, 150, 70);
+      // he has something to say about it, and you get to answer
+      if (typeof Rite !== 'undefined' && G.mode !== 'shrine') Rite.rank(up);
+      else FX.title(up.name.toUpperCase(), { size: 18, color: PAL.div4, dur: 2.6, style: 'slam', sub: 'the cult knows your name' });
       Main.save();
+    }
+    // and a word coming within reach is worth stopping for
+    if (typeof SPELL_LEARN !== 'undefined') {
+      if (!G.learned) G.learned = {};
+      for (const k of Object.keys(SPELL_LEARN)) {
+        if (G.learned[k] || !unlocked(G, k)) continue;
+        G.learned[k] = 1;
+        if (typeof Rite !== 'undefined' && G.mode !== 'shrine') Rite.learn(k);
+        else UI.toast('<b>' + SPELL_LEARN[k][0] + '</b> &mdash; ' + SPELL_LEARN[k][1], 'good');
+      }
     }
     UI.refreshHUD();
   }

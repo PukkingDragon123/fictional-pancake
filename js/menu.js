@@ -207,13 +207,67 @@ const Menu = (() => {
   const FLOWERS = [], TUFTS = [], STONES = [];
   (() => {
     const r = Art.rng(7711);
-    for (let i = 0; i < 74; i++) FLOWERS.push({ x: 14 + r() * (VW - 28), y: 212 + r() * 150, v: Math.floor(r() * 5), ph: r() * TAU, s: 1.5 + r() * 1.5 });
-    for (let i = 0; i < 240; i++) TUFTS.push({ x: r() * VW, y: 206 + r() * 156, h: 4 + r() * 8, ph: r() * TAU, tone: Math.floor(r() * 3) });
-    for (let i = 0; i < 18; i++) STONES.push({ x: r() * VW, y: 226 + r() * 132, w: 7 + r() * 16, h: 4 + r() * 7 });
+    for (let i = 0; i < 128; i++) FLOWERS.push({ x: 14 + r() * (VW - 28), y: 212 + r() * 150, v: Math.floor(r() * 5), ph: r() * TAU, s: 1.5 + r() * 1.5 });
+    for (let i = 0; i < 420; i++) TUFTS.push({ x: r() * VW, y: 206 + r() * 156, h: 4 + r() * 8, ph: r() * TAU, tone: Math.floor(r() * 3) });
+    for (let i = 0; i < 30; i++) STONES.push({ x: r() * VW, y: 226 + r() * 132, w: 7 + r() * 16, h: 4 + r() * 7 });
   })();
   const BIRDS = [];
-  for (let i = 0; i < 7; i++) BIRDS.push({ x: Math.random() * VW, y: 30 + Math.random() * 90, sp: 16 + Math.random() * 26, ph: Math.random() * TAU, dir: Math.random() < 0.5 ? -1 : 1, s: 0.7 + Math.random() * 0.6 });
-  const FLOW = ['#f2d0e0', '#f5cd5c', '#c4a8e8', '#f0f0e0', '#e88a6a'];
+  for (let i = 0; i < 11; i++) BIRDS.push({ x: Math.random() * VW, y: 24 + Math.random() * 100, sp: 16 + Math.random() * 26, ph: Math.random() * TAU, dir: Math.random() < 0.5 ? -1 : 1, s: 0.7 + Math.random() * 0.6 });
+  const FLOW = ['#ffd6e6', '#ffd95c', '#c898ff', '#fffae8', '#ff9a72'];
+
+  // ---- the small life ------------------------------------------------------
+  // A title screen wants things to look at. Motes in the light, bugs over the
+  // flowers, mushrooms in the leaf litter, a moth round the lantern, and a line
+  // of ants going somewhere with a crumb.
+  const MOTES = [], BUGS = [], SHROOMS = [], ANTS = [];
+  (() => {
+    const r = Art.rng(5150);
+    for (let i = 0; i < 70; i++) MOTES.push({ x: r() * VW, y: 60 + r() * 260, ph: r() * TAU, sp: 3 + r() * 9, a: 0.25 + r() * 0.5 });
+    for (let i = 0; i < 16; i++) BUGS.push({ x: r() * VW, y: 200 + r() * 150, ph: r() * TAU, rx: 12 + r() * 26, ry: 5 + r() * 9, sp: 0.5 + r(), v: Math.floor(r() * 3) });
+    for (let i = 0; i < 26; i++) SHROOMS.push({ x: 10 + r() * (VW - 20), y: 214 + r() * 146, v: Math.floor(r() * 3), s: 1 + r() * 0.8 });
+    for (let i = 0; i < 14; i++) ANTS.push({ o: i * 11, load: i % 5 === 0 });
+  })();
+  const SHROOM_COL = [['#d84428', '#ffd6c8'], ['#c09b62', '#f6e4ba'], ['#9a5cf0', '#e0cfff']];
+  function smallLife(g, front) {
+    // mushrooms in the litter, which sort with the ground
+    if (!front) {
+      for (const m of SHROOMS) {
+        const [cap, dot] = SHROOM_COL[m.v];
+        const w2 = Math.round(5 * m.s), h2 = Math.round(4 * m.s);
+        Art.rect(g, m.x - 1, m.y - 3, 2, 4, '#e8dcc0');
+        Art.rect(g, m.x - w2 / 2 - 1, m.y - 6, w2 + 2, h2 + 1, '#000000');
+        Art.rect(g, m.x - w2 / 2, m.y - 6, w2, h2, cap);
+        Art.rect(g, m.x - w2 / 2, m.y - 6, w2, 1, U.shade(cap, 0.35));
+        Art.rect(g, m.x - 1, m.y - 5, 1, 1, dot);
+      }
+      return;
+    }
+    // motes hanging in the light
+    for (const m of MOTES) {
+      const y = m.y + Math.sin(t * 0.4 + m.ph) * 7;
+      const x = m.x + Math.cos(t * 0.25 + m.ph) * 11;
+      Art.rect(g, Math.round(x), Math.round(y), 1, 1, U.rgba('#fff4d0', m.a * (0.5 + 0.5 * Math.sin(t * 2 + m.ph))));
+    }
+    // bugs going round and round over the flowers
+    for (const b of BUGS) {
+      const x = Math.round(b.x + Math.cos(t * b.sp + b.ph) * b.rx);
+      const y = Math.round(b.y + Math.sin(t * b.sp * 1.4 + b.ph) * b.ry);
+      const col = ['#ffd95c', '#c898ff', '#fffae8'][b.v];
+      Art.rect(g, x - 1, y - 1, 3, 3, '#000000');
+      Art.rect(g, x, y, 2, 1, col);
+      const wing = Math.floor(t * 18 + b.ph) % 2;
+      Art.rect(g, x - 1, y - 1 + wing, 1, 1, '#fffae8');
+      Art.rect(g, x + 2, y - 1 + wing, 1, 1, '#fffae8');
+    }
+    // and a line of ants across the front of the clearing
+    for (const a2 of ANTS) {
+      const p2 = ((t * 11 + a2.o) % (VW + 40)) - 20;
+      const y = 352 + Math.sin(p2 * 0.06) * 3;
+      Art.rect(g, Math.round(p2), Math.round(y), 2, 2, '#1d1208');
+      Art.rect(g, Math.round(p2) + 2, Math.round(y), 1, 1, '#1d1208');
+      if (a2.load) Art.rect(g, Math.round(p2) - 2, Math.round(y) - 2, 3, 3, '#92dc5e');
+    }
+  }
 
   // ---- the ground ------------------------------------------------------------
   // Not a lawn. The same worn soil the plot is made of, with the treeline
@@ -389,6 +443,7 @@ const Menu = (() => {
 
     // ---- the floor of it: the same worn soil as your own plot -------------
     drawFloor(g, day);
+    smallLife(g, false);              // mushrooms come up out of the litter
     // mossy stones and logs
     for (const st of STONES) {
       Art.ell(g, st.x, st.y, st.w, st.h, '#5b5a58');
@@ -407,6 +462,7 @@ const Menu = (() => {
       }
     }
     for (const f of FLOWERS) flower(g, f);
+    smallLife(g, true);               // motes, bugs and a line of ants over it all
 
     // ---- the near trees and the houses in them -----------------------------
     for (let d = 2; d < RANKS.length; d++) {
@@ -565,15 +621,47 @@ const Menu = (() => {
     const BW = 258, PADX = 16;
     // No banner across the top. The three buttons are the whole page: the
     // board was spending a quarter of itself telling you where you were.
-    const PX = VW - BW - PADX * 2 - 22, PY = 164, PW = BW + PADX * 2, PH = 152;
+    const PX = VW - BW - PADX * 2 - 22, PY = 96, PW = BW + PADX * 2, PH = 236;
     board(g, PX, PY, PW, PH);
     const BX = PX + PADX;
-    buttons.push({ id: 'enter', x: BX, y: PY + 16, w: BW, h: 48 });
-    buttons.push({ id: 'settings', x: BX, y: PY + 72, w: BW, h: 32 });
-    buttons.push({ id: 'help', x: BX, y: PY + 112, w: BW, h: 32 });
-    bigButton(g, buttons[0], 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
-    bigButton(g, buttons[1], 'SETTINGS', null, 2);
-    bigButton(g, buttons[2], 'HOW TO PLAY', null, 2);
+    // ---- three groves ------------------------------------------------------
+    // Each one is a strip of parchment with what is in it burned across it.
+    // The one you are standing in has a candle beside it; the × wipes one.
+    const slots = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList() : [{ n: 1, empty: !hasSave }];
+    const here = (typeof Main !== 'undefined' && Main.slot) || 1;
+    slots.forEach((sl, i) => {
+      const y = PY + 14 + i * 30;
+      const on = sl.n === here;
+      const hot = hover === 'slot:' + sl.n;
+      buttons.push({ id: 'slot:' + sl.n, x: BX, y, w: BW - 26, h: 26 });
+      cut(g, BX - 2, y - 2, BW - 22, 30, KIT.ink, 3);
+      cut(g, BX, y, BW - 26, 26, on ? KIT.p3 : hot ? KIT.p2 : KIT.p1, 2);
+      Art.rect(g, BX, y, BW - 26, 2, KIT.p4);
+      if (on) { Art.rect(g, BX - 9, y + 6, 5, 14, KIT.ink); Art.rect(g, BX - 8, y + 7, 3, 12, '#e8dcc0'); Art.rect(g, BX - 8, y + 3, 3, 4, KIT.g3); }
+      Font.draw(g, 'GROVE ' + sl.n, BX + 7, y + 4, { scale: 1, color: '#3a2410' });
+      if (sl.empty) {
+        Font.draw(g, 'EMPTY', BX + 7, y + 15, { scale: 1, color: '#8a6f45' });
+      } else {
+        Font.draw(g, sl.rank.toUpperCase(), BX + 62, y + 4, { scale: 1, color: '#1c5568' });
+        Font.draw(g, U.fmt(sl.wd) + ' W$', BX + BW - 34, y + 4, { scale: 1, color: '#7a4f06', align: 'right' });
+        Font.draw(g, sl.wombats + ' WOMBAT' + (sl.wombats === 1 ? '' : 'S') + '  ' + sl.gods + '/9 GODS',
+          BX + 7, y + 15, { scale: 1, color: '#6b4a26' });
+        // and the way to be rid of it
+        buttons.push({ id: 'wipe:' + sl.n, x: BX + BW - 22, y, w: 22, h: 26 });
+        const wh = hover === 'wipe:' + sl.n;
+        cut(g, BX + BW - 24, y - 2, 26, 30, KIT.ink, 3);
+        cut(g, BX + BW - 22, y, 22, 26, wh ? '#d84428' : '#902418', 2);
+        Art.rect(g, BX + BW - 22, y, 22, 2, '#e07d2c');
+        Font.draw(g, 'X', BX + BW - 11, y + 9, { scale: 1, color: '#fff3b8', align: 'center' });
+      }
+    });
+    buttons.push({ id: 'enter', x: BX, y: PY + 112, w: BW, h: 48 });
+    buttons.push({ id: 'settings', x: BX, y: PY + 168, w: BW, h: 26 });
+    buttons.push({ id: 'help', x: BX, y: PY + 200, w: BW, h: 26 });
+    const bEnter = buttons.find((b2) => b2.id === 'enter');
+    bigButton(g, bEnter, 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
+    bigButton(g, buttons.find((b2) => b2.id === 'settings'), 'SETTINGS', null, 1);
+    bigButton(g, buttons.find((b2) => b2.id === 'help'), 'HOW TO PLAY', null, 1);
     // the rumour, on a little plate along the bottom of the screen
     const line = RUMOURS[rumour % RUMOURS.length];
     const w = Font.width(line, 1) + 26;
@@ -748,6 +836,13 @@ const Menu = (() => {
     if (h.kind === 'toggle') { onAct({ toggle: h.k }); return; }
     if (h.kind === 'wipe') {
       confirm = { text: 'your grove, every wombat and every god', go: () => onAct({ wipe: true }) };
+      return;
+    }
+    // picking a grove, or burning one
+    if (h.id.startsWith('slot:')) { onAct({ slot: +h.id.slice(5) }); Audio.play('click'); return; }
+    if (h.id.startsWith('wipe:')) {
+      const n = +h.id.slice(5);
+      confirm = { text: 'grove ' + n + ', every wombat in it and every god', go: () => onAct({ wipeSlot: n }) };
       return;
     }
     if (h.id === 'settings') { page = 'settings'; return; }

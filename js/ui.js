@@ -33,7 +33,16 @@ const UI = (() => {
       fr.textContent = r.name.toUpperCase();
       fb.firstElementChild.style.width = Math.round(Cult.progress() * 100) + '%';
       $('faith').classList.toggle('full', !n);
-      $('faith').hidden = G.mode === 'shrine' || G.mode === 'intro' || G.mode === 'menu';
+      // The head-up belongs to the game. It is not on the title screen, it is
+      // not in the shaft, and it gets out of the way while somebody is talking.
+      const rite = typeof Rite !== 'undefined' && Rite.active();
+      const off = rite || G.mode === 'menu' || G.mode === 'intro';
+      $('faith').hidden = off || G.mode === 'shrine';
+      $('money').hidden = off || G.mode === 'shrine';
+      $('mini').hidden = off;
+      $('side').hidden = off;
+      $('zoomer').hidden = off || G.mode !== 'grove';
+      if (off) $('checklist').hidden = true;
     }
     refreshList();
     refreshNotebook();
@@ -516,8 +525,8 @@ const UI = (() => {
     $('ov-shrine').hidden = true;
     // The shaft has no interface. The purse and the phone go away with it;
     // the only thing left on screen is the way back out.
-    $('money').hidden = mode === 'shrine';
-    $('faith').hidden = mode === 'shrine' || mode === 'intro' || mode === 'menu';
+    $('money').hidden = intro || mode === 'shrine';
+    $('faith').hidden = intro || mode === 'shrine';
     $('b-phone').hidden = mode === 'shrine';
     $('ov-shop').hidden = mode !== 'shop';
     $('ov-nursery').hidden = mode !== 'nursery';

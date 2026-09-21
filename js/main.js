@@ -1,7 +1,14 @@
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
-  const KEY = 'wombat-gods-v6';
+  // Three groves, kept apart, and the one you were last in is remembered so
+  // the title screen opens on it.
+  const KEY_BASE = 'wombat-gods-v6';
+  const SLOTS = [1, 2, 3];
+  const keyOf = (n) => KEY_BASE + (n > 1 ? ':' + n : '');
+  let slot = 1;
+  const KEY = () => keyOf(slot);
   let booted = null;                           // whatever the store held at boot
+  const slotSaves = {};                        // what is in each of the three
   let playing = false;                         // false means we are at the title
   let settings = { muted: false, musicOff: false, shake: true, bigText: false };
   const W = 640, H = 360;
@@ -32,7 +39,8 @@ const Main = (() => {
       if (!playing) return;
       const body = Object.assign({}, G, { paused: false, pointer: undefined });
       booted = body;
-      Store.put(KEY, body);
+      Store.put(KEY(), body);
+      slotSaves[slot] = body;
     } catch (e) { }
   }
   function load(d) {
@@ -71,7 +79,34 @@ const Main = (() => {
     setTimeout(() => UI.toast('the grove is dead', 'bad'), 1400);
     setTimeout(() => UI.toast('clear the list and one will come'), 6400);
   }
-  function reset() { Store.clear(KEY).then(() => location.reload(), () => location.reload()); }
+  function reset() { Store.clear(KEY()).then(() => location.reload(), () => location.reload()); }
+  // ---- the three groves ---------------------------------------------------
+  // A card on the title screen for each: what it has in it, or that it is
+  // empty. Wiping one asks twice and only touches that one.
+  function slotInfo(n) {
+    const d = slotSaves[n];
+    if (!d) return { n, empty: true };
+    const rank = (CULT_RANKS_BY_KEY[d.rank] || {}).name || 'Stray';
+    return {
+      n, empty: false, rank,
+      wd: d.wd || 0, wombats: (d.wombats || []).length,
+      gods: Object.keys(d.summoned || {}).length,
+      time: d.time || 0,
+    };
+  }
+  function slotList() { return SLOTS.map(slotInfo); }
+  function pickSlot(n) {
+    slot = n;
+    booted = slotSaves[n] || null;
+    try { localStorage.setItem(KEY_BASE + ':last', String(n)); } catch (e) { }
+    Menu.setSave(booted);
+  }
+  function wipeSlot(n) {
+    slotSaves[n] = null;
+    Store.clear(keyOf(n));
+    if (n === slot) { booted = null; Menu.setSave(null); }
+    Audio.play('error');
+  }
 
   // ---- the title screen ----------------------------------------------------
   // Nothing is loaded until you walk in, so the title can stand on its own.
@@ -99,7 +134,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      Sky.init(G); World.init(G); Cult.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
+      Sky.init(G); World.init(G); Cult.init(G); Rite.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
       Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -115,6 +150,8 @@ const Main = (() => {
     }, () => { if (!G.seen && G.introDone) openingBeats(); });
   }
   function menuAction(a) {
+    if (a.slot) { pickSlot(a.slot); return; }
+    if (a.wipeSlot) { wipeSlot(a.wipeSlot); return; }
     if (a.play) { startGame(); return; }
     if (a.toggle) {
       settings[a.toggle] = !settings[a.toggle];
@@ -125,7 +162,8 @@ const Main = (() => {
     }
     if (a.wipe) {
       booted = null;
-      Store.clear(KEY);
+      slotSaves[slot] = null;
+      Store.clear(KEY());
       Menu.setSave(null);
       Audio.play('error');
     }
@@ -183,6 +221,7 @@ const Main = (() => {
       canvas.setPointerCapture?.(e.pointerId);
       const pm = pos(e);
       if (G.mode === 'menu') { if (!FX.curtaining) Menu.press(pm.x, pm.y); return; }
+      if (Rite.active()) { Rite.press(pm.x, pm.y); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel() || G.paused) return;
       const p = pm;
@@ -199,7 +238,7 @@ const Main = (() => {
         const w = world(p);
         if (Guide.hit(w.x, w.y)) { Guide.poke(); down = false; return; }
         const consumed = Grove.press(w.x, w.y, true);
-        if (consumed) lastP = w;
+        if (consumed || G.tool === 'terra') lastP = w;
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
@@ -208,6 +247,7 @@ const Main = (() => {
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
       if (G.mode === 'menu') { Menu.move(p.x, p.y); return; }
+      if (Rite.active()) { Rite.move(p.x, p.y); return; }
       screenP = p;
       const wp = world(p);
       G.pointer.x = wp.x; G.pointer.y = wp.y; G.pointer.on = true;
@@ -265,6 +305,7 @@ const Main = (() => {
       if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
       Audio.init();
       if (G.mode === 'menu') { if (!FX.curtaining && Menu.key(e.key)) e.preventDefault(); return; }
+      if (Rite.active()) { if (Rite.key(e.key)) e.preventDefault(); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel()) return;
       if (G.mode === 'shrine' && Ritual.keyDown(e.key)) { e.preventDefault(); return; }
@@ -335,6 +376,12 @@ const Main = (() => {
     }
     // The rite pauses the world but its own effects must keep running, or
     // bolts and roots spawned during the cutscene never expire.
+    // Shaping the ground is a held spell: it keeps working while the button is
+    // down even if your hand is perfectly still, the way a sculpting brush does.
+    if (playing && !G.paused && down && !panning && G.mode === 'grove' && G.tool === 'terra' && lastP) {
+      Grove.press(lastP.x, lastP.y, false);
+    }
+    Rite.update(real);                            // dialogue runs while the world is held
     if (playing && !G.paused) Cult.update();       // the day turns, the omen turns with it
     FX.updateWorld(Ritual.active ? real : (G.paused ? 0 : real));
 
@@ -353,6 +400,7 @@ const Main = (() => {
       else Nursery.render(g);
       g.restore();
     }
+    Rite.render(g);                   // whoever is talking stands in front of it all
     FX.drawCoins(g, false);           // money on its way to the corner
     FX.drawCinema(g, W, H);
     FX.drawTrees(g, W, H);            // the curtain sits above everything
@@ -378,13 +426,16 @@ const Main = (() => {
     resize();
     splash();
     Sprites.init();
-    booted = await Store.boot(KEY);
+    // read all three, then open on the one you were last in
+    try { slot = Math.min(3, Math.max(1, parseInt(localStorage.getItem(KEY_BASE + ':last') || '1', 10) || 1)); } catch (e) { slot = 1; }
+    for (const n of SLOTS) slotSaves[n] = await Store.boot(keyOf(n));
+    booted = slotSaves[slot];
     settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false }, Store.settings());
     G = fresh();
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Cult.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Cult.init(G); Rite.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();
@@ -396,5 +447,6 @@ const Main = (() => {
   }
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
-  return { save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
+  return {
+    slotList, pickSlot, wipeSlot, get slot() { return slot; }, save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
 })();

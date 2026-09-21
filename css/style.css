@@ -94,13 +94,12 @@ img.ico.xl { width: 48px; height: 48px; }
 .x:hover, .bx:hover { background: linear-gradient(180deg, #e08a44 0 32%, #c96a24 32% 72%, #9c4816 72% 100%); }
 /* the teal-iron variant, for the small square icon buttons */
 .mbtn {
-  position: relative; display: flex; align-items: center; justify-content: center; padding: 7px 9px;
-  border: 3px solid var(--ol);
-  background: linear-gradient(180deg, var(--tl3) 0 30%, var(--tl2) 30% 70%, var(--tl1) 70% 100%);
-  box-shadow: inset 0 2px 0 var(--tl4), inset 0 -2px 0 var(--tl0), 0 4px 0 0 var(--tl0), 0 4px 0 3px var(--ol);
+  position: relative; display: flex; align-items: center; justify-content: center; padding: 4px;
+  border: 0; background: none; box-shadow: none;
+  filter: drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000) drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000) drop-shadow(0 4px 0 rgba(0,0,0,0.45));
 }
-.mbtn:hover { background: linear-gradient(180deg, var(--tl4) 0 30%, var(--tl3) 30% 70%, var(--tl2) 70% 100%); }
-.mbtn img.ico { width: 22px; height: 22px; }
+.mbtn:hover { filter: drop-shadow(2px 0 0 var(--tl3)) drop-shadow(-2px 0 0 var(--tl3)) drop-shadow(0 2px 0 var(--tl3)) drop-shadow(0 -2px 0 var(--tl3)); }
+.mbtn img.ico { width: 30px; height: 30px; }
 /* greyed out, and it wins over every colour variant above */
 .btn:disabled, .act:disabled, .act.go:disabled, .buy:disabled, .rbtn:disabled {
   background: linear-gradient(180deg, #9a8b72 0 32%, #7a6e59 32% 72%, #5b5142 72% 100%) !important;
@@ -120,71 +119,70 @@ img.ico.xl { width: 48px; height: 48px; }
 @keyframes pop2 { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes slide { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 
-/* ---- the purse: a small plank on the wall -------------------------------- */
+/* ---- the head-up ---------------------------------------------------------
+   There are no boxes over the wood any more. The purse, your standing and the
+   list are drawn straight onto the scene as pixel art with a hard black line
+   behind every glyph, so nothing is covered up by a plank of interface. What
+   is left is icons, runes and numbers floating over the grove. */
 #money {
-  position: absolute; left: 18px; top: 16px; z-index: 6;
-  display: flex; align-items: center; gap: 9px; padding: 8px 16px;
+  position: absolute; left: 16px; top: 12px; z-index: 6;
+  display: flex; align-items: center; gap: 6px; padding: 0;
   font-variant-numeric: tabular-nums; pointer-events: none;
-  background: linear-gradient(180deg, var(--wd3) 0 30%, var(--wd2) 30% 72%, var(--wd1) 72% 100%);
-  border: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 var(--wd4), inset 0 -3px 0 var(--wd0), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
+  background: none; border: 0; box-shadow: none;
 }
-#money::before, #money::after {
-  content: ''; position: absolute; top: 3px; bottom: 3px; width: 6px;
-  background: linear-gradient(180deg, var(--gd3), var(--gd1));
+/* one recipe for every word floating over the scene: a fat black stroke under
+   the fill, so it reads on leaves, on bark and on the sky alike */
+.hudtext, #money b, #faith span, #checklist h4, .task {
+  -webkit-text-stroke: 4px #000; paint-order: stroke fill;
+  text-shadow: 0 3px 0 rgba(0,0,0,0.5);
 }
-#money::before { left: 3px; } #money::after { right: 3px; }
-#money b { font-weight: 400; color: var(--gd4); font-family: var(--ft); font-size: 24px; text-shadow: 0 2px 0 var(--wd0); margin: 0 6px; }
-#money img.ico { width: 30px; height: 30px; }
+#money b {
+  font-weight: 400; color: var(--gd3); font-family: var(--ft); font-size: 26px; margin: 0;
+}
+#money img.ico { width: 32px; height: 32px; filter: drop-shadow(0 3px 0 rgba(0,0,0,0.5)); }
 #money.bump { animation: bump 0.32s ease-out; }
-#money.low { top: 98px; }
+#money.low { top: 12px; }
 
-/* ---- the to-do page ------------------------------------------------------ */
+/* your standing, as a row of runes rather than a plaque */
+#faith {
+  position: absolute; left: 18px; top: 50px; z-index: 6;
+  display: flex; align-items: center; gap: 6px; padding: 0;
+  background: none; box-shadow: none; pointer-events: none;
+}
+#faith span { font-size: 15px; letter-spacing: 3px; color: var(--tl4); }
+#faith i {
+  display: block; width: 74px; height: 8px; background: rgba(8,4,14,0.75);
+  box-shadow: 0 0 0 2px #000;
+}
+#faith i em { display: block; height: 100%; width: 0; background: var(--tl3); box-shadow: inset 0 2px 0 var(--tl4); transition: width .3s steps(6, end); }
+#faith.full i em { background: var(--gd2); box-shadow: inset 0 2px 0 var(--gd4); }
+
+/* ---- the list, pinned to nothing ---------------------------------------- */
 #checklist {
-  position: absolute; right: 22px; top: 26px; z-index: 6; width: 224px;
-  padding: 0 0 6px; pointer-events: none; color: var(--ink);
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.06) 0 2px, rgba(255,220,170,0.05) 2px 5px, rgba(0,0,0,0) 5px 11px),
-    linear-gradient(180deg, var(--pg3), var(--pg1));
-  border: 7px solid var(--wd2);
-  box-shadow:
-    inset 0 0 0 2px var(--wd0), inset 0 0 0 4px var(--pg0), inset 0 4px 0 4px var(--pg4),
-    0 0 0 3px var(--ol), 0 8px 0 3px rgba(0,0,0,0.5);
+  position: absolute; right: 20px; top: 16px; z-index: 6; width: 224px;
+  padding: 0; pointer-events: none; color: var(--pg4);
+  background: none; border: 0; box-shadow: none;
 }
-#checklist::after {                      /* iron brackets on the corners */
-  content: ''; position: absolute; inset: -7px; pointer-events: none;
-  background:
-    linear-gradient(180deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 0 0/20px 7px no-repeat,
-    linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 0 0/7px 20px no-repeat,
-    linear-gradient(180deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 0/20px 7px no-repeat,
-    linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 0/7px 20px no-repeat,
-    linear-gradient(180deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 0 100%/20px 7px no-repeat,
-    linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 0 100%/7px 20px no-repeat,
-    linear-gradient(180deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 100%/20px 7px no-repeat,
-    linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 100%/7px 20px no-repeat;
-}
+#checklist::after { content: none; }
 #checklist h4 {
-  position: relative; z-index: 1; margin: 0 0 8px; padding: 7px 12px 6px;
-  text-align: center; line-height: 1; letter-spacing: 3px;
-  color: #f4dfae; font-family: var(--ft); font-weight: 400; font-size: 16px;
-  text-shadow: 0 2px 0 var(--wd0);
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 3px, rgba(255,214,150,0.05) 3px 7px, rgba(0,0,0,0) 7px 15px),
-    linear-gradient(180deg, var(--wd4) 0 16%, var(--wd3) 16% 58%, var(--wd2) 58% 100%);
-  border-bottom: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 var(--wd5), inset 0 -3px 0 var(--wd0);
+  position: relative; z-index: 1; margin: 0 0 6px; padding: 0 2px 4px;
+  text-align: right; line-height: 1; letter-spacing: 4px;
+  color: var(--gd3); font-family: var(--ft); font-weight: 400; font-size: 17px;
+  background: none; border: 0;
 }
-.task { padding: 4px 11px 6px; font-size: 16px; color: var(--ink); }
-.trow { display: flex; align-items: center; gap: 7px; }
+.task {
+  display: flex; align-items: center; gap: 7px; padding: 2px 2px 3px; font-size: 17px;
+  color: var(--pg4);
+}
+.task img.ico { filter: drop-shadow(0 2px 0 rgba(0,0,0,0.6)); }
 .task .tname { flex: 1 1 auto; font-family: var(--ft); font-weight: 400; font-size: 16px;
-  color: #4a2e10; white-space: nowrap; }
-.task .tnum { flex: 0 0 auto; }
-.task .box { position: relative; width: 14px; height: 14px; flex: none;
-  background: var(--pg1); border: 2px solid var(--ol); box-shadow: inset 0 2px 0 var(--pg0); }
-.task .box i { position: absolute; left: -1px; top: -6px; width: 16px; height: 16px;
-  background: linear-gradient(45deg, transparent 44%, var(--gr2) 44% 62%, transparent 62%),
-              linear-gradient(-45deg, transparent 44%, var(--gr2) 44% 62%, transparent 62%); }
-.task.done { opacity: 0.7; }
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task .tnum { flex: 0 0 auto; color: var(--gd3); }
+.task .box { position: relative; width: 13px; height: 13px; flex: none;
+  background: rgba(8,4,14,0.8); box-shadow: 0 0 0 2px #000; }
+.task .box i { position: absolute; left: -2px; top: -7px; width: 17px; height: 17px;
+  background: no-repeat center/contain; }
+.task.done { opacity: 0.66; }
 .task.done .tname { color: var(--gr1); text-decoration: line-through; }
 .task.done .tnum { color: var(--gr1); }
 .task.done .box i { animation: tick 0.35s ease-out; transform-origin: center; }
@@ -208,13 +206,17 @@ img.ico.xl { width: 48px; height: 48px; }
 
 /* ---- corner buttons ------------------------------------------------------ */
 #side { position: absolute; right: 20px; bottom: 18px; z-index: 6; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
-.rbtn { padding: 8px 10px; }
+.rbtn {
+  padding: 4px; border: 0; background: none; box-shadow: none;
+  filter: drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000) drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000) drop-shadow(0 4px 0 rgba(0,0,0,0.45));
+}
+.rbtn:hover { filter: drop-shadow(2px 0 0 var(--gd3)) drop-shadow(-2px 0 0 var(--gd3)) drop-shadow(0 2px 0 var(--gd3)) drop-shadow(0 -2px 0 var(--gd3)); }
 .rbtn img.ico { width: 30px; height: 30px; }
 .rbtn.big { padding: 10px 12px; }
 .rbtn.big img.ico { width: 38px; height: 38px; }
-.rbtn.on, .rbtn.full { background: linear-gradient(180deg, #a8d878 0 26%, #6ea83e 26% 64%, #44762a 64% 100%);
-  box-shadow: inset 0 0 0 2px rgba(232,255,200,0.45), 0 5px 0 0 #2a4d18, 0 5px 0 3px var(--ol); }
-.rbtn b { font-weight: 700; font-size: 16px; color: #3d2606; font-family: var(--ft); }
+.rbtn.on, .rbtn.full { filter: drop-shadow(2px 0 0 var(--gr2)) drop-shadow(-2px 0 0 var(--gr2)) drop-shadow(0 2px 0 var(--gr2)) drop-shadow(0 -2px 0 var(--gr2)); }
+.rbtn b { font-weight: 400; font-size: 18px; color: var(--gd3); font-family: var(--ft);
+  -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
 #mini { position: absolute; left: 18px; bottom: 16px; z-index: 6; display: flex; gap: 9px; }
 
 /* ---- tooltip ------------------------------------------------------------- */
@@ -1100,21 +1102,6 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 .phscreen > * { flex: 0 0 auto; }
 .phscreen.app-camera > .phcam { flex: 1 1 auto; }
 .phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub, .phcam { flex: 0 0 auto; }
-
-/* ---- your standing in the cult -------------------------------------------
-   A small plaque under the purse: what they call you, and how far off the next
-   thing they will call you. Violet, because that is the colour the gods come
-   in and this is the only part of the interface that belongs to them. */
-#faith {
-  position: absolute; left: 18px; top: 74px; z-index: 6;
-  display: flex; flex-direction: column; gap: 3px; padding: 5px 9px 6px;
-  background: var(--tl1);
-  box-shadow: inset 0 3px 0 var(--tl2), inset 0 -3px 0 var(--tl0), 0 0 0 3px var(--ol), 0 4px 0 3px rgba(0,0,0,0.4);
-}
-#faith span { font-size: 13px; letter-spacing: 2px; color: var(--tl4); text-shadow: 1px 2px 0 var(--tl0); }
-#faith i { display: block; width: 92px; height: 7px; background: var(--tl0); box-shadow: inset 0 0 0 2px #0d0a12; }
-#faith i em { display: block; height: 100%; width: 0; background: var(--gd2); box-shadow: inset 0 2px 0 var(--gd4); transition: width .3s steps(6, end); }
-#faith.full i em { background: var(--tl3); box-shadow: inset 0 2px 0 var(--tl4); }
 
 /* ---- the phone button on the frame --------------------------------------
    Not a small square with a glyph on it any more. A phone sat in a wooden

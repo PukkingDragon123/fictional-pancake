@@ -97,30 +97,47 @@ const MAGIC_EFFECT = {
 };
 const CROP_BY_KEY = Object.fromEntries(CROPS.map((c) => [c.key, c]));
 
-// ---- Tools ---------------------------------------------------------------
-// The dock holds seven. Farm opens a flyout with the four ground brushes.
+// ---- Spells ---------------------------------------------------------------
+// You do not own tools. The hooded one taught you the first few and the rest
+// you take off the gods, a word at a time, by stacking what the wombats leave
+// until something up there is willing to trade. Everything you do to the wood
+// is a spell; the sickle is Reap and the watering can is Rain.
+//
+// `cost` is devotion, spent on the spot. Most of them are free: the
+// expensive ones are the ones that make something out of nothing.
 const TOOLS = [
-  { key: 'drag',    name: 'Hand',   icon: 't_drag',    radius: 0,  desc: 'Drag poop to the truck. Pet. Pick.' },
-  { key: 'food',    name: 'Food',   icon: 't_food',    radius: 0,  desc: 'Pick a food, then put it on the ground.' },
-  { key: 'farm',    name: 'Farm',   icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'Hoe, seed, grass, water.' },
-  { key: 'sickle',  name: 'Sickle', icon: 't_sickle',  radius: 22, desc: 'Cut the weeds.' },
-  { key: 'destroy', name: 'Haul',   icon: 't_destroy', radius: 0,  desc: 'Ants carry it off, for a fee.' },
-  { key: 'pair',    name: 'Pair',   icon: 't_pair',    radius: 0,  desc: 'Pair two adults.' },
+  { key: 'drag',    name: 'Hand',     rune: 'I',    icon: 't_drag',    radius: 0,  desc: 'Your own hand. Lift, carry, pet, pick.' },
+  { key: 'food',    name: 'Offering', rune: 'II',   icon: 't_food',    radius: 0,  desc: 'Set food down where they will find it.' },
+  { key: 'farm',    name: 'Tending',  rune: 'III',  icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'The four words for growing things.' },
+  { key: 'sickle',  name: 'Reap',     rune: 'IV',   icon: 't_sickle',  radius: 22, desc: 'The weeds lie down where you point.' },
+  { key: 'destroy', name: 'Unmake',   rune: 'V',    icon: 't_destroy', radius: 0,  desc: 'Ants take it apart and carry it off.' },
+  { key: 'pair',    name: 'Binding',  rune: 'VI',   icon: 't_pair',    radius: 0,  desc: 'Two of them, and then three of them.' },
 ];
 const SUBTOOLS = [
-  { key: 'hoe',   name: 'Hoe',   icon: 't_hoe',   radius: 15, desc: 'Till bare ground into beds.' },
-  { key: 'seed',  name: 'Seed',  icon: 't_seed',  radius: 13, desc: 'Sow on tilled soil. Water it.' },
-  { key: 'moss',  name: 'Grass', icon: 't_moss',  radius: 19, desc: 'Sow grass. It sprouts slowly.' },
-  { key: 'water', name: 'Water', icon: 't_water', radius: 22, desc: 'Sprouts and crops drink.' },
-  // ---- the terrain set ----------------------------------------------------
-  // One tool, four things it does, the wheel picks which. Raising ground makes
-  // a grassy hill; digging it out fills with water; levelling takes either back
-  // down to flat; and the brush lays a different ground over the top.
-  { key: 'terra', name: 'Terrain', icon: 'u_burrow', radius: 26, terra: true,
-    desc: 'Raise, dig, level and lay ground. Wheel to change which.' },
-  { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture about the clearing. Click a piece to take it up again.' },
+  { key: 'hoe',   name: 'Furrow',   rune: 'i',   icon: 't_hoe',   radius: 15, desc: 'Bare ground opens into a bed.' },
+  { key: 'seed',  name: 'Quicken',  rune: 'ii',  icon: 't_seed',  radius: 13, desc: 'Sow on an open bed and it takes.' },
+  { key: 'moss',  name: 'Greening', rune: 'iii', icon: 't_moss',  radius: 19, desc: 'Grass comes up out of dead ground.' },
+  { key: 'water', name: 'Rain',     rune: 'iv',  icon: 't_water', radius: 22, desc: 'A small rain, exactly where you want it.' },
+  // ---- shaping the ground -------------------------------------------------
+  // Held down, not clicked. The ground rises and falls under the brush the
+  // whole time you drag, which is what makes it feel like earth and not like
+  // placing a prop.
+  { key: 'terra', name: 'Shape',    rune: 'vii', icon: 'u_burrow', radius: 26, terra: true,
+    desc: 'Hold and drag. The ground follows your hand. Wheel to change what it does.' },
+  { key: 'build', name: 'Raise',    rune: 'viii', icon: 'd_nest',  radius: 0,  desc: 'Stand a thing where you point. Point at it again to take it back.' },
+  // ---- the words you take off the gods ------------------------------------
+  { key: 'call',  name: 'Call',     rune: 'ix',  icon: 'wombat',   radius: 0, cost: 60,
+    desc: 'Something comes up out of the ground. You do not get to pick what.' },
+  { key: 'hasten', name: 'Hasten',  rune: 'x',   icon: 'c_broadleaf', radius: 18, cost: 12,
+    desc: 'A whole season passes over one bed while you watch.' },
+  { key: 'solace', name: 'Solace',  rune: 'xi',  icon: 'heart',    radius: 0, cost: 25,
+    desc: 'Every one of them forgets whatever was wrong.' },
+  { key: 'rot',   name: 'Rot',      rune: 'xii', icon: 'o_rune',   radius: 20, cost: 35,
+    desc: 'Weeds turn to tribute where they stand. It is not a nice spell.' },
 ];
-// Nothing is handed over at once. The cultist teaches a tool, then you own it.
+// Nothing is handed over at once. The first words come off the hooded one as
+// you work; the last four you buy off the gods with devotion, which means you
+// get them by stacking what she leaves until something answers.
 const GATES = {
   drag: () => true,
   sickle: () => true,
@@ -134,6 +151,10 @@ const GATES = {
   water: (g) => g.step >= 2,        // grass needs a drink before the wombat comes
   food: (g) => g.step >= 3,
   pair: (g) => !!g.decor.nest,
+  hasten: (g) => (g.devotion || 0) >= 90,
+  solace: (g) => (g.devotion || 0) >= 220,
+  rot:    (g) => (g.devotion || 0) >= 430,
+  call:   (g) => (g.devotion || 0) >= 760,
 };
 const GATE_WHY = {
   destroy: 'clear the weeds first',
@@ -146,6 +167,17 @@ const GATE_WHY = {
   pair: 'needs a nest',
   terra: 'load the truck first',
   build: 'the grove first',
+  hasten: '90 devotion &mdash; stack for it',
+  solace: '220 devotion &mdash; stack for it',
+  rot: '430 devotion &mdash; stack for it',
+  call: '760 devotion &mdash; stack for it',
+};
+// When a spell first comes within reach, the wood tells you about it.
+const SPELL_LEARN = {
+  hasten: ['HASTEN', 'a season in a heartbeat'],
+  solace: ['SOLACE', 'nobody remembers being sad'],
+  rot:    ['ROT', 'the weeds pay tribute now'],
+  call:   ['CALL', 'something comes up out of the ground'],
 };
 const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
 
