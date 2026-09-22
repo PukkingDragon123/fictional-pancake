@@ -122,17 +122,31 @@ const SUBTOOLS = [
   // Held down, not clicked. The ground rises and falls under the brush the
   // whole time you drag, which is what makes it feel like earth and not like
   // placing a prop.
-  { key: 'terra', name: 'Shape',    rune: 'vii', icon: 'u_burrow', radius: 26, terra: true,
-    desc: 'Hold and drag. The ground follows your hand. Wheel to change what it does.' },
+  // ---- the shaping brushes -------------------------------------------------
+  // Six of them, and each is a brush like the hoe or the can: pick one, a
+  // footprint follows the pointer at the size you set, and you hold and drag
+  // to work. [ and ] make the brush smaller and larger.
+  { key: 'raise',  name: 'Raise',   rune: 'vii',  icon: 'u_burrow', radius: 26, terra: 'raise',
+    desc: 'The ground swells under the brush. A hill. They sit on top of one.' },
+  { key: 'dig',    name: 'Dig',     rune: 'viii', icon: 'd_pool',   radius: 24, terra: 'dig',
+    desc: 'The ground sinks and fills. A pond. Frogs move in.' },
+  { key: 'smooth', name: 'Smooth',  rune: 'ix',   icon: 't_hoe',    radius: 32, terra: 'smooth',
+    desc: 'Takes a hill down or fills a hole in, gently, wherever you rub.' },
+  { key: 'sand',   name: 'Sand',    rune: 'x',    icon: 't_hoe',    radius: 20, terra: 'sand', paint: 's',
+    desc: 'Lay pale sand over the ground.' },
+  { key: 'clay',   name: 'Clay',    rune: 'xi',   icon: 't_hoe',    radius: 20, terra: 'clay', paint: 'c',
+    desc: 'Lay red clay over the ground.' },
+  { key: 'ash',    name: 'Ash',     rune: 'xii',  icon: 'o_rune',   radius: 20, terra: 'ash', paint: 'a',
+    desc: 'Lay cold ash over the ground. The cult likes it.' },
   { key: 'build', name: 'Raise',    rune: 'viii', icon: 'd_nest',  radius: 0,  desc: 'Stand a thing where you point. Point at it again to take it back.' },
   // ---- the words you take off the gods ------------------------------------
-  { key: 'call',  name: 'Call',     rune: 'ix',  icon: 'wombat',   radius: 0, cost: 60,
+  { key: 'call',  name: 'Call',     rune: 'xiii',  icon: 'wombat',   radius: 0, cost: 60,
     desc: 'Something comes up out of the ground. You do not get to pick what.' },
-  { key: 'hasten', name: 'Hasten',  rune: 'x',   icon: 'c_broadleaf', radius: 18, cost: 12,
+  { key: 'hasten', name: 'Hasten',  rune: 'xiv',   icon: 'c_broadleaf', radius: 18, cost: 12,
     desc: 'A whole season passes over one bed while you watch.' },
-  { key: 'solace', name: 'Solace',  rune: 'xi',  icon: 'heart',    radius: 0, cost: 25,
+  { key: 'solace', name: 'Solace',  rune: 'xv',  icon: 'heart',    radius: 0, cost: 25,
     desc: 'Every one of them forgets whatever was wrong.' },
-  { key: 'rot',   name: 'Rot',      rune: 'xii', icon: 'o_rune',   radius: 20, cost: 35,
+  { key: 'rot',   name: 'Rot',      rune: 'xvi', icon: 'o_rune',   radius: 20, cost: 35,
     desc: 'Weeds turn to tribute where they stand. It is not a nice spell.' },
 ];
 // Nothing is handed over at once. The first words come off the hooded one as
@@ -143,7 +157,12 @@ const GATES = {
   sickle: () => true,
   destroy: (g) => g.step >= 1,
   farm: (g) => g.step >= 2,
-  terra: (g) => g.step >= 5,
+  raise: (g) => g.step >= 5,
+  dig: (g) => g.step >= 5,
+  smooth: (g) => g.step >= 5,
+  sand: (g) => g.step >= 5,
+  clay: (g) => g.step >= 5,
+  ash: (g) => g.step >= 5,
   build: (g) => g.step >= 3,
   moss: (g) => g.step >= 2,
   hoe: (g) => g.step >= 3,
@@ -165,7 +184,12 @@ const GATE_WHY = {
   water: 'the wrecks go first',
   food: 'sow the grass first',
   pair: 'needs a nest',
-  terra: 'load the truck first',
+  raise: 'load the truck first',
+  dig: 'load the truck first',
+  smooth: 'load the truck first',
+  sand: 'load the truck first',
+  clay: 'load the truck first',
+  ash: 'load the truck first',
   build: 'the grove first',
   hasten: '90 devotion &mdash; stack for it',
   solace: '220 devotion &mdash; stack for it',
@@ -184,7 +208,8 @@ const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
 const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
-const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
+const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water', 'raise', 'dig', 'smooth', 'sand', 'clay', 'ash'];
+const TERRA_KEYS = ['raise', 'dig', 'smooth', 'sand', 'clay', 'ash'];
 
 // ---- The clearing: the small patch you actually have to tidy -------------
 // ---- Plots ---------------------------------------------------------------
@@ -354,17 +379,6 @@ const DECOR = [
 ];
 // Which of the above are garden-centre stock rather than corner-shop stock.
 // The mart skips these; Groot's cellar sells them alongside the seed.
-// What the terrain tool is set to do. Each has its own cost and its own undo.
-const TERRA_MODES = [
-  { key: 'raise', name: 'Raise', icon: 'u_burrow', cost: 120, r: 26, blurb: 'A grassy hill. They like to sit on top of one.' },
-  { key: 'dig',   name: 'Dig',   icon: 'd_pool',   cost: 260, r: 24, blurb: 'Down to the water table. Frogs move in.' },
-  { key: 'level', name: 'Level', icon: 't_hoe',    cost: 40,  r: 30, blurb: 'Flatten a hill or fill a hole back in.' },
-  { key: 'earth', name: 'Earth', icon: 't_hoe',    cost: 0,   r: 20, paint: 'd', blurb: 'Bare earth.' },
-  { key: 'sand',  name: 'Sand',  icon: 't_hoe',    cost: 0,   r: 20, paint: 's', blurb: 'Pale sand.' },
-  { key: 'clay',  name: 'Clay',  icon: 't_hoe',    cost: 0,   r: 20, paint: 'c', blurb: 'Red clay.' },
-  { key: 'ash',   name: 'Ash',   icon: 't_hoe',    cost: 0,   r: 20, paint: 'a', blurb: 'Cold ash. The cult likes it.' },
-];
-
 const GARDEN_UP = { trough: 1 };
 const GARDEN_DEC = { nest: 1, pool: 1 };
 

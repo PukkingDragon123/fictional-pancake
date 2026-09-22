@@ -130,8 +130,9 @@ const Wild = (() => {
     }
     // nothing here: start one, and that is the only part you pay for
     if (!first) return false;
+    // the brush already shows you it cannot work here, so this stays quiet
     const why = canPlace(kind === 'raise' ? 'mound' : 'pond', x, y);
-    if (why) { Audio.play('error'); UI.toast(why, 'bad'); return false; }
+    if (why) { Audio.play('error'); return false; }
     const cost = kind === 'raise' ? MOUND_COST : POND_COST;
     if (G.wd < cost) { Audio.play('error'); UI.toast('not enough for that', 'bad'); return false; }
     G.wd -= cost;
@@ -148,13 +149,21 @@ const Wild = (() => {
     return true;
   }
   // a stroke that flattens instead of raising
+  // Smooth does not delete: it eases. Whatever is under the brush loses a
+  // little of itself each frame, and the closer the middle of the brush is to
+  // the middle of the shape the more it loses, so rubbing an edge softens the
+  // edge and rubbing the top takes the top off.
   function flatten(x, y, br) {
     let any = false;
     for (const list of [mounds, ponds]) {
       for (let i = list.length - 1; i >= 0; i--) {
         const m = list[i];
-        if (Math.hypot(m.x - x, (m.y - y) * 1.6) > br + m.r * 0.5) continue;
-        m.r -= br * 0.07;
+        const d = Math.hypot(m.x - x, (m.y - y) * 1.6);
+        if (d > br + m.r) continue;
+        const bite = U.clamp(1 - d / (br + m.r), 0, 1);
+        m.r -= br * 0.055 * bite;
+        // and it drifts away from the brush, so you can push a hill about
+        m.x = U.lerp(m.x, m.x + (m.x - x) * 0.06, bite);
         any = true;
         if (m.r < MIN_R) {
           list.splice(i, 1);

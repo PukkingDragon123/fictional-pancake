@@ -602,16 +602,21 @@ const Atlas = (() => {
   }
 
   // the chrome a phone map wears: a search bar, a compass, a scale
+  // The banner used to run the full width and the purse sat on top of it. It
+  // starts clear of the head-up now and ends clear of the scale bar.
+  const BX0 = 132;
   function banner(g, text, cx, cy) {
-    g.fillStyle = 'rgba(40,40,44,0.16)'; g.fillRect(12, 12, VW - 24, 30);
-    g.fillStyle = '#1c1008'; g.fillRect(10, 8, VW - 20, 28);
-    g.fillStyle = '#ffffff'; g.fillRect(12, 10, VW - 24, 24);
-    g.fillStyle = '#e6e3da'; g.fillRect(12, 31, VW - 24, 3);
+    const bw = VW - BX0 - 22;
+    g.fillStyle = 'rgba(40,40,44,0.16)'; g.fillRect(BX0 + 2, 12, bw, 30);
+    g.fillStyle = '#1c1008'; g.fillRect(BX0, 8, bw + 2, 28);
+    g.fillStyle = '#ffffff'; g.fillRect(BX0 + 2, 10, bw - 2, 24);
+    g.fillStyle = '#e6e3da'; g.fillRect(BX0 + 2, 31, bw - 2, 3);
     // the little magnifier
     g.fillStyle = '#5a5750';
-    g.fillRect(24, 16, 8, 2); g.fillRect(24, 24, 8, 2); g.fillRect(22, 18, 2, 6); g.fillRect(32, 18, 2, 6);
-    g.fillRect(34, 26, 2, 2); g.fillRect(36, 28, 2, 2);
-    Font.draw(g, text, 46, 16, { scale: 2, color: '#3c3a35', align: 'left' });
+    g.fillRect(BX0 + 14, 16, 8, 2); g.fillRect(BX0 + 14, 24, 8, 2);
+    g.fillRect(BX0 + 12, 18, 2, 6); g.fillRect(BX0 + 22, 18, 2, 6);
+    g.fillRect(BX0 + 24, 26, 2, 2); g.fillRect(BX0 + 26, 28, 2, 2);
+    Font.draw(g, text, BX0 + 36, 16, { scale: 2, color: '#3c3a35', align: 'left' });
     // compass, top right
     const cy3 = VH - 92;
     g.fillStyle = '#ffffff'; g.fillRect(VW - 44, cy3, 26, 26);

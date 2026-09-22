@@ -247,12 +247,19 @@ const Grove = (() => {
   // Bought in town, carried home in a crate, and stood wherever you like. It
   // sorts into the scene by its feet like everything else, so a bench in front
   // of a tree is in front of the tree.
-  let buildI = 0, terraI = 0;
+  let buildI = 0;
   function crateKeys() { return Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0); }
   function buildKey() { const ks = crateKeys(); return ks.length ? ks[buildI % ks.length] : null; }
   function cycleBuild(d) { const ks = crateKeys(); if (ks.length) { buildI = (buildI + d + ks.length * 4) % ks.length; Audio.play('click'); } }
-  function terraMode() { return TERRA_MODES[terraI % TERRA_MODES.length]; }
-  function cycleTerra(d) { terraI = (terraI + d + TERRA_MODES.length * 4) % TERRA_MODES.length; Audio.play('click'); }
+  // ---- brush size ----------------------------------------------------------
+  // One dial for every brush in the game, remembered in the save, nudged with
+  // the bracket keys or the wheel while a brush is out.
+  function brushScale() { return U.clamp(G.brush || 1, 0.4, 2.6); }
+  function brushSize(def) { return World.brushRadius((def ? def.radius : 20) * brushScale()); }
+  function nudgeBrush(d) {
+    G.brush = U.clamp(brushScale() * (d > 0 ? 1.18 : 1 / 1.18), 0.4, 2.6);
+    Audio.play('click');
+  }
   function furnAt(x, y) {
     for (const f of (G.furniture || [])) {
       const d = FURN_BY_KEY[f.key]; if (!d) continue;
@@ -275,11 +282,6 @@ const Grove = (() => {
       const d = FURN_BY_KEY[key];
       Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 5, { scale: 1, color: '#000000', align: 'center' });
       Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 4, { scale: 1, color: '#f2c936', align: 'center' });
-    } else if (G.tool === 'terra') {
-      const p = G.pointer, m = terraMode();
-      const label = m.name.toUpperCase() + (m.cost ? '  ' + m.cost : '');
-      Font.draw(g, label, p.x, p.y - 26, { scale: 1, color: '#000000', align: 'center' });
-      Font.draw(g, label, p.x, p.y - 27, { scale: 1, color: '#f2c936', align: 'center' });
     }
   }
 
@@ -864,14 +866,15 @@ const Grove = (() => {
       UI.refreshHUD(); Main.save();
       return true;
     }
-    if (tool === 'terra') {
-      // Held down and dragged. Everything here is a stroke, not a click: the
-      // ground swells and sinks under the brush the whole time you hold it.
-      const m = terraMode();
-      const br = World.brushRadius(m.r);
-      if (m.paint) { World.paintGround(m.paint, x, y, br); return true; }
-      if (m.key === 'raise' || m.key === 'dig') { Wild.sculpt(m.key, x, y, br, first); return true; }
-      if (m.key === 'level') Wild.flatten(x, y, br);
+    // ---- the shaping brushes ---------------------------------------------
+    // They behave exactly like the hoe and the can: a footprint at the size
+    // you set, held and dragged, working the whole time the button is down.
+    const td = TOOL_BY_KEY[tool];
+    if (td && td.terra) {
+      const br = brushSize(td);
+      if (td.paint) { World.paintGround(td.paint, x, y, br); return true; }
+      if (td.terra === 'smooth') { Wild.flatten(x, y, br); return true; }
+      Wild.sculpt(td.terra === 'raise' ? 'raise' : 'dig', x, y, br, first);
       return true;
     }
     if (tool === 'build') {
@@ -1234,7 +1237,21 @@ const Grove = (() => {
     if (G.pointer.on && !arrival) {
       const t = TOOL_BY_KEY[G.tool];
       const tier = TIERS[G.tool] ? tierOf(G, G.tool) : null;
-      if (t && t.radius > 0) World.drawCursor(g, G.pointer.x, G.pointer.y, World.brushRadius(tier ? tier.radius : t.radius), toolTint(G.tool));
+      if (t && t.radius > 0) {
+        const base = tier ? tier.radius : t.radius;
+        const r = t.terra || BRUSH_KEYS.includes(G.tool) ? brushSize({ radius: base }) : World.brushRadius(base);
+        // a shaping brush turns red where it cannot work, so a stroke that does
+        // nothing tells you why instead of just not happening
+        const bad = t.terra && (t.terra === 'raise' || t.terra === 'dig')
+          ? Wild.canPlace(t.terra === 'raise' ? 'mound' : 'pond', G.pointer.x, G.pointer.y) : null;
+        World.drawCursor(g, G.pointer.x, G.pointer.y, r, bad ? '#e8402a' : toolTint(G.tool));
+        if (t.terra) {
+          const lab = bad ? bad.toUpperCase() : t.name.toUpperCase() + '  ' + Math.round(r);
+          const ly = G.pointer.y - r * 0.74 - 13;
+          Font.draw(g, lab, G.pointer.x, ly, { scale: 1, color: '#000000', align: 'center' });
+          Font.draw(g, lab, G.pointer.x, ly - 1, { scale: 1, color: bad ? '#ff9a72' : '#ffd95c', align: 'center' });
+        }
+      }
       // the tool in hand rides beside the cursor
       if (t) Icons.blit(g, t.icon, G.pointer.x + 10, G.pointer.y + 8, 1.25);
     }
@@ -1787,7 +1804,7 @@ const Grove = (() => {
 
   return {
     init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, zoomBy, zoomTo, zoomFrac, edgeScroll, addWombat, newWombat, feed, pet, offline,
-    cycleBuild, cycleTerra, terraMode, furnAt,
+    cycleBuild, nudgeBrush, brushSize, furnAt,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, TRUCK, GROUND, WALK, W, H, VW,

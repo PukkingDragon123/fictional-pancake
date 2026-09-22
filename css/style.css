@@ -119,6 +119,20 @@ img.ico.xl { width: 48px; height: 48px; }
 @keyframes pop2 { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes slide { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 
+/* the band names over each group of spells in the tray, and the rune each
+   one carries in its corner */
+.trayband {
+  margin: 10px 2px 5px; padding: 0 0 3px; font-size: 11px; letter-spacing: 3px;
+  color: #6b4a26; border-bottom: 2px dashed rgba(120,80,44,0.42);
+  text-shadow: 0 1px 0 rgba(255,240,205,0.5);
+}
+.trayband:first-of-type { margin-top: 4px; }
+.spoke .rn {
+  position: absolute; left: 3px; top: 2px; font-size: 10px; line-height: 1;
+  color: rgba(60,36,14,0.6); pointer-events: none;
+}
+.spoke.on .rn { color: var(--ol); }
+
 /* ---- the head-up ---------------------------------------------------------
    There are no boxes over the wood any more. The purse, your standing and the
    list are drawn straight onto the scene as pixel art with a hard black line

@@ -409,108 +409,235 @@ const Menu = (() => {
     g.fillRect(Math.round(x), Math.round(y - up), Math.round(w), 1);
     g.fillRect(Math.round(x - 1), Math.round(y), 2, 1);
   }
+  // ==== THE THRESHOLD ========================================================
+  // The title screen is not a clearing with a signboard in it any more. It is
+  // the place you go in: a stone doorway standing in a wood at night with
+  // violet light coming out of it, nine god-masks hung in the branches over it,
+  // three lanterns on a bough for the three groves, and candles guttering all
+  // round the foot of it. Everything you can press is an object in the scene.
+  const GTOP = 96, GBOT = 300;                 // the gate, top and bottom
+  const GX = 320;                              // and the middle of it
+  const PXM = 2;
+
+  // the wood behind it, in four ranks of silhouette
+  const BACK = [];
+  (() => {
+    const r = Art.rng(31337);
+    for (let d = 0; d < 4; d++) {
+      let x = -40;
+      while (x < VW + 60) {
+        const s = 0.5 + d * 0.22;
+        BACK.push({ d, x, w: (16 + r() * 22) * s, h: (90 + r() * 120) * s, lean: (r() - 0.5) * 8, v: Math.floor(r() * 3) });
+        x += (26 + r() * 40) * s;
+      }
+    }
+  })();
+  const CANDLES = [];
+  (() => {
+    const r = Art.rng(777);
+    for (let i = 0; i < 16; i++) {
+      const side = i % 2 ? 1 : -1;
+      CANDLES.push({ x: GX + side * (66 + (i >> 1) * 22 + r() * 10), y: 300 + r() * 34, h: 7 + r() * 12, ph: r() * TAU });
+    }
+  })();
+  const FIRE = [];
+  (() => { const r = Art.rng(4242); for (let i = 0; i < 40; i++) FIRE.push({ x: r() * VW, y: 150 + r() * 200, ph: r() * TAU, sp: 4 + r() * 10, a: 0.3 + r() * 0.6, v: Math.floor(r() * 3) }); })();
+
+  // ---- the scene -------------------------------------------------------------
   function scene(g) {
-    // ---- the sky, at whatever hour the game's clock says ------------------
-    const day = Sky.light();
-    const top = U.mix('#101a34', '#6aa8d8', day), mid = U.mix('#26324e', '#a8d4e8', day), low = U.mix('#3a3a52', '#e4e8c8', day);
-    for (let i = 0; i < 14; i++) {
-      const k = i / 13;
-      g.fillStyle = k < 0.5 ? U.mix(top, mid, k * 2) : U.mix(mid, low, (k - 0.5) * 2);
-      g.fillRect(0, Math.round((HORIZON + 12) * i / 14), VW, Math.ceil((HORIZON + 12) / 14) + 1);
+    // the sky: a cold violet night falling to black at the treeline
+    for (let y = 0; y < VH; y += PXM) {
+      const k = y / VH;
+      g.fillStyle = U.mix('#160e2e', '#050410', Math.min(1, k * 1.5));
+      g.fillRect(0, y, VW, PXM);
     }
-    if (day < 0.4) for (let i = 0; i < 40; i++) {              // stars, when it is dark enough
-      const sx = (i * 173) % VW, sy = (i * 61) % 110;
-      g.fillStyle = `rgba(214,228,248,${((0.4 - day) * 2 * (0.3 + 0.5 * Math.abs(Math.sin(t * 0.7 + i)))).toFixed(2)})`;
-      g.fillRect(sx, sy, 1, 1);
+    // a big low moon behind the wood
+    const my = 96, mr = 54;
+    for (let y = -mr; y <= mr; y += PXM) {
+      const w2 = Math.round(Math.sqrt(Math.max(0, mr * mr - y * y)) / PXM) * PXM;
+      if (w2 < PXM) continue;
+      g.fillStyle = U.mix('#2a2050', '#3e2f70', 1 - Math.abs(y) / mr);
+      g.fillRect(GX - w2, my + y, w2 * 2, PXM);
     }
-    Sky.drawSun(g, 104, 58);
-    Sky.drawClouds(g, VW, 150, 0, 0.7);
-    for (const b of BIRDS) bird(g, b);
-
-    // ---- the far treeline, soft and hazy ----------------------------------
-    for (let d = 0; d < 2; d++) {
-      for (const tr of wood) {
-        if (tr.d !== d) continue;
-        const img = Props.get('tree', `${tr.kind}|${tr.v}|${(0.3 - d * 0.06).toFixed(2)}`);
-        const w = img.width * tr.s * 0.74, h = img.height * tr.s * 0.74;
-        const sway = Math.sin(t * 0.4 + tr.sway) * (1.4 - d * 0.2);
-        g.drawImage(img, Math.round(tr.x - w / 2 + sway), Math.round(tr.y - h + 34), Math.round(w), Math.round(h));
-      }
-      g.globalAlpha = 0.34 - d * 0.14;                      // haze between the ranks
-      Art.rect(g, 0, 110 + d * 26, VW, 100, '#cfe0e8');
-      g.globalAlpha = 1;
+    for (let y = -mr + 6; y <= mr - 6; y += PXM) {
+      const w2 = Math.round(Math.sqrt(Math.max(0, (mr - 6) * (mr - 6) - y * y)) / PXM) * PXM;
+      if (w2 < PXM) continue;
+      g.fillStyle = '#4a3a86';
+      g.fillRect(GX - w2, my + y, w2 * 2, PXM);
     }
-
-    // ---- the floor of it: the same worn soil as your own plot -------------
-    drawFloor(g, day);
-    smallLife(g, false);              // mushrooms come up out of the litter
-    // mossy stones and logs
-    for (const st of STONES) {
-      Art.ell(g, st.x, st.y, st.w, st.h, '#5b5a58');
-      Art.ell(g, st.x, st.y - 1, st.w - 1, st.h - 1, '#7a786f');
-      Art.ell(g, st.x - st.w * 0.2, st.y - st.h * 0.5, st.w * 0.6, st.h * 0.42, '#4f7a34');
-      g.fillStyle = PAL.moss3;
-      for (let i = 0; i < 4; i++) g.fillRect(Math.round(st.x - st.w * 0.6 + i * st.w * 0.4), Math.round(st.y - st.h * 0.4), 3, 2);
+    // stars, only in the top third
+    const sr = Art.rng(5150);
+    for (let i = 0; i < 90; i++) {
+      const x = Math.round(sr() * VW), y = Math.round(sr() * 150);
+      const tw = (Math.sin(t * 1.7 + i) + 1) / 2;
+      g.fillStyle = U.rgba('#e0d4ff', 0.2 + tw * 0.6);
+      g.fillRect(x, y, PXM, PXM);
     }
-    // grass tufts, then flowers over the top
-    for (const tf of TUFTS) {
-      const sway = Math.sin(t * 1.3 + tf.ph) * 1.4;
-      const col = ['#4f7a34', '#5d9440', '#84bb59'][tf.tone];
-      for (let i = 0; i < tf.h; i++) {
-        g.fillStyle = i > tf.h - 2 ? '#a8d878' : col;
-        g.fillRect(Math.round(tf.x + sway * (i / tf.h) * (i / tf.h)), Math.round(tf.y - i), 1, 1);
+    // the wood, four ranks, darkest at the front
+    for (const b of BACK) {
+      const col = ['#100a22', '#0c0818', '#080513', '#04030c'][b.d];
+      const base = 250 + b.d * 22;
+      const sway = Math.sin(t * 0.3 + b.x * 0.02) * (3 - b.d) * 0.7;
+      // the trunk
+      Art.limb(g, b.x + sway, base - b.h, b.x + b.lean * 0.3, base, b.w * 0.3, b.w * 0.5, col);
+      // and three boughs off it
+      for (let i = 0; i < 3; i++) {
+        const uy = base - b.h * (0.55 + i * 0.16);
+        const dir = i % 2 ? 1 : -1;
+        Art.limb(g, b.x + sway * 0.7, uy, b.x + dir * b.w * 1.5 + sway, uy - b.h * 0.2, b.w * 0.2, b.w * 0.06, col);
       }
     }
-    for (const f of FLOWERS) flower(g, f);
-    smallLife(g, true);               // motes, bugs and a line of ants over it all
-
-    // ---- the near trees and the houses in them -----------------------------
-    for (let d = 2; d < RANKS.length; d++) {
-      for (const tr of wood) {
-        if (tr.d !== d) continue;
-        const img = Props.get('tree', `${tr.kind}|${tr.v}|${(0.06 + (5 - d) * 0.05).toFixed(2)}`);
-        const w = img.width * tr.s, h = img.height * tr.s;
-        const sway = Math.sin(t * 0.4 + tr.sway) * (1.4 - d * 0.2);
-        g.drawImage(img, Math.round(tr.x - w / 2 + sway), Math.round(tr.y - h), Math.round(w), Math.round(h));
-      }
-    }
-    // the fence down both sides, the same split rail as the plot
-    railFence(g);
-    lantern(g, 0.82 + 0.18 * Math.sin(t * 9));
-    titleSign(g);
-
-    // ---- moss hanging out of the canopy ------------------------------------
-    for (let i = 0; i < 14; i++) {
-      const hx = 16 + ((i * 97) % (VW - 32));
-      const hl = 22 + ((i * 53) % 58);
-      const sw2 = Math.sin(t * 0.6 + i) * 3;
-      for (let k = 0; k < hl; k += 3) {
-        const a = 1 - k / hl;
-        g.fillStyle = `rgba(${i % 2 ? '96,140,80' : '78,118,66'},${(0.75 * a).toFixed(2)})`;
-        g.fillRect(Math.round(hx + sw2 * (k / hl)), 100 + k, 2, 3);
-        if (k % 12 === 0) g.fillRect(Math.round(hx + sw2 * (k / hl)) + 2, 100 + k, 1, 2);
-      }
-    }
-    // light coming down through the leaves
+    // the mist lying between the ranks
     for (let i = 0; i < 5; i++) {
-      const sx = 60 + i * 130, a = (0.06 + 0.04 * Math.sin(t * 0.4 + i)) * (0.4 + day);
-      g.save();
-      g.beginPath();
-      g.moveTo(sx - 16, 70); g.lineTo(sx + 16, 70); g.lineTo(sx + 52, VH); g.lineTo(sx + 12, VH);
-      g.closePath(); g.clip();
-      for (let k = 0; k < 9; k++) { g.globalAlpha = a * (1 - k / 9); Art.rect(g, sx - 60, 70 + k * 34, 180, 35, '#fff0c8'); }
-      g.restore();
+      const my2 = 236 + i * 14;
+      const mx = ((t * (4 + i * 2)) % (VW + 300)) - 150;
+      for (let k = 0; k < 4; k++) {
+        g.fillStyle = U.rgba('#6a5c9a', 0.05);
+        g.fillRect(mx - 120 + k * 8, my2 + k * 2, 300 - k * 16, 5);
+      }
     }
-    for (let i = 0; i < 3; i++) bird(g, { x: BIRDS[i].x, y: 208 + i * 14, sp: BIRDS[i].sp * 0.8, ph: BIRDS[i].ph, dir: BIRDS[i].dir, s: 1.1 });
-    drawWombat(g);
-    // the warm grade over the lot
-    g.save();
-    g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = U.mix('#2a3f6a', '#ffe8a8', day); g.globalAlpha = 0.34; g.fillRect(0, 0, VW, VH);
-    g.restore();
-    Sky.drawOver(g, VW, VH);
-    Art.vignette(g, VW, VH, '#1a2410', 0.4, 2.2, 0.34);
+    theGate(g);
+    // the ground at the foot of it
+    for (let y = 300; y < VH; y += PXM) {
+      g.fillStyle = U.mix('#181030', '#0a0618', (y - 300) / 60);
+      g.fillRect(0, y, VW, PXM);
+    }
+    for (let i = 0; i < 160; i++) {
+      const x = Math.round(sr() * VW), y = 302 + Math.round(sr() * 56);
+      g.fillStyle = ['#241a44', '#2e2254', '#140d28'][Math.floor(sr() * 3)];
+      g.fillRect(x, y, PXM * 2, PXM);
+    }
+    for (const c of CANDLES) candle(g, c);
+    // the light off the gate lying across the ground
+    for (let i = 0; i < 7; i++) {
+      const w2 = 250 - i * 26;
+      g.fillStyle = U.rgba('#9a5cf0', 0.045);
+      g.fillRect(GX - w2 / 2, 300 + i * 9, w2, 9);
+    }
+    // embers drifting up out of the wood
+    for (const f of FIRE) {
+      const y = f.y - ((t * f.sp) % 220);
+      const x = f.x + Math.sin(t * 0.7 + f.ph) * 14;
+      const k = (Math.sin(t * 2 + f.ph) + 1) / 2;
+      const col = [PAL.div4, PAL.gold3, PAL.cyan3][f.v];
+      g.fillStyle = U.rgba(col, f.a * (0.3 + k * 0.7) * 0.7);
+      g.fillRect(Math.round(x), Math.round(y), PXM, PXM);
+    }
+    masks(g);
   }
+
+  // ---- the doorway -----------------------------------------------------------
+  function theGate(g) {
+    const SW = 44, IW = 116;                       // stone width, opening width
+    const L = GX - IW / 2 - SW, Rt = GX + IW / 2;
+    // the light pouring out of it, first, so the stone sits in front
+    for (let i = 10; i >= 1; i--) {
+      const f = i / 10;
+      g.fillStyle = U.rgba('#6b32bd', 0.05);
+      g.fillRect(GX - (IW / 2 + 120 * f), GTOP - 40 * f, IW + 240 * f, (GBOT - GTOP) + 80 * f);
+    }
+    // the way through: a shifting violet field with runes turning in it
+    for (let y = GTOP + 22; y < GBOT; y += PXM) {
+      const k = (y - GTOP) / (GBOT - GTOP);
+      const pulse = 0.5 + 0.5 * Math.sin(t * 1.4 - k * 5);
+      g.fillStyle = U.mix('#2a1150', U.mix('#6b32bd', '#c898ff', pulse * 0.6), 0.4 + k * 0.3);
+      const inset = Math.round(Math.sin(k * 3.1) * 3);
+      g.fillRect(GX - IW / 2 + inset, y, IW - inset * 2, PXM);
+    }
+    // things falling upward through the opening
+    for (let i = 0; i < 26; i++) {
+      const ph = i * 1.7;
+      const y = GBOT - ((t * (14 + (i % 5) * 9) + i * 30) % (GBOT - GTOP - 20));
+      const x = GX + Math.sin(t * 0.8 + ph) * (IW / 2 - 14);
+      g.fillStyle = U.rgba(i % 4 ? '#e0cfff' : '#ffd95c', 0.75);
+      g.fillRect(Math.round(x), Math.round(y), PXM, PXM * 2);
+    }
+    // the two uprights, hewn, with a lit edge toward the doorway
+    for (const [sx, dir] of [[L, 1], [Rt, -1]]) {
+      for (let y = GTOP; y < GBOT + 10; y += PXM) {
+        const jit = (Art.rng(Math.round(y / PXM) * 977 + sx)() * 3 | 0) * PXM;
+        g.fillStyle = '#000000';
+        g.fillRect(sx - PXM, y, SW + PXM * 2, PXM);
+        g.fillStyle = ['#2a2438', '#37304a', '#453d5e'][Math.floor(Art.rng(y * 31 + sx)() * 3)];
+        g.fillRect(sx + (dir > 0 ? jit : 0), y, SW - jit, PXM);
+        // the violet catching the inside edge
+        g.fillStyle = U.rgba('#9a5cf0', 0.5 - (y - GTOP) / (GBOT - GTOP) * 0.25);
+        g.fillRect(dir > 0 ? sx + SW - PXM * 2 : sx, y, PXM * 2, PXM);
+      }
+    }
+    // the lintel across the top, carved
+    g.fillStyle = '#000000'; g.fillRect(L - 12, GTOP - 30, IW + SW * 2 + 24, 34);
+    for (let y = GTOP - 27; y < GTOP; y += PXM) {
+      g.fillStyle = ['#37304a', '#453d5e', '#2a2438'][Math.floor(Art.rng(y * 17)() * 3)];
+      g.fillRect(L - 9, y, IW + SW * 2 + 18, PXM);
+    }
+    g.fillStyle = '#5a5070'; g.fillRect(L - 9, GTOP - 27, IW + SW * 2 + 18, PXM);
+    g.fillStyle = '#16121f'; g.fillRect(L - 9, GTOP - PXM * 2, IW + SW * 2 + 18, PXM * 2);
+    // the name cut into it, lit from below by the gate
+    const glow = 0.6 + 0.4 * Math.sin(t * 1.4);
+    Font.draw(g, 'WOMBAT GODS', GX, GTOP - 21, { scale: 2, color: '#0a0614', align: 'center' });
+    Font.draw(g, 'WOMBAT GODS', GX, GTOP - 22, { scale: 2, color: U.mix('#9a5cf0', '#f0e0ff', glow), align: 'center' });
+    // the runes down each upright
+    const MARKS = [[0, 0, 2, 0, 1, 1, 1, 2], [0, 0, 0, 2, 1, 1, 2, 0, 2, 2], [1, 0, 0, 1, 2, 1, 1, 2]];
+    for (const [sx] of [[L], [Rt]]) {
+      for (let i = 0; i < 6; i++) {
+        const mk = MARKS[i % 3], ry = GTOP + 16 + i * 30;
+        const lit = 0.25 + 0.55 * ((Math.sin(t * 1.1 + i + sx * 0.01) + 1) / 2);
+        for (let k = 0; k < mk.length; k += 2) {
+          g.fillStyle = U.rgba('#c898ff', lit);
+          g.fillRect(sx + SW / 2 - 6 + mk[k] * 5, ry + mk[k + 1] * 5, 4, 4);
+        }
+      }
+    }
+    // the step, and the threshold stone you stand on
+    g.fillStyle = '#000000'; g.fillRect(GX - IW / 2 - 18, GBOT, IW + 36, 14);
+    g.fillStyle = '#332c46'; g.fillRect(GX - IW / 2 - 15, GBOT + 2, IW + 30, 9);
+    g.fillStyle = '#4a415e'; g.fillRect(GX - IW / 2 - 15, GBOT + 2, IW + 30, PXM);
+    g.fillStyle = U.rgba('#9a5cf0', 0.3); g.fillRect(GX - IW / 2, GBOT + 2, IW, PXM * 2);
+  }
+  // one tallow candle, guttering
+  function candle(g, c) {
+    const x = Math.round(c.x), y = Math.round(c.y);
+    g.fillStyle = '#000000'; g.fillRect(x - 3, y - c.h - 2, 8, c.h + 4);
+    g.fillStyle = '#c9bea4'; g.fillRect(x - 2, y - c.h, 6, c.h);
+    g.fillStyle = '#e8dcc0'; g.fillRect(x - 2, y - c.h, 2, c.h);
+    const f = Math.sin(t * 9 + c.ph) > 0 ? 1 : 0;
+    g.fillStyle = '#7a2a08'; g.fillRect(x, y - c.h - 7 - f, 2, 7);
+    g.fillStyle = '#efb625'; g.fillRect(x, y - c.h - 5 - f, 2, 5);
+    g.fillStyle = '#fff3b8'; g.fillRect(x, y - c.h - 2, 2, 2);
+    g.fillStyle = U.rgba('#efb625', 0.05); g.fillRect(x - 14, y - c.h - 18, 30, 30);
+  }
+  // nine masks in the branches. One lights for every god the chosen grove has.
+  function masks(g) {
+    const got = gods();
+    // Four to the left of the gate and five to the right, hung high off the
+    // bough so nothing of theirs comes down over the name.
+    const SPOTS = [-268, -222, -176, -130, 130, 176, 222, 268, 300];
+    for (let i = 0; i < 9; i++) {
+      const x = Math.round(GX + SPOTS[i]);
+      const y = Math.round(22 + (i % 3) * 9 + Math.sin(t * 0.6 + i) * 2);
+      const on = i < got;
+      const gcol = on ? GODS[i].color : '#181228';
+      const eye = on ? GODS[i].eye : '#241a38';
+      // the cord it hangs on
+      g.fillStyle = '#100a1c'; g.fillRect(x, 0, PXM, y - 10);
+      g.fillStyle = '#000000'; g.fillRect(x - 12, y - 10, 24, 28);
+      g.fillStyle = gcol; g.fillRect(x - 10, y - 8, 20, 24);
+      g.fillStyle = U.shade(gcol, 0.3); g.fillRect(x - 10, y - 8, 20, PXM);
+      g.fillStyle = '#000000'; g.fillRect(x - 7, y - 2, 5, 5); g.fillRect(x + 2, y - 2, 5, 5);
+      g.fillStyle = eye; g.fillRect(x - 6, y - 1, 3, 3); g.fillRect(x + 3, y - 1, 3, 3);
+      g.fillStyle = '#000000'; g.fillRect(x - 4, y + 8, 8, 4);
+      if (on) { g.fillStyle = U.rgba(gcol, 0.08); g.fillRect(x - 24, y - 22, 48, 52); }
+    }
+  }
+  function gods() {
+    const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList() : null;
+    if (!sl) return 0;
+    const here = (typeof Main !== 'undefined' && Main.slot) || 1;
+    const s = sl.find((x) => x.n === here);
+    return s && !s.empty ? s.gods : 0;
+  }
+
   function wombatShadowPass(g) { }
   function lantern(g, flick) {
     Art.glow(g, LX, LY + 10, 92 * flick, '#ffd88c', 0.34 * flick, 9);
@@ -612,67 +739,122 @@ const Menu = (() => {
     }
     Art.rect(g, x - 5, y, 10, 3, '#1d1610');
   }
+  // ---- the home page ---------------------------------------------------------
+  // No board. Three lanterns on a bough for the three groves, the doorway to
+  // walk into, and two words cut in the stones either side of it.
   function drawHome(g) {
     buttons = [];
-    owl(g, 74, 186, t);
-    signpost(g, 216, 356, t);
-    // the buttons live on a page of their own, the way every menu in this
-    // kit does: a cream board in a teal frame with a plate across the top
-    const BW = 258, PADX = 16;
-    // No banner across the top. The three buttons are the whole page: the
-    // board was spending a quarter of itself telling you where you were.
-    const PX = VW - BW - PADX * 2 - 22, PY = 96, PW = BW + PADX * 2, PH = 236;
-    board(g, PX, PY, PW, PH);
-    const BX = PX + PADX;
-    // ---- three groves ------------------------------------------------------
-    // Each one is a strip of parchment with what is in it burned across it.
-    // The one you are standing in has a candle beside it; the × wipes one.
     const slots = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList() : [{ n: 1, empty: !hasSave }];
     const here = (typeof Main !== 'undefined' && Main.slot) || 1;
+    // ---- the bough the masks hang off --------------------------------------
+    Art.limb(g, -10, 22, VW + 10, 8, 9, 6, '#0a0618');
+    Art.limb(g, -10, 20, VW + 10, 6, 4, 3, '#150e28');
+    // ---- three lanterns on a post down the left ----------------------------
+    g.fillStyle = '#000000'; g.fillRect(44, 78, 8, 232);
+    g.fillStyle = '#1a1230'; g.fillRect(46, 80, 4, 228);
+    g.fillStyle = '#2e2348'; g.fillRect(46, 80, 2, 228);
     slots.forEach((sl, i) => {
-      const y = PY + 14 + i * 30;
+      const x = 74;
       const on = sl.n === here;
+      const sway = Math.sin(t * 0.9 + i * 1.3) * 1.6;
       const hot = hover === 'slot:' + sl.n;
-      buttons.push({ id: 'slot:' + sl.n, x: BX, y, w: BW - 26, h: 26 });
-      cut(g, BX - 2, y - 2, BW - 22, 30, KIT.ink, 3);
-      cut(g, BX, y, BW - 26, 26, on ? KIT.p3 : hot ? KIT.p2 : KIT.p1, 2);
-      Art.rect(g, BX, y, BW - 26, 2, KIT.p4);
-      if (on) { Art.rect(g, BX - 9, y + 6, 5, 14, KIT.ink); Art.rect(g, BX - 8, y + 7, 3, 12, '#e8dcc0'); Art.rect(g, BX - 8, y + 3, 3, 4, KIT.g3); }
-      Font.draw(g, 'GROVE ' + sl.n, BX + 7, y + 4, { scale: 1, color: '#3a2410' });
-      if (sl.empty) {
-        Font.draw(g, 'EMPTY', BX + 7, y + 15, { scale: 1, color: '#8a6f45' });
-      } else {
-        Font.draw(g, sl.rank.toUpperCase(), BX + 62, y + 4, { scale: 1, color: '#1c5568' });
-        Font.draw(g, U.fmt(sl.wd) + ' W$', BX + BW - 34, y + 4, { scale: 1, color: '#7a4f06', align: 'right' });
-        Font.draw(g, sl.wombats + ' WOMBAT' + (sl.wombats === 1 ? '' : 'S') + '  ' + sl.gods + '/9 GODS',
-          BX + 7, y + 15, { scale: 1, color: '#6b4a26' });
-        // and the way to be rid of it
-        buttons.push({ id: 'wipe:' + sl.n, x: BX + BW - 22, y, w: 22, h: 26 });
+      const y = 96 + i * 76 + (on ? 3 : 0);
+      g.fillStyle = '#100a1c'; g.fillRect(50, y - 12, 24, 3);
+      buttons.push({ id: 'slot:' + sl.n, x: x - 22, y: y - 6, w: 62, h: 62 });
+      lantern2(g, x + sway, y, !sl.empty, on, hot, sl, i);
+      if (!sl.empty) {
+        buttons.push({ id: 'wipe:' + sl.n, x: x - 13, y: y + 38, w: 18, h: 18 });
         const wh = hover === 'wipe:' + sl.n;
-        cut(g, BX + BW - 24, y - 2, 26, 30, KIT.ink, 3);
-        cut(g, BX + BW - 22, y, 22, 26, wh ? '#d84428' : '#902418', 2);
-        Art.rect(g, BX + BW - 22, y, 22, 2, '#e07d2c');
-        Font.draw(g, 'X', BX + BW - 11, y + 9, { scale: 1, color: '#fff3b8', align: 'center' });
+        g.fillStyle = '#000000'; g.fillRect(x - 13 + sway, y + 38, 18, 18);
+        g.fillStyle = wh ? '#d84428' : '#4a1410'; g.fillRect(x - 11 + sway, y + 40, 14, 14);
+        Font.draw(g, 'X', x - 4 + sway, y + 44, { scale: 1, color: wh ? '#fff3b8' : '#a04030', align: 'center' });
       }
     });
-    buttons.push({ id: 'enter', x: BX, y: PY + 112, w: BW, h: 48 });
-    buttons.push({ id: 'settings', x: BX, y: PY + 168, w: BW, h: 26 });
-    buttons.push({ id: 'help', x: BX, y: PY + 200, w: BW, h: 26 });
-    const bEnter = buttons.find((b2) => b2.id === 'enter');
-    bigButton(g, bEnter, 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
-    bigButton(g, buttons.find((b2) => b2.id === 'settings'), 'SETTINGS', null, 1);
-    bigButton(g, buttons.find((b2) => b2.id === 'help'), 'HOW TO PLAY', null, 1);
-    // the rumour, on a little plate along the bottom of the screen
+    // ---- the doorway is the button ------------------------------------------
+    const goHot = hover === 'enter';
+    buttons.push({ id: 'enter', x: GX - 58, y: GTOP + 20, w: 116, h: GBOT - GTOP - 20 });
+    const pull = goHot ? 1 : 0;
+    if (goHot) {
+      // it brightens and reaches for you
+      for (let i = 6; i >= 1; i--) {
+        g.fillStyle = U.rgba('#c898ff', 0.05);
+        g.fillRect(GX - 58 - i * 9, GTOP + 20 - i * 6, 116 + i * 18, (GBOT - GTOP - 20) + i * 12);
+      }
+    }
+    const lab = hasSave ? 'GO BACK IN' : 'GO IN';
+    const ly = GBOT - 44 - pull * 3 + Math.sin(t * 2) * 2;
+    Font.draw(g, lab, GX, ly + 2, { scale: 2, color: '#0a0614', align: 'center' });
+    Font.draw(g, lab, GX, ly, { scale: 2, color: goHot ? '#fffae8' : '#e0cfff', align: 'center' });
+    const sub = hasSave ? 'the wood remembers you' : 'a new wood, a new wombat';
+    // a dark plate behind it, because the portal behind is the same violet
+    const sw = Font.width(sub, 1) + 12;
+    g.fillStyle = 'rgba(8,4,18,0.66)'; g.fillRect(GX - sw / 2, ly + 16, sw, 12);
+    Font.draw(g, sub, GX, ly + 20, { scale: 1, color: '#0a0614', align: 'center' });
+    Font.draw(g, sub, GX, ly + 19, { scale: 1, color: goHot ? '#fffae8' : '#c898ff', align: 'center' });
+    // ---- two words cut in the stones ----------------------------------------
+    stoneWord(g, 178, 300, 'settings', 'SETTINGS');
+    stoneWord(g, 472, 300, 'help', 'HOW TO PLAY');
+    // ---- the rumour, scratched in the dirt ----------------------------------
     const line = RUMOURS[rumour % RUMOURS.length];
-    const w = Font.width(line, 1) + 26;
-    const rx = VW / 2, ry = VH - 18;
-    cut(g, rx - w / 2 - 2, ry - 3, w + 4, 18, KIT.ink, 3);
-    cut(g, rx - w / 2, ry - 1, w, 14, KIT.p2, 2);
-    Art.rect(g, rx - w / 2 + 2, ry - 1, w - 4, 2, KIT.p4);
-    Font.draw(g, line, rx, ry + 3, { scale: 1, color: '#6b4a26', align: 'center' });
+    Font.draw(g, line, GX, VH - 15, { scale: 1, color: '#0a0614', align: 'center' });
+    Font.draw(g, line, GX, VH - 16, { scale: 1, color: '#5a4a80', align: 'center' });
+  }
+  // a lantern on the bough: lit if that grove has something in it
+  function lantern2(g, x, y, full, on, hot, sl, i) {
+    x = Math.round(x); y = Math.round(y);
+    g.fillStyle = '#100a1c'; g.fillRect(x - 1, y - 26, 2, 22);      // the hook
+    g.fillStyle = '#000000'; g.fillRect(x - 13, y - 6, 26, 42);
+    g.fillStyle = on ? '#4a3d6a' : '#241d38'; g.fillRect(x - 11, y - 4, 22, 38);
+    g.fillStyle = on ? '#6a5a92' : '#332a4a'; g.fillRect(x - 11, y - 4, 22, 2);
+    // the glass, and what is burning in it
+    const lit = full ? (on ? 1 : 0.55) : 0;
+    const fl = Math.sin(t * 7 + i * 2) > 0 ? 1 : 0;
+    g.fillStyle = '#0a0614'; g.fillRect(x - 8, y + 1, 16, 26);
+    if (lit > 0) {
+      g.fillStyle = U.rgba('#efb625', 0.4 * lit); g.fillRect(x - 8, y + 1, 16, 26);
+      g.fillStyle = '#7a2a08'; g.fillRect(x - 2, y + 14 - fl, 4, 10);
+      g.fillStyle = '#efb625'; g.fillRect(x - 2, y + 17 - fl, 4, 7);
+      g.fillStyle = '#fff3b8'; g.fillRect(x - 1, y + 20, 2, 4);
+      g.fillStyle = U.rgba('#efb625', 0.06 * lit); g.fillRect(x - 30, y - 16, 60, 62);
+    } else {
+      // an empty one: nothing in the glass but the dark
+      Font.draw(g, '-', x, y + 10, { scale: 1, color: '#3a3050', align: 'center' });
+    }
+    if (hot || on) {
+      g.fillStyle = hot ? '#ffd95c' : '#6b32bd';
+      g.fillRect(x - 15, y - 8, 30, 2); g.fillRect(x - 15, y + 36, 30, 2);
+      g.fillRect(x - 15, y - 8, 2, 46); g.fillRect(x + 13, y - 8, 2, 46);
+    }
+    // what is in that grove, hung under the lantern on a tag
+    const tag = sl.empty ? 'empty' : sl.rank.toLowerCase();
+    Font.draw(g, 'grove ' + sl.n, x + 20, y + 3, { scale: 1, color: '#0a0614' });
+    Font.draw(g, 'grove ' + sl.n, x + 20, y + 2, { scale: 1, color: on ? '#ffd95c' : '#6a5a92' });
+    Font.draw(g, tag, x + 20, y + 15, { scale: 1, color: '#0a0614' });
+    Font.draw(g, tag, x + 20, y + 14, { scale: 1, color: sl.empty ? '#4a3d6a' : '#9a5cf0' });
+    if (!sl.empty) {
+      Font.draw(g, sl.gods + '/9 gods', x + 20, y + 27, { scale: 1, color: '#0a0614' });
+      Font.draw(g, sl.gods + '/9 gods', x + 20, y + 26, { scale: 1, color: '#c898ff' });
+    }
+  }
+  // a word cut into a standing stone at the foot of the gate
+  function stoneWord(g, x, y, id, label) {
+    const hot = hover === id;
+    const w = Font.width(label, 1) + 22, h = 26;
+    buttons.push({ id, x: x - w / 2, y: y - h / 2, w, h });
+    // the stone
+    g.fillStyle = '#000000'; g.fillRect(x - w / 2 - 3, y - h / 2 - 3, w + 6, h + 6);
+    for (let yy = 0; yy < h; yy += PXM) {
+      const jit = (Art.rng(Math.round(yy / PXM) * 131 + x)() * 2 | 0) * PXM;
+      g.fillStyle = hot ? ['#4a4166', '#584d78', '#3e3658'][Math.floor(Art.rng(yy * 7 + x)() * 3)]
+                        : ['#2e283e', '#3a3350', '#241f33'][Math.floor(Art.rng(yy * 7 + x)() * 3)];
+      g.fillRect(x - w / 2 + jit, y - h / 2 + yy, w - jit * 2, PXM);
+    }
+    g.fillStyle = hot ? '#6a5f8c' : '#463d60'; g.fillRect(x - w / 2 + 2, y - h / 2, w - 4, PXM);
+    Font.draw(g, label, x, y - 4, { scale: 1, color: '#0a0614', align: 'center' });
+    Font.draw(g, label, x, y - 5, { scale: 1, color: hot ? '#fffae8' : '#a08fd0', align: 'center' });
+    if (hot) { g.fillStyle = U.rgba('#9a5cf0', 0.09); g.fillRect(x - w / 2 - 12, y - h / 2 - 12, w + 24, h + 24); }
   }
 
-  // a short page of how it works, so the title screen can answer the question
   const HELP = [
     ['t_sickle', 'Clear the weeds', 'Right-click opens the tool tray. Pick one and it rides with the pointer.'],
     ['t_hoe', 'Break a bed, sow it', 'Hoe bare soil, drop seed on it, water it while it grows, pick it when it glows.'],

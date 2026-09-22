@@ -75,7 +75,15 @@ const UI = (() => {
   function refreshNotebook() { }           // the cultist speaks for herself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
-  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair', 'terra', 'build'];
+  // Twenty of them is too many for one grid. They come in four bands, each
+  // with its name over it, in the order you learn them.
+  const WHEEL_BANDS = [
+    ['THE HAND', ['drag', 'food', 'destroy', 'pair', 'build']],
+    ['TENDING', ['sickle', 'hoe', 'seed', 'moss', 'water']],
+    ['SHAPING', ['raise', 'dig', 'smooth', 'sand', 'clay', 'ash']],
+    ['THE WORDS', ['hasten', 'solace', 'rot', 'call']],
+  ];
+  const WHEEL_TOOLS = WHEEL_BANDS.reduce((a2, b2) => a2.concat(b2[1]), []);
   let wheelRing = 'tools', wheelAt = { x: 320, y: 180 };
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
@@ -97,7 +105,7 @@ const UI = (() => {
       title = 'TOOLS';
       items = WHEEL_TOOLS.map((key) => {
         const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
-        return { icon: t.icon, on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
+        return { icon: t.icon, rune: t.rune, on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
           act: () => {
             if (lk) { Audio.play('error'); toast(GATE_WHY[key] || 'not yet', 'bad'); return; }
             G.tool = key; Grove.clearPair(); Audio.play('click');
@@ -148,24 +156,47 @@ const UI = (() => {
       if (wheelRing === 'tools') closeWheel(); else { wheelRing = 'tools'; renderWheel(); }
     };
     tray.appendChild(head);
-    const grid = document.createElement('div');
-    grid.className = 'traygrid';
-    items.forEach((it, idx) => {
+    const cols0 = wheelRing === 'tools' ? 5 : 4;
+    const spoke = (it) => {
       const el = document.createElement('button');
       el.className = 'spoke' + (it.on ? ' on' : '') + (it.locked ? ' locked' : '') + (it.out ? ' out' : '') + (it.magic ? ' magic' : '');
-      el.innerHTML = `${ic(it.icon)}${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
+      el.innerHTML = `${ic(it.icon)}${it.rune ? `<span class="rn">${it.rune}</span>` : ''}` +
+        `${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = (e) => { e.stopPropagation(); it.act(); };
       el.onmouseenter = (e) => showTip(e, it.tip);
       el.onmouseleave = hideTip;
-      grid.appendChild(el);
-    });
-    tray.appendChild(grid);
+      return el;
+    };
+    let grid = null;
+    if (wheelRing === 'tools') {
+      // one band at a time, each with its name cut over it
+      let i0 = 0;
+      for (const [label, keys] of WHEEL_BANDS) {
+        const lab = document.createElement('div');
+        lab.className = 'trayband';
+        lab.textContent = label;
+        tray.appendChild(lab);
+        const gr = document.createElement('div');
+        gr.className = 'traygrid';
+        gr.style.gridTemplateColumns = `repeat(${cols0}, 50px)`;
+        for (let n = 0; n < keys.length; n++) gr.appendChild(spoke(items[i0 + n]));
+        i0 += keys.length;
+        tray.appendChild(gr);
+        grid = gr;
+      }
+    } else {
+      grid = document.createElement('div');
+      grid.className = 'traygrid';
+      items.forEach((it) => grid.appendChild(spoke(it)));
+      tray.appendChild(grid);
+    }
     w.appendChild(tray);
     // keep the whole tray on screen, opening down-right of the cursor by default
     const fw = $('frame').clientWidth, fh = $('frame').clientHeight;
-    const cols = wheelRing === 'tools' ? 3 : 4;
-    grid.style.gridTemplateColumns = `repeat(${cols}, 58px)`;
-    const tw = cols * 58 + (cols - 1) * 7 + 22 + 8, th = tray.offsetHeight || 240;
+    const cols = cols0;
+    const cw = wheelRing === 'tools' ? 50 : 58;
+    if (wheelRing !== 'tools') grid.style.gridTemplateColumns = `repeat(${cols}, ${cw}px)`;
+    const tw = cols * cw + (cols - 1) * 7 + 22 + 8, th = tray.offsetHeight || 240;
     let px = wheelAt.x * k + 14, py = wheelAt.y * k + 14;
     if (px + tw > fw - 8) px = wheelAt.x * k - tw - 14;
     if (py + th > fh - 8) py = Math.max(8, fh - th - 8);

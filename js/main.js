@@ -22,7 +22,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      devotion: 0, rank: 'stray', omen: null, omenDay: -1, crates: {}, furniture: [],
+      brush: 1, devotion: 0, rank: 'stray', omen: null, omenDay: -1, crates: {}, furniture: [],
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -211,7 +211,7 @@ const Main = (() => {
     if (!lastP) { Grove.press(p.x, p.y, true); lastP = p; return; }
     const dx = p.x - lastP.x, dy = p.y - lastP.y;
     const dist = Math.hypot(dx, dy);
-    const step = Math.max(3, World.brushRadius((TOOL_BY_KEY[G.tool] || {}).radius || 8) * 0.4);
+    const step = Math.max(3, Grove.brushSize(TOOL_BY_KEY[G.tool] || { radius: 8 }) * 0.34);
     const n = Math.min(24, Math.floor(dist / step));
     for (let i = 1; i <= n; i++) Grove.press(lastP.x + (dx * i) / n, lastP.y + (dy * i) / n, false);
     if (n > 0) lastP = p;
@@ -240,7 +240,7 @@ const Main = (() => {
         const w = world(p);
         if (Guide.hit(w.x, w.y)) { Guide.poke(); down = false; return; }
         const consumed = Grove.press(w.x, w.y, true);
-        if (consumed || G.tool === 'terra') lastP = w;
+        if (consumed || (TOOL_BY_KEY[G.tool] || {}).terra) lastP = w;
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
@@ -297,7 +297,7 @@ const Main = (() => {
         // with the hammer or the ground brush out, the wheel changes what is
         // on the end of it rather than how close you are standing
         if (G.tool === 'build') { Grove.cycleBuild(e.deltaY < 0 ? -1 : 1); return; }
-        if (G.tool === 'terra') { Grove.cycleTerra(e.deltaY < 0 ? -1 : 1); return; }
+        if ((TOOL_BY_KEY[G.tool] || {}).terra) { Grove.nudgeBrush(e.deltaY < 0 ? 1 : -1); return; }
         if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8);
         else { const p = pos(e); Grove.zoomBy(e.deltaY < 0 ? 1.14 : 1 / 1.14, p.x, p.y); }
       }
@@ -314,6 +314,7 @@ const Main = (() => {
       if (Rite.active()) { if (Rite.key(e.key)) e.preventDefault(); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel()) return;
+      if (G.mode === 'grove' && (e.key === '[' || e.key === ']')) { Grove.nudgeBrush(e.key === ']' ? 1 : -1); e.preventDefault(); return; }
       if (G.mode === 'shrine' && Ritual.keyDown(e.key)) { e.preventDefault(); return; }
       if (e.key === 'Tab' || e.key === ' ') { if (G.mode === 'grove') { e.preventDefault(); if (UI.wheelOpen()) UI.closeWheel(); else UI.openWheel(screenP.x, screenP.y); } return; }
       if (e.key === 'Escape' || e.key === 'Backspace') {
@@ -385,7 +386,7 @@ const Main = (() => {
     // bolts and roots spawned during the cutscene never expire.
     // Shaping the ground is a held spell: it keeps working while the button is
     // down even if your hand is perfectly still, the way a sculpting brush does.
-    if (playing && !G.paused && down && !panning && G.mode === 'grove' && G.tool === 'terra' && lastP) {
+    if (playing && !G.paused && down && !panning && G.mode === 'grove' && (TOOL_BY_KEY[G.tool] || {}).terra && lastP) {
       Grove.press(lastP.x, lastP.y, false);
     }
     Rite.update(real);                            // dialogue runs while the world is held

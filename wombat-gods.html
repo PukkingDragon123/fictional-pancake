@@ -128,6 +128,20 @@ img.ico.xl { width: 48px; height: 48px; }
 @keyframes pop2 { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes slide { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 
+/* the band names over each group of spells in the tray, and the rune each
+   one carries in its corner */
+.trayband {
+  margin: 10px 2px 5px; padding: 0 0 3px; font-size: 11px; letter-spacing: 3px;
+  color: #6b4a26; border-bottom: 2px dashed rgba(120,80,44,0.42);
+  text-shadow: 0 1px 0 rgba(255,240,205,0.5);
+}
+.trayband:first-of-type { margin-top: 4px; }
+.spoke .rn {
+  position: absolute; left: 3px; top: 2px; font-size: 10px; line-height: 1;
+  color: rgba(60,36,14,0.6); pointer-events: none;
+}
+.spoke.on .rn { color: var(--ol); }
+
 /* ---- the head-up ---------------------------------------------------------
    There are no boxes over the wood any more. The purse, your standing and the
    list are drawn straight onto the scene as pixel art with a hard black line
@@ -6731,17 +6745,31 @@ const SUBTOOLS = [
   // Held down, not clicked. The ground rises and falls under the brush the
   // whole time you drag, which is what makes it feel like earth and not like
   // placing a prop.
-  { key: 'terra', name: 'Shape',    rune: 'vii', icon: 'u_burrow', radius: 26, terra: true,
-    desc: 'Hold and drag. The ground follows your hand. Wheel to change what it does.' },
+  // ---- the shaping brushes -------------------------------------------------
+  // Six of them, and each is a brush like the hoe or the can: pick one, a
+  // footprint follows the pointer at the size you set, and you hold and drag
+  // to work. [ and ] make the brush smaller and larger.
+  { key: 'raise',  name: 'Raise',   rune: 'vii',  icon: 'u_burrow', radius: 26, terra: 'raise',
+    desc: 'The ground swells under the brush. A hill. They sit on top of one.' },
+  { key: 'dig',    name: 'Dig',     rune: 'viii', icon: 'd_pool',   radius: 24, terra: 'dig',
+    desc: 'The ground sinks and fills. A pond. Frogs move in.' },
+  { key: 'smooth', name: 'Smooth',  rune: 'ix',   icon: 't_hoe',    radius: 32, terra: 'smooth',
+    desc: 'Takes a hill down or fills a hole in, gently, wherever you rub.' },
+  { key: 'sand',   name: 'Sand',    rune: 'x',    icon: 't_hoe',    radius: 20, terra: 'sand', paint: 's',
+    desc: 'Lay pale sand over the ground.' },
+  { key: 'clay',   name: 'Clay',    rune: 'xi',   icon: 't_hoe',    radius: 20, terra: 'clay', paint: 'c',
+    desc: 'Lay red clay over the ground.' },
+  { key: 'ash',    name: 'Ash',     rune: 'xii',  icon: 'o_rune',   radius: 20, terra: 'ash', paint: 'a',
+    desc: 'Lay cold ash over the ground. The cult likes it.' },
   { key: 'build', name: 'Raise',    rune: 'viii', icon: 'd_nest',  radius: 0,  desc: 'Stand a thing where you point. Point at it again to take it back.' },
   // ---- the words you take off the gods ------------------------------------
-  { key: 'call',  name: 'Call',     rune: 'ix',  icon: 'wombat',   radius: 0, cost: 60,
+  { key: 'call',  name: 'Call',     rune: 'xiii',  icon: 'wombat',   radius: 0, cost: 60,
     desc: 'Something comes up out of the ground. You do not get to pick what.' },
-  { key: 'hasten', name: 'Hasten',  rune: 'x',   icon: 'c_broadleaf', radius: 18, cost: 12,
+  { key: 'hasten', name: 'Hasten',  rune: 'xiv',   icon: 'c_broadleaf', radius: 18, cost: 12,
     desc: 'A whole season passes over one bed while you watch.' },
-  { key: 'solace', name: 'Solace',  rune: 'xi',  icon: 'heart',    radius: 0, cost: 25,
+  { key: 'solace', name: 'Solace',  rune: 'xv',  icon: 'heart',    radius: 0, cost: 25,
     desc: 'Every one of them forgets whatever was wrong.' },
-  { key: 'rot',   name: 'Rot',      rune: 'xii', icon: 'o_rune',   radius: 20, cost: 35,
+  { key: 'rot',   name: 'Rot',      rune: 'xvi', icon: 'o_rune',   radius: 20, cost: 35,
     desc: 'Weeds turn to tribute where they stand. It is not a nice spell.' },
 ];
 // Nothing is handed over at once. The first words come off the hooded one as
@@ -6752,7 +6780,12 @@ const GATES = {
   sickle: () => true,
   destroy: (g) => g.step >= 1,
   farm: (g) => g.step >= 2,
-  terra: (g) => g.step >= 5,
+  raise: (g) => g.step >= 5,
+  dig: (g) => g.step >= 5,
+  smooth: (g) => g.step >= 5,
+  sand: (g) => g.step >= 5,
+  clay: (g) => g.step >= 5,
+  ash: (g) => g.step >= 5,
   build: (g) => g.step >= 3,
   moss: (g) => g.step >= 2,
   hoe: (g) => g.step >= 3,
@@ -6774,7 +6807,12 @@ const GATE_WHY = {
   water: 'the wrecks go first',
   food: 'sow the grass first',
   pair: 'needs a nest',
-  terra: 'load the truck first',
+  raise: 'load the truck first',
+  dig: 'load the truck first',
+  smooth: 'load the truck first',
+  sand: 'load the truck first',
+  clay: 'load the truck first',
+  ash: 'load the truck first',
   build: 'the grove first',
   hasten: '90 devotion &mdash; stack for it',
   solace: '220 devotion &mdash; stack for it',
@@ -6793,7 +6831,8 @@ const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
 const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
-const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water'];
+const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water', 'raise', 'dig', 'smooth', 'sand', 'clay', 'ash'];
+const TERRA_KEYS = ['raise', 'dig', 'smooth', 'sand', 'clay', 'ash'];
 
 // ---- The clearing: the small patch you actually have to tidy -------------
 // ---- Plots ---------------------------------------------------------------
@@ -6963,17 +7002,6 @@ const DECOR = [
 ];
 // Which of the above are garden-centre stock rather than corner-shop stock.
 // The mart skips these; Groot's cellar sells them alongside the seed.
-// What the terrain tool is set to do. Each has its own cost and its own undo.
-const TERRA_MODES = [
-  { key: 'raise', name: 'Raise', icon: 'u_burrow', cost: 120, r: 26, blurb: 'A grassy hill. They like to sit on top of one.' },
-  { key: 'dig',   name: 'Dig',   icon: 'd_pool',   cost: 260, r: 24, blurb: 'Down to the water table. Frogs move in.' },
-  { key: 'level', name: 'Level', icon: 't_hoe',    cost: 40,  r: 30, blurb: 'Flatten a hill or fill a hole back in.' },
-  { key: 'earth', name: 'Earth', icon: 't_hoe',    cost: 0,   r: 20, paint: 'd', blurb: 'Bare earth.' },
-  { key: 'sand',  name: 'Sand',  icon: 't_hoe',    cost: 0,   r: 20, paint: 's', blurb: 'Pale sand.' },
-  { key: 'clay',  name: 'Clay',  icon: 't_hoe',    cost: 0,   r: 20, paint: 'c', blurb: 'Red clay.' },
-  { key: 'ash',   name: 'Ash',   icon: 't_hoe',    cost: 0,   r: 20, paint: 'a', blurb: 'Cold ash. The cult likes it.' },
-];
-
 const GARDEN_UP = { trough: 1 };
 const GARDEN_DEC = { nest: 1, pool: 1 };
 
@@ -8696,8 +8724,9 @@ const Wild = (() => {
     }
     // nothing here: start one, and that is the only part you pay for
     if (!first) return false;
+    // the brush already shows you it cannot work here, so this stays quiet
     const why = canPlace(kind === 'raise' ? 'mound' : 'pond', x, y);
-    if (why) { Audio.play('error'); UI.toast(why, 'bad'); return false; }
+    if (why) { Audio.play('error'); return false; }
     const cost = kind === 'raise' ? MOUND_COST : POND_COST;
     if (G.wd < cost) { Audio.play('error'); UI.toast('not enough for that', 'bad'); return false; }
     G.wd -= cost;
@@ -8714,13 +8743,21 @@ const Wild = (() => {
     return true;
   }
   // a stroke that flattens instead of raising
+  // Smooth does not delete: it eases. Whatever is under the brush loses a
+  // little of itself each frame, and the closer the middle of the brush is to
+  // the middle of the shape the more it loses, so rubbing an edge softens the
+  // edge and rubbing the top takes the top off.
   function flatten(x, y, br) {
     let any = false;
     for (const list of [mounds, ponds]) {
       for (let i = list.length - 1; i >= 0; i--) {
         const m = list[i];
-        if (Math.hypot(m.x - x, (m.y - y) * 1.6) > br + m.r * 0.5) continue;
-        m.r -= br * 0.07;
+        const d = Math.hypot(m.x - x, (m.y - y) * 1.6);
+        if (d > br + m.r) continue;
+        const bite = U.clamp(1 - d / (br + m.r), 0, 1);
+        m.r -= br * 0.055 * bite;
+        // and it drifts away from the brush, so you can push a hill about
+        m.x = U.lerp(m.x, m.x + (m.x - x) * 0.06, bite);
         any = true;
         if (m.r < MIN_R) {
           list.splice(i, 1);
@@ -9668,12 +9705,19 @@ const Grove = (() => {
   // Bought in town, carried home in a crate, and stood wherever you like. It
   // sorts into the scene by its feet like everything else, so a bench in front
   // of a tree is in front of the tree.
-  let buildI = 0, terraI = 0;
+  let buildI = 0;
   function crateKeys() { return Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0); }
   function buildKey() { const ks = crateKeys(); return ks.length ? ks[buildI % ks.length] : null; }
   function cycleBuild(d) { const ks = crateKeys(); if (ks.length) { buildI = (buildI + d + ks.length * 4) % ks.length; Audio.play('click'); } }
-  function terraMode() { return TERRA_MODES[terraI % TERRA_MODES.length]; }
-  function cycleTerra(d) { terraI = (terraI + d + TERRA_MODES.length * 4) % TERRA_MODES.length; Audio.play('click'); }
+  // ---- brush size ----------------------------------------------------------
+  // One dial for every brush in the game, remembered in the save, nudged with
+  // the bracket keys or the wheel while a brush is out.
+  function brushScale() { return U.clamp(G.brush || 1, 0.4, 2.6); }
+  function brushSize(def) { return World.brushRadius((def ? def.radius : 20) * brushScale()); }
+  function nudgeBrush(d) {
+    G.brush = U.clamp(brushScale() * (d > 0 ? 1.18 : 1 / 1.18), 0.4, 2.6);
+    Audio.play('click');
+  }
   function furnAt(x, y) {
     for (const f of (G.furniture || [])) {
       const d = FURN_BY_KEY[f.key]; if (!d) continue;
@@ -9696,11 +9740,6 @@ const Grove = (() => {
       const d = FURN_BY_KEY[key];
       Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 5, { scale: 1, color: '#000000', align: 'center' });
       Font.draw(g, d.name.toUpperCase() + '  x' + G.crates[key], p.x, Math.max(GROUND + 6, p.y) + 4, { scale: 1, color: '#f2c936', align: 'center' });
-    } else if (G.tool === 'terra') {
-      const p = G.pointer, m = terraMode();
-      const label = m.name.toUpperCase() + (m.cost ? '  ' + m.cost : '');
-      Font.draw(g, label, p.x, p.y - 26, { scale: 1, color: '#000000', align: 'center' });
-      Font.draw(g, label, p.x, p.y - 27, { scale: 1, color: '#f2c936', align: 'center' });
     }
   }
 
@@ -10285,14 +10324,15 @@ const Grove = (() => {
       UI.refreshHUD(); Main.save();
       return true;
     }
-    if (tool === 'terra') {
-      // Held down and dragged. Everything here is a stroke, not a click: the
-      // ground swells and sinks under the brush the whole time you hold it.
-      const m = terraMode();
-      const br = World.brushRadius(m.r);
-      if (m.paint) { World.paintGround(m.paint, x, y, br); return true; }
-      if (m.key === 'raise' || m.key === 'dig') { Wild.sculpt(m.key, x, y, br, first); return true; }
-      if (m.key === 'level') Wild.flatten(x, y, br);
+    // ---- the shaping brushes ---------------------------------------------
+    // They behave exactly like the hoe and the can: a footprint at the size
+    // you set, held and dragged, working the whole time the button is down.
+    const td = TOOL_BY_KEY[tool];
+    if (td && td.terra) {
+      const br = brushSize(td);
+      if (td.paint) { World.paintGround(td.paint, x, y, br); return true; }
+      if (td.terra === 'smooth') { Wild.flatten(x, y, br); return true; }
+      Wild.sculpt(td.terra === 'raise' ? 'raise' : 'dig', x, y, br, first);
       return true;
     }
     if (tool === 'build') {
@@ -10655,7 +10695,21 @@ const Grove = (() => {
     if (G.pointer.on && !arrival) {
       const t = TOOL_BY_KEY[G.tool];
       const tier = TIERS[G.tool] ? tierOf(G, G.tool) : null;
-      if (t && t.radius > 0) World.drawCursor(g, G.pointer.x, G.pointer.y, World.brushRadius(tier ? tier.radius : t.radius), toolTint(G.tool));
+      if (t && t.radius > 0) {
+        const base = tier ? tier.radius : t.radius;
+        const r = t.terra || BRUSH_KEYS.includes(G.tool) ? brushSize({ radius: base }) : World.brushRadius(base);
+        // a shaping brush turns red where it cannot work, so a stroke that does
+        // nothing tells you why instead of just not happening
+        const bad = t.terra && (t.terra === 'raise' || t.terra === 'dig')
+          ? Wild.canPlace(t.terra === 'raise' ? 'mound' : 'pond', G.pointer.x, G.pointer.y) : null;
+        World.drawCursor(g, G.pointer.x, G.pointer.y, r, bad ? '#e8402a' : toolTint(G.tool));
+        if (t.terra) {
+          const lab = bad ? bad.toUpperCase() : t.name.toUpperCase() + '  ' + Math.round(r);
+          const ly = G.pointer.y - r * 0.74 - 13;
+          Font.draw(g, lab, G.pointer.x, ly, { scale: 1, color: '#000000', align: 'center' });
+          Font.draw(g, lab, G.pointer.x, ly - 1, { scale: 1, color: bad ? '#ff9a72' : '#ffd95c', align: 'center' });
+        }
+      }
       // the tool in hand rides beside the cursor
       if (t) Icons.blit(g, t.icon, G.pointer.x + 10, G.pointer.y + 8, 1.25);
     }
@@ -11208,7 +11262,7 @@ const Grove = (() => {
 
   return {
     init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, zoomBy, zoomTo, zoomFrac, edgeScroll, addWombat, newWombat, feed, pet, offline,
-    cycleBuild, cycleTerra, terraMode, furnAt,
+    cycleBuild, nudgeBrush, brushSize, furnAt,
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, TRUCK, GROUND, WALK, W, H, VW,
@@ -13959,16 +14013,21 @@ const Atlas = (() => {
   }
 
   // the chrome a phone map wears: a search bar, a compass, a scale
+  // The banner used to run the full width and the purse sat on top of it. It
+  // starts clear of the head-up now and ends clear of the scale bar.
+  const BX0 = 132;
   function banner(g, text, cx, cy) {
-    g.fillStyle = 'rgba(40,40,44,0.16)'; g.fillRect(12, 12, VW - 24, 30);
-    g.fillStyle = '#1c1008'; g.fillRect(10, 8, VW - 20, 28);
-    g.fillStyle = '#ffffff'; g.fillRect(12, 10, VW - 24, 24);
-    g.fillStyle = '#e6e3da'; g.fillRect(12, 31, VW - 24, 3);
+    const bw = VW - BX0 - 22;
+    g.fillStyle = 'rgba(40,40,44,0.16)'; g.fillRect(BX0 + 2, 12, bw, 30);
+    g.fillStyle = '#1c1008'; g.fillRect(BX0, 8, bw + 2, 28);
+    g.fillStyle = '#ffffff'; g.fillRect(BX0 + 2, 10, bw - 2, 24);
+    g.fillStyle = '#e6e3da'; g.fillRect(BX0 + 2, 31, bw - 2, 3);
     // the little magnifier
     g.fillStyle = '#5a5750';
-    g.fillRect(24, 16, 8, 2); g.fillRect(24, 24, 8, 2); g.fillRect(22, 18, 2, 6); g.fillRect(32, 18, 2, 6);
-    g.fillRect(34, 26, 2, 2); g.fillRect(36, 28, 2, 2);
-    Font.draw(g, text, 46, 16, { scale: 2, color: '#3c3a35', align: 'left' });
+    g.fillRect(BX0 + 14, 16, 8, 2); g.fillRect(BX0 + 14, 24, 8, 2);
+    g.fillRect(BX0 + 12, 18, 2, 6); g.fillRect(BX0 + 22, 18, 2, 6);
+    g.fillRect(BX0 + 24, 26, 2, 2); g.fillRect(BX0 + 26, 28, 2, 2);
+    Font.draw(g, text, BX0 + 36, 16, { scale: 2, color: '#3c3a35', align: 'left' });
     // compass, top right
     const cy3 = VH - 92;
     g.fillStyle = '#ffffff'; g.fillRect(VW - 44, cy3, 26, 26);
@@ -19047,7 +19106,15 @@ const UI = (() => {
   function refreshNotebook() { }           // the cultist speaks for herself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
-  const WHEEL_TOOLS = ['drag', 'food', 'sickle', 'destroy', 'hoe', 'seed', 'moss', 'water', 'pair', 'terra', 'build'];
+  // Twenty of them is too many for one grid. They come in four bands, each
+  // with its name over it, in the order you learn them.
+  const WHEEL_BANDS = [
+    ['THE HAND', ['drag', 'food', 'destroy', 'pair', 'build']],
+    ['TENDING', ['sickle', 'hoe', 'seed', 'moss', 'water']],
+    ['SHAPING', ['raise', 'dig', 'smooth', 'sand', 'clay', 'ash']],
+    ['THE WORDS', ['hasten', 'solace', 'rot', 'call']],
+  ];
+  const WHEEL_TOOLS = WHEEL_BANDS.reduce((a2, b2) => a2.concat(b2[1]), []);
   let wheelRing = 'tools', wheelAt = { x: 320, y: 180 };
   function frameScale() { return $('frame').clientWidth / 640; }
   function openWheel(sx, sy, ring = 'tools') {
@@ -19069,7 +19136,7 @@ const UI = (() => {
       title = 'TOOLS';
       items = WHEEL_TOOLS.map((key) => {
         const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
-        return { icon: t.icon, on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
+        return { icon: t.icon, rune: t.rune, on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
           act: () => {
             if (lk) { Audio.play('error'); toast(GATE_WHY[key] || 'not yet', 'bad'); return; }
             G.tool = key; Grove.clearPair(); Audio.play('click');
@@ -19120,24 +19187,47 @@ const UI = (() => {
       if (wheelRing === 'tools') closeWheel(); else { wheelRing = 'tools'; renderWheel(); }
     };
     tray.appendChild(head);
-    const grid = document.createElement('div');
-    grid.className = 'traygrid';
-    items.forEach((it, idx) => {
+    const cols0 = wheelRing === 'tools' ? 5 : 4;
+    const spoke = (it) => {
       const el = document.createElement('button');
       el.className = 'spoke' + (it.on ? ' on' : '') + (it.locked ? ' locked' : '') + (it.out ? ' out' : '') + (it.magic ? ' magic' : '');
-      el.innerHTML = `${ic(it.icon)}${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
+      el.innerHTML = `${ic(it.icon)}${it.rune ? `<span class="rn">${it.rune}</span>` : ''}` +
+        `${it.n != null ? `<span class="n">${it.n}</span>` : ''}${it.locked ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}`;
       el.onclick = (e) => { e.stopPropagation(); it.act(); };
       el.onmouseenter = (e) => showTip(e, it.tip);
       el.onmouseleave = hideTip;
-      grid.appendChild(el);
-    });
-    tray.appendChild(grid);
+      return el;
+    };
+    let grid = null;
+    if (wheelRing === 'tools') {
+      // one band at a time, each with its name cut over it
+      let i0 = 0;
+      for (const [label, keys] of WHEEL_BANDS) {
+        const lab = document.createElement('div');
+        lab.className = 'trayband';
+        lab.textContent = label;
+        tray.appendChild(lab);
+        const gr = document.createElement('div');
+        gr.className = 'traygrid';
+        gr.style.gridTemplateColumns = `repeat(${cols0}, 50px)`;
+        for (let n = 0; n < keys.length; n++) gr.appendChild(spoke(items[i0 + n]));
+        i0 += keys.length;
+        tray.appendChild(gr);
+        grid = gr;
+      }
+    } else {
+      grid = document.createElement('div');
+      grid.className = 'traygrid';
+      items.forEach((it) => grid.appendChild(spoke(it)));
+      tray.appendChild(grid);
+    }
     w.appendChild(tray);
     // keep the whole tray on screen, opening down-right of the cursor by default
     const fw = $('frame').clientWidth, fh = $('frame').clientHeight;
-    const cols = wheelRing === 'tools' ? 3 : 4;
-    grid.style.gridTemplateColumns = `repeat(${cols}, 58px)`;
-    const tw = cols * 58 + (cols - 1) * 7 + 22 + 8, th = tray.offsetHeight || 240;
+    const cols = cols0;
+    const cw = wheelRing === 'tools' ? 50 : 58;
+    if (wheelRing !== 'tools') grid.style.gridTemplateColumns = `repeat(${cols}, ${cw}px)`;
+    const tw = cols * cw + (cols - 1) * 7 + 22 + 8, th = tray.offsetHeight || 240;
     let px = wheelAt.x * k + 14, py = wheelAt.y * k + 14;
     if (px + tw > fw - 8) px = wheelAt.x * k - tw - 14;
     if (py + th > fh - 8) py = Math.max(8, fh - th - 8);
@@ -19941,108 +20031,235 @@ const Menu = (() => {
     g.fillRect(Math.round(x), Math.round(y - up), Math.round(w), 1);
     g.fillRect(Math.round(x - 1), Math.round(y), 2, 1);
   }
+  // ==== THE THRESHOLD ========================================================
+  // The title screen is not a clearing with a signboard in it any more. It is
+  // the place you go in: a stone doorway standing in a wood at night with
+  // violet light coming out of it, nine god-masks hung in the branches over it,
+  // three lanterns on a bough for the three groves, and candles guttering all
+  // round the foot of it. Everything you can press is an object in the scene.
+  const GTOP = 96, GBOT = 300;                 // the gate, top and bottom
+  const GX = 320;                              // and the middle of it
+  const PXM = 2;
+
+  // the wood behind it, in four ranks of silhouette
+  const BACK = [];
+  (() => {
+    const r = Art.rng(31337);
+    for (let d = 0; d < 4; d++) {
+      let x = -40;
+      while (x < VW + 60) {
+        const s = 0.5 + d * 0.22;
+        BACK.push({ d, x, w: (16 + r() * 22) * s, h: (90 + r() * 120) * s, lean: (r() - 0.5) * 8, v: Math.floor(r() * 3) });
+        x += (26 + r() * 40) * s;
+      }
+    }
+  })();
+  const CANDLES = [];
+  (() => {
+    const r = Art.rng(777);
+    for (let i = 0; i < 16; i++) {
+      const side = i % 2 ? 1 : -1;
+      CANDLES.push({ x: GX + side * (66 + (i >> 1) * 22 + r() * 10), y: 300 + r() * 34, h: 7 + r() * 12, ph: r() * TAU });
+    }
+  })();
+  const FIRE = [];
+  (() => { const r = Art.rng(4242); for (let i = 0; i < 40; i++) FIRE.push({ x: r() * VW, y: 150 + r() * 200, ph: r() * TAU, sp: 4 + r() * 10, a: 0.3 + r() * 0.6, v: Math.floor(r() * 3) }); })();
+
+  // ---- the scene -------------------------------------------------------------
   function scene(g) {
-    // ---- the sky, at whatever hour the game's clock says ------------------
-    const day = Sky.light();
-    const top = U.mix('#101a34', '#6aa8d8', day), mid = U.mix('#26324e', '#a8d4e8', day), low = U.mix('#3a3a52', '#e4e8c8', day);
-    for (let i = 0; i < 14; i++) {
-      const k = i / 13;
-      g.fillStyle = k < 0.5 ? U.mix(top, mid, k * 2) : U.mix(mid, low, (k - 0.5) * 2);
-      g.fillRect(0, Math.round((HORIZON + 12) * i / 14), VW, Math.ceil((HORIZON + 12) / 14) + 1);
+    // the sky: a cold violet night falling to black at the treeline
+    for (let y = 0; y < VH; y += PXM) {
+      const k = y / VH;
+      g.fillStyle = U.mix('#160e2e', '#050410', Math.min(1, k * 1.5));
+      g.fillRect(0, y, VW, PXM);
     }
-    if (day < 0.4) for (let i = 0; i < 40; i++) {              // stars, when it is dark enough
-      const sx = (i * 173) % VW, sy = (i * 61) % 110;
-      g.fillStyle = `rgba(214,228,248,${((0.4 - day) * 2 * (0.3 + 0.5 * Math.abs(Math.sin(t * 0.7 + i)))).toFixed(2)})`;
-      g.fillRect(sx, sy, 1, 1);
+    // a big low moon behind the wood
+    const my = 96, mr = 54;
+    for (let y = -mr; y <= mr; y += PXM) {
+      const w2 = Math.round(Math.sqrt(Math.max(0, mr * mr - y * y)) / PXM) * PXM;
+      if (w2 < PXM) continue;
+      g.fillStyle = U.mix('#2a2050', '#3e2f70', 1 - Math.abs(y) / mr);
+      g.fillRect(GX - w2, my + y, w2 * 2, PXM);
     }
-    Sky.drawSun(g, 104, 58);
-    Sky.drawClouds(g, VW, 150, 0, 0.7);
-    for (const b of BIRDS) bird(g, b);
-
-    // ---- the far treeline, soft and hazy ----------------------------------
-    for (let d = 0; d < 2; d++) {
-      for (const tr of wood) {
-        if (tr.d !== d) continue;
-        const img = Props.get('tree', `${tr.kind}|${tr.v}|${(0.3 - d * 0.06).toFixed(2)}`);
-        const w = img.width * tr.s * 0.74, h = img.height * tr.s * 0.74;
-        const sway = Math.sin(t * 0.4 + tr.sway) * (1.4 - d * 0.2);
-        g.drawImage(img, Math.round(tr.x - w / 2 + sway), Math.round(tr.y - h + 34), Math.round(w), Math.round(h));
-      }
-      g.globalAlpha = 0.34 - d * 0.14;                      // haze between the ranks
-      Art.rect(g, 0, 110 + d * 26, VW, 100, '#cfe0e8');
-      g.globalAlpha = 1;
+    for (let y = -mr + 6; y <= mr - 6; y += PXM) {
+      const w2 = Math.round(Math.sqrt(Math.max(0, (mr - 6) * (mr - 6) - y * y)) / PXM) * PXM;
+      if (w2 < PXM) continue;
+      g.fillStyle = '#4a3a86';
+      g.fillRect(GX - w2, my + y, w2 * 2, PXM);
     }
-
-    // ---- the floor of it: the same worn soil as your own plot -------------
-    drawFloor(g, day);
-    smallLife(g, false);              // mushrooms come up out of the litter
-    // mossy stones and logs
-    for (const st of STONES) {
-      Art.ell(g, st.x, st.y, st.w, st.h, '#5b5a58');
-      Art.ell(g, st.x, st.y - 1, st.w - 1, st.h - 1, '#7a786f');
-      Art.ell(g, st.x - st.w * 0.2, st.y - st.h * 0.5, st.w * 0.6, st.h * 0.42, '#4f7a34');
-      g.fillStyle = PAL.moss3;
-      for (let i = 0; i < 4; i++) g.fillRect(Math.round(st.x - st.w * 0.6 + i * st.w * 0.4), Math.round(st.y - st.h * 0.4), 3, 2);
+    // stars, only in the top third
+    const sr = Art.rng(5150);
+    for (let i = 0; i < 90; i++) {
+      const x = Math.round(sr() * VW), y = Math.round(sr() * 150);
+      const tw = (Math.sin(t * 1.7 + i) + 1) / 2;
+      g.fillStyle = U.rgba('#e0d4ff', 0.2 + tw * 0.6);
+      g.fillRect(x, y, PXM, PXM);
     }
-    // grass tufts, then flowers over the top
-    for (const tf of TUFTS) {
-      const sway = Math.sin(t * 1.3 + tf.ph) * 1.4;
-      const col = ['#4f7a34', '#5d9440', '#84bb59'][tf.tone];
-      for (let i = 0; i < tf.h; i++) {
-        g.fillStyle = i > tf.h - 2 ? '#a8d878' : col;
-        g.fillRect(Math.round(tf.x + sway * (i / tf.h) * (i / tf.h)), Math.round(tf.y - i), 1, 1);
+    // the wood, four ranks, darkest at the front
+    for (const b of BACK) {
+      const col = ['#100a22', '#0c0818', '#080513', '#04030c'][b.d];
+      const base = 250 + b.d * 22;
+      const sway = Math.sin(t * 0.3 + b.x * 0.02) * (3 - b.d) * 0.7;
+      // the trunk
+      Art.limb(g, b.x + sway, base - b.h, b.x + b.lean * 0.3, base, b.w * 0.3, b.w * 0.5, col);
+      // and three boughs off it
+      for (let i = 0; i < 3; i++) {
+        const uy = base - b.h * (0.55 + i * 0.16);
+        const dir = i % 2 ? 1 : -1;
+        Art.limb(g, b.x + sway * 0.7, uy, b.x + dir * b.w * 1.5 + sway, uy - b.h * 0.2, b.w * 0.2, b.w * 0.06, col);
       }
     }
-    for (const f of FLOWERS) flower(g, f);
-    smallLife(g, true);               // motes, bugs and a line of ants over it all
-
-    // ---- the near trees and the houses in them -----------------------------
-    for (let d = 2; d < RANKS.length; d++) {
-      for (const tr of wood) {
-        if (tr.d !== d) continue;
-        const img = Props.get('tree', `${tr.kind}|${tr.v}|${(0.06 + (5 - d) * 0.05).toFixed(2)}`);
-        const w = img.width * tr.s, h = img.height * tr.s;
-        const sway = Math.sin(t * 0.4 + tr.sway) * (1.4 - d * 0.2);
-        g.drawImage(img, Math.round(tr.x - w / 2 + sway), Math.round(tr.y - h), Math.round(w), Math.round(h));
-      }
-    }
-    // the fence down both sides, the same split rail as the plot
-    railFence(g);
-    lantern(g, 0.82 + 0.18 * Math.sin(t * 9));
-    titleSign(g);
-
-    // ---- moss hanging out of the canopy ------------------------------------
-    for (let i = 0; i < 14; i++) {
-      const hx = 16 + ((i * 97) % (VW - 32));
-      const hl = 22 + ((i * 53) % 58);
-      const sw2 = Math.sin(t * 0.6 + i) * 3;
-      for (let k = 0; k < hl; k += 3) {
-        const a = 1 - k / hl;
-        g.fillStyle = `rgba(${i % 2 ? '96,140,80' : '78,118,66'},${(0.75 * a).toFixed(2)})`;
-        g.fillRect(Math.round(hx + sw2 * (k / hl)), 100 + k, 2, 3);
-        if (k % 12 === 0) g.fillRect(Math.round(hx + sw2 * (k / hl)) + 2, 100 + k, 1, 2);
-      }
-    }
-    // light coming down through the leaves
+    // the mist lying between the ranks
     for (let i = 0; i < 5; i++) {
-      const sx = 60 + i * 130, a = (0.06 + 0.04 * Math.sin(t * 0.4 + i)) * (0.4 + day);
-      g.save();
-      g.beginPath();
-      g.moveTo(sx - 16, 70); g.lineTo(sx + 16, 70); g.lineTo(sx + 52, VH); g.lineTo(sx + 12, VH);
-      g.closePath(); g.clip();
-      for (let k = 0; k < 9; k++) { g.globalAlpha = a * (1 - k / 9); Art.rect(g, sx - 60, 70 + k * 34, 180, 35, '#fff0c8'); }
-      g.restore();
+      const my2 = 236 + i * 14;
+      const mx = ((t * (4 + i * 2)) % (VW + 300)) - 150;
+      for (let k = 0; k < 4; k++) {
+        g.fillStyle = U.rgba('#6a5c9a', 0.05);
+        g.fillRect(mx - 120 + k * 8, my2 + k * 2, 300 - k * 16, 5);
+      }
     }
-    for (let i = 0; i < 3; i++) bird(g, { x: BIRDS[i].x, y: 208 + i * 14, sp: BIRDS[i].sp * 0.8, ph: BIRDS[i].ph, dir: BIRDS[i].dir, s: 1.1 });
-    drawWombat(g);
-    // the warm grade over the lot
-    g.save();
-    g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = U.mix('#2a3f6a', '#ffe8a8', day); g.globalAlpha = 0.34; g.fillRect(0, 0, VW, VH);
-    g.restore();
-    Sky.drawOver(g, VW, VH);
-    Art.vignette(g, VW, VH, '#1a2410', 0.4, 2.2, 0.34);
+    theGate(g);
+    // the ground at the foot of it
+    for (let y = 300; y < VH; y += PXM) {
+      g.fillStyle = U.mix('#181030', '#0a0618', (y - 300) / 60);
+      g.fillRect(0, y, VW, PXM);
+    }
+    for (let i = 0; i < 160; i++) {
+      const x = Math.round(sr() * VW), y = 302 + Math.round(sr() * 56);
+      g.fillStyle = ['#241a44', '#2e2254', '#140d28'][Math.floor(sr() * 3)];
+      g.fillRect(x, y, PXM * 2, PXM);
+    }
+    for (const c of CANDLES) candle(g, c);
+    // the light off the gate lying across the ground
+    for (let i = 0; i < 7; i++) {
+      const w2 = 250 - i * 26;
+      g.fillStyle = U.rgba('#9a5cf0', 0.045);
+      g.fillRect(GX - w2 / 2, 300 + i * 9, w2, 9);
+    }
+    // embers drifting up out of the wood
+    for (const f of FIRE) {
+      const y = f.y - ((t * f.sp) % 220);
+      const x = f.x + Math.sin(t * 0.7 + f.ph) * 14;
+      const k = (Math.sin(t * 2 + f.ph) + 1) / 2;
+      const col = [PAL.div4, PAL.gold3, PAL.cyan3][f.v];
+      g.fillStyle = U.rgba(col, f.a * (0.3 + k * 0.7) * 0.7);
+      g.fillRect(Math.round(x), Math.round(y), PXM, PXM);
+    }
+    masks(g);
   }
+
+  // ---- the doorway -----------------------------------------------------------
+  function theGate(g) {
+    const SW = 44, IW = 116;                       // stone width, opening width
+    const L = GX - IW / 2 - SW, Rt = GX + IW / 2;
+    // the light pouring out of it, first, so the stone sits in front
+    for (let i = 10; i >= 1; i--) {
+      const f = i / 10;
+      g.fillStyle = U.rgba('#6b32bd', 0.05);
+      g.fillRect(GX - (IW / 2 + 120 * f), GTOP - 40 * f, IW + 240 * f, (GBOT - GTOP) + 80 * f);
+    }
+    // the way through: a shifting violet field with runes turning in it
+    for (let y = GTOP + 22; y < GBOT; y += PXM) {
+      const k = (y - GTOP) / (GBOT - GTOP);
+      const pulse = 0.5 + 0.5 * Math.sin(t * 1.4 - k * 5);
+      g.fillStyle = U.mix('#2a1150', U.mix('#6b32bd', '#c898ff', pulse * 0.6), 0.4 + k * 0.3);
+      const inset = Math.round(Math.sin(k * 3.1) * 3);
+      g.fillRect(GX - IW / 2 + inset, y, IW - inset * 2, PXM);
+    }
+    // things falling upward through the opening
+    for (let i = 0; i < 26; i++) {
+      const ph = i * 1.7;
+      const y = GBOT - ((t * (14 + (i % 5) * 9) + i * 30) % (GBOT - GTOP - 20));
+      const x = GX + Math.sin(t * 0.8 + ph) * (IW / 2 - 14);
+      g.fillStyle = U.rgba(i % 4 ? '#e0cfff' : '#ffd95c', 0.75);
+      g.fillRect(Math.round(x), Math.round(y), PXM, PXM * 2);
+    }
+    // the two uprights, hewn, with a lit edge toward the doorway
+    for (const [sx, dir] of [[L, 1], [Rt, -1]]) {
+      for (let y = GTOP; y < GBOT + 10; y += PXM) {
+        const jit = (Art.rng(Math.round(y / PXM) * 977 + sx)() * 3 | 0) * PXM;
+        g.fillStyle = '#000000';
+        g.fillRect(sx - PXM, y, SW + PXM * 2, PXM);
+        g.fillStyle = ['#2a2438', '#37304a', '#453d5e'][Math.floor(Art.rng(y * 31 + sx)() * 3)];
+        g.fillRect(sx + (dir > 0 ? jit : 0), y, SW - jit, PXM);
+        // the violet catching the inside edge
+        g.fillStyle = U.rgba('#9a5cf0', 0.5 - (y - GTOP) / (GBOT - GTOP) * 0.25);
+        g.fillRect(dir > 0 ? sx + SW - PXM * 2 : sx, y, PXM * 2, PXM);
+      }
+    }
+    // the lintel across the top, carved
+    g.fillStyle = '#000000'; g.fillRect(L - 12, GTOP - 30, IW + SW * 2 + 24, 34);
+    for (let y = GTOP - 27; y < GTOP; y += PXM) {
+      g.fillStyle = ['#37304a', '#453d5e', '#2a2438'][Math.floor(Art.rng(y * 17)() * 3)];
+      g.fillRect(L - 9, y, IW + SW * 2 + 18, PXM);
+    }
+    g.fillStyle = '#5a5070'; g.fillRect(L - 9, GTOP - 27, IW + SW * 2 + 18, PXM);
+    g.fillStyle = '#16121f'; g.fillRect(L - 9, GTOP - PXM * 2, IW + SW * 2 + 18, PXM * 2);
+    // the name cut into it, lit from below by the gate
+    const glow = 0.6 + 0.4 * Math.sin(t * 1.4);
+    Font.draw(g, 'WOMBAT GODS', GX, GTOP - 21, { scale: 2, color: '#0a0614', align: 'center' });
+    Font.draw(g, 'WOMBAT GODS', GX, GTOP - 22, { scale: 2, color: U.mix('#9a5cf0', '#f0e0ff', glow), align: 'center' });
+    // the runes down each upright
+    const MARKS = [[0, 0, 2, 0, 1, 1, 1, 2], [0, 0, 0, 2, 1, 1, 2, 0, 2, 2], [1, 0, 0, 1, 2, 1, 1, 2]];
+    for (const [sx] of [[L], [Rt]]) {
+      for (let i = 0; i < 6; i++) {
+        const mk = MARKS[i % 3], ry = GTOP + 16 + i * 30;
+        const lit = 0.25 + 0.55 * ((Math.sin(t * 1.1 + i + sx * 0.01) + 1) / 2);
+        for (let k = 0; k < mk.length; k += 2) {
+          g.fillStyle = U.rgba('#c898ff', lit);
+          g.fillRect(sx + SW / 2 - 6 + mk[k] * 5, ry + mk[k + 1] * 5, 4, 4);
+        }
+      }
+    }
+    // the step, and the threshold stone you stand on
+    g.fillStyle = '#000000'; g.fillRect(GX - IW / 2 - 18, GBOT, IW + 36, 14);
+    g.fillStyle = '#332c46'; g.fillRect(GX - IW / 2 - 15, GBOT + 2, IW + 30, 9);
+    g.fillStyle = '#4a415e'; g.fillRect(GX - IW / 2 - 15, GBOT + 2, IW + 30, PXM);
+    g.fillStyle = U.rgba('#9a5cf0', 0.3); g.fillRect(GX - IW / 2, GBOT + 2, IW, PXM * 2);
+  }
+  // one tallow candle, guttering
+  function candle(g, c) {
+    const x = Math.round(c.x), y = Math.round(c.y);
+    g.fillStyle = '#000000'; g.fillRect(x - 3, y - c.h - 2, 8, c.h + 4);
+    g.fillStyle = '#c9bea4'; g.fillRect(x - 2, y - c.h, 6, c.h);
+    g.fillStyle = '#e8dcc0'; g.fillRect(x - 2, y - c.h, 2, c.h);
+    const f = Math.sin(t * 9 + c.ph) > 0 ? 1 : 0;
+    g.fillStyle = '#7a2a08'; g.fillRect(x, y - c.h - 7 - f, 2, 7);
+    g.fillStyle = '#efb625'; g.fillRect(x, y - c.h - 5 - f, 2, 5);
+    g.fillStyle = '#fff3b8'; g.fillRect(x, y - c.h - 2, 2, 2);
+    g.fillStyle = U.rgba('#efb625', 0.05); g.fillRect(x - 14, y - c.h - 18, 30, 30);
+  }
+  // nine masks in the branches. One lights for every god the chosen grove has.
+  function masks(g) {
+    const got = gods();
+    // Four to the left of the gate and five to the right, hung high off the
+    // bough so nothing of theirs comes down over the name.
+    const SPOTS = [-268, -222, -176, -130, 130, 176, 222, 268, 300];
+    for (let i = 0; i < 9; i++) {
+      const x = Math.round(GX + SPOTS[i]);
+      const y = Math.round(22 + (i % 3) * 9 + Math.sin(t * 0.6 + i) * 2);
+      const on = i < got;
+      const gcol = on ? GODS[i].color : '#181228';
+      const eye = on ? GODS[i].eye : '#241a38';
+      // the cord it hangs on
+      g.fillStyle = '#100a1c'; g.fillRect(x, 0, PXM, y - 10);
+      g.fillStyle = '#000000'; g.fillRect(x - 12, y - 10, 24, 28);
+      g.fillStyle = gcol; g.fillRect(x - 10, y - 8, 20, 24);
+      g.fillStyle = U.shade(gcol, 0.3); g.fillRect(x - 10, y - 8, 20, PXM);
+      g.fillStyle = '#000000'; g.fillRect(x - 7, y - 2, 5, 5); g.fillRect(x + 2, y - 2, 5, 5);
+      g.fillStyle = eye; g.fillRect(x - 6, y - 1, 3, 3); g.fillRect(x + 3, y - 1, 3, 3);
+      g.fillStyle = '#000000'; g.fillRect(x - 4, y + 8, 8, 4);
+      if (on) { g.fillStyle = U.rgba(gcol, 0.08); g.fillRect(x - 24, y - 22, 48, 52); }
+    }
+  }
+  function gods() {
+    const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList() : null;
+    if (!sl) return 0;
+    const here = (typeof Main !== 'undefined' && Main.slot) || 1;
+    const s = sl.find((x) => x.n === here);
+    return s && !s.empty ? s.gods : 0;
+  }
+
   function wombatShadowPass(g) { }
   function lantern(g, flick) {
     Art.glow(g, LX, LY + 10, 92 * flick, '#ffd88c', 0.34 * flick, 9);
@@ -20144,67 +20361,122 @@ const Menu = (() => {
     }
     Art.rect(g, x - 5, y, 10, 3, '#1d1610');
   }
+  // ---- the home page ---------------------------------------------------------
+  // No board. Three lanterns on a bough for the three groves, the doorway to
+  // walk into, and two words cut in the stones either side of it.
   function drawHome(g) {
     buttons = [];
-    owl(g, 74, 186, t);
-    signpost(g, 216, 356, t);
-    // the buttons live on a page of their own, the way every menu in this
-    // kit does: a cream board in a teal frame with a plate across the top
-    const BW = 258, PADX = 16;
-    // No banner across the top. The three buttons are the whole page: the
-    // board was spending a quarter of itself telling you where you were.
-    const PX = VW - BW - PADX * 2 - 22, PY = 96, PW = BW + PADX * 2, PH = 236;
-    board(g, PX, PY, PW, PH);
-    const BX = PX + PADX;
-    // ---- three groves ------------------------------------------------------
-    // Each one is a strip of parchment with what is in it burned across it.
-    // The one you are standing in has a candle beside it; the × wipes one.
     const slots = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList() : [{ n: 1, empty: !hasSave }];
     const here = (typeof Main !== 'undefined' && Main.slot) || 1;
+    // ---- the bough the masks hang off --------------------------------------
+    Art.limb(g, -10, 22, VW + 10, 8, 9, 6, '#0a0618');
+    Art.limb(g, -10, 20, VW + 10, 6, 4, 3, '#150e28');
+    // ---- three lanterns on a post down the left ----------------------------
+    g.fillStyle = '#000000'; g.fillRect(44, 78, 8, 232);
+    g.fillStyle = '#1a1230'; g.fillRect(46, 80, 4, 228);
+    g.fillStyle = '#2e2348'; g.fillRect(46, 80, 2, 228);
     slots.forEach((sl, i) => {
-      const y = PY + 14 + i * 30;
+      const x = 74;
       const on = sl.n === here;
+      const sway = Math.sin(t * 0.9 + i * 1.3) * 1.6;
       const hot = hover === 'slot:' + sl.n;
-      buttons.push({ id: 'slot:' + sl.n, x: BX, y, w: BW - 26, h: 26 });
-      cut(g, BX - 2, y - 2, BW - 22, 30, KIT.ink, 3);
-      cut(g, BX, y, BW - 26, 26, on ? KIT.p3 : hot ? KIT.p2 : KIT.p1, 2);
-      Art.rect(g, BX, y, BW - 26, 2, KIT.p4);
-      if (on) { Art.rect(g, BX - 9, y + 6, 5, 14, KIT.ink); Art.rect(g, BX - 8, y + 7, 3, 12, '#e8dcc0'); Art.rect(g, BX - 8, y + 3, 3, 4, KIT.g3); }
-      Font.draw(g, 'GROVE ' + sl.n, BX + 7, y + 4, { scale: 1, color: '#3a2410' });
-      if (sl.empty) {
-        Font.draw(g, 'EMPTY', BX + 7, y + 15, { scale: 1, color: '#8a6f45' });
-      } else {
-        Font.draw(g, sl.rank.toUpperCase(), BX + 62, y + 4, { scale: 1, color: '#1c5568' });
-        Font.draw(g, U.fmt(sl.wd) + ' W$', BX + BW - 34, y + 4, { scale: 1, color: '#7a4f06', align: 'right' });
-        Font.draw(g, sl.wombats + ' WOMBAT' + (sl.wombats === 1 ? '' : 'S') + '  ' + sl.gods + '/9 GODS',
-          BX + 7, y + 15, { scale: 1, color: '#6b4a26' });
-        // and the way to be rid of it
-        buttons.push({ id: 'wipe:' + sl.n, x: BX + BW - 22, y, w: 22, h: 26 });
+      const y = 96 + i * 76 + (on ? 3 : 0);
+      g.fillStyle = '#100a1c'; g.fillRect(50, y - 12, 24, 3);
+      buttons.push({ id: 'slot:' + sl.n, x: x - 22, y: y - 6, w: 62, h: 62 });
+      lantern2(g, x + sway, y, !sl.empty, on, hot, sl, i);
+      if (!sl.empty) {
+        buttons.push({ id: 'wipe:' + sl.n, x: x - 13, y: y + 38, w: 18, h: 18 });
         const wh = hover === 'wipe:' + sl.n;
-        cut(g, BX + BW - 24, y - 2, 26, 30, KIT.ink, 3);
-        cut(g, BX + BW - 22, y, 22, 26, wh ? '#d84428' : '#902418', 2);
-        Art.rect(g, BX + BW - 22, y, 22, 2, '#e07d2c');
-        Font.draw(g, 'X', BX + BW - 11, y + 9, { scale: 1, color: '#fff3b8', align: 'center' });
+        g.fillStyle = '#000000'; g.fillRect(x - 13 + sway, y + 38, 18, 18);
+        g.fillStyle = wh ? '#d84428' : '#4a1410'; g.fillRect(x - 11 + sway, y + 40, 14, 14);
+        Font.draw(g, 'X', x - 4 + sway, y + 44, { scale: 1, color: wh ? '#fff3b8' : '#a04030', align: 'center' });
       }
     });
-    buttons.push({ id: 'enter', x: BX, y: PY + 112, w: BW, h: 48 });
-    buttons.push({ id: 'settings', x: BX, y: PY + 168, w: BW, h: 26 });
-    buttons.push({ id: 'help', x: BX, y: PY + 200, w: BW, h: 26 });
-    const bEnter = buttons.find((b2) => b2.id === 'enter');
-    bigButton(g, bEnter, 'ENTER THE GROVE', hasSave ? 'CONTINUE WHERE YOU LEFT OFF' : 'A NEW WOOD, A NEW WOMBAT', 2);
-    bigButton(g, buttons.find((b2) => b2.id === 'settings'), 'SETTINGS', null, 1);
-    bigButton(g, buttons.find((b2) => b2.id === 'help'), 'HOW TO PLAY', null, 1);
-    // the rumour, on a little plate along the bottom of the screen
+    // ---- the doorway is the button ------------------------------------------
+    const goHot = hover === 'enter';
+    buttons.push({ id: 'enter', x: GX - 58, y: GTOP + 20, w: 116, h: GBOT - GTOP - 20 });
+    const pull = goHot ? 1 : 0;
+    if (goHot) {
+      // it brightens and reaches for you
+      for (let i = 6; i >= 1; i--) {
+        g.fillStyle = U.rgba('#c898ff', 0.05);
+        g.fillRect(GX - 58 - i * 9, GTOP + 20 - i * 6, 116 + i * 18, (GBOT - GTOP - 20) + i * 12);
+      }
+    }
+    const lab = hasSave ? 'GO BACK IN' : 'GO IN';
+    const ly = GBOT - 44 - pull * 3 + Math.sin(t * 2) * 2;
+    Font.draw(g, lab, GX, ly + 2, { scale: 2, color: '#0a0614', align: 'center' });
+    Font.draw(g, lab, GX, ly, { scale: 2, color: goHot ? '#fffae8' : '#e0cfff', align: 'center' });
+    const sub = hasSave ? 'the wood remembers you' : 'a new wood, a new wombat';
+    // a dark plate behind it, because the portal behind is the same violet
+    const sw = Font.width(sub, 1) + 12;
+    g.fillStyle = 'rgba(8,4,18,0.66)'; g.fillRect(GX - sw / 2, ly + 16, sw, 12);
+    Font.draw(g, sub, GX, ly + 20, { scale: 1, color: '#0a0614', align: 'center' });
+    Font.draw(g, sub, GX, ly + 19, { scale: 1, color: goHot ? '#fffae8' : '#c898ff', align: 'center' });
+    // ---- two words cut in the stones ----------------------------------------
+    stoneWord(g, 178, 300, 'settings', 'SETTINGS');
+    stoneWord(g, 472, 300, 'help', 'HOW TO PLAY');
+    // ---- the rumour, scratched in the dirt ----------------------------------
     const line = RUMOURS[rumour % RUMOURS.length];
-    const w = Font.width(line, 1) + 26;
-    const rx = VW / 2, ry = VH - 18;
-    cut(g, rx - w / 2 - 2, ry - 3, w + 4, 18, KIT.ink, 3);
-    cut(g, rx - w / 2, ry - 1, w, 14, KIT.p2, 2);
-    Art.rect(g, rx - w / 2 + 2, ry - 1, w - 4, 2, KIT.p4);
-    Font.draw(g, line, rx, ry + 3, { scale: 1, color: '#6b4a26', align: 'center' });
+    Font.draw(g, line, GX, VH - 15, { scale: 1, color: '#0a0614', align: 'center' });
+    Font.draw(g, line, GX, VH - 16, { scale: 1, color: '#5a4a80', align: 'center' });
+  }
+  // a lantern on the bough: lit if that grove has something in it
+  function lantern2(g, x, y, full, on, hot, sl, i) {
+    x = Math.round(x); y = Math.round(y);
+    g.fillStyle = '#100a1c'; g.fillRect(x - 1, y - 26, 2, 22);      // the hook
+    g.fillStyle = '#000000'; g.fillRect(x - 13, y - 6, 26, 42);
+    g.fillStyle = on ? '#4a3d6a' : '#241d38'; g.fillRect(x - 11, y - 4, 22, 38);
+    g.fillStyle = on ? '#6a5a92' : '#332a4a'; g.fillRect(x - 11, y - 4, 22, 2);
+    // the glass, and what is burning in it
+    const lit = full ? (on ? 1 : 0.55) : 0;
+    const fl = Math.sin(t * 7 + i * 2) > 0 ? 1 : 0;
+    g.fillStyle = '#0a0614'; g.fillRect(x - 8, y + 1, 16, 26);
+    if (lit > 0) {
+      g.fillStyle = U.rgba('#efb625', 0.4 * lit); g.fillRect(x - 8, y + 1, 16, 26);
+      g.fillStyle = '#7a2a08'; g.fillRect(x - 2, y + 14 - fl, 4, 10);
+      g.fillStyle = '#efb625'; g.fillRect(x - 2, y + 17 - fl, 4, 7);
+      g.fillStyle = '#fff3b8'; g.fillRect(x - 1, y + 20, 2, 4);
+      g.fillStyle = U.rgba('#efb625', 0.06 * lit); g.fillRect(x - 30, y - 16, 60, 62);
+    } else {
+      // an empty one: nothing in the glass but the dark
+      Font.draw(g, '-', x, y + 10, { scale: 1, color: '#3a3050', align: 'center' });
+    }
+    if (hot || on) {
+      g.fillStyle = hot ? '#ffd95c' : '#6b32bd';
+      g.fillRect(x - 15, y - 8, 30, 2); g.fillRect(x - 15, y + 36, 30, 2);
+      g.fillRect(x - 15, y - 8, 2, 46); g.fillRect(x + 13, y - 8, 2, 46);
+    }
+    // what is in that grove, hung under the lantern on a tag
+    const tag = sl.empty ? 'empty' : sl.rank.toLowerCase();
+    Font.draw(g, 'grove ' + sl.n, x + 20, y + 3, { scale: 1, color: '#0a0614' });
+    Font.draw(g, 'grove ' + sl.n, x + 20, y + 2, { scale: 1, color: on ? '#ffd95c' : '#6a5a92' });
+    Font.draw(g, tag, x + 20, y + 15, { scale: 1, color: '#0a0614' });
+    Font.draw(g, tag, x + 20, y + 14, { scale: 1, color: sl.empty ? '#4a3d6a' : '#9a5cf0' });
+    if (!sl.empty) {
+      Font.draw(g, sl.gods + '/9 gods', x + 20, y + 27, { scale: 1, color: '#0a0614' });
+      Font.draw(g, sl.gods + '/9 gods', x + 20, y + 26, { scale: 1, color: '#c898ff' });
+    }
+  }
+  // a word cut into a standing stone at the foot of the gate
+  function stoneWord(g, x, y, id, label) {
+    const hot = hover === id;
+    const w = Font.width(label, 1) + 22, h = 26;
+    buttons.push({ id, x: x - w / 2, y: y - h / 2, w, h });
+    // the stone
+    g.fillStyle = '#000000'; g.fillRect(x - w / 2 - 3, y - h / 2 - 3, w + 6, h + 6);
+    for (let yy = 0; yy < h; yy += PXM) {
+      const jit = (Art.rng(Math.round(yy / PXM) * 131 + x)() * 2 | 0) * PXM;
+      g.fillStyle = hot ? ['#4a4166', '#584d78', '#3e3658'][Math.floor(Art.rng(yy * 7 + x)() * 3)]
+                        : ['#2e283e', '#3a3350', '#241f33'][Math.floor(Art.rng(yy * 7 + x)() * 3)];
+      g.fillRect(x - w / 2 + jit, y - h / 2 + yy, w - jit * 2, PXM);
+    }
+    g.fillStyle = hot ? '#6a5f8c' : '#463d60'; g.fillRect(x - w / 2 + 2, y - h / 2, w - 4, PXM);
+    Font.draw(g, label, x, y - 4, { scale: 1, color: '#0a0614', align: 'center' });
+    Font.draw(g, label, x, y - 5, { scale: 1, color: hot ? '#fffae8' : '#a08fd0', align: 'center' });
+    if (hot) { g.fillStyle = U.rgba('#9a5cf0', 0.09); g.fillRect(x - w / 2 - 12, y - h / 2 - 12, w + 24, h + 24); }
   }
 
-  // a short page of how it works, so the title screen can answer the question
   const HELP = [
     ['t_sickle', 'Clear the weeds', 'Right-click opens the tool tray. Pick one and it rides with the pointer.'],
     ['t_hoe', 'Break a bed, sow it', 'Hoe bare soil, drop seed on it, water it while it grows, pick it when it glows.'],
@@ -20418,7 +20690,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      devotion: 0, rank: 'stray', omen: null, omenDay: -1, crates: {}, furniture: [],
+      brush: 1, devotion: 0, rank: 'stray', omen: null, omenDay: -1, crates: {}, furniture: [],
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -20607,7 +20879,7 @@ const Main = (() => {
     if (!lastP) { Grove.press(p.x, p.y, true); lastP = p; return; }
     const dx = p.x - lastP.x, dy = p.y - lastP.y;
     const dist = Math.hypot(dx, dy);
-    const step = Math.max(3, World.brushRadius((TOOL_BY_KEY[G.tool] || {}).radius || 8) * 0.4);
+    const step = Math.max(3, Grove.brushSize(TOOL_BY_KEY[G.tool] || { radius: 8 }) * 0.34);
     const n = Math.min(24, Math.floor(dist / step));
     for (let i = 1; i <= n; i++) Grove.press(lastP.x + (dx * i) / n, lastP.y + (dy * i) / n, false);
     if (n > 0) lastP = p;
@@ -20636,7 +20908,7 @@ const Main = (() => {
         const w = world(p);
         if (Guide.hit(w.x, w.y)) { Guide.poke(); down = false; return; }
         const consumed = Grove.press(w.x, w.y, true);
-        if (consumed || G.tool === 'terra') lastP = w;
+        if (consumed || (TOOL_BY_KEY[G.tool] || {}).terra) lastP = w;
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
@@ -20693,7 +20965,7 @@ const Main = (() => {
         // with the hammer or the ground brush out, the wheel changes what is
         // on the end of it rather than how close you are standing
         if (G.tool === 'build') { Grove.cycleBuild(e.deltaY < 0 ? -1 : 1); return; }
-        if (G.tool === 'terra') { Grove.cycleTerra(e.deltaY < 0 ? -1 : 1); return; }
+        if ((TOOL_BY_KEY[G.tool] || {}).terra) { Grove.nudgeBrush(e.deltaY < 0 ? 1 : -1); return; }
         if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) Grove.panBy((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * 0.8);
         else { const p = pos(e); Grove.zoomBy(e.deltaY < 0 ? 1.14 : 1 / 1.14, p.x, p.y); }
       }
@@ -20710,6 +20982,7 @@ const Main = (() => {
       if (Rite.active()) { if (Rite.key(e.key)) e.preventDefault(); return; }
       if (Ritual.active) { Ritual.skip(); return; }
       if (UI.anyPanel()) return;
+      if (G.mode === 'grove' && (e.key === '[' || e.key === ']')) { Grove.nudgeBrush(e.key === ']' ? 1 : -1); e.preventDefault(); return; }
       if (G.mode === 'shrine' && Ritual.keyDown(e.key)) { e.preventDefault(); return; }
       if (e.key === 'Tab' || e.key === ' ') { if (G.mode === 'grove') { e.preventDefault(); if (UI.wheelOpen()) UI.closeWheel(); else UI.openWheel(screenP.x, screenP.y); } return; }
       if (e.key === 'Escape' || e.key === 'Backspace') {
@@ -20781,7 +21054,7 @@ const Main = (() => {
     // bolts and roots spawned during the cutscene never expire.
     // Shaping the ground is a held spell: it keeps working while the button is
     // down even if your hand is perfectly still, the way a sculpting brush does.
-    if (playing && !G.paused && down && !panning && G.mode === 'grove' && G.tool === 'terra' && lastP) {
+    if (playing && !G.paused && down && !panning && G.mode === 'grove' && (TOOL_BY_KEY[G.tool] || {}).terra && lastP) {
       Grove.press(lastP.x, lastP.y, false);
     }
     Rite.update(real);                            // dialogue runs while the world is held
