@@ -157,32 +157,59 @@ img.ico.xl { width: 48px; height: 48px; }
 #faith i em { display: block; height: 100%; width: 0; background: var(--tl3); box-shadow: inset 0 2px 0 var(--tl4); transition: width .3s steps(6, end); }
 #faith.full i em { background: var(--gd2); box-shadow: inset 0 2px 0 var(--gd4); }
 
-/* ---- the list, pinned to nothing ---------------------------------------- */
+/* ---- the list: a page torn out of something ------------------------------
+   Not a panel. A leaf of paper with a ruled margin down it, a bitten edge
+   along the bottom, a pin through the top of it and the jobs written down the
+   side in a hand, each with its own little drawing beside it. */
 #checklist {
-  position: absolute; right: 20px; top: 16px; z-index: 6; width: 224px;
-  padding: 0; pointer-events: none; color: var(--pg4);
-  background: none; border: 0; box-shadow: none;
+  position: absolute; right: 20px; top: 14px; z-index: 6; width: 216px;
+  padding: 14px 12px 10px; pointer-events: none; color: #3a2a18;
+  transform: rotate(-1.4deg);
+  background:
+    repeating-linear-gradient(180deg, rgba(120,96,60,0.09) 0 1px, rgba(0,0,0,0) 1px 17px),
+    linear-gradient(97deg, #f3e6c4 0%, #ecd9b2 46%, #f6ecd2 100%);
+  box-shadow:
+    inset 3px 0 0 -1px rgba(190,70,70,0.5),          /* the ruled margin */
+    inset 0 0 22px rgba(150,112,60,0.28),            /* the age in the paper */
+    2px 3px 0 rgba(0,0,0,0.34), 0 0 0 1px rgba(90,60,30,0.35);
+  /* a bitten edge, top and bottom, cut in whole pixels */
+  clip-path: polygon(
+    0 4px, 12px 0, 30px 5px, 52px 1px, 74px 6px, 98px 2px, 122px 6px, 148px 1px, 176px 5px, 196px 1px, 100% 5px,
+    100% calc(100% - 6px), 184px 100%, 160px calc(100% - 5px), 134px calc(100% - 1px), 108px calc(100% - 6px),
+    82px calc(100% - 2px), 56px calc(100% - 7px), 30px calc(100% - 2px), 10px calc(100% - 6px), 0 calc(100% - 2px));
 }
 #checklist::after { content: none; }
+/* the pin holding it up */
+#checklist .pin {
+  position: absolute; left: 50%; top: 5px; width: 11px; height: 11px; margin-left: -5px;
+  background: #b4331f; box-shadow: inset 0 3px 0 #e06a4a, inset 0 -3px 0 #6d1b0e, 0 0 0 2px rgba(0,0,0,0.5);
+}
 #checklist h4 {
-  position: relative; z-index: 1; margin: 0 0 6px; padding: 0 2px 4px;
-  text-align: right; line-height: 1; letter-spacing: 4px;
-  color: var(--gd3); font-family: var(--ft); font-weight: 400; font-size: 17px;
+  position: relative; z-index: 1; margin: 2px 0 8px; padding: 0 0 5px 16px;
+  text-align: left; line-height: 1; letter-spacing: 1px;
+  color: #6d3a1e; font-family: var(--ft); font-weight: 400; font-size: 17px;
   background: none; border: 0;
+  border-bottom: 2px dashed rgba(120,80,44,0.42);
+  -webkit-text-stroke: 0; paint-order: normal; text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
 .task {
-  display: flex; align-items: center; gap: 7px; padding: 2px 2px 3px; font-size: 17px;
-  color: var(--pg4);
+  display: flex; align-items: center; gap: 8px; padding: 3px 0 4px 14px; font-size: 16px;
+  color: #3a2a18; -webkit-text-stroke: 0; paint-order: normal; text-shadow: none;
 }
-.task img.ico { filter: drop-shadow(0 2px 0 rgba(0,0,0,0.6)); }
-.task .tname { flex: 1 1 auto; font-family: var(--ft); font-weight: 400; font-size: 16px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.task .tnum { flex: 0 0 auto; color: var(--gd3); }
-.task .box { position: relative; width: 13px; height: 13px; flex: none;
-  background: rgba(8,4,14,0.8); box-shadow: 0 0 0 2px #000; }
-.task .box i { position: absolute; left: -2px; top: -7px; width: 17px; height: 17px;
-  background: no-repeat center/contain; }
-.task.done { opacity: 0.66; }
+.task .qmark { flex: 0 0 auto; width: 24px; height: 24px; display: block; }
+.task .qmark img.ico { width: 24px; height: 24px; filter: none; }
+.task .tbody { flex: 1 1 auto; min-width: 0; }
+.task .tname { display: block; font-family: var(--ft); font-weight: 400; font-size: 15px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #43301c; }
+/* the progress is a line drawn under the words, filled in as you go */
+.task .bar { display: block; height: 3px; margin-top: 2px; background: rgba(120,90,50,0.25); }
+.task .bar i { display: block; height: 100%; background: #6d3a1e; }
+.task .tnum { flex: 0 0 auto; font-size: 14px; color: #7a5a30; }
+.task .tnum small { font-size: 12px; color: #a08258; }
+.tfoot { margin-top: 6px; padding-left: 14px; font-size: 13px; color: #8a6a3c; font-style: italic;
+  -webkit-text-stroke: 0; paint-order: normal; text-shadow: none; }
+.task.done .tname { color: #6d8a3c; text-decoration: line-through; }
+.task.done .bar i { background: #6d8a3c; }
 .task.done .tname { color: var(--gr1); text-decoration: line-through; }
 .task.done .tnum { color: var(--gr1); }
 .task.done .box i { animation: tick 0.35s ease-out; transform-origin: center; }

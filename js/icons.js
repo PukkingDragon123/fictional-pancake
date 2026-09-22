@@ -406,6 +406,46 @@ const Icons = (() => {
     b_tacky: (d) => { d.R(5, 2, 6, 4, S3); d.R(4, 6, 8, 8, G1); d.R(4, 6, 8, 1, G3); d.R(5, 13, 2, 3, G2); },
     b_double: (d) => { d.E(5.5, 9, 4.4, 4.4, G2); d.E(10.5, 7, 4.4, 4.4, G3); d.E(4.6, 8, 1.6, 1.6, G4); d.E(9.6, 6, 1.6, 1.6, G4); },
     b_shield: (d) => { d.L(3, 3, 8, 2, S3, 2); d.L(13, 3, 8, 2, S3, 2); d.R(3, 3, 10, 6, S3); d.L(3, 9, 8, 15, S3, 2); d.L(13, 9, 8, 15, S3, 2); d.R(5, 5, 6, 5, D3); d.R(7, 6, 2, 4, D5); },
+    // --- quest marks --------------------------------------------------------
+    // Hand-drawn in the sense that they are drawn for this one job: scratched
+    // on the page in ink and a little watercolour, the way somebody would jot
+    // the task down rather than stamp an app icon on it.
+    q_weeds: { res: 20, draw: (d) => {                        // a thistle with a scythe through it
+      d.R(9, 8, 2, 10, '#3f5c22');
+      d.P([[10, 7], [6, 10], [7, 13], [10, 12]], '#4d7430');
+      d.P([[10, 7], [14, 10], [13, 13], [10, 12]], '#63b83d');
+      d.P([[10, 2], [7, 6], [13, 6]], '#9a5cf0');
+      d.R(8, 5, 4, 2, '#c898ff');
+      d.P([[2, 16], [8, 11], [9, 12], [4, 17]], '#c9c4b4');    // the blade
+      d.P([[2, 16], [8, 11], [8, 12], [3, 16]], '#f0ece0');
+      d.R(3, 16, 8, 2, '#7d4f26');
+      d.R(3, 16, 8, 1, '#a46b36');
+    } },
+    q_junk: { res: 20, draw: (d) => {                          // a broken slab and a cart wheel
+      d.P([[2, 16], [4, 8], [11, 9], [10, 17]], '#5f5a68');
+      d.P([[3, 15], [5, 9], [8, 9.5], [7, 16]], '#8a8496');
+      d.R(4, 11, 5, 1, '#3a3544');
+      d.E(14, 13, 4.5, 4.5, '#2e1d12');
+      d.E(14, 13, 3.4, 3.4, '#7d4f26');
+      d.E(14, 13, 1.4, 1.4, '#3f2712');
+      for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; d.L(14 - Math.cos(a) * 3, 13 - Math.sin(a) * 3, 14 + Math.cos(a) * 3, 13 + Math.sin(a) * 3, '#a46b36', 1); }
+      d.R(1, 17, 18, 2, '#4a2f18');
+    } },
+    q_grass: { res: 20, draw: (d) => {                         // a handful of seed and new blades
+      d.P([[4, 18], [3, 11], [9, 11], [8, 18]], '#9c6d45');    // the little sack
+      d.P([[4, 18], [3, 11], [5, 11], [6, 18]], '#c68c4c');
+      d.R(3, 10, 7, 2, '#5c381a');
+      for (let i = 0; i < 5; i++) {
+        const x = 11 + i * 1.8, h = 5 + (i % 3) * 3;
+        d.L(x, 18, x + (i % 2 ? 1.6 : -1.2), 18 - h, i % 2 ? '#63b83d' : '#458c2c', 1);
+      }
+      d.R(11, 8, 2, 2, '#ffd95c'); d.R(15, 6, 2, 2, '#92dc5e');
+      d.R(5, 13, 1, 1, '#ffd95c'); d.R(7, 15, 1, 1, '#ffd95c');
+    } },
+    q_done: { res: 20, draw: (d) => {                          // a tick scratched in ink
+      d.P([[2, 10], [6, 8], [8, 13], [16, 2], [19, 5], [9, 18]], '#2f6122');
+      d.P([[3, 10], [6, 9], [8, 14], [16, 3.4], [17.6, 5], [9, 16]], '#63b83d');
+    } },
     // --- the phone's own set -------------------------------------------------
     // The phone does not borrow the game's icons any more. It has its own,
     // drawn at 20 pixels in wood, brass and parchment, so a tile reads as a

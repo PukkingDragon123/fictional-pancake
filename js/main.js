@@ -134,7 +134,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      Sky.init(G); World.init(G); Cult.init(G); Rite.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
+      Sky.init(G); World.init(G); Cult.init(G); Rite.init(G); Den.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G);
       Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -187,12 +187,14 @@ const Main = (() => {
     else if (mode === 'shop') Shop.enter();
     else if (mode === 'nursery') Nursery.enter();
     else if (mode === 'shrine') Ritual.enter();
+    else if (mode === 'den') Den.enter();
     if (mode !== 'shrine') Ritual.leave();
+    if (mode !== 'den') Den.leave();
     Audio.setMode('pen');
     save();
   }
   function back() {
-    if (G.mode === 'shrine' || G.mode === 'shop' || G.mode === 'nursery') setMode('map');
+    if (G.mode === 'shrine' || G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'den') setMode('map');
     else setMode('grove');
   }
 
@@ -243,6 +245,7 @@ const Main = (() => {
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
       else if (G.mode === 'shrine') Ritual.press(p.x, p.y, false);
+      else if (G.mode === 'den') Den.press(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -263,12 +266,14 @@ const Main = (() => {
         }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'nursery') { Nursery.move(p.x, p.y); UI.hideTip(); return; }
+        if (G.mode === 'den') { Den.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
       else if (G.mode === 'nursery') tip = Nursery.hover(p.x, p.y);
+      else if (G.mode === 'den') tip = Den.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
@@ -299,6 +304,7 @@ const Main = (() => {
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'nursery') { e.preventDefault(); Nursery.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'shrine') { e.preventDefault(); Ritual.wheel(e.deltaY); }
+      else if (G.mode === 'den') { e.preventDefault(); Den.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
     document.addEventListener('keydown', (e) => {
@@ -371,6 +377,7 @@ const Main = (() => {
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);
       else if (G.mode === 'nursery') Nursery.update(real);
+      else if (G.mode === 'den') Den.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
@@ -397,6 +404,7 @@ const Main = (() => {
       else if (G.mode === 'shrine') Ritual.renderShrine(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
+      else if (G.mode === 'den') Den.render(g);
       else Nursery.render(g);
       g.restore();
     }
@@ -435,7 +443,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Cult.init(G); Rite.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Cult.init(G); Rite.init(G); Den.init(G); Grove.init(G); Ritual.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

@@ -166,9 +166,9 @@ const Grove = (() => {
     const nw = G.startWeeds || 1, nj = zoneObjects();
     const zf = World.zoneFraction();
     return [
-      { key: 'weeds', name: 'CUT WEEDS', icon: 't_sickle', at: nw - zoneWeeds(), need: nw, done: zoneWeeds() === 0 },
-      { key: 'junk', name: 'HAUL JUNK', icon: 't_destroy', at: nj - zoneJunk(), need: nj, done: zoneJunk() === 0 },
-      { key: 'grass', name: 'SOW GRASS', icon: 't_moss', at: Math.round(zf * 100), need: Math.round(ZONE_GRASS * 100), done: zf >= ZONE_GRASS },
+      { key: 'weeds', name: 'cut the weeds', icon: 'q_weeds', at: nw - zoneWeeds(), need: nw, done: zoneWeeds() === 0 },
+      { key: 'junk', name: 'haul the wrecks off', icon: 'q_junk', at: nj - zoneJunk(), need: nj, done: zoneJunk() === 0 },
+      { key: 'grass', name: 'sow the grass back', icon: 'q_grass', at: Math.round(zf * 100), need: Math.round(ZONE_GRASS * 100), done: zf >= ZONE_GRASS },
     ];
   }
   const groveClean = () => tasks().every((t) => t.done);
@@ -335,6 +335,62 @@ const Grove = (() => {
       return true;
     }
     return false;
+  }
+
+  // ---- the air ---------------------------------------------------------------
+  // A wood with a cult at the bottom of it should not look like an allotment.
+  // Motes come up off the ground and drift, brighter the more devotion you
+  // have and brighter still at night, and every so often one of them is a rune
+  // that turns once and goes out. It costs nothing and it changes the place.
+  const MOTE = [];
+  function seedMotes() {
+    MOTE.length = 0;
+    const r = Art.rng(3141);
+    for (let i = 0; i < 260; i++) {
+      MOTE.push({ x: r() * W, y: GROUND + r() * (H - GROUND), ph: r() * TAU,
+        sp: 3 + r() * 9, rise: 4 + r() * 12, rune: r() < 0.14, v: Math.floor(r() * 3) });
+    }
+  }
+  const RUNE_MARK = [
+    [[0, 0], [2, 0], [1, 0], [1, 1], [1, 2], [0, 3], [2, 3]],
+    [[0, 0], [0, 1], [0, 2], [0, 3], [1, 1], [2, 0], [2, 2]],
+    [[1, 0], [0, 1], [2, 1], [1, 2], [1, 3], [0, 3], [2, 3]],
+  ];
+  function drawMagic(g, L, R) {
+    if (!MOTE.length) seedMotes();
+    const night = 1 - Sky.light();
+    const faith = U.clamp((G.devotion || 0) / 900, 0, 1);
+    const power = 0.5 + night * 0.7 + faith * 0.55;
+    for (const m of MOTE) {
+      const y = m.y - ((G.time * m.rise) % 120);
+      if (y < GROUND - 30) continue;
+      const x = m.x + Math.sin(G.time * 0.5 + m.ph) * 13;
+      if (x < L - 20 || x > R + 20) continue;
+      const k = (Math.sin(G.time * 1.6 + m.ph) + 1) / 2;
+      const a = U.clamp(power * (0.35 + k * 0.65), 0, 0.95);
+      if (a < 0.03) continue;
+      const col = m.rune ? PAL.div4 : (m.v === 0 ? PAL.cyan3 : m.v === 1 ? PAL.gold3 : PAL.div5);
+      if (m.rune && faith > 0.15) {
+        // a rune, turning once every few seconds and then gone
+        const spin = (G.time * 0.4 + m.ph) % 6;
+        if (spin < 3.2) {
+          const mark = RUNE_MARK[m.v % RUNE_MARK.length];
+          const al = a * Math.sin((spin / 3.2) * Math.PI);
+          for (const [dx, dy] of mark) {
+            Art.rect(g, Math.round(x) + dx * 3, Math.round(y) + dy * 3, 3, 3, U.rgba('#000000', al * 0.5));
+            Art.rect(g, Math.round(x) + dx * 3, Math.round(y) + dy * 3, 2, 2, U.rgba(col, al));
+          }
+          continue;
+        }
+      }
+      const px = Math.round(x), py = Math.round(y);
+      Art.rect(g, px, py, 2, 2, U.rgba(col, a));
+      if (k > 0.72) {
+        Art.rect(g, px - 2, py, 6, 2, U.rgba(col, a * 0.35));
+        Art.rect(g, px, py - 2, 2, 6, U.rgba(col, a * 0.35));
+        Art.rect(g, px, py, 2, 2, U.rgba(PAL.cream, a * 0.8));
+      }
+    }
   }
 
   function update(dt) {
@@ -1124,6 +1180,7 @@ const Grove = (() => {
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
     drawPlotPrompt(g, L, R);
+    drawMagic(g, L, R);         // whatever the gods are leaving in the air
     drawBuildGhost(g);          // the piece riding on the pointer, and what it is
 
     // crows

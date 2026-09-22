@@ -51,22 +51,25 @@ const UI = (() => {
   // ---- the clean-up list, a paper pinned to the fence ---------------------
   function refreshList() {
     const box = $('checklist');
-    if (G.mode !== 'grove' || G.arrived) { box.hidden = true; return; }
+    const talking = typeof Rite !== 'undefined' && Rite.active();
+    if (talking || G.mode !== 'grove' || G.arrived) { box.hidden = true; return; }
     box.hidden = false;
     const ts = Grove.tasks();
     const left = ts.filter((t) => !t.done).length;
-    box.innerHTML = `<h4>TO DO</h4>` + ts.map((t) => {
+    // A page torn out of something and pinned to the air, with the jobs written
+    // down the side of it in a hand and a mark drawn beside each one.
+    box.innerHTML = `<i class="pin"></i><h4>things to do</h4>` + ts.map((t) => {
       const p = U.clamp(t.at / t.need, 0, 1);
       const at = Math.max(0, Math.round(t.at));
       return `<div class="task ${t.done ? 'done' : ''}" data-k="${t.key}">
-        <div class="trow">
-          <span class="box">${t.done ? '<i></i>' : ''}</span>
-          ${ic(t.icon)}
+        <span class="qmark">${ic(t.done ? 'q_done' : t.icon)}</span>
+        <span class="tbody">
           <b class="tname">${t.name || t.key}</b>
-          <b class="tnum">${at}<small>/${t.need}</small></b>
-        </div>
-        <div class="bar"><i style="width:${Math.round(p * 100)}%"></i></div></div>`;
-    }).join('') + `<div class="tfoot">${left ? left + (left === 1 ? ' JOB LEFT' : ' JOBS LEFT') : 'ALL DONE'}</div>`;
+          <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
+        </span>
+        <b class="tnum">${at}<small>/${t.need}</small></b>
+      </div>`;
+    }).join('') + `<div class="tfoot">${left ? left + (left === 1 ? ' job left' : ' jobs left') : 'all done'}</div>`;
   }
 
   function refreshNotebook() { }           // the cultist speaks for herself now
