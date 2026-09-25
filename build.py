@@ -2,7 +2,7 @@
 """Bundle the game into a single self-contained HTML file.
 
 Reads index.html, css/style.css and every js/*.js in the order index.html loads them,
-then writes wombat-cube-tycoon.html with the CSS and JS inlined. The output has no
+then writes wombat-gods.html with the CSS and JS inlined. The output has no
 <!doctype>/<html>/<head>/<body> wrapper so it can also be published as an Artifact.
 """
 import re
@@ -13,10 +13,8 @@ body = html.split('<body>', 1)[1].split('<script src', 1)[0].strip()
 order = re.findall(r'js/(\w+)\.js', html)
 
 parts = [
-    '<title>Wombat Gods</title>',
-    '<link rel="preconnect" href="https://fonts.googleapis.com">',
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">',
+    '<title>Wombat Farm</title>',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<style>\n' + css.strip() + '\n</style>',
     body,
 ]
