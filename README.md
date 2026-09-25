@@ -1,40 +1,55 @@
 # Wombat Farm
 
-A small, cozy pixel-art farm on one screen. No build step, no dependencies: open
-`index.html`, or serve the folder.
+A cozy pixel-art farm game: tidy an overgrown garden, grow veg, feed the wombats who
+move in, and sell the little square cubes they leave to your neighbour, Aunt Fern, for
+her compost heap. No build step, no dependencies: open `index.html`, or serve the folder.
 
 ```
 python3 -m http.server 8000   # then visit http://localhost:8000
 ```
 
-`wombat-gods.html` is a generated single-file build (the stylesheet and every script
+`wombat-gods.html` is a generated single-file build (every stylesheet and script
 inlined). Rebuild it with `python3 build.py` after changing anything in `js/` or `css/`.
 
 ## Playing
 
-Till, water, plant, pick, sell. Feed and pet the wombats and they dig up coins and
-leave the best fertiliser there is. A paper note at the top always says what to try next.
+1. **Tidy up.** Cut the weeds with the sickle, send the ants for the old logs, and sow
+   grass inside the rope. A tidy garden brings your first wombat.
+2. **Grow.** Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.
+3. **Feed.** Put a bowl down with the feed tool. She eats, wanders off, and leaves a cube.
+4. **Sell.** Drag the cubes into the truck, then click Aunt Fern (later, her cottage) to
+   sell them. She pays more for a load than for one.
+5. **Spend.** Click the truck for the map: Wombat Mart for furniture and more wombats,
+   Groot's Cellar for seed, saplings and garden things, and your place for a nap.
 
-| Key | Tool | What it does |
-| --- | --- | --- |
-| 1 | Hand | Pet a wombat, drag one to carry it, click ripe veg to pick it |
-| 2 | Hoe | Drag to till grass; right-click to put the grass back |
-| 3 | Watering can | Drag over soil; crops only grow while their soil is wet |
-| 4 | Seeds | Click tilled soil to plant (Q / E or the tray picks carrot, cabbage, pumpkin) |
-| 5 | Veg basket | Click a wombat to feed it, or drop veg on the grass for them to find |
-| 6 | Fertiliser | Wombat poo on a tile makes its crop grow twice as fast |
-| 7 | Shovel | Hold to raise the land, right-click (or Shift) to lower it; low enough is a pond |
+Aunt Fern tells you what to do next in a speech bubble and chats if you click her.
+Neighbours wander in now and then, the weather changes on its own, and a day is twelve
+minutes long.
 
-`[` `]` or the mouse wheel change the brush size of the hoe, can and shovel. Coins and poo
-are picked up just by moving the pointer over them. Click the farm stand to sell veg, buy
-seeds and adopt more wombats; click the house (or the bed button) after dusk to sleep
-through the night. `M` toggles sound.
+## Controls
+
+| Input | What it does |
+| --- | --- |
+| Right-click or Tab | Open the tool tray |
+| 1&ndash;9 | Hand, Feed, Sickle, Hoe, Seeds, Watering can, Grass, Shovel, Build |
+| Shovel: hold left | Raise a hill |
+| Shovel: hold right or Shift | Dig a pond |
+| `[` `]` or wheel | Brush size |
+| Drag bare ground, arrows, A/D | Look around the garden |
+| M | Map |
+| P | Phone |
+| H | How to play |
+| Esc | Back / title screen |
 
 ## Code
 
-- `js/util.js` - small maths and colour helpers
-- `js/font.js` - a 5x7 bitmap font, so text stays crisp at any scale
-- `js/store.js` - the save: localStorage, plus the artifact's own store when published
-- `js/sound.js` - synthesised sound effects and a quiet music box
-- `js/look.js` - the palette and every sprite, drawn once into cached canvases
-- `js/farm.js` - the game: the land, crops, wombats, the stand, the interface
+- `js/main.js` - state, save slots, input and the main loop
+- `js/grove.js` - the garden scene: wombats, tools, the truck, plots
+- `js/world.js` - the painted ground, grass, weeds, crops and trees
+- `js/wild.js` - hills and ponds from the shovel, critters, visiting neighbours
+- `js/guide.js` - Aunt Fern: the step-by-step jobs, chatter and her cottage
+- `js/menu.js` - the title screen at the farm gate
+- `js/map.js`, `js/shop.js`, `js/nursery.js`, `js/den.js`, `js/intro.js` - the other scenes
+- `js/phone.js`, `js/talk.js`, `js/ui.js` - the phone, conversations and HUD
+- `js/art.js`, `js/sprites.js`, `js/props.js`, `js/icons.js`, `js/tex.js`, `js/fx.js` - the art
+- `js/data.js` - crops, tools, prices and furniture

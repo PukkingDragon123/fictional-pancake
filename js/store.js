@@ -79,7 +79,7 @@ const Store = (() => {
     if (db) { try { await raced(db.doc(docOf(key)).delete(), 2000); } catch (e) { } }
   }
   // Settings live outside the slots: they belong to the player, not the save.
-  const SET = 'wombat-farm-settings';
+  const SET = 'wombat-gods-settings';
   function settings() { return local(SET) || {}; }
   function putSettings(o) { putLocal(SET, o); }
   if (typeof window !== 'undefined') {

@@ -1,0 +1,344 @@
+// ---- Balance data. Icon keys everywhere, almost no prose. -----------------
+const CUBE_SIZE = 30;          // one poop cube, and the game's unit of height
+
+// Cubes: what a wombat leaves behind. Aunt Fern buys every one for her compost.
+const OFFERINGS = {
+  plain: { key: 'plain', name: 'Plain', icon: 'o_plain', mark: '', w: 1, h: 1, density: 1, friction: 0.62, restitution: 0.02, adhesion: 0, value: 6, color: '#553d27' },
+  rich:  { key: 'rich', name: 'Rich', icon: 'o_rich', mark: '', w: 1.45, h: 1.45, density: 1, friction: 0.66, restitution: 0.02, adhesion: 0, value: 13, color: '#3b2a1b' },
+  resin: { key: 'resin', name: 'Resin', icon: 'o_resin', mark: 'sticky', w: 1, h: 1, density: 1, friction: 1.3, restitution: 0, adhesion: 1600, value: 11, color: '#a97c1e' },
+  husk:  { key: 'husk', name: 'Husk', icon: 'o_husk', mark: 'light', w: 1, h: 1, density: 0.4, friction: 0.7, restitution: 0.04, adhesion: 0, value: 8, color: '#d8c69c' },
+  stone: { key: 'stone', name: 'Stone', icon: 'o_stone', mark: 'stone', w: 1, h: 1, density: 2.6, friction: 0.88, restitution: 0, adhesion: 0, value: 10, color: '#443e52' },
+  slab:  { key: 'slab', name: 'Slab', icon: 'o_slab', mark: 'slab', w: 2.4, h: 0.6, density: 1, friction: 0.72, restitution: 0.02, adhesion: 0, value: 15, color: '#436f2f' },
+  gold:  { key: 'gold', name: 'Gilded', icon: 'o_gold', mark: 'gold', w: 1, h: 1, density: 1.9, friction: 0.58, restitution: 0.02, adhesion: 0, value: 48, sell: 60, color: '#d8a52f' },
+  rune:  { key: 'rune', name: 'Rune', icon: 'o_rune', mark: 'rune', w: 1, h: 1, density: 1.2, friction: 0.8, restitution: 0.02, adhesion: 400, value: 70, sell: 90, color: '#563391' },
+};
+const OFFER_ORDER = ['plain', 'rich', 'resin', 'husk', 'stone', 'slab', 'gold'];
+
+// ---- What you can grow ----------------------------------------------------
+// Two kinds, and they play quite differently.
+//
+//   crop    a vegetable. Quick, cheap, forgiving. You pick it once and it is
+//           gone. This is the bread and butter of feeding a wombat.
+//   tree    a fruit tree. Slow, expensive, and it wants looking after — water
+//           and a prune — but once it is established it fruits forever.
+//   magic   something that should not be in a garden. Each one has a growing
+//           requirement of its own and does something to the grove once grown.
+//
+// Every plant maps to an `offering`: what the wombat leaves after eating it.
+const PLANT_KINDS = {
+  crop:  { name: 'Crop',        icon: 't_seed',  blurb: 'quick, easy, picked once' },
+  tree:  { name: 'Fruit Tree',  icon: 'c_broadleaf', blurb: 'slow, needs care, fruits forever' },
+};
+const CROPS = [
+  // ---- vegetables ---------------------------------------------------------
+  { kind: 'crop', key: 'ashgrass',  name: 'Clover',    icon: 'c_ashgrass',  seed: 2,  grow: 26, yield: 2, offering: 'plain', hap: 3,  restore: 0,    color: '#84bb59', blurb: 'Soft, sweet and quick. Grows in anything.' },
+  { kind: 'crop', key: 'carrot',    name: 'Carrot',    icon: 'c_carrot',    seed: 6,  grow: 34, yield: 3, offering: 'rich',  hap: 6,  restore: 0.06, color: '#e0763a', blurb: 'Sweet, orange, and they will eat the tops as well.' },
+  { kind: 'crop', key: 'cabbage',   name: 'Cabbage',   icon: 'c_cabbage',   seed: 9,  grow: 42, yield: 2, offering: 'slab',  hap: 8,  restore: 0.12, color: '#8fc47a', blurb: 'One cabbage will keep a wombat busy for an hour.' },
+  { kind: 'crop', key: 'potato',    name: 'Potato',    icon: 'c_potato',    seed: 7,  grow: 46, yield: 4, offering: 'husk',  hap: 5,  restore: 0.1,  color: '#c9a46a', blurb: 'Four to a plant. Keeps in the shed for a year.' },
+  { kind: 'crop', key: 'sunroot',   name: 'Sunroot',   icon: 'c_sunroot',   seed: 8,  grow: 40, yield: 2, offering: 'rich',  hap: 7,  restore: 0.08, color: '#d8a52f', blurb: 'A yellow tuber that tastes of honey and dirt.' },
+  { kind: 'crop', key: 'pumpkin',   name: 'Pumpkin',   icon: 'c_pumpkin',   seed: 18, grow: 62, yield: 2, offering: 'stone', hap: 11, restore: 0.2,  color: '#e08a2a', blurb: 'Enormous. Takes its time. Worth it.' },
+  { kind: 'crop', key: 'goldwheat', name: 'Goldwheat', icon: 'c_goldwheat', seed: 46, grow: 70, yield: 2, offering: 'gold',  hap: 12, restore: 0.5,  color: '#f5cd5c', blurb: 'Slow, expensive, and it pays.' },
+
+  // ---- fruit trees --------------------------------------------------------
+  // `fruitEvery` seconds between crops once grown, `thirsty` how fast it dries,
+  // and they want pruning or the yield drops off.
+  { kind: 'tree', key: 'apple',   name: 'Apple Tree',  icon: 'c_apple',   seed: 140, grow: 190, yield: 3, fruitEvery: 62, offering: 'rich',  hap: 14, restore: 1.2, thirsty: 1.3, leaf: '#4e7a3a', color: '#d8402f', blurb: 'Takes three minutes to establish. Then apples, forever.' },
+  { kind: 'tree', key: 'lemon',   name: 'Lemon Tree',  icon: 'c_lemon',   seed: 180, grow: 200, yield: 2, fruitEvery: 54, offering: 'gold',  hap: 12, restore: 1.1, thirsty: 1.7, leaf: '#5d8a3c', color: '#f0d04a', blurb: 'Thirsty. Sulks the moment you forget it.' },
+  { kind: 'tree', key: 'gumnut',  name: 'Gum Tree',    icon: 'c_gumnut',  seed: 120, grow: 170, yield: 3, fruitEvery: 58, offering: 'husk',  hap: 10, restore: 1.4, thirsty: 0.7, leaf: '#6f8f63', color: '#a8bfa0', blurb: 'Native. Drinks almost nothing. Smells like home.' },
+
+];
+const PLANTS = CROPS;
+const PLANTS_OF = (kind) => CROPS.filter((c) => c.kind === kind);
+// what the magical ones each want, said plainly for the tooltip
+const MAGIC_NEED = {
+  night: 'only grows at night',
+  alone: 'nothing else growing within a step',
+  dry:   'never water it',
+  bugs:  'wants a bug within reach',
+  crowd: 'two or more plants beside it',
+  shade: 'under the shade of a tree',
+  wet:   'keep it wet the whole time',
+};
+const MAGIC_EFFECT = {
+  scare:  'keeps the crows off the whole plot',
+  lull:   'wombats asleep nearby wake up happier',
+  warm:   'everything around it grows faster',
+  hunt:   'eats the pests before they reach your beds',
+  echo:   'plants beside it sometimes yield double',
+  dream:  'everything within reach is quietly content',
+  draw:   'visitors turn up more often',
+};
+const CROP_BY_KEY = Object.fromEntries(CROPS.map((c) => [c.key, c]));
+
+// ---- Tools ------------------------------------------------------------------
+// A handful of plain garden tools. Aunt Fern hands them over as you go, so the
+// first minutes have two to think about instead of a dozen.
+const TOOLS = [
+  { key: 'drag',    name: 'Hand',    icon: 't_drag',    radius: 0,  desc: 'Lift, carry, pet and pick.' },
+  { key: 'food',    name: 'Feed',    icon: 't_food',    radius: 0,  desc: 'Set a bowl down where they will find it.' },
+  { key: 'farm',    name: 'Garden',  icon: 't_farm',    radius: 0,  sub: ['hoe', 'seed', 'moss', 'water'], desc: 'Hoe, seed, grass and the watering can.' },
+  { key: 'sickle',  name: 'Sickle',  icon: 't_sickle',  radius: 22, desc: 'Drag across the weeds to cut them.' },
+  { key: 'destroy', name: 'Clear',   icon: 't_destroy', radius: 0,  desc: 'The ants carry logs and rubble away.' },
+  { key: 'pair',    name: 'Matchmake', icon: 't_pair',  radius: 0,  desc: 'Click two happy adults for a joey.' },
+];
+const SUBTOOLS = [
+  { key: 'hoe',   name: 'Hoe',          icon: 't_hoe',   radius: 15, desc: 'Turn bare ground into a bed.' },
+  { key: 'seed',  name: 'Seeds',        icon: 't_seed',  radius: 13, desc: 'Sow on a tilled bed.' },
+  { key: 'moss',  name: 'Grass',        icon: 't_moss',  radius: 19, desc: 'Scatter grass seed on bare ground.' },
+  { key: 'water', name: 'Watering Can', icon: 't_water', radius: 22, desc: 'Water the beds and the grass.' },
+  // The shovel is a brush like the hoe: hold the left button to heap the
+  // ground up into a hill, hold the right one (or Shift) to dig it down into
+  // a pond. [ and ] or the wheel change its size.
+  { key: 'shovel', name: 'Shovel', icon: 'u_burrow', radius: 26, terra: 'shovel',
+    desc: 'Hold to raise a hill. Right-click (or Shift) and hold to dig a pond.' },
+  { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture where you point. Point at it again to pick it up.' },
+];
+const GATES = {
+  drag: () => true,
+  sickle: () => true,
+  destroy: (g) => g.step >= 1,
+  farm: (g) => g.step >= 2,
+  moss: (g) => g.step >= 2,
+  water: (g) => g.step >= 2,
+  hoe: (g) => g.step >= 3,
+  seed: (g) => g.step >= 3,
+  food: (g) => g.step >= 3,
+  build: (g) => g.step >= 3,
+  shovel: (g) => g.step >= 3,
+  pair: (g) => !!g.decor.nest,
+};
+const GATE_WHY = {
+  destroy: 'cut the weeds first',
+  farm: 'clear the logs first',
+  moss: 'clear the logs first',
+  water: 'clear the logs first',
+  hoe: 'sow the grass first',
+  seed: 'sow the grass first',
+  food: 'sow the grass first',
+  build: 'sow the grass first',
+  shovel: 'sow the grass first',
+  pair: 'needs a nest from the cellar',
+};
+// number keys 1-9, in the order you are likely to want them
+const HOTKEYS = ['drag', 'food', 'sickle', 'hoe', 'seed', 'water', 'moss', 'shovel', 'build'];
+const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
+
+const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
+const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
+const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
+const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water', 'shovel'];
+const TERRA_KEYS = ['shovel'];
+
+// ---- The clearing: the small patch you actually have to tidy -------------
+// ---- Plots ---------------------------------------------------------------
+// You start with one small clearing. The land either side is fenced off and
+// choked with weeds until you pay for it. Buying widens the camera, the ground
+// you can work, and how many wombats will settle.
+// Five plots across a long clearing. You start on the one in the middle and
+// buy your way outward; the far two are a project.
+const PLOTS = [
+  { key: 'far_west', name: 'Old Quarry Side', x0: 4,    x1: 330,  cost: 2600 },
+  { key: 'west',     name: 'Fern Hollow',     x0: 330,  x1: 690,  cost: 260 },
+  { key: 'home',     name: 'Home Plot',       x0: 690,  x1: 1075, cost: 0 },
+  { key: 'east',     name: 'Stone Ridge',     x0: 1075, x1: 1435, cost: 720 },
+  { key: 'far_east', name: 'The Long Acre',   x0: 1435, x1: 1756, cost: 1800 },
+];
+const PLOT_BY_KEY = Object.fromEntries(PLOTS.map((p) => [p.key, p]));
+const ownsPlot = (g, k) => !!(g.plots && g.plots[k]);
+const plotAt = (x) => PLOTS.find((p) => x >= p.x0 && x < p.x1) || null;
+const inOwned = (g, x) => { const p = plotAt(x); return !!p && ownsPlot(g, p.key); };
+function ownedSpan(g) {
+  let a = 1e9, b = -1e9;
+  for (const p of PLOTS) if (ownsPlot(g, p.key)) { a = Math.min(a, p.x0); b = Math.max(b, p.x1); }
+  return a > b ? { x0: PLOT_BY_KEY.home.x0, x1: PLOT_BY_KEY.home.x1 } : { x0: a, x1: b };
+}
+// The sign sits on the owned side of each buyable border, so you can reach it.
+function plotSign(g, p) {
+  const i = PLOTS.indexOf(p);
+  if (ownsPlot(g, p.key)) return null;
+  const left = PLOTS[i - 1], right = PLOTS[i + 1];
+  if (right && ownsPlot(g, right.key)) return { x: p.x1 - 26, side: 1 };
+  if (left && ownsPlot(g, left.key)) return { x: p.x0 + 26, side: -1 };
+  return null;
+}
+
+const ZONE = { x: 860, y: 288, rx: 118, ry: 52 };
+const inZone = (x, y) => ((x - ZONE.x) / ZONE.rx) ** 2 + ((y - ZONE.y) / ZONE.ry) ** 2 <= 1;
+const ZONE_GRASS = 0.55;                 // how green the clearing has to be
+
+// Weeds take hits. Thistle, bramble, tussock, nettle.
+const WEED_HP = [3, 4, 2, 2];
+const WEED_COIN = 1;                     // W$ that falls out of a cut weed
+
+// Tools come in ranks; you start with junk and buy better at the mart.
+const TIERS = {
+  sickle: [
+    { name: 'Rusty Sickle', dmg: 1, radius: 20, cost: 0 },
+    { name: 'Iron Sickle', dmg: 2, radius: 26, cost: 90 },
+    { name: 'Moon Sickle', dmg: 4, radius: 34, cost: 280 },
+  ],
+  hoe: [
+    { name: 'Stick Hoe', radius: 13, cost: 0 },
+    { name: 'Iron Hoe', radius: 19, cost: 110 },
+    { name: 'Broad Hoe', radius: 26, cost: 320 },
+  ],
+  water: [
+    { name: 'Tin Can', radius: 18, cost: 0 },
+    { name: 'Copper Can', radius: 27, cost: 120 },
+    { name: 'Rain Can', radius: 36, cost: 360 },
+  ],
+};
+const tierIndex = (g, key) => Math.min(TIERS[key].length - 1, (g.tiers && g.tiers[key]) || 0);
+const tierOf = (g, key) => TIERS[key][tierIndex(g, key)];
+const nextTier = (g, key) => TIERS[key][tierIndex(g, key) + 1] || null;
+
+// ---- The map: the grove, the town, and home ----------------------------------
+const SITES = [
+  { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
+  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
+  { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
+  { key: 'den',    name: 'Your Place',   x: 268, y: 208, icon: 'ph_key',  mode: 'den',    need: 0 },
+];
+
+// ---- Things to buy with W$ ------------------------------------------------
+const UPGRADES = [
+  { key: 'haggle',  name: 'Haggling', icon: 'u_seats',   base: 260, mult: 2.1,  max: 5, desc: (l) => l ? `He pays ${l * 8}% more for a cube.` : 'Learn what a cube is actually worth.' },
+  { key: 'shade',   name: 'Shade Cloth', icon: 'u_cart',  base: 200, mult: 2.0,  max: 4, desc: (l) => l ? `Beds dry out ${l * 15}% slower.` : 'Keeps the sun off the beds.' },
+  { key: 'toys',    name: 'Toy Box',  icon: 'd_nest',    base: 180, mult: 2.2,  max: 4, desc: (l) => l ? `Wombats get bored ${l * 16}% slower.` : 'Balls, logs and a knotted rope.' },
+  { key: 'burrow',  name: 'Burrow',   icon: 'u_burrow',  base: 150, mult: 2.25, max: 6, desc: (l) => `Room for ${2 + l} wombats.` },
+  { key: 'trough',  name: 'Trough',   icon: 'u_trough',  base: 240, mult: 2.1,  max: 4, desc: (l) => l ? `Feeds one wombat every ${(15 / l).toFixed(0)}s.` : 'Feeds hungry wombats.' },
+  { key: 'cart',    name: 'Cart',     icon: 'u_cart',    base: 170, mult: 2.4,  max: 3, desc: (l) => l >= 3 ? 'Instant pickup, +10% value.' : l ? `Gathers after ${(4 / l).toFixed(1)}s.` : 'Gathers poop for you.' },
+];
+const DECOR = [
+  { key: 'nest',    name: 'Nest',      icon: 'd_nest',    cost: 300,  unlocks: 'pair', desc: 'Pair two adults to breed.', spot: [0.16, 0.62] },
+  { key: 'brazier', name: 'Fire Bowl', icon: 'd_brazier', cost: 220,  hap: 0.4, desc: 'Somewhere warm on a cold night.', spot: [0.34, 0.2] },
+  { key: 'stones',  name: 'Sitting Stones', icon: 'd_stones', cost: 700, hap: 0.3, desc: 'Warm flat stones to sunbathe on.', spot: [0.76, 0.18] },
+  { key: 'pool',    name: 'Still Pool', icon: 'd_pool',   cost: 520,  hap: 0.6, desc: 'Cool water. Much happier wombats.', spot: [0.86, 0.5] },
+  { key: 'idol',    name: 'Garden Statue', icon: 'd_idol', cost: 1400, hap: 0.5, desc: 'Mossy, smiling, and very popular.', spot: [0.58, 0.14] },
+];
+// Which of the above are garden-centre stock rather than corner-shop stock.
+// The mart skips these; Groot's cellar sells them alongside the seed.
+const GARDEN_UP = { trough: 1 };
+const GARDEN_DEC = { nest: 1, pool: 1 };
+
+const WOMBAT_PRICE = (n) => Math.round(180 * Math.pow(2.5, Math.max(0, n - 1)));
+
+// ---- The Mart's prize machine --------------------------------------------
+// A capsule machine by the till. You put a coin in, the drum turns, and you
+// get whatever it feels like giving you. Weights are relative, not percentages.
+// ---- what a corner shop actually sells ------------------------------------
+// Real products with real labels, because a shelf of coloured rectangles is a
+// placeholder and not a shop. Each one does a small thing when you get it home.
+const SNACKS = [
+  { key: 'cola',   name: 'Burrow Cola',      price: 14, form: 'can',    col: '#c02030', cap: '#f2cf3a',
+    blurb: 'The original. 1.1 litres of sugar in a 375ml can, somehow.', effect: 'hap', amt: 9 },
+  { key: 'lemon',  name: 'Dig Fizz Lemon',   price: 14, form: 'can',    col: '#d8b23a', cap: '#f4ec9a',
+    blurb: 'Cloudy lemon. Shaz drinks four a shift and has never sat down.', effect: 'hap', amt: 9 },
+  { key: 'dirt',   name: 'Dirt Water',       price: 9,  form: 'bottle', col: '#6a5030', cap: '#3a2a18',
+    blurb: 'Mineral water, unfiltered, from the quarry. It is brown on purpose.', effect: 'hap', amt: 5 },
+  { key: 'milk',   name: 'Flat Milk 2L',     price: 22, form: 'bottle', col: '#eef2f4', cap: '#2f6f9f',
+    blurb: 'From the Flats. The date on the lid is a suggestion.', effect: 'hap', amt: 14 },
+  { key: 'chips',  name: 'Bark Chips S&V',   price: 16, form: 'bag',    col: '#3f8f4a', cap: '#d8f0a0',
+    blurb: 'Salt and vinegar. Ninety percent air, and that is the good part.', effect: 'hap', amt: 10 },
+  { key: 'crisps', name: 'Root Crisps BBQ',  price: 16, form: 'bag',    col: '#c9581f', cap: '#ffd0a8',
+    blurb: 'Barbecue. Turns your fingers orange for two days.', effect: 'hap', amt: 10 },
+  { key: 'pie',    name: 'Hot Wombat Pie',   price: 28, form: 'pie',    col: '#c9a15c', cap: '#8a4520',
+    blurb: 'No wombat in it. It is a shape of pie. It has been hot since Tuesday.', effect: 'cube', amt: 1 },
+  { key: 'sausage', name: 'Sausage Roll x2', price: 24, form: 'pie',    col: '#d8b880', cap: '#a8462c',
+    blurb: 'Two in the bag. The second one is for the drive home, which is four minutes.', effect: 'cube', amt: 1 },
+  { key: 'bar',    name: 'Gumnut Bar',       price: 11, form: 'box',    col: '#7a4f9a', cap: '#c9a0e8',
+    blurb: 'Nougat, caramel, and something the wrapper calls "gumnut crunch".', effect: 'hap', amt: 7 },
+  { key: 'mints',  name: 'Bush Mints',       price: 8,  form: 'box',    col: '#2f6f9f', cap: '#bfe4f4',
+    blurb: 'Eucalyptus mints. Clears the sinuses of everyone in the room but you.', effect: 'hap', amt: 5 },
+  { key: 'biccy',  name: 'Scrub Biscuits',   price: 19, form: 'box',    col: '#8a4520', cap: '#e8c898',
+    blurb: 'A whole packet. Nobody in this district has ever eaten fewer than a whole packet.', effect: 'hap', amt: 12 },
+  { key: 'ticket', name: 'Scratchie',        price: 20, form: 'card',   col: '#b8342c', cap: '#f2cf3a',
+    blurb: 'Scratch three matching wombats and win. You will not.', effect: 'scratch', amt: 0 },
+];
+const SNACK_BY_KEY = Object.fromEntries(SNACKS.map((s) => [s.key, s]));
+
+// ---- the two machines by the till ----------------------------------------
+// The gumball machine is a 1 W$ habit. Most of what comes out is worth about
+// what you paid; once in a while it is not, and that is the whole appeal.
+const GUM_COST = 1;
+const GUMBALLS = [
+  { key: 'dud',    w: 34, name: 'A chewed one',   col: '#8d8577', say: 'someone already had this' },
+  { key: 'change', w: 26, name: 'A few coins',    col: '#d8b23a', say: '' },
+  { key: 'sweet',  w: 16, name: 'Actually nice',  col: '#e0764a', say: '' },
+  { key: 'seed',   w: 10, name: 'A seed inside',  col: '#4f9a42', say: '' },
+  { key: 'cube',   w: 8,  name: 'A plain cube',   col: '#7a5636', say: '' },
+  { key: 'silver', w: 4,  name: 'A silver one',   col: '#b4c0cc', say: '' },
+  { key: 'gold',   w: 2,  name: 'A GOLD one',     col: '#f2cf3a', say: '' },
+];
+const GUM_TOTAL = GUMBALLS.reduce((a, p) => a + p.w, 0);
+function rollGum() {
+  let n = Math.random() * GUM_TOTAL;
+  for (const p of GUMBALLS) { n -= p.w; if (n <= 0) return p; }
+  return GUMBALLS[0];
+}
+// The lottery is three reels. Two alike pays a little, three alike pays what
+// the symbol is worth, and three wombats is the roof.
+const LOTTO_COST = 40;
+const LOTTO_SYMS = [
+  { key: 'grass',  w: 30, icon: 'c_ashgrass', pay: 3 },
+  { key: 'seed',   w: 24, icon: 't_seed',     pay: 5 },
+  { key: 'poop',   w: 18, icon: 'o_plain',    pay: 10 },
+  { key: 'sickle', w: 13, icon: 't_sickle',   pay: 18 },
+  { key: 'coin',   w: 9,  icon: 'wdollar',    pay: 40 },
+  { key: 'wombat', w: 4,  icon: 'wombat',     pay: 150 },
+];
+const LOTTO_TOTAL = LOTTO_SYMS.reduce((a, p) => a + p.w, 0);
+function rollLotto() {
+  let n = Math.random() * LOTTO_TOTAL;
+  for (const p of LOTTO_SYMS) { n -= p.w; if (n <= 0) return p; }
+  return LOTTO_SYMS[0];
+}
+
+// Every Golden Wombat on the shelf pays a little more at the stack, for good.
+// ---- What Aunt Fern pays for a cube ----------------------------------
+// He buys the lot. The price is the offering's own worth plus a little for
+// bulk: one cube is a curiosity, a truckload is a supply.
+const trophyBonus = (g) => (g.trophies || 0) * 0.08;
+const POOP_PRICE = { plain: 9, rich: 16, husk: 22, resin: 30, slab: 44, stone: 60, rune: 90, gold: 140 };
+const poopPrice = (key, n, g) => {
+  const base = POOP_PRICE[key] || 10;
+  const bulk = 1 + Math.min(0.5, Math.max(0, n - 1) * 0.04);     // he pays more for a load
+  const gg = g || (typeof window !== 'undefined' ? window.G : null) || {};
+  const talk = 1 + ((gg.up || {}).haggle || 0) * 0.08;
+  return Math.max(1, Math.round(base * bulk * talk));
+};
+
+// ---- Breeding -------------------------------------------------------------
+const TRAITS = [
+  { key: 'gut',   name: 'Gut',   min: 0.7, max: 1.4 },   // digestion multiplier
+  { key: 'calm',  name: 'Calm',  min: 0.6, max: 1.5 },   // happiness decay resistance
+  { key: 'luck',  name: 'Luck',  min: 0.6, max: 1.6 },   // premium offering chance
+];
+const GROW_TIME = { baby: 95, juvenile: 150 };
+const RARE_CHANCE = 0.07;
+
+const NAMES = ['Wilbur', 'Doris', 'Chonk', 'Beans', 'Mabel', 'Gus', 'Pudding', 'Winnie', 'Bruce', 'Nugget', 'Sheila', 'Tubs', 'Barnaby', 'Pip', 'Marge', 'Otis', 'Bramble', 'Kip', 'Nella', 'Dot'];
+const RESTORE_TARGET = 172000;  // painted grass pixels that count as a whole forest
+                                // (the grove floor is about 238k, so this is most of it)
+
+// ---- Furniture ------------------------------------------------------------
+// Things you buy in town and stand about the grove wherever you like. Unlike
+// DECOR, which has one fixed spot each and is really an upgrade wearing a hat,
+// furniture is placed by hand, picked back up, and is worth what you paid for
+// it minus a little. Most of it does something small; some of it is just nice.
+const FURNITURE = [
+  { key: 'bench',   name: 'Log Bench',     cost: 90,   w: 46, h: 20, hap: 0.10, blurb: 'Split log on two rounds. Somewhere to sit and watch them.' },
+  { key: 'table',   name: 'Trestle Table', cost: 140,  w: 52, h: 26, hap: 0.08, blurb: 'Two trestles and a top. Every wood needs one.' },
+  { key: 'lantern', name: 'Post Lantern',  cost: 180,  w: 16, h: 52, hap: 0.14, light: 1, blurb: 'A candle in a box on a post. Burns all night.' },
+  { key: 'barrel',  name: 'Rain Barrel',   cost: 160,  w: 26, h: 30, water: 1,  blurb: 'Catches the rain. Beds near it dry out slower.' },
+  { key: 'trough2', name: 'Stone Trough',  cost: 210,  w: 44, h: 18, thirst: 1, blurb: 'Cut from one block. They drink from it.' },
+  { key: 'scare',   name: 'Scarecrow',     cost: 120,  w: 22, h: 54, blurb: 'Sack head, crossed sticks, one boot. Keeps the crows honest.' },
+  { key: 'hive',    name: 'Bee Skep',      cost: 240,  w: 24, h: 26, hap: 0.10, blurb: 'Straw skep on a stand. Maud will be pleased.' },
+  { key: 'arch',    name: 'Rose Arch',     cost: 320,  w: 56, h: 60, hap: 0.18, blurb: 'Bent willow with something climbing it.' },
+  { key: 'well',    name: 'Old Well',      cost: 460,  w: 40, h: 46, water: 2,  blurb: 'Stone ring, a roof, a bucket on a rope. Deep.' },
+  { key: 'statue',  name: 'Wombat Statue', cost: 780,  w: 32, h: 44, hap: 0.12, blurb: 'Carved by someone who had only had one described to them.' },
+  { key: 'firepit', name: 'Fire Pit',      cost: 350,  w: 40, h: 18, hap: 0.22, light: 1, blurb: 'A ring of stones and a heap of ash. Sit round it.' },
+  { key: 'shrine2', name: 'Bird Box',      cost: 900,  w: 28, h: 50, hap: 0.14, blurb: 'A little house on a pole. Somebody always moves in.' },
+];
+const FURN_BY_KEY = Object.fromEntries(FURNITURE.map((f) => [f.key, f]));
+
