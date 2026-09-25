@@ -22,7 +22,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [], owned: { drag: true }, apps: { quests: 1, messages: 1, settings: 1, store: 1 },
+      brush: 1, crates: {}, furniture: [], owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, apps: { quests: 1, messages: 1, settings: 1, store: 1 },
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -72,6 +72,15 @@ const Main = (() => {
         for (const t of TOOL_SHOP) s.owned[t.key] = true;
         s.apps = Object.fromEntries(Object.keys(APP_PRICES).map((k) => [k, 1]));
       }
+      // the tutorial grew a first step (meeting Jim) and tools that unlock as you go
+      if (s.tutorialV !== 2) {
+        s.tutorialV = 2;
+        s.unlocked = s.unlocked || {};
+        for (const k of Object.keys(s.owned || {})) s.unlocked[k] = true;
+        s.lessons = s.lessons || {};
+      }
+      if (!s.unlocked) s.unlocked = {};
+      if (!s.lessons) s.lessons = {};
       if (!TOOL_BY_KEY[s.tool] || !unlocked(s, s.tool)) s.tool = 'drag';
       s.mode = 'grove';
       return s;
@@ -82,8 +91,6 @@ const Main = (() => {
     if (!G || G.seen) return;
     G.seen = true;
     FX.title('WOMBAT FARM', { size: 20, color: PAL.gold3, dur: 2.6, style: 'slam', sub: 'a cozy little grove' });
-    setTimeout(() => UI.toast('the garden has gone a bit wild'), 1400);
-    setTimeout(() => UI.toast('tidy it up and a wombat might move in'), 6400);
   }
   function reset() { Store.clear(KEY()).then(() => location.reload(), () => location.reload()); }
   // ---- the three groves ---------------------------------------------------
@@ -176,6 +183,7 @@ const Main = (() => {
 
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
+    if (Talk.isOpen()) Talk.close();          // nobody keeps talking to you across town
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
@@ -328,7 +336,7 @@ const Main = (() => {
             G.tool = k;
             Grove.clearPair(); UI.refreshTray(); UI.refreshHUD(); Audio.play('click');
             UI.toast(`<b>${TOOL_BY_KEY[k].name}</b> &mdash; ${TOOL_BY_KEY[k].desc}`);
-          } else { Audio.play('error'); UI.toast(whyLocked(k), 'bad'); }
+          } else { Audio.play('error'); UI.toast(whyLocked(k, G), 'bad'); }
         }
       }
     });

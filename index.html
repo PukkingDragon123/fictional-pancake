@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
 <div id="app">
@@ -25,6 +26,22 @@
 
     <div id="wheel" hidden></div>
     <div id="hotbar" hidden></div>
+
+    <div id="unlock" hidden></div>
+
+    <div id="panel-talk" class="dlg" hidden>
+      <div class="dlg-box" id="talk-box">
+        <div class="dlg-main">
+          <div class="dlg-line" id="talk-line"></div>
+          <div class="dlg-opts" id="talk-opts"></div>
+          <i class="dlg-next" id="talk-next"></i>
+        </div>
+        <div class="dlg-side">
+          <div class="dlg-face"><canvas id="talk-face" width="64" height="64"></canvas></div>
+          <div class="dlg-plate"><b id="talk-name">JIM</b><small id="talk-sub"></small></div>
+        </div>
+      </div>
+    </div>
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
@@ -59,20 +76,6 @@
   <div id="panel-pawn" class="panel" hidden>
     <div class="phead"><img class="ico" data-ico="wdollar" alt=""><span class="ptitle">SELL</span><button class="x" data-close="panel-pawn"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody" id="pawn-body"></div>
-  </div>
-
-  <div id="panel-talk" class="panel talk" hidden>
-    <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle" id="talk-name">TALK</span><button class="x" data-close="panel-talk"><img class="ico sm" data-ico="close" alt=""></button></div>
-    <div class="pbody">
-      <div class="trow">
-        <div class="tface"><canvas id="talk-face" width="128" height="150"></canvas></div>
-        <div class="tside">
-          <div class="tsub" id="talk-sub"></div>
-          <div class="tline" id="talk-line"></div>
-        </div>
-      </div>
-      <div class="topts" id="talk-opts"></div>
-    </div>
   </div>
 
   <div id="panel-wombat" class="panel dossier" hidden>
@@ -113,9 +116,9 @@
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>You start with your two hands and W$300. Click the truck to drive to Wombat Mart: the <b>TOOLS</b> aisle sells every tool, and a phone.</li>
+        <li>You start with your two hands and W$300. Jim gives you his old sickle, and each job he teaches unlocks the next tool. Buy them at Wombat Mart: click the truck to drive there.</li>
         <li>Jim, the old caretaker, tells you your next job in a speech bubble. Click him to chat, or to sell him your cubes.</li>
-        <li>Pick a tool on the toolbar along the bottom, or press <b>1</b>&ndash;<b>0</b>. Tools you have not bought show their price. Drag bare ground, roll the wheel or use the arrow keys to look around.</li>
+        <li>Pick a tool on the toolbar along the bottom, or press <b>1</b>&ndash;<b>0</b>. Locked tools show a padlock; unlocked ones you have not bought show their price. An arrow points at your current job. Drag bare ground, roll the wheel or use the arrow keys to look around.</li>
         <li>Cut the weeds with the sickle, have the ants take the old logs, and sow grass. A tidy garden brings a wombat.</li>
         <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
         <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
@@ -138,7 +141,10 @@
 <script src="js/audio.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/props.js"></script>
+<script src="js/iconart.js"></script>
 <script src="js/icons.js"></script>
+<script src="js/uikit.js"></script>
+<script src="js/portraits.js"></script>
 <script src="js/data.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/sky.js"></script>

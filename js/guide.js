@@ -9,82 +9,160 @@ const Guide = (() => {
   const HUT = { x: 724, y: 0 };
   // the speech bubble: what he is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [10, 15, 20, 20, 25, 0, 20, 25, 30, 30, 30, 40, 50, 60];
+  const REWARD = [0, 15, 20, 20, 25, 0, 20, 25, 30, 30, 30, 40, 50];
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
   // Each step is a job Jim gives you, and a place for him to stand.
+  //   lesson   what he tells you in the dialogue box when the job comes up
+  //   give     tools he hands over when he has finished explaining
+  //   unlock   tools the mart will now sell you
+  //   tool     the toolbar slot that glows while this is the job
+  //   at / aty where the arrow points in the grove
+  const MART = () => Grove.TRUCK.x - 10, MARTY = () => Grove.TRUCK.y - 60;
   const STEPS = [
     {
-      key: 'sickle', say: "G'day! I'm Jim. I've kept this place for years and now it's your job. First, tools. Click the truck, drive to Wombat Mart and buy a sickle.",
-      mood: 'happy', praise: 'Good sickle, that.', icon: 't_sickle', title: 'Buy a sickle',
-      note: 'Click the truck for the map, go to Wombat Mart, and buy a Sickle from the TOOLS aisle.',
-      at: () => Grove.TRUCK.x - 60, done: (g) => has(g, 'sickle'),
+      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Jim', praise: 'Go on, give it a swing.',
+      say: "G'day! I'm Jim. This farm's yours now. Here, take my old sickle.",
+      lesson: [
+        { say: "G'day! You made it. I'm Jim. I've looked after this farm for twenty years.", mood: 'happy' },
+        { say: "My knees have had it, so it's all yours now. Bit of a mess, I'll be honest.", mood: 'sad' },
+        { say: "Here, have my old sickle. That's the first job: the weeds. Pick it on your toolbar, or press 2.", mood: 'proud' },
+      ],
+      give: ['sickle'], tool: 'sickle', note: 'Talk to Jim.',
+      at: () => cult.x - 40, done: (g) => has(g, 'sickle'),
     },
     {
-      key: 'weeds', say: 'Now cut the weeds inside the rope. Drag across them. The big ones take a few swings.', mood: 'talk', praise: 'Tidy! Here, for your trouble.', icon: 't_sickle', title: 'Cut the weeds',
+      key: 'weeds', mood: 'talk', icon: 't_sickle', title: 'Cut the weeds', praise: 'Tidy! Here, for your trouble.',
+      say: 'Drag the sickle across the weeds inside the rope. The big ones take a few swings.',
+      lesson: null, tool: 'sickle', label: 'WEEDS',
       note: 'Pick the sickle (key 2) and drag across the weeds inside the rope.',
-      at: () => ZONE.x - 120, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
+      at: () => ZONE.x - 60, aty: () => Grove.WALK.y0 + 70, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
-      key: 'junk', say: "Those old logs are too heavy for us. Buy an Ant Hire card at the mart and the ants'll carry them off.", mood: 'think', praise: 'Love the ants. Hard workers.', icon: 't_destroy', title: 'Clear the old logs',
-      note: 'Buy an Ant Hire Card at Wombat Mart, then click each log or ruin inside the rope.',
-      at: () => { const o = Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)); return o ? o.x : ZONE.x; },
+      key: 'junk', mood: 'think', icon: 't_destroy', title: 'Clear the old logs', praise: 'Love the ants. Hard workers.',
+      say: "Those old logs are too heavy for us. The ants in town will shift them. Buy an Ant Hire Card at the mart.",
+      lesson: [
+        { say: 'Beauty! Now, those old logs and ruins are far too heavy for the two of us.', mood: 'think' },
+        { say: "The ants in town will shift anything for a small fee. I've asked Shaz at Wombat Mart to sell you an Ant Hire Card.", mood: 'talk' },
+        { say: 'Click the truck to drive there. Back here, pick the card and click each log.', mood: 'happy' },
+      ],
+      unlock: ['destroy'], tool: 'destroy', label: 'DRIVE TO THE MART',
+      note: 'Click the truck, go to Wombat Mart, buy an Ant Hire Card. Then click each log inside the rope.',
+      at: (g) => (has(g, 'destroy') ? ((Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)) || { x: ZONE.x }).x) : MART()),
+      aty: (g) => (has(g, 'destroy') ? ((Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)) || { y: Grove.WALK.y0 + 60 }).y - 30) : MARTY()),
       done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
-      key: 'grass', say: 'Bare dirt is no good for a wombat. Get grass seed and a watering can, sow it inside the rope and give it a drink.', mood: 'talk', praise: 'Green again. Beauty.', icon: 't_moss', title: 'Sow the grass',
-      note: 'Buy Grass Seed and a Watering Can. Scatter the grass, then water it so it takes.',
-      at: () => ZONE.x, done: () => World.zoneFraction() >= ZONE_GRASS,
+      key: 'grass', mood: 'talk', icon: 't_moss', title: 'Sow the grass', praise: 'Green again. Beauty.',
+      say: 'Wombats will not live on bare dirt. Sow grass seed inside the rope and water it.',
+      lesson: [
+        { say: "Now it's clear, it needs grass. No wombat will live on bare dirt.", mood: 'talk' },
+        { say: 'Grass Seed and a Watering Can are on the shelf at the mart now. Brush the seed on inside the rope, then water it so it takes.', mood: 'happy' },
+      ],
+      unlock: ['moss', 'water'], tool: 'moss', label: 'SOW HERE',
+      note: 'Buy Grass Seed and a Watering Can. Brush grass inside the rope, then water it.',
+      at: (g) => (has(g, 'moss') ? ZONE.x : MART()), aty: (g) => (has(g, 'moss') ? Grove.WALK.y0 + 70 : MARTY()),
+      done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
-      key: 'arrive', say: 'Shh. Watch the treeline. A tidy patch always brings one of them round.', mood: 'worry', praise: 'There she is! Your first wombat.', icon: 'wombat', title: 'Wait for a wombat',
+      key: 'arrive', mood: 'worry', icon: 'wombat', title: 'Wait for a wombat', praise: 'There she is! Your first wombat.',
+      say: 'Shh. Watch the treeline. A tidy patch always brings one round.',
+      lesson: [{ say: 'Shh! Look at the treeline. A tidy, grassy patch always brings one of them round. Just wait.', mood: 'shock' }],
       note: 'A tidy patch brings a wombat. One always comes.',
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
-      key: 'phone', say: "You'll want a phone for this job. Grab one at the mart. It's got your jobs, your herd, the lot.", mood: 'talk', praise: 'Welcome to this century.', icon: 'ph_key', title: 'Buy a phone',
-      note: 'Wombat Mart sells phones. Press P to open it. More apps are in its App Store.',
-      at: () => Grove.TRUCK.x - 60, done: (g) => has(g, 'phone'),
+      key: 'phone', mood: 'talk', icon: 'ph_key', title: 'Buy a phone', praise: 'Welcome to this century.',
+      say: "You'll want a phone for this job. The mart has them.",
+      lesson: [
+        { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
+        { say: "You'll want a phone for this job. It keeps your jobs, your herd and your texts. The mart has them now.", mood: 'talk' },
+      ],
+      unlock: ['phone'], label: 'DRIVE TO THE MART',
+      note: 'Buy a phone at Wombat Mart, then press P. More apps are in its App Store.',
+      at: () => MART(), aty: () => MARTY(), done: (g) => has(g, 'phone'),
     },
     {
-      key: 'sow', say: "She'll need feeding. Buy a hoe and a seed pouch, get carrot seed from Groot's Cellar, hoe a bed and sow it.", mood: 'talk', praise: 'Sown. Good hands.', icon: 't_hoe', title: 'Dig a bed and sow it',
-      note: 'Hoe and Seed Pouch from the mart, seed from Groot. Hoe bare soil, then sow on it.',
-      at: () => 380, done: () => World.crops.length > 0,
+      key: 'sow', mood: 'talk', icon: 't_hoe', title: 'Dig a bed and sow it', praise: 'Sown. Good hands.',
+      say: 'She will need feeding. Hoe a bed and sow some carrots.',
+      lesson: [
+        { say: "She'll need feeding, so let's grow something.", mood: 'think' },
+        { say: "A Hoe and a Seed Pouch are at the mart now. Get carrot seed from Groot's Cellar.", mood: 'talk' },
+        { say: 'Hoe a patch of bare ground into a bed, then sow the seed on it.', mood: 'happy' },
+      ],
+      unlock: ['hoe', 'seed'], tool: 'hoe', label: 'DIG A BED HERE',
+      note: 'Hoe and Seed Pouch from the mart, carrot seed from Groot. Hoe bare soil, then sow on it.',
+      at: (g) => (has(g, 'hoe') ? 380 : MART()), aty: (g) => (has(g, 'hoe') ? Grove.WALK.y0 + 110 : MARTY()),
+      done: () => World.crops.length > 0,
     },
     {
-      key: 'pick', say: 'Water it every so often. When it glows, pick it with your hand.', mood: 'talk', praise: 'Your first harvest!', icon: 't_water', title: 'Water, then pick',
-      note: 'Thirsty crops sulk. When a crop glows, click it with the hand.',
-      at: () => { const c = World.crops[0]; return c ? c.x : 380; },
+      key: 'pick', mood: 'talk', icon: 't_water', title: 'Water, then pick', praise: 'Your first harvest!',
+      say: 'Water it every so often. When it glows, pick it with your hand.',
+      lesson: [{ say: 'Keep it watered. A thirsty bed sulks. When a crop glows, pick it with your hand.', mood: 'talk' }],
+      tool: 'water', label: 'WATER ME',
+      note: 'Water the bed. When a crop glows, click it with the hand.',
+      at: () => { const c = World.crops[0]; return c ? c.x : 380; }, aty: () => { const c = World.crops[0]; return c ? c.y - 20 : Grove.WALK.y0 + 90; },
       done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
     },
     {
-      key: 'feed', say: 'Buy a feed bowl, pick what you grew, and put it down near her.', mood: 'happy', praise: 'Fed and happy. Good job.', icon: 't_food', title: 'Feed your wombat',
+      key: 'feed', mood: 'happy', icon: 't_food', title: 'Feed your wombat', praise: 'Fed and happy. Good job.',
+      say: 'Buy a feed bowl and put your veg down near her.',
+      lesson: [
+        { say: "Now feed her. She's been watching you pick that.", mood: 'sly' },
+        { say: 'The mart has a Feed Bowl for you now. Choose what you grew on the bowl, then click near her.', mood: 'talk' },
+      ],
+      unlock: ['food'], tool: 'food', label: 'FEED HER',
       note: 'Feed Bowl from the mart. Pick the food, then click near the wombat.',
-      at: (g) => (g.wombats[0] ? g.wombats[0].x : 340),
+      at: (g) => (has(g, 'food') ? (g.wombats[0] ? g.wombats[0].x : 340) : MART()),
+      aty: (g) => (has(g, 'food') ? (g.wombats[0] ? g.wombats[0].y - 40 : Grove.WALK.y0 + 80) : MARTY()),
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', say: 'What she leaves is a cube of the best fertiliser going. Drag the cubes into the truck.', mood: 'proud', praise: 'Loaded. That is the job, really.', icon: 'truck', title: 'Load the cubes',
+      key: 'load', mood: 'proud', icon: 'truck', title: 'Load the cubes', praise: 'Loaded. That is the job, really.',
+      say: 'What she leaves is a cube. Drag the cubes into the truck.',
+      lesson: [
+        { say: 'See what she left behind? A cube. Wombats really do that. Best fertiliser going.', mood: 'laugh' },
+        { say: 'Drag the cubes into the back of the truck with your hand.', mood: 'talk' },
+      ],
+      tool: 'drag', label: 'INTO THE TRUCK',
       note: 'Wombats leave square cubes. Drag them into the back of the truck.',
-      at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
+      at: () => (Grove.drops[0] ? Grove.drops[0].x : Grove.TRUCK.x), aty: () => (Grove.drops[0] ? Grove.drops[0].y - 30 : MARTY()),
       done: (g) => cubes(g) > 0 || (g.stats.sold || 0) > 0 || (g.stats.fertilised || 0) > 0,
     },
     {
-      key: 'fert', say: 'Here is the secret: poo is fertiliser. Buy a poo scoop and spread a cube on a bed. It grows twice as fast.', mood: 'sly', praise: 'Watch that grow now.', icon: 'o_plain', title: 'Fertilise a bed',
-      note: 'Poo Scoop from the mart. Click a bed with it and one cube from the truck goes on.',
-      at: () => { const c = World.crops[0]; return c ? c.x : 380; },
+      key: 'fert', mood: 'sly', icon: 't_scoop', title: 'Fertilise a bed', praise: 'Watch that grow now.',
+      say: 'Poo is fertiliser. Spread a cube on a bed with a poo scoop.',
+      lesson: [
+        { say: "Here's my secret: poo is fertiliser!", mood: 'sly' },
+        { say: 'Buy a Poo Scoop at the mart. Click a planted bed with it and one cube goes on. It grows twice as fast.', mood: 'happy' },
+      ],
+      unlock: ['fert'], tool: 'fert', label: 'SCOOP A BED',
+      note: 'Poo Scoop from the mart. Click a planted bed and one cube from the truck goes on.',
+      at: (g) => (has(g, 'fert') ? (World.crops[0] ? World.crops[0].x : 380) : MART()),
+      aty: (g) => (has(g, 'fert') ? (World.crops[0] ? World.crops[0].y - 20 : Grove.WALK.y0 + 90) : MARTY()),
       done: (g) => (g.stats.fertilised || 0) > 0,
     },
     {
-      key: 'sell', say: 'Got spare cubes? I make compost. Bring them to me and I will pay you for the lot.', mood: 'happy', praise: 'Pleasure doing business!', icon: 'wdollar', title: 'Sell Jim your spare cubes',
-      note: 'Click Jim (later, his shed) and sell. He pays more for a load than for one.',
-      at: () => Grove.TRUCK.x, done: (g) => (g.stats.sold || 0) > 0,
+      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Jim your spare cubes', praise: 'Pleasure doing business!',
+      say: 'Got spare cubes? Bring them to me and I will pay you for the lot.',
+      lesson: [{ say: "Spare cubes? I make compost. Click me and I'll buy the lot. More for a load than one at a time.", mood: 'happy' }],
+      label: 'CLICK JIM',
+      note: 'Click Jim and sell. He pays more for a load than for one.',
+      at: () => cult.x, aty: () => cult.y - 80, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
-      key: 'shovel', say: 'Last trick. Buy a shovel. Dig a channel, then water it and it fills: a pond, a river, whatever you like. Heap it up for hills.', mood: 'proud', praise: 'Now that is a farm.', icon: 'u_burrow', title: 'Dig a pond',
+      key: 'shovel', mood: 'proud', icon: 't_shovel', title: 'Dig a pond', praise: 'Now that is a farm.',
+      say: 'Last trick. Dig with the shovel, then water the hole and it fills.',
+      lesson: [
+        { say: "Last trick, and it's the fun one.", mood: 'proud' },
+        { say: 'The Shovel is on the shelf now. It digs like a paintbrush: hold to dig down, right-click to heap up a hill.', mood: 'talk' },
+        { say: 'Water a hole and it fills into a pond. Dig a trench and it runs like a creek. The frogs love it.', mood: 'happy' },
+      ],
+      unlock: ['shovel'], tool: 'shovel', label: 'DIG HERE',
       note: 'Shovel: hold to dig down, right-click (or Shift) to heap up. Water a hole to fill it.',
-      at: () => 480, done: (g) => (g.stats.flooded || 0) > 0,
+      at: (g) => (has(g, 'shovel') ? 480 : MART()), aty: (g) => (has(g, 'shovel') ? Grove.WALK.y0 + 120 : MARTY()),
+      done: (g) => (g.stats.flooded || 0) > 0,
     },
   ];
 
@@ -92,6 +170,14 @@ const Guide = (() => {
     G = g;
     if (!G.visited) G.visited = {};
     if (typeof G.step !== 'number') G.step = 0;
+    if (!G.lessons) G.lessons = {};
+    if (!G.unlocked) G.unlocked = {};
+    // a farm further along has already had these lessons, and learnt these tools
+    for (let i = 0; i < Math.min(G.step, STEPS.length); i++) {
+      G.lessons[STEPS[i].key] = true;
+      for (const k of (STEPS[i].unlock || []).concat(STEPS[i].give || [])) G.unlocked[k] = true;
+    }
+    if (G.step >= STEPS.length) G.unlocked.build = true;
     cult.x = cult.tx = 588;
     vanish = 0;
     huts = G.cultAway === 2 ? 1 : 0;        // a hut already standing does not grow again
@@ -143,8 +229,39 @@ const Guide = (() => {
     lastChat = line;
     say(line, 'chat', pick.mood);
   }
+  // ---- lessons -----------------------------------------------------------------
+  function lessonReady() {
+    return G.mode === 'grove' && G.introDone && !UI.anyPanel() && !Talk.isOpen() && !Grove.arriving
+      && !FX.curtaining && UI.unlockIdle() && G.cultAway !== 1 && vanish <= 0 && !hidden;
+  }
+  function teach(s) {
+    if (!s.lesson) { learnt(s); return; }
+    Grove.panTo(cult.x);
+    cult.pose = 'wave'; cult.castT = 1.2; cult.still = 0;
+    bubble.life = 0;
+    Talk.lesson('cultist', s.lesson, () => learnt(s));
+  }
+  // what happens when he has finished explaining: tools in your hand, tools on the shelf
+  function learnt(s) {
+    if (G.lessons[s.key]) return;
+    G.lessons[s.key] = true;
+    if (!G.newTools) G.newTools = {};
+    for (const k of (s.give || [])) {
+      if (owns(G, k)) continue;
+      G.owned[k] = true; G.unlocked[k] = true; G.newTools[k] = true; G.tool = k;
+      UI.unlockCard(k, true);
+    }
+    for (const k of (s.unlock || [])) {
+      if (G.unlocked[k]) continue;
+      G.unlocked[k] = true;
+      UI.unlockCard(k, false);
+    }
+    UI.refreshHUD(); Main.save();
+  }
   function poke() {                          // click him and he actually talks
     cult.still = 0; cult.pose = 'idle';
+    const s0 = step();
+    if (s0 && !G.lessons[s0.key] && G.cultAway !== 2) { Audio.play('squeak'); teach(s0); return; }
     const at = G.cultAway === 2 ? { x: HUT.x + 22, y: hutY() } : cult;
     FX.burst(at.x, at.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
     Audio.play('squeak');
@@ -415,7 +532,11 @@ const Guide = (() => {
     // a new order gets spoken once she is roughly in place
     const s = step();
     chatter(dt);
-    if (s && G.step !== lastStep) { sayT += dt; if (sayT > 1.2 || lastStep === -1) { lastStep = G.step; sayT = 0; if (!bubble.life) say(s.say, 'order', s.mood); } }
+    // a new job gets taught properly, in the dialogue box, once he is in place
+    if (s && !G.lessons[s.key]) {
+      sayT += dt;
+      if (sayT > (lastStep === -1 ? 1.2 : 2.8) && lessonReady()) { sayT = 0; lastStep = G.step; teach(s); }
+    } else sayT = 0;
     if (bubble.life > 0) { bubble.life -= dt; bubble.shown += dt * 28; bubble.pop = Math.max(0, bubble.pop - dt * 3); }
     if (cult.happyT > 0) { cult.happyT -= dt; }
     if (cult.hop > 0) cult.hop = Math.max(0, cult.hop - dt * 1.6);
@@ -454,18 +575,28 @@ const Guide = (() => {
     const p = 0.5 + 0.5 * Math.sin(cult.t * 3);
     Art.glow(g, cult.x, cult.y - 24, 40 + p * 8, '#ffe0a0', 0.08 + p * 0.05, 5);
     drawBubble(g);
+  }
+  // The arrow over whatever the job is about: a coral pointer bobbing over the
+  // spot, and a label on a pill above it. Drawn over everything else.
+  function drawPointer(g) {
     const s = step();
-    if (s && cult.pose !== 'walk' && cult.pose !== 'run') {
-      const tx = U.clamp(s.at(G), 40, Grove.W - 40);
-      const a = 0.4 + 0.4 * Math.sin(cult.t * 4);
-      g.globalAlpha = a;
-      g.fillStyle = PAL.gold3;
-      for (let i = 0; i < 5; i++) {
-        const k = i / 4;
-        g.fillRect(Math.round(U.lerp(cult.x, tx, k)), Math.round(cult.y - 52 + Math.sin(k * Math.PI) * -10), 2, 2);
-      }
-      Icons.blit(g, s.icon, tx - 8, cult.y - 74 - Math.sin(cult.t * 3) * 2, 1);
-      g.globalAlpha = 1;
+    if (!s || !G.lessons[s.key] || Talk.isOpen() || G.cultAway) return;
+    if (s.key === 'arrive') return;
+    const tx = U.clamp(s.at(G), 30, Grove.W - 30);
+    const ty = s.aty ? s.aty(G) : Grove.WALK.y0 + 40;
+    const bob = Math.round(Math.abs(Math.sin(G.time * 3.2)) * -6);
+    const x = Math.round(tx), y = Math.round(ty) + bob;
+    // the arrow: slate outline, coral fill, a lit edge
+    const ARW = [[-7, -12], [7, -12], [7, -4], [12, -4], [0, 8], [-12, -4], [-7, -4]];
+    Art.poly(g, ARW.map(([px, py]) => [x + px * 1.18, y + py * 1.18 + 1]), 'rgba(44,64,72,0.25)');
+    Art.poly(g, ARW.map(([px, py]) => [x + px * 1.18, y + py * 1.18 - 1]), Kit.C.line);
+    Art.poly(g, ARW.map(([px, py]) => [x + px, y + py - 1]), Kit.C.coral);
+    Art.rect(g, x - 5, y - 12, 3, 7, '#ffc2b2');
+    if (s.label) {
+      const w = Font.width(s.label, 1) + 14;
+      Kit.rr(g, x - w / 2, y - 31, w, 17, 7, Kit.C.line);
+      Kit.rr(g, x - w / 2 + 2, y - 29, w - 4, 13, 6, '#ffffff');
+      Font.draw(g, s.label, x, y - 26, { scale: 1, color: Kit.C.line, align: 'center' });
     }
   }
 
@@ -512,59 +643,36 @@ const Guide = (() => {
   }
 
   function drawBubble(g) {
-    if (bubble.life <= 0 || !bubble.text) return;
-    // A plain speech bubble: white paper, a black border, black letters. No
-    // shine, no wobble, no starburst — it is there to be read.
-    const INK = '#141118', PAPER = '#fbf8f2', EDGE = '#c8c2b8';
-
-    const lines = layout(bubble.text, 176);
-    const W = Math.max(96, Math.ceil(Math.max(...lines.map((l) => l.w))) + 24);
-    const H = lines.length * LH + 18;
-    const shownN = Math.floor(bubble.shown);
-    const total = lines.reduce((n, l) => n + l.length, 0);
-    const done = shownN >= total;
-
-    // where it sits: above his head, always inside the view
-    const half = W / 2 + 10;
-    const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
-    const bx = lo > hi ? FX.cam.x : U.clamp(cult.x + 6, lo, hi);
-    const by = Math.max(26 + H, cult.y - 96);
-
-    g.save();
-    const X = Math.round(bx - W / 2), Y = Math.round(by - H);
-
-    // the tail, pointing at him
-    const tx = U.clamp(Math.round(cult.x + 6), X + 16, X + W - 16);
-    g.fillStyle = INK;
-    g.beginPath(); g.moveTo(tx - 9, Y + H - 2); g.lineTo(tx - 1, Y + H + 13); g.lineTo(tx + 8, Y + H - 2); g.fill();
-    // the box
-    g.fillStyle = INK; g.fillRect(X - 2, Y - 2, W + 4, H + 4);
-    g.fillStyle = PAPER; g.fillRect(X, Y, W, H);
-    g.fillStyle = EDGE; g.fillRect(X, Y + H - 1, W, 1);
-    g.fillStyle = PAPER;
-    g.beginPath(); g.moveTo(tx - 6, Y + H - 2); g.lineTo(tx - 1, Y + H + 8); g.lineTo(tx + 5, Y + H - 2); g.fill();
-
-    // ---- the letters, typed in, all one weight -----------------------------
-    lines.forEach((l, li) => {
-      const ly = Y + 10 + li * LH;
-      for (const ch of l) {
-        if (ch.i >= shownN || ch.c === ' ') continue;
-        Font.draw(g, ch.c, X + 12 + ch.x, ly, { scale: BS, color: INK, align: 'left' });
-      }
-    });
-
-    // ---- the cue in the corner ---------------------------------------------
-    if (!done) {                                        // still speaking: three dots
-      for (let i = 0; i < 3; i++) {
-        g.fillStyle = i === Math.floor(G.time * 4) % 3 ? '#141118' : '#b4aea4';
-        g.fillRect(X + W - 22 + i * 6, Y + H - 10, 3, 3);
-      }
-    } else {                                            // finished: a small arrow
-      const up = Math.round(Math.sin(G.time * 4) * 1.5);
-      g.fillStyle = '#141118';
-      for (let i = 0; i < 4; i++) g.fillRect(X + W - 20 + i, Y + H - 12 + i + up, 8 - i * 2, 1);
+    if (bubble.life <= 0 || !bubble.text || Talk.isOpen()) return;
+    // a small speech tag over his head for chatter: cream, one slate line,
+    // rounded, and a little tail. Anything that matters goes in the dialogue box.
+    const maxW = 132;
+    const words = bubble.text.replace(/\*/g, '').split(' ');
+    const lines = []; let line = '';
+    for (const w of words) {
+      const t2 = line ? line + ' ' + w : w;
+      if (Font.width(t2, 1) > maxW && line) { lines.push(line); line = w; } else line = t2;
     }
-    g.restore();
+    if (line) lines.push(line);
+    const shown = Math.floor(bubble.shown);
+    const W2 = Math.max(40, Math.max(...lines.map((l) => Font.width(l, 1)))) + 14, H2 = lines.length * 10 + 9;
+    const half = W2 / 2 + 6;
+    const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
+    const bx = lo > hi ? FX.cam.x : U.clamp(cult.x, lo, hi);
+    const pop = bubble.pop > 0 ? Math.round(bubble.pop * 3) : 0;
+    const X = Math.round(bx - W2 / 2), Y = Math.round(cult.y - 92 - H2 - pop);
+    const tx = U.clamp(Math.round(cult.x), X + 8, X + W2 - 8);
+    Kit.rr(g, X, Y + 3, W2, H2, 5, 'rgba(44,64,72,0.2)');
+    Kit.rr(g, X - 1, Y - 1, W2 + 2, H2 + 2, 6, Kit.C.line);
+    Kit.rr(g, X + 1, Y + 1, W2 - 2, H2 - 2, 5, bubble.kind === 'praise' ? '#fff4c8' : '#fffaf0');
+    Art.poly(g, [[tx - 5, Y + H2], [tx + 4, Y + H2], [tx, Y + H2 + 6]], Kit.C.line);
+    Art.poly(g, [[tx - 3, Y + H2 - 1], [tx + 2, Y + H2 - 1], [tx, Y + H2 + 3]], bubble.kind === 'praise' ? '#fff4c8' : '#fffaf0');
+    let n = 0;
+    lines.forEach((l, i) => {
+      const part = l.slice(0, Math.max(0, shown - n));
+      n += l.length + 1;
+      if (part) Font.draw(g, part, X + 7, Y + 5 + i * 10, { scale: 1, color: Kit.C.ink });
+    });
   }
 
   function state() {
@@ -577,15 +685,15 @@ const Guide = (() => {
   // The job in hand, in the shape the phone wants it: a title, the long form of
   // what she said, where it has to happen, and what she pays for it.
   const WHERE = {
-    sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
+    meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
     arrive: 'in the grove', phone: 'Wombat Mart', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
     feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere',
   };
   function current() {
     const st = step();
     if (!st) return null;
-    return { key: st.key, title: st.title, note: st.note, icon: st.icon, say: st.say,
+    return { key: st.key, title: st.title, note: st.note, icon: st.icon, say: st.say, tool: st.tool,
       where: WHERE[st.key] || 'in the grove', reward: REWARD[G.step] || 0, i: G.step, total: STEPS.length };
   }
-  return { init, update, draw, state, toggle, check, poke, hit, say, current, paid, hutHit, hutHere, drawHut, get cult() { return cult; }, get hutX() { return HUT.x; }, STEPS };
+  return { init, update, draw, drawPointer, teach: () => { const s2 = step(); if (s2) teach(s2); }, state, toggle, check, poke, hit, say, current, paid, hutHit, hutHere, drawHut, get cult() { return cult; }, get hutX() { return HUT.x; }, STEPS };
 })();

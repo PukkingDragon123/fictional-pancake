@@ -40,7 +40,9 @@ const UI = (() => {
     }
     refreshList();
     refreshNotebook();
-    const sig = [G.mode, G.tool, G.selSeed, G.selFood, G.seeds[G.selSeed], G.food[G.selFood], G.step, G.decor && G.decor.nest, Object.keys(G.owned || {}).length].join('|');
+    const cq = Guide.current();
+    const sig = [G.mode, G.tool, G.selSeed, G.selFood, G.seeds[G.selSeed], G.food[G.selFood], G.step, G.decor && G.decor.nest, Object.keys(G.owned || {}).length,
+      Object.keys(G.unlocked || {}).length, Object.keys(G.newTools || {}).join(','), cq && G.lessons && G.lessons[cq.key] ? cq.tool : ''].join('|');
     if (sig !== hotSig) { hotSig = sig; renderHotbar(); }
   }
 
@@ -113,9 +115,9 @@ const UI = (() => {
       items = WHEEL_TOOLS.map((key) => {
         const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
         const hk = HOTKEYS.indexOf(key);
-        return { icon: t.icon, rune: hk >= 0 ? String(hk + 1) : '', on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${whyLocked(key)}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
+        return { icon: t.icon, rune: hk >= 0 ? String(hk + 1) : '', on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${whyLocked(key, G)}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
           act: () => {
-            if (lk) { Audio.play('error'); toast(whyLocked(key), 'bad'); return; }
+            if (lk) { Audio.play('error'); toast(whyLocked(key, G), 'bad'); return; }
             G.tool = key; Grove.clearPair(); Audio.play('click');
             if (key === 'food') { wheelRing = 'food'; renderWheel(); return; }
             if (key === 'seed') { wheelRing = 'seed'; renderWheel(); return; }
@@ -250,8 +252,11 @@ const UI = (() => {
       if (key === 'food' && G.selFood) extra = `<span class="hs">${ic(CROP_BY_KEY[G.selFood] ? CROP_BY_KEY[G.selFood].icon : 't_food', 'sm')}<b>${G.food[G.selFood] || 0}</b></span>`;
       // a tool you have not bought yet shows what it costs, so the bar is also the shopping list
       const shopDef = TOOL_SHOP_BY_KEY[key];
-      const tag = lk ? (shopDef && !owns(G, key) ? `<span class="pt">W$${shopDef.price}</span>` : `<span class="lk">${ic('lock', 'sm')}</span>`) : '';
-      return `<button class="hslot${on ? ' on' : ''}${lk ? ' locked' : ''}" data-k="${key}"><i class="hn">${i < 10 ? '1234567890'[i] : ''}</i>${ic(t.icon)}${extra}${tag}</button>`;
+      const tag = lk ? (shopDef && taught(G, key) ? `<span class="pt">W$${shopDef.price}</span>` : `<span class="lk">${ic('lock', 'sm')}</span>`) : '';
+      const cur2 = Guide.current();
+      const want = !lk && cur2 && cur2.tool === key && G.lessons && G.lessons[cur2.key] && G.tool !== key;
+      const fresh = !lk && G.newTools && G.newTools[key];
+      return `<button class="hslot${on ? ' on' : ''}${lk ? ' locked' : ''}${lk && !taught(G, key) ? ' sealed' : ''}${want ? ' want' : ''}${fresh ? ' new' : ''}" data-k="${key}"><i class="hn">${i < 10 ? '1234567890'[i] : ''}</i>${ic(t.icon)}${extra}${tag}</button>`;
     }).join('');
     const hint = cur ? (TOOL_HINT[cur.key] || '') : '';
     bar.innerHTML = `<div class="hbname">${cur ? `<b>${cur.name}</b>${hint ? `<small>${hint}</small>` : ''}` : ''}</div><div class="hbrow">${slots}</div>`;
@@ -260,56 +265,95 @@ const UI = (() => {
       const key = el.dataset.k, t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
       el.onclick = (e) => {
         e.stopPropagation();
-        if (lk) { Audio.play('error'); toast(whyLocked(key), 'bad'); return; }
+        if (lk) { Audio.play('error'); toast(whyLocked(key, G), 'bad'); return; }
         const r = el.getBoundingClientRect(), fr = $('frame').getBoundingClientRect(), k = frameScale();
         const sx = (r.left - fr.left) / k, sy = (r.top - fr.top) / k - 150;
         if ((key === 'seed' || key === 'food') && (G.tool === key || !(key === 'seed' ? G.selSeed : G.selFood))) {
           G.tool = key; openWheel(sx, sy, key === 'seed' ? 'seed' : 'food'); renderHotbar(); return;
         }
-        G.tool = key; Grove.clearPair(); Audio.play('click'); closeWheel(); renderHotbar();
+        G.tool = key; if (G.newTools) delete G.newTools[key]; Grove.clearPair(); Audio.play('click'); closeWheel(); renderHotbar();
       };
-      el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b> <span class="dim">${HOTKEYS.indexOf(key) < 10 ? '[' + '1234567890'[HOTKEYS.indexOf(key)] + ']' : ''}</span><br>${lk ? `<span class="warn">${whyLocked(key)}</span>` : t.desc}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b> <span class="dim">${HOTKEYS.indexOf(key) < 10 ? '[' + '1234567890'[HOTKEYS.indexOf(key)] + ']' : ''}</span><br>${lk ? `<span class="warn">${whyLocked(key, G)}</span>` : t.desc}`);
       el.onmouseleave = hideTip;
     });
   }
-  // The frame everything wears: warm oak with a lit top edge and a shaded
-  // foot, a brass nail in each corner, rounded off by a pixel. Painted once
-  // into a small canvas and handed to CSS as a nine-slice border image.
-  // `slot` is the tan well a tool sits in on the toolbar; `slotsel` is the
-  // same well with a warm ring round it for the tool in your hand.
+  // The frame everything wears: a soft rounded card with one slate line round
+  // it, a white lit edge along the top and a little lip underneath, so it sits
+  // on the picture like a paper tag. Painted once into a small canvas and
+  // handed to CSS as a nine-slice border image.
+  //   base    white chips on the HUD        paper  cream cards and panels
+  //   hot     base, with a mint ring        sel    base, with a sunny ring
+  //   slot    a pale mint well on the bar   slotsel the well for the tool in hand
   function goldFrameURL(kind) {
-    const P2 = 2, N = 15;                        // 15 art pixels a side, two screen pixels each
+    const P2 = 2, N = 15, R0 = 4;                // 15 art pixels a side, rounded by 4
     const c = document.createElement('canvas'); c.width = c.height = N * P2;
     const g = c.getContext('2d');
-    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const ink = '#3b1f10';
-    if (kind === 'slot' || kind === 'slotsel') {
-      const sel = kind === 'slotsel';
-      R(1, 0, N - 2, N, sel ? '#7a2410' : '#6a3a1c'); R(0, 1, N, N - 2, sel ? '#7a2410' : '#6a3a1c');
-      if (sel) { R(1, 1, N - 2, N - 2, '#ff8a4a'); R(2, 1, N - 4, 1, '#ffd08a'); R(1, 2, 1, N - 4, '#ffd08a'); R(2, N - 2, N - 4, 1, '#c8421e'); R(N - 2, 2, 1, N - 4, '#c8421e'); }
-      const o = sel ? 2 : 1;
-      R(o, o, N - o * 2, N - o * 2, '#e8c890');
-      R(o, o, N - o * 2, 1, '#b8894e'); R(o, o, 1, N - o * 2, '#c99a5c');           // the well is sunk: dark top and left
-      R(o + 1, N - o - 1, N - o * 2 - 1, 1, '#fbe6b8'); R(N - o - 1, o + 1, 1, N - o * 2 - 1, '#f6dca8');
-      R(o + 1, o + 1, N - o * 2 - 2, N - o * 2 - 2, '#f2d9a6');
-      return c.toDataURL();
-    }
-    const ring = kind === 'sel' ? ['#ffb07a', '#e8663a', '#a8381c'] : kind === 'hot' ? ['#ffd79a', '#e8a05a', '#b0662e'] : ['#e8a660', '#c47a3c', '#8a4c22'];
-    const fill = kind === 'paper' ? ['#fff8e4', '#fcefd0', '#f2dcae'] : ['#b27a48', '#9c6538', '#82502a'];
-    R(2, 0, N - 4, N, ink); R(0, 2, N, N - 4, ink); R(1, 1, N - 2, N - 2, ink);   // the outline, a rounded corner
-    R(2, 1, N - 4, N - 2, ring[1]); R(1, 2, N - 2, N - 4, ring[1]);                // the oak band
-    R(2, 1, N - 4, 1, ring[0]); R(1, 2, 1, N - 4, ring[0]);                        // lit top and left
-    R(2, N - 2, N - 4, 1, ring[2]); R(N - 2, 2, 1, N - 4, ring[2]);                // shaded foot and right
-    R(4, 2, 2, 1, ring[2]); R(9, N - 3, 3, 1, ring[0]);                            // a little grain in the wood
-    R(3, 3, N - 6, N - 6, '#5a2e16');                                              // the inner line
-    R(4, 4, N - 8, N - 8, fill[1]);
-    R(4, 4, N - 8, 1, fill[0]); R(4, N - 5, N - 8, 1, fill[2]);
-    for (const [x, y] of [[1, 1], [N - 3, 1], [1, N - 3], [N - 3, N - 3]]) {        // a brass nail in each corner
-      R(x, y, 2, 2, '#5a3410'); R(x, y, 1, 1, '#ffe7a0'); R(x + 1, y, 1, 1, '#e8b448'); R(x, y + 1, 1, 1, '#c88a28');
+    const K = {
+      base:    { line: '#2c4048', ring: null, ring2: null, fill: '#ffffff', top: '#ffffff', lip: '#d6e4de', lip2: '#b8ccc4' },
+      paper:   { line: '#2c4048', ring: null, ring2: null, fill: '#fffaf0', top: '#ffffff', lip: '#efe4cc', lip2: '#d9cbae' },
+      hot:     { line: '#2c4048', ring: '#7fd1a8', ring2: '#bff0d8', fill: '#ffffff', top: '#ffffff', lip: '#d6e4de', lip2: '#b8ccc4' },
+      sel:     { line: '#2c4048', ring: '#ffc23a', ring2: '#ffe38a', fill: '#fff9e0', top: '#ffffff', lip: '#f4e2a8', lip2: '#e2c46c' },
+      slot:    { line: '#9fbdb1', ring: null, ring2: null, fill: '#eef8f2', top: '#d4e9dd', lip: '#f8fdfa', lip2: '#f8fdfa', inset: true },
+      slotsel: { line: '#c7861a', ring: '#ffc23a', ring2: '#ffe38a', fill: '#fff4c8', top: '#fff9e0', lip: '#ffe9a0', lip2: '#f5d470' },
+    }[kind] || null;
+    const k = K || { line: '#2c4048', fill: '#fffaf0', top: '#fff', lip: '#efe4cc', lip2: '#d9cbae' };
+    // inside a rounded square of side n starting at o, radius r?
+    const inside = (x, y, o, n, r) => {
+      const x0 = o, y0 = o, x1 = o + n - 1, y1 = o + n - 1;
+      if (x < x0 || y < y0 || x > x1 || y > y1) return false;
+      const cx = x < x0 + r ? x0 + r : x > x1 - r ? x1 - r : x;
+      const cy = y < y0 + r ? y0 + r : y > y1 - r ? y1 - r : y;
+      return (x - cx) * (x - cx) + (y - cy) * (y - cy) <= r * r + r * 0.6;
+    };
+    const px = (x, y, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, P2, P2); };
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      if (!inside(x, y, 0, N, R0)) continue;
+      let col = k.line;
+      if (inside(x, y, 1, N - 2, R0 - 1)) {
+        col = k.fill;
+        if (k.ring && !inside(x, y, 2, N - 4, R0 - 1)) col = y < 4 ? k.ring2 : k.ring;
+        else if (k.inset) { if (y <= 2) col = k.top; }
+        else {
+          if (y === (k.ring ? 2 : 1) || (y === 2 && !k.ring)) col = y === 1 || k.ring ? k.top : col;
+          if (y >= N - 3) col = y === N - 2 ? k.lip2 : k.lip;              // the lip it stands on
+        }
+      }
+      px(x, y, col);
     }
     return c.toDataURL();
   }
   function pickTool() { }
+
+  // ---- "you got a new tool" -------------------------------------------------
+  // A card that drops into the middle of the picture when Jim hands you
+  // something or the mart starts stocking it. They queue, one at a time.
+  const unlockQ = [];
+  function unlockCard(key, gift) { unlockQ.push({ key, gift }); if (unlockQ.length === 1) showUnlock(); }
+  const unlockIdle = () => unlockQ.length === 0;
+  function showUnlock() {
+    const u = unlockQ[0], el = $('unlock');
+    if (!u || !el) return;
+    const t = TOOL_BY_KEY[u.key], sd = TOOL_SHOP_BY_KEY[u.key], phone = u.key === 'phone';
+    const name = phone ? 'A Phone' : (sd && sd.name) || (t ? t.name : u.key);
+    const icon = phone ? 'ph_key' : t ? t.icon : 'lock';
+    const price = phone ? PHONE_PRICE : sd ? sd.price : 0;
+    const what = phone ? 'Jobs, your herd, texts, and an App Store.' : t ? t.desc : '';
+    el.innerHTML = `<div class="ucard ${u.gift ? 'gift' : ''}">
+      <div class="uhead">${u.gift ? 'YOU GOT' : 'NEW AT WOMBAT MART'}</div>
+      <div class="upic">${ic(icon, 'xl')}</div>
+      <b class="uname">${name}</b>
+      <p class="utext">${what}</p>
+      <p class="uhow">${u.gift ? `It is on your toolbar. Press <b>${Math.max(1, HOTKEYS.indexOf(u.key) + 1)}</b> to pick it.` : `Drive to the mart and buy it for ${ic('wdollar', 'sm')} <b>W$${price}</b>.`}</p>
+      <button class="act go" id="u-ok">GOT IT</button></div>`;
+    el.hidden = false;
+    Audio.play(u.gift ? 'levelup' : 'perk');
+    $('u-ok').onclick = (e) => {
+      e.stopPropagation();
+      el.hidden = true; unlockQ.shift(); Audio.play('click');
+      if (unlockQ.length) setTimeout(showUnlock, 160);
+      refreshHUD();
+    };
+  }
 
   // ---- shrine -------------------------------------------------------------
   // The shrine has no interface. Everything it has to say is cut into the
@@ -531,7 +575,7 @@ const UI = (() => {
   function renderPawn() {
     const fern = pawnMode === 'cult';
     const head = $('panel-pawn').querySelector('.ptitle');
-    if (head) head.textContent = fern ? 'AUNT FERN BUYS' : 'SELL';
+    if (head) head.textContent = fern ? 'JIM BUYS' : 'SELL';
     let h = `<p class="pnote">${fern ? 'Every cube goes on his compost heap, whatever kind. The more you bring at once, the better the rate.' : 'The counter buys cubes for the garden centre.'}</p><div class="grid">`;
     let any = false;
     for (const k of OFFER_ORDER) {
@@ -639,6 +683,6 @@ const UI = (() => {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, pingPurse,
-    showTip, hideTip, place, setMode, openPanel, openPawn, closePanels, anyPanel, refreshZoom, openWombat,
+    showTip, hideTip, place, setMode, openPanel, openPawn, closePanels, anyPanel, refreshZoom, openWombat, unlockCard, unlockIdle,
   };
 })();

@@ -83,17 +83,14 @@ const Drive = (() => {
       Font.draw(g, run.title, VW / 2, 22, { scale: 2, color: '#f0d2a0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
       if (run.sub) Font.draw(g, run.sub, VW / 2, 42, { scale: 1, color: '#c9a9c0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
     } else {
-      // a parchment card in the oak frame, like everything else you read
+      // a soft card like everything else you read, with the trip filling in
       const bw = 210, bx = VW / 2 - bw / 2, by = 16;
-      g.fillStyle = 'rgba(40,20,8,0.3)'; g.fillRect(bx - 8, by - 2, bw + 16, 42);
-      g.fillStyle = '#3b1f10'; g.fillRect(bx - 8, by - 6, bw + 16, 42);
-      g.fillStyle = '#c47a3c'; g.fillRect(bx - 6, by - 4, bw + 12, 38);
-      g.fillStyle = '#fcefd0'; g.fillRect(bx - 3, by - 1, bw + 6, 32);
-      Font.draw(g, 'TO ' + run.to, VW / 2, by + 2, { scale: 1, color: '#6d2e12', align: 'center' });
-      g.fillStyle = '#d8c09a'; g.fillRect(bx, by + 14, bw, 6);
-      g.fillStyle = '#6ea83e'; g.fillRect(bx, by + 14, Math.round(bw * k), 6);
-      g.fillStyle = '#a8d46c'; g.fillRect(bx, by + 14, Math.round(bw * k), 2);
-      Font.draw(g, Math.max(0, Math.round(run.km * (1 - k))) + ' km', VW / 2, by + 22, { scale: 1, color: '#9a6a3c', align: 'center' });
+      Kit.card(g, bx - 10, by - 6, bw + 20, 44, { r: 8 });
+      Font.draw(g, 'TO ' + run.to, VW / 2, by + 2, { scale: 1, color: Kit.C.mintDD, align: 'center' });
+      Kit.rr(g, bx, by + 13, bw, 8, 4, Kit.C.line);
+      Kit.rr(g, bx + 1, by + 14, bw - 2, 6, 3, '#e6efeb');
+      if (k > 0.02) Kit.rr(g, bx + 1, by + 14, Math.round((bw - 2) * k), 6, 3, Kit.C.mint);
+      Font.draw(g, Math.max(0, Math.round(run.km * (1 - k))) + ' km', VW / 2, by + 24, { scale: 1, color: Kit.C.ink2, align: 'center' });
     }
     // ---- arriving ---------------------------------------------------------
     if (run.fade && run.t > run.dur) {

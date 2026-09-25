@@ -555,6 +555,7 @@ const Icons = (() => {
   };
 
   function build(name) {
+    if (typeof IconArt !== 'undefined' && IconArt.has(name)) return IconArt.build(name);
     const def = DEF[name];
     if (!def) return null;
     const fn = typeof def === 'function' ? def : def.draw;

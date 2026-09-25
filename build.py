@@ -8,7 +8,7 @@ then writes wombat-gods.html with the CSS and JS inlined. The output has no
 import re
 
 html = open('index.html').read()
-css = open('css/style.css').read()
+css = open('css/style.css').read() + '\n' + open('css/theme.css').read()
 body = html.split('<body>', 1)[1].split('<script src', 1)[0].strip()
 order = re.findall(r'js/(\w+)\.js', html)
 

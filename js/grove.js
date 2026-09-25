@@ -776,6 +776,7 @@ const Grove = (() => {
   function press(x, y, first, dir) {
     if (arrival) return true;
     const tool = G.tool;
+    if (first && G.newTools && G.newTools[tool]) { delete G.newTools[tool]; UI.refreshHUD(); }   // used it: not new any more
     if (y < GROUND) return false;
     // the two landmarks answer to any tool; they are doors, not ground -
     // unless a weed is standing in front of them, in which case you meant the weed
@@ -1161,6 +1162,7 @@ const Grove = (() => {
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
     drawPlotPrompt(g, L, R);
+    Guide.drawPointer(g);       // the arrow over the job in hand
     drawMagic(g, L, R);         // whatever the gods are leaving in the air
     drawBuildGhost(g);          // the piece riding on the pointer, and what it is
 
@@ -1336,28 +1338,16 @@ const Grove = (() => {
         g.fillStyle = 'rgba(245,205,92,0.07)';
         g.fillRect(Math.max(L, p.x0), SKY - 20, Math.min(R, p.x1) - Math.max(L, p.x0), H - SKY + 40);
       }
-      // a board behind it, because gold letters on a field of weeds are gold
-      // letters you cannot read
+      // a soft card on a little post, so the price reads over any weeds
       const label0 = p.name.toUpperCase();
-      const bw = Math.max(Font.width(label0, 2), 108) + 22;
-      Art.rect(g, cx - bw / 2 - 2, y - 26, bw + 4, 54, '#120c08');
-      Art.rect(g, cx - bw / 2, y - 24, bw, 50, hot ? '#4a361c' : '#2e2414');
-      Art.rect(g, cx - bw / 2, y - 24, bw, 2, hot ? '#7a5a2c' : '#4a3a20');
-      Art.rect(g, cx - bw / 2, y + 24, bw, 2, '#0e0a06');
-      for (const sd of [-1, 1]) Art.rect(g, cx + sd * (bw / 2 - 3) - 1, y - 22, 2, 46, hot ? '#6a4c24' : '#3e3018');
-      Art.rect(g, cx - 3, y + 26, 6, 26, '#2a1f10');                   // the post it is nailed to
-      Art.rect(g, cx - 3, y + 26, 2, 26, '#443218');
-      Font.draw(g, label0, cx, y - 18, {
-        scale: 2, color: hot ? '#ffe9a8' : '#d8c8a4', align: 'center', shadow: '#120a06', shadowDist: 2,
-      });
-      const label = can ? `${p.cost} W$` : `${p.cost} W$`;
-      Font.draw(g, label, cx, y + 2, {
-        scale: 2, color: can ? '#f5cd5c' : '#e0756a',
-        align: 'center', shadow: '#120a06', shadowDist: 2,
-      });
-      Font.draw(g, can ? (hot ? 'CLICK THE LAND TO BUY IT' : 'FOR SALE') : 'NOT ENOUGH', cx, y + 20, {
-        scale: 1, color: !can ? '#e0756a' : hot ? '#c9e88a' : '#b0a488', align: 'center', shadow: '#120a06',
-      });
+      const bw = Math.max(Font.width(label0, 2), 108) + 24;
+      Art.rect(g, cx - 3, y + 24, 6, 28, Kit.C.line); Art.rect(g, cx - 1, y + 24, 2, 28, '#9fbdb1');
+      Kit.card(g, cx - bw / 2, y - 26, bw, 56, { r: 8, ring: hot ? Kit.C.sun : null });
+      Kit.tab(g, cx - bw / 2 + 8, y - 34, bw - 16, 14, 'FOR SALE', { col: hot ? Kit.C.sunD : Kit.C.mintD });
+      Font.draw(g, label0, cx, y - 14, { scale: 2, color: Kit.C.ink, align: 'center' });
+      const pw = Font.width(`${p.cost} W$`, 1) + 14;
+      Kit.pill(g, cx - pw / 2, y + 6, `${p.cost} W$`, { col: can ? Kit.C.sun : '#ffd2c6', ink: can ? '#4a3304' : Kit.C.coralD });
+      if (hot || !can) Font.draw(g, can ? 'CLICK THE LAND TO BUY IT' : 'NOT ENOUGH YET', cx, y + 34 + 6, { scale: 1, color: can ? Kit.C.mintDD : Kit.C.coralD, align: 'center' });
     }
   }
   function buyPlot(p) {

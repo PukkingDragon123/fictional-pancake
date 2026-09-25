@@ -17,9 +17,11 @@ inlined). Rebuild it with `python3 build.py` after changing anything in `js/` or
 The game opens with the drive in: through the forest, down the one street of Wombat
 Creek, and up to the farm gate where Jim is waiting.
 
-1. **Kit out.** You start with your hands and W$300. Drive to Wombat Mart (click the
-   truck) and buy tools from the TOOLS aisle. A phone is W$80; its apps come from the
-   App Store on the phone itself.
+1. **Meet Jim.** You start with your hands and W$300. Jim hands you his old sickle and
+   teaches each job in a dialogue box with his portrait. Every job unlocks the tool
+   it needs, which you then buy at Wombat Mart (click the truck). An arrow points at
+   whatever the job is about, and the toolbar slot you need glows. A phone is W$80; its
+   apps come from the App Store on the phone itself.
 2. **Tidy up.** Cut the weeds with the sickle, have the ants take the old logs, and sow
    grass inside the rope. A tidy garden brings your first wombat.
 3. **Grow.** Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.
@@ -55,11 +57,14 @@ wander in now and then, the weather changes on its own, and a day is twelve minu
 - `js/grove.js` - the garden scene: wombats, tools, the truck, plots
 - `js/world.js` - the painted ground, grass, weeds, crops, trees and fertiliser
 - `js/wild.js` - the shovel's height field and flowing water, critters, visiting neighbours
-- `js/guide.js` - Jim: the step-by-step jobs, chatter and his shed
+- `js/guide.js` - Jim: the jobs, his lessons, the tools each job unlocks, the pointer arrow
+- `js/talk.js`, `js/portraits.js` - the dialogue box and the big 64x64 faces with moods
+- `js/uikit.js`, `css/theme.css` - the soft cream-and-mint interface, on canvas and in HTML
+- `js/iconart.js` - the hand-drawn 16x16 tool and item icons
 - `js/scenery.js` - the painted country: ranges, fields, forest, village, road, the car
 - `js/menu.js` - the title screen, driving through the forest
 - `js/intro.js` - the drive into Wombat Creek and up to the farm gate
 - `js/map.js`, `js/drive.js`, `js/shop.js`, `js/nursery.js` - the other scenes
-- `js/phone.js`, `js/talk.js`, `js/ui.js` - the white phone and its App Store, conversations and HUD
+- `js/phone.js`, `js/ui.js` - the white phone and its App Store, the HUD and toolbar
 - `js/art.js`, `js/sprites.js`, `js/props.js`, `js/icons.js`, `js/tex.js`, `js/fx.js` - the art
 - `js/data.js` - crops, tools, prices, apps and furniture

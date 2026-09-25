@@ -25,7 +25,7 @@ const Talk = (() => {
   // modules already, so this is cheap to call every frame.
   const SPEAKERS = {
     cultist: {
-      name: 'Jim', sub: 'the old caretaker',
+      name: 'Jim', sub: 'the old caretaker', face: 'jim',
       bg: ['#c9763c', '#7c4630'],
       draw(mood, t) {
         Sprites.setFace(mood || 'happy');
@@ -65,7 +65,7 @@ const Talk = (() => {
   for (const key of Object.keys(Sprites.VILLAGERS)) {
     const K = Sprites.VILLAGERS[key];
     SPEAKERS['villager:' + key] = {
-      name: K.name, sub: K.why,
+      name: K.name, sub: K.why, face: key,
       bg: ['#2f3c4a', '#181f28'],
       draw(mood, t) {
         const pose = { happy: 'wave', proud: 'wave', talk: 'talk', think: 'idle', cross: 'talk',
@@ -83,16 +83,29 @@ const Talk = (() => {
     UI.closePanels();                       // this can close a conversation, so it goes first
     cur = { who, tree, node: tree.start, onClose };
     $('panel-talk').hidden = false;
+    document.body.classList.add('talking');
     G.paused = true;
     Audio.play('click');
     go(tree.start);
     if (!raf) raf = requestAnimationFrame(tick);
+  }
+  // A run of pages with nothing to choose, like a lesson: click to go on.
+  // Pages are strings or { say, mood }; the last one can carry options.
+  function lesson(who, pages, onClose, lastOpts) {
+    const nodes = {};
+    pages.forEach((pg, i) => {
+      const p2 = typeof pg === 'string' ? { say: pg } : pg;
+      nodes['p' + i] = { say: p2.say, mood: p2.mood || 'talk', next: i < pages.length - 1 ? 'p' + (i + 1) : null,
+        opts: i === pages.length - 1 ? lastOpts : null, page: [i + 1, pages.length] };
+    });
+    open(who, { start: 'p0', nodes }, onClose);
   }
   function close() {
     if (!cur) return;
     const cb = cur.onClose;
     cur = null;
     $('panel-talk').hidden = true;
+    document.body.classList.remove('talking');
     G.paused = false;
     cancelAnimationFrame(raf); raf = 0;
     Audio.play('click');
@@ -118,8 +131,18 @@ const Talk = (() => {
     if (opt.act) opt.act();
     if (opt.to) go(opt.to); else close();
   }
+  // a click anywhere on the box: finish the line, or turn the page
+  function advance() {
+    if (!cur) return;
+    if (typed < full.length) { typed = full.length; render(); return; }
+    const n = cur.tree.nodes[cur.node] || {};
+    const opts = (n.opts || []).filter((o) => !o.if || o.if());
+    if (n.next) { Audio.play('click'); go(n.next); return; }
+    if (!opts.length) { close(); }
+  }
 
   // ---- drawing ------------------------------------------------------------
+  const nodeOpts = (n) => (n.opts || []).filter((o) => !o.if || o.if());
   function render() {
     if (!cur) return;
     const sp = SPEAKERS[cur.who];
@@ -127,19 +150,25 @@ const Talk = (() => {
     $('talk-name').textContent = sp.name;
     $('talk-sub').textContent = (typeof n.sub === 'function' ? n.sub() : n.sub) || sp.sub;
     $('talk-line').textContent = full.slice(0, typed);
-    $('talk-line').classList.toggle('typing', typed < full.length);
+    const done = typed >= full.length;
+    $('talk-line').classList.toggle('typing', !done);
     const list = $('talk-opts');
     list.innerHTML = '';
-    const opts = (n.opts || []).filter((o) => !o.if || o.if());
-    const shown = opts.length ? opts : [{ q: 'Right. Thanks.', end: true }];
-    shown.forEach((o, i) => {
+    const opts = nodeOpts(n);
+    // options only come up once the line has finished, like they do in a game
+    list.hidden = !done || (!opts.length);
+    if (done) opts.forEach((o, i) => {
       const b = document.createElement('button');
-      b.className = 'topt' + (o.end || (!o.to && !o.act) ? ' end' : '');
+      b.className = 'dlg-opt' + (o.end || (!o.to && !o.act) ? ' end' : '');
       const q = typeof o.q === 'function' ? o.q() : o.q;
       b.innerHTML = `<span class="tnum">${i + 1}</span><span class="tq">${q}</span>`;
-      b.onclick = () => choose(o);
+      b.onclick = (e) => { e.stopPropagation(); choose(o); };
       list.appendChild(b);
     });
+    const nx = $('talk-next');
+    nx.hidden = !done || opts.length > 0;
+    nx.className = 'dlg-next' + (n.next ? '' : ' end');
+    nx.textContent = n.page ? `${n.page[0]}/${n.page[1]}` : '';
   }
   function tick(ms) {
     if (!cur) { raf = 0; return; }
@@ -147,9 +176,10 @@ const Talk = (() => {
     portraitT = ms / 1000;
     // the line types itself on, which is what makes it feel like talking
     if (typed < full.length) {
-      typed = Math.min(full.length, typed + 2);
+      typed = Math.min(full.length, typed + 1);
+      if (typed % 3 === 0 && full[typed - 1] !== ' ') Audio.play('blip');
       $('talk-line').textContent = full.slice(0, typed);
-      if (typed >= full.length) $('talk-line').classList.remove('typing');
+      if (typed >= full.length) render();
     }
     paintPortrait();
   }
@@ -161,20 +191,24 @@ const Talk = (() => {
     const g = cv.getContext('2d');
     g.imageSmoothingEnabled = false;
     const W = cv.width, H = cv.height;
-    // the backdrop: two flat bands and a floor, so the portrait has a room
-    Art.vband(g, 0, 0, W, H, sp.bg[0], sp.bg[1], 6);
-    Art.rect(g, 0, H - 18, W, 18, sp.bg[1]);
-    Art.rect(g, 0, H - 18, W, 2, 'rgba(255,255,255,0.08)');
-    for (let i = 0; i < 26; i++) {              // dust in the light
-      const dx = (i * 37) % W, dy = (H - ((i * 53 + portraitT * 14) % H)) | 0;
-      g.fillStyle = 'rgba(255,244,214,0.18)';
-      g.fillRect(dx, dy, 1, 1);
-    }
-    const d = sp.draw(n.mood || 'talk', portraitT);
-    const w = d.img.width * d.sc, h = d.img.height * d.sc;
-    g.fillStyle = 'rgba(0,0,0,0.3)';
-    Art.ell(g, W / 2, H - 14, w * 0.3, 4);
-    g.drawImage(d.img, Math.round(W / 2 - w / 2), Math.round(H - 12 - h + d.dy), Math.round(w), Math.round(h));
+    g.clearRect(0, 0, W, H);
+    // a soft sky behind them, with a band of meadow at the shoulders
+    Art.vband(g, 0, 0, W, H, '#cdebf7', '#eaf6ec', 6);
+    g.fillStyle = 'rgba(127,209,168,0.45)'; g.fillRect(0, H - 14, W, 14);
+    const mood = n.mood || 'talk';
+    const talking = typed < full.length;
+    const face = sp.face && typeof Portraits !== 'undefined' ? Portraits.get(sp.face, mood, portraitT, talking) : null;
+    if (face) { g.drawImage(face, 0, 0); return; }
+    // anybody without a painted face stands in the frame as themselves
+    const d = sp.draw(mood, portraitT);
+    // cropped to head and shoulders, like the painted faces
+    const sc = Math.max(1, Math.round(((H * 1.7) / d.img.height) * 2) / 2);
+    const w = d.img.width * sc, h = d.img.height * sc;
+    g.drawImage(d.img, Math.round(W / 2 - w / 2), Math.round(2 - h * 0.04 + d.dy), Math.round(w), Math.round(h));
+  }
+  function bind() {
+    const box = $('talk-box');
+    if (box && !box.dataset.on) { box.dataset.on = '1'; box.addEventListener('click', () => advance()); }
   }
 
   // ---- keys ---------------------------------------------------------------
@@ -182,12 +216,12 @@ const Talk = (() => {
     if (!cur) return false;
     if (e.key === 'Escape') { close(); return true; }
     const n = cur.tree.nodes[cur.node] || {};
-    const opts = (n.opts || []).filter((o) => !o.if || o.if());
+    const opts = nodeOpts(n);
     const i = parseInt(e.key, 10) - 1;
-    if (i >= 0 && i < Math.max(1, opts.length)) { choose(opts[i] || { end: true }); return true; }
-    if (e.key === ' ' || e.key === 'Enter') { if (typed < full.length) { typed = full.length; render(); } return true; }
+    if (typed >= full.length && i >= 0 && i < opts.length) { choose(opts[i]); return true; }
+    if (e.key === ' ' || e.key === 'Enter' || e.key === 'e' || e.key === 'E') { advance(); return true; }
     return false;
   }
 
-  return { init, open, close, isOpen, key, SPEAKERS };
+  return { init: (g) => { init(g); bind(); }, open, lesson, close, isOpen, key, advance, SPEAKERS };
 })();

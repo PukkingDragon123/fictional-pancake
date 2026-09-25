@@ -51,6 +51,7 @@ const Audio = (() => {
   const SFX = {
     click: () => tone({ freq: 900, type: 'square', dur: 0.05, vol: 0.12 }),
     hover: () => tone({ freq: 1400, type: 'sine', dur: 0.03, vol: 0.05 }),
+    blip: () => tone({ freq: 520 + Math.random() * 90, type: 'triangle', dur: 0.035, vol: 0.05 }),
     pet: () => { tone({ freq: 660, type: 'triangle', dur: 0.12, vol: 0.2, slide: 300 }); tone({ freq: 990, type: 'triangle', dur: 0.15, vol: 0.12, delay: 0.06, slide: 200 }); },
     eat: () => { for (let i = 0; i < 3; i++) noise({ dur: 0.08, vol: 0.25, lp: 900, delay: i * 0.11 }); },
     strain: () => tone({ freq: 180, type: 'sawtooth', dur: 0.5, vol: 0.12, slide: 80 }),

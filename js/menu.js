@@ -39,25 +39,9 @@ const Menu = (() => {
   }
   // the page: a wooden cover, a parchment leaf inside it, four iron brackets
   // bolted over the corners and a ribbon hanging out of the top
-  function board(g, x, y, w, h) { goldFrame(g, x, y, w, h, { fill: KIT.p2 }); }
+  function board(g, x, y, w, h) { Kit.card(g, x, y, w, h, { r: 10 }); }
   // the heading: a plank of dark wood with an iron cap hammered on each end
-  function plate(g, x, y, w, h, text, scale = 2) {
-    Art.rect(g, x - 2, y - 2, w + 4, h + 4, KIT.ink);
-    Art.rect(g, x, y, w, h, KIT.t1);
-    Art.rect(g, x, y, w, 3, KIT.t3);                          // light along the top board
-    Art.rect(g, x, y + h - 4, w, 4, KIT.t0);
-    Art.rect(g, x + 8, y + Math.round(h / 2), w - 16, 1, KIT.t0);   // the seam between planks
-    for (let gx = x + 12; gx < x + w - 12; gx += 11) Art.rect(g, gx, y + 4, 1, h - 9, KIT.t2);
-    for (const [cx, sd] of [[x, 1], [x + w - 9, -1]]) {       // the iron caps
-      Art.rect(g, cx, y - 1, 9, h + 2, KIT.i1);
-      Art.rect(g, cx, y - 1, 9, 2, KIT.i3);
-      Art.rect(g, cx, y + h - 1, 9, 2, KIT.i0);
-      Art.rect(g, sd > 0 ? cx + 8 : cx, y - 1, 1, h + 2, KIT.i0);
-      Art.rect(g, cx + 3, y + h / 2 - 1, 3, 3, KIT.i4);       // the rivet in it
-    }
-    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2 + 1, { scale, color: '#1a0f06', align: 'center' });
-    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2, { scale, color: KIT.p4, align: 'center' });
-  }
+  function plate(g, x, y, w, h, text, scale = 2) { Kit.tab(g, x, y, w, h, text, { scale: Math.min(scale, 2) }); }
   // the name of the game, on the biggest plate there is
 
   // ---- gold-cornered frames ------------------------------------------------
@@ -74,28 +58,10 @@ const Menu = (() => {
     px(4, 4, 2, 2, GF.g2); px(4, 4, 1, 1, GF.g3); px(2, 2, 1, 1, GF.g1);
   }
   function goldFrame(g, x, y, w, h, o = {}) {
-    x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
-    Art.rect(g, x - 2, y + 3, w + 4, h + 2, 'rgba(26,16,10,0.35)');           // a shadow under it
-    cut(g, x - 2, y - 2, w + 4, h + 4, GF.ink, 4);
-    cut(g, x, y, w, h, o.hot ? GF.g3 : GF.g2, 3);                             // the gold ring
-    Art.rect(g, x + 3, y, w - 6, 1, GF.g3);
-    Art.rect(g, x + 3, y + h - 2, w - 6, 2, GF.g1);
-    Art.rect(g, x + w - 2, y + 3, 2, h - 6, GF.g1);
-    cut(g, x + 3, y + 3, w - 6, h - 6, GF.ink, 2);
-    const fill = o.fill || (o.hot ? GF.b3 : GF.b2);
-    cut(g, x + 4, y + 4, w - 8, h - 8, fill, 2);
-    Art.rect(g, x + 5, y + 4, w - 10, 2, U.shade(fill, 0.18));                // a soft lit top
-    Art.rect(g, x + 5, y + h - 7, w - 10, 3, U.shade(fill, -0.16));
-    curl(g, x + 1, y + 1, 1, 1); curl(g, x + w - 1, y + 1, -1, 1);
-    curl(g, x + 1, y + h - 1, 1, -1); curl(g, x + w - 1, y + h - 1, -1, -1);
+    Kit.card(g, x, y, w, h, { fill: o.fill && o.fill !== GF.b1 ? o.fill : Kit.C.paper, ring: o.hot ? Kit.C.mint : null, r: o.r });
   }
-  function goldButton(g, b, label, sub) {
-    const hot = hover === b.id, dy = hot ? -2 : 0;
-    goldFrame(g, b.x, b.y + dy, b.w, b.h, { hot });
-    const cy = b.y + dy + (sub ? 8 : b.h / 2 - 7);
-    Font.draw(g, label, b.x + b.w / 2, cy + 1, { scale: 2, color: GF.ink, align: 'center' });
-    Font.draw(g, label, b.x + b.w / 2, cy, { scale: 2, color: hot ? '#fff6c8' : '#ffe8b0', align: 'center' });
-    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + 18, { scale: 1, color: '#f0cc88', align: 'center' });
+  function goldButton(g, b, label, sub, kind) {
+    Kit.button(g, b, label, sub, { hot: hover === b.id, kind: kind || (b.id === 'enter' ? 'sun' : 'mint') });
   }
 
   // ---- the forest going past -----------------------------------------------
@@ -194,9 +160,9 @@ const Menu = (() => {
     buttons = [];
     const bob = Math.sin(t * 1.2) * 1.5;
     goldFrame(g, VW / 2 - 170, 22 + bob, 340, 70);
-    Font.draw(g, 'WOMBAT FARM', VW / 2 + 2, 40 + bob + 2, { scale: 4, color: GF.ink, align: 'center' });
-    Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: '#ffe8a0', align: 'center' });
-    Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: '#f0cc88', align: 'center' });
+    Font.draw(g, 'WOMBAT FARM', VW / 2, 42 + bob, { scale: 4, color: Kit.C.mintL, align: 'center' });
+    Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: Kit.C.mintDD, align: 'center' });
+    Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: Kit.C.ink2, align: 'center' });
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
     const bx = 430, bw = 184;
     const play = { id: 'enter', x: bx, y: 118, w: bw, h: 44 };
@@ -211,33 +177,15 @@ const Menu = (() => {
     // the tip of the day, on a gold-cornered strip at the bottom
     const line = RUMOURS[rumour % RUMOURS.length];
     const lw = Font.width(line, 1) + 30;
-    goldFrame(g, VW / 2 - lw / 2, VH - 26, lw, 20, { fill: GF.b1 });
-    Font.draw(g, line, VW / 2, VH - 19, { scale: 1, color: '#ffe8b0', align: 'center' });
+    goldFrame(g, VW / 2 - lw / 2, VH - 28, lw, 22, { r: 8 });
+    Font.draw(g, line, VW / 2, VH - 21, { scale: 1, color: Kit.C.ink, align: 'center' });
   }
 
   // which drops four pixels when the pointer is over it. It is the same button
   // the panels use, drawn with rectangles instead of CSS.
-  function plaque(g, x, y, w, h, hot) {
-    cut(g, x - 2, y - 2, w + 4, h + 4, KIT.ink, 3);
-    cut(g, x, y, w, h, hot ? KIT.g3 : KIT.g2, 2);
-    Art.rect(g, x + 2, y, w - 4, 3, hot ? KIT.g4 : KIT.g3);
-    Art.rect(g, x + 2, y + h - 4, w - 4, 4, hot ? KIT.g1 : KIT.g0);
-    Art.rect(g, x, y + 3, 2, h - 7, hot ? KIT.g4 : KIT.g3);
-    Art.rect(g, x + w - 2, y + 3, 2, h - 7, hot ? KIT.g1 : KIT.g0);
-  }
+  function plaque(g, x, y, w, h, hot) { Kit.rr(g, x, y, w, h + 3, 6, Kit.C.line); Kit.rr(g, x + 2, y + 2, w - 4, h - 3, 5, hot ? '#97dcb8' : Kit.C.mint); }
   function bigButton(g, b, label, sub, scale) {
-    const hot = hover === b.id;
-    const drop = hot ? 0 : 4;
-    Art.rect(g, b.x - 2, b.y + 4, b.w + 4, b.h, KIT.ink);          // the shadow it sits on
-    plaque(g, b.x, b.y + drop, b.w, b.h, hot);
-    const cy = b.y + drop + (sub ? 9 : (b.h - (scale || 2) * 7) / 2);
-    Font.draw(g, label, b.x + b.w / 2, cy + 1, { scale: scale || 2, color: hot ? '#ffe98a' : '#f0d27a', align: 'center' });
-    Font.draw(g, label, b.x + b.w / 2, cy, { scale: scale || 2, color: hot ? '#3a2003' : '#4a2c04', align: 'center' });
-    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + (scale || 2) * 7 + 4, { scale: 1, color: hot ? '#5e3a04' : '#6b4406', align: 'center' });
-    if (hot) {
-      Font.draw(g, '>', b.x + 9, cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.i0 });
-      Font.draw(g, '<', b.x + b.w - 9 - Font.width('<', scale || 2), cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.i0 });
-    }
+    Kit.button(g, b, label, sub, { hot: hover === b.id, scale: scale || 2 });
   }
 
   // ---- the things living on the title screen ------------------------------
@@ -258,13 +206,14 @@ const Menu = (() => {
   ];
   let rumour = 0;
   const HELP = [
-    ['t_sickle', 'Tidy the garden', 'Right-click opens the tool tray. Cut the weeds, clear the logs, sow grass.'],
+    ['t_drag', 'Start with your hands', 'Jim gives you his old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
+    ['t_sickle', 'Tidy the garden', 'Cut the weeds, have the ants take the old logs, and sow grass. A tidy patch brings a wombat.'],
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],
-    ['truck', 'Load the truck', 'Drag the cubes into the truck. Click the truck for the map to town.'],
-    ['u_seats', 'Sell to Jim', 'He buys every cube for his compost, and pays more for a load than for one.'],
-    ['u_burrow', 'Shape the land', 'The shovel: hold to raise a hill, right-click and hold to dig a pond.'],
+    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Jim.'],
+    ['t_shovel', 'Shape the land', 'Hold to dig down, right-click to heap up. Water a hole and it fills into a pond or a creek.'],
   ];
+
   function drawHelp(g) {
     buttons = [];
     const PW = 500, PX = (VW - PW) / 2, PY = 20, PH = 322;
@@ -273,18 +222,18 @@ const Menu = (() => {
     const BW = PW - 74;                       // what a line of body has room for
     HELP.forEach(([ico, title, body], i) => {
       const ry = PY + 44 + i * 40;
-      Art.rect(g, PX + 16, ry - 3, PW - 32, 38, i % 2 ? KIT.p3 : KIT.p1);
+      Kit.rr(g, PX + 16, ry - 3, PW - 32, 38, 5, i % 2 ? '#ffffff' : Kit.C.mintW);
       Art.rect(g, PX + 16, ry - 3, PW - 32, 1, KIT.p4);
       Icons.blit(g, ico, PX + 20, ry + 4, 1.2);
-      Font.draw(g, title, PX + 50, ry, { scale: 1, color: '#1c5568' });
+      Font.draw(g, title, PX + 50, ry, { scale: 1, color: Kit.C.mintDD });
       Font.wrap(body, BW, 1).slice(0, 2).forEach((ln, j) => {
-        Font.draw(g, ln, PX + 50, ry + 11 + j * 10, { scale: 1, color: '#6b4a26' });
+        Font.draw(g, ln, PX + 50, ry + 11 + j * 10, { scale: 1, color: Kit.C.ink2 });
       });
     });
     const by = PY + PH - 34;
     buttons.push({ id: 'back', x: PX + 14, y: by, w: PW - 28, h: 26 });
     plaque(g, PX + 14, by, PW - 28, 26, hover === 'back');
-    Font.draw(g, 'BACK', VW / 2, by + 9, { scale: 1, color: '#4a2c04', align: 'center' });
+    Font.draw(g, 'BACK', VW / 2, by + 9, { scale: 1, color: '#173a2e', align: 'center' });
   }
 
   const SETTINGS = [
@@ -303,26 +252,23 @@ const Menu = (() => {
       const val = s2.inv ? !G[s2.key] : !!G[s2.key];
       const hot = hover === 'set:' + s2.key;
       buttons.push({ id: 'set:' + s2.key, x: PX + 14, y: ry, w: PW - 28, h: 24, kind: 'toggle', k: s2.key });
-      Art.rect(g, PX + 16, ry, PW - 32, 24, hot ? KIT.p4 : KIT.p1);
+      Kit.rr(g, PX + 16, ry, PW - 32, 24, 5, hot ? Kit.C.mintW : '#ffffff');
       Art.rect(g, PX + 16, ry, PW - 32, 1, KIT.p4);
-      Font.draw(g, s2.name, PX + 28, ry + 9, { scale: 1, color: '#3a2410' });
+      Font.draw(g, s2.name, PX + 28, ry + 9, { scale: 1, color: Kit.C.ink });
       const tx = PX + PW - 96, tw = 68;
-      Art.rect(g, tx - 2, ry + 3, tw + 4, 18, KIT.ink);
-      Art.rect(g, tx, ry + 5, tw, 14, val ? KIT.i1 : '#5c4a30');
-      Art.rect(g, tx, ry + 5, tw, 3, val ? KIT.i3 : '#7a6444');
+      Kit.rr(g, tx - 2, ry + 3, tw + 4, 18, 8, Kit.C.line);
+      Kit.rr(g, tx, ry + 5, tw, 14, 7, val ? Kit.C.mintD : '#c8d2d0');
       const kx = val ? tx + tw - 20 : tx + 2;
-      Art.rect(g, kx, ry + 6, 18, 12, KIT.p4);
-      Art.rect(g, kx, ry + 6, 18, 3, '#ffffff');
-      Font.draw(g, val ? s2.on : s2.off, val ? tx + 16 : tx + tw - 16, ry + 9, {
-        scale: 1, align: 'center', color: val ? '#d8f2fa' : '#2a2016',
+      Kit.rr(g, kx, ry + 6, 18, 12, 6, '#ffffff');
+      Font.draw(g, val ? s2.on : s2.off, val ? tx + 22 : tx + tw - 22, ry + 9, {
+        scale: 1, align: 'center', color: val ? '#ffffff' : Kit.C.ink,
       });
     });
     const dy = PY + PH - 42;
     buttons.push({ id: 'wipe', x: PX + 14, y: dy, w: PW - 28, h: 28, kind: 'wipe' });
     const wh = hover === 'wipe';
-    cut(g, PX + 14, dy, PW - 28, 28, KIT.ink, 3);
-    cut(g, PX + 16, dy + 2, PW - 32, 24, wh ? '#e07a4a' : '#96491a', 2);
-    Art.rect(g, PX + 18, dy + 2, PW - 36, 3, wh ? '#f2b07a' : '#c96e24');
+    Kit.rr(g, PX + 14, dy, PW - 28, 30, 7, Kit.C.line);
+    Kit.rr(g, PX + 16, dy + 2, PW - 32, 24, 6, wh ? '#ff9278' : Kit.C.coral);
     Font.draw(g, 'RESET ALL DATA', VW / 2, dy + 6, { scale: 1, color: '#fff2e0', align: 'center' });
     Font.draw(g, hasSave ? 'ERASES YOUR FARM AND STARTS OVER' : 'NOTHING SAVED YET', VW / 2, dy + 17, {
       scale: 1, color: wh ? '#ffd9c0' : '#e8b898', align: 'center',
@@ -336,22 +282,19 @@ const Menu = (() => {
   }
 
   function drawConfirm(g) {
-    g.fillStyle = 'rgba(58,36,20,0.55)'; g.fillRect(0, 0, VW, VH);
+    g.fillStyle = 'rgba(44,64,72,0.5)'; g.fillRect(0, 0, VW, VH);
     const PW = 344, PX = (VW - PW) / 2, PY = 112, PH = 136;
     board(g, PX, PY, PW, PH);
     plate(g, PX + 14, PY + 12, PW - 28, 26, 'ARE YOU SURE?');
     const lines = Font.wrap(confirm.text.toUpperCase(), PW - 44, 1);
-    lines.forEach((l, i) => Font.draw(g, l, VW / 2, PY + 50 + i * 11, { scale: 1, color: '#4a3a22', align: 'center' }));
-    Font.draw(g, 'THIS CANNOT BE UNDONE', VW / 2, PY + 78, { scale: 1, color: '#96491a', align: 'center' });
+    lines.forEach((l, i) => Font.draw(g, l, VW / 2, PY + 50 + i * 11, { scale: 1, color: Kit.C.ink, align: 'center' }));
+    Font.draw(g, 'THIS CANNOT BE UNDONE', VW / 2, PY + 78, { scale: 1, color: Kit.C.coralD, align: 'center' });
     const by = PY + PH - 34;
     buttons.push({ id: 'yes', x: PX + 18, y: by, w: 140, h: 24, kind: 'confirm' });
     buttons.push({ id: 'no', x: PX + PW - 158, y: by, w: 140, h: 24, kind: 'confirm' });
-    for (const [id, lab, col] of [['yes', 'ERASE IT', '#8a2f24'], ['no', 'KEEP IT', '#2a3a24']]) {
-      const b = buttons.find((q) => q.id === id), hot = hover === id;
-      g.fillStyle = hot ? U.shade(col, 0.4) : col; g.fillRect(b.x, b.y, b.w, b.h);
-      g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(b.x, b.y, b.w, 2);
-      g.strokeStyle = hot ? '#f5cd5c' : '#0a0810'; g.lineWidth = 1; g.strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
-      Font.draw(g, lab, b.x + b.w / 2, b.y + 8, { scale: 1, color: '#fff0dc', align: 'center' });
+    for (const [id, lab, kind] of [['yes', 'ERASE IT', 'coral'], ['no', 'KEEP IT', 'mint']]) {
+      const b = buttons.find((q) => q.id === id);
+      Kit.button(g, b, lab, null, { hot: hover === id, kind, scale: 1 });
     }
   }
 

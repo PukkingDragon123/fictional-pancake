@@ -89,14 +89,15 @@ const SUBTOOLS = [
   // The shovel paints the ground like a brush: hold the left button to dig
   // it down, the right one (or Shift) to heap it up into a hill. Water a hole
   // and it fills; water a trench and it runs. [ and ] or the wheel resize it.
-  { key: 'shovel', name: 'Shovel', icon: 'u_burrow', radius: 22, terra: 'shovel',
+  { key: 'shovel', name: 'Shovel', icon: 't_shovel', radius: 22, terra: 'shovel',
     desc: 'Hold to dig down. Right-click (or Shift) and hold to heap up a hill. Water a hole to make a pond or a creek.' },
-  { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture where you point. Point at it again to pick it up.' },
-  { key: 'fert',  name: 'Poo Scoop', icon: 'o_plain', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
+  { key: 'build', name: 'Build',  icon: 't_hammer', radius: 0,  desc: 'Stand furniture where you point. Point at it again to pick it up.' },
+  { key: 'fert',  name: 'Poo Scoop', icon: 't_scoop', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
 ];
 // ---- what you own -------------------------------------------------------------
-// You arrive with your two hands and W$300. Every tool, the phone, and every
-// app on it is bought: tools and the phone at Wombat Mart, apps in the App
+// You arrive with your two hands and W$300. Jim hands you his old sickle; every
+// other tool is *unlocked* when he teaches you the job it is for, and then
+// bought at Wombat Mart. The phone is the same, and its apps come from the App
 // Store on the phone itself.
 const TOOL_SHOP = [
   { key: 'sickle',  price: 25, blurb: 'Cuts weeds. The first thing you need.' },
@@ -115,6 +116,8 @@ const PHONE_PRICE = 80;
 // apps for the phone; the first four come with it
 const APP_PRICES = { quests: 0, messages: 0, settings: 0, store: 0, herd: 25, garden: 25, larder: 20, camera: 15, map: 40 };
 const owns = (g, key) => !!(g && g.owned && g.owned[key]);
+// taught: Jim has shown you it, so the mart will sell it to you
+const taught = (g, key) => owns(g, key) || !!(g && g.unlocked && g.unlocked[key]);
 const GATES = {
   drag: () => true,
   farm: (g) => ['hoe', 'seed', 'moss', 'water'].some((k) => owns(g, k)),
@@ -123,7 +126,9 @@ const GATES = {
 const GATE_WHY = {
   pair: 'needs a nest from Groot\'s cellar',
 };
-const whyLocked = (key) => GATE_WHY[key] || (TOOL_SHOP_BY_KEY[key] ? `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}` : 'not yet');
+const whyLocked = (key, g) => GATE_WHY[key] || (TOOL_SHOP_BY_KEY[key]
+  ? (g && !taught(g, key) ? 'locked &middot; Jim will show you this one soon' : `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}`)
+  : 'not yet');
 // number keys 1-9, in the order you are likely to want them
 const HOTKEYS = ['drag', 'sickle', 'destroy', 'moss', 'water', 'hoe', 'seed', 'food', 'fert', 'shovel', 'build'];
 const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : owns(g, key));

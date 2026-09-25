@@ -1434,6 +1434,281 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 #hotbar, #hotbar .hbname { line-height: 1.25; }
 #hotbar .hbname { padding: 1px 8px 3px; }
 #toasts { bottom: 122px !important; }
+
+/* =============================================================================
+   MEADOW: the interface skin
+   No more wood. Soft cream cards with one slate line round them and a little
+   lip underneath, mint for anything you press, sunshine for the thing you
+   have picked, coral for anything that closes. Loaded after style.css and
+   deliberately louder than it, so the older rules underneath stop mattering.
+   ========================================================================== */
+:root {
+  --ol: #2c4048;
+  --ink: #36505a; --ink2: #6a8088;
+  --cream: #fffaf0; --parch: #f7efdf;
+  /* the old wood names now mean soft slate, so older rules come out cool, not brown */
+  --wd0: #22363c; --wd1: #2f4a52; --wd2: #3e5f68; --wd3: #557a82; --wd4: #7aa0a6; --wd5: #a8c8cc;
+  --pg0: #d8cdb8; --pg1: #ebe2cf; --pg2: #f7efdf; --pg3: #fdf7ec; --pg4: #fffdf7; --pg5: #8a9ea4;
+  /* gold buttons are mint now */
+  --gd0: #2f7d5c; --gd1: #4fae84; --gd2: #7fd1a8; --gd3: #aeead0; --gd4: #e2fbef;
+  --tl0: #1e4a66; --tl1: #2f6e92; --tl2: #4a9fd4; --tl3: #7cc6ee; --tl4: #bfe6fb;
+  --am0: #8a2e22; --am1: #c24a38; --am2: #e8705a; --am3: #ff9a82;
+  --mint: #7fd1a8; --mint-d: #4fae84; --mint-dd: #2f7d5c; --mint-l: #d8f5e6;
+  --sun: #ffc23a; --sun-l: #fff1b8; --coral: #ff7a5c; --sky: #5ab4e8;
+}
+html, body { color: var(--ink); background: #dff1e6; }
+button { color: var(--ink); }
+#stage {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255,255,255,0.7), rgba(255,255,255,0) 40%),
+    radial-gradient(#c6e6d2 1.5px, transparent 1.7px) 0 0 / 20px 20px,
+    linear-gradient(180deg, #e8f7ee, #d4ecdd);
+}
+#frame {
+  border-radius: 6px;
+  box-shadow: 0 0 0 4px #ffffff, 0 0 0 7px var(--ol), 0 10px 0 7px rgba(44,64,72,0.18), 0 24px 60px rgba(44,64,72,0.35) !important;
+}
+.dim { color: var(--ink2); } .good { color: var(--mint-dd); } .warn { color: #c24a38; }
+
+/* ---- words floating on the picture: no more black stroke --------------------- */
+.hudtext, #money b, #checklist h4, .task { -webkit-text-stroke: 0 !important; text-shadow: none !important; }
+#money { padding: 3px 12px 5px 8px !important; gap: 6px; pointer-events: none; animation: none !important; }
+#money b { color: var(--ol) !important; font-size: 22px !important; }
+#money img.ico { width: 26px; height: 26px; filter: none !important; }
+
+/* ---- buttons: mint, rounded, they sink when pressed ----------------------------- */
+.btn, .act, .wbtn, .buy, .rbtn.big, .hq, kbd {
+  color: #173a2e !important; letter-spacing: 1px;
+  background: var(--mint) !important;
+  border: 2px solid var(--ol) !important; border-radius: 8px;
+  box-shadow: inset 0 2px 0 #c8f2dc, 0 3px 0 0 var(--mint-dd), 0 3px 0 2px var(--ol) !important;
+}
+.btn:hover, .act:hover:not(:disabled), .wbtn:hover, .buy:hover:not(:disabled), .rbtn.big:hover, .hq:hover {
+  background: #97dcb8 !important; transform: translateY(-1px);
+}
+.btn:active, .act:active:not(:disabled), .wbtn:active, .buy:active:not(:disabled), .rbtn.big:active {
+  transform: translateY(3px) !important; box-shadow: inset 0 2px 0 #c8f2dc, 0 0 0 0 var(--mint-dd), 0 0 0 2px var(--ol) !important;
+}
+.act.go, .brow2 .act { background: var(--sun) !important; color: #4a3304 !important;
+  box-shadow: inset 0 2px 0 #fff0b0, 0 3px 0 0 #c7861a, 0 3px 0 2px var(--ol) !important; }
+.act.go:hover:not(:disabled), .brow2 .act:hover:not(:disabled) { background: #ffd35a !important; }
+.btn:disabled, .act:disabled, .act.go:disabled, .buy:disabled, .rbtn:disabled {
+  background: #dfe5e3 !important; color: #8a9a98 !important;
+  box-shadow: 0 3px 0 0 #b7c3c0, 0 3px 0 2px #9aa8a6 !important; border-color: #9aa8a6 !important;
+}
+.x, .bx {
+  width: 30px; height: 30px; padding: 0 !important; border-radius: 50% !important;
+  background: var(--coral) !important; border: 2px solid var(--ol) !important;
+  box-shadow: inset 0 2px 0 #ffc2b2, 0 2px 0 0 #b8442c, 0 2px 0 2px var(--ol) !important;
+}
+.x:hover, .bx:hover { background: #ff9278 !important; }
+.x img.ico, .bx img.ico { width: 14px; height: 14px; filter: brightness(10); }
+
+/* ---- panels: a cream card, a mint tab across the top ---------------------------- */
+.panel { color: var(--ink) !important; }
+.phead {
+  margin: -22px 26px 12px !important; padding: 8px 14px 8px 12px !important;
+  color: #ffffff !important; text-shadow: 0 2px 0 var(--mint-dd) !important; letter-spacing: 2px;
+  background: var(--mint-d) !important; border: 2px solid var(--ol) !important; border-radius: 12px;
+  box-shadow: inset 0 2px 0 #9fe0bf, inset 0 -3px 0 var(--mint-dd), 0 3px 0 0 rgba(44,64,72,0.25) !important;
+}
+.phead::before, .phead::after { display: none !important; }
+.ptitle { color: #ffffff !important; text-shadow: 0 2px 0 var(--mint-dd) !important; }
+.phead img.ico { filter: drop-shadow(0 2px 0 rgba(44,64,72,0.3)); }
+.panel h3, .panel h2, .item h3 { color: var(--mint-dd) !important; text-shadow: none !important; }
+.panel p, .panel li, .panel .dim, .bigrow { color: var(--ink2) !important; }
+.pnote { color: var(--ink2); }
+.pbody::-webkit-scrollbar { width: 8px; }
+.pbody::-webkit-scrollbar-thumb { background: #c6dcd2; border-radius: 4px; }
+.pbody::-webkit-scrollbar-track { background: transparent; }
+
+/* cards inside a panel: white, soft, with a mint well for the picture */
+.item {
+  background: #ffffff !important; border: 2px solid #cfe0d8 !important; border-radius: 12px;
+  box-shadow: 0 3px 0 #dde9e3 !important;
+}
+.item.have { border-color: var(--sun) !important; box-shadow: 0 3px 0 #f0d890 !important; }
+.item .pic {
+  background: var(--mint-l) !important; border: 2px solid #b6dcc8 !important; border-radius: 10px;
+  box-shadow: inset 0 3px 0 #c6ead6 !important;
+}
+.item .pic::before { display: none !important; }
+.item h3 .lv { color: var(--mint-d) !important; }
+.item p { color: var(--ink2) !important; }
+
+/* basket and sale rows */
+.brow, .btotal {
+  background: #ffffff !important; border: 2px solid #cfe0d8 !important; border-radius: 10px;
+  box-shadow: 0 2px 0 #dde9e3 !important; color: var(--ink) !important;
+}
+.brow.deal { border-left: 6px solid var(--coral) !important; }
+.brow .bp, .btotal b { color: var(--mint-dd) !important; }
+.brow .bstep button { color: var(--ol) !important; background: var(--mint-l) !important; border: 2px solid var(--ol) !important; border-radius: 6px; box-shadow: none !important; }
+.btotal .tbar { background: #e6efeb !important; border: 2px solid #b6ccc2 !important; border-radius: 6px; box-shadow: none !important; }
+.btotal .tbar i { background: var(--mint) !important; border-radius: 4px; }
+.btotal .tbar i.over { background: var(--coral) !important; }
+
+/* the modal card */
+.modal { background: rgba(44,64,72,0.55) !important; backdrop-filter: blur(2px); }
+.mcard {
+  background: var(--cream) !important; border: 3px solid var(--ol) !important; border-radius: 18px;
+  box-shadow: inset 0 3px 0 #ffffff, inset 0 -5px 0 #efe4cc, 0 10px 0 rgba(44,64,72,0.25), 0 20px 50px rgba(44,64,72,0.35) !important;
+}
+.mcard::after { display: none !important; }
+.mcard h2 { color: var(--mint-dd); }
+.mrow .cell span, .sum .v, .bigrow { color: var(--mint-dd) !important; }
+
+/* ---- toasts and the tooltip -------------------------------------------------------- */
+.toast { color: var(--ink) !important; }
+.toast.good b { color: var(--mint-dd); }
+.toast.bad { color: #b8442c !important; }
+#tip { color: var(--ink) !important; }
+#tip b { color: var(--mint-dd) !important; }
+#tip .warn { color: #c24a38; }
+
+/* ---- the job card, top right ------------------------------------------------------ */
+#checklist { color: var(--ink) !important; }
+#checklist h4 { color: var(--mint-dd) !important; border-bottom: 2px dashed #cfe0d8 !important; }
+#checklist .jnote { color: var(--ink2) !important; }
+#checklist .tname { color: var(--ink) !important; }
+#checklist .task.done .tname { color: var(--mint-d) !important; }
+#checklist .tnum, #checklist .task .tnum { color: var(--mint-dd) !important; }
+.task .bar { background: #e6efeb !important; border: 2px solid #b6ccc2 !important; border-radius: 6px; padding: 1px !important; box-shadow: none !important; height: 9px !important; }
+.task .bar i { background: var(--mint) !important; border-radius: 3px; }
+.task.done .bar i { background: var(--mint-d) !important; }
+#checklist .tfoot { background: var(--mint-l) !important; color: var(--mint-dd) !important; border-radius: 0 0 8px 8px; border-top: 2px dashed #b6dcc8 !important; }
+
+/* ---- the tool tray ------------------------------------------------------------------- */
+.tray { color: var(--ink) !important; }
+.trayhead {
+  color: #ffffff !important; text-shadow: 0 2px 0 var(--mint-dd) !important;
+  background: var(--mint-d) !important; border: 2px solid var(--ol) !important; border-radius: 10px;
+  box-shadow: inset 0 2px 0 #9fe0bf, inset 0 -3px 0 var(--mint-dd) !important;
+}
+.trayhead b { color: #ffffff !important; }
+.trayband { color: var(--mint-dd) !important; border-bottom-color: #cfe0d8 !important; text-shadow: none !important; }
+.spoke .n { color: var(--ol) !important; text-shadow: 0 1px 0 #ffffff !important; }
+.spoke .lk { background: var(--coral) !important; border: 2px solid var(--ol) !important; border-radius: 6px; }
+.spoke .rn { color: var(--ink2) !important; }
+
+/* ---- small round buttons on the frame ------------------------------------------------ */
+.mbtn { filter: none !important; }
+.mbtn img.ico { width: 24px; height: 24px; }
+.rbtn:not(.big) { filter: drop-shadow(0 2px 0 rgba(44,64,72,0.35)); }
+.rbtn b { color: var(--ol) !important; -webkit-text-stroke: 0 !important; text-shadow: none !important; }
+.phonebtn .pbtx b { color: var(--ol) !important; text-shadow: none !important; }
+.phonebtn .pbtx small { color: var(--ink2) !important; }
+.phonebtn:hover .pbtx b { color: var(--mint-dd) !important; }
+.phonebtn i { background: var(--coral) !important; color: #ffffff !important; border-radius: 10px; box-shadow: 0 0 0 2px var(--ol) !important; }
+.zbtn { color: var(--ol) !important; font-size: 18px; }
+#zbar { background: #ffffff !important; border: 2px solid var(--ol) !important; border-radius: 6px; box-shadow: inset 0 2px 0 #e6efeb !important; }
+#znub { background: var(--sun) !important; border: 2px solid var(--ol) !important; border-radius: 4px; }
+
+/* ---- the toolbar --------------------------------------------------------------------- */
+#hotbar .hbrow { filter: drop-shadow(0 4px 0 rgba(44,64,72,0.18)) !important; }
+#hotbar .hbname { color: var(--ink) !important; }
+#hotbar .hbname b { color: var(--mint-dd) !important; }
+#hotbar .hbname small { color: var(--ink2) !important; }
+#hotbar .hslot img.ico { filter: drop-shadow(0 2px 0 rgba(44,64,72,0.18)) !important; }
+#hotbar .hslot.locked img.ico { opacity: 0.3; filter: grayscale(1) !important; }
+#hotbar .hslot .hn { color: #7aa196 !important; }
+#hotbar .hslot .pt { background: var(--sun) !important; color: #4a3304 !important; border-radius: 6px;
+  box-shadow: 0 0 0 2px var(--ol) !important; }
+#hotbar .hslot .lk { opacity: 0.8; }
+#hotbar .hslot .hs b { color: var(--ol) !important; text-shadow: 0 1px 0 #ffffff !important; }
+#hotbar .hslot.new::after { content: 'NEW'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  padding: 0 4px; font-size: 10px; line-height: 13px; color: #fff; background: var(--coral); border-radius: 6px;
+  box-shadow: 0 0 0 2px var(--ol); animation: newbob 1s ease-in-out infinite; }
+#hotbar .hslot.want { animation: wantpulse 1.1s ease-in-out infinite; }
+@keyframes newbob { 0%, 100% { transform: translate(-50%, 0) } 50% { transform: translate(-50%, -3px) } }
+@keyframes wantpulse { 0%, 100% { filter: drop-shadow(0 0 0 rgba(255,194,58,0)); } 50% { filter: drop-shadow(0 0 6px rgba(255,194,58,1)) drop-shadow(0 0 2px rgba(255,194,58,1)); } }
+
+/* help list */
+.help ol { color: var(--ink) !important; }
+.help b { color: var(--mint-dd); }
+
+/* the old iron brackets in the corners of panels and trays are gone */
+.panel::before, .panel::after, .tray::after, .card::after { display: none !important; }
+.spoke::after { display: none !important; }
+.spoke.locked { filter: none !important; opacity: 0.55; }
+.spoke.locked img.ico { opacity: 0.35; filter: grayscale(1); }
+
+/* ---- the dialogue box --------------------------------------------------------------
+   Docked along the bottom of the picture, the way a farming game talks to
+   you: the words on the left, typing themselves on, and whoever is talking in
+   a framed portrait on the right with their name on a plate under it. */
+.dlg { position: absolute; left: 0; right: 0; bottom: 14px; z-index: 30; display: flex; justify-content: center;
+  line-height: 1.45; pointer-events: none; animation: dlgin .22s cubic-bezier(.3,1.5,.5,1); }
+@keyframes dlgin { from { transform: translateY(24px); opacity: 0 } to { transform: none; opacity: 1 } }
+.dlg-box { pointer-events: auto; cursor: pointer; display: flex; gap: 14px; align-items: stretch;
+  width: min(92%, 1000px); min-height: 212px; padding: 6px 8px;
+  border: 12px solid transparent; border-image: var(--gf-paper) 10 fill / 12px / 0 stretch; image-rendering: pixelated;
+  filter: drop-shadow(0 6px 0 rgba(44,64,72,0.22)) drop-shadow(0 16px 26px rgba(44,64,72,0.25)); }
+.dlg-main { position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; padding: 4px 6px 4px 8px; }
+.dlg-line { font-size: 22px; line-height: 1.5; color: var(--ink); letter-spacing: 0.5px; white-space: pre-wrap; min-height: 3em; }
+.dlg-line.typing::after { content: '_'; color: var(--mint-d); animation: blink .6s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0 } }
+.dlg-opts { display: flex; flex-direction: column; gap: 6px; margin-top: auto; padding-top: 10px; }
+.dlg-opt { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 7px 12px;
+  font-family: var(--f); font-size: 18px; color: var(--ink); background: #ffffff;
+  border: 2px solid #cfe0d8; border-radius: 10px; box-shadow: 0 2px 0 #dde9e3; cursor: pointer;
+  transition: transform .12s ease-out, background .1s; }
+.dlg-opt:hover { background: var(--mint-l); border-color: var(--mint-d); transform: translateX(6px); }
+.dlg-opt:hover .tnum { background: var(--sun); }
+.dlg-opt .tnum { flex: 0 0 auto; width: 24px; height: 24px; line-height: 24px; text-align: center; font-size: 14px;
+  color: var(--ol); background: var(--mint); border: 2px solid var(--ol); border-radius: 7px; }
+.dlg-opt.end { color: var(--ink2); }
+.dlg-opt.end .tnum { background: #e6efeb; }
+.dlg-next { position: absolute; right: 6px; bottom: 2px; display: flex; align-items: center; gap: 6px;
+  font-style: normal; font-size: 13px; color: var(--ink2); }
+.dlg-next::after { content: ''; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent;
+  border-top: 10px solid var(--coral); filter: drop-shadow(0 2px 0 var(--ol)); animation: nextbob .7s ease-in-out infinite; }
+.dlg-next.end::after { border: 0; width: 12px; height: 12px; background: var(--mint-d); border-radius: 3px; box-shadow: 0 0 0 2px var(--ol); }
+@keyframes nextbob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(4px) } }
+.dlg-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.dlg-face { padding: 4px; background: #ffffff; border: 3px solid var(--ol); border-radius: 12px;
+  box-shadow: inset 0 0 0 3px var(--mint), 0 3px 0 rgba(44,64,72,0.2); }
+.dlg-face canvas { display: block; width: 192px; height: 192px; image-rendering: pixelated; border-radius: 6px; }
+.dlg-plate { display: flex; flex-direction: column; align-items: center; min-width: 170px; padding: 3px 12px 5px;
+  background: var(--mint-d); border: 2px solid var(--ol); border-radius: 10px; box-shadow: inset 0 2px 0 #9fe0bf, 0 3px 0 rgba(44,64,72,0.2); }
+.dlg-plate b { font-weight: 400; font-size: 18px; letter-spacing: 2px; color: #ffffff; text-shadow: 0 2px 0 var(--mint-dd); }
+.dlg-plate small { font-size: 11px; color: #e2fbef; letter-spacing: 0.5px; }
+@media (max-width: 1100px) {
+  .dlg-face canvas { width: 128px; height: 128px; }
+  .dlg-line { font-size: 18px; }
+  .dlg-box { min-height: 170px; }
+  .dlg-plate { min-width: 130px; }
+}
+
+/* while somebody is talking the toasts step up out of the way */
+body.talking #toasts { bottom: auto !important; top: 70px; }
+body.talking #hotbar { opacity: 0; pointer-events: none; }
+
+/* ---- "you got a new tool" ---------------------------------------------------------- */
+#unlock { position: absolute; inset: 0; z-index: 35; display: flex; align-items: center; justify-content: center;
+  line-height: 1.4; pointer-events: none; background: radial-gradient(circle at 50% 45%, rgba(255,241,184,0.55), rgba(44,64,72,0.25) 70%); }
+.ucard { pointer-events: auto; position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  width: min(360px, 80%); padding: 12px 18px 16px; text-align: center; color: var(--ink);
+  border: 12px solid transparent; border-image: var(--gf-paper) 10 fill / 12px / 0 stretch; image-rendering: pixelated;
+  filter: drop-shadow(0 8px 0 rgba(44,64,72,0.2)) drop-shadow(0 20px 30px rgba(44,64,72,0.3));
+  animation: ucardin .45s cubic-bezier(.3,1.7,.5,1); }
+@keyframes ucardin { 0% { transform: scale(0.6) translateY(30px); opacity: 0 } 100% { transform: none; opacity: 1 } }
+.uhead { margin-top: -30px; padding: 4px 14px; font-size: 13px; letter-spacing: 3px; color: #ffffff;
+  background: var(--mint-d); border: 2px solid var(--ol); border-radius: 10px; box-shadow: inset 0 2px 0 #9fe0bf; text-shadow: 0 2px 0 var(--mint-dd); }
+.ucard.gift .uhead { background: var(--coral); box-shadow: inset 0 2px 0 #ffc2b2; text-shadow: 0 2px 0 #b8442c; }
+.upic { position: relative; width: 104px; height: 104px; margin: 6px 0 2px; display: flex; align-items: center; justify-content: center;
+  background: var(--sun-l); border: 3px solid var(--ol); border-radius: 50%; box-shadow: inset 0 0 0 5px #ffffff, 0 4px 0 rgba(44,64,72,0.2); }
+.upic::before { content: ''; position: absolute; inset: -18px; z-index: -1; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255,194,58,0.55) 0 12deg, rgba(255,194,58,0) 12deg 30deg); animation: spin 8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg) } }
+.upic img.ico { width: 64px; height: 64px; animation: ufloat 1.2s ease-in-out infinite; }
+@keyframes ufloat { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
+.uname { font-weight: 400; font-size: 22px; color: var(--mint-dd); }
+.utext { margin: 0; font-size: 14px; color: var(--ink2); }
+.uhow { margin: 2px 0 6px; font-size: 14px; color: var(--ink); }
+.uhow img.ico { display: inline-block; vertical-align: -4px; }
+.ucard .act { padding: 8px 26px; }
+#hotbar .hslot.sealed .lk img.ico { opacity: 0.55; }
 </style>
 
 <div id="app">
@@ -1451,6 +1726,22 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 
     <div id="wheel" hidden></div>
     <div id="hotbar" hidden></div>
+
+    <div id="unlock" hidden></div>
+
+    <div id="panel-talk" class="dlg" hidden>
+      <div class="dlg-box" id="talk-box">
+        <div class="dlg-main">
+          <div class="dlg-line" id="talk-line"></div>
+          <div class="dlg-opts" id="talk-opts"></div>
+          <i class="dlg-next" id="talk-next"></i>
+        </div>
+        <div class="dlg-side">
+          <div class="dlg-face"><canvas id="talk-face" width="64" height="64"></canvas></div>
+          <div class="dlg-plate"><b id="talk-name">JIM</b><small id="talk-sub"></small></div>
+        </div>
+      </div>
+    </div>
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
@@ -1485,20 +1776,6 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   <div id="panel-pawn" class="panel" hidden>
     <div class="phead"><img class="ico" data-ico="wdollar" alt=""><span class="ptitle">SELL</span><button class="x" data-close="panel-pawn"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody" id="pawn-body"></div>
-  </div>
-
-  <div id="panel-talk" class="panel talk" hidden>
-    <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle" id="talk-name">TALK</span><button class="x" data-close="panel-talk"><img class="ico sm" data-ico="close" alt=""></button></div>
-    <div class="pbody">
-      <div class="trow">
-        <div class="tface"><canvas id="talk-face" width="128" height="150"></canvas></div>
-        <div class="tside">
-          <div class="tsub" id="talk-sub"></div>
-          <div class="tline" id="talk-line"></div>
-        </div>
-      </div>
-      <div class="topts" id="talk-opts"></div>
-    </div>
   </div>
 
   <div id="panel-wombat" class="panel dossier" hidden>
@@ -1539,9 +1816,9 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>You start with your two hands and W$300. Click the truck to drive to Wombat Mart: the <b>TOOLS</b> aisle sells every tool, and a phone.</li>
+        <li>You start with your two hands and W$300. Jim gives you his old sickle, and each job he teaches unlocks the next tool. Buy them at Wombat Mart: click the truck to drive there.</li>
         <li>Jim, the old caretaker, tells you your next job in a speech bubble. Click him to chat, or to sell him your cubes.</li>
-        <li>Pick a tool on the toolbar along the bottom, or press <b>1</b>&ndash;<b>0</b>. Tools you have not bought show their price. Drag bare ground, roll the wheel or use the arrow keys to look around.</li>
+        <li>Pick a tool on the toolbar along the bottom, or press <b>1</b>&ndash;<b>0</b>. Locked tools show a padlock; unlocked ones you have not bought show their price. An arrow points at your current job. Drag bare ground, roll the wheel or use the arrow keys to look around.</li>
         <li>Cut the weeds with the sickle, have the ants take the old logs, and sow grass. A tidy garden brings a wombat.</li>
         <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
         <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
@@ -2564,6 +2841,7 @@ const Audio = (() => {
   const SFX = {
     click: () => tone({ freq: 900, type: 'square', dur: 0.05, vol: 0.12 }),
     hover: () => tone({ freq: 1400, type: 'sine', dur: 0.03, vol: 0.05 }),
+    blip: () => tone({ freq: 520 + Math.random() * 90, type: 'triangle', dur: 0.035, vol: 0.05 }),
     pet: () => { tone({ freq: 660, type: 'triangle', dur: 0.12, vol: 0.2, slide: 300 }); tone({ freq: 990, type: 'triangle', dur: 0.15, vol: 0.12, delay: 0.06, slide: 200 }); },
     eat: () => { for (let i = 0; i < 3; i++) noise({ dur: 0.08, vol: 0.25, lp: 900, delay: i * 0.11 }); },
     strain: () => tone({ freq: 180, type: 'sawtooth', dur: 0.5, vol: 0.12, slide: 80 }),
@@ -3495,89 +3773,112 @@ const Sprites = (() => {
     const y0 = bob + (sit ? 10 : 0);
     const R = (x, y, w, h, col) => Art.rect(g, x, y, w, h, col);
     const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
-    // ---- legs and shoes ---------------------------------------------------
-    const hipY = 58 + y0;
+    // ---- legs and shoes: short and sturdy ------------------------------------
+    const hipY = 62 + y0;
     for (const s2 of [-1, 1]) {
-      const fx = CX + s2 * 7 + (sit ? s2 * 2 : stride * s2 * 0.6);
+      const fx = CX + s2 * 6 + (sit ? s2 * 2 : stride * s2 * 0.6);
       if (sit) {
-        // sat down: thighs forward, shins hanging
-        R(fx - 5, hipY - 1, 10, 7, SHORT); R(fx - 5, hipY + 5, 10, 1, SHORT0);
-        R(fx - 3.5, hipY + 6, 7, 12, SKIN); R(fx + 1.5, hipY + 6, 2, 12, SKIN0);
-        for (let i = 0; i < 4; i++) R(fx - 2 + (i % 2) * 3, hipY + 8 + i * 3, 1, 1, FRECK);
-        R(fx - 4, hipY + 18, 9, 4, SHOE); R(fx - 4, hipY + 21, 9, 1, SOLE);
+        R(fx - 5, hipY - 1, 10, 6, SHORT); R(fx - 5, hipY + 4, 10, 1, SHORT0);
+        R(fx - 4, hipY + 5, 8, 8, SKIN); R(fx + 2, hipY + 5, 2, 8, SKIN0);
+        R(fx - 2, hipY + 7, 1, 1, FRECK); R(fx + 1, hipY + 9, 1, 1, FRECK);
+        R(fx - 5, hipY + 13, 10, 4, SHOE); R(fx - 5, hipY + 16, 10, 1, SOLE);
         continue;
       }
       const lift = stride * s2 > 1 ? 1.5 : 0;
-      R(fx - 3.5, hipY + 4, 7, CGY - hipY - 8 - lift, SKIN);                       // the leg
-      R(fx + 1.5, hipY + 4, 2, CGY - hipY - 8 - lift, SKIN0);
-      for (let i = 0; i < 5; i++) R(fx - 2 + (i % 2) * 3, hipY + 6 + i * 3.4, 1, 1.4, FRECK);   // hairy
-      R(fx - 4.5, CGY - 5 - lift, 10, 4, SHOE); R(fx - 4.5, CGY - 2 - lift, 10, 2, SOLE);       // the shoe
-      R(fx - 2, CGY - 5 - lift, 3, 1, '#7a5a44');
+      const top = hipY + 4, len = CGY - top - 5 - lift;
+      R(fx - 4, top, 8, len, SKIN); R(fx + 2, top, 2, len, SKIN0);                 // the leg
+      R(fx - 2, top + 2, 1, 1, FRECK); R(fx + 1, top + 4, 1, 1, FRECK); R(fx - 1, top + 6, 1, 1, FRECK);
+      R(fx - 5.5, CGY - 6 - lift, 11, 5, SHOE); R(fx - 5.5, CGY - 2 - lift, 11, 2, SOLE);   // chunky trainers
+      R(fx - 3, CGY - 6 - lift, 4, 1, '#7a5a44'); R(fx + 2, CGY - 5 - lift, 2, 1, '#e8e0d0');
     }
     // ---- shorts -------------------------------------------------------------
     if (!sit) {
-      R(CX - 13, hipY - 4, 26, 10, SHORT);
-      R(CX - 13, hipY + 4, 26, 2, SHORT0);
-      R(CX - 1, hipY, 2, 6, SHORT0);
+      R(CX - 13, hipY - 5, 26, 10, SHORT);
+      R(CX - 13, hipY + 3, 26, 2, SHORT0);
+      R(CX - 1, hipY - 1, 2, 6, SHORT0);
+      R(CX - 12, hipY - 5, 24, 1, '#a88058');
     }
-    // ---- body: a pink shirt over a round belly, the fleece open over it -----
-    const chestY = 33 + y0;
-    E(CX, chestY + 14, 14.5, 13, SHIRT0);                           // the belly
-    E(CX, chestY + 13, 13.5, 12, SHIRT);
-    E(CX - 4, chestY + 9, 5, 4, SHIRT2);
-    R(CX - 7, chestY + 4, 14, 3, SHIRT0);                             // a fold across the chest
+    // ---- body: a round belly in a pink shirt, the check fleece open over it --
+    const chestY = 40 + y0;
+    R(CX - 10, chestY - 4, 20, 25, SHIRT);                             // the shirt, straight down
+    E(CX, chestY + 19, 11, 4, SHIRT);                                  // over the belly
+    R(CX - 10, chestY + 19, 20, 3, SHIRT0);
+    R(CX - 6, chestY + 2, 3, 6, SHIRT2);
+    Art.poly(g, [[CX - 4, chestY - 3], [CX + 4, chestY - 3], [CX, chestY + 3]], SKIN0);   // the open neck
+    for (let i = 0; i < 3; i++) R(CX - 0.5, chestY + 6 + i * 5, 1, 1, SHIRT0);        // buttons
     for (const s2 of [-1, 1]) {                                       // the fleece, open at the front
-      Art.poly(g, [[CX + s2 * 7, chestY - 4], [CX + s2 * 16, chestY - 2], [CX + s2 * 17.5, chestY + 24], [CX + s2 * 11, chestY + 26], [CX + s2 * 9, chestY + 10]], FLE);
-      Art.poly(g, [[CX + s2 * 14, chestY - 1], [CX + s2 * 16, chestY - 2], [CX + s2 * 17.5, chestY + 24], [CX + s2 * 15, chestY + 25]], s2 < 0 ? FLE2 : FLE0);
-      for (let i = 0; i < 5; i++) R(CX + s2 * (10 + (i % 2) * 3), chestY + 2 + i * 5, 2, 1, FLE0);   // the check in it
+      Art.poly(g, [[CX + s2 * 6, chestY - 3], [CX + s2 * 17, chestY - 2], [CX + s2 * 18, chestY + 19], [CX + s2 * 7, chestY + 21], [CX + s2 * 6.5, chestY + 8]], FLE);
+      Art.poly(g, [[CX + s2 * 14, chestY - 1], [CX + s2 * 17, chestY - 2], [CX + s2 * 18, chestY + 19], [CX + s2 * 15, chestY + 20]], s2 < 0 ? FLE2 : FLE0);
+      for (let yy = 0; yy < 5; yy++) R(CX + s2 * 12, chestY + 1 + yy * 4, 1, 2, FLE0);     // the check in it
+      for (let yy = 0; yy < 4; yy++) R(CX + s2 * (8 + yy % 2 * 5), chestY + 3 + yy * 5, 4, 1, FLE0);
     }
     // ---- arms -------------------------------------------------------------------
     for (const [s2, sw] of [[-1, armL], [1, armR]]) {
-      const sx = CX + s2 * 15, sy = chestY;
+      const sx = CX + s2 * 15, sy = chestY + 1;
       const up = (s2 > 0 && (wave || point)) || (pose === 'cheer' || pose === 'jump');
-      const hx = up ? sx + (point ? 10 : 4) : sx + s2 * 2 + sw * 0.3, hy = up ? sy - 10 + (point ? 8 : 0) : sy + 22 + sw * 0.6;
-      Art.limb(g, sx, sy, hx, hy - 3, 5.2, 4.6, FLE0);
-      Art.limb(g, sx, sy, hx, hy - 3, 4.4, 3.8, FLE);
-      Art.limb(g, U.lerp(sx, hx, 0.6), U.lerp(sy, hy, 0.6), hx, hy, 3.6, 3.2, SKIN);   // the forearm, hairy
-      R(U.lerp(sx, hx, 0.8), U.lerp(sy, hy, 0.8), 1, 1, FRECK);
-      E(hx, hy + 1, 3, 2.8, SKIN); E(hx - 0.6, hy, 1.6, 1.4, SKIN2);
-      if (up && wave) { for (let i = 0; i < 3; i++) R(hx - 2 + i * 1.6, hy - 4, 1.2, 3, SKIN); }
+      const hx = up ? sx + (point ? 10 : 4) : sx + s2 * 2.5 + sw * 0.3, hy = up ? sy - 10 + (point ? 8 : 0) : sy + 18 + sw * 0.6;
+      Art.limb(g, sx, sy, hx, hy - 3, 5.6, 5, FLE0);
+      Art.limb(g, sx, sy, hx, hy - 3, 4.8, 4.2, FLE);
+      E(hx, hy, 3.4, 3.2, SKIN); E(hx - 0.8, hy - 0.8, 1.6, 1.4, SKIN2);             // a big friendly hand
+      if (up && wave) { for (let i = 0; i < 3; i++) R(hx - 2.4 + i * 1.8, hy - 5, 1.4, 3, SKIN); }
     }
     // ---- the big cream collar ----------------------------------------------------
     for (let i = 0; i < 9; i++) {
       const u = (i / 8 - 0.5) * 2;
-      E(CX + u * 13, chestY - 2 + Math.abs(u) * 2, 4.4, 3.8, COL0);
-      E(CX + u * 13, chestY - 3 + Math.abs(u) * 2, 3.8, 3.2, COL);
+      if (i === 4) continue;                                           // open at the front, so the shirt shows
+      E(CX + u * 12, chestY - 2 + Math.abs(u) * 3, 4.6, 4, COL0);
+      E(CX + u * 12, chestY - 3 + Math.abs(u) * 3, 4, 3.4, COL);
+      R(CX + u * 12 - 1, chestY - 4 + Math.abs(u) * 3, 1, 1, '#fffaf0');
     }
-    // ---- the head ------------------------------------------------------------------
-    const hx = CX, hy = 18 + y0;
-    E(hx, hy + 1, 11.5, 12, SKIN0);
-    E(hx, hy, 11, 11.4, SKIN);
-    E(hx - 3, hy - 3, 5, 4, SKIN2);
-    E(hx - 11, hy + 1, 2.2, 3, SKIN0); E(hx + 11, hy + 1, 2.2, 3, SKIN0);    // ears
-    // stubble along the jaw and chin
-    for (let i = 0; i < 26; i++) {
-      const a = Math.PI * (0.1 + (i / 25) * 0.8);
-      R(hx + Math.cos(a) * 9.2 - 0.5, hy + 2 + Math.sin(a) * 8.6, 1.4, 1.4, i % 3 ? '#d8884a' : HAIR0);
+    // ---- the head: big, round, the best bit ---------------------------------------
+    const hx = CX, hy = 22 + y0;
+    E(hx - 14, hy + 2, 2.6, 3.4, SKIN0); E(hx + 14, hy + 2, 2.6, 3.4, SKIN0);    // ears
+    E(hx, hy + 1, 14, 14, SKIN0);
+    E(hx - 0.5, hy, 13.5, 13.4, SKIN);
+    E(hx + 5, hy + 3, 8, 10, SKIN0 + '');
+    E(hx - 1, hy + 1, 11.5, 12, SKIN);
+    E(hx - 4, hy - 4, 6, 4, SKIN2);
+    // stubble round the jaw and chin
+    for (let i = 0; i < 34; i++) {
+      const a = Math.PI * (0.12 + (i / 33) * 0.76);
+      R(hx + Math.cos(a) * 11 - 0.5, hy + 3 + Math.sin(a) * 9.4, 1.2, 1.2, i % 3 ? '#d8884a' : HAIR0);
     }
-    for (let i = 0; i < 10; i++) R(hx - 5 + i, hy + 9 + (i % 2), 1.2, 1.2, '#d8884a');
-    // the face: eyes, then the glasses over them
-    expressions(g, hx, hy + 1, pose, f, hurt);
+    for (let i = 0; i < 7; i++) R(hx - 3 + i, hy + 11 + (i % 2), 1, 1, '#d8884a');
+    // the face: eyes behind the glasses, a mouth that goes with the mood
+    const mood = faceMood;
+    const shut = pose === 'laugh' || pose === 'sleep' || mood === 'laugh' || (pose === 'idle' && f === 5);
     for (const s2 of [-1, 1]) {
-      const gx = hx + s2 * 4.2, gy = hy + 1;
-      R(gx - 3.6, gy - 2.6, 7.2, 1.2, '#1e1814'); R(gx - 3.6, gy + 1.8, 7.2, 1.2, '#1e1814');
-      R(gx - 3.6, gy - 2.6, 1.2, 5.6, '#1e1814'); R(gx + 2.4, gy - 2.6, 1.2, 5.6, '#1e1814');
-      R(gx - 2.2, gy - 1.4, 1.6, 1, 'rgba(255,255,255,0.7)');
+      const ex = hx + s2 * 5.2, ey = hy + 1;
+      if (shut || mood === 'happy') { R(ex - 1.5, ey, 3, 1, '#2a1a18'); R(ex - 2, ey + 1, 1, 1, '#2a1a18'); R(ex + 1, ey + 1, 1, 1, '#2a1a18'); }
+      else { R(ex - 1, ey - 1, 2, 3, '#2a1a18'); R(ex - 1, ey - 1, 1, 1, '#ffffff'); }
     }
-    R(hx - 0.8, hy, 1.6, 1, '#1e1814');                                  // the bridge
-    for (const s2 of [-1, 1]) R(hx + s2 * 7.8, hy - 1, s2 * 3, 1, '#1e1814');
-    // hair: swept over, spilling out above and below the band
-    E(hx, hy - 8, 12, 6, HAIR0);
-    E(hx - 1, hy - 9, 11, 5, HAIR);
-    for (let i = 0; i < 6; i++) Art.poly(g, [[hx - 10 + i * 4, hy - 9], [hx - 7 + i * 4, hy - 16 - (i % 2) * 2], [hx - 4 + i * 4, hy - 9]], i % 2 ? HAIR : HAIR2);
-    E(hx - 10, hy - 3, 3, 5, HAIR); E(hx + 10, hy - 3, 3, 5, HAIR0);
-    // the red sweatband
-    R(hx - 11.5, hy - 7, 23, 4, BAND); R(hx - 11.5, hy - 7, 23, 1.2, BAND2); R(hx - 11.5, hy - 3.8, 23, 0.8, '#8a1a14');
+    E(hx - 8.5, hy + 5.5, 2, 1.2, '#f2a08c'); E(hx + 8.5, hy + 5.5, 2, 1.2, '#f2a08c');   // rosy cheeks
+    R(hx - 1, hy + 4, 2, 2, SKIN0);                                                     // nose
+    const mo = mood === 'shock' ? 'o' : (mood === 'happy' || pose === 'laugh' || pose === 'cheer' || pose === 'jump') ? 'open' : mood === 'cross' || mood === 'worry' ? 'frown' : 'smile';
+    if (mo === 'open') { R(hx - 3, hy + 8, 6, 3, '#7a2a2a'); R(hx - 2, hy + 8, 4, 1, '#fffaf0'); R(hx - 1, hy + 10, 2, 1, '#e0707a'); }
+    else if (mo === 'o') { R(hx - 1.5, hy + 8, 3, 3, '#7a2a2a'); }
+    else if (mo === 'frown') { R(hx - 2, hy + 9, 4, 1, '#9a4a3a'); R(hx - 3, hy + 10, 1, 1, '#9a4a3a'); R(hx + 2, hy + 10, 1, 1, '#9a4a3a'); }
+    else { R(hx - 2, hy + 9, 4, 1, '#9a4a3a'); R(hx - 3, hy + 8, 1, 1, '#9a4a3a'); R(hx + 2, hy + 8, 1, 1, '#9a4a3a'); }
+    // thick black glasses
+    for (const s2 of [-1, 1]) {
+      const gx = hx + s2 * 5.2, gy = hy + 1;
+      R(gx - 4.5, gy - 3.4, 9, 1.4, '#1e1814'); R(gx - 4.5, gy + 2.2, 9, 1.4, '#1e1814');
+      R(gx - 4.5, gy - 3.4, 1.4, 7, '#1e1814'); R(gx + 3.1, gy - 3.4, 1.4, 7, '#1e1814');
+      R(gx - 3, gy - 2, 2, 1, 'rgba(255,255,255,0.75)');
+    }
+    R(hx - 1, hy - 0.5, 2, 1.2, '#1e1814');                                  // the bridge
+    for (const s2 of [-1, 1]) R(hx + s2 * 9.6, hy - 1.5, s2 * 3.6, 1.2, '#1e1814');
+    // hair: a messy mop, tufts sticking up over the band
+    E(hx, hy - 10, 14.5, 7, HAIR0);
+    E(hx - 1, hy - 11, 13.5, 6, HAIR);
+    E(hx - 5, hy - 13, 6, 2.5, HAIR2);
+    const TUFT = [[-12, 5, -3], [-7, 9, -2], [-2, 11, 0], [3, 10, 2], [8, 8, 3], [12, 5, 4]];
+    TUFT.forEach(([dx, h2, lean2], i) => Art.poly(g, [[hx + dx - 3, hy - 11], [hx + dx + lean2, hy - 11 - h2], [hx + dx + 3, hy - 11]], i % 2 ? HAIR : HAIR2));
+    E(hx - 12.5, hy - 4, 3, 5, HAIR); E(hx + 12.5, hy - 4, 3, 5, HAIR0);
+    for (const [dx, len2] of [[-5, 3], [-1, 4], [4, 3]]) R(hx + dx, hy - 5, 1, len2, HAIR0);   // strands on the brow
+    // the red sweatband, knotted on one side
+    R(hx - 14, hy - 9, 28, 4.4, BAND); R(hx - 14, hy - 9, 28, 1.3, BAND2); R(hx - 14, hy - 5.4, 28, 0.9, '#8a1a14');
+    E(hx + 14, hy - 7, 2.2, 2.2, BAND); R(hx + 15, hy - 6, 3, 1.6, '#a02418'); R(hx + 16, hy - 4.5, 2.4, 1.6, BAND);
     if (lie) {
       const zs = [[36, 10], [40, 5], [44, 0]][f % 3];
       g.globalAlpha = 0.85 - (f % 3) * 0.2;
@@ -5915,6 +6216,525 @@ const Props = (() => {
 </script>
 
 <script>
+// ===== js/iconart.js =====
+// ---- Hand-drawn item and tool icons -------------------------------------------
+// Every tool you hold and every thing you carry, drawn pixel by pixel on a
+// 16x16 grid in bright, even colours with a soft dark outline added round the
+// edge afterwards. Icons.js prefers these over its procedural ones whenever a
+// name is in here.
+const IconArt = (() => {
+  // one palette for the lot, so the whole bag of icons belongs together
+  const PALETTE = {
+    k: '#2e2430', K: '#1e1a22',                                  // ink
+    w: '#c98a4a', W: '#eab06a', v: '#8a5530',                    // wood
+    m: '#aeb8c8', M: '#eef3fa', n: '#6c7690',                    // steel
+    g: '#5cb04a', G: '#a4e070', h: '#337a34',                    // leaf
+    c: '#f28a2c', C: '#ffc070', d: '#b8561c',                    // orange
+    r: '#e44a3c', R: '#ff9c86', q: '#a42a26',                    // red
+    y: '#f8cc3c', Y: '#fff2a4', u: '#c88c1c',                    // yellow
+    b: '#4ea4e6', B: '#b0e4ff', j: '#2a68aa',                    // blue
+    e: '#8a5a3a', E: '#b8845a', f: '#5a3822',                    // brown
+    t: '#ecd4a2', T: '#fff4d2', s: '#c4a270',                    // canvas
+    x: '#ffffff', z: '#d4d8e2', Z: '#9ca2b0',                    // white
+    p: '#f6a2bc', P: '#ffd4e0', i: '#a474d6', I: '#d8b8f6',      // pink, purple
+    a: '#e8a878', A: '#ffd8b4', l: '#c07a52',                    // skin
+  };
+  const T = {
+    t_drag: [
+      '................',
+      '.....aa.........',
+      '...aaAAa.aa.....',
+      '..aAAAAaaAAa....',
+      '..aAAaAAaAAaaa..',
+      '..aAAaAAaAAaAAa.',
+      '..aAAaAAaAAaAAa.',
+      'aaaAAAAAAAAAAAa.',
+      'aAAaAAAAAAAAAAa.',
+      'aAAAAAAAAAAAAla.',
+      '.aAAAAAAAAAAAla.',
+      '..aAAAAAAAAAla..',
+      '...aAAAAAAAla...',
+      '....llllllll....',
+      '....bBBBBBBb....',
+      '....jjjjjjjj....',
+    ],
+    t_sickle: [
+      '................',
+      '.....MMMMMM.....',
+      '...MMmmmmmmMn...',
+      '..Mmmnnnnnmmmn..',
+      '..Mmn.....nmmn..',
+      '.Mmn.......nmn..',
+      '.mmn........nn..',
+      '.mn.............',
+      '..Ww............',
+      '..vwW...........',
+      '...vwW..........',
+      '....vwW.........',
+      '.....vwW........',
+      '......vwW.......',
+      '.......vv.......',
+      '................',
+    ],
+    t_hoe: [
+      '................',
+      '...........MMMm.',
+      '..........MmmmmM',
+      '..........nWmmmn',
+      '.........vW..mmn',
+      '........vW....nn',
+      '.......vW.......',
+      '......vW........',
+      '.....vW.........',
+      '....vW..........',
+      '...vW...........',
+      '..vW............',
+      '.vW.............',
+      '.v..............',
+      '................',
+      '................',
+    ],
+    t_water: [
+      '................',
+      '.....jjjj.......',
+      '....j....j......',
+      '....j....j...BB.',
+      '..bbbbbbbbb..BBj',
+      '.bBBBbbbbbbj.bj.',
+      '.bBbbbbbbbbjbj..',
+      '.bBbbbbbbbbbj...',
+      '.bBbbbbbbbbj....',
+      '.bbbbbbbbbbj....',
+      '.bbbbbbbbbbj....',
+      '.jbbbbbbbbjj....',
+      '..jjjjjjjjj.....',
+      '................',
+      '................',
+      '................',
+    ],
+    t_seed: [
+      '................',
+      '......e..e......',
+      '.......ee.......',
+      '......tttt......',
+      '.....sTTTTs.....',
+      '....tTttttts....',
+      '...tTttttttts...',
+      '..tTtttgttttts..',
+      '..tTttghgtttts..',
+      '..tTtttgGttttt..',
+      '..tttttgttttss..',
+      '..ttttttttttss..',
+      '...sttttttsss...',
+      '....ssssssss....',
+      '................',
+      '................',
+    ],
+    t_moss: [
+      '................',
+      '................',
+      '......G.........',
+      '...G..Gg..G.....',
+      '...Gg.gG.Gg..G..',
+      '....gGgg.gG.Gg..',
+      '.G..ggGg.gg.g...',
+      '.Gg.hgggGgg.g.G.',
+      '..g.hggggghgggg.',
+      '..ghhgghgghggh..',
+      '...hhhhhhhhhhh..',
+      '..eEEeEEEeEEEe..',
+      '..eeeeeeeeeeee..',
+      '...ffffffffff...',
+      '................',
+      '................',
+    ],
+    t_destroy: [
+      '................',
+      '...yyyy.........',
+      '..yYYYYy........',
+      '.uyyyyyyu.......',
+      '..rrrrrr........',
+      '..rxKrrr.rr.....',
+      '..rrrrrr.rrrrrr.',
+      '...rrrr.rRRrrrqq',
+      '....qqqqrRrrrrrq',
+      '.....q..qrrrrrq.',
+      '....q.q..qqqqq..',
+      '...q..q..q..q...',
+      '..q...q.q...q...',
+      '................',
+      '................',
+      '................',
+    ],
+    t_food: [
+      '................',
+      '................',
+      '................',
+      '......c.........',
+      '.....cCd..G.....',
+      '....gGcd.GgG....',
+      '...GgggcGgggh...',
+      '..BBBBBBBBBBBB..',
+      '.jbBBbbbbbbbbbj.',
+      '.jbBbbbbbbbbbjj.',
+      '..jbbbbbbbbbjj..',
+      '...jjjjjjjjjj...',
+      '................',
+      '................',
+      '................',
+      '................',
+    ],
+    t_scoop: [
+      '................',
+      '..............W.',
+      '.............vW.',
+      '............vW..',
+      '...........vW...',
+      '..........vW....',
+      '.........vW.....',
+      '...EEE..vW......',
+      '..EeeEf.W.......',
+      '.MeeeefM........',
+      '.mMMMMMMm.......',
+      '..mmmmmmn.......',
+      '...nnnnn........',
+      '................',
+      '................',
+      '................',
+    ],
+    t_shovel: [
+      '...........WWW..',
+      '...........W.W..',
+      '...........vWv..',
+      '...........vW...',
+      '..........vW....',
+      '.........vW.....',
+      '........vW......',
+      '.......vW.......',
+      '...MMMnW........',
+      '..MmmmMn........',
+      '..MmmmmMn.......',
+      '..mmmmmmn.......',
+      '..nmmmmmn.......',
+      '...nmmmn........',
+      '....nnn.........',
+      '................',
+    ],
+    t_hammer: [
+      '................',
+      '..MMMMMMMMMM....',
+      '.MmmmmmmmmmmMn..',
+      '.nmmmmmmmmmmnn..',
+      '..nnnnWwnnnn....',
+      '......Wwv.......',
+      '......Wwv.......',
+      '......Wwv.......',
+      '......Wwv.......',
+      '......Wwv.......',
+      '......Wwv.......',
+      '......Wwv.......',
+      '......vvv.......',
+      '................',
+      '................',
+      '................',
+    ],
+    ph_key: [
+      '.....zzzzzz.....',
+      '....zxxxxxxz....',
+      '....zxxKKxxz....',
+      '....zxPPPIxz....',
+      '....zxPpIIxz....',
+      '....zxpIIbxz....',
+      '....zxIIbbxz....',
+      '....zxIbbbxz....',
+      '....zxbbbjxz....',
+      '....zxbbjjxz....',
+      '....zxbjjjxz....',
+      '....zxxxxxxz....',
+      '....zxxZZxxz....',
+      '.....zzzzzz.....',
+      '................',
+      '................',
+    ],
+    c_carrot: [
+      '................',
+      '..........G.G...',
+      '.........GgGg...',
+      '..........gGgG..',
+      '.........Ccgg...',
+      '........CCcd....',
+      '.......CCccd....',
+      '......Cccccd....',
+      '.....Cccdcd.....',
+      '....Cccccd......',
+      '...cccdcd.......',
+      '..cccccd........',
+      '..ccdd..........',
+      '..dd............',
+      '................',
+      '................',
+    ],
+    c_cabbage: [
+      '................',
+      '................',
+      '.....hgggh......',
+      '...hgGGGGGgh....',
+      '..hgGGgGGGGgh...',
+      '..gGGgGGgGGGg...',
+      '.hgGGGgggGGGgh..',
+      '.hgGGgGGGgGGgh..',
+      '.hggGgGGGgGggh..',
+      '..hggggGggggh...',
+      '..hhggggggghh...',
+      '...hhhhhhhhh....',
+      '................',
+      '................',
+      '................',
+      '................',
+    ],
+    c_potato: [
+      '................',
+      '................',
+      '................',
+      '.....ssss.......',
+      '...sstttTss.....',
+      '..stttTTttts....',
+      '..sttettTTtse...',
+      '.estttttteTtse..',
+      '.essttttttttse..',
+      '..essssesssse...',
+      '...eeeeeeeee....',
+      '................',
+      '................',
+      '................',
+      '................',
+      '................',
+    ],
+    c_pumpkin: [
+      '................',
+      '................',
+      '.......hv.......',
+      '......hv........',
+      '...cCCcccCCc....',
+      '..cCCccdcCCcd...',
+      '.cCCcdccdcCccd..',
+      '.cCccdccdccCcd..',
+      '.cCccdccdcccdd..',
+      '.cccdccccdccdd..',
+      '..ccdccccdcdd...',
+      '...dddddddddd...',
+      '................',
+      '................',
+      '................',
+      '................',
+    ],
+    c_apple: [
+      '................',
+      '.......v.G......',
+      '.......vGGh.....',
+      '....rrrvrrr.....',
+      '...rRRrrrrrq....',
+      '..rRRrrrrrrrq...',
+      '..rRrrrrrrrrq...',
+      '..rrrrrrrrrrq...',
+      '..rrrrrrrrrqq...',
+      '...rrrrrrrqq....',
+      '....qq.qqq......',
+      '................',
+      '................',
+      '................',
+      '................',
+      '................',
+    ],
+    c_lemon: [
+      '................',
+      '................',
+      '.........hG.....',
+      '........hgG.....',
+      '.....uyyyyu.....',
+      '...uyYYyyyyyu...',
+      '..uyYYyyyyyyyu..',
+      '.uyYyyyyyyyyyyu.',
+      '..uyyyyyyyyyyu..',
+      '...uyyyyyyyyu...',
+      '.....uuuuuu.....',
+      '................',
+      '................',
+      '................',
+      '................',
+      '................',
+    ],
+    c_sunroot: [
+      '................',
+      '.......G........',
+      '......gGh.......',
+      '.......h........',
+      '.....yyyy.......',
+      '...yyYYyyyu.....',
+      '..yYYyyyyyyu.u..',
+      '..yYyyyuyyyyuyu.',
+      '.uyyyyyyyyyyyyu.',
+      '.uyyuyyyyyuyyu..',
+      '..uuyyyyyyyuu...',
+      '....uuuuuuu.....',
+      '................',
+      '................',
+      '................',
+      '................',
+    ],
+    c_goldwheat: [
+      '................',
+      '.......Y........',
+      '......YyY.......',
+      '.....YyuyY......',
+      '......yuy.......',
+      '.....YyuyY......',
+      '......yuy.......',
+      '.....YyuyY......',
+      '......yuy.......',
+      '.......u........',
+      '.......g........',
+      '......Gg........',
+      '.......g.G......',
+      '.......gg.......',
+      '.......g........',
+      '................',
+    ],
+    c_ashgrass: [
+      '................',
+      '................',
+      '....GG...GG.....',
+      '...GggG.GggG....',
+      '...GgggGgggG....',
+      '....ggghggg.....',
+      '.GG..gghgg..GG..',
+      'GggG..ghg..GggG.',
+      'GgggGhhhhhGgggG.',
+      '.gggggghggggggh.',
+      '..hhgggh.gggghh.',
+      '.......h........',
+      '.......h........',
+      '......hh........',
+      '................',
+      '................',
+    ],
+    c_gumnut: [
+      '................',
+      '..........hg....',
+      '........hggG....',
+      '......hggGG.....',
+      '.....hgGGg......',
+      '....hgGg........',
+      '...hgg..........',
+      '...h..ee........',
+      '..h..eEEe.ee....',
+      '.....eEee.eEe...',
+      '......ee..eee...',
+      '..........ff....',
+      '................',
+      '................',
+      '................',
+      '................',
+    ],
+    o_plain: [
+      '................',
+      '................',
+      '................',
+      '....EEEEEEEEE...',
+      '...EETEEEEEEEe..',
+      '..EEEEEEEEEEeef.',
+      '..eeeeeeeeeeeff.',
+      '..eeEeeeeeeeeff.',
+      '..eeeeeeeeeeeff.',
+      '..eeeeeeeefeeff.',
+      '..eeeeeeeeeeeff.',
+      '..eeeeeeeeeeef..',
+      '..ffffffffffff..',
+      '................',
+      '................',
+      '................',
+    ],
+    o_rich: [
+      '................',
+      '..Y.............',
+      '.YxY............',
+      '..Y.eeeeeeeee...',
+      '...eeEeeeeeeef..',
+      '..eeeeeeeeeeffK.',
+      '..ffffffffffffK.',
+      '..ffeffffffffKK.',
+      '..ffffffffffffK.',
+      '..ffffffffKfffK.',
+      '..ffffffffffffK.',
+      '..fffffffffffK..',
+      '..KKKKKKKKKKKK..',
+      '...........Y....',
+      '..........YxY...',
+      '...........Y....',
+    ],
+    wdollar: [
+      '................',
+      '.....uuuuuu.....',
+      '...uuyyyyyyuu...',
+      '..uyYYyyyyyyyu..',
+      '..uYYyyyyyyyyu..',
+      '.uyYyuyyyyuyyyu.',
+      '.uyyyuyyyyuyyyu.',
+      '.uyyyuyuuyuyyyu.',
+      '.uyyyuuyyuuyyyu.',
+      '.uyyyuyyyyuyyyu.',
+      '..uyyyyyyyyyyu..',
+      '..uuyyyyyyyyuu..',
+      '...uuyyyyyyuu...',
+      '.....uuuuuu.....',
+      '................',
+      '................',
+    ],
+    lock: [
+      '................',
+      '................',
+      '.....nnnnn......',
+      '....n.....n.....',
+      '....n.....n.....',
+      '....n.....n.....',
+      '...yyyyyyyyy....',
+      '...yYYYYYYYu....',
+      '...yYyyuyyyu....',
+      '...yYyyKyyyu....',
+      '...yYyyKyyyu....',
+      '...yyyyyyyyu....',
+      '...uuuuuuuuu....',
+      '................',
+      '................',
+      '................',
+    ],
+  };
+  const OUT = '#3a2c34';
+  function build(name) {
+    const rows = T[name];
+    if (!rows) return null;
+    const H = rows.length, W = rows[0].length;
+    const { c, g } = Art.cv(W + 2, H + 2);
+    const on = (x, y) => y >= 0 && y < H && x >= 0 && x < W && rows[y][x] !== '.';
+    // the soft outline first, one pixel round everything that is not empty
+    g.fillStyle = OUT;
+    for (let y = -1; y <= H; y++) for (let x = -1; x <= W; x++) {
+      if (on(x, y)) continue;
+      if (on(x - 1, y) || on(x + 1, y) || on(x, y - 1) || on(x, y + 1)) g.fillRect(x + 1, y + 1, 1, 1);
+    }
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const ch = rows[y][x];
+      if (ch === '.') continue;
+      g.fillStyle = PALETTE[ch] || '#ff00ff';
+      g.fillRect(x + 1, y + 1, 1, 1);
+    }
+    return c;
+  }
+  return { build, has: (n) => !!T[n], names: () => Object.keys(T), T };
+})();
+</script>
+
+<script>
 // ===== js/icons.js =====
 // ---- Procedural pixel icons. The interface uses no emoji and little text. --
 const Icons = (() => {
@@ -6473,6 +7293,7 @@ const Icons = (() => {
   };
 
   function build(name) {
+    if (typeof IconArt !== 'undefined' && IconArt.has(name)) return IconArt.build(name);
     const def = DEF[name];
     if (!def) return null;
     const fn = typeof def === 'function' ? def : def.draw;
@@ -6513,6 +7334,369 @@ const Icons = (() => {
     if (c) g.drawImage(c, Math.round(x), Math.round(y), SZ * scale, SZ * scale);
   }
   return { url, img, blit, canvas, names: () => Object.keys(DEF) };
+})();
+</script>
+
+<script>
+// ===== js/uikit.js =====
+// ---- Kit: the interface, drawn on the canvas -----------------------------------
+// The same soft cards and mint buttons the HTML panels wear (css/theme.css),
+// for the places the interface is painted straight into the picture: the
+// title screen, the captions on the drive in, the travel card, the dialogue.
+const Kit = (() => {
+  const C = {
+    line: '#2c4048', ink: '#36505a', ink2: '#6a8088',
+    paper: '#fffaf0', white: '#ffffff', lip: '#efe4cc', lip2: '#d9cbae',
+    mint: '#7fd1a8', mintL: '#c8f2dc', mintD: '#4fae84', mintDD: '#2f7d5c', mintW: '#eef8f2',
+    sun: '#ffc23a', sunL: '#fff1b8', sunD: '#c7861a',
+    coral: '#ff7a5c', coralD: '#b8442c', sky: '#5ab4e8',
+    shadow: 'rgba(44,64,72,0.22)',
+  };
+  // a filled rectangle with its corners rounded off in whole pixels
+  function rr(g, x, y, w, h, r, col) {
+    x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+    r = Math.min(r, Math.floor(h / 2), Math.floor(w / 2));
+    g.fillStyle = col;
+    for (let i = 0; i < r; i++) {
+      const d = r - Math.round(Math.sqrt(r * r - (r - i - 0.5) * (r - i - 0.5)));
+      g.fillRect(x + d, y + i, w - d * 2, 1);
+      g.fillRect(x + d, y + h - 1 - i, w - d * 2, 1);
+    }
+    g.fillRect(x, y + r, w, h - r * 2);
+  }
+  // a card: slate line, a fill, a white lit edge and a lip underneath
+  function card(g, x, y, w, h, o = {}) {
+    const r = o.r == null ? 6 : o.r;
+    if (o.shadow !== false) rr(g, x, y + 4, w, h, r, C.shadow);
+    rr(g, x, y, w, h, r, o.line || C.line);
+    rr(g, x + 2, y + 2, w - 4, h - 4, r - 1, o.lip || C.lip);
+    rr(g, x + 2, y + 2, w - 4, h - 7, r - 1, o.fill || C.paper);
+    if (o.ring) { rr(g, x + 2, y + 2, w - 4, h - 4, r - 1, o.ring); rr(g, x + 4, y + 4, w - 8, h - 9, r - 2, o.fill || C.paper); }
+    g.fillStyle = o.top || C.white; g.fillRect(Math.round(x + r), Math.round(y + 2), Math.round(w - r * 2), 1);
+  }
+  // a button: mint (or sun, or coral), it lifts under the pointer and sinks when pressed
+  function button(g, b, label, sub, o = {}) {
+    const hot = !!o.hot, kind = o.kind || 'mint';
+    const P = kind === 'sun' ? [C.sun, C.sunL, C.sunD, '#4a3304'] : kind === 'coral' ? [C.coral, '#ffc2b2', C.coralD, '#ffffff']
+      : kind === 'plain' ? [C.white, C.white, '#b8ccc4', C.ink] : [C.mint, C.mintL, C.mintDD, '#173a2e'];
+    const lift = hot ? -2 : 0;
+    const x = b.x, y = b.y + lift, w = b.w, h = b.h;
+    rr(g, x, b.y + 5, w, h, 7, C.shadow);
+    rr(g, x, y, w, h + 3, 7, C.line);
+    rr(g, x + 2, y + 2, w - 4, h - 1, 6, P[2]);
+    rr(g, x + 2, y + 2, w - 4, h - 4, 6, hot ? U.shade(P[0], 0.12) : P[0]);
+    g.fillStyle = P[1]; g.fillRect(x + 7, y + 3, w - 14, 2);
+    const sc = o.scale || 2;
+    const cy = y + (sub ? 7 : Math.round((h - sc * 7) / 2));
+    Font.draw(g, label, x + w / 2, cy, { scale: sc, color: P[3], align: 'center' });
+    if (sub) Font.draw(g, sub, x + w / 2, cy + sc * 7 + 4, { scale: 1, color: kind === 'sun' ? '#7a5510' : '#2f6a52', align: 'center' });
+  }
+  // a mint tab with a title on it, for the top of a card
+  function tab(g, x, y, w, h, text, o = {}) {
+    rr(g, x, y, w, h + 2, 6, C.line);
+    rr(g, x + 2, y + 2, w - 4, h - 2, 5, C.mintDD);
+    rr(g, x + 2, y + 2, w - 4, h - 4, 5, o.col || C.mintD);
+    g.fillStyle = '#9fe0bf'; g.fillRect(x + 6, y + 3, w - 12, 1);
+    const sc = o.scale || 1;
+    Font.draw(g, text, x + w / 2, y + Math.round((h - sc * 7) / 2) + 1, { scale: sc, color: C.mintDD, align: 'center' });
+    Font.draw(g, text, x + w / 2, y + Math.round((h - sc * 7) / 2), { scale: sc, color: '#ffffff', align: 'center' });
+  }
+  // a pill for a small label or a price
+  function pill(g, x, y, text, o = {}) {
+    const w = Font.width(text, 1) + 10;
+    rr(g, x, y, w, 13, 6, C.line);
+    rr(g, x + 1, y + 1, w - 2, 11, 5, o.col || C.sun);
+    Font.draw(g, text, x + w / 2, y + 3, { scale: 1, color: o.ink || '#4a3304', align: 'center' });
+    return w;
+  }
+  return { C, rr, card, button, tab, pill };
+})();
+</script>
+
+<script>
+// ===== js/portraits.js =====
+// ---- Portraits: big faces for the dialogue box --------------------------------
+// A head-and-shoulders bust at 64x64, the way a farming game shows whoever is
+// talking to you: front on, lit from the upper left, with a face for every
+// mood (happy, laughing, thinking, cross, shocked, sly, worried, tired), eyes
+// that blink, and a mouth that moves while the words are coming out.
+//
+// One painter does everybody. A spec says what they look like: skin, hair and
+// how it is cut, what is on their head, glasses, stubble, what they wear.
+const Portraits = (() => {
+  const S = 64;
+  const cache = new Map();
+
+  // ---- who looks like what --------------------------------------------------
+  const SPECS = {
+    // Jim: heavyset, messy ginger-blond hair sticking up over a red headband,
+    // thick black glasses, ginger stubble, a grey check fleece with a big
+    // cream sherpa collar over a pink shirt.
+    jim: {
+      skin: ['#ffdcbc', '#f4c29c', '#d9976e', '#b8734e'], blush: '#f2a08c',
+      hair: ['#ffd27a', '#f0a23a', '#c8741e', '#8a4a14'], cut: 'spiky',
+      band: ['#ff7a66', '#dc3a2c', '#a02418'], glasses: '#1e1814', stubble: '#c47a3c',
+      brow: '#b8661e', wide: 1.12,
+      top: 'fleece', cloth: ['#b4b6be', '#92949c', '#74767e', '#5a5c64'], shirt: ['#ffa6bc', '#e57e9c', '#b8566e'],
+      collar: ['#fffaf0', '#f0e6d2', '#d4c6aa'],
+    },
+  };
+  // the villagers are drawn from their own kits
+  function specFor(key) {
+    if (SPECS[key]) return SPECS[key];
+    const K = typeof Sprites !== 'undefined' && Sprites.VILLAGERS ? Sprites.VILLAGERS[key] : null;
+    if (!K) return null;
+    const sk = K.skin, hr = K.hair, sh = K.shirt;
+    const spec = {
+      skin: [U.shade(sk, 0.14), sk, U.shade(sk, -0.14), U.shade(sk, -0.28)], blush: U.mix(sk, '#f08080', 0.35),
+      hair: [U.shade(hr, 0.22), hr, U.shade(hr, -0.16), U.shade(hr, -0.32)],
+      cut: { bee: 'bun', fish: 'short', post: 'bob', bake: 'bun', bota: 'short', bard: 'long', ranger: 'short', grimm: 'short', joiner: 'short', warren: 'bun' }[key] || 'short',
+      hat: K.hat, brow: U.shade(hr, -0.2), wide: key === 'joiner' || key === 'fish' ? 1.06 : 1,
+      top: 'shirt', cloth: [U.shade(sh, 0.18), sh, U.shade(sh, -0.14), U.shade(sh, -0.28)], shirt: null,
+      collar: null, glasses: key === 'bota' ? '#2a2420' : null, stubble: key === 'fish' || key === 'joiner' ? U.shade(hr, -0.1) : null,
+    };
+    return spec;
+  }
+
+  // ---- the faces -----------------------------------------------------------------
+  // brows as [inner lift, outer lift] each side; eyes; mouth
+  const FACES = {
+    talk:  { bl: [0, 0], br: [0, 0], eyes: 'open', mouth: 'neutral' },
+    idle:  { bl: [0, 0], br: [0, 0], eyes: 'open', mouth: 'smile' },
+    happy: { bl: [1, 1], br: [1, 1], eyes: 'happy', mouth: 'grin' },
+    laugh: { bl: [2, 1], br: [2, 1], eyes: 'closed', mouth: 'laugh' },
+    proud: { bl: [2, 2], br: [2, 2], eyes: 'open', mouth: 'grin' },
+    think: { bl: [3, 2], br: [0, -1], eyes: 'up', mouth: 'side' },
+    worry: { bl: [3, -1], br: [3, -1], eyes: 'open', mouth: 'frown' },
+    sad:   { bl: [3, -1], br: [3, -1], eyes: 'half', mouth: 'frown' },
+    cross: { bl: [-2, 1], br: [-2, 1], eyes: 'half', mouth: 'frown' },
+    shock: { bl: [3, 3], br: [3, 3], eyes: 'wide', mouth: 'o' },
+    sly:   { bl: [0, 0], br: [-2, 1], eyes: 'half', mouth: 'smirk' },
+    tired: { bl: [0, -1], br: [0, -1], eyes: 'half', mouth: 'flat' },
+  };
+  const faceOf = (m) => FACES[m] || FACES.talk;
+
+  // ---- drawing helpers --------------------------------------------------------------
+  function painter(g) {
+    const R = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    const P = (x, y, c) => R(x, y, 1, 1, c);
+    // a filled ellipse by rows, so every edge is whole pixels
+    const E = (cx, cy, rx, ry, c) => {
+      g.fillStyle = c;
+      for (let y = Math.ceil(cy - ry); y <= Math.floor(cy + ry); y++) {
+        const t = (y + 0.5 - cy) / ry;
+        if (Math.abs(t) > 1) continue;
+        const w = rx * Math.sqrt(1 - t * t);
+        g.fillRect(Math.round(cx - w), y, Math.round(cx + w) - Math.round(cx - w), 1);
+      }
+    };
+    return { R, P, E };
+  }
+
+  // ---- the bust -------------------------------------------------------------------------
+  function bust(spec, mood, blink, talk) {
+    const { c, g } = Art.cv(S, S);
+    const { R, P, E } = painter(g);
+    const F = faceOf(mood);
+    const sk = spec.skin, hr = spec.hair, W = spec.wide || 1;
+    const OUT = '#3a2830';
+    const cx = 32;
+
+    // shoulders first, everything else sits on them
+    const cl = spec.cloth;
+    E(cx, 76, 33 * W, 25, OUT);
+    E(cx, 76, 32 * W, 24, cl[1]);
+    E(cx - 10, 70, 16 * W, 12, cl[0]);
+    E(cx + 18, 78, 14, 18, cl[2]);
+    if (spec.top === 'fleece') {                           // the check of the fleece
+      for (let y = 50; y < S; y++) for (let x = 0; x < S; x++) {
+        const d = g.getImageData(x, y, 1, 1).data;
+        if (d[3] === 0 || (d[0] === 0x3a && d[1] === 0x28)) continue;
+        if (x % 6 === 0 || y % 6 === 2) P(x, y, (x + y) % 12 < 6 ? cl[2] : cl[3]);
+        else if ((x % 6 === 3) && (y % 6 === 5)) P(x, y, cl[0]);
+      }
+    }
+    // the shirt showing at the neck
+    if (spec.shirt) {
+      g.fillStyle = spec.shirt[1];
+      g.beginPath(); g.moveTo(cx - 10, 50); g.lineTo(cx + 10, 50); g.lineTo(cx + 5, S); g.lineTo(cx - 5, S); g.fill();
+      R(cx - 9, 51, 3, 3, spec.shirt[0]);
+      for (let y = 54; y < S; y += 3) P(cx, y, spec.shirt[2]);               // buttons
+    }
+    // the neck, shaded under the chin
+    R(cx - 7 * W, 42, 14 * W, 12, sk[2]);
+    R(cx - 7 * W, 42, 5, 12, sk[1]);
+    // the collar: a thick cream sherpa roll round the neck and down the front
+    if (spec.collar) {
+      const co = spec.collar;
+      const bumps = [[-14, 51, 4], [-9, 50, 4], [9, 50, 4], [14, 51, 4], [-17, 55, 4], [17, 55, 4], [-11, 56, 4], [11, 56, 4], [-9, 61, 4], [9, 61, 4], [-14, 60, 3], [14, 60, 3]];
+      for (const [dx, y, r] of bumps) E(cx + dx * W, y, r + 1, r, OUT);
+      for (const [dx, y, r] of bumps) E(cx + dx * W, y, r, r - 1, co[1]);
+      for (const [dx, y, r] of bumps) E(cx + dx * W - 1, y - 1, r - 2, r - 3, co[0]);
+      for (const [dx, y] of bumps) { P(cx + dx * W + 2, y + 2, co[2]); P(cx + dx * W - 2, y + 1, co[2]); }
+    } else {
+      // a plain collar on a shirt
+      g.fillStyle = cl[3];
+      g.beginPath(); g.moveTo(cx - 8, 47); g.lineTo(cx, 55); g.lineTo(cx + 8, 47); g.lineTo(cx + 10, 50); g.lineTo(cx, 58); g.lineTo(cx - 10, 50); g.fill();
+      g.fillStyle = cl[0];
+      g.beginPath(); g.moveTo(cx - 8, 47); g.lineTo(cx, 54); g.lineTo(cx - 3, 56); g.lineTo(cx - 10, 49); g.fill();
+    }
+
+    // hair that falls behind the head
+    if (spec.cut === 'long' || spec.cut === 'bob') {
+      E(cx, 32, 18 * W, spec.cut === 'long' ? 20 : 16, OUT);
+      E(cx, 32, 17 * W, spec.cut === 'long' ? 19 : 15, hr[2]);
+    }
+    if (spec.cut === 'bun') { E(cx, 8, 7, 6, OUT); E(cx, 8, 6, 5, hr[1]); E(cx - 2, 6, 3, 2, hr[0]); }
+
+    // ears
+    for (const s2 of [-1, 1]) {
+      E(cx + s2 * 17.5 * W, 30, 3.5, 5, OUT);
+      E(cx + s2 * 17.5 * W, 30, 2.6, 4, sk[s2 < 0 ? 1 : 2]);
+      P(cx + s2 * 17.5 * W, 30, sk[3]); P(cx + s2 * 17.5 * W, 31, sk[3]);
+    }
+    // the head: a round face and a heavier jaw, outlined, lit from the left
+    E(cx, 26, 17 * W + 1, 18, OUT);
+    E(cx, 35, 16 * W + 1, 12, OUT);
+    E(cx, 26, 17 * W, 17, sk[1]);
+    E(cx, 35, 16 * W, 11, sk[1]);
+    E(cx + 7, 30, 11 * W, 16, sk[2]);                   // the shaded side
+    E(cx - 2, 28, 14 * W, 16, sk[1]);
+    E(cx - 6, 21, 7, 5, sk[0]);                         // the lit forehead and cheek
+    E(cx - 10, 34, 3, 2, sk[0]);
+    E(cx + 1, 45, 9 * W, 2, sk[2]);                     // under the chin
+    // stubble along the jaw and round the mouth
+    if (spec.stubble) {
+      for (let y = 34; y < 47; y++) for (let x = 12; x < 52; x++) {
+        const inJaw = ((x - cx) / (16 * W)) ** 2 + ((y - 35) / 11) ** 2 < 0.94;
+        if (!inJaw) continue;
+        if (y < 39 && Math.abs(x - cx) < 10) continue;
+        if (y >= 39 && y <= 44 && Math.abs(x - cx) < 6) continue;
+        if ((x * 3 + y * 5) % 4 === 0 || ((x + y) % 5 === 0 && y > 40)) P(x, y, spec.stubble);
+      }
+    }
+    // cheeks
+    if (F.mouth === 'grin' || F.mouth === 'laugh' || F.eyes === 'happy') { E(cx - 11, 36, 3, 1.5, spec.blush); E(cx + 11, 36, 3, 1.5, spec.blush); }
+
+    // ---- the hair on top ------------------------------------------------------------
+    E(cx, 14, 18 * W + 1, 9, OUT);
+    E(cx, 14, 18 * W, 8, hr[1]);
+    E(cx - 5, 11, 10, 4, hr[0]);
+    for (let x = cx - 18; x <= cx + 18; x++) P(x, 21 - Math.round(Math.abs(x - cx) * 0.12), hr[2]);
+    if (spec.cut === 'spiky') {
+      // tufts sticking up every which way
+      const tufts = [[-16, 8, -5], [-11, 3, -3], [-5, 0, -1], [1, -1, 1], [7, 1, 2], [12, 4, 3], [17, 9, 5]];
+      for (const [dx, ty, lean] of tufts) {
+        const bx = cx + dx * W;
+        g.fillStyle = OUT;
+        g.beginPath(); g.moveTo(bx - 4, 14); g.lineTo(bx + lean, ty - 1); g.lineTo(bx + 4, 14); g.fill();
+        g.fillStyle = hr[1];
+        g.beginPath(); g.moveTo(bx - 3, 14); g.lineTo(bx + lean, ty + 1); g.lineTo(bx + 3, 14); g.fill();
+        P(bx + lean * 0.5 - 1, ty + 4, hr[0]); P(bx + lean * 0.5 - 1, ty + 5, hr[0]);
+      }
+      // a few strands falling over the band onto the forehead
+      for (const [dx, len] of [[-7, 4], [-2, 5], [4, 4], [9, 3]]) for (let i = 0; i < len; i++) P(cx + dx * W + (i > 2 ? 1 : 0), 18 + i, i % 2 ? hr[2] : hr[1]);
+      // sides, over the ears
+      for (const s2 of [-1, 1]) { E(cx + s2 * 16 * W, 20, 3, 6, OUT); E(cx + s2 * 16 * W, 20, 2, 5, hr[2]); }
+    } else if (spec.cut === 'bob' || spec.cut === 'long') {
+      for (const s2 of [-1, 1]) { E(cx + s2 * 14 * W, 28, 4, 12, OUT); E(cx + s2 * 14 * W, 28, 3, 11, hr[1]); }
+      E(cx - 5, 18, 10, 5, hr[1]); E(cx - 7, 16, 5, 2, hr[0]);
+    } else {
+      // short: a fringe swept to one side
+      g.fillStyle = hr[1];
+      g.beginPath(); g.moveTo(cx - 15, 20); g.lineTo(cx + 6, 17); g.lineTo(cx - 2, 23); g.lineTo(cx - 13, 24); g.fill();
+      for (const s2 of [-1, 1]) { E(cx + s2 * 14 * W, 22, 2.5, 5, OUT); E(cx + s2 * 14 * W, 22, 1.8, 4, hr[2]); }
+    }
+    // the headband, curving round the forehead
+    if (spec.band) {
+      for (let x = cx - 18 * W; x <= cx + 18 * W; x++) {
+        const y = 13 + Math.round(((x - cx) / (18 * W)) ** 2 * 3);
+        R(x, y - 1, 1, 6, OUT);
+        R(x, y, 1, 4, spec.band[1]);
+        P(x, y, spec.band[0]);
+        P(x, y + 3, spec.band[2]);
+      }
+      // the knot and its tails poking out on his left
+      E(cx + 18 * W, 16, 3, 3, OUT); E(cx + 18 * W, 16, 2, 2, spec.band[1]);
+      R(cx + 19 * W, 17, 4, 2, spec.band[2]); R(cx + 20 * W, 19, 3, 2, spec.band[1]);
+    }
+    // hats for the villagers
+    if (spec.hat === 'cap') { E(cx, 14, 16, 7, OUT); E(cx, 14, 15, 6, spec.cloth[2]); R(cx - 18, 18, 22, 3, OUT); R(cx - 17, 18, 20, 2, spec.cloth[3]); E(cx - 4, 11, 6, 2, spec.cloth[1]); }
+    if (spec.hat === 'wide') { E(cx, 15, 25, 4, OUT); E(cx, 15, 24, 3, '#c8a060'); E(cx, 10, 13, 7, OUT); E(cx, 10, 12, 6, '#d8b070'); R(cx - 12, 13, 24, 2, '#8a5a2a'); }
+    if (spec.hat === 'kerchief') { E(cx, 13, 16, 7, OUT); E(cx, 13, 15, 6, '#d84a3a'); for (let i = 0; i < 8; i++) P(cx - 12 + i * 3, 12 + (i % 2), '#fff0e0'); }
+    if (spec.hat === 'bucket') { E(cx, 15, 20, 4, OUT); E(cx, 15, 19, 3, '#6a8a5a'); E(cx, 10, 13, 7, OUT); E(cx, 10, 12, 6, '#7a9a6a'); }
+    if (spec.hat === 'veil') { E(cx, 12, 17, 7, OUT); E(cx, 12, 16, 6, '#f2ece0'); for (let x = cx - 18; x <= cx + 18; x += 2) R(x, 16, 1, 10, 'rgba(242,236,224,0.55)'); }
+
+    // ---- the face ---------------------------------------------------------------------
+    const ey = 28, ex = 8 * W;
+    // brows
+    for (const [s2, br] of [[-1, F.bl], [1, F.br]]) {
+      const inner = cx + s2 * 3, outer = cx + s2 * (ex + 5);
+      for (let i = 0; i <= 6; i++) {
+        const x = Math.round(U.lerp(inner, outer, i / 6));
+        const y = Math.round(ey - 8 - U.lerp(br[0], br[1], i / 6) * 0.8);
+        R(x, y, 1, 2, spec.brow);
+      }
+    }
+    // eyes
+    for (const s2 of [-1, 1]) {
+      const x = Math.round(cx + s2 * ex), look = F.eyes === 'up' ? -1 : 0;
+      const shut = blink || F.eyes === 'closed';
+      if (shut) { R(x - 2, ey + 1, 5, 1, '#2a1a18'); P(x - 3, ey, '#2a1a18'); P(x + 3, ey, '#2a1a18'); }
+      else if (F.eyes === 'happy') { P(x - 2, ey + 1, '#2a1a18'); R(x - 1, ey, 3, 1, '#2a1a18'); P(x + 2, ey + 1, '#2a1a18'); }
+      else if (F.eyes === 'half') { R(x - 2, ey, 5, 1, '#2a1a18'); R(x - 1, ey + 1, 3, 1, '#2a1a18'); R(x - 2, ey - 1, 5, 1, sk[2]); }
+      else if (F.eyes === 'wide') { R(x - 2, ey - 2, 5, 5, '#ffffff'); R(x - 1, ey - 1, 3, 3, '#2a1a18'); P(x, ey - 1, '#ffffff'); }
+      else { R(x - 2, ey - 1 + look, 4, 4, '#ffffff'); R(x - 1, ey - 1 + look, 2, 3, '#2a1a18'); P(x - 1, ey - 1 + look, '#ffffff'); R(x - 2, ey - 2, 5, 1, sk[3]); }
+    }
+    // glasses: thick black frames, a glint across each lens
+    if (spec.glasses) {
+      const gl = spec.glasses;
+      for (const s2 of [-1, 1]) {
+        const x0 = Math.round(cx + s2 * ex - 6), y0 = ey - 5;
+        R(x0, y0, 13, 2, gl); R(x0, y0 + 9, 13, 2, gl); R(x0, y0, 2, 11, gl); R(x0 + 11, y0, 2, 11, gl);
+        g.fillStyle = 'rgba(210,236,255,0.28)'; g.fillRect(x0 + 2, y0 + 2, 9, 7);
+        P(x0 + 3, y0 + 3, 'rgba(255,255,255,0.9)'); P(x0 + 4, y0 + 3, 'rgba(255,255,255,0.7)'); P(x0 + 3, y0 + 4, 'rgba(255,255,255,0.6)');
+      }
+      R(cx - 2, ey - 2, 4, 2, gl);                                  // the bridge
+      for (const s2 of [-1, 1]) R(s2 < 0 ? cx - ex - 10 * W : cx + ex + 7, ey - 3, 4 * W, 2, gl);   // the arms
+    }
+    // nose: a little shaded button
+    R(cx - 1, 34, 3, 3, sk[2]); R(cx - 2, 36, 5, 1, sk[3]); P(cx - 1, 34, sk[0]);
+
+    // mouth
+    const my = 41;
+    const M = talk && F.mouth !== 'laugh' ? (F.mouth === 'frown' ? 'talkfrown' : 'talk') : F.mouth;
+    const dark = '#6a2a2a', lip = '#9a4a3a', tongue = '#e0707a', teeth = '#fffaf0';
+    switch (M) {
+      case 'smile': R(cx - 3, my, 7, 1, lip); P(cx - 4, my - 1, lip); P(cx + 4, my - 1, lip); break;
+      case 'grin': R(cx - 4, my - 1, 9, 3, dark); R(cx - 3, my - 1, 7, 1, teeth); R(cx - 2, my + 1, 5, 1, tongue); P(cx - 5, my - 2, lip); P(cx + 5, my - 2, lip); break;
+      case 'laugh': R(cx - 4, my - 1, 9, 5, dark); R(cx - 3, my - 1, 7, 1, teeth); R(cx - 2, my + 2, 5, 2, tongue); P(cx - 5, my - 2, lip); P(cx + 5, my - 2, lip); break;
+      case 'frown': R(cx - 3, my + 1, 7, 1, lip); P(cx - 4, my + 2, lip); P(cx + 4, my + 2, lip); break;
+      case 'o': R(cx - 2, my - 1, 4, 4, dark); R(cx - 1, my + 1, 2, 1, tongue); break;
+      case 'side': R(cx, my, 5, 1, lip); P(cx + 5, my - 1, lip); break;
+      case 'smirk': R(cx - 2, my + 1, 6, 1, lip); P(cx + 4, my, lip); P(cx + 5, my - 1, lip); break;
+      case 'flat': R(cx - 3, my, 7, 1, lip); break;
+      case 'talk': R(cx - 3, my - 1, 7, 3, dark); R(cx - 2, my - 1, 5, 1, teeth); R(cx - 1, my + 1, 3, 1, tongue); break;
+      case 'talkfrown': R(cx - 3, my, 7, 3, dark); R(cx - 1, my + 2, 3, 1, tongue); break;
+      default: R(cx - 3, my, 7, 1, lip);
+    }
+    return c;
+  }
+
+  // ---- the one call everybody makes -------------------------------------------------------
+  // `t` drives the blink; `talking` flaps the mouth.
+  function get(key, mood, t = 0, talking = false) {
+    const spec = specFor(key);
+    if (!spec) return null;
+    const blink = (t % 3.6) > 3.45;
+    const mouth = talking && Math.floor(t * 9) % 2 === 0;
+    const k = `${key}|${mood}|${blink ? 1 : 0}|${mouth ? 1 : 0}`;
+    let c = cache.get(k);
+    if (!c) { c = bust(spec, mood, blink, mouth); cache.set(k, c); }
+    return c;
+  }
+  const has = (key) => !!specFor(key);
+  return { get, has, FACES, SPECS };
 })();
 </script>
 
@@ -6609,14 +7793,15 @@ const SUBTOOLS = [
   // The shovel paints the ground like a brush: hold the left button to dig
   // it down, the right one (or Shift) to heap it up into a hill. Water a hole
   // and it fills; water a trench and it runs. [ and ] or the wheel resize it.
-  { key: 'shovel', name: 'Shovel', icon: 'u_burrow', radius: 22, terra: 'shovel',
+  { key: 'shovel', name: 'Shovel', icon: 't_shovel', radius: 22, terra: 'shovel',
     desc: 'Hold to dig down. Right-click (or Shift) and hold to heap up a hill. Water a hole to make a pond or a creek.' },
-  { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture where you point. Point at it again to pick it up.' },
-  { key: 'fert',  name: 'Poo Scoop', icon: 'o_plain', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
+  { key: 'build', name: 'Build',  icon: 't_hammer', radius: 0,  desc: 'Stand furniture where you point. Point at it again to pick it up.' },
+  { key: 'fert',  name: 'Poo Scoop', icon: 't_scoop', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
 ];
 // ---- what you own -------------------------------------------------------------
-// You arrive with your two hands and W$300. Every tool, the phone, and every
-// app on it is bought: tools and the phone at Wombat Mart, apps in the App
+// You arrive with your two hands and W$300. Jim hands you his old sickle; every
+// other tool is *unlocked* when he teaches you the job it is for, and then
+// bought at Wombat Mart. The phone is the same, and its apps come from the App
 // Store on the phone itself.
 const TOOL_SHOP = [
   { key: 'sickle',  price: 25, blurb: 'Cuts weeds. The first thing you need.' },
@@ -6635,6 +7820,8 @@ const PHONE_PRICE = 80;
 // apps for the phone; the first four come with it
 const APP_PRICES = { quests: 0, messages: 0, settings: 0, store: 0, herd: 25, garden: 25, larder: 20, camera: 15, map: 40 };
 const owns = (g, key) => !!(g && g.owned && g.owned[key]);
+// taught: Jim has shown you it, so the mart will sell it to you
+const taught = (g, key) => owns(g, key) || !!(g && g.unlocked && g.unlocked[key]);
 const GATES = {
   drag: () => true,
   farm: (g) => ['hoe', 'seed', 'moss', 'water'].some((k) => owns(g, k)),
@@ -6643,7 +7830,9 @@ const GATES = {
 const GATE_WHY = {
   pair: 'needs a nest from Groot\'s cellar',
 };
-const whyLocked = (key) => GATE_WHY[key] || (TOOL_SHOP_BY_KEY[key] ? `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}` : 'not yet');
+const whyLocked = (key, g) => GATE_WHY[key] || (TOOL_SHOP_BY_KEY[key]
+  ? (g && !taught(g, key) ? 'locked &middot; Jim will show you this one soon' : `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}`)
+  : 'not yet');
 // number keys 1-9, in the order you are likely to want them
 const HOTKEYS = ['drag', 'sickle', 'destroy', 'moss', 'water', 'hoe', 'seed', 'food', 'fert', 'shovel', 'build'];
 const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : owns(g, key));
@@ -10141,6 +11330,7 @@ const Grove = (() => {
   function press(x, y, first, dir) {
     if (arrival) return true;
     const tool = G.tool;
+    if (first && G.newTools && G.newTools[tool]) { delete G.newTools[tool]; UI.refreshHUD(); }   // used it: not new any more
     if (y < GROUND) return false;
     // the two landmarks answer to any tool; they are doors, not ground -
     // unless a weed is standing in front of them, in which case you meant the weed
@@ -10526,6 +11716,7 @@ const Grove = (() => {
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
     drawPlotPrompt(g, L, R);
+    Guide.drawPointer(g);       // the arrow over the job in hand
     drawMagic(g, L, R);         // whatever the gods are leaving in the air
     drawBuildGhost(g);          // the piece riding on the pointer, and what it is
 
@@ -10701,28 +11892,16 @@ const Grove = (() => {
         g.fillStyle = 'rgba(245,205,92,0.07)';
         g.fillRect(Math.max(L, p.x0), SKY - 20, Math.min(R, p.x1) - Math.max(L, p.x0), H - SKY + 40);
       }
-      // a board behind it, because gold letters on a field of weeds are gold
-      // letters you cannot read
+      // a soft card on a little post, so the price reads over any weeds
       const label0 = p.name.toUpperCase();
-      const bw = Math.max(Font.width(label0, 2), 108) + 22;
-      Art.rect(g, cx - bw / 2 - 2, y - 26, bw + 4, 54, '#120c08');
-      Art.rect(g, cx - bw / 2, y - 24, bw, 50, hot ? '#4a361c' : '#2e2414');
-      Art.rect(g, cx - bw / 2, y - 24, bw, 2, hot ? '#7a5a2c' : '#4a3a20');
-      Art.rect(g, cx - bw / 2, y + 24, bw, 2, '#0e0a06');
-      for (const sd of [-1, 1]) Art.rect(g, cx + sd * (bw / 2 - 3) - 1, y - 22, 2, 46, hot ? '#6a4c24' : '#3e3018');
-      Art.rect(g, cx - 3, y + 26, 6, 26, '#2a1f10');                   // the post it is nailed to
-      Art.rect(g, cx - 3, y + 26, 2, 26, '#443218');
-      Font.draw(g, label0, cx, y - 18, {
-        scale: 2, color: hot ? '#ffe9a8' : '#d8c8a4', align: 'center', shadow: '#120a06', shadowDist: 2,
-      });
-      const label = can ? `${p.cost} W$` : `${p.cost} W$`;
-      Font.draw(g, label, cx, y + 2, {
-        scale: 2, color: can ? '#f5cd5c' : '#e0756a',
-        align: 'center', shadow: '#120a06', shadowDist: 2,
-      });
-      Font.draw(g, can ? (hot ? 'CLICK THE LAND TO BUY IT' : 'FOR SALE') : 'NOT ENOUGH', cx, y + 20, {
-        scale: 1, color: !can ? '#e0756a' : hot ? '#c9e88a' : '#b0a488', align: 'center', shadow: '#120a06',
-      });
+      const bw = Math.max(Font.width(label0, 2), 108) + 24;
+      Art.rect(g, cx - 3, y + 24, 6, 28, Kit.C.line); Art.rect(g, cx - 1, y + 24, 2, 28, '#9fbdb1');
+      Kit.card(g, cx - bw / 2, y - 26, bw, 56, { r: 8, ring: hot ? Kit.C.sun : null });
+      Kit.tab(g, cx - bw / 2 + 8, y - 34, bw - 16, 14, 'FOR SALE', { col: hot ? Kit.C.sunD : Kit.C.mintD });
+      Font.draw(g, label0, cx, y - 14, { scale: 2, color: Kit.C.ink, align: 'center' });
+      const pw = Font.width(`${p.cost} W$`, 1) + 14;
+      Kit.pill(g, cx - pw / 2, y + 6, `${p.cost} W$`, { col: can ? Kit.C.sun : '#ffd2c6', ink: can ? '#4a3304' : Kit.C.coralD });
+      if (hot || !can) Font.draw(g, can ? 'CLICK THE LAND TO BUY IT' : 'NOT ENOUGH YET', cx, y + 34 + 6, { scale: 1, color: can ? Kit.C.mintDD : Kit.C.coralD, align: 'center' });
     }
   }
   function buyPlot(p) {
@@ -11807,17 +12986,14 @@ const Drive = (() => {
       Font.draw(g, run.title, VW / 2, 22, { scale: 2, color: '#f0d2a0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
       if (run.sub) Font.draw(g, run.sub, VW / 2, 42, { scale: 1, color: '#c9a9c0', align: 'center', shadow: 'rgba(0,0,0,0.6)' });
     } else {
-      // a parchment card in the oak frame, like everything else you read
+      // a soft card like everything else you read, with the trip filling in
       const bw = 210, bx = VW / 2 - bw / 2, by = 16;
-      g.fillStyle = 'rgba(40,20,8,0.3)'; g.fillRect(bx - 8, by - 2, bw + 16, 42);
-      g.fillStyle = '#3b1f10'; g.fillRect(bx - 8, by - 6, bw + 16, 42);
-      g.fillStyle = '#c47a3c'; g.fillRect(bx - 6, by - 4, bw + 12, 38);
-      g.fillStyle = '#fcefd0'; g.fillRect(bx - 3, by - 1, bw + 6, 32);
-      Font.draw(g, 'TO ' + run.to, VW / 2, by + 2, { scale: 1, color: '#6d2e12', align: 'center' });
-      g.fillStyle = '#d8c09a'; g.fillRect(bx, by + 14, bw, 6);
-      g.fillStyle = '#6ea83e'; g.fillRect(bx, by + 14, Math.round(bw * k), 6);
-      g.fillStyle = '#a8d46c'; g.fillRect(bx, by + 14, Math.round(bw * k), 2);
-      Font.draw(g, Math.max(0, Math.round(run.km * (1 - k))) + ' km', VW / 2, by + 22, { scale: 1, color: '#9a6a3c', align: 'center' });
+      Kit.card(g, bx - 10, by - 6, bw + 20, 44, { r: 8 });
+      Font.draw(g, 'TO ' + run.to, VW / 2, by + 2, { scale: 1, color: Kit.C.mintDD, align: 'center' });
+      Kit.rr(g, bx, by + 13, bw, 8, 4, Kit.C.line);
+      Kit.rr(g, bx + 1, by + 14, bw - 2, 6, 3, '#e6efeb');
+      if (k > 0.02) Kit.rr(g, bx + 1, by + 14, Math.round((bw - 2) * k), 6, 3, Kit.C.mint);
+      Font.draw(g, Math.max(0, Math.round(run.km * (1 - k))) + ' km', VW / 2, by + 24, { scale: 1, color: Kit.C.ink2, align: 'center' });
     }
     // ---- arriving ---------------------------------------------------------
     if (run.fade && run.t > run.dur) {
@@ -12688,9 +13864,10 @@ const Shop = (() => {
     const out = [];
     for (const t of TOOL_SHOP) {
       const def = TOOL_BY_KEY[t.key];
+      if (!taught(G, t.key)) continue;                // Jim has not shown you this one yet
       out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
     }
-    out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Jobs, messages and an App Store. Everyone out here has one.', sold: owns(G, 'phone') });
+    if (taught(G, 'phone')) out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Jobs, messages and an App Store. Everyone out here has one.', sold: owns(G, 'phone') });
     for (const u of UPGRADES) {
       if (GARDEN_UP[u.key]) continue;                 // Groot stocks the garden half
       const l = G.up[u.key] || 0;
@@ -12841,7 +14018,7 @@ const Shop = (() => {
       else if (p.kind === 'wombat') { if (G.wombats.length < Grove.capacity()) Grove.addWombat(); }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = true;
-      else if (p.kind === 'tool') { if (!G.owned) G.owned = {}; G.owned[p.key] = true; if (p.key !== 'phone') G.tool = p.key; tools.push(p); }
+      else if (p.kind === 'tool') { if (!G.owned) G.owned = {}; G.owned[p.key] = true; if (p.key !== 'phone') { G.tool = p.key; if (!G.newTools) G.newTools = {}; G.newTools[p.key] = true; } tools.push(p); }
       else if (p.kind === 'snack') eatSnack(SNACK_BY_KEY[p.key]);
     }
     // one note for everything new, not one each
@@ -15395,26 +16572,36 @@ const Intro = (() => {
     if (!c) return;
     const a = U.clamp(Math.min((d - c.from) / 90, (c.to - d) / 90), 0, 1);
     if (a <= 0) return;
-    const w = Math.max(...c.lines.map((l) => Font.width(l, 1))) + 26, h = 20 + c.lines.length * 12;
-    const x = 16, y = 16 - (1 - a) * 10;
+    const w = Math.max(...c.lines.map((l) => Font.width(l, 1))) + 28, h = 26 + c.lines.length * 12;
+    const x = 16, y = 18 - (1 - a) * 10;
     g.globalAlpha = a;
-    Art.rect(g, x - 2, y + 3, w + 4, h + 2, 'rgba(40,20,8,0.3)');
-    Art.rect(g, x - 2, y - 2, w + 4, h + 4, '#3b1f10');
-    Art.rect(g, x, y, w, h, '#c47a3c'); Art.rect(g, x, y, w, 1, '#e8a660');
-    Art.rect(g, x + 3, y + 3, w - 6, h - 6, '#fcefd0'); Art.rect(g, x + 3, y + 3, w - 6, 1, '#fff8e4');
-    Font.draw(g, c.head, x + 12, y + 8, { scale: 1, color: '#b0662e' });
-    c.lines.forEach((l, i) => Font.draw(g, l, x + 12, y + 21 + i * 12, { scale: 1, color: '#5a2e16' }));
+    Kit.card(g, x, y, w, h, { r: 7 });
+    Kit.tab(g, x + 10, y - 7, Font.width(c.head, 1) + 18, 14, c.head);
+    c.lines.forEach((l, i) => Font.draw(g, l, x + 14, y + 13 + i * 12, { scale: 1, color: Kit.C.ink }));
     g.globalAlpha = 1;
   }
-  function bubble(g, x, y, lines) {
-    const w = Math.max(...lines.map((l) => Font.width(l, 1))) + 20, h = 10 + lines.length * 12;
-    const bx = Math.round(U.clamp(x - w / 2, 8, VW - w - 8)), by = Math.round(y - h);
-    Art.rect(g, bx - 2, by - 2, w + 4, h + 4, '#3b1f10');
-    Art.rect(g, bx, by, w, h, '#fffaf0');
-    Art.rect(g, bx, by + h - 2, w, 2, '#ecdcc0');
-    Art.poly(g, [[x - 6, by + h], [x + 4, by + h], [x - 2, by + h + 8]], '#3b1f10');
-    Art.poly(g, [[x - 4, by + h], [x + 2, by + h], [x - 2, by + h + 5]], '#fffaf0');
-    lines.forEach((l, i) => Font.draw(g, l, bx + 10, by + 6 + i * 12, { scale: 1, color: '#3a2410' }));
+  // Jim at the gate talks in the same box as the rest of the game: the words
+  // on the left, his face in a frame on the right, his name on a plate.
+  function dialogue(g, text, mood, typedN) {
+    const W = 560, H = 96, X = (VW - W) / 2, Y = VH - H - 10;
+    Kit.card(g, X, Y, W, H, { r: 8 });
+    const FX0 = X + W - 88, FY0 = Y + 8;
+    Kit.rr(g, FX0 - 2, FY0 - 2, 76, 76, 7, Kit.C.line);
+    Kit.rr(g, FX0, FY0, 72, 72, 6, Kit.C.mint);
+    Kit.rr(g, FX0 + 2, FY0 + 2, 68, 68, 5, '#dff2f8');
+    const face = Portraits.get('jim', mood, t, typedN < text.length);
+    if (face) g.drawImage(face, FX0 + 4, FY0 + 4, 64, 64);
+    Kit.tab(g, FX0 - 6, Y + H - 16, 84, 13, 'JIM');
+    const lines = Font.wrap(text, W - 130, 2);
+    let left = typedN;
+    lines.slice(0, 3).forEach((l, i) => {
+      const part = l.slice(0, Math.max(0, left)); left -= l.length + 1;
+      if (part) Font.draw(g, part, X + 16, Y + 14 + i * 22, { scale: 2, color: Kit.C.ink });
+    });
+    if (typedN >= text.length) {
+      const bob = Math.round(Math.abs(Math.sin(t * 4)) * 3);
+      Art.poly(g, [[FX0 - 26, Y + H - 22 + bob], [FX0 - 14, Y + H - 22 + bob], [FX0 - 20, Y + H - 14 + bob]], Kit.C.coral);
+    }
   }
 
   function render(g) {
@@ -15455,11 +16642,14 @@ const Intro = (() => {
     caption(g);
     if (stopped() && stopT > 0.5) {
       const jx = GATE_AT - d - 90;
-      bubble(g, jx, R - 84, stopT < 3.2 ? ['G\'day! You must be the new caretaker.', 'I\'m Jim. Welcome to Wombat Farm.'] : ['Bit of a mess, I\'ll be honest.', 'Come on in and I\'ll show you round.']);
-      if (stopT > 1.4) {
+      const first = stopT < 4.2;
+      const line = first ? "G'day! You must be the new caretaker. I'm Jim. Welcome to Wombat Farm!" : "Bit of a mess, I'll be honest. Come on in and I'll show you round.";
+      const since = first ? stopT - 0.5 : stopT - 4.2;
+      dialogue(g, line, first ? 'happy' : 'laugh', Math.floor(since * 38));
+      if (stopT > 1.6) {
         const a = 0.55 + 0.45 * Math.sin(t * 4);
         g.globalAlpha = a;
-        Font.draw(g, 'CLICK TO GO IN', VW / 2, VH - 14, { scale: 1, color: '#fff6dc', align: 'center', shadow: '#3b1f10' });
+        Kit.pill(g, VW / 2 - 44, 8, 'CLICK TO GO IN', { col: Kit.C.sun });
         g.globalAlpha = 1;
       }
     }
@@ -15492,82 +16682,160 @@ const Guide = (() => {
   const HUT = { x: 724, y: 0 };
   // the speech bubble: what he is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [10, 15, 20, 20, 25, 0, 20, 25, 30, 30, 30, 40, 50, 60];
+  const REWARD = [0, 15, 20, 20, 25, 0, 20, 25, 30, 30, 30, 40, 50];
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
   // Each step is a job Jim gives you, and a place for him to stand.
+  //   lesson   what he tells you in the dialogue box when the job comes up
+  //   give     tools he hands over when he has finished explaining
+  //   unlock   tools the mart will now sell you
+  //   tool     the toolbar slot that glows while this is the job
+  //   at / aty where the arrow points in the grove
+  const MART = () => Grove.TRUCK.x - 10, MARTY = () => Grove.TRUCK.y - 60;
   const STEPS = [
     {
-      key: 'sickle', say: "G'day! I'm Jim. I've kept this place for years and now it's your job. First, tools. Click the truck, drive to Wombat Mart and buy a sickle.",
-      mood: 'happy', praise: 'Good sickle, that.', icon: 't_sickle', title: 'Buy a sickle',
-      note: 'Click the truck for the map, go to Wombat Mart, and buy a Sickle from the TOOLS aisle.',
-      at: () => Grove.TRUCK.x - 60, done: (g) => has(g, 'sickle'),
+      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Jim', praise: 'Go on, give it a swing.',
+      say: "G'day! I'm Jim. This farm's yours now. Here, take my old sickle.",
+      lesson: [
+        { say: "G'day! You made it. I'm Jim. I've looked after this farm for twenty years.", mood: 'happy' },
+        { say: "My knees have had it, so it's all yours now. Bit of a mess, I'll be honest.", mood: 'sad' },
+        { say: "Here, have my old sickle. That's the first job: the weeds. Pick it on your toolbar, or press 2.", mood: 'proud' },
+      ],
+      give: ['sickle'], tool: 'sickle', note: 'Talk to Jim.',
+      at: () => cult.x - 40, done: (g) => has(g, 'sickle'),
     },
     {
-      key: 'weeds', say: 'Now cut the weeds inside the rope. Drag across them. The big ones take a few swings.', mood: 'talk', praise: 'Tidy! Here, for your trouble.', icon: 't_sickle', title: 'Cut the weeds',
+      key: 'weeds', mood: 'talk', icon: 't_sickle', title: 'Cut the weeds', praise: 'Tidy! Here, for your trouble.',
+      say: 'Drag the sickle across the weeds inside the rope. The big ones take a few swings.',
+      lesson: null, tool: 'sickle', label: 'WEEDS',
       note: 'Pick the sickle (key 2) and drag across the weeds inside the rope.',
-      at: () => ZONE.x - 120, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
+      at: () => ZONE.x - 60, aty: () => Grove.WALK.y0 + 70, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
-      key: 'junk', say: "Those old logs are too heavy for us. Buy an Ant Hire card at the mart and the ants'll carry them off.", mood: 'think', praise: 'Love the ants. Hard workers.', icon: 't_destroy', title: 'Clear the old logs',
-      note: 'Buy an Ant Hire Card at Wombat Mart, then click each log or ruin inside the rope.',
-      at: () => { const o = Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)); return o ? o.x : ZONE.x; },
+      key: 'junk', mood: 'think', icon: 't_destroy', title: 'Clear the old logs', praise: 'Love the ants. Hard workers.',
+      say: "Those old logs are too heavy for us. The ants in town will shift them. Buy an Ant Hire Card at the mart.",
+      lesson: [
+        { say: 'Beauty! Now, those old logs and ruins are far too heavy for the two of us.', mood: 'think' },
+        { say: "The ants in town will shift anything for a small fee. I've asked Shaz at Wombat Mart to sell you an Ant Hire Card.", mood: 'talk' },
+        { say: 'Click the truck to drive there. Back here, pick the card and click each log.', mood: 'happy' },
+      ],
+      unlock: ['destroy'], tool: 'destroy', label: 'DRIVE TO THE MART',
+      note: 'Click the truck, go to Wombat Mart, buy an Ant Hire Card. Then click each log inside the rope.',
+      at: (g) => (has(g, 'destroy') ? ((Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)) || { x: ZONE.x }).x) : MART()),
+      aty: (g) => (has(g, 'destroy') ? ((Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)) || { y: Grove.WALK.y0 + 60 }).y - 30) : MARTY()),
       done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
-      key: 'grass', say: 'Bare dirt is no good for a wombat. Get grass seed and a watering can, sow it inside the rope and give it a drink.', mood: 'talk', praise: 'Green again. Beauty.', icon: 't_moss', title: 'Sow the grass',
-      note: 'Buy Grass Seed and a Watering Can. Scatter the grass, then water it so it takes.',
-      at: () => ZONE.x, done: () => World.zoneFraction() >= ZONE_GRASS,
+      key: 'grass', mood: 'talk', icon: 't_moss', title: 'Sow the grass', praise: 'Green again. Beauty.',
+      say: 'Wombats will not live on bare dirt. Sow grass seed inside the rope and water it.',
+      lesson: [
+        { say: "Now it's clear, it needs grass. No wombat will live on bare dirt.", mood: 'talk' },
+        { say: 'Grass Seed and a Watering Can are on the shelf at the mart now. Brush the seed on inside the rope, then water it so it takes.', mood: 'happy' },
+      ],
+      unlock: ['moss', 'water'], tool: 'moss', label: 'SOW HERE',
+      note: 'Buy Grass Seed and a Watering Can. Brush grass inside the rope, then water it.',
+      at: (g) => (has(g, 'moss') ? ZONE.x : MART()), aty: (g) => (has(g, 'moss') ? Grove.WALK.y0 + 70 : MARTY()),
+      done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
-      key: 'arrive', say: 'Shh. Watch the treeline. A tidy patch always brings one of them round.', mood: 'worry', praise: 'There she is! Your first wombat.', icon: 'wombat', title: 'Wait for a wombat',
+      key: 'arrive', mood: 'worry', icon: 'wombat', title: 'Wait for a wombat', praise: 'There she is! Your first wombat.',
+      say: 'Shh. Watch the treeline. A tidy patch always brings one round.',
+      lesson: [{ say: 'Shh! Look at the treeline. A tidy, grassy patch always brings one of them round. Just wait.', mood: 'shock' }],
       note: 'A tidy patch brings a wombat. One always comes.',
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
-      key: 'phone', say: "You'll want a phone for this job. Grab one at the mart. It's got your jobs, your herd, the lot.", mood: 'talk', praise: 'Welcome to this century.', icon: 'ph_key', title: 'Buy a phone',
-      note: 'Wombat Mart sells phones. Press P to open it. More apps are in its App Store.',
-      at: () => Grove.TRUCK.x - 60, done: (g) => has(g, 'phone'),
+      key: 'phone', mood: 'talk', icon: 'ph_key', title: 'Buy a phone', praise: 'Welcome to this century.',
+      say: "You'll want a phone for this job. The mart has them.",
+      lesson: [
+        { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
+        { say: "You'll want a phone for this job. It keeps your jobs, your herd and your texts. The mart has them now.", mood: 'talk' },
+      ],
+      unlock: ['phone'], label: 'DRIVE TO THE MART',
+      note: 'Buy a phone at Wombat Mart, then press P. More apps are in its App Store.',
+      at: () => MART(), aty: () => MARTY(), done: (g) => has(g, 'phone'),
     },
     {
-      key: 'sow', say: "She'll need feeding. Buy a hoe and a seed pouch, get carrot seed from Groot's Cellar, hoe a bed and sow it.", mood: 'talk', praise: 'Sown. Good hands.', icon: 't_hoe', title: 'Dig a bed and sow it',
-      note: 'Hoe and Seed Pouch from the mart, seed from Groot. Hoe bare soil, then sow on it.',
-      at: () => 380, done: () => World.crops.length > 0,
+      key: 'sow', mood: 'talk', icon: 't_hoe', title: 'Dig a bed and sow it', praise: 'Sown. Good hands.',
+      say: 'She will need feeding. Hoe a bed and sow some carrots.',
+      lesson: [
+        { say: "She'll need feeding, so let's grow something.", mood: 'think' },
+        { say: "A Hoe and a Seed Pouch are at the mart now. Get carrot seed from Groot's Cellar.", mood: 'talk' },
+        { say: 'Hoe a patch of bare ground into a bed, then sow the seed on it.', mood: 'happy' },
+      ],
+      unlock: ['hoe', 'seed'], tool: 'hoe', label: 'DIG A BED HERE',
+      note: 'Hoe and Seed Pouch from the mart, carrot seed from Groot. Hoe bare soil, then sow on it.',
+      at: (g) => (has(g, 'hoe') ? 380 : MART()), aty: (g) => (has(g, 'hoe') ? Grove.WALK.y0 + 110 : MARTY()),
+      done: () => World.crops.length > 0,
     },
     {
-      key: 'pick', say: 'Water it every so often. When it glows, pick it with your hand.', mood: 'talk', praise: 'Your first harvest!', icon: 't_water', title: 'Water, then pick',
-      note: 'Thirsty crops sulk. When a crop glows, click it with the hand.',
-      at: () => { const c = World.crops[0]; return c ? c.x : 380; },
+      key: 'pick', mood: 'talk', icon: 't_water', title: 'Water, then pick', praise: 'Your first harvest!',
+      say: 'Water it every so often. When it glows, pick it with your hand.',
+      lesson: [{ say: 'Keep it watered. A thirsty bed sulks. When a crop glows, pick it with your hand.', mood: 'talk' }],
+      tool: 'water', label: 'WATER ME',
+      note: 'Water the bed. When a crop glows, click it with the hand.',
+      at: () => { const c = World.crops[0]; return c ? c.x : 380; }, aty: () => { const c = World.crops[0]; return c ? c.y - 20 : Grove.WALK.y0 + 90; },
       done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
     },
     {
-      key: 'feed', say: 'Buy a feed bowl, pick what you grew, and put it down near her.', mood: 'happy', praise: 'Fed and happy. Good job.', icon: 't_food', title: 'Feed your wombat',
+      key: 'feed', mood: 'happy', icon: 't_food', title: 'Feed your wombat', praise: 'Fed and happy. Good job.',
+      say: 'Buy a feed bowl and put your veg down near her.',
+      lesson: [
+        { say: "Now feed her. She's been watching you pick that.", mood: 'sly' },
+        { say: 'The mart has a Feed Bowl for you now. Choose what you grew on the bowl, then click near her.', mood: 'talk' },
+      ],
+      unlock: ['food'], tool: 'food', label: 'FEED HER',
       note: 'Feed Bowl from the mart. Pick the food, then click near the wombat.',
-      at: (g) => (g.wombats[0] ? g.wombats[0].x : 340),
+      at: (g) => (has(g, 'food') ? (g.wombats[0] ? g.wombats[0].x : 340) : MART()),
+      aty: (g) => (has(g, 'food') ? (g.wombats[0] ? g.wombats[0].y - 40 : Grove.WALK.y0 + 80) : MARTY()),
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
-      key: 'load', say: 'What she leaves is a cube of the best fertiliser going. Drag the cubes into the truck.', mood: 'proud', praise: 'Loaded. That is the job, really.', icon: 'truck', title: 'Load the cubes',
+      key: 'load', mood: 'proud', icon: 'truck', title: 'Load the cubes', praise: 'Loaded. That is the job, really.',
+      say: 'What she leaves is a cube. Drag the cubes into the truck.',
+      lesson: [
+        { say: 'See what she left behind? A cube. Wombats really do that. Best fertiliser going.', mood: 'laugh' },
+        { say: 'Drag the cubes into the back of the truck with your hand.', mood: 'talk' },
+      ],
+      tool: 'drag', label: 'INTO THE TRUCK',
       note: 'Wombats leave square cubes. Drag them into the back of the truck.',
-      at: () => (Grove.drops[0] ? Grove.drops[0].x : 500),
+      at: () => (Grove.drops[0] ? Grove.drops[0].x : Grove.TRUCK.x), aty: () => (Grove.drops[0] ? Grove.drops[0].y - 30 : MARTY()),
       done: (g) => cubes(g) > 0 || (g.stats.sold || 0) > 0 || (g.stats.fertilised || 0) > 0,
     },
     {
-      key: 'fert', say: 'Here is the secret: poo is fertiliser. Buy a poo scoop and spread a cube on a bed. It grows twice as fast.', mood: 'sly', praise: 'Watch that grow now.', icon: 'o_plain', title: 'Fertilise a bed',
-      note: 'Poo Scoop from the mart. Click a bed with it and one cube from the truck goes on.',
-      at: () => { const c = World.crops[0]; return c ? c.x : 380; },
+      key: 'fert', mood: 'sly', icon: 't_scoop', title: 'Fertilise a bed', praise: 'Watch that grow now.',
+      say: 'Poo is fertiliser. Spread a cube on a bed with a poo scoop.',
+      lesson: [
+        { say: "Here's my secret: poo is fertiliser!", mood: 'sly' },
+        { say: 'Buy a Poo Scoop at the mart. Click a planted bed with it and one cube goes on. It grows twice as fast.', mood: 'happy' },
+      ],
+      unlock: ['fert'], tool: 'fert', label: 'SCOOP A BED',
+      note: 'Poo Scoop from the mart. Click a planted bed and one cube from the truck goes on.',
+      at: (g) => (has(g, 'fert') ? (World.crops[0] ? World.crops[0].x : 380) : MART()),
+      aty: (g) => (has(g, 'fert') ? (World.crops[0] ? World.crops[0].y - 20 : Grove.WALK.y0 + 90) : MARTY()),
       done: (g) => (g.stats.fertilised || 0) > 0,
     },
     {
-      key: 'sell', say: 'Got spare cubes? I make compost. Bring them to me and I will pay you for the lot.', mood: 'happy', praise: 'Pleasure doing business!', icon: 'wdollar', title: 'Sell Jim your spare cubes',
-      note: 'Click Jim (later, his shed) and sell. He pays more for a load than for one.',
-      at: () => Grove.TRUCK.x, done: (g) => (g.stats.sold || 0) > 0,
+      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Jim your spare cubes', praise: 'Pleasure doing business!',
+      say: 'Got spare cubes? Bring them to me and I will pay you for the lot.',
+      lesson: [{ say: "Spare cubes? I make compost. Click me and I'll buy the lot. More for a load than one at a time.", mood: 'happy' }],
+      label: 'CLICK JIM',
+      note: 'Click Jim and sell. He pays more for a load than for one.',
+      at: () => cult.x, aty: () => cult.y - 80, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
-      key: 'shovel', say: 'Last trick. Buy a shovel. Dig a channel, then water it and it fills: a pond, a river, whatever you like. Heap it up for hills.', mood: 'proud', praise: 'Now that is a farm.', icon: 'u_burrow', title: 'Dig a pond',
+      key: 'shovel', mood: 'proud', icon: 't_shovel', title: 'Dig a pond', praise: 'Now that is a farm.',
+      say: 'Last trick. Dig with the shovel, then water the hole and it fills.',
+      lesson: [
+        { say: "Last trick, and it's the fun one.", mood: 'proud' },
+        { say: 'The Shovel is on the shelf now. It digs like a paintbrush: hold to dig down, right-click to heap up a hill.', mood: 'talk' },
+        { say: 'Water a hole and it fills into a pond. Dig a trench and it runs like a creek. The frogs love it.', mood: 'happy' },
+      ],
+      unlock: ['shovel'], tool: 'shovel', label: 'DIG HERE',
       note: 'Shovel: hold to dig down, right-click (or Shift) to heap up. Water a hole to fill it.',
-      at: () => 480, done: (g) => (g.stats.flooded || 0) > 0,
+      at: (g) => (has(g, 'shovel') ? 480 : MART()), aty: (g) => (has(g, 'shovel') ? Grove.WALK.y0 + 120 : MARTY()),
+      done: (g) => (g.stats.flooded || 0) > 0,
     },
   ];
 
@@ -15575,6 +16843,14 @@ const Guide = (() => {
     G = g;
     if (!G.visited) G.visited = {};
     if (typeof G.step !== 'number') G.step = 0;
+    if (!G.lessons) G.lessons = {};
+    if (!G.unlocked) G.unlocked = {};
+    // a farm further along has already had these lessons, and learnt these tools
+    for (let i = 0; i < Math.min(G.step, STEPS.length); i++) {
+      G.lessons[STEPS[i].key] = true;
+      for (const k of (STEPS[i].unlock || []).concat(STEPS[i].give || [])) G.unlocked[k] = true;
+    }
+    if (G.step >= STEPS.length) G.unlocked.build = true;
     cult.x = cult.tx = 588;
     vanish = 0;
     huts = G.cultAway === 2 ? 1 : 0;        // a hut already standing does not grow again
@@ -15626,8 +16902,39 @@ const Guide = (() => {
     lastChat = line;
     say(line, 'chat', pick.mood);
   }
+  // ---- lessons -----------------------------------------------------------------
+  function lessonReady() {
+    return G.mode === 'grove' && G.introDone && !UI.anyPanel() && !Talk.isOpen() && !Grove.arriving
+      && !FX.curtaining && UI.unlockIdle() && G.cultAway !== 1 && vanish <= 0 && !hidden;
+  }
+  function teach(s) {
+    if (!s.lesson) { learnt(s); return; }
+    Grove.panTo(cult.x);
+    cult.pose = 'wave'; cult.castT = 1.2; cult.still = 0;
+    bubble.life = 0;
+    Talk.lesson('cultist', s.lesson, () => learnt(s));
+  }
+  // what happens when he has finished explaining: tools in your hand, tools on the shelf
+  function learnt(s) {
+    if (G.lessons[s.key]) return;
+    G.lessons[s.key] = true;
+    if (!G.newTools) G.newTools = {};
+    for (const k of (s.give || [])) {
+      if (owns(G, k)) continue;
+      G.owned[k] = true; G.unlocked[k] = true; G.newTools[k] = true; G.tool = k;
+      UI.unlockCard(k, true);
+    }
+    for (const k of (s.unlock || [])) {
+      if (G.unlocked[k]) continue;
+      G.unlocked[k] = true;
+      UI.unlockCard(k, false);
+    }
+    UI.refreshHUD(); Main.save();
+  }
   function poke() {                          // click him and he actually talks
     cult.still = 0; cult.pose = 'idle';
+    const s0 = step();
+    if (s0 && !G.lessons[s0.key] && G.cultAway !== 2) { Audio.play('squeak'); teach(s0); return; }
     const at = G.cultAway === 2 ? { x: HUT.x + 22, y: hutY() } : cult;
     FX.burst(at.x, at.y - 46, 6, { color: [PAL.gold3, PAL.cream], speed: 40, gravity: -20, life: 0.5, size: 2 });
     Audio.play('squeak');
@@ -15898,7 +17205,11 @@ const Guide = (() => {
     // a new order gets spoken once she is roughly in place
     const s = step();
     chatter(dt);
-    if (s && G.step !== lastStep) { sayT += dt; if (sayT > 1.2 || lastStep === -1) { lastStep = G.step; sayT = 0; if (!bubble.life) say(s.say, 'order', s.mood); } }
+    // a new job gets taught properly, in the dialogue box, once he is in place
+    if (s && !G.lessons[s.key]) {
+      sayT += dt;
+      if (sayT > (lastStep === -1 ? 1.2 : 2.8) && lessonReady()) { sayT = 0; lastStep = G.step; teach(s); }
+    } else sayT = 0;
     if (bubble.life > 0) { bubble.life -= dt; bubble.shown += dt * 28; bubble.pop = Math.max(0, bubble.pop - dt * 3); }
     if (cult.happyT > 0) { cult.happyT -= dt; }
     if (cult.hop > 0) cult.hop = Math.max(0, cult.hop - dt * 1.6);
@@ -15937,18 +17248,28 @@ const Guide = (() => {
     const p = 0.5 + 0.5 * Math.sin(cult.t * 3);
     Art.glow(g, cult.x, cult.y - 24, 40 + p * 8, '#ffe0a0', 0.08 + p * 0.05, 5);
     drawBubble(g);
+  }
+  // The arrow over whatever the job is about: a coral pointer bobbing over the
+  // spot, and a label on a pill above it. Drawn over everything else.
+  function drawPointer(g) {
     const s = step();
-    if (s && cult.pose !== 'walk' && cult.pose !== 'run') {
-      const tx = U.clamp(s.at(G), 40, Grove.W - 40);
-      const a = 0.4 + 0.4 * Math.sin(cult.t * 4);
-      g.globalAlpha = a;
-      g.fillStyle = PAL.gold3;
-      for (let i = 0; i < 5; i++) {
-        const k = i / 4;
-        g.fillRect(Math.round(U.lerp(cult.x, tx, k)), Math.round(cult.y - 52 + Math.sin(k * Math.PI) * -10), 2, 2);
-      }
-      Icons.blit(g, s.icon, tx - 8, cult.y - 74 - Math.sin(cult.t * 3) * 2, 1);
-      g.globalAlpha = 1;
+    if (!s || !G.lessons[s.key] || Talk.isOpen() || G.cultAway) return;
+    if (s.key === 'arrive') return;
+    const tx = U.clamp(s.at(G), 30, Grove.W - 30);
+    const ty = s.aty ? s.aty(G) : Grove.WALK.y0 + 40;
+    const bob = Math.round(Math.abs(Math.sin(G.time * 3.2)) * -6);
+    const x = Math.round(tx), y = Math.round(ty) + bob;
+    // the arrow: slate outline, coral fill, a lit edge
+    const ARW = [[-7, -12], [7, -12], [7, -4], [12, -4], [0, 8], [-12, -4], [-7, -4]];
+    Art.poly(g, ARW.map(([px, py]) => [x + px * 1.18, y + py * 1.18 + 1]), 'rgba(44,64,72,0.25)');
+    Art.poly(g, ARW.map(([px, py]) => [x + px * 1.18, y + py * 1.18 - 1]), Kit.C.line);
+    Art.poly(g, ARW.map(([px, py]) => [x + px, y + py - 1]), Kit.C.coral);
+    Art.rect(g, x - 5, y - 12, 3, 7, '#ffc2b2');
+    if (s.label) {
+      const w = Font.width(s.label, 1) + 14;
+      Kit.rr(g, x - w / 2, y - 31, w, 17, 7, Kit.C.line);
+      Kit.rr(g, x - w / 2 + 2, y - 29, w - 4, 13, 6, '#ffffff');
+      Font.draw(g, s.label, x, y - 26, { scale: 1, color: Kit.C.line, align: 'center' });
     }
   }
 
@@ -15995,59 +17316,36 @@ const Guide = (() => {
   }
 
   function drawBubble(g) {
-    if (bubble.life <= 0 || !bubble.text) return;
-    // A plain speech bubble: white paper, a black border, black letters. No
-    // shine, no wobble, no starburst — it is there to be read.
-    const INK = '#141118', PAPER = '#fbf8f2', EDGE = '#c8c2b8';
-
-    const lines = layout(bubble.text, 176);
-    const W = Math.max(96, Math.ceil(Math.max(...lines.map((l) => l.w))) + 24);
-    const H = lines.length * LH + 18;
-    const shownN = Math.floor(bubble.shown);
-    const total = lines.reduce((n, l) => n + l.length, 0);
-    const done = shownN >= total;
-
-    // where it sits: above his head, always inside the view
-    const half = W / 2 + 10;
-    const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
-    const bx = lo > hi ? FX.cam.x : U.clamp(cult.x + 6, lo, hi);
-    const by = Math.max(26 + H, cult.y - 96);
-
-    g.save();
-    const X = Math.round(bx - W / 2), Y = Math.round(by - H);
-
-    // the tail, pointing at him
-    const tx = U.clamp(Math.round(cult.x + 6), X + 16, X + W - 16);
-    g.fillStyle = INK;
-    g.beginPath(); g.moveTo(tx - 9, Y + H - 2); g.lineTo(tx - 1, Y + H + 13); g.lineTo(tx + 8, Y + H - 2); g.fill();
-    // the box
-    g.fillStyle = INK; g.fillRect(X - 2, Y - 2, W + 4, H + 4);
-    g.fillStyle = PAPER; g.fillRect(X, Y, W, H);
-    g.fillStyle = EDGE; g.fillRect(X, Y + H - 1, W, 1);
-    g.fillStyle = PAPER;
-    g.beginPath(); g.moveTo(tx - 6, Y + H - 2); g.lineTo(tx - 1, Y + H + 8); g.lineTo(tx + 5, Y + H - 2); g.fill();
-
-    // ---- the letters, typed in, all one weight -----------------------------
-    lines.forEach((l, li) => {
-      const ly = Y + 10 + li * LH;
-      for (const ch of l) {
-        if (ch.i >= shownN || ch.c === ' ') continue;
-        Font.draw(g, ch.c, X + 12 + ch.x, ly, { scale: BS, color: INK, align: 'left' });
-      }
-    });
-
-    // ---- the cue in the corner ---------------------------------------------
-    if (!done) {                                        // still speaking: three dots
-      for (let i = 0; i < 3; i++) {
-        g.fillStyle = i === Math.floor(G.time * 4) % 3 ? '#141118' : '#b4aea4';
-        g.fillRect(X + W - 22 + i * 6, Y + H - 10, 3, 3);
-      }
-    } else {                                            // finished: a small arrow
-      const up = Math.round(Math.sin(G.time * 4) * 1.5);
-      g.fillStyle = '#141118';
-      for (let i = 0; i < 4; i++) g.fillRect(X + W - 20 + i, Y + H - 12 + i + up, 8 - i * 2, 1);
+    if (bubble.life <= 0 || !bubble.text || Talk.isOpen()) return;
+    // a small speech tag over his head for chatter: cream, one slate line,
+    // rounded, and a little tail. Anything that matters goes in the dialogue box.
+    const maxW = 132;
+    const words = bubble.text.replace(/\*/g, '').split(' ');
+    const lines = []; let line = '';
+    for (const w of words) {
+      const t2 = line ? line + ' ' + w : w;
+      if (Font.width(t2, 1) > maxW && line) { lines.push(line); line = w; } else line = t2;
     }
-    g.restore();
+    if (line) lines.push(line);
+    const shown = Math.floor(bubble.shown);
+    const W2 = Math.max(40, Math.max(...lines.map((l) => Font.width(l, 1)))) + 14, H2 = lines.length * 10 + 9;
+    const half = W2 / 2 + 6;
+    const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
+    const bx = lo > hi ? FX.cam.x : U.clamp(cult.x, lo, hi);
+    const pop = bubble.pop > 0 ? Math.round(bubble.pop * 3) : 0;
+    const X = Math.round(bx - W2 / 2), Y = Math.round(cult.y - 92 - H2 - pop);
+    const tx = U.clamp(Math.round(cult.x), X + 8, X + W2 - 8);
+    Kit.rr(g, X, Y + 3, W2, H2, 5, 'rgba(44,64,72,0.2)');
+    Kit.rr(g, X - 1, Y - 1, W2 + 2, H2 + 2, 6, Kit.C.line);
+    Kit.rr(g, X + 1, Y + 1, W2 - 2, H2 - 2, 5, bubble.kind === 'praise' ? '#fff4c8' : '#fffaf0');
+    Art.poly(g, [[tx - 5, Y + H2], [tx + 4, Y + H2], [tx, Y + H2 + 6]], Kit.C.line);
+    Art.poly(g, [[tx - 3, Y + H2 - 1], [tx + 2, Y + H2 - 1], [tx, Y + H2 + 3]], bubble.kind === 'praise' ? '#fff4c8' : '#fffaf0');
+    let n = 0;
+    lines.forEach((l, i) => {
+      const part = l.slice(0, Math.max(0, shown - n));
+      n += l.length + 1;
+      if (part) Font.draw(g, part, X + 7, Y + 5 + i * 10, { scale: 1, color: Kit.C.ink });
+    });
   }
 
   function state() {
@@ -16060,17 +17358,17 @@ const Guide = (() => {
   // The job in hand, in the shape the phone wants it: a title, the long form of
   // what she said, where it has to happen, and what she pays for it.
   const WHERE = {
-    sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
+    meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
     arrive: 'in the grove', phone: 'Wombat Mart', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
     feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere',
   };
   function current() {
     const st = step();
     if (!st) return null;
-    return { key: st.key, title: st.title, note: st.note, icon: st.icon, say: st.say,
+    return { key: st.key, title: st.title, note: st.note, icon: st.icon, say: st.say, tool: st.tool,
       where: WHERE[st.key] || 'in the grove', reward: REWARD[G.step] || 0, i: G.step, total: STEPS.length };
   }
-  return { init, update, draw, state, toggle, check, poke, hit, say, current, paid, hutHit, hutHere, drawHut, get cult() { return cult; }, get hutX() { return HUT.x; }, STEPS };
+  return { init, update, draw, drawPointer, teach: () => { const s2 = step(); if (s2) teach(s2); }, state, toggle, check, poke, hit, say, current, paid, hutHit, hutHere, drawHut, get cult() { return cult; }, get hutX() { return HUT.x; }, STEPS };
 })();
 </script>
 
@@ -16103,7 +17401,7 @@ const Talk = (() => {
   // modules already, so this is cheap to call every frame.
   const SPEAKERS = {
     cultist: {
-      name: 'Jim', sub: 'the old caretaker',
+      name: 'Jim', sub: 'the old caretaker', face: 'jim',
       bg: ['#c9763c', '#7c4630'],
       draw(mood, t) {
         Sprites.setFace(mood || 'happy');
@@ -16143,7 +17441,7 @@ const Talk = (() => {
   for (const key of Object.keys(Sprites.VILLAGERS)) {
     const K = Sprites.VILLAGERS[key];
     SPEAKERS['villager:' + key] = {
-      name: K.name, sub: K.why,
+      name: K.name, sub: K.why, face: key,
       bg: ['#2f3c4a', '#181f28'],
       draw(mood, t) {
         const pose = { happy: 'wave', proud: 'wave', talk: 'talk', think: 'idle', cross: 'talk',
@@ -16161,16 +17459,29 @@ const Talk = (() => {
     UI.closePanels();                       // this can close a conversation, so it goes first
     cur = { who, tree, node: tree.start, onClose };
     $('panel-talk').hidden = false;
+    document.body.classList.add('talking');
     G.paused = true;
     Audio.play('click');
     go(tree.start);
     if (!raf) raf = requestAnimationFrame(tick);
+  }
+  // A run of pages with nothing to choose, like a lesson: click to go on.
+  // Pages are strings or { say, mood }; the last one can carry options.
+  function lesson(who, pages, onClose, lastOpts) {
+    const nodes = {};
+    pages.forEach((pg, i) => {
+      const p2 = typeof pg === 'string' ? { say: pg } : pg;
+      nodes['p' + i] = { say: p2.say, mood: p2.mood || 'talk', next: i < pages.length - 1 ? 'p' + (i + 1) : null,
+        opts: i === pages.length - 1 ? lastOpts : null, page: [i + 1, pages.length] };
+    });
+    open(who, { start: 'p0', nodes }, onClose);
   }
   function close() {
     if (!cur) return;
     const cb = cur.onClose;
     cur = null;
     $('panel-talk').hidden = true;
+    document.body.classList.remove('talking');
     G.paused = false;
     cancelAnimationFrame(raf); raf = 0;
     Audio.play('click');
@@ -16196,8 +17507,18 @@ const Talk = (() => {
     if (opt.act) opt.act();
     if (opt.to) go(opt.to); else close();
   }
+  // a click anywhere on the box: finish the line, or turn the page
+  function advance() {
+    if (!cur) return;
+    if (typed < full.length) { typed = full.length; render(); return; }
+    const n = cur.tree.nodes[cur.node] || {};
+    const opts = (n.opts || []).filter((o) => !o.if || o.if());
+    if (n.next) { Audio.play('click'); go(n.next); return; }
+    if (!opts.length) { close(); }
+  }
 
   // ---- drawing ------------------------------------------------------------
+  const nodeOpts = (n) => (n.opts || []).filter((o) => !o.if || o.if());
   function render() {
     if (!cur) return;
     const sp = SPEAKERS[cur.who];
@@ -16205,19 +17526,25 @@ const Talk = (() => {
     $('talk-name').textContent = sp.name;
     $('talk-sub').textContent = (typeof n.sub === 'function' ? n.sub() : n.sub) || sp.sub;
     $('talk-line').textContent = full.slice(0, typed);
-    $('talk-line').classList.toggle('typing', typed < full.length);
+    const done = typed >= full.length;
+    $('talk-line').classList.toggle('typing', !done);
     const list = $('talk-opts');
     list.innerHTML = '';
-    const opts = (n.opts || []).filter((o) => !o.if || o.if());
-    const shown = opts.length ? opts : [{ q: 'Right. Thanks.', end: true }];
-    shown.forEach((o, i) => {
+    const opts = nodeOpts(n);
+    // options only come up once the line has finished, like they do in a game
+    list.hidden = !done || (!opts.length);
+    if (done) opts.forEach((o, i) => {
       const b = document.createElement('button');
-      b.className = 'topt' + (o.end || (!o.to && !o.act) ? ' end' : '');
+      b.className = 'dlg-opt' + (o.end || (!o.to && !o.act) ? ' end' : '');
       const q = typeof o.q === 'function' ? o.q() : o.q;
       b.innerHTML = `<span class="tnum">${i + 1}</span><span class="tq">${q}</span>`;
-      b.onclick = () => choose(o);
+      b.onclick = (e) => { e.stopPropagation(); choose(o); };
       list.appendChild(b);
     });
+    const nx = $('talk-next');
+    nx.hidden = !done || opts.length > 0;
+    nx.className = 'dlg-next' + (n.next ? '' : ' end');
+    nx.textContent = n.page ? `${n.page[0]}/${n.page[1]}` : '';
   }
   function tick(ms) {
     if (!cur) { raf = 0; return; }
@@ -16225,9 +17552,10 @@ const Talk = (() => {
     portraitT = ms / 1000;
     // the line types itself on, which is what makes it feel like talking
     if (typed < full.length) {
-      typed = Math.min(full.length, typed + 2);
+      typed = Math.min(full.length, typed + 1);
+      if (typed % 3 === 0 && full[typed - 1] !== ' ') Audio.play('blip');
       $('talk-line').textContent = full.slice(0, typed);
-      if (typed >= full.length) $('talk-line').classList.remove('typing');
+      if (typed >= full.length) render();
     }
     paintPortrait();
   }
@@ -16239,20 +17567,24 @@ const Talk = (() => {
     const g = cv.getContext('2d');
     g.imageSmoothingEnabled = false;
     const W = cv.width, H = cv.height;
-    // the backdrop: two flat bands and a floor, so the portrait has a room
-    Art.vband(g, 0, 0, W, H, sp.bg[0], sp.bg[1], 6);
-    Art.rect(g, 0, H - 18, W, 18, sp.bg[1]);
-    Art.rect(g, 0, H - 18, W, 2, 'rgba(255,255,255,0.08)');
-    for (let i = 0; i < 26; i++) {              // dust in the light
-      const dx = (i * 37) % W, dy = (H - ((i * 53 + portraitT * 14) % H)) | 0;
-      g.fillStyle = 'rgba(255,244,214,0.18)';
-      g.fillRect(dx, dy, 1, 1);
-    }
-    const d = sp.draw(n.mood || 'talk', portraitT);
-    const w = d.img.width * d.sc, h = d.img.height * d.sc;
-    g.fillStyle = 'rgba(0,0,0,0.3)';
-    Art.ell(g, W / 2, H - 14, w * 0.3, 4);
-    g.drawImage(d.img, Math.round(W / 2 - w / 2), Math.round(H - 12 - h + d.dy), Math.round(w), Math.round(h));
+    g.clearRect(0, 0, W, H);
+    // a soft sky behind them, with a band of meadow at the shoulders
+    Art.vband(g, 0, 0, W, H, '#cdebf7', '#eaf6ec', 6);
+    g.fillStyle = 'rgba(127,209,168,0.45)'; g.fillRect(0, H - 14, W, 14);
+    const mood = n.mood || 'talk';
+    const talking = typed < full.length;
+    const face = sp.face && typeof Portraits !== 'undefined' ? Portraits.get(sp.face, mood, portraitT, talking) : null;
+    if (face) { g.drawImage(face, 0, 0); return; }
+    // anybody without a painted face stands in the frame as themselves
+    const d = sp.draw(mood, portraitT);
+    // cropped to head and shoulders, like the painted faces
+    const sc = Math.max(1, Math.round(((H * 1.7) / d.img.height) * 2) / 2);
+    const w = d.img.width * sc, h = d.img.height * sc;
+    g.drawImage(d.img, Math.round(W / 2 - w / 2), Math.round(2 - h * 0.04 + d.dy), Math.round(w), Math.round(h));
+  }
+  function bind() {
+    const box = $('talk-box');
+    if (box && !box.dataset.on) { box.dataset.on = '1'; box.addEventListener('click', () => advance()); }
   }
 
   // ---- keys ---------------------------------------------------------------
@@ -16260,14 +17592,14 @@ const Talk = (() => {
     if (!cur) return false;
     if (e.key === 'Escape') { close(); return true; }
     const n = cur.tree.nodes[cur.node] || {};
-    const opts = (n.opts || []).filter((o) => !o.if || o.if());
+    const opts = nodeOpts(n);
     const i = parseInt(e.key, 10) - 1;
-    if (i >= 0 && i < Math.max(1, opts.length)) { choose(opts[i] || { end: true }); return true; }
-    if (e.key === ' ' || e.key === 'Enter') { if (typed < full.length) { typed = full.length; render(); } return true; }
+    if (typed >= full.length && i >= 0 && i < opts.length) { choose(opts[i]); return true; }
+    if (e.key === ' ' || e.key === 'Enter' || e.key === 'e' || e.key === 'E') { advance(); return true; }
     return false;
   }
 
-  return { init, open, close, isOpen, key, SPEAKERS };
+  return { init: (g) => { init(g); bind(); }, open, lesson, close, isOpen, key, advance, SPEAKERS };
 })();
 </script>
 
@@ -16915,7 +18247,9 @@ const UI = (() => {
     }
     refreshList();
     refreshNotebook();
-    const sig = [G.mode, G.tool, G.selSeed, G.selFood, G.seeds[G.selSeed], G.food[G.selFood], G.step, G.decor && G.decor.nest, Object.keys(G.owned || {}).length].join('|');
+    const cq = Guide.current();
+    const sig = [G.mode, G.tool, G.selSeed, G.selFood, G.seeds[G.selSeed], G.food[G.selFood], G.step, G.decor && G.decor.nest, Object.keys(G.owned || {}).length,
+      Object.keys(G.unlocked || {}).length, Object.keys(G.newTools || {}).join(','), cq && G.lessons && G.lessons[cq.key] ? cq.tool : ''].join('|');
     if (sig !== hotSig) { hotSig = sig; renderHotbar(); }
   }
 
@@ -16988,9 +18322,9 @@ const UI = (() => {
       items = WHEEL_TOOLS.map((key) => {
         const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
         const hk = HOTKEYS.indexOf(key);
-        return { icon: t.icon, rune: hk >= 0 ? String(hk + 1) : '', on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${whyLocked(key)}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
+        return { icon: t.icon, rune: hk >= 0 ? String(hk + 1) : '', on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${whyLocked(key, G)}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
           act: () => {
-            if (lk) { Audio.play('error'); toast(whyLocked(key), 'bad'); return; }
+            if (lk) { Audio.play('error'); toast(whyLocked(key, G), 'bad'); return; }
             G.tool = key; Grove.clearPair(); Audio.play('click');
             if (key === 'food') { wheelRing = 'food'; renderWheel(); return; }
             if (key === 'seed') { wheelRing = 'seed'; renderWheel(); return; }
@@ -17125,8 +18459,11 @@ const UI = (() => {
       if (key === 'food' && G.selFood) extra = `<span class="hs">${ic(CROP_BY_KEY[G.selFood] ? CROP_BY_KEY[G.selFood].icon : 't_food', 'sm')}<b>${G.food[G.selFood] || 0}</b></span>`;
       // a tool you have not bought yet shows what it costs, so the bar is also the shopping list
       const shopDef = TOOL_SHOP_BY_KEY[key];
-      const tag = lk ? (shopDef && !owns(G, key) ? `<span class="pt">W$${shopDef.price}</span>` : `<span class="lk">${ic('lock', 'sm')}</span>`) : '';
-      return `<button class="hslot${on ? ' on' : ''}${lk ? ' locked' : ''}" data-k="${key}"><i class="hn">${i < 10 ? '1234567890'[i] : ''}</i>${ic(t.icon)}${extra}${tag}</button>`;
+      const tag = lk ? (shopDef && taught(G, key) ? `<span class="pt">W$${shopDef.price}</span>` : `<span class="lk">${ic('lock', 'sm')}</span>`) : '';
+      const cur2 = Guide.current();
+      const want = !lk && cur2 && cur2.tool === key && G.lessons && G.lessons[cur2.key] && G.tool !== key;
+      const fresh = !lk && G.newTools && G.newTools[key];
+      return `<button class="hslot${on ? ' on' : ''}${lk ? ' locked' : ''}${lk && !taught(G, key) ? ' sealed' : ''}${want ? ' want' : ''}${fresh ? ' new' : ''}" data-k="${key}"><i class="hn">${i < 10 ? '1234567890'[i] : ''}</i>${ic(t.icon)}${extra}${tag}</button>`;
     }).join('');
     const hint = cur ? (TOOL_HINT[cur.key] || '') : '';
     bar.innerHTML = `<div class="hbname">${cur ? `<b>${cur.name}</b>${hint ? `<small>${hint}</small>` : ''}` : ''}</div><div class="hbrow">${slots}</div>`;
@@ -17135,56 +18472,95 @@ const UI = (() => {
       const key = el.dataset.k, t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
       el.onclick = (e) => {
         e.stopPropagation();
-        if (lk) { Audio.play('error'); toast(whyLocked(key), 'bad'); return; }
+        if (lk) { Audio.play('error'); toast(whyLocked(key, G), 'bad'); return; }
         const r = el.getBoundingClientRect(), fr = $('frame').getBoundingClientRect(), k = frameScale();
         const sx = (r.left - fr.left) / k, sy = (r.top - fr.top) / k - 150;
         if ((key === 'seed' || key === 'food') && (G.tool === key || !(key === 'seed' ? G.selSeed : G.selFood))) {
           G.tool = key; openWheel(sx, sy, key === 'seed' ? 'seed' : 'food'); renderHotbar(); return;
         }
-        G.tool = key; Grove.clearPair(); Audio.play('click'); closeWheel(); renderHotbar();
+        G.tool = key; if (G.newTools) delete G.newTools[key]; Grove.clearPair(); Audio.play('click'); closeWheel(); renderHotbar();
       };
-      el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b> <span class="dim">${HOTKEYS.indexOf(key) < 10 ? '[' + '1234567890'[HOTKEYS.indexOf(key)] + ']' : ''}</span><br>${lk ? `<span class="warn">${whyLocked(key)}</span>` : t.desc}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b> <span class="dim">${HOTKEYS.indexOf(key) < 10 ? '[' + '1234567890'[HOTKEYS.indexOf(key)] + ']' : ''}</span><br>${lk ? `<span class="warn">${whyLocked(key, G)}</span>` : t.desc}`);
       el.onmouseleave = hideTip;
     });
   }
-  // The frame everything wears: warm oak with a lit top edge and a shaded
-  // foot, a brass nail in each corner, rounded off by a pixel. Painted once
-  // into a small canvas and handed to CSS as a nine-slice border image.
-  // `slot` is the tan well a tool sits in on the toolbar; `slotsel` is the
-  // same well with a warm ring round it for the tool in your hand.
+  // The frame everything wears: a soft rounded card with one slate line round
+  // it, a white lit edge along the top and a little lip underneath, so it sits
+  // on the picture like a paper tag. Painted once into a small canvas and
+  // handed to CSS as a nine-slice border image.
+  //   base    white chips on the HUD        paper  cream cards and panels
+  //   hot     base, with a mint ring        sel    base, with a sunny ring
+  //   slot    a pale mint well on the bar   slotsel the well for the tool in hand
   function goldFrameURL(kind) {
-    const P2 = 2, N = 15;                        // 15 art pixels a side, two screen pixels each
+    const P2 = 2, N = 15, R0 = 4;                // 15 art pixels a side, rounded by 4
     const c = document.createElement('canvas'); c.width = c.height = N * P2;
     const g = c.getContext('2d');
-    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const ink = '#3b1f10';
-    if (kind === 'slot' || kind === 'slotsel') {
-      const sel = kind === 'slotsel';
-      R(1, 0, N - 2, N, sel ? '#7a2410' : '#6a3a1c'); R(0, 1, N, N - 2, sel ? '#7a2410' : '#6a3a1c');
-      if (sel) { R(1, 1, N - 2, N - 2, '#ff8a4a'); R(2, 1, N - 4, 1, '#ffd08a'); R(1, 2, 1, N - 4, '#ffd08a'); R(2, N - 2, N - 4, 1, '#c8421e'); R(N - 2, 2, 1, N - 4, '#c8421e'); }
-      const o = sel ? 2 : 1;
-      R(o, o, N - o * 2, N - o * 2, '#e8c890');
-      R(o, o, N - o * 2, 1, '#b8894e'); R(o, o, 1, N - o * 2, '#c99a5c');           // the well is sunk: dark top and left
-      R(o + 1, N - o - 1, N - o * 2 - 1, 1, '#fbe6b8'); R(N - o - 1, o + 1, 1, N - o * 2 - 1, '#f6dca8');
-      R(o + 1, o + 1, N - o * 2 - 2, N - o * 2 - 2, '#f2d9a6');
-      return c.toDataURL();
-    }
-    const ring = kind === 'sel' ? ['#ffb07a', '#e8663a', '#a8381c'] : kind === 'hot' ? ['#ffd79a', '#e8a05a', '#b0662e'] : ['#e8a660', '#c47a3c', '#8a4c22'];
-    const fill = kind === 'paper' ? ['#fff8e4', '#fcefd0', '#f2dcae'] : ['#b27a48', '#9c6538', '#82502a'];
-    R(2, 0, N - 4, N, ink); R(0, 2, N, N - 4, ink); R(1, 1, N - 2, N - 2, ink);   // the outline, a rounded corner
-    R(2, 1, N - 4, N - 2, ring[1]); R(1, 2, N - 2, N - 4, ring[1]);                // the oak band
-    R(2, 1, N - 4, 1, ring[0]); R(1, 2, 1, N - 4, ring[0]);                        // lit top and left
-    R(2, N - 2, N - 4, 1, ring[2]); R(N - 2, 2, 1, N - 4, ring[2]);                // shaded foot and right
-    R(4, 2, 2, 1, ring[2]); R(9, N - 3, 3, 1, ring[0]);                            // a little grain in the wood
-    R(3, 3, N - 6, N - 6, '#5a2e16');                                              // the inner line
-    R(4, 4, N - 8, N - 8, fill[1]);
-    R(4, 4, N - 8, 1, fill[0]); R(4, N - 5, N - 8, 1, fill[2]);
-    for (const [x, y] of [[1, 1], [N - 3, 1], [1, N - 3], [N - 3, N - 3]]) {        // a brass nail in each corner
-      R(x, y, 2, 2, '#5a3410'); R(x, y, 1, 1, '#ffe7a0'); R(x + 1, y, 1, 1, '#e8b448'); R(x, y + 1, 1, 1, '#c88a28');
+    const K = {
+      base:    { line: '#2c4048', ring: null, ring2: null, fill: '#ffffff', top: '#ffffff', lip: '#d6e4de', lip2: '#b8ccc4' },
+      paper:   { line: '#2c4048', ring: null, ring2: null, fill: '#fffaf0', top: '#ffffff', lip: '#efe4cc', lip2: '#d9cbae' },
+      hot:     { line: '#2c4048', ring: '#7fd1a8', ring2: '#bff0d8', fill: '#ffffff', top: '#ffffff', lip: '#d6e4de', lip2: '#b8ccc4' },
+      sel:     { line: '#2c4048', ring: '#ffc23a', ring2: '#ffe38a', fill: '#fff9e0', top: '#ffffff', lip: '#f4e2a8', lip2: '#e2c46c' },
+      slot:    { line: '#9fbdb1', ring: null, ring2: null, fill: '#eef8f2', top: '#d4e9dd', lip: '#f8fdfa', lip2: '#f8fdfa', inset: true },
+      slotsel: { line: '#c7861a', ring: '#ffc23a', ring2: '#ffe38a', fill: '#fff4c8', top: '#fff9e0', lip: '#ffe9a0', lip2: '#f5d470' },
+    }[kind] || null;
+    const k = K || { line: '#2c4048', fill: '#fffaf0', top: '#fff', lip: '#efe4cc', lip2: '#d9cbae' };
+    // inside a rounded square of side n starting at o, radius r?
+    const inside = (x, y, o, n, r) => {
+      const x0 = o, y0 = o, x1 = o + n - 1, y1 = o + n - 1;
+      if (x < x0 || y < y0 || x > x1 || y > y1) return false;
+      const cx = x < x0 + r ? x0 + r : x > x1 - r ? x1 - r : x;
+      const cy = y < y0 + r ? y0 + r : y > y1 - r ? y1 - r : y;
+      return (x - cx) * (x - cx) + (y - cy) * (y - cy) <= r * r + r * 0.6;
+    };
+    const px = (x, y, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, P2, P2); };
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      if (!inside(x, y, 0, N, R0)) continue;
+      let col = k.line;
+      if (inside(x, y, 1, N - 2, R0 - 1)) {
+        col = k.fill;
+        if (k.ring && !inside(x, y, 2, N - 4, R0 - 1)) col = y < 4 ? k.ring2 : k.ring;
+        else if (k.inset) { if (y <= 2) col = k.top; }
+        else {
+          if (y === (k.ring ? 2 : 1) || (y === 2 && !k.ring)) col = y === 1 || k.ring ? k.top : col;
+          if (y >= N - 3) col = y === N - 2 ? k.lip2 : k.lip;              // the lip it stands on
+        }
+      }
+      px(x, y, col);
     }
     return c.toDataURL();
   }
   function pickTool() { }
+
+  // ---- "you got a new tool" -------------------------------------------------
+  // A card that drops into the middle of the picture when Jim hands you
+  // something or the mart starts stocking it. They queue, one at a time.
+  const unlockQ = [];
+  function unlockCard(key, gift) { unlockQ.push({ key, gift }); if (unlockQ.length === 1) showUnlock(); }
+  const unlockIdle = () => unlockQ.length === 0;
+  function showUnlock() {
+    const u = unlockQ[0], el = $('unlock');
+    if (!u || !el) return;
+    const t = TOOL_BY_KEY[u.key], sd = TOOL_SHOP_BY_KEY[u.key], phone = u.key === 'phone';
+    const name = phone ? 'A Phone' : (sd && sd.name) || (t ? t.name : u.key);
+    const icon = phone ? 'ph_key' : t ? t.icon : 'lock';
+    const price = phone ? PHONE_PRICE : sd ? sd.price : 0;
+    const what = phone ? 'Jobs, your herd, texts, and an App Store.' : t ? t.desc : '';
+    el.innerHTML = `<div class="ucard ${u.gift ? 'gift' : ''}">
+      <div class="uhead">${u.gift ? 'YOU GOT' : 'NEW AT WOMBAT MART'}</div>
+      <div class="upic">${ic(icon, 'xl')}</div>
+      <b class="uname">${name}</b>
+      <p class="utext">${what}</p>
+      <p class="uhow">${u.gift ? `It is on your toolbar. Press <b>${Math.max(1, HOTKEYS.indexOf(u.key) + 1)}</b> to pick it.` : `Drive to the mart and buy it for ${ic('wdollar', 'sm')} <b>W$${price}</b>.`}</p>
+      <button class="act go" id="u-ok">GOT IT</button></div>`;
+    el.hidden = false;
+    Audio.play(u.gift ? 'levelup' : 'perk');
+    $('u-ok').onclick = (e) => {
+      e.stopPropagation();
+      el.hidden = true; unlockQ.shift(); Audio.play('click');
+      if (unlockQ.length) setTimeout(showUnlock, 160);
+      refreshHUD();
+    };
+  }
 
   // ---- shrine -------------------------------------------------------------
   // The shrine has no interface. Everything it has to say is cut into the
@@ -17406,7 +18782,7 @@ const UI = (() => {
   function renderPawn() {
     const fern = pawnMode === 'cult';
     const head = $('panel-pawn').querySelector('.ptitle');
-    if (head) head.textContent = fern ? 'AUNT FERN BUYS' : 'SELL';
+    if (head) head.textContent = fern ? 'JIM BUYS' : 'SELL';
     let h = `<p class="pnote">${fern ? 'Every cube goes on his compost heap, whatever kind. The more you bring at once, the better the rate.' : 'The counter buys cubes for the garden centre.'}</p><div class="grid">`;
     let any = false;
     for (const k of OFFER_ORDER) {
@@ -17514,7 +18890,7 @@ const UI = (() => {
     init, toast, refreshHUD, bumpMoney, refreshTray, refreshAll, refreshList, refreshNotebook, openWheel, closeWheel, wheelOpen, refreshRitual, refreshKnow,
     refreshRunHUD, refreshRiteCard, refreshBasket, openBasket,
     onRunStart, onRunPlay, onRunEnd, hideRunHUD, hideAll, pingPurse,
-    showTip, hideTip, place, setMode, openPanel, openPawn, closePanels, anyPanel, refreshZoom, openWombat,
+    showTip, hideTip, place, setMode, openPanel, openPawn, closePanels, anyPanel, refreshZoom, openWombat, unlockCard, unlockIdle,
   };
 })();
 </script>
@@ -17562,25 +18938,9 @@ const Menu = (() => {
   }
   // the page: a wooden cover, a parchment leaf inside it, four iron brackets
   // bolted over the corners and a ribbon hanging out of the top
-  function board(g, x, y, w, h) { goldFrame(g, x, y, w, h, { fill: KIT.p2 }); }
+  function board(g, x, y, w, h) { Kit.card(g, x, y, w, h, { r: 10 }); }
   // the heading: a plank of dark wood with an iron cap hammered on each end
-  function plate(g, x, y, w, h, text, scale = 2) {
-    Art.rect(g, x - 2, y - 2, w + 4, h + 4, KIT.ink);
-    Art.rect(g, x, y, w, h, KIT.t1);
-    Art.rect(g, x, y, w, 3, KIT.t3);                          // light along the top board
-    Art.rect(g, x, y + h - 4, w, 4, KIT.t0);
-    Art.rect(g, x + 8, y + Math.round(h / 2), w - 16, 1, KIT.t0);   // the seam between planks
-    for (let gx = x + 12; gx < x + w - 12; gx += 11) Art.rect(g, gx, y + 4, 1, h - 9, KIT.t2);
-    for (const [cx, sd] of [[x, 1], [x + w - 9, -1]]) {       // the iron caps
-      Art.rect(g, cx, y - 1, 9, h + 2, KIT.i1);
-      Art.rect(g, cx, y - 1, 9, 2, KIT.i3);
-      Art.rect(g, cx, y + h - 1, 9, 2, KIT.i0);
-      Art.rect(g, sd > 0 ? cx + 8 : cx, y - 1, 1, h + 2, KIT.i0);
-      Art.rect(g, cx + 3, y + h / 2 - 1, 3, 3, KIT.i4);       // the rivet in it
-    }
-    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2 + 1, { scale, color: '#1a0f06', align: 'center' });
-    Font.draw(g, text, x + w / 2, y + (h - scale * 7) / 2, { scale, color: KIT.p4, align: 'center' });
-  }
+  function plate(g, x, y, w, h, text, scale = 2) { Kit.tab(g, x, y, w, h, text, { scale: Math.min(scale, 2) }); }
   // the name of the game, on the biggest plate there is
 
   // ---- gold-cornered frames ------------------------------------------------
@@ -17597,28 +18957,10 @@ const Menu = (() => {
     px(4, 4, 2, 2, GF.g2); px(4, 4, 1, 1, GF.g3); px(2, 2, 1, 1, GF.g1);
   }
   function goldFrame(g, x, y, w, h, o = {}) {
-    x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
-    Art.rect(g, x - 2, y + 3, w + 4, h + 2, 'rgba(26,16,10,0.35)');           // a shadow under it
-    cut(g, x - 2, y - 2, w + 4, h + 4, GF.ink, 4);
-    cut(g, x, y, w, h, o.hot ? GF.g3 : GF.g2, 3);                             // the gold ring
-    Art.rect(g, x + 3, y, w - 6, 1, GF.g3);
-    Art.rect(g, x + 3, y + h - 2, w - 6, 2, GF.g1);
-    Art.rect(g, x + w - 2, y + 3, 2, h - 6, GF.g1);
-    cut(g, x + 3, y + 3, w - 6, h - 6, GF.ink, 2);
-    const fill = o.fill || (o.hot ? GF.b3 : GF.b2);
-    cut(g, x + 4, y + 4, w - 8, h - 8, fill, 2);
-    Art.rect(g, x + 5, y + 4, w - 10, 2, U.shade(fill, 0.18));                // a soft lit top
-    Art.rect(g, x + 5, y + h - 7, w - 10, 3, U.shade(fill, -0.16));
-    curl(g, x + 1, y + 1, 1, 1); curl(g, x + w - 1, y + 1, -1, 1);
-    curl(g, x + 1, y + h - 1, 1, -1); curl(g, x + w - 1, y + h - 1, -1, -1);
+    Kit.card(g, x, y, w, h, { fill: o.fill && o.fill !== GF.b1 ? o.fill : Kit.C.paper, ring: o.hot ? Kit.C.mint : null, r: o.r });
   }
-  function goldButton(g, b, label, sub) {
-    const hot = hover === b.id, dy = hot ? -2 : 0;
-    goldFrame(g, b.x, b.y + dy, b.w, b.h, { hot });
-    const cy = b.y + dy + (sub ? 8 : b.h / 2 - 7);
-    Font.draw(g, label, b.x + b.w / 2, cy + 1, { scale: 2, color: GF.ink, align: 'center' });
-    Font.draw(g, label, b.x + b.w / 2, cy, { scale: 2, color: hot ? '#fff6c8' : '#ffe8b0', align: 'center' });
-    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + 18, { scale: 1, color: '#f0cc88', align: 'center' });
+  function goldButton(g, b, label, sub, kind) {
+    Kit.button(g, b, label, sub, { hot: hover === b.id, kind: kind || (b.id === 'enter' ? 'sun' : 'mint') });
   }
 
   // ---- the forest going past -----------------------------------------------
@@ -17717,9 +19059,9 @@ const Menu = (() => {
     buttons = [];
     const bob = Math.sin(t * 1.2) * 1.5;
     goldFrame(g, VW / 2 - 170, 22 + bob, 340, 70);
-    Font.draw(g, 'WOMBAT FARM', VW / 2 + 2, 40 + bob + 2, { scale: 4, color: GF.ink, align: 'center' });
-    Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: '#ffe8a0', align: 'center' });
-    Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: '#f0cc88', align: 'center' });
+    Font.draw(g, 'WOMBAT FARM', VW / 2, 42 + bob, { scale: 4, color: Kit.C.mintL, align: 'center' });
+    Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: Kit.C.mintDD, align: 'center' });
+    Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: Kit.C.ink2, align: 'center' });
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
     const bx = 430, bw = 184;
     const play = { id: 'enter', x: bx, y: 118, w: bw, h: 44 };
@@ -17734,33 +19076,15 @@ const Menu = (() => {
     // the tip of the day, on a gold-cornered strip at the bottom
     const line = RUMOURS[rumour % RUMOURS.length];
     const lw = Font.width(line, 1) + 30;
-    goldFrame(g, VW / 2 - lw / 2, VH - 26, lw, 20, { fill: GF.b1 });
-    Font.draw(g, line, VW / 2, VH - 19, { scale: 1, color: '#ffe8b0', align: 'center' });
+    goldFrame(g, VW / 2 - lw / 2, VH - 28, lw, 22, { r: 8 });
+    Font.draw(g, line, VW / 2, VH - 21, { scale: 1, color: Kit.C.ink, align: 'center' });
   }
 
   // which drops four pixels when the pointer is over it. It is the same button
   // the panels use, drawn with rectangles instead of CSS.
-  function plaque(g, x, y, w, h, hot) {
-    cut(g, x - 2, y - 2, w + 4, h + 4, KIT.ink, 3);
-    cut(g, x, y, w, h, hot ? KIT.g3 : KIT.g2, 2);
-    Art.rect(g, x + 2, y, w - 4, 3, hot ? KIT.g4 : KIT.g3);
-    Art.rect(g, x + 2, y + h - 4, w - 4, 4, hot ? KIT.g1 : KIT.g0);
-    Art.rect(g, x, y + 3, 2, h - 7, hot ? KIT.g4 : KIT.g3);
-    Art.rect(g, x + w - 2, y + 3, 2, h - 7, hot ? KIT.g1 : KIT.g0);
-  }
+  function plaque(g, x, y, w, h, hot) { Kit.rr(g, x, y, w, h + 3, 6, Kit.C.line); Kit.rr(g, x + 2, y + 2, w - 4, h - 3, 5, hot ? '#97dcb8' : Kit.C.mint); }
   function bigButton(g, b, label, sub, scale) {
-    const hot = hover === b.id;
-    const drop = hot ? 0 : 4;
-    Art.rect(g, b.x - 2, b.y + 4, b.w + 4, b.h, KIT.ink);          // the shadow it sits on
-    plaque(g, b.x, b.y + drop, b.w, b.h, hot);
-    const cy = b.y + drop + (sub ? 9 : (b.h - (scale || 2) * 7) / 2);
-    Font.draw(g, label, b.x + b.w / 2, cy + 1, { scale: scale || 2, color: hot ? '#ffe98a' : '#f0d27a', align: 'center' });
-    Font.draw(g, label, b.x + b.w / 2, cy, { scale: scale || 2, color: hot ? '#3a2003' : '#4a2c04', align: 'center' });
-    if (sub) Font.draw(g, sub, b.x + b.w / 2, cy + (scale || 2) * 7 + 4, { scale: 1, color: hot ? '#5e3a04' : '#6b4406', align: 'center' });
-    if (hot) {
-      Font.draw(g, '>', b.x + 9, cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.i0 });
-      Font.draw(g, '<', b.x + b.w - 9 - Font.width('<', scale || 2), cy + ((scale || 2) - 1) * 3, { scale: scale || 2, color: KIT.i0 });
-    }
+    Kit.button(g, b, label, sub, { hot: hover === b.id, scale: scale || 2 });
   }
 
   // ---- the things living on the title screen ------------------------------
@@ -17781,13 +19105,14 @@ const Menu = (() => {
   ];
   let rumour = 0;
   const HELP = [
-    ['t_sickle', 'Tidy the garden', 'Right-click opens the tool tray. Cut the weeds, clear the logs, sow grass.'],
+    ['t_drag', 'Start with your hands', 'Jim gives you his old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
+    ['t_sickle', 'Tidy the garden', 'Cut the weeds, have the ants take the old logs, and sow grass. A tidy patch brings a wombat.'],
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],
-    ['truck', 'Load the truck', 'Drag the cubes into the truck. Click the truck for the map to town.'],
-    ['u_seats', 'Sell to Jim', 'He buys every cube for his compost, and pays more for a load than for one.'],
-    ['u_burrow', 'Shape the land', 'The shovel: hold to raise a hill, right-click and hold to dig a pond.'],
+    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Jim.'],
+    ['t_shovel', 'Shape the land', 'Hold to dig down, right-click to heap up. Water a hole and it fills into a pond or a creek.'],
   ];
+
   function drawHelp(g) {
     buttons = [];
     const PW = 500, PX = (VW - PW) / 2, PY = 20, PH = 322;
@@ -17796,18 +19121,18 @@ const Menu = (() => {
     const BW = PW - 74;                       // what a line of body has room for
     HELP.forEach(([ico, title, body], i) => {
       const ry = PY + 44 + i * 40;
-      Art.rect(g, PX + 16, ry - 3, PW - 32, 38, i % 2 ? KIT.p3 : KIT.p1);
+      Kit.rr(g, PX + 16, ry - 3, PW - 32, 38, 5, i % 2 ? '#ffffff' : Kit.C.mintW);
       Art.rect(g, PX + 16, ry - 3, PW - 32, 1, KIT.p4);
       Icons.blit(g, ico, PX + 20, ry + 4, 1.2);
-      Font.draw(g, title, PX + 50, ry, { scale: 1, color: '#1c5568' });
+      Font.draw(g, title, PX + 50, ry, { scale: 1, color: Kit.C.mintDD });
       Font.wrap(body, BW, 1).slice(0, 2).forEach((ln, j) => {
-        Font.draw(g, ln, PX + 50, ry + 11 + j * 10, { scale: 1, color: '#6b4a26' });
+        Font.draw(g, ln, PX + 50, ry + 11 + j * 10, { scale: 1, color: Kit.C.ink2 });
       });
     });
     const by = PY + PH - 34;
     buttons.push({ id: 'back', x: PX + 14, y: by, w: PW - 28, h: 26 });
     plaque(g, PX + 14, by, PW - 28, 26, hover === 'back');
-    Font.draw(g, 'BACK', VW / 2, by + 9, { scale: 1, color: '#4a2c04', align: 'center' });
+    Font.draw(g, 'BACK', VW / 2, by + 9, { scale: 1, color: '#173a2e', align: 'center' });
   }
 
   const SETTINGS = [
@@ -17826,26 +19151,23 @@ const Menu = (() => {
       const val = s2.inv ? !G[s2.key] : !!G[s2.key];
       const hot = hover === 'set:' + s2.key;
       buttons.push({ id: 'set:' + s2.key, x: PX + 14, y: ry, w: PW - 28, h: 24, kind: 'toggle', k: s2.key });
-      Art.rect(g, PX + 16, ry, PW - 32, 24, hot ? KIT.p4 : KIT.p1);
+      Kit.rr(g, PX + 16, ry, PW - 32, 24, 5, hot ? Kit.C.mintW : '#ffffff');
       Art.rect(g, PX + 16, ry, PW - 32, 1, KIT.p4);
-      Font.draw(g, s2.name, PX + 28, ry + 9, { scale: 1, color: '#3a2410' });
+      Font.draw(g, s2.name, PX + 28, ry + 9, { scale: 1, color: Kit.C.ink });
       const tx = PX + PW - 96, tw = 68;
-      Art.rect(g, tx - 2, ry + 3, tw + 4, 18, KIT.ink);
-      Art.rect(g, tx, ry + 5, tw, 14, val ? KIT.i1 : '#5c4a30');
-      Art.rect(g, tx, ry + 5, tw, 3, val ? KIT.i3 : '#7a6444');
+      Kit.rr(g, tx - 2, ry + 3, tw + 4, 18, 8, Kit.C.line);
+      Kit.rr(g, tx, ry + 5, tw, 14, 7, val ? Kit.C.mintD : '#c8d2d0');
       const kx = val ? tx + tw - 20 : tx + 2;
-      Art.rect(g, kx, ry + 6, 18, 12, KIT.p4);
-      Art.rect(g, kx, ry + 6, 18, 3, '#ffffff');
-      Font.draw(g, val ? s2.on : s2.off, val ? tx + 16 : tx + tw - 16, ry + 9, {
-        scale: 1, align: 'center', color: val ? '#d8f2fa' : '#2a2016',
+      Kit.rr(g, kx, ry + 6, 18, 12, 6, '#ffffff');
+      Font.draw(g, val ? s2.on : s2.off, val ? tx + 22 : tx + tw - 22, ry + 9, {
+        scale: 1, align: 'center', color: val ? '#ffffff' : Kit.C.ink,
       });
     });
     const dy = PY + PH - 42;
     buttons.push({ id: 'wipe', x: PX + 14, y: dy, w: PW - 28, h: 28, kind: 'wipe' });
     const wh = hover === 'wipe';
-    cut(g, PX + 14, dy, PW - 28, 28, KIT.ink, 3);
-    cut(g, PX + 16, dy + 2, PW - 32, 24, wh ? '#e07a4a' : '#96491a', 2);
-    Art.rect(g, PX + 18, dy + 2, PW - 36, 3, wh ? '#f2b07a' : '#c96e24');
+    Kit.rr(g, PX + 14, dy, PW - 28, 30, 7, Kit.C.line);
+    Kit.rr(g, PX + 16, dy + 2, PW - 32, 24, 6, wh ? '#ff9278' : Kit.C.coral);
     Font.draw(g, 'RESET ALL DATA', VW / 2, dy + 6, { scale: 1, color: '#fff2e0', align: 'center' });
     Font.draw(g, hasSave ? 'ERASES YOUR FARM AND STARTS OVER' : 'NOTHING SAVED YET', VW / 2, dy + 17, {
       scale: 1, color: wh ? '#ffd9c0' : '#e8b898', align: 'center',
@@ -17859,22 +19181,19 @@ const Menu = (() => {
   }
 
   function drawConfirm(g) {
-    g.fillStyle = 'rgba(58,36,20,0.55)'; g.fillRect(0, 0, VW, VH);
+    g.fillStyle = 'rgba(44,64,72,0.5)'; g.fillRect(0, 0, VW, VH);
     const PW = 344, PX = (VW - PW) / 2, PY = 112, PH = 136;
     board(g, PX, PY, PW, PH);
     plate(g, PX + 14, PY + 12, PW - 28, 26, 'ARE YOU SURE?');
     const lines = Font.wrap(confirm.text.toUpperCase(), PW - 44, 1);
-    lines.forEach((l, i) => Font.draw(g, l, VW / 2, PY + 50 + i * 11, { scale: 1, color: '#4a3a22', align: 'center' }));
-    Font.draw(g, 'THIS CANNOT BE UNDONE', VW / 2, PY + 78, { scale: 1, color: '#96491a', align: 'center' });
+    lines.forEach((l, i) => Font.draw(g, l, VW / 2, PY + 50 + i * 11, { scale: 1, color: Kit.C.ink, align: 'center' }));
+    Font.draw(g, 'THIS CANNOT BE UNDONE', VW / 2, PY + 78, { scale: 1, color: Kit.C.coralD, align: 'center' });
     const by = PY + PH - 34;
     buttons.push({ id: 'yes', x: PX + 18, y: by, w: 140, h: 24, kind: 'confirm' });
     buttons.push({ id: 'no', x: PX + PW - 158, y: by, w: 140, h: 24, kind: 'confirm' });
-    for (const [id, lab, col] of [['yes', 'ERASE IT', '#8a2f24'], ['no', 'KEEP IT', '#2a3a24']]) {
-      const b = buttons.find((q) => q.id === id), hot = hover === id;
-      g.fillStyle = hot ? U.shade(col, 0.4) : col; g.fillRect(b.x, b.y, b.w, b.h);
-      g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(b.x, b.y, b.w, 2);
-      g.strokeStyle = hot ? '#f5cd5c' : '#0a0810'; g.lineWidth = 1; g.strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
-      Font.draw(g, lab, b.x + b.w / 2, b.y + 8, { scale: 1, color: '#fff0dc', align: 'center' });
+    for (const [id, lab, kind] of [['yes', 'ERASE IT', 'coral'], ['no', 'KEEP IT', 'mint']]) {
+      const b = buttons.find((q) => q.id === id);
+      Kit.button(g, b, lab, null, { hot: hover === id, kind, scale: 1 });
     }
   }
 
@@ -17950,7 +19269,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [], owned: { drag: true }, apps: { quests: 1, messages: 1, settings: 1, store: 1 },
+      brush: 1, crates: {}, furniture: [], owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, apps: { quests: 1, messages: 1, settings: 1, store: 1 },
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -18000,6 +19319,15 @@ const Main = (() => {
         for (const t of TOOL_SHOP) s.owned[t.key] = true;
         s.apps = Object.fromEntries(Object.keys(APP_PRICES).map((k) => [k, 1]));
       }
+      // the tutorial grew a first step (meeting Jim) and tools that unlock as you go
+      if (s.tutorialV !== 2) {
+        s.tutorialV = 2;
+        s.unlocked = s.unlocked || {};
+        for (const k of Object.keys(s.owned || {})) s.unlocked[k] = true;
+        s.lessons = s.lessons || {};
+      }
+      if (!s.unlocked) s.unlocked = {};
+      if (!s.lessons) s.lessons = {};
       if (!TOOL_BY_KEY[s.tool] || !unlocked(s, s.tool)) s.tool = 'drag';
       s.mode = 'grove';
       return s;
@@ -18010,8 +19338,6 @@ const Main = (() => {
     if (!G || G.seen) return;
     G.seen = true;
     FX.title('WOMBAT FARM', { size: 20, color: PAL.gold3, dur: 2.6, style: 'slam', sub: 'a cozy little grove' });
-    setTimeout(() => UI.toast('the garden has gone a bit wild'), 1400);
-    setTimeout(() => UI.toast('tidy it up and a wombat might move in'), 6400);
   }
   function reset() { Store.clear(KEY()).then(() => location.reload(), () => location.reload()); }
   // ---- the three groves ---------------------------------------------------
@@ -18104,6 +19430,7 @@ const Main = (() => {
 
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
+    if (Talk.isOpen()) Talk.close();          // nobody keeps talking to you across town
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
@@ -18256,7 +19583,7 @@ const Main = (() => {
             G.tool = k;
             Grove.clearPair(); UI.refreshTray(); UI.refreshHUD(); Audio.play('click');
             UI.toast(`<b>${TOOL_BY_KEY[k].name}</b> &mdash; ${TOOL_BY_KEY[k].desc}`);
-          } else { Audio.play('error'); UI.toast(whyLocked(k), 'bad'); }
+          } else { Audio.play('error'); UI.toast(whyLocked(k, G), 'bad'); }
         }
       }
     });

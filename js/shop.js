@@ -172,9 +172,10 @@ const Shop = (() => {
     const out = [];
     for (const t of TOOL_SHOP) {
       const def = TOOL_BY_KEY[t.key];
+      if (!taught(G, t.key)) continue;                // Jim has not shown you this one yet
       out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
     }
-    out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Jobs, messages and an App Store. Everyone out here has one.', sold: owns(G, 'phone') });
+    if (taught(G, 'phone')) out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Jobs, messages and an App Store. Everyone out here has one.', sold: owns(G, 'phone') });
     for (const u of UPGRADES) {
       if (GARDEN_UP[u.key]) continue;                 // Groot stocks the garden half
       const l = G.up[u.key] || 0;
@@ -325,7 +326,7 @@ const Shop = (() => {
       else if (p.kind === 'wombat') { if (G.wombats.length < Grove.capacity()) Grove.addWombat(); }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = true;
-      else if (p.kind === 'tool') { if (!G.owned) G.owned = {}; G.owned[p.key] = true; if (p.key !== 'phone') G.tool = p.key; tools.push(p); }
+      else if (p.kind === 'tool') { if (!G.owned) G.owned = {}; G.owned[p.key] = true; if (p.key !== 'phone') { G.tool = p.key; if (!G.newTools) G.newTools = {}; G.newTools[p.key] = true; } tools.push(p); }
       else if (p.kind === 'snack') eatSnack(SNACK_BY_KEY[p.key]);
     }
     // one note for everything new, not one each

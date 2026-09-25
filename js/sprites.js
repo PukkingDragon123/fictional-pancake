@@ -813,89 +813,112 @@ const Sprites = (() => {
     const y0 = bob + (sit ? 10 : 0);
     const R = (x, y, w, h, col) => Art.rect(g, x, y, w, h, col);
     const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
-    // ---- legs and shoes ---------------------------------------------------
-    const hipY = 58 + y0;
+    // ---- legs and shoes: short and sturdy ------------------------------------
+    const hipY = 62 + y0;
     for (const s2 of [-1, 1]) {
-      const fx = CX + s2 * 7 + (sit ? s2 * 2 : stride * s2 * 0.6);
+      const fx = CX + s2 * 6 + (sit ? s2 * 2 : stride * s2 * 0.6);
       if (sit) {
-        // sat down: thighs forward, shins hanging
-        R(fx - 5, hipY - 1, 10, 7, SHORT); R(fx - 5, hipY + 5, 10, 1, SHORT0);
-        R(fx - 3.5, hipY + 6, 7, 12, SKIN); R(fx + 1.5, hipY + 6, 2, 12, SKIN0);
-        for (let i = 0; i < 4; i++) R(fx - 2 + (i % 2) * 3, hipY + 8 + i * 3, 1, 1, FRECK);
-        R(fx - 4, hipY + 18, 9, 4, SHOE); R(fx - 4, hipY + 21, 9, 1, SOLE);
+        R(fx - 5, hipY - 1, 10, 6, SHORT); R(fx - 5, hipY + 4, 10, 1, SHORT0);
+        R(fx - 4, hipY + 5, 8, 8, SKIN); R(fx + 2, hipY + 5, 2, 8, SKIN0);
+        R(fx - 2, hipY + 7, 1, 1, FRECK); R(fx + 1, hipY + 9, 1, 1, FRECK);
+        R(fx - 5, hipY + 13, 10, 4, SHOE); R(fx - 5, hipY + 16, 10, 1, SOLE);
         continue;
       }
       const lift = stride * s2 > 1 ? 1.5 : 0;
-      R(fx - 3.5, hipY + 4, 7, CGY - hipY - 8 - lift, SKIN);                       // the leg
-      R(fx + 1.5, hipY + 4, 2, CGY - hipY - 8 - lift, SKIN0);
-      for (let i = 0; i < 5; i++) R(fx - 2 + (i % 2) * 3, hipY + 6 + i * 3.4, 1, 1.4, FRECK);   // hairy
-      R(fx - 4.5, CGY - 5 - lift, 10, 4, SHOE); R(fx - 4.5, CGY - 2 - lift, 10, 2, SOLE);       // the shoe
-      R(fx - 2, CGY - 5 - lift, 3, 1, '#7a5a44');
+      const top = hipY + 4, len = CGY - top - 5 - lift;
+      R(fx - 4, top, 8, len, SKIN); R(fx + 2, top, 2, len, SKIN0);                 // the leg
+      R(fx - 2, top + 2, 1, 1, FRECK); R(fx + 1, top + 4, 1, 1, FRECK); R(fx - 1, top + 6, 1, 1, FRECK);
+      R(fx - 5.5, CGY - 6 - lift, 11, 5, SHOE); R(fx - 5.5, CGY - 2 - lift, 11, 2, SOLE);   // chunky trainers
+      R(fx - 3, CGY - 6 - lift, 4, 1, '#7a5a44'); R(fx + 2, CGY - 5 - lift, 2, 1, '#e8e0d0');
     }
     // ---- shorts -------------------------------------------------------------
     if (!sit) {
-      R(CX - 13, hipY - 4, 26, 10, SHORT);
-      R(CX - 13, hipY + 4, 26, 2, SHORT0);
-      R(CX - 1, hipY, 2, 6, SHORT0);
+      R(CX - 13, hipY - 5, 26, 10, SHORT);
+      R(CX - 13, hipY + 3, 26, 2, SHORT0);
+      R(CX - 1, hipY - 1, 2, 6, SHORT0);
+      R(CX - 12, hipY - 5, 24, 1, '#a88058');
     }
-    // ---- body: a pink shirt over a round belly, the fleece open over it -----
-    const chestY = 33 + y0;
-    E(CX, chestY + 14, 14.5, 13, SHIRT0);                           // the belly
-    E(CX, chestY + 13, 13.5, 12, SHIRT);
-    E(CX - 4, chestY + 9, 5, 4, SHIRT2);
-    R(CX - 7, chestY + 4, 14, 3, SHIRT0);                             // a fold across the chest
+    // ---- body: a round belly in a pink shirt, the check fleece open over it --
+    const chestY = 40 + y0;
+    R(CX - 10, chestY - 4, 20, 25, SHIRT);                             // the shirt, straight down
+    E(CX, chestY + 19, 11, 4, SHIRT);                                  // over the belly
+    R(CX - 10, chestY + 19, 20, 3, SHIRT0);
+    R(CX - 6, chestY + 2, 3, 6, SHIRT2);
+    Art.poly(g, [[CX - 4, chestY - 3], [CX + 4, chestY - 3], [CX, chestY + 3]], SKIN0);   // the open neck
+    for (let i = 0; i < 3; i++) R(CX - 0.5, chestY + 6 + i * 5, 1, 1, SHIRT0);        // buttons
     for (const s2 of [-1, 1]) {                                       // the fleece, open at the front
-      Art.poly(g, [[CX + s2 * 7, chestY - 4], [CX + s2 * 16, chestY - 2], [CX + s2 * 17.5, chestY + 24], [CX + s2 * 11, chestY + 26], [CX + s2 * 9, chestY + 10]], FLE);
-      Art.poly(g, [[CX + s2 * 14, chestY - 1], [CX + s2 * 16, chestY - 2], [CX + s2 * 17.5, chestY + 24], [CX + s2 * 15, chestY + 25]], s2 < 0 ? FLE2 : FLE0);
-      for (let i = 0; i < 5; i++) R(CX + s2 * (10 + (i % 2) * 3), chestY + 2 + i * 5, 2, 1, FLE0);   // the check in it
+      Art.poly(g, [[CX + s2 * 6, chestY - 3], [CX + s2 * 17, chestY - 2], [CX + s2 * 18, chestY + 19], [CX + s2 * 7, chestY + 21], [CX + s2 * 6.5, chestY + 8]], FLE);
+      Art.poly(g, [[CX + s2 * 14, chestY - 1], [CX + s2 * 17, chestY - 2], [CX + s2 * 18, chestY + 19], [CX + s2 * 15, chestY + 20]], s2 < 0 ? FLE2 : FLE0);
+      for (let yy = 0; yy < 5; yy++) R(CX + s2 * 12, chestY + 1 + yy * 4, 1, 2, FLE0);     // the check in it
+      for (let yy = 0; yy < 4; yy++) R(CX + s2 * (8 + yy % 2 * 5), chestY + 3 + yy * 5, 4, 1, FLE0);
     }
     // ---- arms -------------------------------------------------------------------
     for (const [s2, sw] of [[-1, armL], [1, armR]]) {
-      const sx = CX + s2 * 15, sy = chestY;
+      const sx = CX + s2 * 15, sy = chestY + 1;
       const up = (s2 > 0 && (wave || point)) || (pose === 'cheer' || pose === 'jump');
-      const hx = up ? sx + (point ? 10 : 4) : sx + s2 * 2 + sw * 0.3, hy = up ? sy - 10 + (point ? 8 : 0) : sy + 22 + sw * 0.6;
-      Art.limb(g, sx, sy, hx, hy - 3, 5.2, 4.6, FLE0);
-      Art.limb(g, sx, sy, hx, hy - 3, 4.4, 3.8, FLE);
-      Art.limb(g, U.lerp(sx, hx, 0.6), U.lerp(sy, hy, 0.6), hx, hy, 3.6, 3.2, SKIN);   // the forearm, hairy
-      R(U.lerp(sx, hx, 0.8), U.lerp(sy, hy, 0.8), 1, 1, FRECK);
-      E(hx, hy + 1, 3, 2.8, SKIN); E(hx - 0.6, hy, 1.6, 1.4, SKIN2);
-      if (up && wave) { for (let i = 0; i < 3; i++) R(hx - 2 + i * 1.6, hy - 4, 1.2, 3, SKIN); }
+      const hx = up ? sx + (point ? 10 : 4) : sx + s2 * 2.5 + sw * 0.3, hy = up ? sy - 10 + (point ? 8 : 0) : sy + 18 + sw * 0.6;
+      Art.limb(g, sx, sy, hx, hy - 3, 5.6, 5, FLE0);
+      Art.limb(g, sx, sy, hx, hy - 3, 4.8, 4.2, FLE);
+      E(hx, hy, 3.4, 3.2, SKIN); E(hx - 0.8, hy - 0.8, 1.6, 1.4, SKIN2);             // a big friendly hand
+      if (up && wave) { for (let i = 0; i < 3; i++) R(hx - 2.4 + i * 1.8, hy - 5, 1.4, 3, SKIN); }
     }
     // ---- the big cream collar ----------------------------------------------------
     for (let i = 0; i < 9; i++) {
       const u = (i / 8 - 0.5) * 2;
-      E(CX + u * 13, chestY - 2 + Math.abs(u) * 2, 4.4, 3.8, COL0);
-      E(CX + u * 13, chestY - 3 + Math.abs(u) * 2, 3.8, 3.2, COL);
+      if (i === 4) continue;                                           // open at the front, so the shirt shows
+      E(CX + u * 12, chestY - 2 + Math.abs(u) * 3, 4.6, 4, COL0);
+      E(CX + u * 12, chestY - 3 + Math.abs(u) * 3, 4, 3.4, COL);
+      R(CX + u * 12 - 1, chestY - 4 + Math.abs(u) * 3, 1, 1, '#fffaf0');
     }
-    // ---- the head ------------------------------------------------------------------
-    const hx = CX, hy = 18 + y0;
-    E(hx, hy + 1, 11.5, 12, SKIN0);
-    E(hx, hy, 11, 11.4, SKIN);
-    E(hx - 3, hy - 3, 5, 4, SKIN2);
-    E(hx - 11, hy + 1, 2.2, 3, SKIN0); E(hx + 11, hy + 1, 2.2, 3, SKIN0);    // ears
-    // stubble along the jaw and chin
-    for (let i = 0; i < 26; i++) {
-      const a = Math.PI * (0.1 + (i / 25) * 0.8);
-      R(hx + Math.cos(a) * 9.2 - 0.5, hy + 2 + Math.sin(a) * 8.6, 1.4, 1.4, i % 3 ? '#d8884a' : HAIR0);
+    // ---- the head: big, round, the best bit ---------------------------------------
+    const hx = CX, hy = 22 + y0;
+    E(hx - 14, hy + 2, 2.6, 3.4, SKIN0); E(hx + 14, hy + 2, 2.6, 3.4, SKIN0);    // ears
+    E(hx, hy + 1, 14, 14, SKIN0);
+    E(hx - 0.5, hy, 13.5, 13.4, SKIN);
+    E(hx + 5, hy + 3, 8, 10, SKIN0 + '');
+    E(hx - 1, hy + 1, 11.5, 12, SKIN);
+    E(hx - 4, hy - 4, 6, 4, SKIN2);
+    // stubble round the jaw and chin
+    for (let i = 0; i < 34; i++) {
+      const a = Math.PI * (0.12 + (i / 33) * 0.76);
+      R(hx + Math.cos(a) * 11 - 0.5, hy + 3 + Math.sin(a) * 9.4, 1.2, 1.2, i % 3 ? '#d8884a' : HAIR0);
     }
-    for (let i = 0; i < 10; i++) R(hx - 5 + i, hy + 9 + (i % 2), 1.2, 1.2, '#d8884a');
-    // the face: eyes, then the glasses over them
-    expressions(g, hx, hy + 1, pose, f, hurt);
+    for (let i = 0; i < 7; i++) R(hx - 3 + i, hy + 11 + (i % 2), 1, 1, '#d8884a');
+    // the face: eyes behind the glasses, a mouth that goes with the mood
+    const mood = faceMood;
+    const shut = pose === 'laugh' || pose === 'sleep' || mood === 'laugh' || (pose === 'idle' && f === 5);
     for (const s2 of [-1, 1]) {
-      const gx = hx + s2 * 4.2, gy = hy + 1;
-      R(gx - 3.6, gy - 2.6, 7.2, 1.2, '#1e1814'); R(gx - 3.6, gy + 1.8, 7.2, 1.2, '#1e1814');
-      R(gx - 3.6, gy - 2.6, 1.2, 5.6, '#1e1814'); R(gx + 2.4, gy - 2.6, 1.2, 5.6, '#1e1814');
-      R(gx - 2.2, gy - 1.4, 1.6, 1, 'rgba(255,255,255,0.7)');
+      const ex = hx + s2 * 5.2, ey = hy + 1;
+      if (shut || mood === 'happy') { R(ex - 1.5, ey, 3, 1, '#2a1a18'); R(ex - 2, ey + 1, 1, 1, '#2a1a18'); R(ex + 1, ey + 1, 1, 1, '#2a1a18'); }
+      else { R(ex - 1, ey - 1, 2, 3, '#2a1a18'); R(ex - 1, ey - 1, 1, 1, '#ffffff'); }
     }
-    R(hx - 0.8, hy, 1.6, 1, '#1e1814');                                  // the bridge
-    for (const s2 of [-1, 1]) R(hx + s2 * 7.8, hy - 1, s2 * 3, 1, '#1e1814');
-    // hair: swept over, spilling out above and below the band
-    E(hx, hy - 8, 12, 6, HAIR0);
-    E(hx - 1, hy - 9, 11, 5, HAIR);
-    for (let i = 0; i < 6; i++) Art.poly(g, [[hx - 10 + i * 4, hy - 9], [hx - 7 + i * 4, hy - 16 - (i % 2) * 2], [hx - 4 + i * 4, hy - 9]], i % 2 ? HAIR : HAIR2);
-    E(hx - 10, hy - 3, 3, 5, HAIR); E(hx + 10, hy - 3, 3, 5, HAIR0);
-    // the red sweatband
-    R(hx - 11.5, hy - 7, 23, 4, BAND); R(hx - 11.5, hy - 7, 23, 1.2, BAND2); R(hx - 11.5, hy - 3.8, 23, 0.8, '#8a1a14');
+    E(hx - 8.5, hy + 5.5, 2, 1.2, '#f2a08c'); E(hx + 8.5, hy + 5.5, 2, 1.2, '#f2a08c');   // rosy cheeks
+    R(hx - 1, hy + 4, 2, 2, SKIN0);                                                     // nose
+    const mo = mood === 'shock' ? 'o' : (mood === 'happy' || pose === 'laugh' || pose === 'cheer' || pose === 'jump') ? 'open' : mood === 'cross' || mood === 'worry' ? 'frown' : 'smile';
+    if (mo === 'open') { R(hx - 3, hy + 8, 6, 3, '#7a2a2a'); R(hx - 2, hy + 8, 4, 1, '#fffaf0'); R(hx - 1, hy + 10, 2, 1, '#e0707a'); }
+    else if (mo === 'o') { R(hx - 1.5, hy + 8, 3, 3, '#7a2a2a'); }
+    else if (mo === 'frown') { R(hx - 2, hy + 9, 4, 1, '#9a4a3a'); R(hx - 3, hy + 10, 1, 1, '#9a4a3a'); R(hx + 2, hy + 10, 1, 1, '#9a4a3a'); }
+    else { R(hx - 2, hy + 9, 4, 1, '#9a4a3a'); R(hx - 3, hy + 8, 1, 1, '#9a4a3a'); R(hx + 2, hy + 8, 1, 1, '#9a4a3a'); }
+    // thick black glasses
+    for (const s2 of [-1, 1]) {
+      const gx = hx + s2 * 5.2, gy = hy + 1;
+      R(gx - 4.5, gy - 3.4, 9, 1.4, '#1e1814'); R(gx - 4.5, gy + 2.2, 9, 1.4, '#1e1814');
+      R(gx - 4.5, gy - 3.4, 1.4, 7, '#1e1814'); R(gx + 3.1, gy - 3.4, 1.4, 7, '#1e1814');
+      R(gx - 3, gy - 2, 2, 1, 'rgba(255,255,255,0.75)');
+    }
+    R(hx - 1, hy - 0.5, 2, 1.2, '#1e1814');                                  // the bridge
+    for (const s2 of [-1, 1]) R(hx + s2 * 9.6, hy - 1.5, s2 * 3.6, 1.2, '#1e1814');
+    // hair: a messy mop, tufts sticking up over the band
+    E(hx, hy - 10, 14.5, 7, HAIR0);
+    E(hx - 1, hy - 11, 13.5, 6, HAIR);
+    E(hx - 5, hy - 13, 6, 2.5, HAIR2);
+    const TUFT = [[-12, 5, -3], [-7, 9, -2], [-2, 11, 0], [3, 10, 2], [8, 8, 3], [12, 5, 4]];
+    TUFT.forEach(([dx, h2, lean2], i) => Art.poly(g, [[hx + dx - 3, hy - 11], [hx + dx + lean2, hy - 11 - h2], [hx + dx + 3, hy - 11]], i % 2 ? HAIR : HAIR2));
+    E(hx - 12.5, hy - 4, 3, 5, HAIR); E(hx + 12.5, hy - 4, 3, 5, HAIR0);
+    for (const [dx, len2] of [[-5, 3], [-1, 4], [4, 3]]) R(hx + dx, hy - 5, 1, len2, HAIR0);   // strands on the brow
+    // the red sweatband, knotted on one side
+    R(hx - 14, hy - 9, 28, 4.4, BAND); R(hx - 14, hy - 9, 28, 1.3, BAND2); R(hx - 14, hy - 5.4, 28, 0.9, '#8a1a14');
+    E(hx + 14, hy - 7, 2.2, 2.2, BAND); R(hx + 15, hy - 6, 3, 1.6, '#a02418'); R(hx + 16, hy - 4.5, 2.4, 1.6, BAND);
     if (lie) {
       const zs = [[36, 10], [40, 5], [44, 0]][f % 3];
       g.globalAlpha = 0.85 - (f % 3) * 0.2;

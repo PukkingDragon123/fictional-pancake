@@ -142,26 +142,36 @@ const Intro = (() => {
     if (!c) return;
     const a = U.clamp(Math.min((d - c.from) / 90, (c.to - d) / 90), 0, 1);
     if (a <= 0) return;
-    const w = Math.max(...c.lines.map((l) => Font.width(l, 1))) + 26, h = 20 + c.lines.length * 12;
-    const x = 16, y = 16 - (1 - a) * 10;
+    const w = Math.max(...c.lines.map((l) => Font.width(l, 1))) + 28, h = 26 + c.lines.length * 12;
+    const x = 16, y = 18 - (1 - a) * 10;
     g.globalAlpha = a;
-    Art.rect(g, x - 2, y + 3, w + 4, h + 2, 'rgba(40,20,8,0.3)');
-    Art.rect(g, x - 2, y - 2, w + 4, h + 4, '#3b1f10');
-    Art.rect(g, x, y, w, h, '#c47a3c'); Art.rect(g, x, y, w, 1, '#e8a660');
-    Art.rect(g, x + 3, y + 3, w - 6, h - 6, '#fcefd0'); Art.rect(g, x + 3, y + 3, w - 6, 1, '#fff8e4');
-    Font.draw(g, c.head, x + 12, y + 8, { scale: 1, color: '#b0662e' });
-    c.lines.forEach((l, i) => Font.draw(g, l, x + 12, y + 21 + i * 12, { scale: 1, color: '#5a2e16' }));
+    Kit.card(g, x, y, w, h, { r: 7 });
+    Kit.tab(g, x + 10, y - 7, Font.width(c.head, 1) + 18, 14, c.head);
+    c.lines.forEach((l, i) => Font.draw(g, l, x + 14, y + 13 + i * 12, { scale: 1, color: Kit.C.ink }));
     g.globalAlpha = 1;
   }
-  function bubble(g, x, y, lines) {
-    const w = Math.max(...lines.map((l) => Font.width(l, 1))) + 20, h = 10 + lines.length * 12;
-    const bx = Math.round(U.clamp(x - w / 2, 8, VW - w - 8)), by = Math.round(y - h);
-    Art.rect(g, bx - 2, by - 2, w + 4, h + 4, '#3b1f10');
-    Art.rect(g, bx, by, w, h, '#fffaf0');
-    Art.rect(g, bx, by + h - 2, w, 2, '#ecdcc0');
-    Art.poly(g, [[x - 6, by + h], [x + 4, by + h], [x - 2, by + h + 8]], '#3b1f10');
-    Art.poly(g, [[x - 4, by + h], [x + 2, by + h], [x - 2, by + h + 5]], '#fffaf0');
-    lines.forEach((l, i) => Font.draw(g, l, bx + 10, by + 6 + i * 12, { scale: 1, color: '#3a2410' }));
+  // Jim at the gate talks in the same box as the rest of the game: the words
+  // on the left, his face in a frame on the right, his name on a plate.
+  function dialogue(g, text, mood, typedN) {
+    const W = 560, H = 96, X = (VW - W) / 2, Y = VH - H - 10;
+    Kit.card(g, X, Y, W, H, { r: 8 });
+    const FX0 = X + W - 88, FY0 = Y + 8;
+    Kit.rr(g, FX0 - 2, FY0 - 2, 76, 76, 7, Kit.C.line);
+    Kit.rr(g, FX0, FY0, 72, 72, 6, Kit.C.mint);
+    Kit.rr(g, FX0 + 2, FY0 + 2, 68, 68, 5, '#dff2f8');
+    const face = Portraits.get('jim', mood, t, typedN < text.length);
+    if (face) g.drawImage(face, FX0 + 4, FY0 + 4, 64, 64);
+    Kit.tab(g, FX0 - 6, Y + H - 16, 84, 13, 'JIM');
+    const lines = Font.wrap(text, W - 130, 2);
+    let left = typedN;
+    lines.slice(0, 3).forEach((l, i) => {
+      const part = l.slice(0, Math.max(0, left)); left -= l.length + 1;
+      if (part) Font.draw(g, part, X + 16, Y + 14 + i * 22, { scale: 2, color: Kit.C.ink });
+    });
+    if (typedN >= text.length) {
+      const bob = Math.round(Math.abs(Math.sin(t * 4)) * 3);
+      Art.poly(g, [[FX0 - 26, Y + H - 22 + bob], [FX0 - 14, Y + H - 22 + bob], [FX0 - 20, Y + H - 14 + bob]], Kit.C.coral);
+    }
   }
 
   function render(g) {
@@ -202,11 +212,14 @@ const Intro = (() => {
     caption(g);
     if (stopped() && stopT > 0.5) {
       const jx = GATE_AT - d - 90;
-      bubble(g, jx, R - 84, stopT < 3.2 ? ['G\'day! You must be the new caretaker.', 'I\'m Jim. Welcome to Wombat Farm.'] : ['Bit of a mess, I\'ll be honest.', 'Come on in and I\'ll show you round.']);
-      if (stopT > 1.4) {
+      const first = stopT < 4.2;
+      const line = first ? "G'day! You must be the new caretaker. I'm Jim. Welcome to Wombat Farm!" : "Bit of a mess, I'll be honest. Come on in and I'll show you round.";
+      const since = first ? stopT - 0.5 : stopT - 4.2;
+      dialogue(g, line, first ? 'happy' : 'laugh', Math.floor(since * 38));
+      if (stopT > 1.6) {
         const a = 0.55 + 0.45 * Math.sin(t * 4);
         g.globalAlpha = a;
-        Font.draw(g, 'CLICK TO GO IN', VW / 2, VH - 14, { scale: 1, color: '#fff6dc', align: 'center', shadow: '#3b1f10' });
+        Kit.pill(g, VW / 2 - 44, 8, 'CLICK TO GO IN', { col: Kit.C.sun });
         g.globalAlpha = 1;
       }
     }
