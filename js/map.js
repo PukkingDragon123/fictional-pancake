@@ -289,8 +289,18 @@ const Atlas = (() => {
         }
       }
     };
-    for (const p of ROADS.concat([HIGHWAY])) { roadPath(p, 3.4, RDE); roadPath(p, 2.4, RD); }
-    for (const p of ROADS.concat([HIGHWAY])) {   // little stones set in the track
+    // the side roads are gravel: a dark edge, a cream bed, a paler crown
+    for (const p of ROADS) { roadPath(p, 3.8, '#7a5a3a'); roadPath(p, 3.0, RDE); roadPath(p, 2.3, RD); roadPath(p, 0.9, '#f0dcae'); }
+    // the main road is sealed: kerbed, dark, with a dashed line down it
+    roadPath(HIGHWAY, 5.0, '#2e2a30'); roadPath(HIGHWAY, 4.2, '#e8e4d8'); roadPath(HIGHWAY, 3.5, '#5a5660'); roadPath(HIGHWAY, 2.6, '#686470');
+    for (let i = 0; i < HIGHWAY.length - 1; i++) {
+      const [x0, y0] = HIGHWAY[i], [x1, y1] = HIGHWAY[i + 1], L = Math.hypot(H(x1 - x0), H(y1 - y0));
+      for (let d = 0; d < L; d += 7) {
+        const u = d / L, u2 = Math.min(1, (d + 3) / L);
+        Art.limb(q, U.lerp(H(x0), H(x1), u), U.lerp(H(y0), H(y1), u), U.lerp(H(x0), H(x1), u2), U.lerp(H(y0), H(y1), u2), 1, 1, '#f2d45a');
+      }
+    }
+    for (const p of ROADS) {   // little stones set in the track
       for (let i = 0; i < p.length - 1; i++) {
         const [x0, y0] = p[i], [x1, y1] = p[i + 1], L = Math.hypot(H(x1 - x0), H(y1 - y0));
         for (let d = 0; d < L; d += 5) {

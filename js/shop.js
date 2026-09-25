@@ -170,6 +170,11 @@ const Shop = (() => {
     // A corner shop, not a garden centre: hardware, homewares and the pet
     // counter. Seed and garden tools moved down the road to Groot.
     const out = [];
+    for (const t of TOOL_SHOP) {
+      const def = TOOL_BY_KEY[t.key];
+      out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
+    }
+    out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Jobs, messages and an App Store. Everyone out here has one.', sold: owns(G, 'phone') });
     for (const u of UPGRADES) {
       if (GARDEN_UP[u.key]) continue;                 // Groot stocks the garden half
       const l = G.up[u.key] || 0;
@@ -189,6 +194,7 @@ const Shop = (() => {
   // Each section is a gondola of three shelves under a coloured header sign,
   // laid out left to right; the player swipes sideways to walk the aisle.
   const SECTIONS = [
+    { key: 'tool',   name: 'TOOLS',     color: '#b8422c', sub: 'start here' },
     { key: 'snack',  name: 'SNACKS',    color: '#3f8f4a', sub: 'eat it now' },
     { key: 'up',     name: 'HARDWARE',  color: '#2f6f9f', sub: 'build it' },
     { key: 'dec',    name: 'FURNITURE', color: '#c97a25', sub: 'set it out' },
@@ -278,7 +284,7 @@ const Shop = (() => {
     if (p.locked) { Audio.play('error'); UI.toast('locked', 'bad'); return; }
     if (p.sold) { Audio.play('error'); return; }
     if (p.kind === 'wombat' && G.wombats.length + countOf(p.id) >= Grove.capacity()) { Audio.play('error'); UI.toast('no room', 'bad'); return; }
-    if ((p.kind === 'dec' || p.kind === 'tier') && countOf(p.id) >= 1) { Audio.play('error'); return; }
+    if ((p.kind === 'dec' || p.kind === 'tier' || p.kind === 'tool') && countOf(p.id) >= 1) { Audio.play('error'); return; }
     basket.push(p.id);
     Audio.play('pop');
     const s = slots.find((sl) => sl.p.id === p.id);
@@ -310,6 +316,7 @@ const Shop = (() => {
     if (G.wd < t) { Audio.play('error'); UI.toast('not enough', 'bad'); return; }
     G.wd -= t;
     const cat = catalogue();
+    const tools = [];
     for (const id of basket.slice()) {
       const p = cat.find((x) => x.id === id);
       if (!p) continue;
@@ -318,7 +325,16 @@ const Shop = (() => {
       else if (p.kind === 'wombat') { if (G.wombats.length < Grove.capacity()) Grove.addWombat(); }
       else if (p.kind === 'up') G.up[p.key] = (G.up[p.key] || 0) + 1;
       else if (p.kind === 'dec') G.decor[p.key] = true;
+      else if (p.kind === 'tool') { if (!G.owned) G.owned = {}; G.owned[p.key] = true; if (p.key !== 'phone') G.tool = p.key; tools.push(p); }
       else if (p.kind === 'snack') eatSnack(SNACK_BY_KEY[p.key]);
+    }
+    // one note for everything new, not one each
+    if (tools.length) {
+      const names = tools.filter((p) => p.key !== 'phone').map((p) => p.name);
+      const bits = [];
+      if (names.length) bits.push(`<b>${names.join(', ')}</b> ${names.length > 1 ? 'are' : 'is'} on your toolbar`);
+      if (tools.some((p) => p.key === 'phone')) bits.push('press <b>P</b> for your new phone');
+      UI.toast(bits.join(' &middot; '), 'good');
     }
     basket.length = 0;
     till = 2;

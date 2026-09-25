@@ -88,7 +88,7 @@ const World = (() => {
     }
     if (Array.isArray(s.blades)) for (const b of s.blades) blades.push(mkBlade(b.x, b.y, b.v, b.h));
     if (Array.isArray(s.flowers)) for (const f of s.flowers) flowers.push({ x: f.x, y: f.y, v: f.v, bend: 0, vel: 0 });
-    if (Array.isArray(s.crops)) for (const c of s.crops) { if (!CROP_BY_KEY[c.k]) continue; crops.push({ x: c.x, y: c.y, k: c.k, t: c.t, wet: c.wet || 0, thirst: c.thirst || 0, fr: c.fr || 0, ft: c.ft || 0, wild: c.wild || 0, stall: 0 }); }
+    if (Array.isArray(s.crops)) for (const c of s.crops) { if (!CROP_BY_KEY[c.k]) continue; crops.push({ x: c.x, y: c.y, k: c.k, t: c.t, wet: c.wet || 0, thirst: c.thirst || 0, fr: c.fr || 0, ft: c.ft || 0, wild: c.wild || 0, fert: c.fert || 0, stall: 0 }); }
     if (Array.isArray(s.sprouts)) for (const p of s.sprouts) sprouts.push({ x: p.x, y: p.y, t: p.t, wet: p.wet || 0, r: p.r || 12 });
     measure();
   }
@@ -230,6 +230,7 @@ const World = (() => {
   // tree wants room, years and looking after, and then feeds you forever. A
   // magical plant only grows when the thing it wants is true.
   function plant(x, y, key) {
+    if (typeof Wild !== 'undefined' && Wild.blocked && Wild.blocked(x, y)) return 'wet';
     if (!hasSoil(x, y)) return 'nosoil';
     const def = CROP_BY_KEY[key];
     if (!def) return false;
@@ -286,6 +287,18 @@ const World = (() => {
       FX.float(c.x, c.y - 48, 'pruned', { color: PAL.moss5, size: 7 });
     }
     if (n) Audio.play('snip');
+    return n;
+  }
+  // A scoop of wombat cube worked into a bed: everything in it grows twice as
+  // fast for a good while. `dry` only counts what would take it.
+  function fertilise(x, y, r, dry) {
+    let n = 0;
+    for (const c of crops) {
+      if (Math.hypot(c.x - x, (c.y - y) * 1.3) > r + (kindOf(c) === 'tree' ? 14 : 4)) continue;
+      if ((c.fert || 0) > 30) continue;
+      n++;
+      if (!dry) { c.fert = kindOf(c) === 'tree' ? 180 : 240; FX.sparkle(c.x, c.y - 8, 3, PAL.moss4); }
+    }
     return n;
   }
   function water(x, y, r) {
@@ -397,7 +410,11 @@ const World = (() => {
       // Sour Ground drinks it twice as fast; a Warden's beds never dry at all
       const drink = (tree ? (def.thirsty || 1) : 1) * (1 - 0.15 * (G.up.shade || 0));
       if (wet) c.wet -= dt * drink; else c.thirst += dt * drink;
-      const blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm;
+      let blessed = (G.blessings.burrowseidon ? 1.25 : 1) * warm;
+      if (c.fert > 0) {                        // fertilised: twice the pace while it lasts
+        c.fert -= dt; blessed *= 2;
+        if (Math.random() < dt * 0.5) FX.spawn({ x: c.x + U.rand(-6, 6), y: c.y - 4, vx: 0, vy: -16, life: 0.8, size: 1, color: PAL.moss4, gravity: 0 });
+      }
       if (def.kind === 'magic') {
         // magical seed only counts the hours it is happy
         const ok = needMet(c);
@@ -708,7 +725,7 @@ const World = (() => {
 
   return {
     init, update, drawGround, drawBlades, drawFlowers, drawSprouts, drawWeeds, drawWeed, gust, drawCrops, cropItems, drawCursor,
-    sowGrass, till, clearWeeds, hitWeeds, plant, water, harvest, hasSoil, hasGrass, brushRadius, disturb,
+    sowGrass, till, clearWeeds, hitWeeds, plant, water, fertilise, harvest, hasSoil, hasGrass, brushRadius, disturb,
     paintGround, PAINT_ORDER, hasten, rot,
     fraction, zoneFraction, measure, ripe, growTime, grown, kindOf, needMet, magic, prune, plantAt, plantTip,
     get weeds() { return weeds; }, get crops() { return crops; },
@@ -716,7 +733,7 @@ const World = (() => {
     save() {
       G.world.blades = blades.map((b) => ({ x: b.x, y: b.y, v: b.v, h: b.h }));
       G.world.flowers = flowers.map((f) => ({ x: f.x, y: f.y, v: f.v }));
-      G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1), fr: c.fr || 0, ft: +(c.ft || 0).toFixed(1), wild: +(c.wild || 0).toFixed(2) }));
+      G.world.crops = crops.map((c) => ({ x: c.x, y: c.y, k: c.k, t: +c.t.toFixed(1), wet: 0, thirst: +c.thirst.toFixed(1), fr: c.fr || 0, ft: +(c.ft || 0).toFixed(1), wild: +(c.wild || 0).toFixed(2), fert: Math.round(c.fert || 0) }));
       G.world.sprouts = sprouts.map((p) => ({ x: p.x, y: p.y, t: +p.t.toFixed(1), wet: 0, r: p.r }));
       G.world.weeds = weeds.map((w) => ({ x: Math.round(w.x), y: Math.round(w.y), v: w.v, s: +w.s.toFixed(2), hp: w.hp }));
       G.world.restored = restored;

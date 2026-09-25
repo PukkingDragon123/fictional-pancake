@@ -1,6 +1,6 @@
 // ---- The phone ---------------------------------------------------------------
 // Everything you would otherwise have to remember lives in here: what the
-// Aunt Fern has asked for, how each wombat is doing, what is in the beds,
+// Jim has asked for, how each wombat is doing, what is in the beds,
 // what is in the truck and where you can drive. It opens over
 // whatever scene you are in and pauses the world while it is up, because that
 // is what a phone does to a person.
@@ -14,119 +14,27 @@ const Phone = (() => {
   // ---- the apps -------------------------------------------------------------
   // Every app on the home screen, in the order they sit on it. `tint` is the
   // icon's own colour, the way every phone gives an app one.
-  const APPS = [
-    { key: 'quests', name: 'Jobs', icon: 'ph_jobs', tint: ['#6b4423', '#3d2714'] },
-    { key: 'herd', name: 'Herd', icon: 'ph_herd', tint: ['#6b4423', '#3d2714'] },
-    { key: 'garden', name: 'Garden', icon: 'ph_garden', tint: ['#6b4423', '#3d2714'] },
-    { key: 'larder', name: 'Larder', icon: 'ph_larder', tint: ['#6b4423', '#3d2714'] },
-    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#6b4423', '#3d2714'] },
-    { key: 'settings', name: 'Settings', icon: 'ph_settings', tint: ['#6b4423', '#3d2714'] },
+  // The phone comes with four apps. The rest you get from the App Store,
+  // for a few W$ each, once you have the money to spare.
+  const APPS_ALL = [
+    { key: 'quests', name: 'Jobs', icon: 'ph_jobs', tint: ['#ffb04a', '#f07a1c'], blurb: 'What Jim wants doing next, and the standing jobs.' },
+    { key: 'store', name: 'App Store', icon: 'ph_key', tint: ['#4fb6ff', '#1a6cf0'], blurb: 'Get more apps.' },
+    { key: 'herd', name: 'Herd', icon: 'ph_herd', tint: ['#d8a070', '#a06238'], blurb: 'How every wombat is doing, and where she is.' },
+    { key: 'garden', name: 'Garden', icon: 'ph_garden', tint: ['#8ee06a', '#34a83a'], blurb: 'Every bed: what wants water, what is ready.' },
+    { key: 'larder', name: 'Larder', icon: 'ph_larder', tint: ['#ffe07a', '#f0b020'], blurb: 'What is in the truck and the feed bin.' },
+    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#c8ccd4', '#7c828e'], blurb: 'Take a picture of the plot. Keep the roll.' },
+    { key: 'map', name: 'Places', icon: 'ph_places', tint: ['#7fd4ff', '#2a8ae0'], blurb: 'Drive anywhere in the district from here.' },
+    { key: 'settings', name: 'Settings', icon: 'ph_settings', tint: ['#b8bcc6', '#6e7480'], blurb: 'Sound, display, and starting over.' },
+    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#7ef08a', '#22b83a'], blurb: 'Texts from the neighbours.' },
   ];
-  const DOCK = ['messages', 'map', 'quests', 'herd'];
-  const ALL = APPS.concat([
-    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#6b4423', '#3d2714'] },
-    { key: 'map', name: 'Places', icon: 'ph_places', tint: ['#6b4423', '#3d2714'] },
-  ]);
+  const installed = (k) => k === 'store' || !!(G && G.apps && G.apps[k]);
+  const DOCK_KEYS = ['messages', 'map', 'quests', 'store'];
+  let APPS = [];                                   // what is on the home screen right now
+  const ALL = APPS_ALL;
   const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
   const TITLE = Object.fromEntries(ALL.map((a) => [a.key, a.name]));
 
   function init(g) { G = g; }
-
-  // ---- the wallpaper -----------------------------------------------------------
-  // Painted once, in the same pixels as the game: the grove at dusk from the
-  // top of the ridge, with the moon up and the lamp on in somebody's window.
-  let wallURL = null;
-  function wallpaper() {
-    if (wallURL) return wallURL;
-    // Drawn small and blown up, so every pixel in it is four on the screen.
-    const W2 = 110, H2 = 238;
-    const { c, g } = Art.cv(W2, H2);
-    const r = Art.rng(31337);
-    const HZ = Math.round(H2 * 0.58);
-    const BANDS = ['#2b1a10', '#3a2413', '#4c2f16', '#633c19', '#7d4c1d', '#9a5f23', '#b8762c', '#d0913a', '#e2b055', '#f2d087'];
-    for (let i = 0; i < BANDS.length; i++) {
-      g.fillStyle = BANDS[i];
-      g.fillRect(0, Math.round((HZ * i) / BANDS.length), W2, Math.ceil(HZ / BANDS.length) + 1);
-    }
-    // stars, thicker toward the top
-    for (let i = 0; i < 60; i++) {
-      const x = Math.round(r() * W2), y = Math.round(r() * r() * HZ * 0.8);
-      g.fillStyle = r() < 0.35 ? '#fff4d8' : '#e0c294';
-      g.fillRect(x, y, 1, 1);
-    }
-    // the moon: a crescent, stepped, four blocks to a step
-    const mx = 74, my = 30, mr = 11;
-    for (let yy = -mr; yy <= mr; yy++) {
-      const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
-      if (w < 1) continue;
-      g.fillStyle = '#f7ecd2'; g.fillRect(mx - w, my + yy, w * 2, 1);
-    }
-    for (let yy = -mr; yy <= mr; yy++) {                 // the bite out of it
-      const w = Math.round(Math.sqrt(Math.max(0, mr * mr - yy * yy)));
-      const w2 = Math.round(Math.sqrt(Math.max(0, mr * mr - (yy * 0.95) * (yy * 0.95))));
-      if (w < 1) continue;
-      g.fillStyle = BANDS[Math.min(BANDS.length - 1, Math.max(0, Math.floor(((my + yy) / HZ) * BANDS.length)))];
-      g.fillRect(mx - w + 5, my + yy, w2 * 2, 1);
-    }
-    for (const [dx, dy, rr] of [[-6, -2, 2], [-4, 5, 1]]) {   // a couple of seas
-      g.fillStyle = '#ddc39a';
-      g.fillRect(mx + dx - rr, my + dy - rr, rr * 2 + 1, rr * 2 + 1);
-    }
-    // three ranks of conifer, each lower, darker and bigger
-    const RANK = [['#4a3a22', 0.00, 10, 7], ['#31281a', 0.045, 15, 9], ['#1e1810', 0.1, 22, 12]];
-    RANK.forEach(([col, off, hgt, wid]) => {
-      const baseY = Math.round(HZ + off * H2);
-      g.fillStyle = col;
-      let x = -4;
-      while (x < W2 + 6) {
-        const w = Math.max(3, Math.round(wid * (0.6 + r() * 0.8)));
-        const h = Math.round(hgt * (0.7 + r() * 0.8));
-        const steps = Math.max(3, Math.round(h / 3));
-        for (let i = 0; i < steps; i++) {
-          const ww = Math.max(1, Math.round((w * (steps - i)) / steps / 2));
-          g.fillRect(x - ww, baseY - h + Math.round((h * i) / steps), ww * 2, Math.ceil(h / steps) + 1);
-        }
-        g.fillRect(x - 1, baseY - 3, 2, 3);                 // a trunk
-        x += Math.max(3, Math.round(w * 0.7));
-      }
-      g.fillRect(0, baseY, W2, H2 - baseY);
-    });
-    // the ground, and grass through it
-    const gy = Math.round(HZ + 0.1 * H2);
-    for (let i = 0; i < 7; i++) {
-      g.fillStyle = U.mix('#1a1409', '#34291a', i / 6);
-      g.fillRect(0, gy + Math.round(((H2 - gy) * i) / 7), W2, Math.ceil((H2 - gy) / 7) + 1);
-    }
-    for (let i = 0; i < 260; i++) {
-      const x = Math.round(r() * W2), y = gy + Math.round(r() * (H2 - gy));
-      g.fillStyle = ['#2a2113', '#3d3020', '#4d3d22'][Math.floor(r() * 3)];
-      g.fillRect(x, y, 2, 1);
-    }
-    // a hut with the lamp on
-    const hx = 30, hy = gy + Math.round((H2 - gy) * 0.4);
-    g.fillStyle = '#0b1210'; g.fillRect(hx - 14, hy - 16, 28, 17);
-    g.fillStyle = '#241c14'; g.fillRect(hx - 13, hy - 15, 26, 15);
-    for (let i = 0; i < 5; i++) { g.fillStyle = '#17110c'; g.fillRect(hx - 13, hy - 14 + i * 3, 26, 1); }
-    for (let i = 0; i < 7; i++) { g.fillStyle = i % 2 ? '#2a2118' : '#1c150f'; g.fillRect(hx - 18 + i * 1.4, hy - 17 - i * 2, 36 - i * 2.8, 2); }
-    g.fillStyle = '#3a2a1c'; g.fillRect(hx - 5, hy - 10, 7, 10);   // the door
-    g.fillStyle = '#f5cd5c'; g.fillRect(hx + 4, hy - 11, 7, 6);    // the window
-    g.fillStyle = '#fff2c8'; g.fillRect(hx + 5, hy - 10, 5, 4);
-    for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(245,205,92,${(0.09 - i * 0.013).toFixed(3)})`; g.fillRect(hx - 2 - i * 4, hy - 16 - i * 4, 22 + i * 8, 16 + i * 8); }
-    // a fence running away down the right
-    for (let i = 0; i < 6; i++) {
-      const fy = gy + 8 + i * 14, fx = 96 + i * 3;
-      g.fillStyle = '#1a1510'; g.fillRect(fx, fy - 12, 3, 13);
-      if (i < 5) { g.fillStyle = '#24190f'; g.fillRect(fx, fy - 9, 5, 2); g.fillRect(fx, fy - 5, 5, 2); }
-    }
-    // and a wombat asleep in the foreground
-    try {
-      const img = Sprites.wombat('sleep', 1, 'brown', 1, 'adult');
-      const sc = 1.3, w = Math.round(img.width * sc), h = Math.round(img.height * sc);
-      g.drawImage(img, Math.round(W2 * 0.56 - w / 2), Math.round(H2 * 0.94 - h), w, h);
-    } catch (e) { }
-    wallURL = c.toDataURL('image/png');
-    return wallURL;
-  }
 
   // ---- opening and closing --------------------------------------------------
   // ---- the lock screen -------------------------------------------------------
@@ -149,8 +57,8 @@ const Phone = (() => {
     for (const c of careList().slice(0, 2)) out.push({ app: 'Herd', icon: 'ph_herd', title: c.what, body: c.where, go: 'herd' });
     for (const j of gardenJobs().slice(0, 2)) out.push({ app: 'Garden', icon: 'ph_garden', title: j.what, body: j.where, go: 'garden' });
     const load = OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
-    if (load) out.push({ app: 'Larder', icon: 'ph_larder', title: load + ' in the truck', body: 'Aunt Fern buys these', go: 'larder' });
-    return out.slice(0, 6);
+    if (load) out.push({ app: 'Larder', icon: 'ph_larder', title: load + ' in the truck', body: 'Jim buys these', go: 'larder' });
+    return out.filter((x) => installed(x.go)).slice(0, 6);
   }
   function paintLock() {
     const el = $('ph-lock');
@@ -177,10 +85,8 @@ const Phone = (() => {
     if (!G) return;
     UI.closePanels();
     if (which) locked = false;
-    app = which || 'home';
+    app = which && installed(which) ? which : 'home';
     $('panel-phone').hidden = false;
-    const wall = $('panel-phone').querySelector('.phwall');
-    if (wall && !wall.dataset.on) { wall.style.backgroundImage = `url(${wallpaper()})`; wall.dataset.on = '1'; }
     G.paused = true;
     Audio.play('click');
     render();
@@ -201,7 +107,11 @@ const Phone = (() => {
     UI.refreshAll();
   }
   const isOpen = () => !$('panel-phone').hidden;
-  function toggle() { if (isOpen()) close(); else open(); }
+  function toggle() {
+    if (isOpen()) { close(); return; }
+    if (!owns(G, 'phone')) { Audio.play('error'); UI.toast(`no phone yet &mdash; Wombat Mart sells them for W$${PHONE_PRICE}`, 'bad'); return; }
+    open();
+  }
   function tick(ms) {
     if (!isOpen()) { raf = 0; return; }
     raf = requestAnimationFrame(tick);
@@ -247,8 +157,11 @@ const Phone = (() => {
         <span>${ic('ph_herd', 'sm')} ${G.wombats.length}</span>
         <span>${ic('ph_garden', 'sm')} ${(World.crops || []).length}</span>
       </div>`;
+    const dock = DOCK_KEYS.filter(installed);
+    APPS = APPS_ALL.filter((a) => installed(a.key) && !dock.includes(a.key));
     $('ph-grid').innerHTML = APPS.map((a) => appIcon(a, b[a.key])).join('');
-    $('ph-dock').innerHTML = DOCK.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
+    $('ph-dock').innerHTML = dock.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
+    $('ph-dock').style.gridTemplateColumns = `repeat(${Math.max(1, dock.length)}, 1fr)`;
     wire($('ph-home-view'));
   }
 
@@ -266,7 +179,7 @@ const Phone = (() => {
       </div>`;
     } else {
       html += `<div class="phcard big"><div class="phcardh">${ic('eye')}<b>Nothing owing</b></div>
-        <p>Aunt Fern has shown you everything. What happens next is up to you: more land, more wombats, more veg.</p></div>`;
+        <p>Jim has shown you everything. What happens next is up to you: more land, more wombats, more veg.</p></div>`;
     }
     if (list.length) {
       html += `<div class="phsub">CLEAN-UP</div>` + list.map((ts) => row(
@@ -394,7 +307,7 @@ const Phone = (() => {
       ${row(`${ic(Sky.isNight() ? 'ph_moon' : Sky.wet() > 0.2 ? 'ph_rain' : 'ph_sun')}<b>${esc(d.name)}</b><span class="phdim">${esc(d.blurb)}</span>`)}`;
     if (offs.length) {
       html += `<div class="phsub">IN THE TRUCK</div>` + offs.map((k) => row(
-        `${ic(OFFERINGS[k].icon)}<b>${esc(OFFERINGS[k].name)}</b><span class="phnum">${(G.offerings[k] || 0) + (G.blessed[k] || 0)}</span><span class="phdim">Aunt Fern buys these</span>`)).join('');
+        `${ic(OFFERINGS[k].icon)}<b>${esc(OFFERINGS[k].name)}</b><span class="phnum">${(G.offerings[k] || 0) + (G.blessed[k] || 0)}</span><span class="phdim">Jim buys these</span>`)).join('');
     }
     if (food.length) {
       html += `<div class="phsub">IN THE LARDER</div>` + food.map((c) => row(
@@ -408,7 +321,7 @@ const Phone = (() => {
   // Everyone in the district has your number. Threads live in the save, new
   // lines arrive as things happen, and you can text back — badly.
   const PEOPLE = {
-    cultist: { name: 'Aunt Fern', sub: 'next door' },
+    cultist: { name: 'Jim', sub: 'the old caretaker' },
     shaz: { name: 'Shaz', sub: 'Wombat Mart' },
     groot: { name: 'Groot', sub: 'the cellar' },
     bee: { name: 'Maud', sub: 'the hives' },
@@ -420,7 +333,7 @@ const Phone = (() => {
   };
   // What each of them opens with, so the inbox is never empty.
   const SEED_MSGS = {
-    cultist: ['Hello dear! Got your number from Shaz.', 'Anything square, I will buy. Any hour. xx'],
+    cultist: ['oi its jim. got ur number off shaz', 'bring me the cubes, any hour. good for the veg'],
     shaz: ['hiii its shaz from the mart!! 😄', 'we got the good pies in. do not tell head office'],
     groot: ['I am Groot.'],
     bake: ['i left something on the fence post. eat it today not tomorrow'],
@@ -550,7 +463,33 @@ const Phone = (() => {
     } catch (e) { UI.toast('the camera would not focus', 'bad'); }
   }
   // ---- drawing --------------------------------------------------------------
-  const BODY = { quests, herd, map: places, garden, larder, messages, settings, camera };
+  // ---- the app store -----------------------------------------------------------
+  function store() {
+    const list = APPS_ALL.filter((a) => a.key !== 'store');
+    const have = list.filter((a) => installed(a.key)).length;
+    let html = `<div class="phstorehead"><b>Today</b><small>${have} of ${list.length} apps on this phone &middot; W$${U.fmt(G.wd)} to spend</small></div>`;
+    html += list.map((a) => {
+      const own = installed(a.key), price = APP_PRICES[a.key] || 0;
+      const btn = own ? `<button class="phget own" data-app="${a.key}">OPEN</button>`
+        : `<button class="phget" data-buyapp="${a.key}">${price ? 'W$' + price : 'GET'}</button>`;
+      return `<div class="phstoreitem">
+        <i class="phico" style="--t1:${a.tint[0]};--t2:${a.tint[1]}">${ic(a.icon)}</i>
+        <span class="phtx"><b>${esc(a.name)}</b><small>${esc(a.blurb)}</small></span>${btn}</div>`;
+    }).join('');
+    return html;
+  }
+  function buyApp(k) {
+    const price = APP_PRICES[k] || 0;
+    if (installed(k)) return;
+    if (G.wd < price) { Audio.play('error'); UI.toast(`not enough &mdash; ${APP_BY_KEY[k].name} is W$${price}`, 'bad'); return; }
+    G.wd -= price;
+    if (!G.apps) G.apps = {};
+    G.apps[k] = 1;
+    Audio.play('cash');
+    UI.toast(`<b>${APP_BY_KEY[k].name}</b> is on your phone`, 'good');
+    UI.refreshHUD(); Main.save();
+  }
+  const BODY = { quests, herd, map: places, garden, larder, messages, settings, camera, store };
   function render() {
     const homeV = $('ph-home-view'), appV = $('ph-app-view'), lockV = $('ph-lock');
     if (!homeV || !appV) return;
@@ -588,8 +527,10 @@ const Phone = (() => {
   }
   function wire(scr) {
     scr.querySelectorAll('[data-app]').forEach((b) => b.onclick = () => {
+      if (!installed(b.dataset.app)) { app = 'store'; render(); return; }
       app = b.dataset.app; chatWith = null; Audio.play('click'); render();
     });
+    scr.querySelectorAll('[data-buyapp]').forEach((b) => b.onclick = () => { buyApp(b.dataset.buyapp); render(); });
     scr.querySelectorAll('[data-chat]').forEach((b) => b.onclick = () => { chatWith = b.dataset.chat; Audio.play('click'); render(); });
     scr.querySelectorAll('[data-reply]').forEach((b) => b.onclick = () => {
       const r = REPLIES[+b.dataset.reply];

@@ -18,13 +18,13 @@ const Main = (() => {
   function fresh() {
     return {
       v: 6, introDone: false, wd: 300, startWeeds: 0, record: 0, runs: 0, time: 0, mode: 'grove',
-      tool: 'sickle', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
+      tool: 'drag', selSeed: 'ashgrass', selFood: null, selOffer: null, troughFood: null,
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [],
+      brush: 1, crates: {}, furniture: [], owned: { drag: true }, apps: { quests: 1, messages: 1, settings: 1, store: 1 },
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
-      stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0 },
+      stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
       paused: false, muted: false, musicOff: false, lastSave: Date.now(), seen: false,
     };
@@ -66,7 +66,13 @@ const Main = (() => {
       }
       if (!s.plots || typeof s.plots !== 'object') s.plots = {};
       s.plots.home = true;                    // the home plot is never for sale
-      if (!TOOL_BY_KEY[s.tool]) s.tool = 'sickle';
+      // a farm started before tools had to be bought keeps everything it had
+      if (!d.owned) {
+        s.owned = { drag: true, phone: true };
+        for (const t of TOOL_SHOP) s.owned[t.key] = true;
+        s.apps = Object.fromEntries(Object.keys(APP_PRICES).map((k) => [k, 1]));
+      }
+      if (!TOOL_BY_KEY[s.tool] || !unlocked(s, s.tool)) s.tool = 'drag';
       s.mode = 'grove';
       return s;
     } catch (e) { return null; }
@@ -315,14 +321,14 @@ const Main = (() => {
       if (G.mode === 'grove') {
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { Grove.panBy(-70); e.preventDefault(); return; }
         if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { Grove.panBy(70); e.preventDefault(); return; }
-        const n = parseInt(e.key);
-        if (n >= 1 && n <= HOTKEYS.length) {
-          const k = HOTKEYS[n - 1];
+        const hi = '1234567890'.indexOf(e.key);
+        if (hi >= 0 && hi < HOTKEYS.length) {
+          const k = HOTKEYS[hi];
           if (unlocked(G, k)) {
             G.tool = k;
             Grove.clearPair(); UI.refreshTray(); UI.refreshHUD(); Audio.play('click');
             UI.toast(`<b>${TOOL_BY_KEY[k].name}</b> &mdash; ${TOOL_BY_KEY[k].desc}`);
-          } else { Audio.play('error'); UI.toast(GATE_WHY[k] || 'not yet', 'bad'); }
+          } else { Audio.play('error'); UI.toast(whyLocked(k), 'bad'); }
         }
       }
     });

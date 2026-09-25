@@ -99,8 +99,6 @@ const Menu = (() => {
   }
 
   // ---- the forest going past -----------------------------------------------
-  const CLOUDS = [];
-  (() => { const r = Art.rng(808); for (let i = 0; i < 7; i++) CLOUDS.push({ x: r() * VW, y: 20 + r() * 100, w: 36 + r() * 54, sp: 4 + r() * 7 }); })();
   const BIRDS = [];
   (() => { const r = Art.rng(606); for (let i = 0; i < 6; i++) BIRDS.push({ x: r() * VW, y: 30 + r() * 80, sp: 14 + r() * 20, ph: r() * TAU, s: 0.7 + r() * 0.5 }); })();
   // Along the verge, every so often: a signpost, a letterbox, and once a lap
@@ -114,11 +112,7 @@ const Menu = (() => {
     { at: 2150, kind: 'sign', text: 'SLOW', sub: 'wombats crossing' },
   ];
   const wrap = (v, span) => ((v % span) + span) % span;
-  function cloud(g, c) {
-    const x = wrap(c.x - t * c.sp, VW + 160) - 80, y = c.y;
-    for (const [dx, dy, rx, ry, col] of [[0, 4, c.w * 0.62, 9, '#dcecf4'], [-c.w * 0.3, 2, c.w * 0.3, 8, '#ffffff'],
-      [c.w * 0.05, -3, c.w * 0.34, 11, '#ffffff'], [c.w * 0.34, 3, c.w * 0.26, 7, '#ffffff']]) Art.ell(g, x + dx, y + dy, rx, ry, col);
-  }
+
   function bird(g, b) {
     const x = wrap(b.x - t * b.sp, VW + 60) - 30, y = b.y + Math.sin(t * 0.8 + b.ph) * 8;
     const flap = Math.sin(t * 9 + b.ph), w = 5 * b.s, up = flap * 3 * b.s;
@@ -127,25 +121,8 @@ const Menu = (() => {
     g.fillRect(Math.round(x), Math.round(y - up), Math.round(w), 1);
     g.fillRect(Math.round(x - 1), Math.round(y), 2, 1);
   }
-  function hills(g, y0, amp, freq, rate, col, top) {
-    const off = t * rate;
-    for (let x = 0; x < VW; x += 2) {
-      const u = x + off;
-      const y = Math.round(y0 + Math.sin(u * freq) * amp + Math.sin(u * freq * 2.3 + 1.7) * amp * 0.35);
-      g.fillStyle = col; g.fillRect(x, y, 2, ROAD - y);
-      if (top) { g.fillStyle = top; g.fillRect(x, y, 2, 2); }
-    }
-  }
-  function trees(g, n, yy, sc, sh, rate, seed) {
-    const span = VW + 340;
-    for (let i = 0; i < n; i++) {
-      const x = wrap(i * (span / n) + seed * 37 - t * rate, span) - 170;
-      const kind = ['oak', 'pine', 'oak', 'birch', 'gnarl'][(i + seed) % 5];
-      const img = Props.get('tree', `${kind}|${(i * 3 + seed) % 6}|${sh.toFixed(2)}`);
-      const w = img.width * sc, h = img.height * sc;
-      g.drawImage(img, Math.round(x - w / 2), Math.round(yy - h), Math.round(w), Math.round(h));
-    }
-  }
+
+
   function vergeThing(g, v, x) {
     const y = ROAD - 4;
     if (v.kind === 'sign') {
@@ -160,6 +137,9 @@ const Menu = (() => {
       Art.rect(g, x - 2, y - 28, 4, 30, GF.ink); Art.rect(g, x - 1, y - 28, 2, 30, '#8a5a34');
       cut(g, x - 10, y - 40, 20, 14, GF.ink, 2); cut(g, x - 9, y - 39, 18, 12, '#c8584a', 2);
       Art.rect(g, x + 8, y - 44, 2, 8, GF.ink); Art.rect(g, x + 10, y - 44, 5, 4, '#ffd95c');
+    } else if (v.kind === 'mart' && typeof Scenery !== 'undefined') {
+      const b = Scenery.building('mart');
+      g.drawImage(b.img, Math.round(x - b.w / 2), Math.round(ROAD + 2 - b.h));
     } else if (v.kind === 'mart') {
       // the corner shop, set back from the road: cream walls, a stripy awning
       const w = 150, h = 74, x0 = x - w / 2, y0 = y - h - 6;
@@ -178,43 +158,17 @@ const Menu = (() => {
 
   function scene(g) {
     const sp = t * 90;
-    // sky, sun, clouds, birds
-    Art.vramp(g, 0, 0, VW, HORIZON + 20, [[0, '#64aee2'], [0.6, '#a8d8ee'], [1, '#eef4dc']], 10);
-    for (let i = 5; i >= 1; i--) Art.ell(g, 520, 66, 22 + i * 9, 22 + i * 9, U.rgba('#fff6c8', 0.08));
-    Art.ell(g, 520, 66, 24, 24, '#ffe890'); Art.ell(g, 520, 66, 20, 20, '#fff6c4');
-    for (const c of CLOUDS) cloud(g, c);
+    // the country, painted once and sliding past; the signs and the shop on the verge
+    Scenery.paint(g, sp, {
+      road: ROAD, t,
+      between: (g2) => {
+        for (const v of VERGE) {
+          const x = wrap(v.at - sp, LAP) - 200;
+          if (x > -200 && x < VW + 200) vergeThing(g2, v, x);
+        }
+      },
+    });
     for (const b of BIRDS) bird(g, b);
-    // hills, then three ranks of the grove's own trees, each faster
-    hills(g, 196, 12, 0.011, 8, '#a8d8a0', '#c4e8b4');
-    hills(g, 214, 12, 0.008, 16, '#8cc47c', '#a8d890');
-    trees(g, 10, 250, 0.56, 0.3, 26, 1);
-    trees(g, 9, 270, 0.76, 0.18, 48, 4);
-    // the verge: grass, the odd signpost and the shop
-    g.fillStyle = '#7cba50'; g.fillRect(0, 262, VW, ROAD - 262);
-    g.fillStyle = '#8cc85a'; g.fillRect(0, 262, VW, 3);
-    for (const v of VERGE) {
-      const x = wrap(v.at - sp * 1.2, LAP) - 200;
-      if (x > -200 && x < VW + 200) vergeThing(g, v, x);
-    }
-    trees(g, 6, 296, 1.02, 0.06, 90, 7);
-    for (let i = 0; i < 16; i++) {                               // fence posts
-      const x = wrap(i * 64 - sp * 1.3, VW + 140) - 70;
-      Art.rect(g, x, 280, 4, 20, GF.ink); Art.rect(g, x + 1, 281, 2, 19, '#b8845a');
-    }
-    Art.rect(g, 0, 285, VW, 2, '#8a5a34'); Art.rect(g, 0, 292, VW, 2, '#8a5a34');
-    for (let i = 0; i < 22; i++) {                               // flowers along the fence
-      const x = wrap(i * 41 - sp * 1.4, VW + 60) - 30;
-      const img = Props.get('flower', i % 6);
-      g.drawImage(img, Math.round(x - 8), ROAD - 16);
-    }
-    // the road: packed earth with two wheel ruts
-    g.fillStyle = '#c8a070'; g.fillRect(0, ROAD, VW, VH - ROAD);
-    g.fillStyle = '#b08858'; g.fillRect(0, ROAD, VW, 3);
-    g.fillStyle = '#d8b484'; g.fillRect(0, 318, VW, 5); g.fillRect(0, 336, VW, 5);
-    for (let i = 0; i < 46; i++) {                               // pebbles going past
-      const x = wrap(i * 47 - sp * 2.2, VW + 20) - 10, y = 304 + (i * 17) % 50;
-      Art.rect(g, x, y, 3, 2, '#a88050'); Art.rect(g, x, y, 2, 1, '#ecd0a0');
-    }
     // ---- the car, with a wombat looking out of the window ------------------
     const img = Art.flip(Props.get('truck'));
     const tw = img.width * 1.35, th = img.height * 1.35;
@@ -232,12 +186,6 @@ const Menu = (() => {
     g.save(); g.beginPath(); g.rect(tx - tw * 0.36, wy + th * 0.14, tw * 0.62, th * 0.25); g.clip();
     Sprites.blit(g, tx - tw * 0.08, wy + th * 0.44 + Math.abs(Math.sin(t * 8)), 'idle', wf, 'brown', 1, 'adult', 0.95);
     g.restore();
-    // the near verge flicking past the bottom of the picture
-    for (let i = 0; i < 12; i++) {
-      const x = wrap(i * 73 - sp * 3, VW + 140) - 70;
-      const img2 = Props.get('flower', (i * 2) % 6);
-      g.drawImage(img2, Math.round(x - 16), VH - 30, 32, 34);
-    }
   }
 
   // ---- the home page ---------------------------------------------------------
@@ -298,7 +246,7 @@ const Menu = (() => {
   // under the buttons that changes every time you come back.
   const RUMOURS = [
     'wombats sleep sixteen hours a day. goals.',
-    'Aunt Fern says the roses have never been bigger',
+    'Jim says the pumpkins have never been bigger',
     'the mart shuts at six but Shaz never leaves',
     'a wombat can dig a whole burrow in one night',
     'Groot grows the best carrots in the district',
@@ -314,7 +262,7 @@ const Menu = (() => {
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],
     ['truck', 'Load the truck', 'Drag the cubes into the truck. Click the truck for the map to town.'],
-    ['u_seats', 'Sell to Aunt Fern', 'She buys every cube for her compost, and pays more for a load than for one.'],
+    ['u_seats', 'Sell to Jim', 'He buys every cube for his compost, and pays more for a load than for one.'],
     ['u_burrow', 'Shape the land', 'The shovel: hold to raise a hill, right-click and hold to dig a pond.'],
   ];
   function drawHelp(g) {

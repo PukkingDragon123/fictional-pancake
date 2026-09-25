@@ -22,6 +22,7 @@ const UI = (() => {
     lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
     $('b-back').hidden = G.mode === 'grove';
+    $('b-phone').classList.toggle('nophone', !owns(G, 'phone'));
     const dot = $('b-phone-dot');
     if (dot) {
       const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length + Phone.unread() : 0;
@@ -39,13 +40,13 @@ const UI = (() => {
     }
     refreshList();
     refreshNotebook();
-    const sig = [G.mode, G.tool, G.selSeed, G.selFood, G.seeds[G.selSeed], G.food[G.selFood], G.step, G.decor && G.decor.nest].join('|');
+    const sig = [G.mode, G.tool, G.selSeed, G.selFood, G.seeds[G.selSeed], G.food[G.selFood], G.step, G.decor && G.decor.nest, Object.keys(G.owned || {}).length].join('|');
     if (sig !== hotSig) { hotSig = sig; renderHotbar(); }
   }
 
   // ---- the job card -------------------------------------------------------
-  // Always in the corner of the grove: whatever Aunt Fern wants next, and once
-  // she has shown you round, the daily round itself, ticked off as you go.
+  // Always in the corner of the grove: whatever Jim wants next, and once
+  // he has shown you round, the daily round itself, ticked off as you go.
   function refreshList() {
     const box = $('checklist');
     if (G.mode !== 'grove') { box.hidden = true; return; }
@@ -75,19 +76,19 @@ const UI = (() => {
       html += row('t_seed', 'Grow veg', growing ? `${growing} growing, ${food} picked` : 'hoe a bed and sow it', food > 0);
       html += row('t_food', 'Feed the wombats', hungry ? `${hungry} hungry` : 'everyone is full', hungry === 0);
       html += row('truck', 'Load the truck', loose ? `${loose} cubes on the ground` : 'nothing lying about', loose === 0);
-      html += row('wdollar', 'Sell to Aunt Fern', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
+      html += row('wdollar', 'Sell to Jim', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
     }
     box.innerHTML = html;
   }
 
-  function refreshNotebook() { }           // Aunt Fern speaks for herself now
+  function refreshNotebook() { }           // Jim speaks for himself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
   // Twenty of them is too many for one grid. They come in four bands, each
   // with its name over it, in the order you learn them.
   const WHEEL_BANDS = [
     ['HANDS', ['drag', 'food', 'destroy', 'pair', 'build']],
-    ['GARDEN', ['sickle', 'hoe', 'seed', 'moss', 'water', 'shovel']],
+    ['GARDEN', ['sickle', 'hoe', 'seed', 'moss', 'water', 'fert', 'shovel']],
   ];
   const WHEEL_TOOLS = WHEEL_BANDS.reduce((a2, b2) => a2.concat(b2[1]), []);
   let wheelRing = 'tools', wheelAt = { x: 320, y: 180 };
@@ -112,9 +113,9 @@ const UI = (() => {
       items = WHEEL_TOOLS.map((key) => {
         const t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
         const hk = HOTKEYS.indexOf(key);
-        return { icon: t.icon, rune: hk >= 0 ? String(hk + 1) : '', on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
+        return { icon: t.icon, rune: hk >= 0 ? String(hk + 1) : '', on: G.tool === key, locked: lk, tip: lk ? `<b>${t.name}</b><br><span class="warn">${whyLocked(key)}</span>` : `<b>${t.name}</b>${TIERS[key] ? `<br><span class="dim">${tierOf(G, key).name}</span>` : ''}<br>${t.desc}${t.cost ? `<br>${Icons.img('wdollar', 'sm')} ${U.fmt(t.cost)} each` : ''}`,
           act: () => {
-            if (lk) { Audio.play('error'); toast(GATE_WHY[key] || 'not yet', 'bad'); return; }
+            if (lk) { Audio.play('error'); toast(whyLocked(key), 'bad'); return; }
             G.tool = key; Grove.clearPair(); Audio.play('click');
             if (key === 'food') { wheelRing = 'food'; renderWheel(); return; }
             if (key === 'seed') { wheelRing = 'seed'; renderWheel(); return; }
@@ -220,25 +221,46 @@ const UI = (() => {
   // A row of gold-cornered slots along the bottom, one per tool, numbered for
   // the keys. Click one to hold it; click the seeds or the feed bowl again to
   // choose what is in it.
+  // one line under the name of the tool in your hand, so you never have to
+  // wonder what the buttons do
+  const TOOL_HINT = {
+    drag: 'click to pick up, pet or harvest',
+    sickle: 'sweep over weeds',
+    destroy: 'click junk and the ants take it',
+    moss: 'brush on bare ground',
+    water: 'water beds &middot; pour into a hole for a pond',
+    hoe: 'brush a bed into the ground',
+    seed: 'click a bed to sow &middot; click again to choose',
+    food: 'click to put a bowl down',
+    fert: 'click a planted bed &middot; uses one cube',
+    shovel: 'hold to dig &middot; right-click to heap up',
+    build: 'click to place &middot; click it again to pick up',
+  };
   function renderHotbar() {
     const bar = $('hotbar');
     if (!bar) return;
     bar.hidden = G.mode !== 'grove';
     if (bar.hidden) return;
     const pick = G.tool === 'seed' ? G.selSeed : G.tool === 'food' ? G.selFood : null;
-    bar.innerHTML = HOTKEYS.map((key, i) => {
+    const cur = TOOL_BY_KEY[G.tool];
+    const slots = HOTKEYS.map((key, i) => {
       const t = TOOL_BY_KEY[key], lk = !unlocked(G, key), on = G.tool === key;
       let extra = '';
       if (key === 'seed' && G.selSeed) extra = `<span class="hs">${ic(CROP_BY_KEY[G.selSeed] ? CROP_BY_KEY[G.selSeed].icon : 't_seed', 'sm')}<b>${G.seeds[G.selSeed] || 0}</b></span>`;
       if (key === 'food' && G.selFood) extra = `<span class="hs">${ic(CROP_BY_KEY[G.selFood] ? CROP_BY_KEY[G.selFood].icon : 't_food', 'sm')}<b>${G.food[G.selFood] || 0}</b></span>`;
-      return `<button class="hslot${on ? ' on' : ''}${lk ? ' locked' : ''}" data-k="${key}"><i class="hn">${i + 1}</i>${ic(t.icon)}${extra}${lk ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}</button>`;
+      // a tool you have not bought yet shows what it costs, so the bar is also the shopping list
+      const shopDef = TOOL_SHOP_BY_KEY[key];
+      const tag = lk ? (shopDef && !owns(G, key) ? `<span class="pt">W$${shopDef.price}</span>` : `<span class="lk">${ic('lock', 'sm')}</span>`) : '';
+      return `<button class="hslot${on ? ' on' : ''}${lk ? ' locked' : ''}" data-k="${key}"><i class="hn">${i < 10 ? '1234567890'[i] : ''}</i>${ic(t.icon)}${extra}${tag}</button>`;
     }).join('');
+    const hint = cur ? (TOOL_HINT[cur.key] || '') : '';
+    bar.innerHTML = `<div class="hbname">${cur ? `<b>${cur.name}</b>${hint ? `<small>${hint}</small>` : ''}` : ''}</div><div class="hbrow">${slots}</div>`;
     void pick;
     bar.querySelectorAll('.hslot').forEach((el) => {
       const key = el.dataset.k, t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
       el.onclick = (e) => {
         e.stopPropagation();
-        if (lk) { Audio.play('error'); toast(GATE_WHY[key] || 'not yet', 'bad'); return; }
+        if (lk) { Audio.play('error'); toast(whyLocked(key), 'bad'); return; }
         const r = el.getBoundingClientRect(), fr = $('frame').getBoundingClientRect(), k = frameScale();
         const sx = (r.left - fr.left) / k, sy = (r.top - fr.top) / k - 150;
         if ((key === 'seed' || key === 'food') && (G.tool === key || !(key === 'seed' ? G.selSeed : G.selFood))) {
@@ -246,34 +268,45 @@ const UI = (() => {
         }
         G.tool = key; Grove.clearPair(); Audio.play('click'); closeWheel(); renderHotbar();
       };
-      el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b> <span class="dim">[${HOTKEYS.indexOf(key) + 1}]</span><br>${lk ? `<span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : t.desc}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b> <span class="dim">${HOTKEYS.indexOf(key) < 10 ? '[' + '1234567890'[HOTKEYS.indexOf(key)] + ']' : ''}</span><br>${lk ? `<span class="warn">${whyLocked(key)}</span>` : t.desc}`);
       el.onmouseleave = hideTip;
     });
   }
-  // the gold-cornered frame from the reference sheet, painted once into a
-  // small canvas and handed to CSS as a nine-slice border image
+  // The frame everything wears: warm oak with a lit top edge and a shaded
+  // foot, a brass nail in each corner, rounded off by a pixel. Painted once
+  // into a small canvas and handed to CSS as a nine-slice border image.
+  // `slot` is the tan well a tool sits in on the toolbar; `slotsel` is the
+  // same well with a warm ring round it for the tool in your hand.
   function goldFrameURL(kind) {
     const P2 = 2, N = 15;                        // 15 art pixels a side, two screen pixels each
     const c = document.createElement('canvas'); c.width = c.height = N * P2;
     const g = c.getContext('2d');
     const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const ink = '#1a100a';
-    const ring = kind === 'sel' ? ['#ff9a6a', '#e0503a', '#9a2a1a'] : kind === 'hot' ? ['#fff4a8', '#ffd84a', '#d8a020'] : ['#ffe680', '#f2c536', '#c08a14'];
-    const fill = kind === 'paper' ? ['#f6e4ba', '#edd3a2', '#dcba82'] : ['#9c6636', '#84522a', '#6a3e1e'];
-    R(1, 0, N - 2, N, ink); R(0, 1, N, N - 2, ink);                     // the dark line, corners knocked off
-    R(1, 1, N - 2, N - 2, ring[1]);                                     // the gold ring
-    R(2, 1, N - 4, 1, ring[0]); R(1, 2, 1, N - 4, ring[0]);             // lit top and left
-    R(2, N - 2, N - 4, 1, ring[2]); R(N - 2, 2, 1, N - 4, ring[2]);     // shaded bottom and right
-    R(3, 3, N - 6, N - 6, ink);                                         // the inner line
+    const ink = '#3b1f10';
+    if (kind === 'slot' || kind === 'slotsel') {
+      const sel = kind === 'slotsel';
+      R(1, 0, N - 2, N, sel ? '#7a2410' : '#6a3a1c'); R(0, 1, N, N - 2, sel ? '#7a2410' : '#6a3a1c');
+      if (sel) { R(1, 1, N - 2, N - 2, '#ff8a4a'); R(2, 1, N - 4, 1, '#ffd08a'); R(1, 2, 1, N - 4, '#ffd08a'); R(2, N - 2, N - 4, 1, '#c8421e'); R(N - 2, 2, 1, N - 4, '#c8421e'); }
+      const o = sel ? 2 : 1;
+      R(o, o, N - o * 2, N - o * 2, '#e8c890');
+      R(o, o, N - o * 2, 1, '#b8894e'); R(o, o, 1, N - o * 2, '#c99a5c');           // the well is sunk: dark top and left
+      R(o + 1, N - o - 1, N - o * 2 - 1, 1, '#fbe6b8'); R(N - o - 1, o + 1, 1, N - o * 2 - 1, '#f6dca8');
+      R(o + 1, o + 1, N - o * 2 - 2, N - o * 2 - 2, '#f2d9a6');
+      return c.toDataURL();
+    }
+    const ring = kind === 'sel' ? ['#ffb07a', '#e8663a', '#a8381c'] : kind === 'hot' ? ['#ffd79a', '#e8a05a', '#b0662e'] : ['#e8a660', '#c47a3c', '#8a4c22'];
+    const fill = kind === 'paper' ? ['#fff8e4', '#fcefd0', '#f2dcae'] : ['#b27a48', '#9c6538', '#82502a'];
+    R(2, 0, N - 4, N, ink); R(0, 2, N, N - 4, ink); R(1, 1, N - 2, N - 2, ink);   // the outline, a rounded corner
+    R(2, 1, N - 4, N - 2, ring[1]); R(1, 2, N - 2, N - 4, ring[1]);                // the oak band
+    R(2, 1, N - 4, 1, ring[0]); R(1, 2, 1, N - 4, ring[0]);                        // lit top and left
+    R(2, N - 2, N - 4, 1, ring[2]); R(N - 2, 2, 1, N - 4, ring[2]);                // shaded foot and right
+    R(4, 2, 2, 1, ring[2]); R(9, N - 3, 3, 1, ring[0]);                            // a little grain in the wood
+    R(3, 3, N - 6, N - 6, '#5a2e16');                                              // the inner line
     R(4, 4, N - 8, N - 8, fill[1]);
     R(4, 4, N - 8, 1, fill[0]); R(4, N - 5, N - 8, 1, fill[2]);
-    // a scroll curled into each corner
-    const curl = (x, y, sx, sy) => {
-      const p = (a, b, w, h, col) => R(sx > 0 ? x + a : x - a - w + 1, sy > 0 ? y + b : y - b - h + 1, w, h, col);
-      p(0, 0, 4, 1, ink); p(0, 0, 1, 4, ink); p(1, 1, 3, 1, ring[0]); p(1, 1, 1, 3, ring[0]);
-      p(2, 2, 2, 2, ink); p(2, 2, 1, 1, ring[1]); p(4, 1, 1, 2, ink); p(1, 4, 2, 1, ink);
-    };
-    curl(0, 0, 1, 1); curl(N - 1, 0, -1, 1); curl(0, N - 1, 1, -1); curl(N - 1, N - 1, -1, -1);
+    for (const [x, y] of [[1, 1], [N - 3, 1], [1, N - 3], [N - 3, N - 3]]) {        // a brass nail in each corner
+      R(x, y, 2, 2, '#5a3410'); R(x, y, 1, 1, '#ffe7a0'); R(x + 1, y, 1, 1, '#e8b448'); R(x, y + 1, 1, 1, '#c88a28');
+    }
     return c.toDataURL();
   }
   function pickTool() { }
@@ -293,7 +326,7 @@ const UI = (() => {
       el.className = 'chip' + (keys && G.selOffer === k ? ' on' : '');
       el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
       el.onclick = (e) => onClick(k, e);
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Aunt Fern${bl ? '<br><b>blessed</b>' : ''}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Jim${bl ? '<br><b>blessed</b>' : ''}`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
@@ -312,7 +345,7 @@ const UI = (() => {
     purseT = setTimeout(() => el.classList.remove('ping'), 320);
   }
 
-  // Aunt Fern buys the cubes off you at her cottage.
+  // Jim buys the cubes off you at his shed.
   function refreshRunHUD() { }
   function onRunStart() { }
   function onRunPlay() { }
@@ -491,7 +524,7 @@ const UI = (() => {
     paintPup();
   }
 
-  // Aunt Fern buys every cube they leave for her compost heap, and pays more
+  // Jim buys every cube they leave for his compost heap, and pays more
   // for a load than for one. The mart counter buys them at the same rate.
   let pawnMode = 'shop';
   function openPawn(mode) { pawnMode = mode || 'shop'; openPanel('panel-pawn'); }
@@ -499,7 +532,7 @@ const UI = (() => {
     const fern = pawnMode === 'cult';
     const head = $('panel-pawn').querySelector('.ptitle');
     if (head) head.textContent = fern ? 'AUNT FERN BUYS' : 'SELL';
-    let h = `<p class="pnote">${fern ? 'Every cube goes on her compost heap, whatever kind. The more you bring at once, the better the rate.' : 'The counter buys cubes for the garden centre.'}</p><div class="grid">`;
+    let h = `<p class="pnote">${fern ? 'Every cube goes on his compost heap, whatever kind. The more you bring at once, the better the rate.' : 'The counter buys cubes for the garden centre.'}</p><div class="grid">`;
     let any = false;
     for (const k of OFFER_ORDER) {
       const def = OFFERINGS[k];
@@ -532,7 +565,7 @@ const UI = (() => {
     FX.coinBurst(320, 200, 6);
     if (pawnMode === 'cult') {
       Guide.paid(each * sold);
-      if (sold >= 5) setTimeout(() => Phone.push('cultist', `${sold} in one go! My roses will be the talk of the district.`), 3000);
+      if (sold >= 5) setTimeout(() => Phone.push('cultist', `${sold} in one go! the pumpkins r gonna be massive this year`), 3000);
     }
     Audio.play('sell');
     renderPawn(); refreshHUD(); Main.save();
@@ -550,7 +583,7 @@ const UI = (() => {
   function init(g) {
     G = g;
     Tex.install();                         // wood, paper, metal and gold, painted not faked
-    for (const k of ['base', 'hot', 'sel', 'paper']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
+    for (const k of ['base', 'hot', 'sel', 'paper', 'slot', 'slotsel']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };

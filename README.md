@@ -1,8 +1,9 @@
 # Wombat Farm
 
-A cozy pixel-art farm game: tidy an overgrown garden, grow veg, feed the wombats who
-move in, and sell the little square cubes they leave to your neighbour, Aunt Fern, for
-her compost heap. No build step, no dependencies: open `index.html`, or serve the folder.
+A cozy pixel-art farm game: take over a run-down wombat farm from Jim, the old
+caretaker. Tidy the overgrown garden, grow veg, feed the wombats who move in, and sell
+the little square cubes they leave (or spread them on the beds as fertiliser). No build
+step, no dependencies: open `index.html`, or serve the folder.
 
 ```
 python3 -m http.server 8000   # then visit http://localhost:8000
@@ -13,43 +14,52 @@ inlined). Rebuild it with `python3 build.py` after changing anything in `js/` or
 
 ## Playing
 
-1. **Tidy up.** Cut the weeds with the sickle, send the ants for the old logs, and sow
-   grass inside the rope. A tidy garden brings your first wombat.
-2. **Grow.** Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.
-3. **Feed.** Put a bowl down with the feed tool. She eats, wanders off, and leaves a cube.
-4. **Sell.** Drag the cubes into the truck, then click Aunt Fern (later, her cottage) to
-   sell them. She pays more for a load than for one.
-5. **Spend.** Click the truck for the map: Wombat Mart for furniture and more wombats, and
-   Groot's Cellar for seed, saplings and garden things.
+The game opens with the drive in: through the forest, down the one street of Wombat
+Creek, and up to the farm gate where Jim is waiting.
 
-Aunt Fern tells you what to do next in a speech bubble and chats if you click her.
-Neighbours wander in now and then, the weather changes on its own, and a day is twelve
-minutes long.
+1. **Kit out.** You start with your hands and W$300. Drive to Wombat Mart (click the
+   truck) and buy tools from the TOOLS aisle. A phone is W$80; its apps come from the
+   App Store on the phone itself.
+2. **Tidy up.** Cut the weeds with the sickle, have the ants take the old logs, and sow
+   grass inside the rope. A tidy garden brings your first wombat.
+3. **Grow.** Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.
+4. **Feed.** Put a bowl down with the feed tool. She eats, wanders off, and leaves a cube.
+5. **Sell or spread.** Load cubes into the truck and sell them to Jim, who pays more for a
+   load. Or spread one on a planted bed with the Poo Scoop: it grows twice as fast.
+6. **Shape the land.** The shovel is a brush: dig down with the left button, heap up
+   hills with the right. Water poured into a hole stays and flows along any dug channel,
+   so you can make ponds and creeks. Frogs move in.
+
+Jim tells you what to do next in a speech bubble and chats if you click him. Neighbours
+wander in now and then, the weather changes on its own, and a day is twelve minutes long.
 
 ## Controls
 
 | Input | What it does |
 | --- | --- |
+| 1&ndash;0 or click the toolbar | Pick a tool |
 | Right-click or Tab | Open the tool tray |
-| 1&ndash;9 | Hand, Feed, Sickle, Hoe, Seeds, Watering can, Grass, Shovel, Build |
-| Shovel: hold left | Raise a hill |
-| Shovel: hold right or Shift | Dig a pond |
+| Shovel: hold left | Dig down |
+| Shovel: hold right or Shift | Heap up a hill |
+| Watering can over a hole | Fill it with water |
 | `[` `]` or wheel | Brush size |
 | Drag bare ground, arrows, A/D | Look around the garden |
 | M | Map |
 | P | Phone |
 | H | How to play |
-| Esc | Back / title screen |
+| Esc | Back / title screen / skip the drive in |
 
 ## Code
 
-- `js/main.js` - state, save slots, input and the main loop
+- `js/main.js` - state, the save, input and the main loop
 - `js/grove.js` - the garden scene: wombats, tools, the truck, plots
-- `js/world.js` - the painted ground, grass, weeds, crops and trees
-- `js/wild.js` - hills and ponds from the shovel, critters, visiting neighbours
-- `js/guide.js` - Aunt Fern: the step-by-step jobs, chatter and her cottage
-- `js/menu.js` - the title screen at the farm gate
-- `js/map.js`, `js/shop.js`, `js/nursery.js`, `js/den.js`, `js/intro.js` - the other scenes
-- `js/phone.js`, `js/talk.js`, `js/ui.js` - the phone, conversations and HUD
+- `js/world.js` - the painted ground, grass, weeds, crops, trees and fertiliser
+- `js/wild.js` - the shovel's height field and flowing water, critters, visiting neighbours
+- `js/guide.js` - Jim: the step-by-step jobs, chatter and his shed
+- `js/scenery.js` - the painted country: ranges, fields, forest, village, road, the car
+- `js/menu.js` - the title screen, driving through the forest
+- `js/intro.js` - the drive into Wombat Creek and up to the farm gate
+- `js/map.js`, `js/drive.js`, `js/shop.js`, `js/nursery.js` - the other scenes
+- `js/phone.js`, `js/talk.js`, `js/ui.js` - the white phone and its App Store, conversations and HUD
 - `js/art.js`, `js/sprites.js`, `js/props.js`, `js/icons.js`, `js/tex.js`, `js/fx.js` - the art
-- `js/data.js` - crops, tools, prices and furniture
+- `js/data.js` - crops, tools, prices, apps and furniture

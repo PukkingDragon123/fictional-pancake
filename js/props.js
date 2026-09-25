@@ -523,7 +523,7 @@ const Props = (() => {
       Art.ell(g, wx - 1.3, GROUND - 4.6, 1.1, 1.1, CHR2);
     }
   }
-  P.truck = () => cachedFlat('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: true }));
+  P.truck = () => cachedFlat('truck', 140, 78, (g) => fortuner(g, 140, 78, { open: false }));
   P.fortuner = (spec) => cachedFlat('fortuner:' + spec, 140, 78, (g) => fortuner(g, 140, 78, { open: spec === 'open' }));
 
   // ---- what a crop looks like once it is picked ----------------------------

@@ -1,7 +1,7 @@
 // ---- Balance data. Icon keys everywhere, almost no prose. -----------------
 const CUBE_SIZE = 30;          // one poop cube, and the game's unit of height
 
-// Cubes: what a wombat leaves behind. Aunt Fern buys every one for her compost.
+// Cubes: what a wombat leaves behind. Jim buys them for compost, or you spread them as fertiliser.
 const OFFERINGS = {
   plain: { key: 'plain', name: 'Plain', icon: 'o_plain', mark: '', w: 1, h: 1, density: 1, friction: 0.62, restitution: 0.02, adhesion: 0, value: 6, color: '#553d27' },
   rich:  { key: 'rich', name: 'Rich', icon: 'o_rich', mark: '', w: 1.45, h: 1.45, density: 1, friction: 0.66, restitution: 0.02, adhesion: 0, value: 13, color: '#3b2a1b' },
@@ -71,7 +71,7 @@ const MAGIC_EFFECT = {
 const CROP_BY_KEY = Object.fromEntries(CROPS.map((c) => [c.key, c]));
 
 // ---- Tools ------------------------------------------------------------------
-// A handful of plain garden tools. Aunt Fern hands them over as you go, so the
+// A handful of plain garden tools, bought one at a time at Wombat Mart, so the
 // first minutes have two to think about instead of a dozen.
 const TOOLS = [
   { key: 'drag',    name: 'Hand',    icon: 't_drag',    radius: 0,  desc: 'Lift, carry, pet and pick.' },
@@ -86,47 +86,52 @@ const SUBTOOLS = [
   { key: 'seed',  name: 'Seeds',        icon: 't_seed',  radius: 13, desc: 'Sow on a tilled bed.' },
   { key: 'moss',  name: 'Grass',        icon: 't_moss',  radius: 19, desc: 'Scatter grass seed on bare ground.' },
   { key: 'water', name: 'Watering Can', icon: 't_water', radius: 22, desc: 'Water the beds and the grass.' },
-  // The shovel is a brush like the hoe: hold the left button to heap the
-  // ground up into a hill, hold the right one (or Shift) to dig it down into
-  // a pond. [ and ] or the wheel change its size.
-  { key: 'shovel', name: 'Shovel', icon: 'u_burrow', radius: 26, terra: 'shovel',
-    desc: 'Hold to raise a hill. Right-click (or Shift) and hold to dig a pond.' },
+  // The shovel paints the ground like a brush: hold the left button to dig
+  // it down, the right one (or Shift) to heap it up into a hill. Water a hole
+  // and it fills; water a trench and it runs. [ and ] or the wheel resize it.
+  { key: 'shovel', name: 'Shovel', icon: 'u_burrow', radius: 22, terra: 'shovel',
+    desc: 'Hold to dig down. Right-click (or Shift) and hold to heap up a hill. Water a hole to make a pond or a creek.' },
   { key: 'build', name: 'Build',  icon: 'd_nest',  radius: 0,  desc: 'Stand furniture where you point. Point at it again to pick it up.' },
+  { key: 'fert',  name: 'Poo Scoop', icon: 'o_plain', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
 ];
+// ---- what you own -------------------------------------------------------------
+// You arrive with your two hands and W$300. Every tool, the phone, and every
+// app on it is bought: tools and the phone at Wombat Mart, apps in the App
+// Store on the phone itself.
+const TOOL_SHOP = [
+  { key: 'sickle',  price: 25, blurb: 'Cuts weeds. The first thing you need.' },
+  { key: 'destroy', price: 30, name: 'Ant Hire Card', blurb: 'The ants carry logs and rubble away for you.' },
+  { key: 'moss',    price: 20, name: 'Grass Seed', blurb: 'Scatter it on bare ground. Water it.' },
+  { key: 'water',   price: 30, blurb: 'A proper watering can. Beds, grass and ponds.' },
+  { key: 'hoe',     price: 35, blurb: 'Turns bare ground into a bed.' },
+  { key: 'seed',    price: 10, name: 'Seed Pouch', blurb: 'For sowing. Seed itself is at Groot\'s.' },
+  { key: 'food',    price: 15, name: 'Feed Bowl', blurb: 'Put food down for the wombats.' },
+  { key: 'fert',    price: 20, name: 'Poo Scoop', blurb: 'Spread a wombat cube on a bed. It grows twice as fast.' },
+  { key: 'shovel',  price: 60, blurb: 'Dig down, heap up. Water a hole and it fills.' },
+  { key: 'build',   price: 50, name: 'Hammer', blurb: 'For standing furniture about the place.' },
+];
+const TOOL_SHOP_BY_KEY = Object.fromEntries(TOOL_SHOP.map((t) => [t.key, t]));
+const PHONE_PRICE = 80;
+// apps for the phone; the first four come with it
+const APP_PRICES = { quests: 0, messages: 0, settings: 0, store: 0, herd: 25, garden: 25, larder: 20, camera: 15, map: 40 };
+const owns = (g, key) => !!(g && g.owned && g.owned[key]);
 const GATES = {
   drag: () => true,
-  sickle: () => true,
-  destroy: (g) => g.step >= 1,
-  farm: (g) => g.step >= 2,
-  moss: (g) => g.step >= 2,
-  water: (g) => g.step >= 2,
-  hoe: (g) => g.step >= 3,
-  seed: (g) => g.step >= 3,
-  food: (g) => g.step >= 3,
-  build: (g) => g.step >= 3,
-  shovel: (g) => g.step >= 3,
+  farm: (g) => ['hoe', 'seed', 'moss', 'water'].some((k) => owns(g, k)),
   pair: (g) => !!g.decor.nest,
 };
 const GATE_WHY = {
-  destroy: 'cut the weeds first',
-  farm: 'clear the logs first',
-  moss: 'clear the logs first',
-  water: 'clear the logs first',
-  hoe: 'sow the grass first',
-  seed: 'sow the grass first',
-  food: 'sow the grass first',
-  build: 'sow the grass first',
-  shovel: 'sow the grass first',
-  pair: 'needs a nest from the cellar',
+  pair: 'needs a nest from Groot\'s cellar',
 };
+const whyLocked = (key) => GATE_WHY[key] || (TOOL_SHOP_BY_KEY[key] ? `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}` : 'not yet');
 // number keys 1-9, in the order you are likely to want them
-const HOTKEYS = ['drag', 'food', 'sickle', 'hoe', 'seed', 'water', 'moss', 'shovel', 'build'];
-const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : true);
+const HOTKEYS = ['drag', 'sickle', 'destroy', 'moss', 'water', 'hoe', 'seed', 'food', 'fert', 'shovel', 'build'];
+const unlocked = (g, key) => (GATES[key] ? GATES[key](g) : owns(g, key));
 
 const ALL_TOOLS = TOOLS.concat(SUBTOOLS);
 const TOOL_BY_KEY = Object.fromEntries(ALL_TOOLS.map((t) => [t.key, t]));
 const FARM_KEYS = TOOLS.find((t) => t.key === 'farm').sub;
-const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water', 'shovel'];
+const BRUSH_KEYS = ['sickle', 'hoe', 'seed', 'moss', 'water', 'shovel', 'fert'];
 const TERRA_KEYS = ['shovel'];
 
 // ---- The clearing: the small patch you actually have to tidy -------------
@@ -195,8 +200,8 @@ const nextTier = (g, key) => TIERS[key][tierIndex(g, key) + 1] || null;
 // ---- The map: the grove, the town, and home ----------------------------------
 const SITES = [
   { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
-  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
-  { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
+  { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0 },
+  { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0 },
 ];
 
 // ---- Things to buy with W$ ------------------------------------------------
@@ -294,7 +299,7 @@ function rollLotto() {
 }
 
 // Every Golden Wombat on the shelf pays a little more at the stack, for good.
-// ---- What Aunt Fern pays for a cube ----------------------------------
+// ---- What Jim pays for a cube ----------------------------------
 // He buys the lot. The price is the offering's own worth plus a little for
 // bulk: one cube is a curiosity, a truckload is a supply.
 const trophyBonus = (g) => (g.trophies || 0) * 0.08;

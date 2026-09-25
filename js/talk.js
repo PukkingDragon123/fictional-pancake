@@ -25,8 +25,8 @@ const Talk = (() => {
   // modules already, so this is cheap to call every frame.
   const SPEAKERS = {
     cultist: {
-      name: 'Aunt Fern', sub: 'your neighbour',
-      bg: ['#4f8050', '#2f5a2a'],
+      name: 'Jim', sub: 'the old caretaker',
+      bg: ['#c9763c', '#7c4630'],
       draw(mood, t) {
         Sprites.setFace(mood || 'happy');
         const pose = mood === 'happy' ? 'laugh' : mood === 'cross' ? 'shake'

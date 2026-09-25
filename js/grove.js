@@ -479,15 +479,20 @@ const Grove = (() => {
       const rm2 = roam(); w.x = U.clamp(w.x, rm2.x0, rm2.x1); w.y = U.clamp(w.y, WALK.y0, WALK.y1);
       // a pond is water: push her back out of it, but let her drink at the edge.
       // a hill is a good place to sit, and she knows it.
-      for (const pd of Wild.ponds) {
-        const dx = w.x - pd.x, dy = (w.y - pd.y) / 0.45;
-        const d = Math.hypot(dx, dy);
-        if (d < pd.r * 0.82 && d > 0.01) {
-          const push = (pd.r * 0.82 - d) * dt * 5;
-          w.x += (dx / d) * push; w.y += (dy / d) * push * 0.45;
-          w.thirst = Math.max(0, w.thirst - dt * 26);                            // a drink
+      if (w.state !== 'held') {
+        const wd = Wild.waterAt(w.x, w.y);
+        // no wading further in than she already is
+        if (wd > 0.12 && w.px != null && wd > Wild.waterAt(w.px, w.py) - 0.001) { w.x = w.px; w.y = w.py; }
+        if (wd > 0.3) {                                                          // and if she is in, out she climbs
+          const gx = Wild.waterAt(w.x + 6, w.y) - Wild.waterAt(w.x - 6, w.y);
+          const gy = Wild.waterAt(w.x, w.y + 6) - Wild.waterAt(w.x, w.y - 6);
+          w.x -= Math.sign(gx) * dt * 30; w.y -= Math.sign(gy) * dt * 20;
+        }
+        if (wd > 0.04 || Wild.waterAt(w.x + w.dir * 14, w.y) > 0.1) {
+          w.thirst = Math.max(0, w.thirst - dt * 26);                            // a drink at the bank
           if (Math.random() < dt * 1.4) w.hap = Math.min(cap, w.hap + 0.5);
         }
+        w.px = w.x; w.py = w.y;
       }
       if (Math.random() < dt * 0.5 && Wild.onMound(w.x, w.y)) { w.hap = Math.min(cap, w.hap + 0.4); w.bored = Math.max(0, w.bored - 2); }
       if (Sky.wet() > 0.5 && Math.random() < dt * 0.6) w.thirst = Math.max(0, w.thirst - 2);   // rain in the mouth
@@ -683,6 +688,20 @@ const Grove = (() => {
     FX.comic(w.x - w.dir * 18, w.y - 30, U.pick(['PLOP!', 'THUD!', 'CLONK!']), { ink: '#d8b285', edge: '#7d5f42', life: 0.7 });
     FX.float(w.x - w.dir * 18, w.y - 44, n > 1 ? `x${n}` : '+1', { color: '#d8b285', size: 8 });
   }
+  // A cube for the scoop: from the truck if there is one, otherwise the
+  // nearest one lying about the plot.
+  function takeCube(x, y) {
+    for (const bag of [G.offerings, G.blessed]) {
+      const k = OFFER_ORDER.find((q) => (bag[q] || 0) > 0);
+      if (k) { bag[k]--; return true; }
+    }
+    let best = null, bd = 1e9;
+    for (const d of drops) { if (d === dragging) continue; const dd = Math.hypot(d.x - x, d.y - y); if (dd < bd) { bd = dd; best = d; } }
+    if (!best) return false;
+    drops.splice(drops.indexOf(best), 1);
+    FX.dust(best.x, best.y, 5, PAL.soil3);
+    return true;
+  }
   function loadIntoTruck(d) {
     const i = drops.indexOf(d);
     if (i >= 0) drops.splice(i, 1);
@@ -695,7 +714,7 @@ const Grove = (() => {
     FX.comic(TRUCK.x, TRUCK.y - 58, U.pick(['LOADED!', 'CLUNK!', 'IN!']), { ink: '#a8d0e0', edge: '#33495c', life: 0.6 });
     UI.refreshHUD();
   }
-  // A handful of coins tossed from wherever Aunt Fern is standing.
+  // A handful of coins tossed from wherever Jim is standing.
   function reward(x, y, n) {
     for (let i = 0; i < n; i++) coins.push({ x: x + U.rand(-6, 6), y, vx: U.rand(-60, 60), vy: U.rand(-190, -110), z: 0, t: -i * 0.04, n: 1 });
     Audio.play('cash');
@@ -778,10 +797,10 @@ const Grove = (() => {
     const td = TOOL_BY_KEY[tool];
     if (td && td.terra) {
       const br = brushSize(td);
-      const up = (dir == null ? 1 : dir) > 0;
+      const up = (dir == null ? 1 : dir) < 0;          // left digs, right (or Shift) heaps up
       if (Wild.sculpt(up ? 'raise' : 'dig', x, y, br, first) && (first || Math.random() < 0.08)) {
         FX.dust(x, y, first ? 8 : 2, up ? PAL.soil3 : PAL.soil2);
-        if (first) Audio.play('dig');
+        if (first || Math.random() < 0.3) Audio.play('dig');
       }
       return true;
     }
@@ -863,13 +882,38 @@ const Grove = (() => {
         World.disturb(x, y, r, 0.8);
         break;
       }
-      case 'water': World.water(x, y, r); if (first) Audio.play('splash'); break;
+      case 'water': {
+        World.water(x, y, r);
+        // over a hole the can fills it, and the water finds its own way along
+        const got = Wild.pour(x, y, r);
+        if (got) {
+          G.stats.flooded = +((G.stats.flooded || 0) + got).toFixed(2);
+          if (first) FX.comic(x, y - 26, 'SPLOSH!', { ink: '#9fe2ee', edge: '#2f7f96', life: 0.5 });
+        }
+        if (first) Audio.play('splash');
+        break;
+      }
+      case 'fert': {
+        if (!first) break;
+        const n = World.fertilise(x, y, r, true);
+        if (n === 0) { Audio.play('error'); UI.toast('scoop it over a planted bed', 'bad'); break; }
+        if (!takeCube(x, y)) { Audio.play('error'); UI.toast('no cubes to spread &mdash; feed a wombat and pick up what she leaves', 'bad'); break; }
+        World.fertilise(x, y, r, false);
+        G.stats.fertilised = (G.stats.fertilised || 0) + 1;
+        Audio.play('plop');
+        FX.burst(x, y - 4, 14, { color: ['#8a5c3a', '#b07a4a', '#6a4428', PAL.moss4], speed: 70, gravity: 160, life: 0.6, size: 2 });
+        FX.sparkle(x, y - 10, 6, PAL.moss4);
+        FX.float(x, y - 24, n > 1 ? `x${n} growing faster` : 'growing faster', { color: PAL.moss4, size: 7 });
+        UI.refreshHUD(); Main.save();
+        break;
+      }
       case 'seed': {
         const res = World.plant(x, y, G.selSeed);
         if (res === 'ok') { Audio.play('pluck'); UI.refreshTray(); }
         else if (res === 'nosoil' && first) { Audio.play('error'); UI.toast('till the soil first', 'bad'); }
         else if (res === 'noseed' && first) { Audio.play('error'); UI.toast('buy seed at the mart', 'bad'); }
         else if (res === 'crowded' && first) { Audio.play('error'); UI.toast('a tree needs room to itself', 'bad'); }
+        else if (res === 'wet' && first) { Audio.play('error'); UI.toast('not on a hill or in the water', 'bad'); }
         break;
       }
     }
@@ -920,8 +964,9 @@ const Grove = (() => {
       return;
     }
     w.riding = false;
-    for (const pd of Wild.ponds) {
-      if (Math.hypot(w.x - pd.x, (w.y - pd.y) / 0.45) < pd.r) {
+    for (const pd of [0]) {
+      if (Wild.waterAt(w.x, w.y) > 0.1) {
+        w.px = null;
         w.thirst = 0; w.hap = Math.min(hapCap(), w.hap + 10);
         Audio.play('splash'); FX.burst(w.x, w.y, 12, { color: [PAL.water2, PAL.water3], speed: 90, gravity: 220, life: 0.5, size: 2 });
         FX.comic(w.x, w.y - 40, 'SPLOSH!', { ink: '#9fe2ee', edge: '#2f7f96', life: 0.7 });
@@ -988,9 +1033,39 @@ const Grove = (() => {
     Sky.drawSun(g, W * 0.1 + arc * W * 0.8 + drift * 0.8, 74 - Math.sin(arc * Math.PI) * 48);
     Sky.drawClouds(g, W, SKY, -drift * 0.9, 0.55 + cov * 0.5);
 
+    // ---- hills behind the wood, so nothing stands on the sky --------------
+    const day2 = Sky.light();
+    const hillsAt = (y0, amp, freq, rate, col, top, ph) => {
+      const off = drift * rate;
+      for (let x = Math.floor(L / 2) * 2; x < R; x += 2) {
+        const u = x - off;
+        const y = Math.round(y0 + Math.sin(u * freq + ph) * amp + Math.sin(u * freq * 2.7 + ph * 1.9) * amp * 0.4);
+        g.fillStyle = col; g.fillRect(x, y, 2, GROUND + 4 - y);
+        if (top) { g.fillStyle = top; g.fillRect(x, y, 2, 2); }
+      }
+    };
+    hillsAt(SKY - 64, 14, 0.006, 0.04, U.mix('#2a3a4a', '#9cc8a0', day2), U.mix('#3a4a5a', '#b8dcb4', day2), 1.1);
+    hillsAt(SKY - 46, 12, 0.009, 0.1, U.mix('#243a2c', '#7eb46c', day2), U.mix('#304a38', '#98c884', day2), 3.7);
     // ---- five layers of trees, each at its own drift rate -----------------
     for (let d = 0; d < layers.length; d++) {
       const off = drift * PAR[d];
+      // the forest floor this rank stands in: a band of ground and a row of
+      // undergrowth along the foot of the trunks, so no tree floats
+      {
+        const base = SKY - 38 + d * 13;
+        const fl = U.mix(U.mix('#1e3020', '#5a8c44', day2), U.mix('#2a4028', '#6fa052', day2), d / 4);
+        g.fillStyle = fl; g.fillRect(L, base, R - L, GROUND + 4 - base);
+        const bush = U.shade(fl, 0.12), bushL = U.shade(fl, 0.26);
+        const step = 11 + d * 2;
+        const x0 = Math.floor((L - off) / step) * step + off;
+        for (let x = x0 - step; x < R + step; x += step) {
+          const k = Math.sin((x - off) * 0.37 + d * 1.7);
+          const rx = 7 + d * 1.6 + k * 2, ry = 4 + d * 0.8 + k;
+          Art.ell(g, x, base + 1, rx, ry, U.shade(fl, -0.14));
+          Art.ell(g, x, base, rx - 1, ry - 1, bush);
+          Art.ell(g, x - rx * 0.3, base - ry * 0.4, rx * 0.4, ry * 0.4, bushL);
+        }
+      }
       const swayD = World.gust(0) * (0.8 + d * 0.5);
       for (const t of layers[d]) {
         const x = t.x + off + World.gust(t.x) * (1.2 + d * 1.1);
@@ -1002,7 +1077,7 @@ const Grove = (() => {
       }
       // things watching from the second row
       // haze thickens toward the back of the wood
-      const hz = (0.26 - d * 0.05) * (0.4 + Sky.light() * 0.6);
+      const hz = (0.14 - d * 0.025) * (0.4 + Sky.light() * 0.6);
       {                                       // soft sunny haze toward the back of the wood
         const hc = Sky.light() > 0.4 ? '#e4f2d8' : '#3a4a70', hy0 = SKY - 56 + d * 13;
         for (let i = 0; i < 5; i++) {
@@ -1148,7 +1223,7 @@ const Grove = (() => {
         const bad = t.terra ? Wild.canPlace('mound', G.pointer.x, G.pointer.y) : null;
         World.drawCursor(g, G.pointer.x, G.pointer.y, r, bad ? '#e8402a' : toolTint(G.tool));
         if (t.terra) {
-          const lab = bad ? bad.toUpperCase() : 'HOLD: RAISE   RIGHT: DIG';
+          const lab = bad ? bad.toUpperCase() : 'HOLD: DIG   RIGHT: HEAP UP';
           const ly = G.pointer.y - r * 0.74 - 13;
           Font.draw(g, lab, G.pointer.x, ly, { scale: 1, color: '#000000', align: 'center' });
           Font.draw(g, lab, G.pointer.x, ly - 1, { scale: 1, color: bad ? '#ff9a72' : '#ffd95c', align: 'center' });
@@ -1454,13 +1529,15 @@ const Grove = (() => {
     const w = Math.round(img.width * TRUCK_S), h = Math.round(img.height * TRUCK_S);
     Art.castShadow(g, img, TRUCK.x, TRUCK.y + 3, w, h, { alpha: 0.32, lean: 0.34, squash: 0.16 });
     g.drawImage(img, Math.round(TRUCK.x - w / 2), Math.round(TRUCK.y - h + 6), w, h);
-    // load already collected, stacked in the tray at the back
-    const n = Math.min(6, OFFER_ORDER.reduce((s, k) => s + (G.offerings[k] || 0), 0));
-    for (let i = 0; i < n; i++) {
-      const bx = TRUCK.x + 24 + (i % 2) * 12, by = TRUCK.y - 26 - Math.floor(i / 2) * 10;
-      g.save(); g.translate(bx, by);
-      Sprites.drawCube(g, OFFERINGS.plain, 10, 10, {});
-      g.restore();
+    // how much is in the boot, on a little tag rather than a pile on the roof
+    const n = OFFER_ORDER.reduce((s2, k) => s2 + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
+    if (n > 0) {
+      const tx = TRUCK.x + 30, ty = TRUCK.y - h + 2, lab = 'x' + n;
+      const tw2 = Font.width(lab, 1) + 20;
+      Art.rect(g, tx - 1, ty - 1, tw2 + 2, 14, '#1a100a');
+      Art.rect(g, tx, ty, tw2, 12, '#f6e4ba');
+      g.save(); g.translate(tx + 3, ty + 1); Sprites.drawCube(g, OFFERINGS.plain, 9, 9, {}); g.restore();
+      Font.draw(g, lab, tx + 15, ty + 3, { scale: 1, color: '#5a3a1e' });
     }
     if (TRUCK.parked) {
       const p = 0.5 + 0.5 * Math.sin(G.time * 3);
@@ -1541,7 +1618,13 @@ const Grove = (() => {
     if (w.turnT > 0) { w.dir = dir; return; }
     w.turnFrom = w.dir; w.turnT = 0.36; w.dir = dir;
   }
+  // on a hill she stands up on it; in a dry hole she is down in it
   function drawWombat(g, w) {
+    const tz = w.state === 'held' || w.riding ? 0 : Wild.liftAt(w.x, w.y);
+    if (!tz) { drawWombat0(g, w); return; }
+    g.save(); g.translate(0, -tz); drawWombat0(g, w); g.restore();
+  }
+  function drawWombat0(g, w) {
     let p = 'idle';
     if (w.state === 'walk') p = 'walk';
     else if (w.state === 'sleep') p = 'sleep';
