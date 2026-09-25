@@ -1169,3 +1169,61 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
   color: #2a1a04; background: var(--gd2);
   box-shadow: inset 0 2px 0 var(--gd4), inset 0 -2px 0 var(--gd0), 0 0 0 3px var(--ol);
 }
+
+/* ==== Stardew-style gold-cornered frames ===================================
+   One nine-slice frame, painted at start-up in ui.js (goldFrameURL): a dark
+   line, a gold ring lit on the top and shaded on the bottom, a brown inside,
+   and a gold scroll in each corner. Everything you press or read wears it. */
+.gold, #money, #checklist, .tray, #tip, .toast, .panel, .hslot, .spoke, .phonebtn, .mbtn, .zbtn {
+  border: 10px solid transparent !important;
+  border-image: var(--gf-base) 10 fill / 10px / 0 stretch !important;
+  background: none !important; box-shadow: none !important; clip-path: none !important;
+  image-rendering: pixelated;
+}
+#tip, .toast, #checklist, .panel { border-image-source: var(--gf-paper) !important; }
+.hslot:hover, .spoke:hover, .phonebtn:hover, .mbtn:hover, .zbtn:hover { border-image-source: var(--gf-hot) !important; }
+.hslot.on, .spoke.on { border-image-source: var(--gf-sel) !important; }
+
+/* the hotbar along the bottom of the picture */
+#hotbar {
+  position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 7;
+  display: flex; gap: 2px; padding: 0;
+}
+.hslot {
+  position: relative; width: 58px; height: 58px; padding: 0 !important;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: transform .15s cubic-bezier(.2,2.2,.4,1);
+}
+.hslot img.ico { width: 32px; height: 32px; }
+.hslot:hover { transform: translateY(-3px); }
+.hslot.on { transform: translateY(-6px); }
+.hslot.locked img.ico { opacity: 0.35; filter: grayscale(0.7); }
+.hslot .hn { position: absolute; left: -4px; top: -6px; font-style: normal; font-size: 13px; color: #ffe8a0;
+  text-shadow: 0 1px 0 #1a100a, 1px 0 0 #1a100a, -1px 0 0 #1a100a, 0 -1px 0 #1a100a; }
+.hslot .hs { position: absolute; right: -6px; bottom: -6px; display: flex; align-items: center; gap: 1px; }
+.hslot .hs img.ico { width: 16px; height: 16px; opacity: 1; }
+.hslot .hs b { font-weight: 400; font-size: 13px; color: #fff4d8; text-shadow: 0 1px 0 #1a100a, 1px 0 0 #1a100a; }
+.hslot .lk { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.hslot .lk img.ico { width: 18px; height: 18px; opacity: 1; filter: none; }
+#side { display: none !important; }
+#mini { bottom: 12px; }
+
+/* the job card, top right */
+#checklist { transform: none !important; width: 232px; padding: 2px 4px 4px !important; color: #3a2410; }
+#checklist .pin { display: none; }
+#checklist h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 4px; padding: 0 0 4px;
+  border-bottom: 2px solid rgba(120,80,44,0.35); font-size: 16px; color: #6d3a1e; }
+#checklist h4 img.ico { width: 18px; height: 18px; flex: 0 0 auto; }
+#checklist .jnote { margin: 0 0 6px; font-size: 13px; line-height: 1.35; color: #5a3a1e; }
+#checklist .task { padding: 2px 0; }
+#checklist .tsub { display: block; font-size: 12px; color: #8a6a3c; }
+#checklist .tfoot { margin: 6px -4px -4px; padding: 3px 6px; background: rgba(120,80,44,0.18); border: 0;
+  color: #6d3a1e; font-size: 13px; letter-spacing: 1px; text-shadow: none; }
+#checklist .tfoot img.ico { display: inline-block; width: 14px; height: 14px; vertical-align: -2px; }
+
+/* money, top left, like a coin purse slot */
+#money { padding: 2px 8px !important; }
+#money b { color: #ffe8a0 !important; text-shadow: 0 2px 0 #1a100a !important; }
+#checklist, #checklist .task, #checklist .tname { line-height: 1.25; }
+#checklist .tname { font-size: 14px; }
+#toasts { bottom: 96px !important; }

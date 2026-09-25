@@ -197,7 +197,6 @@ const SITES = [
   { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0, gate: (g) => g.step >= 3, why: 'the grove first' },
-  { key: 'den',    name: 'Your Place',   x: 268, y: 208, icon: 'ph_key',  mode: 'den',    need: 0 },
 ];
 
 // ---- Things to buy with W$ ------------------------------------------------

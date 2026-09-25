@@ -1,14 +1,14 @@
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
-  // Three groves, kept apart, and the one you were last in is remembered so
-  // the title screen opens on it.
+  // One farm, one save. (It keeps the first of the old save slots, so a farm
+  // you already started carries on.)
   const KEY_BASE = 'wombat-gods-v6';
-  const SLOTS = [1, 2, 3];
+  const SLOTS = [1];
   const keyOf = (n) => KEY_BASE + (n > 1 ? ':' + n : '');
   let slot = 1;
   const KEY = () => keyOf(slot);
   let booted = null;                           // whatever the store held at boot
-  const slotSaves = {};                        // what is in each of the three
+  const slotSaves = {};                        // the one save, as read at boot
   let playing = false;                         // false means we are at the title
   let settings = { muted: false, musicOff: false, shake: true, bigText: false };
   const W = 640, H = 360;
@@ -133,7 +133,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      Sky.init(G); World.init(G); Den.init(G); Grove.init(G); Atlas.init(G);
+      Sky.init(G); World.init(G); Grove.init(G); Atlas.init(G);
       Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -184,13 +184,11 @@ const Main = (() => {
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
     else if (mode === 'nursery') Nursery.enter();
-    else if (mode === 'den') Den.enter();
-    if (mode !== 'den') Den.leave();
     Audio.setMode('pen');
     save();
   }
   function back() {
-    if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'den') setMode('map');
+    if (G.mode === 'shop' || G.mode === 'nursery') setMode('map');
     else setMode('grove');
   }
 
@@ -244,7 +242,6 @@ const Main = (() => {
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
-      else if (G.mode === 'den') Den.press(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -262,14 +259,12 @@ const Main = (() => {
         }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'nursery') { Nursery.move(p.x, p.y); UI.hideTip(); return; }
-        if (G.mode === 'den') { Den.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
       else if (G.mode === 'nursery') tip = Nursery.hover(p.x, p.y);
-      else if (G.mode === 'den') tip = Den.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
@@ -299,7 +294,6 @@ const Main = (() => {
       }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'nursery') { e.preventDefault(); Nursery.wheel(e.deltaY * 0.6); }
-      else if (G.mode === 'den') { e.preventDefault(); Den.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
     document.addEventListener('keydown', (e) => {
@@ -370,7 +364,6 @@ const Main = (() => {
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);
       else if (G.mode === 'nursery') Nursery.update(real);
-      else if (G.mode === 'den') Den.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
@@ -393,7 +386,6 @@ const Main = (() => {
       else if (G.mode === 'grove') Grove.render(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
-      else if (G.mode === 'den') Den.render(g);
       else Nursery.render(g);
       g.restore();
     }
@@ -422,7 +414,7 @@ const Main = (() => {
     splash();
     Sprites.init();
     // read all three, then open on the one you were last in
-    try { slot = Math.min(3, Math.max(1, parseInt(localStorage.getItem(KEY_BASE + ':last') || '1', 10) || 1)); } catch (e) { slot = 1; }
+    slot = 1;
     for (const n of SLOTS) slotSaves[n] = await Store.boot(keyOf(n));
     booted = slotSaves[slot];
     settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false }, Store.settings());
@@ -430,7 +422,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Den.init(G); Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

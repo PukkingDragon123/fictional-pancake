@@ -59,7 +59,7 @@ const Guide = (() => {
     },
     {
       key: 'map', say: 'Click the truck for the map. Town is just down the road.', mood: 'think', praise: 'Now you know the way.', icon: 'map', title: 'Open the map',
-      note: 'The truck has a map: the mart, Groot\'s cellar and your place.',
+      note: 'The truck has a map: Wombat Mart and Groot\'s cellar.',
       at: () => Grove.TRUCK.x, done: (g) => !!(g.visited && g.visited.map),
     },
     {

@@ -215,36 +215,29 @@ const Sprites = (() => {
     // set wide and low on the face, which is what makes an animal look kind
     // and not very bright. No iris, no lids, no brow.
     const eye = (x, y, closed) => {
-      // a pale patch of fur first, so the bead never sinks into the shadow of
-      // the skull. It is also most of why she looks like she is not thinking.
-      pill(x - 0.2, y, 3, 2.6, fur.light, 1.1);
-      if (closed) { R(x - 1.6, y - 0.4, 3.2, 1.1, fur.ink); return; }
-      R(x - 1.3, y - 1.6, 2.6, 3.2, fur.ink);          // the bead. That is all it is.
-      R(x - 1.7, y - 1.2, 3.4, 2.4, fur.ink);          // knocked round by one step
-      R(x - 1.3, y - 1.2, 1, 1, PAL.cream);            // one square of shine in it
+      if (closed) { R(x - 1.4, y - 0.2, 2.8, 1, fur.ink); return; }
+      R(x - 1, y - 1.2, 2, 2.4, fur.ink);             // a small dark bead
+      R(x - 1.3, y - 0.8, 2.6, 1.6, fur.ink);
+      R(x - 0.8, y - 0.9, 0.9, 0.9, '#fff4e0');        // one square of shine
     };
-    // The nose. A wombat's whole face is the nose: a broad bare pad, wider than
-    // it is tall, sat on the very tip of the muzzle. A solid black blob is
-    // unreadable this small, so it is a dark grey pad with a lit top edge, two
-    // nostril slits cut out of it, and the mouth a short line underneath.
-    const PAD0 = U.shade(fur.nose, -0.25), PAD1 = U.shade(fur.nose, 0.22), PAD2 = U.shade(fur.nose, 0.52);
+    // The muzzle: a broad dark patch over the whole front of the face, the way
+    // a real wombat's bare nose is, with a soft highlight along the top.
+    const PAD0 = U.shade(fur.nose, -0.15), PAD1 = U.shade(fur.nose, 0.28);
     const nose = (cx, cy, w, h) => {
-      R(cx - w / 2 - 0.6, cy - h / 2 - 0.5, w + 1.2, h + 1, fur.ink);   // the line round it
-      R(cx - w / 2, cy - h / 2, w, h, PAD0);                            // the pad
-      R(cx - w / 2 + 0.6, cy - h / 2, w - 1.2, h * 0.42, PAD1);         // the shine along the top
-      R(cx - w * 0.3, cy - h / 2, w * 0.3, h * 0.26, PAD2);
-      R(cx - w * 0.3, cy + h * 0.08, w * 0.2, h * 0.3, fur.ink);        // the two nostrils
-      R(cx + w * 0.1, cy + h * 0.08, w * 0.2, h * 0.3, fur.ink);
-      R(cx - 1.4, cy + h / 2 + 0.3, 2.8, 1, fur.ink);                   // the mouth under it
+      w *= 1.25; h *= 1.2;
+      pill(cx, cy, w / 2 + 0.6, h / 2 + 0.6, fur.ink, Math.min(w, h) * 0.3);
+      pill(cx, cy, w / 2, h / 2, PAD0, Math.min(w, h) * 0.28);
+      R(cx - w * 0.3, cy - h * 0.42, w * 0.5, h * 0.18, PAD1);         // the shine along the top
+      R(cx - w * 0.2, cy - h * 0.05, w * 0.12, h * 0.2, fur.ink);      // two nostrils
+      R(cx + w * 0.1, cy - h * 0.05, w * 0.12, h * 0.2, fur.ink);
       if (p.jaw > 0.6) {
-        R(cx - 2, cy + h / 2 + 0.6, 4, 2.2, fur.ink);
-        R(cx - 1.2, cy + h / 2 + 1, 2.4, 1.2, '#c4566a');               // a little tongue
+        R(cx - 1.6, cy + h / 2, 3.2, 1.8, fur.ink);
+        R(cx - 1, cy + h / 2 + 0.3, 2, 1, '#c4566a');                  // a little tongue
       }
-      for (const sd of [-1, 1]) R(cx + sd * (w * 0.5 + 0.8), cy - h * 0.1, 1.2, 0.9, fur.dark);   // whisker roots
     };
     // Ears: rounded triangles set wide and high, with the inner ear showing.
     const ears = (lx, rx, y, lift, flop) => {
-      const er = 2.9 * HK;
+      const er = 2.3 * HK;
       const fl = (flop || 0) * 0.9;            // they swing a little as the animal moves
       const one = (ex, ey, base, inner, tuft) => {
         ex += fl;
@@ -297,8 +290,8 @@ const Sprites = (() => {
       // the barrel, down on its side and flat along the ground. She is the
       // same animal lying down as standing up: the breath widens her a little
       // and pushes the top of her up, and she never leaves the floor.
-      const LW = 13.4, LH = 5.4 + br * 0.45;
-      const lcx = 16.4, lcy = GY - LH;
+      const LW = 10.6, LH = 6.8 + br * 0.45;
+      const lcx = 18, lcy = GY - LH;
       const LCUT = Math.max(1.6, LH * 0.5);
       pill(lcx, lcy, LW + 0.7, LH + 0.7, fur.ink, LCUT + 0.5);
       pill(lcx, lcy, LW, LH, fur.dark, LCUT);
@@ -315,8 +308,8 @@ const Sprites = (() => {
         R(px, GY - 0.9, pw, 0.9, fur.ink);
       }
       // the head, put down on the ground with the chin resting on it
-      const HW = 6.8 * HK, HH = 5.8 * HK;
-      const hx2 = lcx + LW + HW * 0.46, hy2 = GY - HH - 0.3 + br * 0.12;
+      const HW = 6.6 * HK, HH = 5.8 * HK;
+      const hx2 = lcx + LW + HW * 0.1, hy2 = GY - HH - 0.3 + br * 0.12;
       const HC = Math.max(1.6, HH * 0.44);
       pill(hx2 - HW * 0.62, hy2 + 0.9, HW * 0.78, HH * 0.78, fur.dark, HC * 0.8);    // the neck
       pill(hx2, hy2, HW + 0.6, HH + 0.6, fur.ink, HC + 0.5);
@@ -390,24 +383,22 @@ const Sprites = (() => {
     }
 
     // ---- the side view everything else uses ----------------------------------
+    // Drawn to the reference sheet: a compact, tall, round animal like a bear
+    // cub, the big head sat on the front of the body with no neck at all, the
+    // whole front of the face a dark muzzle, two tiny bead eyes above it, two
+    // small round ears, short dark legs, and speckled warm fur.
     const bob = p.bob;
     g.save();
     if (p.tilt) { g.translate(X(20), Y(20)); g.rotate(-p.tilt); g.translate(-X(20), -Y(20)); }
     const sq = p.squash, br = (p.breathe || 0) * 0.16;
-    // Fatter. A wombat is a barrel with a head on it, and a cartoon one is
-    // wider still: nearly half again as deep as it used to be.
-    const bw = 12.6 * (1 + sq * 0.6), bh = (11.6 + br) * (1 - sq);
-    const by = 14.2 + bob + (11.6 - bh);
+    const bw = 11.2 * (1 + sq * 0.6), bh = (8.4 + br) * (1 - sq);
+    const by = 15.6 + bob + (8.4 - bh);
     const tiltF = (t) => U.lerp(-p.rear, p.front, t) * 0.5;
-    // ---- legs, in two passes ------------------------------------------------
-    // The two on the far side go down before the body and are drawn in the
-    // shadowed tones; the two on this side go down after it. That is the whole
-    // trick to a four-legged animal reading as solid rather than as a cut-out.
     const LEGS = [
-      { i: 0, x: 9.6, front: false, far: true },
-      { i: 2, x: 24.6, front: true, far: true },
-      { i: 1, x: 11.8, front: false, far: false },
-      { i: 3, x: 26.8, front: true, far: false },
+      { i: 0, x: 10, front: false, far: true },
+      { i: 2, x: 23.4, front: true, far: true },
+      { i: 1, x: 12.4, front: false, far: false },
+      { i: 3, x: 25.6, front: true, far: false },
     ];
     const drawLegs = (far) => {
       if (p.tuck >= 1) return;
@@ -415,60 +406,43 @@ const Sprites = (() => {
         if (L2.far !== far) continue;
         const lift = (p.leg[L2.i] || 0) + p.tuck * 4;
         const fwd = (p.legX[L2.i] || 0);
-        const hipY = by + bh - 2.2 + tiltF((L2.x - 7) / 26) + bob * 0.2;
-        const floorY = Math.min(GY, by + bh + 3.4);
-        const tone = far ? fur.dark : (L2.front ? fur.base : fur.mid);
+        const hipY = by + bh - 2.6 + tiltF((L2.x - 7) / 26) + bob * 0.2;
+        const floorY = Math.min(GY, by + bh + 3.2);
+        const tone = far ? fur.deep : fur.dark;
         legOf(L2.x + (far ? -1.2 : 0), hipY + (far ? -0.8 : 0), floorY - (far ? 1 : 0),
-          lift, fwd, p.knee[L2.i] || 0, L2.front ? 4 : 4.5, tone, L2.front);
+          lift, fwd, p.knee[L2.i] || 0, 4.2, tone, L2.front);
       }
     };
     drawLegs(true);
-    // ---- the body: one fat pill, flat along the top and the bottom --------
-    const by0 = by - p.rear * 0.5;
-    const CUT = Math.max(1.6, bh * 0.42);
-    pill(17.4, by0, bw + 0.7, bh + 0.7, fur.ink, CUT + 0.5);        // the line round it
-    pill(17.4, by0, bw, bh, fur.dark, CUT);
-    pill(17.4, by0 - 0.5, bw - 0.6, bh - 0.6, fur.base, CUT);
-    // a big round rump and a big round shoulder, so the barrel reads as fat
-    pill(17.4 - bw * 0.46, by0 + 0.4, bw * 0.58, bh * 0.95, fur.base, CUT * 0.9);
-    pill(17.4 + bw * 0.42, by0 + 0.3, bw * 0.56, bh * 0.92, fur.base, CUT * 0.9);
-    // the light along the spine and the pale belly under it, as flat bands
-    R(17.4 - bw + CUT * 0.5, by0 - bh + 0.4, bw * 2 - CUT, bh * 0.3, fur.mid);
-    R(17.4 - bw + CUT * 1.1, by0 - bh + 0.4, bw * 2 - CUT * 2.2, bh * 0.15, fur.light);
-    R(17.4 - bw + CUT * 0.8, by0 + bh - bh * 0.3, bw * 2 - CUT * 1.6, bh * 0.28, fur.light);
-    R(17.4 - bw + CUT * 0.5, by0 + bh - 1.2, bw * 2 - CUT, 1.2, fur.mid);
-    saddle(15.6, by0 - bh * 0.34, 9.5, bh * 0.44);
-    pill(17.4 - bw - 0.8, by0 + bh * 0.34 + (p.tail || 0) * 0.5, 1.8, 2, fur.mid, 0.8);   // the tail nub
-    drawLegs(false);                                               // the near pair, over the belly
-    // ---- the head ------------------------------------------------------------
-    // A round skull that sits a touch lower than the shoulders, a short blunt
-    // muzzle off the front of it, and the nose pad right on the tip. Sized off
-    // life: the head is about a quarter of the body, not a third.
-    const hx = 31.4 + p.headFwd + (p.headSw || 0) * 0.5, hy = 12.8 + bob + p.headDip + p.front * 0.6 + (p.breathe || 0) * 0.2;
-    // A cartoon head: bigger than life, squarer than life, sat low on the
-    // shoulders so the whole animal reads as one round heavy thing.
-    const SK = 8.2 * HK, SKY = 8 * HK;
-    const HCUT = Math.max(1.6, SKY * 0.4);
-    pill(hx - 3.4, hy + 1.4, SK * 0.78, SKY * 0.78, fur.dark, HCUT * 0.8);   // the neck
-    pill(hx, hy, SK + 0.6, SKY + 0.6, fur.ink, HCUT + 0.5);                  // the line round it
+    // ---- the body: one round tall barrel ----------------------------------
+    const bx0 = 18.2, by0 = by - p.rear * 0.4;
+    const CUT = Math.max(2, bh * 0.55);
+    pill(bx0, by0, bw + 0.7, bh + 0.7, fur.ink, CUT + 0.5);
+    pill(bx0, by0, bw, bh, fur.dark, CUT);
+    pill(bx0, by0 - 0.6, bw - 0.7, bh - 0.8, fur.base, CUT);
+    pill(bx0 - bw * 0.5, by0 + 0.6, bw * 0.52, bh * 0.9, fur.base, CUT * 0.8);   // the round rump
+    R(bx0 - bw + CUT * 0.7, by0 - bh + 0.5, bw * 2 - CUT * 1.4, bh * 0.22, fur.mid);   // light on the back
+    R(bx0 - bw + CUT * 0.7, by0 + bh - 1.8, bw * 2 - CUT * 1.4, 1.4, fur.mid);        // shade under the belly
+    // speckled fur: a scatter of lighter and darker flecks all over
+    Art.speckle(g, X(bx0), Y(by0), bw * K * 0.92, bh * K * 0.85, fur.light, Math.round(bw * bh * 0.13), 11);
+    Art.speckle(g, X(bx0 - 1), Y(by0 + bh * 0.3), bw * K * 0.9, bh * K * 0.5, fur.mid, Math.round(bw * bh * 0.1), 23);
+    pill(bx0 - bw - 0.4, by0 + bh * 0.1 + (p.tail || 0) * 0.5, 1.4, 1.6, fur.dark, 0.7);   // the tail nub
+    drawLegs(false);
+    // ---- the head: big and round, right on the front of the body ------------
+    const hx = 30 + p.headFwd * 0.8 + (p.headSw || 0) * 0.4, hy = 13.4 + bob + p.headDip * 0.85 + p.front * 0.5 + (p.breathe || 0) * 0.2;
+    const SK = 7.4 * HK, SKY = 7 * HK;
+    const HCUT = Math.max(2, SKY * 0.5);
+    pill(hx, hy, SK + 0.6, SKY + 0.6, fur.ink, HCUT + 0.5);
     pill(hx, hy, SK, SKY, fur.dark, HCUT);
-    pill(hx, hy - 0.5, SK - 0.6, SKY - 0.6, fur.base, HCUT);
-    R(hx - SK + HCUT * 0.5, hy - SKY + 0.4, SK * 2 - HCUT, SKY * 0.42, fur.mid);   // lit crown
-    R(hx - SK + HCUT, hy - SKY + 0.4, SK * 2 - HCUT * 2, SKY * 0.2, fur.light);
-    // the muzzle, short and blunt, pushed out past the front of the skull
-    const mx = hx + SK * 0.62, my = hy + SKY * 0.4;
-    pill(mx, my, SK * 0.56, SKY * 0.5, fur.dark, HCUT * 0.6);
-    pill(mx, my - 0.4, SK * 0.5, SKY * 0.44, fur.base, HCUT * 0.6);
-    R(mx - SK * 0.4, my - SKY * 0.46, SK * 0.8, SKY * 0.26, fur.mid);
-    R(mx - SK * 0.38, my + SKY * 0.12, SK * 0.72, SKY * 0.3, fur.light);     // the pale chin
-    R(hx - SK * 0.82, hy + SKY * 0.24, SK * 0.68, SKY * 0.34, fur.light);   // the cheek
-    Art.speckle(g, X(hx - 1), Y(hy - SKY * 0.5), SK * 0.7 * K, SKY * 0.34 * K, fur.mid, 7, 3);
-    ears(hx - SK * 0.96, hx - SK * 0.46, hy - SKY - 0.44 * HK, p.ear, p.earFlop);
-    // one eye. It is a side view. Set it high on the skull and a long way
-    // back from that enormous nose: the gap between the two is what makes her
-    // look content and completely empty-headed.
-    eye(hx + SK * 0.02, hy - SKY * 0.3, p.blink);
-    nose(mx + SK * 0.24, my + SKY * 0.04, 5.2, 3.7);
+    pill(hx - 0.3, hy - 0.6, SK - 0.7, SKY - 0.8, fur.base, HCUT);
+    R(hx - SK + HCUT * 0.8, hy - SKY + 0.5, SK * 2 - HCUT * 1.6, SKY * 0.26, fur.mid);   // lit crown
+    R(hx - SK + HCUT * 1.2, hy - SKY + 0.5, SK * 1.2 - HCUT, SKY * 0.12, fur.light);
+    Art.speckle(g, X(hx - 1.5), Y(hy - SKY * 0.2), SK * K * 0.6, SKY * K * 0.5, fur.light, 9, 5);
+    ears(hx - SK * 0.62, hx + SK * 0.02, hy - SKY - 0.2 * HK, p.ear, p.earFlop);
+    // the face, turned a little toward us: two beads and a big dark muzzle
+    eye(hx + SK * 0.14, hy - SKY * 0.18, p.blink);
+    eye(hx + SK * 0.66, hy - SKY * 0.12, p.blink);
+    nose(hx + SK * 0.56, hy + SKY * 0.42, 5.6, 4.2);
     if (p.hurt > 0) {                                             // little stars over the head
       for (let i = 0; i < 3; i++) { const a = p.hurt * 4 + i * 2.1; R(hx - 3 + Math.cos(a) * 7, hy - 9 + Math.sin(a) * 2, 1.4, 1.4, PAL.gold3); }
     }

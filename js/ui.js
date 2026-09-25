@@ -15,6 +15,7 @@ const UI = (() => {
   // ---- the only number on screen -----------------------------------------
   let lastWd = null;
   function bumpMoney() { const m = $('money'); m.classList.remove('bump'); void m.offsetWidth; m.classList.add('bump'); }
+  let hotSig = '';
   function refreshHUD() {
     if (G.mode === 'intro') { $('checklist').hidden = true; return; }
     if (lastWd !== null && G.wd !== lastWd) bumpMoney();
@@ -38,29 +39,45 @@ const UI = (() => {
     }
     refreshList();
     refreshNotebook();
+    const sig = [G.mode, G.tool, G.selSeed, G.selFood, G.seeds[G.selSeed], G.food[G.selFood], G.step, G.decor && G.decor.nest].join('|');
+    if (sig !== hotSig) { hotSig = sig; renderHotbar(); }
   }
 
-  // ---- the clean-up list, a paper pinned to the fence ---------------------
+  // ---- the job card -------------------------------------------------------
+  // Always in the corner of the grove: whatever Aunt Fern wants next, and once
+  // she has shown you round, the daily round itself, ticked off as you go.
   function refreshList() {
     const box = $('checklist');
-    if (G.mode !== 'grove' || G.arrived) { box.hidden = true; return; }
+    if (G.mode !== 'grove') { box.hidden = true; return; }
     box.hidden = false;
-    const ts = Grove.tasks();
-    const left = ts.filter((t) => !t.done).length;
-    // A page torn out of something and pinned to the air, with the jobs written
-    // down the side of it in a hand and a mark drawn beside each one.
-    box.innerHTML = `<i class="pin"></i><h4>things to do</h4>` + ts.map((t) => {
-      const p = U.clamp(t.at / t.need, 0, 1);
-      const at = Math.max(0, Math.round(t.at));
-      return `<div class="task ${t.done ? 'done' : ''}" data-k="${t.key}">
-        <span class="qmark">${ic(t.done ? 'q_done' : t.icon)}</span>
-        <span class="tbody">
-          <b class="tname">${t.name || t.key}</b>
-          <span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span>
-        </span>
-        <b class="tnum">${at}<small>/${t.need}</small></b>
-      </div>`;
-    }).join('') + `<div class="tfoot">${left ? left + (left === 1 ? ' job left' : ' jobs left') : 'all done'}</div>`;
+    const q = Guide.current();
+    let html = '';
+    if (q) {
+      html += `<h4>${ic(q.icon, 'sm')} <span>${q.title}</span></h4><p class="jnote">${q.note}</p>`;
+      if (!G.arrived) {
+        html += Grove.tasks().map((t) => {
+          const p = U.clamp(t.at / t.need, 0, 1);
+          return `<div class="task ${t.done ? 'done' : ''}"><span class="qmark">${ic(t.done ? 'q_done' : t.icon)}</span>
+            <span class="tbody"><b class="tname">${t.name}</b><span class="bar"><i style="width:${Math.round(p * 100)}%"></i></span></span>
+            <b class="tnum">${Math.max(0, Math.round(t.at))}<small>/${t.need}</small></b></div>`;
+        }).join('');
+      }
+      html += `<div class="tfoot">job ${q.i + 1} of ${q.total}${q.reward ? ` &middot; ${ic('wdollar', 'sm')} ${q.reward}` : ''}</div>`;
+    } else {
+      const food = CROPS.reduce((n, c) => n + (G.food[c.key] || 0), 0);
+      const growing = (World.crops || []).length;
+      const hungry = G.wombats.filter((w) => w.stomach === 'empty' && w.age !== 'baby').length;
+      const cubes = OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
+      const loose = Grove.drops.length;
+      const row = (icon, name, sub, done) => `<div class="task ${done ? 'done' : ''}"><span class="qmark">${ic(done ? 'q_done' : icon)}</span>
+        <span class="tbody"><b class="tname">${name}</b><small class="tsub">${sub}</small></span></div>`;
+      html += `<h4>${ic('t_seed', 'sm')} <span>The daily round</span></h4>`;
+      html += row('t_seed', 'Grow veg', growing ? `${growing} growing, ${food} picked` : 'hoe a bed and sow it', food > 0);
+      html += row('t_food', 'Feed the wombats', hungry ? `${hungry} hungry` : 'everyone is full', hungry === 0);
+      html += row('truck', 'Load the truck', loose ? `${loose} cubes on the ground` : 'nothing lying about', loose === 0);
+      html += row('wdollar', 'Sell to Aunt Fern', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
+    }
+    box.innerHTML = html;
   }
 
   function refreshNotebook() { }           // Aunt Fern speaks for herself now
@@ -195,11 +212,69 @@ const UI = (() => {
   }
   // the badge in the corner shows the tool in hand and opens the wheel for touch
   function refreshTray() {
-    const b = $('b-tool');
-    b.hidden = G.mode !== 'grove';
-    const t = TOOL_BY_KEY[G.tool] || TOOLS[0];
-    b.firstElementChild.src = Icons.url(t.icon);
+    $('b-tool').hidden = true;
+    renderHotbar();
     if (wheelOpen()) renderWheel();
+  }
+  // ---- the hotbar -----------------------------------------------------------
+  // A row of gold-cornered slots along the bottom, one per tool, numbered for
+  // the keys. Click one to hold it; click the seeds or the feed bowl again to
+  // choose what is in it.
+  function renderHotbar() {
+    const bar = $('hotbar');
+    if (!bar) return;
+    bar.hidden = G.mode !== 'grove';
+    if (bar.hidden) return;
+    const pick = G.tool === 'seed' ? G.selSeed : G.tool === 'food' ? G.selFood : null;
+    bar.innerHTML = HOTKEYS.map((key, i) => {
+      const t = TOOL_BY_KEY[key], lk = !unlocked(G, key), on = G.tool === key;
+      let extra = '';
+      if (key === 'seed' && G.selSeed) extra = `<span class="hs">${ic(CROP_BY_KEY[G.selSeed] ? CROP_BY_KEY[G.selSeed].icon : 't_seed', 'sm')}<b>${G.seeds[G.selSeed] || 0}</b></span>`;
+      if (key === 'food' && G.selFood) extra = `<span class="hs">${ic(CROP_BY_KEY[G.selFood] ? CROP_BY_KEY[G.selFood].icon : 't_food', 'sm')}<b>${G.food[G.selFood] || 0}</b></span>`;
+      return `<button class="hslot${on ? ' on' : ''}${lk ? ' locked' : ''}" data-k="${key}"><i class="hn">${i + 1}</i>${ic(t.icon)}${extra}${lk ? `<span class="lk">${ic('lock', 'sm')}</span>` : ''}</button>`;
+    }).join('');
+    void pick;
+    bar.querySelectorAll('.hslot').forEach((el) => {
+      const key = el.dataset.k, t = TOOL_BY_KEY[key], lk = !unlocked(G, key);
+      el.onclick = (e) => {
+        e.stopPropagation();
+        if (lk) { Audio.play('error'); toast(GATE_WHY[key] || 'not yet', 'bad'); return; }
+        const r = el.getBoundingClientRect(), fr = $('frame').getBoundingClientRect(), k = frameScale();
+        const sx = (r.left - fr.left) / k, sy = (r.top - fr.top) / k - 150;
+        if ((key === 'seed' || key === 'food') && (G.tool === key || !(key === 'seed' ? G.selSeed : G.selFood))) {
+          G.tool = key; openWheel(sx, sy, key === 'seed' ? 'seed' : 'food'); renderHotbar(); return;
+        }
+        G.tool = key; Grove.clearPair(); Audio.play('click'); closeWheel(); renderHotbar();
+      };
+      el.onmouseenter = (e) => showTip(e, `<b>${t.name}</b> <span class="dim">[${HOTKEYS.indexOf(key) + 1}]</span><br>${lk ? `<span class="warn">${GATE_WHY[key] || 'not yet'}</span>` : t.desc}`);
+      el.onmouseleave = hideTip;
+    });
+  }
+  // the gold-cornered frame from the reference sheet, painted once into a
+  // small canvas and handed to CSS as a nine-slice border image
+  function goldFrameURL(kind) {
+    const P2 = 2, N = 15;                        // 15 art pixels a side, two screen pixels each
+    const c = document.createElement('canvas'); c.width = c.height = N * P2;
+    const g = c.getContext('2d');
+    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
+    const ink = '#1a100a';
+    const ring = kind === 'sel' ? ['#ff9a6a', '#e0503a', '#9a2a1a'] : kind === 'hot' ? ['#fff4a8', '#ffd84a', '#d8a020'] : ['#ffe680', '#f2c536', '#c08a14'];
+    const fill = kind === 'paper' ? ['#f6e4ba', '#edd3a2', '#dcba82'] : ['#9c6636', '#84522a', '#6a3e1e'];
+    R(1, 0, N - 2, N, ink); R(0, 1, N, N - 2, ink);                     // the dark line, corners knocked off
+    R(1, 1, N - 2, N - 2, ring[1]);                                     // the gold ring
+    R(2, 1, N - 4, 1, ring[0]); R(1, 2, 1, N - 4, ring[0]);             // lit top and left
+    R(2, N - 2, N - 4, 1, ring[2]); R(N - 2, 2, 1, N - 4, ring[2]);     // shaded bottom and right
+    R(3, 3, N - 6, N - 6, ink);                                         // the inner line
+    R(4, 4, N - 8, N - 8, fill[1]);
+    R(4, 4, N - 8, 1, fill[0]); R(4, N - 5, N - 8, 1, fill[2]);
+    // a scroll curled into each corner
+    const curl = (x, y, sx, sy) => {
+      const p = (a, b, w, h, col) => R(sx > 0 ? x + a : x - a - w + 1, sy > 0 ? y + b : y - b - h + 1, w, h, col);
+      p(0, 0, 4, 1, ink); p(0, 0, 1, 4, ink); p(1, 1, 3, 1, ring[0]); p(1, 1, 1, 3, ring[0]);
+      p(2, 2, 2, 2, ink); p(2, 2, 1, 1, ring[1]); p(4, 1, 1, 2, ink); p(1, 4, 2, 1, ink);
+    };
+    curl(0, 0, 1, 1); curl(N - 1, 0, -1, 1); curl(0, N - 1, 1, -1); curl(N - 1, N - 1, -1, -1);
+    return c.toDataURL();
   }
   function pickTool() { }
 
@@ -475,6 +550,7 @@ const UI = (() => {
   function init(g) {
     G = g;
     Tex.install();                         // wood, paper, metal and gold, painted not faked
+    for (const k of ['base', 'hot', 'sel', 'paper']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };
@@ -510,6 +586,7 @@ const UI = (() => {
     $('money').hidden = intro; $('mini').hidden = intro; $('side').hidden = intro;
     $('zoomer').hidden = mode !== 'grove';
     if (intro) { closeWheel(); $('checklist').hidden = true; }
+    if ($('hotbar')) $('hotbar').hidden = mode !== 'grove';
     $('ov-shop').hidden = mode !== 'shop';
     $('ov-nursery').hidden = mode !== 'nursery';
     closeWheel();

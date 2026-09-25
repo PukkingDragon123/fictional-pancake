@@ -19,8 +19,8 @@ inlined). Rebuild it with `python3 build.py` after changing anything in `js/` or
 3. **Feed.** Put a bowl down with the feed tool. She eats, wanders off, and leaves a cube.
 4. **Sell.** Drag the cubes into the truck, then click Aunt Fern (later, her cottage) to
    sell them. She pays more for a load than for one.
-5. **Spend.** Click the truck for the map: Wombat Mart for furniture and more wombats,
-   Groot's Cellar for seed, saplings and garden things, and your place for a nap.
+5. **Spend.** Click the truck for the map: Wombat Mart for furniture and more wombats, and
+   Groot's Cellar for seed, saplings and garden things.
 
 Aunt Fern tells you what to do next in a speech bubble and chats if you click her.
 Neighbours wander in now and then, the weather changes on its own, and a day is twelve

@@ -365,7 +365,6 @@ const Phone = (() => {
     grove: 'Your land. The wombats, the beds and the truck.',
     mart: 'Shaz on the till. Hardware, furniture, drinks, a gumball machine and a cage of wombats.',
     nursery: 'Groot. Seed, saplings, garden tools, a trough and a nest.',
-    den: 'Home. A sofa, a desk, the kettle, and a nap whenever you like.',
   };
   function places() {
     const here = Atlas.whereAmI();
