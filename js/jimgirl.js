@@ -109,7 +109,7 @@ const JimGirl = (() => {
     R(cx - 15, 30 + y0, 6, 22, HAIR[1]); R(cx + 9, 30 + y0, 6, 22, HAIR[1]);
     R(cx - 15, 30 + y0, 2, 21, HAIR[2]); R(cx + 13, 31 + y0, 2, 20, HAIR[0]);
     for (const x of [cx - 15, cx - 12, cx + 9, cx + 12]) R(x, 51 + y0, 3, 2, HAIR[1]);
-    E(cx + 12, 62 + y0, 3, 3, ONE[1]); E(cx + 12, 61 + y0, 2, 2, ONE[3]);
+    E(cx + 9, 62 + y0, 2.6, 2.6, ONE[1]); E(cx + 9, 61 + y0, 1.6, 1.6, ONE[3]);
 
     // ---- legs and paw feet
     const hipY = 66 + y0;
@@ -121,34 +121,35 @@ const JimGirl = (() => {
         for (let k = -1; k <= 1; k++) P(fx + s2 * 2 + k * 2, hipY + 5, BELLY[1]);
         continue;
       }
-      const fx = cx + s2 * 5 + step * s2, lift = step * s2 > 1 ? 2 : 0;
-      R(fx - 4, hipY, 8, 11 - lift, ONE[2]); R(fx - 4, hipY, 2, 10 - lift, ONE[3]); R(fx + 2, hipY, 2, 10 - lift, ONE[1]);
-      E(fx, hipY + 12 - lift, 5, 3, ONE[1]); E(fx, hipY + 11 - lift, 4.4, 2.4, ONE[2]);   // the paw foot
-      R(fx - 3, hipY + 13 - lift, 6, 1, ONE[0]);
-      for (let k = -1; k <= 1; k++) P(fx + k * 2, hipY + 10 - lift, BELLY[1]);           // toe beans
+      const fx = cx + s2 * 3.5 + step * s2, lift = step * s2 > 1 ? 2 : 0;
+      R(fx - 2.5, hipY, 5, 11 - lift, ONE[2]); R(fx - 2.5, hipY, 1, 10 - lift, ONE[3]); R(fx + 1.5, hipY, 1, 10 - lift, ONE[1]);
+      E(fx + s2 * 0.5, hipY + 12 - lift, 3.8, 2.4, ONE[1]); E(fx + s2 * 0.5, hipY + 11 - lift, 3.2, 1.8, ONE[2]);   // the paw foot
+      R(fx - 2.5 + s2 * 0.5, hipY + 13 - lift, 5, 1, ONE[0]);
+      for (let k = -1; k <= 1; k++) P(fx + s2 * 0.5 + k * 1.5, hipY + 10 - lift, BELLY[1]);           // toe beans
     }
 
     // ---- the far arm (only when it crosses in front does the order matter)
     const shY = 45 + y0;
     const arm = (s2, hand) => {
-      const sx = cx + s2 * 9, hx = sx + hand[0], hy = shY + hand[1];
-      // a soft puffy sleeve, fat at the shoulder, with a lit edge and a cream cuff
-      Art.limb(g, sx, shY, hx, hy, 4.2, 3.2, ONE[0]);
-      Art.limb(g, sx, shY, hx, hy, 3.4, 2.5, ONE[2]);
-      Art.limb(g, sx - 0.8, shY - 0.5, hx - 0.6, hy - 0.5, 1.4, 1, ONE[3]);
-      const cx2 = sx + (hx - sx) * 0.82, cy2 = shY + (hy - shY) * 0.82;
-      E(cx2, cy2, 3.2, 2, BELLY[0]); E(cx2, cy2 - 0.4, 2.6, 1.4, BELLY[1]);
+      const sx = cx + s2 * 6.5, hx = sx + hand[0] * 0.9, hy = shY + hand[1];
+      // a slim sleeve, a touch fuller at the shoulder, with a lit edge and a cream cuff
+      Art.limb(g, sx, shY, hx, hy, 3.2, 2.4, ONE[0]);
+      Art.limb(g, sx, shY, hx, hy, 2.4, 1.7, ONE[2]);
+      Art.limb(g, sx - 0.6, shY - 0.5, hx - 0.5, hy - 0.5, 1, 0.7, ONE[3]);
+      const cx2 = sx + (hx - sx) * 0.84, cy2 = shY + (hy - shY) * 0.84;
+      E(cx2, cy2, 2.4, 1.6, BELLY[0]); E(cx2, cy2 - 0.3, 1.9, 1.1, BELLY[1]);
       // the paw: round, with a pink bean and three toe beans
-      E(hx, hy + 1.5, 4, 3.8, ONE[0]); E(hx, hy + 1, 3.4, 3.2, ONE[2]); E(hx - 1, hy, 1.6, 1.4, ONE[3]);
-      E(hx, hy + 2, 1.4, 1.1, '#f4a0b0');
-      for (const d of [-1.6, 0, 1.6]) P(hx + d, hy - 0.4, '#f4a0b0');
+      E(hx, hy + 1.2, 3, 2.9, ONE[0]); E(hx, hy + 0.8, 2.5, 2.4, ONE[2]); E(hx - 0.8, hy, 1.2, 1, ONE[3]);
+      E(hx, hy + 1.6, 1.1, 0.9, '#f4a0b0');
+      for (const d of [-1.2, 0, 1.2]) P(hx + d, hy - 0.4, '#f4a0b0');
     };
 
     // ---- the body: the onesie, round, with a cream tummy and a zip
-    E(cx, 56 + y0, 12, 13, ONE[1]);
-    E(cx, 55 + y0, 11, 12, ONE[2]);
-    E(cx - 4, 50 + y0, 5, 6, ONE[3]);
-    E(cx, 58 + y0, 7, 8, BELLY[0]); E(cx, 57 + y0, 6, 7, BELLY[1]); E(cx - 2, 55 + y0, 3, 3, BELLY[2]);
+    // slim: narrow shoulders, a waist, a little flare at the hip
+    E(cx, 50 + y0, 7.5, 7, ONE[1]); E(cx, 60 + y0, 8, 7, ONE[1]); R(cx - 6, 50 + y0, 12, 10, ONE[1]);
+    E(cx, 50 + y0, 6.8, 6.2, ONE[2]); E(cx, 60 + y0, 7.2, 6.2, ONE[2]); R(cx - 5.4, 50 + y0, 10.8, 10, ONE[2]);
+    E(cx - 3, 48 + y0, 3, 4, ONE[3]);
+    E(cx, 57 + y0, 4, 6, BELLY[0]); E(cx, 56.5 + y0, 3.4, 5.4, BELLY[1]); E(cx - 1, 54 + y0, 1.6, 2, BELLY[2]);
     R(cx, 44 + y0, 1, 20, ONE[0]); R(cx - 1, 46 + y0, 3, 2, '#e8c050');           // the zip and its pull
     if (!(pose === 'clap')) { arm(-1, hl); arm(1, hr); }
 

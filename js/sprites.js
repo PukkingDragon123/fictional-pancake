@@ -1130,9 +1130,12 @@ const Sprites = (() => {
       const ax0 = CXK + sd * 7, ay0 = 21;
       const ax1 = CXK + sd * 10, ay1 = 31 + sw;
       const [p0, p1] = [at(ax0, ay0), at(ax1, ay1)];
-      Art.limb(g, p0[0], p0[1], p1[0], p1[1], 5 * XS, 4 * XS, sd < 0 ? SU1 : SU0);
-      E(ax1, ay1 + 2, 2.6, 2.4, SH1);                           // the hand
-      E(ax1 - sd * 0.6, ay1 + 1.6, 2, 1.8, SH2);
+      Art.limb(g, p0[0], p0[1], p1[0], p1[1], 4.6 * XS, 3.4 * XS, sd < 0 ? SU1 : SU0);
+      // a white shirt cuff poking out of the suit, and a round fin of a hand
+      const cf = at(ax0 + (ax1 - ax0) * 0.86, ay0 + (ay1 - ay0) * 0.86);
+      E(cf[0], cf[1], 2.4, 1.4, '#f4f6fa');
+      E(ax1, ay1 + 2, 2.8, 2.6, SH0); E(ax1, ay1 + 1.8, 2.3, 2.1, SH1);           // the hand
+      E(ax1 - sd * 0.7, ay1 + 1.2, 1.1, 0.9, SH2);
     }
 
     // ---- the head: one big block with a snout under it ---------------------
@@ -1317,10 +1320,13 @@ const Sprites = (() => {
       const sx = GX + s2 * (shW - 2), sy = shoulder + 3;
       const ex = GX + s2 * (shW + 7), ey = chestY + 10 + sw * 0.7;
       const hxx = GX + s2 * (shW + 8), hyy = hip - 5 + sw * 1.3;
-      Art.limb(g, sx, sy, ex, ey, 6.4, 5, BK0);
-      Art.limb(g, sx, sy, ex, ey, 5, 3.8, s2 < 0 ? BK2 : BK1);
-      Art.limb(g, ex, ey, hxx, hyy, 5, 3.6, BK0);
-      Art.limb(g, ex, ey, hxx, hyy, 3.8, 2.6, s2 < 0 ? BK2 : BK1);
+      // a smooth tapering branch, bark lines along it, a leafy sprig at the elbow
+      Art.limb(g, sx, sy, ex, ey, 5.6, 4.4, BK0);
+      Art.limb(g, sx, sy, ex, ey, 4.4, 3.4, s2 < 0 ? BK2 : BK1);
+      Art.limb(g, ex, ey, hxx, hyy, 4.4, 3, BK0);
+      Art.limb(g, ex, ey, hxx, hyy, 3.4, 2.2, s2 < 0 ? BK2 : BK1);
+      Art.limb(g, sx + s2 * 0.6, sy + 1, ex, ey, 0.6, 0.5, BK0);
+      Art.ell(g, ex + s2 * 3, ey - 2, 2.4, 1.4, '#4a8a32'); Art.ell(g, ex + s2 * 3.6, ey - 2.6, 1.4, 0.8, '#7ab850');
       // twiggy fingers
       for (let i = -1; i <= 1; i++) {
         Art.limb(g, hxx, hyy, hxx + s2 * 2.6 + i * 1.6, hyy + 5 + Math.abs(i), 1.8, 0.9, BK1);

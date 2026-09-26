@@ -349,3 +349,16 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 .panel .dcc-btn.place { background: var(--fr1) !important; }
 .credit { text-align: center; margin: 10px 0 8px; font-size: 14px; color: var(--ink2); }
 .credit b { color: var(--berry-d); font-weight: 400; }
+
+/* ---- polish: the purse is a honey plaque, the clock sits under it, the toolbar is chunkier ---- */
+#money { border-image-source: var(--gf-hot) !important; }
+#money b { color: #5a3a10 !important; text-shadow: 2px 2px 0 #fff0b0 !important; font-size: 24px !important; }
+#money img.ico { width: 30px !important; height: 30px !important; animation: coinspin 2.4s steps(2) infinite; }
+@keyframes coinspin { 0%, 90%, 100% { transform: none } 95% { transform: scaleX(0.6) } }
+#clock b { font-size: 22px; }
+#hotbar .hslot { width: 56px; height: 56px; }
+#hotbar .hslot img.ico { width: 34px; height: 34px; }
+#hotbar .hslot.on { filter: drop-shadow(0 0 0 #fff) drop-shadow(0 3px 0 rgba(200,58,76,0.5)); }
+#hotbar .hbname { font-size: 16px; }
+#tip { filter: drop-shadow(3px 4px 0 rgba(40,30,10,0.3)); }
+.toast { filter: drop-shadow(3px 4px 0 rgba(40,30,10,0.3)); }

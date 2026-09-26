@@ -67,16 +67,14 @@
   // ---- the cover: 315 x 250, shown at 2x -------------------------------------------------
   function cover(g, u) {
     const W = 315, H = 250, GY = 196;
-    Art.vramp(g, 0, 0, W, GY, [[0, '#7ab8e8'], [0.65, '#bfe0f0'], [1, '#fbe8c8']], 10);
-    // the sun, turning slowly
+    // the title screen's own country behind it all: mountains, fields, the forest and the mart
+    if (!cover.bg) { cover.bg = document.createElement('canvas'); cover.bg.width = 640; cover.bg.height = 360; }
+    const bg = cover.bg.getContext('2d'); bg.imageSmoothingEnabled = false;
+    Menu.sceneAt(bg, 0);
+    g.drawImage(cover.bg, -150, -40);
     const sx = 296, sy = 26;
-    Art.glow(g, sx, sy, 60, '#fff0b0', 0.35, 5);
     for (let i = 0; i < 12; i++) { const a = u * TAU / 6 + (i / 12) * TAU; Art.limb(g, sx + Math.cos(a) * 20, sy + Math.sin(a) * 20, sx + Math.cos(a) * 28, sy + Math.sin(a) * 28, 1.4, 0.6, '#ffe070'); }
     Art.ell(g, sx, sy, 16, 16, '#ffd860'); Art.ell(g, sx - 3, sy - 3, 11, 11, '#fff0a0');
-    cloud(g, 52 + Math.sin(u * TAU) * 6, 104 + Math.sin(u * TAU * 2) * 1, 1);
-    cloud(g, 200 + Math.sin(u * TAU + 2) * 6, 92, 0.8);
-    hills(g, W, 158, ['#9ccc7c', '#7ab85a'], u, 8);
-    trees(g, W, 178, 9, 31, 0.15, 0.52);
     // the meadow: bands going lighter toward you, soft patches, and swaying tufts
     const BAND = ['#5a9a3e', '#62a444', '#6aac4a', '#74b652', '#7cbe58'];
     for (let i = 0; i < 5; i++) R(g, 0, GY - 8 + i * 12, W, H, BAND[i]);

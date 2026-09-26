@@ -64,10 +64,13 @@ const Kirk = (() => {
     // arms, behind the shirt: steel tubes, a ball joint, a three-finger claw
     const arm = (d, sw) => {
       const ax = cx + d * 7, ay = by - 21;
-      const hx = ax + d * 2, hy = ay + 9 + sw;
-      Art.limb(g, ax, ay, hx, hy, 1.8, 1.6, STEEL[1]);
-      Art.limb(g, ax, ay, hx, hy, 1, 0.8, STEEL[3]);
-      Art.ell(g, hx, hy + 1, 1.8, 1.8, STEEL[2]); P(g, hx - 1, hy, STEEL[4]);
+      const hx = ax + d * 2, hy = ay + 9 + sw, ex = ax + d * 1.4, ey = ay + (hy - ay) * 0.5;
+      // two steel segments with a gold elbow bolt, and a white cartoon glove
+      Art.limb(g, ax, ay, ex, ey, 2, 1.7, STEEL[1]); Art.limb(g, ex, ey, hx, hy, 1.8, 1.5, STEEL[1]);
+      Art.limb(g, ax - d * 0.4, ay, ex - d * 0.4, ey, 0.8, 0.7, STEEL[3]); Art.limb(g, ex - d * 0.4, ey, hx - d * 0.4, hy, 0.7, 0.6, STEEL[3]);
+      P(g, ex, ey, GOLD[1]);
+      Art.ell(g, hx, hy + 1.5, 2.4, 2.2, '#f4f4f0'); Art.ell(g, hx - 0.6, hy + 1, 1.2, 1, '#ffffff');
+      R(g, hx - 2, hy - 0.5, 4, 1, '#c8c8d0');                                       // the glove's cuff
     };
     arm(-1, armL);
     if (pose !== 'wave') arm(1, armR);

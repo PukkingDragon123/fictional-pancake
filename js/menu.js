@@ -340,5 +340,7 @@ const Menu = (() => {
     return false;
   }
 
-  return { init, enter, update, render, press, move, key, setSave, get page() { return page; } };
+  // the title screen's moving country on its own, for the itch.io art
+  function sceneAt(g, time) { const o = t; t = time; scene(g); t = o; }
+  return { init, enter, update, render, press, move, key, setSave, sceneAt, get page() { return page; } };
 })();

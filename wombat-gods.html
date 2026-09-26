@@ -1355,6 +1355,19 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 .panel .dcc-btn.place { background: var(--fr1) !important; }
 .credit { text-align: center; margin: 10px 0 8px; font-size: 14px; color: var(--ink2); }
 .credit b { color: var(--berry-d); font-weight: 400; }
+
+/* ---- polish: the purse is a honey plaque, the clock sits under it, the toolbar is chunkier ---- */
+#money { border-image-source: var(--gf-hot) !important; }
+#money b { color: #5a3a10 !important; text-shadow: 2px 2px 0 #fff0b0 !important; font-size: 24px !important; }
+#money img.ico { width: 30px !important; height: 30px !important; animation: coinspin 2.4s steps(2) infinite; }
+@keyframes coinspin { 0%, 90%, 100% { transform: none } 95% { transform: scaleX(0.6) } }
+#clock b { font-size: 22px; }
+#hotbar .hslot { width: 56px; height: 56px; }
+#hotbar .hslot img.ico { width: 34px; height: 34px; }
+#hotbar .hslot.on { filter: drop-shadow(0 0 0 #fff) drop-shadow(0 3px 0 rgba(200,58,76,0.5)); }
+#hotbar .hbname { font-size: 16px; }
+#tip { filter: drop-shadow(3px 4px 0 rgba(40,30,10,0.3)); }
+.toast { filter: drop-shadow(3px 4px 0 rgba(40,30,10,0.3)); }
 </style>
 
 <div id="app">
@@ -3705,9 +3718,12 @@ const Sprites = (() => {
       const ax0 = CXK + sd * 7, ay0 = 21;
       const ax1 = CXK + sd * 10, ay1 = 31 + sw;
       const [p0, p1] = [at(ax0, ay0), at(ax1, ay1)];
-      Art.limb(g, p0[0], p0[1], p1[0], p1[1], 5 * XS, 4 * XS, sd < 0 ? SU1 : SU0);
-      E(ax1, ay1 + 2, 2.6, 2.4, SH1);                           // the hand
-      E(ax1 - sd * 0.6, ay1 + 1.6, 2, 1.8, SH2);
+      Art.limb(g, p0[0], p0[1], p1[0], p1[1], 4.6 * XS, 3.4 * XS, sd < 0 ? SU1 : SU0);
+      // a white shirt cuff poking out of the suit, and a round fin of a hand
+      const cf = at(ax0 + (ax1 - ax0) * 0.86, ay0 + (ay1 - ay0) * 0.86);
+      E(cf[0], cf[1], 2.4, 1.4, '#f4f6fa');
+      E(ax1, ay1 + 2, 2.8, 2.6, SH0); E(ax1, ay1 + 1.8, 2.3, 2.1, SH1);           // the hand
+      E(ax1 - sd * 0.7, ay1 + 1.2, 1.1, 0.9, SH2);
     }
 
     // ---- the head: one big block with a snout under it ---------------------
@@ -3892,10 +3908,13 @@ const Sprites = (() => {
       const sx = GX + s2 * (shW - 2), sy = shoulder + 3;
       const ex = GX + s2 * (shW + 7), ey = chestY + 10 + sw * 0.7;
       const hxx = GX + s2 * (shW + 8), hyy = hip - 5 + sw * 1.3;
-      Art.limb(g, sx, sy, ex, ey, 6.4, 5, BK0);
-      Art.limb(g, sx, sy, ex, ey, 5, 3.8, s2 < 0 ? BK2 : BK1);
-      Art.limb(g, ex, ey, hxx, hyy, 5, 3.6, BK0);
-      Art.limb(g, ex, ey, hxx, hyy, 3.8, 2.6, s2 < 0 ? BK2 : BK1);
+      // a smooth tapering branch, bark lines along it, a leafy sprig at the elbow
+      Art.limb(g, sx, sy, ex, ey, 5.6, 4.4, BK0);
+      Art.limb(g, sx, sy, ex, ey, 4.4, 3.4, s2 < 0 ? BK2 : BK1);
+      Art.limb(g, ex, ey, hxx, hyy, 4.4, 3, BK0);
+      Art.limb(g, ex, ey, hxx, hyy, 3.4, 2.2, s2 < 0 ? BK2 : BK1);
+      Art.limb(g, sx + s2 * 0.6, sy + 1, ex, ey, 0.6, 0.5, BK0);
+      Art.ell(g, ex + s2 * 3, ey - 2, 2.4, 1.4, '#4a8a32'); Art.ell(g, ex + s2 * 3.6, ey - 2.6, 1.4, 0.8, '#7ab850');
       // twiggy fingers
       for (let i = -1; i <= 1; i++) {
         Art.limb(g, hxx, hyy, hxx + s2 * 2.6 + i * 1.6, hyy + 5 + Math.abs(i), 1.8, 0.9, BK1);
@@ -8124,10 +8143,13 @@ const Kirk = (() => {
     // arms, behind the shirt: steel tubes, a ball joint, a three-finger claw
     const arm = (d, sw) => {
       const ax = cx + d * 7, ay = by - 21;
-      const hx = ax + d * 2, hy = ay + 9 + sw;
-      Art.limb(g, ax, ay, hx, hy, 1.8, 1.6, STEEL[1]);
-      Art.limb(g, ax, ay, hx, hy, 1, 0.8, STEEL[3]);
-      Art.ell(g, hx, hy + 1, 1.8, 1.8, STEEL[2]); P(g, hx - 1, hy, STEEL[4]);
+      const hx = ax + d * 2, hy = ay + 9 + sw, ex = ax + d * 1.4, ey = ay + (hy - ay) * 0.5;
+      // two steel segments with a gold elbow bolt, and a white cartoon glove
+      Art.limb(g, ax, ay, ex, ey, 2, 1.7, STEEL[1]); Art.limb(g, ex, ey, hx, hy, 1.8, 1.5, STEEL[1]);
+      Art.limb(g, ax - d * 0.4, ay, ex - d * 0.4, ey, 0.8, 0.7, STEEL[3]); Art.limb(g, ex - d * 0.4, ey, hx - d * 0.4, hy, 0.7, 0.6, STEEL[3]);
+      P(g, ex, ey, GOLD[1]);
+      Art.ell(g, hx, hy + 1.5, 2.4, 2.2, '#f4f4f0'); Art.ell(g, hx - 0.6, hy + 1, 1.2, 1, '#ffffff');
+      R(g, hx - 2, hy - 0.5, 4, 1, '#c8c8d0');                                       // the glove's cuff
     };
     arm(-1, armL);
     if (pose !== 'wave') arm(1, armR);
@@ -8371,7 +8393,7 @@ const JimGirl = (() => {
     R(cx - 15, 30 + y0, 6, 22, HAIR[1]); R(cx + 9, 30 + y0, 6, 22, HAIR[1]);
     R(cx - 15, 30 + y0, 2, 21, HAIR[2]); R(cx + 13, 31 + y0, 2, 20, HAIR[0]);
     for (const x of [cx - 15, cx - 12, cx + 9, cx + 12]) R(x, 51 + y0, 3, 2, HAIR[1]);
-    E(cx + 12, 62 + y0, 3, 3, ONE[1]); E(cx + 12, 61 + y0, 2, 2, ONE[3]);
+    E(cx + 9, 62 + y0, 2.6, 2.6, ONE[1]); E(cx + 9, 61 + y0, 1.6, 1.6, ONE[3]);
 
     // ---- legs and paw feet
     const hipY = 66 + y0;
@@ -8383,34 +8405,35 @@ const JimGirl = (() => {
         for (let k = -1; k <= 1; k++) P(fx + s2 * 2 + k * 2, hipY + 5, BELLY[1]);
         continue;
       }
-      const fx = cx + s2 * 5 + step * s2, lift = step * s2 > 1 ? 2 : 0;
-      R(fx - 4, hipY, 8, 11 - lift, ONE[2]); R(fx - 4, hipY, 2, 10 - lift, ONE[3]); R(fx + 2, hipY, 2, 10 - lift, ONE[1]);
-      E(fx, hipY + 12 - lift, 5, 3, ONE[1]); E(fx, hipY + 11 - lift, 4.4, 2.4, ONE[2]);   // the paw foot
-      R(fx - 3, hipY + 13 - lift, 6, 1, ONE[0]);
-      for (let k = -1; k <= 1; k++) P(fx + k * 2, hipY + 10 - lift, BELLY[1]);           // toe beans
+      const fx = cx + s2 * 3.5 + step * s2, lift = step * s2 > 1 ? 2 : 0;
+      R(fx - 2.5, hipY, 5, 11 - lift, ONE[2]); R(fx - 2.5, hipY, 1, 10 - lift, ONE[3]); R(fx + 1.5, hipY, 1, 10 - lift, ONE[1]);
+      E(fx + s2 * 0.5, hipY + 12 - lift, 3.8, 2.4, ONE[1]); E(fx + s2 * 0.5, hipY + 11 - lift, 3.2, 1.8, ONE[2]);   // the paw foot
+      R(fx - 2.5 + s2 * 0.5, hipY + 13 - lift, 5, 1, ONE[0]);
+      for (let k = -1; k <= 1; k++) P(fx + s2 * 0.5 + k * 1.5, hipY + 10 - lift, BELLY[1]);           // toe beans
     }
 
     // ---- the far arm (only when it crosses in front does the order matter)
     const shY = 45 + y0;
     const arm = (s2, hand) => {
-      const sx = cx + s2 * 9, hx = sx + hand[0], hy = shY + hand[1];
-      // a soft puffy sleeve, fat at the shoulder, with a lit edge and a cream cuff
-      Art.limb(g, sx, shY, hx, hy, 4.2, 3.2, ONE[0]);
-      Art.limb(g, sx, shY, hx, hy, 3.4, 2.5, ONE[2]);
-      Art.limb(g, sx - 0.8, shY - 0.5, hx - 0.6, hy - 0.5, 1.4, 1, ONE[3]);
-      const cx2 = sx + (hx - sx) * 0.82, cy2 = shY + (hy - shY) * 0.82;
-      E(cx2, cy2, 3.2, 2, BELLY[0]); E(cx2, cy2 - 0.4, 2.6, 1.4, BELLY[1]);
+      const sx = cx + s2 * 6.5, hx = sx + hand[0] * 0.9, hy = shY + hand[1];
+      // a slim sleeve, a touch fuller at the shoulder, with a lit edge and a cream cuff
+      Art.limb(g, sx, shY, hx, hy, 3.2, 2.4, ONE[0]);
+      Art.limb(g, sx, shY, hx, hy, 2.4, 1.7, ONE[2]);
+      Art.limb(g, sx - 0.6, shY - 0.5, hx - 0.5, hy - 0.5, 1, 0.7, ONE[3]);
+      const cx2 = sx + (hx - sx) * 0.84, cy2 = shY + (hy - shY) * 0.84;
+      E(cx2, cy2, 2.4, 1.6, BELLY[0]); E(cx2, cy2 - 0.3, 1.9, 1.1, BELLY[1]);
       // the paw: round, with a pink bean and three toe beans
-      E(hx, hy + 1.5, 4, 3.8, ONE[0]); E(hx, hy + 1, 3.4, 3.2, ONE[2]); E(hx - 1, hy, 1.6, 1.4, ONE[3]);
-      E(hx, hy + 2, 1.4, 1.1, '#f4a0b0');
-      for (const d of [-1.6, 0, 1.6]) P(hx + d, hy - 0.4, '#f4a0b0');
+      E(hx, hy + 1.2, 3, 2.9, ONE[0]); E(hx, hy + 0.8, 2.5, 2.4, ONE[2]); E(hx - 0.8, hy, 1.2, 1, ONE[3]);
+      E(hx, hy + 1.6, 1.1, 0.9, '#f4a0b0');
+      for (const d of [-1.2, 0, 1.2]) P(hx + d, hy - 0.4, '#f4a0b0');
     };
 
     // ---- the body: the onesie, round, with a cream tummy and a zip
-    E(cx, 56 + y0, 12, 13, ONE[1]);
-    E(cx, 55 + y0, 11, 12, ONE[2]);
-    E(cx - 4, 50 + y0, 5, 6, ONE[3]);
-    E(cx, 58 + y0, 7, 8, BELLY[0]); E(cx, 57 + y0, 6, 7, BELLY[1]); E(cx - 2, 55 + y0, 3, 3, BELLY[2]);
+    // slim: narrow shoulders, a waist, a little flare at the hip
+    E(cx, 50 + y0, 7.5, 7, ONE[1]); E(cx, 60 + y0, 8, 7, ONE[1]); R(cx - 6, 50 + y0, 12, 10, ONE[1]);
+    E(cx, 50 + y0, 6.8, 6.2, ONE[2]); E(cx, 60 + y0, 7.2, 6.2, ONE[2]); R(cx - 5.4, 50 + y0, 10.8, 10, ONE[2]);
+    E(cx - 3, 48 + y0, 3, 4, ONE[3]);
+    E(cx, 57 + y0, 4, 6, BELLY[0]); E(cx, 56.5 + y0, 3.4, 5.4, BELLY[1]); E(cx - 1, 54 + y0, 1.6, 2, BELLY[2]);
     R(cx, 44 + y0, 1, 20, ONE[0]); R(cx - 1, 46 + y0, 3, 2, '#e8c050');           // the zip and its pull
     if (!(pose === 'clap')) { arm(-1, hl); arm(1, hr); }
 
@@ -19932,7 +19955,9 @@ const Menu = (() => {
     return false;
   }
 
-  return { init, enter, update, render, press, move, key, setSave, get page() { return page; } };
+  // the title screen's moving country on its own, for the itch.io art
+  function sceneAt(g, time) { const o = t; t = time; scene(g); t = o; }
+  return { init, enter, update, render, press, move, key, setSave, sceneAt, get page() { return page; } };
 })();
 </script>
 
