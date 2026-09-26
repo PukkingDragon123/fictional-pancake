@@ -40,11 +40,6 @@ const FurnArt = (() => {
 
   const A = {
     ottoman: (g, w, h) => ottomanOf(g, w, h, VEL, GLD),
-    lostottoman: (g, w, h) => {
-      ottomanOf(g, w, h, ['#6a5a24', '#a08c3e', '#cab45a', '#e2d27a', '#f6ecb0'], ['#5a5a52', '#7a7a70', '#a4a498', '#cacac0', '#eeeee6']);
-      for (let i = 0; i < 30; i++) P(g, 3 + (i * 7) % (w - 6), 3 + (i * 5) % (h - 10), i % 3 ? '#8a7a36' : '#f6ecb0');   // carpet pile
-      E(g, w * 0.66, h * 0.52, 5, 2, 'rgba(90,70,20,0.45)');                                                // a damp patch
-    },
     pouf: (g, w, h) => {
       const cx = w / 2, top = 5;
       E(g, cx, h - 5, w / 2 - 1, 4, KNT[0]);

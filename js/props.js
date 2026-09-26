@@ -189,7 +189,7 @@ const Props = (() => {
   // ---- weeds: the thing choking the plot, so they want to read big ---------
   P.weed = (v = 0) => cached('weed' + v, 34, 40, (g) => {
     const rnd = Art.rng((+v + 1) * 733);
-    const D = '#3b4a1e', M = '#5d7128', L = '#86974a', Y = '#a8a054', ROT = '#6d5a2c';
+    const D = '#2e5a22', M = '#4a8a32', L = '#7ab850', Y = '#b8c460', ROT = '#8a6a34';
     const cx = 17, base = 38;
     if (+v === 0) {                       // thistle: tall, spiny, purple heads
       for (let i = -1; i <= 1; i++) {
@@ -1351,11 +1351,6 @@ const Props = (() => {
     },
     // ---- the Ottoman Empire's stock ------------------------------------------
     ottoman: (g, w, h) => velvet(g, w, h, ['#6a0e1c', '#a8182c', '#d8384a', '#ff7a86'], '#e8b020'),
-    lostottoman: (g, w, h) => {
-      velvet(g, w, h, ['#8a7a3a', '#c8b660', '#e2d27a', '#f4e8a4'], '#8a8478');
-      for (let i = 0; i < 18; i++) Art.rect(g, 3 + (i * 7) % (w - 6), 4 + (i * 5) % 8, 1, 1, i % 2 ? '#a89850' : '#fff4b8');   // carpet pile
-      Art.rect(g, w / 2 - 6, 2, 12, 1, 'rgba(255,255,220,0.8)');
-    },
     pouf: (g, w, h) => {
       Art.ell(g, w / 2, h - 7, w / 2, 7, '#0e5a5a');
       Art.ell(g, w / 2, h - 8, w / 2 - 1, 6, '#18908a');

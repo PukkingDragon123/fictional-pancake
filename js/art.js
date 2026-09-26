@@ -154,18 +154,15 @@ const Art = (() => {
   // replace them: hard bands with a checker seam between, which is how a
   // gradient is drawn by hand.
   const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
-  // a dithered fill: every pixel whose bayer threshold is under `a` is painted
+  // A soft fill: once a checker of bayer pixels, now a flat wash at `a`. The
+  // dots read as a screen door laid over the picture; flat washes in hard-edged
+  // steps are how the rest of the art is shaded.
   function dither(g, x, y, w, h, col, a) {
     if (a <= 0.02) return;
-    if (a >= 0.99) { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); return; }
-    g.fillStyle = col;
-    const x0 = Math.round(x), y0 = Math.round(y), x1 = x0 + Math.round(w), y1 = y0 + Math.round(h);
-    const lvl = Math.round(a * 16);
-    for (let yy = y0; yy < y1; yy++) {
-      for (let xx = x0; xx < x1; xx++) {
-        if (BAYER[((yy % 4) + 4) % 4][((xx % 4) + 4) % 4] < lvl) g.fillRect(xx, yy, 1, 1);
-      }
-    }
+    const oa = g.globalAlpha;
+    g.globalAlpha = oa * Math.min(1, a);
+    g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+    g.globalAlpha = oa;
   }
   // a dithered vignette, cached: darkness grows with distance from centre,
   // laid down as bayer pixels so the falloff reads as banding, never a blur
@@ -219,18 +216,10 @@ const Art = (() => {
   // the same, but elliptical and with the dither applied per scanline
   function ditherEll(g, cx, cy, rx, ry, col, a) {
     if (a <= 0.02) return;
-    g.fillStyle = col;
-    const lvl = Math.round(U.clamp(a, 0, 1) * 16);
-    const y0 = Math.floor(cy - ry), y1 = Math.ceil(cy + ry);
-    for (let y = y0; y <= y1; y++) {
-      const dy = (y + 0.5 - cy) / ry;
-      if (dy < -1 || dy > 1) continue;
-      const w = Math.sqrt(1 - dy * dy) * rx;
-      const xa = Math.round(cx - w), xb = Math.round(cx + w);
-      if (lvl >= 16) { if (xb > xa) g.fillRect(xa, y, xb - xa, 1); continue; }
-      const row = BAYER[((y % 4) + 4) % 4];
-      for (let x = xa; x < xb; x++) if (row[((x % 4) + 4) % 4] < lvl) g.fillRect(x, y, 1, 1);
-    }
+    const oa = g.globalAlpha;
+    g.globalAlpha = oa * U.clamp(a, 0, 1);
+    ell(g, cx, cy, rx, ry, col);
+    g.globalAlpha = oa;
   }
   // a vertical ramp drawn as n hard bands with a dithered seam between each
   // a multi-stop vertical ramp, painted as n hard bands with dithered seams.
@@ -336,7 +325,7 @@ const Art = (() => {
     for (let x = 0; x < w; x++) {
       let first = -1;
       for (let y = 0; y < h; y++) if (a[(y * w + x) * 4 + 3] > 8) { first = y; break; }
-      if (first >= 0) g.fillRect(x, first, 1, depth - (x % 2 === 0 ? 0 : 1));
+      if (first >= 0) g.fillRect(x, first, 1, depth);
     }
   }
   // Ordered dither over the lower half of a shape: reads as grain, not noise.
@@ -351,7 +340,6 @@ const Art = (() => {
       for (let y = tops[x] + 3; y < h; y++) {
         const i = (y * w + x) * 4;
         if (a[i + 3] <= 8) continue;
-        if (((x + y) & 1) === 0 && ((x >> 1) + y) % 3 !== 0) continue;   // bayer-ish mask
         const k = 1 - alpha * Math.min(1, (y - tops[x]) / Math.max(6, h - tops[x]) + 0.4);
         a[i] = a[i] * k; a[i + 1] = a[i + 1] * k; a[i + 2] = a[i + 2] * k;
       }

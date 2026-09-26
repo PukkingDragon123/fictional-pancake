@@ -61,9 +61,6 @@ const Sky = (() => {
       nextFront = WEATHER[front].mins * 60;
       if (G) UI.toast(`<b>${WEATHER[front].name}</b> &mdash; ${WEATHER[front].blurb}`, '');
       // somebody always has something to say about the weather
-      if (G && front === 'storm') Phone.push('shaz', 'big one coming in over the flats!! get them inside 😬');
-      else if (G && front === 'rain') Phone.push('bee', 'rain on. my lot are all indoors sulking. yours will love it');
-      else if (G && front === 'clear' && Math.random() < 0.5) Phone.push('fish', 'flat calm out here. perfect. i will catch nothing again');
     }
     const w = wet();
     // rain: a column of drops falling across the whole screen

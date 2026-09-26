@@ -57,7 +57,6 @@ img.ico.xl { width: 48px; height: 48px; }
     0 12px 0 5px rgba(0,0,0,0.5), 0 0 90px rgba(0,0,0,0.6); }
 #game { image-rendering: pixelated; display: block; cursor: crosshair; touch-action: none; width: 100%; height: 100%; }
 
-
 /* ---- the recipes, reused everywhere --------------------------------------
    PAGE    dark wood cover, parchment page, teal brackets in the corners
            (the panel, the to-do card, the tooltip, the card, the toast)
@@ -402,28 +401,13 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 100%/10px 30px no-repeat;
 }
 /* the heading plank, laid across the top of the cover */
-.phead {
-  position: relative; z-index: 2; display: flex; align-items: center; gap: 10px;
-  margin: -26px 30px 14px; padding: 10px 20px 10px 16px;
-  color: #f4dfae; font-family: var(--ft); font-weight: 400; font-size: 16px; letter-spacing: 2px;
-  text-shadow: 0 2px 0 var(--wd0);
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 3px, rgba(255,214,150,0.05) 3px 7px, rgba(0,0,0,0) 7px 15px),
-    linear-gradient(180deg, var(--wd4) 0 16%, var(--wd3) 16% 58%, var(--wd2) 58% 84%, var(--wd1) 84% 100%);
-  border: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 var(--wd5), inset 0 -3px 0 var(--wd0), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
-}
+
 /* the two iron caps on the ends of the plank */
-.phead::before, .phead::after {
-  content: ''; position: absolute; top: -7px; bottom: -7px; width: 16px;
-  background: linear-gradient(180deg, var(--tl4) 0 14%, var(--tl3) 14% 34%, var(--tl2) 34% 68%, var(--tl1) 68% 100%);
-  border: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 rgba(200,244,255,0.5);
-}
-.phead::before { left: -12px; } .phead::after { right: -12px; }
-.phead img.ico { width: 22px; height: 22px; }
+
+ 
+
 .ptitle { flex: 1; }
-.phead .x { margin-left: auto; z-index: 1; }
+
 .pbody { position: relative; z-index: 1; overflow-y: auto; padding: 4px 20px 2px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
 .item { display: grid; grid-template-columns: 60px 1fr; gap: 5px 11px; padding: 9px; align-items: center;
@@ -627,7 +611,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
   60%  { opacity: 1; transform: translateY(-2px) scale(1.01) }
   100% { opacity: 1; transform: none }
 }
-.panel .pbody, .panel .phead { animation: bodyin 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) backwards; }
+.panel .pbody { animation: bodyin 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) backwards; }
 @keyframes ping { 0% { transform: scale(1, 1) } 28% { transform: scale(1.26, 0.8) } 56% { transform: scale(0.9, 1.12) } 78% { transform: scale(1.04, 0.97) } 100% { transform: scale(1, 1) } }
 #money.ping { animation: ping 0.44s cubic-bezier(0.34, 1.8, 0.5, 1); }
 @keyframes bob { 0%, 100% { transform: translateY(0) scale(1, 1) } 42% { transform: translateY(-5px) scale(0.96, 1.05) } 70% { transform: translateY(1px) scale(1.04, 0.96) } }
@@ -697,7 +681,6 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 .spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active { transform: translateY(4px) scale(.86, 1.14); }
 @keyframes pop-in { 0% { transform: scale(.8, 1.16); opacity: 0 } 55% { transform: scale(1.08, 0.94); opacity: 1 } 80% { transform: scale(.98, 1.02) } 100% { transform: scale(1, 1) } }
 .tray:not([hidden]) { animation: pop-in .24s cubic-bezier(.3,1.7,.5,1); }
-
 
 /* ---- one kit, applied over everything ------------------------------------
    Old wood and parchment, teal iron where it has to hold, gold where it has to
@@ -845,348 +828,71 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
    every edge is a flat band of colour, and there is not a gradient or a
    blur anywhere in it.
    ========================================================================= */
-.phone {
-  position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
-  background: rgba(10,7,4,0.84);
-  animation: phfade .12s steps(3, end);
-}
-@keyframes phfade { from { opacity: 0 } to { opacity: 1 } }
 
 /* the case */
-.phshell {
-  --ph-h: min(94vh, 720px);
-  --case: #3d3529; --lit: #6b5c44; --dk: #17120c; --rivet: #a9750d;
-  position: relative; flex: 0 0 auto; height: var(--ph-h); width: calc(var(--ph-h) * 356 / 640);
-  min-width: 0; max-width: 96vw;
-  display: flex; flex-direction: column; padding: 30px 12px 62px;
-  background: var(--case);
-  box-shadow:
-    inset 0 4px 0 0 var(--lit), inset 0 -5px 0 0 var(--dk),
-    inset 4px 0 0 0 #4a4132, inset -4px 0 0 0 #2a2419,
-    0 0 0 4px var(--ol), 0 10px 0 4px rgba(0,0,0,0.45);
-  animation: phin .16s steps(4, end);
-}
-@keyframes phin { from { transform: translateY(18px); opacity: 0 } to { transform: none; opacity: 1 } }
+
 /* the speaker grille punched across the top, and a sensor dot beside it */
-.phshell::before {
-  content: ''; position: absolute; left: 50%; top: 12px; width: 78px; height: 8px; margin-left: -46px;
-  background: repeating-linear-gradient(90deg, var(--dk) 0 4px, transparent 4px 8px);
-  box-shadow: 30px 0 0 0 var(--dk), 34px 0 0 0 var(--dk);
-}
+
 /* the maker's stamp under the screen, because an old thing always has one */
-.phshell::after {
-  content: 'WOMBAT CO.'; position: absolute; left: 14px; bottom: 21px;
-  font-size: 9px; letter-spacing: 2px; color: #6b5c44;
-}
+
 /* the side keys: brass nubs, square */
-.phshell i[class^="phbtn-"] { position: absolute; background: var(--rivet); box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #d8a41c; }
-.phbtn-silent { left: -6px; top: 17%; width: 5px; height: 3%; }
-.phbtn-up     { left: -6px; top: 25%; width: 5px; height: 6%; }
-.phbtn-down   { left: -6px; top: 33%; width: 5px; height: 6%; }
-.phbtn-wake   { right: -6px; top: 27%; width: 5px; height: 9%; }
-.phclose {
-  position: absolute; right: -16px; top: -16px; width: 32px; height: 32px; border: 0; cursor: pointer;
-  font-family: var(--f); font-size: 18px; line-height: 1; color: #f0e2c4;
-  background: #8a3a1e; box-shadow: inset 0 3px 0 #b85a32, inset 0 -3px 0 #4a1a0a, 0 0 0 3px var(--ol);
-}
-.phclose:hover { background: #a8492a; }
-.phclose:active { transform: translateY(2px); }
 
 /* the screen, sunk into the case */
-.phglass {
-  position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
-  overflow: hidden; background: #241708;
-  box-shadow: inset 0 0 0 3px #0e0904, 0 0 0 3px #17120c, 0 0 0 5px #5a4d38;
-}
+
 /* the scanline and the dark corners of an old screen, over everything */
-.phglass::after {
-  content: ''; position: absolute; inset: 0; z-index: 9; pointer-events: none;
-  background:
-    repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0 1px, transparent 1px 3px),
-    radial-gradient(120% 90% at 50% 50%, transparent 58%, rgba(0,0,0,0.42) 100%);
-}
-.phwall {
-  position: absolute; inset: 0; pointer-events: none; background: #2a1a0c;
-  background-size: 100% 100%; background-repeat: no-repeat; image-rendering: pixelated;
-}
 
 /* the status strip */
-.phstatus {
-  position: relative; z-index: 3; flex: 0 0 auto; display: flex; align-items: center; gap: 6px;
-  padding: 5px 10px; font-size: 12px; color: #f0dcb0; letter-spacing: 1px;
-  background: rgba(20,12,6,0.74); box-shadow: inset 0 -2px 0 rgba(140,92,48,0.4);
-}
-.phstatus b { font-weight: 400; }
-.phisland { display: none; }
-.phsig { margin-left: auto; display: flex; align-items: flex-end; gap: 2px; height: 10px; }
-.phsig i { width: 3px; background: #f0dcb0; }
-.phsig i:nth-child(1) { height: 3px } .phsig i:nth-child(2) { height: 5px }
-.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 10px; background: #5a4326 }
-.phwifi { width: 12px; height: 10px; background:
-  linear-gradient(#f0dcb0 0 0) 4px 7px/4px 3px no-repeat,
-  linear-gradient(#f0dcb0 0 0) 2px 3px/8px 2px no-repeat,
-  linear-gradient(#f0dcb0 0 0) 0 0/12px 2px no-repeat; }
-.phbatt { position: relative; width: 20px; height: 11px; padding: 2px; box-shadow: inset 0 0 0 2px #a8875a; }
-.phbatt::after { content: ''; position: absolute; right: -4px; top: 3px; width: 3px; height: 5px; background: #a8875a; }
-.phbatt i { display: block; width: 74%; height: 100%; background: #f0dcb0; }
+
+ 
+ 
 
 /* the home screen */
-.phhome-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 8px 12px 0; }
-.phwidget {
-  margin: 4px 0 12px; padding: 8px 10px; color: #3a2410;
-  background: #ddc39a; box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0, 0 0 0 2px #1e1208;
-}
-.phwidget h5 { display: flex; align-items: center; gap: 5px; margin: 0 0 3px; font-size: 11px; font-weight: 400;
-  letter-spacing: 2px; color: #7a4f06; }
-.phwidget p { margin: 0; font-size: 14px; line-height: 1.4; }
-.phwidget .phwrow { display: flex; gap: 12px; margin-top: 6px; font-size: 12px; color: #6b4a26; }
-.phwidget .phwrow span { display: flex; align-items: center; gap: 4px; }
-.phwidget img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
 
 /* the tiles are screwed to a board, so the labels always have something dark
    behind them instead of whatever the wallpaper happens to be doing */
-.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 6px; align-content: start;
-  padding: 8px 7px 6px; background: rgba(28,17,8,0.72);
-  box-shadow: inset 0 0 0 2px #5a3a1c, inset 0 2px 0 #8c5c30, 0 0 0 2px #140c06; }
-.phapp {
-  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 0; border: 0; background: none; cursor: pointer; font-family: inherit;
-}
+
 /* an app tile is a slot out of the same kit as the inventory: flat colour,
    a lit band across the top, a dark band under it, one line round it */
-.phapp i.phico {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; aspect-ratio: 1; background: var(--t2, #3d2714);
-  box-shadow:
-    inset 0 3px 0 var(--t1, #6b4423), inset 0 -3px 0 rgba(0,0,0,0.55),
-    inset 3px 0 0 rgba(255,220,170,0.1), inset -3px 0 0 rgba(0,0,0,0.35),
-    0 0 0 2px #a9750d, 0 0 0 4px #1e1208;
-}
-.phapp img.ico { width: 60%; height: 60%; image-rendering: pixelated; }
-.phapp b { display: block; width: 100%; height: 12px; line-height: 12px; font-size: 10px; font-weight: 400;
-  color: #f0dcb0; letter-spacing: 0.5px; text-shadow: 1px 1px 0 #1e1208;
-  overflow: hidden; white-space: nowrap; text-overflow: clip; }
-.phapp:hover i.phico { box-shadow:
-  inset 0 3px 0 var(--t1, #6b4423), inset 0 -3px 0 rgba(0,0,0,0.55),
-  inset 3px 0 0 rgba(255,220,170,0.1), inset -3px 0 0 rgba(0,0,0,0.35),
-  0 0 0 2px var(--gd3), 0 0 0 4px #1e1208, 0 0 0 6px var(--gd0); }
-.phapp:active { transform: translateY(2px); }
-.phdot {
-  position: absolute; top: -4px; right: -2px; min-width: 16px; height: 16px; line-height: 16px;
-  font-size: 10px; font-style: normal; text-align: center; color: #fff2e0; background: #b8412c;
-  box-shadow: 0 0 0 2px #0a0d08;
-}
-.phdots { display: flex; gap: 5px; justify-content: center; margin: 10px 0 8px; }
-.phdots { display: none; }
-.phdock {
-  margin: auto 0 10px; padding: 8px 6px;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-  background: rgba(30,18,8,0.82); box-shadow: inset 0 0 0 2px #5a3a1c, inset 0 2px 0 #8c5c30;
-}
-.phdock .phapp b { display: none; }
 
 /* an app, open */
-.phapp-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
-  background: #2e1e0e; animation: phopen .12s steps(3, end); }
-@keyframes phopen { from { opacity: 0 } to { opacity: 1 } }
-.phnav { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 10px;
-  background: #4d2f16; box-shadow: inset 0 2px 0 #8c5c30, inset 0 -3px 0 #1e1208; }
-.phnav b { flex: 1 1 auto; text-align: center; font-size: 14px; font-weight: 400; color: #f0dcb0; letter-spacing: 1px; }
-.phnav-sp { flex: 0 0 56px; }
-.phback { flex: 0 0 56px; text-align: left; padding: 3px 0; border: 0; background: none; cursor: pointer;
-  font-family: inherit; font-size: 13px; color: #d8a41c; }
-.phback:hover { color: #ffe98a; }
-.phscreen { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 9px 10px 16px; display: flex; flex-direction: column; gap: 6px; }
-.phscreen::-webkit-scrollbar { width: 6px; }
-.phscreen::-webkit-scrollbar-track { background: #1e1208; }
-.phscreen::-webkit-scrollbar-thumb { background: #6b4423; }
 
 /* the one key under the screen */
-.phbar {
-  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 4;
-  width: 72px; height: 28px; border: 0; cursor: pointer;
-  background: #5a4d38; box-shadow: inset 0 3px 0 #8a7752, inset 0 -4px 0 #2a2418, 0 0 0 3px var(--ol);
-}
-.phbar:hover { background: #6b5c44; }
-/* while the phone is out, the toasts move into the bottom corner: dead centre
-   is where the home key sits, and you want to be able to see the key you are
-   about to press */
-#panel-phone:not([hidden]) ~ #toasts { left: 16px; bottom: 76px; transform: none; align-items: flex-start; }
-.phbar:active { transform: translateX(-50%) translateY(3px); box-shadow: inset 0 3px 0 #8a7752, inset 0 -2px 0 #2a2418, 0 0 0 3px var(--ol); }
 
 /* cards and rows inside an app */
-.phcard { min-width: 0; padding: 9px 10px; background: #ddc39a;
-  box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0, 0 0 0 2px #1e1208; }
-.phcard.big { background: #ecd6ac; box-shadow: inset 0 0 0 2px #ab8a5c, inset 0 2px 0 #f7ecd2, 0 0 0 2px #1e1208; }
-.phcard.shut { opacity: 0.45; }
-.phcardh { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #3a2410; }
-.phcardh img.ico { width: 20px; height: 20px; image-rendering: pixelated; }
-.phcardh b { flex: 0 1 auto; font-weight: 400; }
-.phcardh .phdim { margin-left: auto; }
-.phcard p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; color: #6b4a26; }
-.phmeta { display: flex; flex-wrap: wrap; gap: 3px 11px; margin-top: 6px; font-size: 11px; color: #8a6f45; }
-.phmeta img.ico { width: 13px; height: 13px; vertical-align: -2px; image-rendering: pixelated; }
-.phsub { margin: 9px 1px 0; font-size: 10px; letter-spacing: 2px; color: #c9a878; }
-.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px; font-size: 12px; color: #3a2410;
-  background: #c9a878; box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #ddc39a; }
-.phrow.done { opacity: 0.4; }
-.phrow img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
-.phrow b { font-weight: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.phnum { margin-left: auto; color: #7a4f06; }
-.phdim { font-size: 11px; color: #6b4a26; }
-.phrow .phdim { margin-left: auto; text-align: right; }
+
 /* a meter: a dark trough with a flat bar in it and one lit line on top */
-.phbar2 { height: 8px; margin: 5px 0 0; background: #3d2714; box-shadow: inset 0 0 0 2px #1e1208; overflow: hidden; }
-.phbar2 i { display: block; height: 100%; box-shadow: inset 0 2px 0 rgba(255,255,255,0.28); }
-.phstat { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px; color: #6b4a26; }
-.phstat span { flex: 0 0 48px; }
-.phstat .phbar2 { flex: 1 1 auto; margin: 0; }
-.phwant { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-.phwant em { font-style: normal; font-size: 10px; letter-spacing: 1px; padding: 3px 7px; color: #2a1a04; background: var(--gd2);
-  box-shadow: inset 0 2px 0 var(--gd3), 0 0 0 2px #0a0d08; }
-.phok { margin-top: 6px; font-size: 11px; color: #4d7430; }
-.phacts { display: flex; gap: 5px; margin-top: 9px; }
-.phbtn {
-  flex: 1 1 auto; padding: 8px 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
-  color: #f0dcb0; background: #5a3a1c;
-  box-shadow: inset 0 3px 0 #8c5c30, inset 0 -3px 0 #1e1208, 0 0 0 2px #140c06;
-}
-.phbtn.go { color: #2a1a04; background: var(--gd2); box-shadow: inset 0 3px 0 var(--gd3), inset 0 -3px 0 var(--gd0), 0 0 0 2px #140c06; }
-.phbtn:hover { filter: brightness(1.16); }
-.phbtn:active { transform: translateY(2px); }
 
 /* settings */
-.phgroup { background: #ddc39a; box-shadow: inset 0 0 0 2px #8a6f45, 0 0 0 2px #1e1208; }
-.phset { display: flex; align-items: center; gap: 10px; padding: 10px 11px; font-size: 13px; color: #3a2410;
-  box-shadow: inset 0 -2px 0 #ab8a5c; }
-.phset:last-child { box-shadow: none; }
-.phset span { flex: 1 1 auto; }
-.phset small { display: block; font-size: 10px; color: #8a6f45; }
+
 /* a square switch: a trough with a square knob that steps from end to end */
-.phsw { position: relative; flex: 0 0 auto; width: 42px; height: 22px; border: 0; cursor: pointer;
-  background: #5a3a1c; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #3d2714; }
-.phsw i { position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #a87642;
-  box-shadow: inset 0 2px 0 #c9a878, inset 0 -2px 0 #5a3a1c; transition: left .1s steps(3, end); }
-.phsw.on { background: #1c5568; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #2f7f96; }
-.phsw.on i { left: 23px; background: #8fd4e4; box-shadow: inset 0 2px 0 #cdeff8, inset 0 -2px 0 #2f7f96; }
-.phset .phgo { flex: 0 0 auto; padding: 6px 12px; border: 0; cursor: pointer;
-  font-family: inherit; font-size: 11px; color: #fff2e0; background: #8a3a1e;
-  box-shadow: inset 0 2px 0 #b85a32, inset 0 -2px 0 #4a1a0a, 0 0 0 2px #140c06; }
 
 /* messages */
-.phthread { display: flex; align-items: center; gap: 9px; padding: 8px 9px; cursor: pointer;
-  border: 0; width: 100%; text-align: left; font-family: inherit; background: #c9a878; color: #3a2410;
-  box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #ddc39a; }
-.phthread:hover { background: #ddc39a; }
-.phava { flex: 0 0 auto; width: 34px; height: 34px; overflow: hidden; background: #5a3a1c;
-  box-shadow: inset 0 0 0 2px #3d2714; display: flex; align-items: flex-end; justify-content: center; }
-.phava canvas { image-rendering: pixelated; }
-.phthread .phtx { flex: 1 1 auto; min-width: 0; }
-.phthread .phtx b { display: block; font-size: 13px; font-weight: 400; }
-.phthread .phtx small { display: block; font-size: 11px; color: #6b4a26; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.phunread { flex: 0 0 auto; width: 8px; height: 8px; background: #a8323a; box-shadow: 0 0 0 2px #1e1208; }
-.phchat { display: flex; flex-direction: column; gap: 6px; }
+
 /* a bubble with one step out of each corner, like everything else here */
-.phmsg { max-width: 80%; padding: 7px 10px; font-size: 12.5px; line-height: 1.4;
-  clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
-    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
-    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 4px 4px); }
-.phmsg.them { align-self: flex-start; background: #ecd6ac; color: #3a2410; }
-.phmsg.me { align-self: flex-end; background: #6b4423; color: #f7ecd2; }
-.phreplies { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
-.phreply { padding: 7px 11px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
-  color: #ffe98a; background: #3d2714; box-shadow: inset 0 0 0 2px var(--gd0); }
-.phreply:hover { background: #5a3a1c; color: #fff; }
 
 /* photos */
-.phphotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #3d2714;
-  box-shadow: inset 0 0 0 2px #8a6f45; display: flex; align-items: flex-end; justify-content: center; }
-.phphoto canvas { image-rendering: pixelated; width: 100%; height: 100%; object-fit: contain; }
-.phphoto img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
-.phphoto em { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-style: normal; font-size: 9px;
-  color: #f0dcb0; background: rgba(20,12,6,0.8); }
 
 /* the lock screen */
-.phlock { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column;
-  padding: 14px 12px 0; cursor: pointer; animation: phopen .14s steps(3, end); }
-.phlockclock { text-align: center; margin: 10px 0 16px; color: #f7ecd2; }
-.phlockclock b { display: block; font-size: 46px; font-weight: 400; line-height: 1; text-shadow: 3px 3px 0 rgba(20,12,6,0.8); }
-.phlockclock span { display: block; margin-top: 6px; font-size: 12px; letter-spacing: 1px; color: #ddc39a; text-shadow: 2px 2px 0 rgba(20,12,6,0.8); }
-.phnotes { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; min-height: 0; }
-.phnotes::-webkit-scrollbar { width: 0; }
-.phnote { display: flex; align-items: flex-start; gap: 8px; width: 100%; text-align: left; padding: 8px 10px;
-  border: 0; cursor: pointer; font-family: inherit; color: #3a2410;
-  background: rgba(221,195,154,0.94); box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0; }
-.phnote:hover { background: #f0dcb0; }
-.phnico { flex: 0 0 auto; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
-  background: #4d2f16; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #8c5c30; }
-.phnico img.ico { width: 17px; height: 17px; image-rendering: pixelated; }
-.phntx { flex: 1 1 auto; min-width: 0; }
-.phntx b { display: block; font-size: 10px; font-weight: 400; letter-spacing: 1.5px; color: #7a4f06; }
-.phntx em { display: block; font-style: normal; font-size: 13px; }
-.phntx small { display: block; font-size: 11px; color: #6b4a26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.phswipe { margin-top: auto; padding: 12px 0 16px; text-align: center; font-size: 10px; letter-spacing: 3px;
-  color: #ddc39a; text-shadow: 2px 2px 0 rgba(20,12,6,0.8); }
 
 /* camera */
-.phcam { display: flex; flex-direction: column; gap: 10px; height: 100%; }
-.phviewfinder { flex: 1 1 auto; min-height: 170px; background: #000 center/cover no-repeat;
-  image-rendering: pixelated; box-shadow: inset 0 0 0 3px #8a6f45, inset 0 0 0 5px #1e1208; }
-.phcamrow { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 10px; }
-.phshutter { width: 48px; height: 48px; border: 0; cursor: pointer; background: #b8412c;
-  box-shadow: inset 0 4px 0 #e07050, inset 0 -4px 0 #6a1e10, 0 0 0 3px #140c06, 0 0 0 6px #8c5c30; }
-.phshutter:active { transform: translateY(3px); }
 
 /* Everything inside a scrolling screen keeps its own height; the column must
    not squeeze its children or long posts get clipped. */
-.phscreen > * { flex: 0 0 auto; }
-.phscreen.app-camera > .phcam { flex: 1 1 auto; }
-.phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub, .phcam { flex: 0 0 auto; }
 
-/* ---- the phone button on the frame --------------------------------------
-   Not a small square with a glyph on it any more. A phone sat in a wooden
-   holster screwed to the corner of the frame, with what it is called, the key
-   that opens it, and a brass tally of everything waiting inside. */
-.phonebtn {
-  position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px;
-  border: 0; cursor: pointer; font-family: var(--f); text-align: left;
-  background: #5a3a1c;
-  box-shadow:
-    inset 0 3px 0 #8c5c30, inset 0 -4px 0 #2a1a0c,
-    inset 3px 0 0 #6b4423, inset -3px 0 0 #3d2714,
-    0 0 0 3px var(--ol), 0 5px 0 3px rgba(0,0,0,0.45);
-}
-.phonebtn img.ico { width: 26px; height: 26px; image-rendering: pixelated; }
-.phonebtn .pbtx { display: flex; flex-direction: column; line-height: 1; }
-.phonebtn .pbtx b { font-size: 15px; font-weight: 400; letter-spacing: 1.5px; color: #f0dcb0; text-shadow: 1px 2px 0 #1e1208; }
-.phonebtn .pbtx small { margin-top: 3px; font-size: 10px; letter-spacing: 1.5px; color: #c9a878; }
-.phonebtn:hover { background: #6b4423; }
-.phonebtn:hover .pbtx b { color: #ffe98a; }
-.phonebtn:active { transform: translateY(4px); box-shadow:
-  inset 0 3px 0 #8c5c30, inset 0 -3px 0 #2a1a0c,
-  inset 3px 0 0 #6b4423, inset -3px 0 0 #3d2714,
-  0 0 0 3px var(--ol), 0 1px 0 3px rgba(0,0,0,0.45); }
 /* the tally: a brass tag hung on the top corner */
-.phonebtn i {
-  position: absolute; top: -9px; right: -9px; min-width: 20px; height: 20px; line-height: 20px;
-  padding: 0 3px; font-style: normal; font-size: 12px; text-align: center;
-  color: #2a1a04; background: var(--gd2);
-  box-shadow: inset 0 2px 0 var(--gd4), inset 0 -2px 0 var(--gd0), 0 0 0 3px var(--ol);
-}
 
 /* ==== Stardew-style gold-cornered frames ===================================
    One nine-slice frame, painted at start-up in ui.js (goldFrameURL): a dark
    line, a gold ring lit on the top and shaded on the bottom, a brown inside,
    and a gold scroll in each corner. Everything you press or read wears it. */
-.gold, #money, #checklist, .tray, #tip, .toast, .panel, .hslot, .spoke, .phonebtn, .mbtn, .zbtn {
+.gold, #money, #checklist, .tray, #tip, .toast, .panel, .hslot, .spoke, .mbtn, .zbtn {
   border: 10px solid transparent !important;
   border-image: var(--gf-base) 10 fill / 10px / 0 stretch !important;
   background: none !important; box-shadow: none !important; clip-path: none !important;
   image-rendering: pixelated;
 }
 #tip, .toast, #checklist, .panel { border-image-source: var(--gf-paper) !important; }
-.hslot:hover, .spoke:hover, .phonebtn:hover, .mbtn:hover, .zbtn:hover { border-image-source: var(--gf-hot) !important; }
+.hslot:hover, .spoke:hover, .mbtn:hover, .zbtn:hover { border-image-source: var(--gf-hot) !important; }
 .hslot.on, .spoke.on { border-image-source: var(--gf-sel) !important; }
 
 /* the hotbar along the bottom of the picture */
@@ -1232,179 +938,18 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 #checklist, #checklist .task, #checklist .tname { line-height: 1.25; }
 #checklist .tname { font-size: 14px; }
 #toasts { bottom: 96px !important; }
-#b-phone.nophone { display: none !important; }
 
-/* =========================================================================
-   THE WHITE PHONE
-   A white iPhone with a dynamic island, the maker's default wallpaper, and
-   rounded glass everything. It is the one thing in the game that is not
-   pixel art, which is exactly how a phone looks held up against a farm.
-   ========================================================================= */
-.phone { background: rgba(30,24,16,0.55); backdrop-filter: blur(3px); animation: phfade .18s ease-out; }
-.phshell {
-  --ph-h: min(92vh, 700px);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
-  padding: 11px; border-radius: 58px;
-  background: linear-gradient(145deg, #fbfbfc 0%, #e9eaee 40%, #d6d8de 100%);
-  box-shadow:
-    inset 0 0 0 1.5px #c9ccd2, inset 0 2px 1px rgba(255,255,255,0.95), inset 0 -3px 4px rgba(0,0,0,0.08),
-    0 0 0 2px #b7bac1, 0 24px 60px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.25);
-  animation: phin2 .28s cubic-bezier(.2,.9,.3,1.15);
-}
-@keyframes phin2 { from { transform: translateY(40px) scale(.96); opacity: 0 } to { transform: none; opacity: 1 } }
-.phshell::before, .phshell::after { display: none; }
-.phshell i[class^="phbtn-"] { background: linear-gradient(90deg, #cfd2d8, #f4f5f7 50%, #c3c6cc); border-radius: 3px;
-  box-shadow: 0 0 0 1px #aeb1b8; }
-.phbtn-silent { left: -4px; width: 4px; } .phbtn-up, .phbtn-down { left: -4px; width: 4px; } .phbtn-wake { right: -4px; width: 4px; }
-.phclose { right: -14px; top: -14px; width: 34px; height: 34px; border-radius: 50%; font-family: inherit; font-size: 20px;
-  color: #3a3a3c; background: rgba(245,245,247,0.96); box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.08); }
-.phclose:hover { background: #fff; }
-.phglass { border-radius: 47px; background: #000; box-shadow: 0 0 0 5px #0b0b0c, 0 0 0 6px #d0d3d8; }
-.phglass::after { display: none; }
+  
+
 /* the default wallpaper: soft bands of colour folding into each other */
-.phwall {
-  background:
-    radial-gradient(90% 55% at 15% 12%, rgba(255,214,170,0.95) 0%, rgba(255,214,170,0) 60%),
-    radial-gradient(80% 60% at 95% 30%, rgba(255,138,160,0.85) 0%, rgba(255,138,160,0) 62%),
-    radial-gradient(110% 70% at 10% 70%, rgba(120,110,255,0.9) 0%, rgba(120,110,255,0) 64%),
-    radial-gradient(90% 60% at 85% 95%, rgba(40,150,255,0.95) 0%, rgba(40,150,255,0) 60%),
-    linear-gradient(170deg, #ffb48a 0%, #f07aa4 30%, #8f6cf0 62%, #2f7af0 100%);
-  image-rendering: auto;
-}
-.phwall::after { content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0) 22%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.22)); }
-.phstatus { padding: 14px 26px 6px; background: none; box-shadow: none; color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 0; }
-.phstatus b { font-weight: 600; }
-.phisland { display: block; position: absolute; left: 50%; top: 10px; width: 92px; height: 26px; margin-left: -46px;
-  background: #000; border-radius: 14px; }
-.phsig i { background: #fff; border-radius: 1px; } .phsig i:nth-child(4) { background: rgba(255,255,255,0.4); }
-.phwifi { filter: brightness(10); }
-.phbatt { width: 24px; height: 12px; padding: 1.5px; border-radius: 4px; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.55); }
-.phbatt::after { right: -3px; top: 4px; width: 2px; height: 4px; border-radius: 0 1px 1px 0; background: rgba(255,255,255,0.55); }
-.phbatt i { border-radius: 2px; background: #fff; }
-.phapp-view .phstatus, .phglass:has(.phapp-view:not([hidden])) .phstatus { color: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phsig i { background: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phbatt { box-shadow: inset 0 0 0 1.5px rgba(0,0,0,0.4); }
-.phglass:has(.phapp-view:not([hidden])) .phbatt i { background: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phwifi { filter: none; }
+
+ 
 
 /* home screen */
-.phhome-view { padding: 10px 18px 0; }
-.phwidget { margin: 6px 2px 18px; padding: 12px 14px; border-radius: 22px; color: #fff;
-  background: rgba(255,255,255,0.22); backdrop-filter: blur(24px) saturate(1.4);
-  box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.45), 0 4px 18px rgba(40,20,80,0.18); }
-.phwidget h5 { color: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
-.phwidget p { font-size: 16px; font-weight: 600; line-height: 1.3; }
-.phwidget .phwrow { color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 500; }
-.phwidget img.ico { filter: drop-shadow(0 1px 0 rgba(0,0,0,0.2)); }
-.phgrid { gap: 16px 14px; padding: 0 2px; background: none; box-shadow: none; }
-.phapp { gap: 5px; }
-.phapp i.phico { border-radius: 23%; background: linear-gradient(180deg, var(--t1), var(--t2));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 3px 8px rgba(30,10,60,0.28); }
-.phapp:hover i.phico { box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 3px 8px rgba(30,10,60,0.28); filter: brightness(1.06); }
-.phapp:active { transform: scale(0.92); transition: transform .08s; }
-.phapp img.ico { width: 64%; height: 64%; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.18)); }
-.phapp b { height: 14px; line-height: 14px; font-size: 11px; font-weight: 500; letter-spacing: 0; color: #fff;
-  text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.35); text-overflow: ellipsis; }
-.phdot { top: -5px; right: -5px; min-width: 20px; height: 20px; line-height: 20px; border-radius: 10px; padding: 0 5px;
-  font-size: 12px; font-weight: 600; background: #ff3b30; box-shadow: none; }
-.phdock { margin: auto 0 26px; padding: 12px 14px; gap: 14px; border-radius: 30px;
-  background: rgba(255,255,255,0.24); backdrop-filter: blur(26px) saturate(1.5);
-  box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.4); }
-/* the home indicator, and the one gesture a phone has left */
-.phbar { bottom: 19px; width: 128px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.92);
-  box-shadow: 0 0 2px rgba(0,0,0,0.3); }
-.phbar:hover { background: #fff; }
-.phbar:active { transform: translateX(-50%); box-shadow: 0 0 2px rgba(0,0,0,0.3); }
-.phglass:has(.phapp-view:not([hidden])) ~ .phbar { background: rgba(0,0,0,0.85); }
-
-/* an app, open: a light grouped list like the phone's own */
-.phapp-view { background: #f2f2f7; animation: phopen2 .22s cubic-bezier(.2,.9,.3,1); }
-@keyframes phopen2 { from { transform: scale(0.94); opacity: 0 } to { transform: none; opacity: 1 } }
-.phnav { padding: 8px 14px 6px; background: rgba(242,242,247,0.9); box-shadow: 0 0.5px 0 rgba(0,0,0,0.15); }
-.phnav b { font-size: 16px; font-weight: 600; color: #000; letter-spacing: 0; }
-.phback { font-family: inherit; font-size: 15px; color: #007aff; }
-.phback:hover { color: #3395ff; }
-.phscreen { padding: 12px 14px 34px; gap: 8px; }
-.phscreen::-webkit-scrollbar-track { background: transparent; }
-.phscreen::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
-.phcard, .phcard.big { padding: 12px 14px; border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
-.phcardh { color: #000; font-size: 15px; font-weight: 600; }
-.phcard p { color: #3c3c43; font-size: 13px; }
-.phmeta { color: #8e8e93; font-size: 12px; }
-.phsub { margin: 14px 4px 2px; font-size: 12px; font-weight: 500; letter-spacing: 0.4px; color: #6d6d72; }
-.phrow { padding: 10px 14px; border-radius: 12px; color: #000; font-size: 14px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-.phnum { color: #8e8e93; font-weight: 500; }
-.phdim, .phrow .phdim { color: #8e8e93; font-size: 12px; }
-.phbar2 { height: 6px; border-radius: 3px; background: #e5e5ea; box-shadow: none; }
-.phbar2 i { border-radius: 3px; box-shadow: none; }
-.phstat { color: #3c3c43; font-size: 12px; }
-.phwant em { border-radius: 10px; padding: 3px 9px; font-size: 11px; letter-spacing: 0; color: #fff; background: #ff9500; box-shadow: none; }
-.phok { color: #34c759; font-size: 12px; font-weight: 500; }
-.phbtn { border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 600; color: #007aff; background: #e9e9ef; box-shadow: none; }
-.phbtn.go { color: #fff; background: #007aff; box-shadow: none; }
-.phbtn:active { transform: scale(0.97); }
-.phgroup { border-radius: 12px; overflow: hidden; background: #fff; box-shadow: none; }
-.phset { color: #000; font-size: 15px; box-shadow: inset 0 -0.5px 0 #d1d1d6; }
-.phset small { color: #8e8e93; font-size: 12px; }
-.phsw { width: 51px; height: 31px; border-radius: 16px; background: #e9e9eb; box-shadow: none; transition: background .2s; }
-.phsw i { left: 2px; top: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16); transition: left .2s ease; }
-.phsw.on { background: #34c759; box-shadow: none; }
-.phsw.on i { left: 22px; background: #fff; box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16); }
-.phset .phgo { border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; color: #fff; background: #ff3b30; box-shadow: none; }
-.phthread { padding: 10px 12px; border-radius: 12px; background: #fff; color: #000; box-shadow: none; }
-.phthread:hover { background: #fafafa; }
-.phava { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(#c7cbd3, #8e939c); box-shadow: none; }
-.phthread .phtx b { font-size: 15px; font-weight: 600; }
-.phthread .phtx small { color: #8e8e93; font-size: 13px; }
-.phunread { width: 10px; height: 10px; border-radius: 50%; background: #007aff; box-shadow: none; }
-.phmsg { clip-path: none; border-radius: 18px; font-size: 14px; padding: 8px 12px; }
-.phmsg.them { background: #e9e9eb; color: #000; border-bottom-left-radius: 5px; }
-.phmsg.me { background: #0a84ff; color: #fff; border-bottom-right-radius: 5px; }
-.phreply { border-radius: 16px; font-family: inherit; font-size: 13px; color: #007aff; background: #fff; box-shadow: inset 0 0 0 1px #c7c7cc; }
-.phreply:hover { background: #007aff; color: #fff; }
-.phphoto { border-radius: 4px; box-shadow: none; background: #d1d1d6; }
-.phphoto em { background: rgba(0,0,0,0.5); color: #fff; }
-.phviewfinder { border-radius: 14px; box-shadow: none; }
-.phshutter { width: 64px; height: 64px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px #f2f2f7, 0 0 0 7px #c7c7cc; }
-.phshutter:active { transform: scale(0.92); }
 
 /* the lock screen */
-.phlock { padding: 12px 14px 0; }
-.phlockclock { margin: 14px 0 22px; color: #fff; }
-.phlockclock b { font-size: 76px; font-weight: 700; letter-spacing: -2px; text-shadow: 0 2px 12px rgba(40,10,80,0.25); }
-.phlockclock span { order: -1; margin: 0 0 4px; font-size: 16px; font-weight: 600; letter-spacing: 0; color: rgba(255,255,255,0.9); text-shadow: none; }
-.phlockclock { display: flex; flex-direction: column; }
-.phnote { padding: 11px 13px; border-radius: 20px; color: #000;
-  background: rgba(255,255,255,0.62); backdrop-filter: blur(24px) saturate(1.6); box-shadow: none; }
-.phnote:hover { background: rgba(255,255,255,0.78); }
-.phnico { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(#fff, #e6e6ea); box-shadow: none; }
-.phnico img.ico { width: 22px; height: 22px; }
-.phntx b { font-size: 11px; font-weight: 600; letter-spacing: 0.3px; color: rgba(0,0,0,0.55); text-transform: uppercase; }
-.phntx em { font-size: 14px; font-weight: 600; }
-.phntx small { color: rgba(0,0,0,0.7); font-size: 13px; }
-.phswipe { padding: 12px 0 34px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: rgba(255,255,255,0.85); text-shadow: none; }
 
 /* the app store */
-.phstorehead { padding: 4px 4px 8px; }
-.phstorehead b { display: block; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: #000; }
-.phstorehead small { font-size: 13px; color: #8e8e93; }
-.phstoreitem { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: #fff; }
-.phstoreitem i.phico { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 52px; height: 52px;
-  border-radius: 23%; background: linear-gradient(180deg, var(--t1), var(--t2)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45); }
-.phstoreitem img.ico { width: 64%; height: 64%; image-rendering: pixelated; }
-.phstoreitem .phtx { flex: 1 1 auto; min-width: 0; }
-.phstoreitem .phtx b { display: block; font-size: 15px; font-weight: 600; color: #000; }
-.phstoreitem .phtx small { display: block; font-size: 12px; line-height: 1.3; color: #8e8e93; }
-.phget { flex: 0 0 auto; min-width: 70px; padding: 6px 14px; border: 0; border-radius: 16px; cursor: pointer;
-  font-family: inherit; font-size: 14px; font-weight: 700; color: #007aff; background: #eef0f6; }
-.phget:hover { background: #e2e6f0; }
-.phget.own { color: #007aff; }
-.phget:active { transform: scale(0.95); }
-.phglass:has(.phapp-view:not([hidden])) .phstatus { background: #f2f2f7; color: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phstatus b { color: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phwifi { filter: brightness(0); }
 
 /* ---- the toolbar, cozier ---------------------------------------------------
    One oak tray along the bottom, tan wells sunk into it, the tool in hand in a
@@ -1590,10 +1135,6 @@ button { color: var(--ink); font-family: var(--f); }
 .mbtn img.ico { width: 24px; height: 24px; }
 .rbtn:not(.big) { filter: drop-shadow(2px 3px 0 rgba(60,20,4,0.45)); }
 .rbtn b { color: var(--ink) !important; -webkit-text-stroke: 0 !important; text-shadow: none !important; }
-.phonebtn .pbtx b { color: var(--ink) !important; text-shadow: 1px 1px 0 var(--pp2) !important; }
-.phonebtn .pbtx small { color: var(--ink2) !important; }
-.phonebtn:hover .pbtx b { color: var(--fr3) !important; }
-.phonebtn i { background: var(--tomato) !important; color: #ffffff !important; box-shadow: 0 0 0 2px var(--ol) !important; }
 .zbtn { color: var(--ink) !important; font-size: 18px; }
 #zbar { background: #b07838 !important; border: 2px solid var(--ol) !important; box-shadow: inset 2px 2px 0 rgba(0,0,0,0.25) !important; }
 #znub { background: var(--sun) !important; border: 2px solid var(--ol) !important; }
@@ -1624,7 +1165,6 @@ button { color: var(--ink); font-family: var(--f); }
 @keyframes newbob { 0%, 100% { transform: translate(-50%, 0) } 50% { transform: translate(-50%, -3px) } }
 @keyframes wantpulse { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 0 #f0c048) drop-shadow(3px 0 0 #f0c048) drop-shadow(-3px 0 0 #f0c048) drop-shadow(0 3px 0 #f0c048) drop-shadow(0 -3px 0 #f0c048); } }
 #toasts { bottom: 122px !important; }
-#b-phone.nophone { display: none !important; }
 
 .help ol { color: var(--ink) !important; }
 .help b { color: var(--fr3); }
@@ -1702,40 +1242,6 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 .uhow { margin: 2px 0 6px; font-size: 14px; color: var(--ink); }
 .uhow img.ico { display: inline-block; vertical-align: -4px; }
 .ucard .act { padding: 8px 26px; }
-
-/* ---- the phone, in pixels ----------------------------------------------------------------------------
-   Still the white phone with the island and the default wallpaper, but cut
-   from whole pixels: stepped corners, the pixel font, square app tiles. */
-.phshell, .phshell * { font-family: var(--f) !important; letter-spacing: 0.5px; }
-.phshell { clip-path: polygon(0 24px, 6px 24px, 6px 12px, 12px 12px, 12px 6px, 24px 6px, 24px 0, calc(100% - 24px) 0, calc(100% - 24px) 6px, calc(100% - 12px) 6px, calc(100% - 12px) 12px, calc(100% - 6px) 12px, calc(100% - 6px) 24px, 100% 24px,
-  100% calc(100% - 24px), calc(100% - 6px) calc(100% - 24px), calc(100% - 6px) calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) calc(100% - 6px), calc(100% - 24px) calc(100% - 6px), calc(100% - 24px) 100%,
-  24px 100%, 24px calc(100% - 6px), 12px calc(100% - 6px), 12px calc(100% - 12px), 6px calc(100% - 12px), 6px calc(100% - 24px), 0 calc(100% - 24px));
-  background: #f4f4f8 !important; box-shadow: inset 0 0 0 4px #c8ccd4, inset 6px 6px 0 4px #ffffff, inset -6px -6px 0 4px #a8acb8 !important; padding: 16px !important; }
-.phglass { clip-path: polygon(0 16px, 8px 16px, 8px 8px, 16px 8px, 16px 0, calc(100% - 16px) 0, calc(100% - 16px) 8px, calc(100% - 8px) 8px, calc(100% - 8px) 16px, 100% 16px,
-  100% calc(100% - 16px), calc(100% - 8px) calc(100% - 16px), calc(100% - 8px) calc(100% - 8px), calc(100% - 16px) calc(100% - 8px), calc(100% - 16px) 100%,
-  16px 100%, 16px calc(100% - 8px), 8px calc(100% - 8px), 8px calc(100% - 16px), 0 calc(100% - 16px)); box-shadow: none !important; }
-.phclose { right: 4px !important; top: 4px !important; z-index: 10; background: var(--tomato) !important; color: #fff !important; border: 3px solid var(--ol) !important; box-shadow: none !important; font-size: 16px !important; }
-.phapp i.phico, .phstoreitem i.phico, .phnico { box-shadow: inset 3px 3px 0 rgba(255,255,255,0.45), inset -3px -3px 0 rgba(0,0,0,0.2), 0 0 0 2px rgba(20,20,40,0.55) !important; }
-.phapp i.phico { background: var(--t2) !important; }
-.phwidget, .phdock, .phnote { backdrop-filter: none !important; box-shadow: 0 0 0 2px rgba(255,255,255,0.6) !important; }
-.phwidget, .phdock { background: rgba(255,255,255,0.28) !important; }
-.phnote { background: rgba(255,255,255,0.86) !important; }
-.phsw i { box-shadow: 0 0 0 2px #8a8a98 !important; }
-.phbar { height: 6px !important; }
-.phlockclock b { font-size: 60px !important; font-weight: 400 !important; letter-spacing: 2px !important; text-shadow: 4px 4px 0 rgba(60,20,90,0.35) !important; }
-.phwall { background: linear-gradient(180deg, #ff9a50 0%, #ff5a8a 28%, #8a4af0 60%, #1a6aff 100%) !important; }
-.phwall::after { background: repeating-linear-gradient(180deg, rgba(0,0,0,0.05) 0 4px, transparent 4px 8px) !important; }
-.phmsg.them, .phmsg.me { clip-path: polygon(0 4px, 4px 4px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)); }
-
-/* lost in the back room: no purse, no buttons, just the tape running */
-body.noclip #money, body.noclip #mini { display: none !important; }
-
-/* Wombat Hop, on the phone */
-.phgame { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.phgame canvas { width: 100%; max-width: 270px; aspect-ratio: 180 / 240; image-rendering: pixelated; cursor: pointer;
-  border: 3px solid #2a2a3a; box-shadow: 4px 4px 0 rgba(0,0,0,0.25); touch-action: none; }
-.phscreen.app-games { background: #2a2a3a; }
-.phscreen.app-games .phsub { color: #ffe890; text-align: center; }
 </style>
 
 <div id="app">
@@ -1772,11 +1278,6 @@ body.noclip #money, body.noclip #mini { display: none !important; }
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
-      <button class="phonebtn" id="b-phone" title="Your phone (P)">
-        <img class="ico" data-ico="ph_key" alt="">
-        <span class="pbtx"><b>PHONE</b><small>press P</small></span>
-        <i id="b-phone-dot" hidden>0</i>
-      </button>
     </div>
 
     <div id="zoomer" hidden>
@@ -1810,35 +1311,6 @@ body.noclip #money, body.noclip #mini { display: none !important; }
     <div class="pbody" id="wombat-body"></div>
   </div>
 
-  <div id="panel-phone" class="phone" hidden>
-    <div class="phshell">
-      <i class="phbtn-silent"></i><i class="phbtn-up"></i><i class="phbtn-down"></i><i class="phbtn-wake"></i>
-      <div class="phglass">
-        <div class="phwall"></div>
-        <div class="phstatus">
-          <b id="ph-clock">7:14</b>
-          <i class="phisland"></i>
-          <span class="phsig"><i></i><i></i><i></i><i></i></span>
-          <span class="phwifi"></span>
-          <span class="phbatt"><i></i></span>
-        </div>
-        <div class="phlock" id="ph-lock" hidden></div>
-        <div class="phhome-view" id="ph-home-view">
-          <div class="phwidget" id="ph-widget"></div>
-          <div class="phgrid" id="ph-grid"></div>
-          <div class="phdots"><i class="on"></i><i></i></div>
-          <div class="phdock" id="ph-dock"></div>
-        </div>
-        <div class="phapp-view" id="ph-app-view" hidden>
-          <div class="phnav"><button class="phback" id="ph-back">&lsaquo; Home</button><b id="ph-title">App</b><span class="phnav-sp"></span></div>
-          <div class="phscreen" id="ph-screen"></div>
-        </div>
-      </div>
-      <button class="phbar" id="ph-home-btn" title="Home"></button>
-      <button class="phclose" id="ph-close" title="Put it away (P)">&times;</button>
-    </div>
-  </div>
-
   <div id="panel-help" class="panel" hidden>
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
@@ -1850,8 +1322,7 @@ body.noclip #money, body.noclip #mini { display: none !important; }
         <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
         <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
         <li>The <b>shovel</b> paints the ground: hold the left button to dig down, the right button (or Shift) to heap up a hill. Water a hole with the can and it fills into a pond; water a trench and it runs like a creek. <b>[</b> and <b>]</b> change the brush size.</li>
-        <li>Captain Clark's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer. Whatever you do, do not go through the door at the back.</li>
-        <li>Press <b>P</b> for your phone once you have one. It has your messages, a camera, and Wombat Hop.</li>
+        <li>Captain Clark's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
@@ -2280,18 +1751,15 @@ const Art = (() => {
   // replace them: hard bands with a checker seam between, which is how a
   // gradient is drawn by hand.
   const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
-  // a dithered fill: every pixel whose bayer threshold is under `a` is painted
+  // A soft fill: once a checker of bayer pixels, now a flat wash at `a`. The
+  // dots read as a screen door laid over the picture; flat washes in hard-edged
+  // steps are how the rest of the art is shaded.
   function dither(g, x, y, w, h, col, a) {
     if (a <= 0.02) return;
-    if (a >= 0.99) { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); return; }
-    g.fillStyle = col;
-    const x0 = Math.round(x), y0 = Math.round(y), x1 = x0 + Math.round(w), y1 = y0 + Math.round(h);
-    const lvl = Math.round(a * 16);
-    for (let yy = y0; yy < y1; yy++) {
-      for (let xx = x0; xx < x1; xx++) {
-        if (BAYER[((yy % 4) + 4) % 4][((xx % 4) + 4) % 4] < lvl) g.fillRect(xx, yy, 1, 1);
-      }
-    }
+    const oa = g.globalAlpha;
+    g.globalAlpha = oa * Math.min(1, a);
+    g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+    g.globalAlpha = oa;
   }
   // a dithered vignette, cached: darkness grows with distance from centre,
   // laid down as bayer pixels so the falloff reads as banding, never a blur
@@ -2345,18 +1813,10 @@ const Art = (() => {
   // the same, but elliptical and with the dither applied per scanline
   function ditherEll(g, cx, cy, rx, ry, col, a) {
     if (a <= 0.02) return;
-    g.fillStyle = col;
-    const lvl = Math.round(U.clamp(a, 0, 1) * 16);
-    const y0 = Math.floor(cy - ry), y1 = Math.ceil(cy + ry);
-    for (let y = y0; y <= y1; y++) {
-      const dy = (y + 0.5 - cy) / ry;
-      if (dy < -1 || dy > 1) continue;
-      const w = Math.sqrt(1 - dy * dy) * rx;
-      const xa = Math.round(cx - w), xb = Math.round(cx + w);
-      if (lvl >= 16) { if (xb > xa) g.fillRect(xa, y, xb - xa, 1); continue; }
-      const row = BAYER[((y % 4) + 4) % 4];
-      for (let x = xa; x < xb; x++) if (row[((x % 4) + 4) % 4] < lvl) g.fillRect(x, y, 1, 1);
-    }
+    const oa = g.globalAlpha;
+    g.globalAlpha = oa * U.clamp(a, 0, 1);
+    ell(g, cx, cy, rx, ry, col);
+    g.globalAlpha = oa;
   }
   // a vertical ramp drawn as n hard bands with a dithered seam between each
   // a multi-stop vertical ramp, painted as n hard bands with dithered seams.
@@ -2462,7 +1922,7 @@ const Art = (() => {
     for (let x = 0; x < w; x++) {
       let first = -1;
       for (let y = 0; y < h; y++) if (a[(y * w + x) * 4 + 3] > 8) { first = y; break; }
-      if (first >= 0) g.fillRect(x, first, 1, depth - (x % 2 === 0 ? 0 : 1));
+      if (first >= 0) g.fillRect(x, first, 1, depth);
     }
   }
   // Ordered dither over the lower half of a shape: reads as grain, not noise.
@@ -2477,7 +1937,6 @@ const Art = (() => {
       for (let y = tops[x] + 3; y < h; y++) {
         const i = (y * w + x) * 4;
         if (a[i + 3] <= 8) continue;
-        if (((x + y) & 1) === 0 && ((x >> 1) + y) % 3 !== 0) continue;   // bayer-ish mask
         const k = 1 - alpha * Math.min(1, (y - tops[x]) / Math.max(6, h - tops[x]) + 0.4);
         a[i] = a[i] * k; a[i + 1] = a[i + 1] * k; a[i + 2] = a[i + 2] * k;
       }
@@ -2869,7 +2328,6 @@ const Audio = (() => {
   const SFX = {
     click: () => tone({ freq: 900, type: 'square', dur: 0.05, vol: 0.12 }),
     hover: () => tone({ freq: 1400, type: 'sine', dur: 0.03, vol: 0.05 }),
-    hum: () => { tone({ freq: 60, type: 'sawtooth', dur: 1.35, vol: 0.035 }); tone({ freq: 120, type: 'sine', dur: 1.35, vol: 0.03 }); },
     blip: () => tone({ freq: 520 + Math.random() * 90, type: 'triangle', dur: 0.035, vol: 0.05 }),
     pet: () => { tone({ freq: 660, type: 'triangle', dur: 0.12, vol: 0.2, slide: 300 }); tone({ freq: 990, type: 'triangle', dur: 0.15, vol: 0.12, delay: 0.06, slide: 200 }); },
     eat: () => { for (let i = 0; i < 3; i++) noise({ dur: 0.08, vol: 0.25, lp: 900, delay: i * 0.11 }); },
@@ -3315,7 +2773,9 @@ const Sprites = (() => {
     const rows = TPL_SIDE;
     const W2 = rows[0].length;
     const x0 = AX - 14 + Math.round((p.headFwd || 0) * 0.3);
-    const legLen = 4;
+    // short and stubby, always: when it hops the whole wombat leaves the ground,
+    // the legs do not stretch down to meet it
+    const legLen = 3;
     const y0 = GY - rows.length - legLen + bob;
     const headDy = Math.round(Math.min(4, (p.headDip || 0) * 0.5));
     // legs first, so the body sits on them; far pair a step back
@@ -3323,9 +2783,10 @@ const Sprites = (() => {
       LEGS_SIDE.forEach((lx, i) => {
         // the pose table orders legs [rear far, rear near, front far, front near]
         const pi = [2, 3, 0, 1][i];
-        const lift = Math.round(U.clamp((p.leg[pi] || 0) * 0.6 + p.tuck * 3, 0, 3));
+        const air = bob < -2 ? 1 : 0;
+        const lift = Math.round(U.clamp((p.leg[pi] || 0) * 0.5 + p.tuck * 2 + air, 0, 2));
         const fx = Math.round(U.clamp(-(p.legX[pi] || 0) * 0.45, -2, 2));
-        leg(x0 + (W2 - 1 - lx) - 2, y0 + rows.length - 2, legLen + (bob < 0 ? -bob : 0), lift, fx);
+        leg(x0 + (W2 - 1 - lx) - 2, y0 + rows.length - 2, legLen + Math.min(1, bob < 0 ? -bob : 0), lift, fx);
       });
     }
     lay(rows, x0, y0, { mirror: true, headCols: HEAD_X, headDy });
@@ -4727,29 +4188,8 @@ const Sprites = (() => {
   // they are carrying and what colour they are. They walk, they talk, they wave.
   const VW2 = 30, VH2 = 46, VX = 15, VGY = 45;
   const VILLAGERS = {
-    bee: { name: 'Maud', skin: '#e8bd92', hair: '#8a6a3a', shirt: '#f2ece0', pants: '#6b5a44',
-      hat: 'veil', prop: 'hive', why: 'with a jar of something' },
-    fish: { name: 'Errol', skin: '#c9955f', hair: '#3a3028', shirt: '#4a7a9a', pants: '#3a4a58',
-      hat: 'bucket', prop: 'rod', why: 'back from the lake' },
-    post: { name: 'Bev', skin: '#e0b088', hair: '#a8462c', shirt: '#c9581f', pants: '#2f3a4a',
-      hat: 'cap', prop: 'sack', why: 'with the post' },
-    bake: { name: 'Nonna', skin: '#d8a878', hair: '#cfc4b0', shirt: '#f0e0c8', pants: '#8a4520',
-      hat: 'kerchief', prop: 'tray', why: 'with a tray of something hot' },
-    bota: { name: 'Dr Finch', skin: '#a87850', hair: '#2e2a26', shirt: '#7a9a5a', pants: '#4a5238',
-      hat: 'wide', prop: 'press', why: 'looking for a plant' },
-    bard: { name: 'Little Ash', skin: '#f0cba0', hair: '#f5cd5c', shirt: '#7a58a8', pants: '#4a3a6a',
-      hat: 'none', prop: 'lute', why: 'with a song about you' },
-    ranger: { name: 'The Ranger', skin: '#d8a878', hair: '#5a4030', shirt: '#8a7a4a', pants: '#4a4a30',
-      hat: 'wide', prop: 'press', why: 'doing the rounds' },
-    // the three behind the counters in town
-    grimm: { name: 'Grimm', skin: '#c9b8a8', hair: '#2a2630', shirt: '#2e2436', pants: '#1c1822',
-      hat: 'cap', prop: 'sack', why: 'behind the pawnshop counter' },
-    joiner: { name: 'Odger', skin: '#d8a878', hair: '#8a6a3a', shirt: '#9a6a3a', pants: '#5a3a1c',
-      hat: 'none', prop: 'press', why: 'up to the elbows in shavings' },
     clark: { name: 'Captain Clark', skin: '#f0b890', hair: '#f4f2ea', shirt: '#1c3470', pants: '#20263a',
       hat: 'captain', prop: 'none', why: 'the Ottoman Empire' },
-    warren: { name: 'Mrs Warren', skin: '#e0b088', hair: '#b8b0a0', shirt: '#2f5a44', pants: '#3a4438',
-      hat: 'wide', prop: 'hive', why: 'minding the livestock' },
   };
   function villager(kind, frame, pose = 'idle') {
     const K = VILLAGERS[kind] || VILLAGERS.bee;
@@ -4948,11 +4388,6 @@ const FurnArt = (() => {
 
   const A = {
     ottoman: (g, w, h) => ottomanOf(g, w, h, VEL, GLD),
-    lostottoman: (g, w, h) => {
-      ottomanOf(g, w, h, ['#6a5a24', '#a08c3e', '#cab45a', '#e2d27a', '#f6ecb0'], ['#5a5a52', '#7a7a70', '#a4a498', '#cacac0', '#eeeee6']);
-      for (let i = 0; i < 30; i++) P(g, 3 + (i * 7) % (w - 6), 3 + (i * 5) % (h - 10), i % 3 ? '#8a7a36' : '#f6ecb0');   // carpet pile
-      E(g, w * 0.66, h * 0.52, 5, 2, 'rgba(90,70,20,0.45)');                                                // a damp patch
-    },
     pouf: (g, w, h) => {
       const cx = w / 2, top = 5;
       E(g, cx, h - 5, w / 2 - 1, 4, KNT[0]);
@@ -5631,7 +5066,7 @@ const Props = (() => {
   // ---- weeds: the thing choking the plot, so they want to read big ---------
   P.weed = (v = 0) => cached('weed' + v, 34, 40, (g) => {
     const rnd = Art.rng((+v + 1) * 733);
-    const D = '#3b4a1e', M = '#5d7128', L = '#86974a', Y = '#a8a054', ROT = '#6d5a2c';
+    const D = '#2e5a22', M = '#4a8a32', L = '#7ab850', Y = '#b8c460', ROT = '#8a6a34';
     const cx = 17, base = 38;
     if (+v === 0) {                       // thistle: tall, spiny, purple heads
       for (let i = -1; i <= 1; i++) {
@@ -6793,11 +6228,6 @@ const Props = (() => {
     },
     // ---- the Ottoman Empire's stock ------------------------------------------
     ottoman: (g, w, h) => velvet(g, w, h, ['#6a0e1c', '#a8182c', '#d8384a', '#ff7a86'], '#e8b020'),
-    lostottoman: (g, w, h) => {
-      velvet(g, w, h, ['#8a7a3a', '#c8b660', '#e2d27a', '#f4e8a4'], '#8a8478');
-      for (let i = 0; i < 18; i++) Art.rect(g, 3 + (i * 7) % (w - 6), 4 + (i * 5) % 8, 1, 1, i % 2 ? '#a89850' : '#fff4b8');   // carpet pile
-      Art.rect(g, w / 2 - 6, 2, 12, 1, 'rgba(255,255,220,0.8)');
-    },
     pouf: (g, w, h) => {
       Art.ell(g, w / 2, h - 7, w / 2, 7, '#0e5a5a');
       Art.ell(g, w / 2, h - 8, w / 2 - 1, 6, '#18908a');
@@ -8211,10 +7641,10 @@ const Portraits = (() => {
     const spec = {
       skin: [U.shade(sk, 0.14), sk, U.shade(sk, -0.14), U.shade(sk, -0.28)], blush: U.mix(sk, '#f08080', 0.35),
       hair: [U.shade(hr, 0.22), hr, U.shade(hr, -0.16), U.shade(hr, -0.32)],
-      cut: { bee: 'bun', fish: 'short', post: 'bob', bake: 'bun', bota: 'short', bard: 'long', ranger: 'short', grimm: 'short', joiner: 'short', warren: 'bun' }[key] || 'short',
-      hat: K.hat, brow: U.shade(hr, -0.2), wide: key === 'joiner' || key === 'fish' ? 1.06 : 1,
+      cut: 'short',
+      hat: K.hat, brow: U.shade(hr, -0.2), wide: 1,
       top: 'shirt', cloth: [U.shade(sh, 0.18), sh, U.shade(sh, -0.14), U.shade(sh, -0.28)], shirt: null,
-      collar: null, glasses: key === 'bota' ? '#2a2420' : null, stubble: key === 'fish' || key === 'joiner' ? U.shade(hr, -0.1) : null,
+      collar: null, glasses: null, stubble: null,
     };
     return spec;
   }
@@ -8592,8 +8022,7 @@ const SUBTOOLS = [
 // ---- what you own -------------------------------------------------------------
 // You arrive with your two hands and W$300. Jim hands you his old sickle; every
 // other tool is *unlocked* when he teaches you the job it is for, and then
-// bought at Wombat Mart. The phone is the same, and its apps come from the App
-// Store on the phone itself.
+// bought at Wombat Mart.
 const TOOL_SHOP = [
   { key: 'sickle',  price: 25, blurb: 'Cuts weeds. The first thing you need.' },
   { key: 'destroy', price: 30, name: 'Ant Hire Card', blurb: 'The ants carry logs and rubble away for you.' },
@@ -8607,9 +8036,6 @@ const TOOL_SHOP = [
   { key: 'build',   price: 50, name: 'Hammer', blurb: 'For standing furniture about the place.' },
 ];
 const TOOL_SHOP_BY_KEY = Object.fromEntries(TOOL_SHOP.map((t) => [t.key, t]));
-const PHONE_PRICE = 80;
-// apps for the phone; the first four come with it
-const APP_PRICES = { quests: 0, messages: 0, settings: 0, store: 0, herd: 25, garden: 25, larder: 20, camera: 15, map: 40 };
 const owns = (g, key) => !!(g && g.owned && g.owned[key]);
 // taught: Jim has shown you it, so the mart will sell it to you
 const taught = (g, key) => owns(g, key) || !!(g && g.unlocked && g.unlocked[key]);
@@ -8839,7 +8265,7 @@ const FURNITURE = [
   { key: 'barrel',  name: 'Rain Barrel',   cost: 160,  w: 30, h: 36, water: 1,  blurb: 'Catches the rain. Beds near it dry out slower.' },
   { key: 'trough2', name: 'Stone Trough',  cost: 210,  w: 52, h: 24, thirst: 1, blurb: 'Cut from one block. They drink from it.' },
   { key: 'scare',   name: 'Scarecrow',     cost: 120,  w: 32, h: 60, blurb: 'Sack head, crossed sticks, one boot. Keeps the crows honest.' },
-  { key: 'hive',    name: 'Bee Skep',      cost: 240,  w: 30, h: 32, hap: 0.10, blurb: 'Straw skep on a stand. Maud will be pleased.' },
+  { key: 'hive',    name: 'Bee Skep',      cost: 240,  w: 30, h: 32, hap: 0.10, blurb: 'Straw skep on a stand. Somebody always moves in.' },
   { key: 'arch',    name: 'Rose Arch',     cost: 320,  w: 64, h: 70, hap: 0.18, blurb: 'Bent willow with something climbing it.' },
   { key: 'well',    name: 'Old Well',      cost: 460,  w: 48, h: 58, water: 2,  blurb: 'Stone ring, a roof, a bucket on a rope. Deep.' },
   { key: 'statue',  name: 'Wombat Statue', cost: 780,  w: 36, h: 50, hap: 0.12, blurb: 'Carved by someone who had only had one described to them.' },
@@ -8857,8 +8283,6 @@ const FURNITURE = [
   { key: 'deck',    name: 'Deck Chair',        cost: 120, w: 34, h: 34, hap: 0.10, blurb: 'Striped canvas off the old ferry.' },
   { key: 'helm',    name: "Ship's Wheel",      cost: 440, w: 44, h: 52, hap: 0.08, blurb: 'Off the Captain\'s last command. Do not ask how it sank.' },
   { key: 'anchor',  name: 'Old Anchor',        cost: 280, w: 38, h: 46, blurb: 'Rusty, heavy, and absolutely going nowhere.' },
-  // never on sale: it is only ever found, a long way back through the staff door
-  { key: 'lostottoman', name: 'The Lost Ottoman', cost: 0, w: 40, h: 24, hap: 0.3, found: 1, blurb: 'Damp carpet, humming faintly. Nobody remembers making it.' },
 ];
 const FURN_BY_KEY = Object.fromEntries(FURNITURE.map((f) => [f.key, f]));
 </script>
@@ -9440,9 +8864,6 @@ const Sky = (() => {
       nextFront = WEATHER[front].mins * 60;
       if (G) UI.toast(`<b>${WEATHER[front].name}</b> &mdash; ${WEATHER[front].blurb}`, '');
       // somebody always has something to say about the weather
-      if (G && front === 'storm') Phone.push('shaz', 'big one coming in over the flats!! get them inside 😬');
-      else if (G && front === 'rain') Phone.push('bee', 'rain on. my lot are all indoors sulking. yours will love it');
-      else if (G && front === 'clear' && Math.random() < 0.5) Phone.push('fish', 'flat calm out here. perfect. i will catch nothing again');
     }
     const w = wet();
     // rain: a column of drops falling across the whole screen
@@ -10158,15 +9579,15 @@ const World = (() => {
     const f = fraction();
     g.drawImage(dirtTex(), 0, GROUND - 2);
     {                                        // the green creeping back over warm earth
-      g.globalAlpha = 0.18 + Math.min(0.4, f * 0.6);
-      g.fillStyle = U.mix('#55803c', '#477f33', f);
+      g.globalAlpha = 0.42 + Math.min(0.4, f * 0.6);
+      g.fillStyle = U.mix('#6aa84a', '#5a9a3e', f);
       g.fillRect(0, GROUND - 2, W, H - GROUND + 2);
       g.globalAlpha = 1;
     }
     // the treeline throws a band of shade across the back of the plot
     // the treeline throws shade forward, but as a long soft run rather than the
     // hard black stripe it used to lay across the top of the plot
-    for (let i = 0; i < 12; i++) Art.dither(g, 0, GROUND - 2 + i * 5, W, 5, '#2a3a1e', 0.14 * (1 - i / 12));
+    for (let i = 0; i < 6; i++) Art.dither(g, 0, GROUND - 2 + i * 5, W, 5, '#2a4a1e', 0.1 * (1 - i / 6));
     g.drawImage(grass, 0, 0);
     g.drawImage(soil, 0, 0);
   }
@@ -10345,7 +9766,7 @@ const World = (() => {
 // Three parts, all owned here so grove.js stays about wombats:
 //   TERRAIN   mounds you raise and ponds you dig, saved with the world
 //   CRITTERS  beetles, butterflies, bees, dragonflies, frogs, ants, a lizard
-//   VISITORS  Shaz, Groot and a few others, who turn up, stay a while, talk
+//   VISITORS  Shaz, Groot and Captain Clark, who turn up, stay a while, talk
 const Wild = (() => {
   let G = null;
   let W = 0, H = 0, GROUND = 0, walk = { y0: 0, y1: 0 };
@@ -10611,7 +10032,7 @@ const Wild = (() => {
           kind = 3;
           const dep = w;
           let b = dep > 0.8 ? 0 : dep > 0.5 ? 1 : dep > 0.26 ? 2 : dep > 0.1 ? 3 : 4;
-          const bay = BAYER[(y & 3) * 4 + (x & 3)] / 16;
+          const bay = 0.5;
           if (b > 0 && (dep % 0.2) / 0.2 > 0.5 + bay * 0.5) b--;
           col = WATER[b];
           if (hash(Math.floor(x / 5), y) < 0.05 && (y % 3 === 0)) col = GLINT;
@@ -10621,7 +10042,6 @@ const Wild = (() => {
           // normal (-hx, -hy, 1) against a light from the upper left
           const nl = Math.hypot(hx, hy, 1);
           let lit = (hx * 0.55 + hy * 0.42 + 0.72) / nl;           // 0..1
-          lit += (BAYER[(y & 3) * 4 + (x & 3)] / 16 - 0.5) * 0.14;
           const r = hash(x, y);
           if (h > 0) {
             kind = 1;
@@ -10768,163 +10188,6 @@ const Wild = (() => {
   // Each one walks in from an edge, drifts about for a minute or two, and goes
   // home. Click one and you get the full dialogue panel.
 
-  // Everyone who lives within a morning's walk. `tree` is what they will talk
-  // about; `gift` is what they leave on the fence post before they go.
-  const VILLAGE = [
-    {
-      key: 'bee', name: 'Maud', why: 'with a jar of something',
-      sprite: (f, pose) => Sprites.villager('bee', f, pose), sc: 1.5,
-      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
-      gift: () => { for (const w of G.wombats) w.hap = Math.min(100, w.hap + 16); return 'Maud left a jar of honey; everybody had some'; },
-      tree: () => ({
-        start: 'hub',
-        nodes: {
-          hub: { mood: 'happy', sub: 'forty hives on the ridge',
-            say: 'Brought you a jar. Do not give it to the wombats straight, they go peculiar. A spoonful in the water and they will love you forever.',
-            opts: [
-              { q: 'How are the bees?', to: 'bees' },
-              { q: 'Peculiar how?', to: 'odd' },
-              { q: 'Do my flowers help?', to: 'flow' },
-              { q: 'Thanks, Maud.', end: true },
-            ] },
-          bees: { mood: 'talk', say: 'Busy. It has been a wet one, which they hate and the clover loves, so on balance nobody is happy but there is a lot of honey.',
-            opts: [{ q: 'Sounds about right.', to: 'hub' }] },
-          odd: { mood: 'happy', say: 'One of them dug a hole through the floor of my shed and out the other side. In an afternoon. On honey.',
-            opts: [{ q: 'Noted.', to: 'hub' }] },
-          flow: { mood: 'proud', say: 'Everything you plant out here, mine find within the week. Keep planting. I am not being generous, I am being commercial.',
-            opts: [{ q: 'A deal, then.', to: 'hub' }] },
-        },
-      }),
-    },
-    {
-      key: 'fish', name: 'Errol', why: 'back from the lake',
-      sprite: (f, pose) => Sprites.villager('fish', f, pose), sc: 1.55,
-      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
-      gift: () => { const n = 60 + Math.floor(Math.random() * 90); G.wd += n; return `Errol sold you his catch for ${U.fmt(n)} W$ less than it was worth`; },
-      tree: () => ({
-        start: 'hub',
-        nodes: {
-          hub: { mood: 'talk', sub: 'nothing on the line since Tuesday',
-            say: 'Walked past and thought: that fellow has wombats. So here I am, standing in your garden, not fishing. An improvement.',
-            opts: [
-              { q: 'Catch anything?', to: 'catch' },
-              { q: 'What is in the lake?', to: 'lake' },
-              { q: 'Should I dig a pond?', to: 'pond' },
-              { q: 'Good luck out there.', end: true },
-            ] },
-          catch: { mood: 'sad', say: 'A boot, a bucket and the same eel three times. He knows me now. We have an understanding.',
-            opts: [{ q: 'Give him my regards.', to: 'hub' }] },
-          lake: { mood: 'worry', say: 'Water. Fish. And something underneath that has never once taken a hook, which is the part that keeps me going back.',
-            opts: [{ q: 'Do not find out.', to: 'hub' }] },
-          pond: { mood: 'happy', say: 'Dig one. Wombats drink like they are being timed, and a pond fills itself when it rains. Cheapest thing you will ever build.',
-            opts: [{ q: 'I will do that.', to: 'hub' }] },
-        },
-      }),
-    },
-    {
-      key: 'post', name: 'Bev', why: 'with the post',
-      sprite: (f, pose) => Sprites.villager('post', f, pose), sc: 1.5,
-      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
-      gift: () => { const c = U.pick(PLANTS_OF('crop')); G.seeds[c.key] = (G.seeds[c.key] || 0) + 5; return `a packet of ${c.name} seed, posted to the wrong address`; },
-      tree: () => ({
-        start: 'hub',
-        nodes: {
-          hub: { mood: 'talk', sub: 'the round takes four hours and she likes it',
-            say: 'Nothing for you. There is never anything for you. I come anyway because the last three houses on this road are all yours and I have nothing else to do.',
-            opts: [
-              { q: 'Who writes to anyone out here?', to: 'mail' },
-              { q: 'What is in the sack?', to: 'sack' },
-              { q: 'Seen anything odd?', to: 'odd' },
-              { q: 'Safe round, Bev.', end: true },
-            ] },
-          mail: { mood: 'cross', say: 'The department, to the ranger. Seed catalogues, to Groot, who cannot read them and keeps them anyway. And bills. Always bills.',
-            opts: [{ q: 'Grim.', to: 'hub' }] },
-          sack: { mood: 'happy', say: 'A packet that has been to four wrong addresses and is not going to a fifth. It is seed. Have it. Sign nothing.',
-            opts: [{ q: 'Very kind.', to: 'hub' }] },
-          odd: { mood: 'worry', say: 'That Jim, out by the hedge, waving at me with a game controller. Every week. Lovely bloke.',
-            opts: [{ q: 'That is just her.', to: 'hub' }] },
-        },
-      }),
-    },
-    {
-      key: 'bake', name: 'Nonna', why: 'with a tray of something hot',
-      sprite: (f, pose) => Sprites.villager('bake', f, pose), sc: 1.45,
-      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
-      gift: () => { for (const w of G.wombats) { w.hap = 100; w.bored = 0; } return 'Nonna fed everybody and would not be argued with'; },
-      tree: () => ({
-        start: 'hub',
-        nodes: {
-          hub: { mood: 'happy', sub: 'she has been baking since four',
-            say: 'You are too thin and your animals are too fat, so somebody here is eating wrong. Sit. Have one. I am not taking them home.',
-            opts: [
-              { q: 'What is in them?', to: 'what' },
-              { q: 'You did not have to.', to: 'must' },
-              { q: 'Do they get one?', to: 'them' },
-              { q: 'Thank you, Nonna.', end: true },
-            ] },
-          what: { mood: 'sly', say: 'Flour, butter, and a question you do not need the answer to. Eat.',
-            opts: [{ q: 'Eating.', to: 'hub' }] },
-          must: { mood: 'cross', say: 'I did. Nobody lives out here on their own and eats properly. I have seen your larder from the road.',
-            opts: [{ q: 'Fair enough.', to: 'hub' }] },
-          them: { mood: 'happy', say: 'They already have. All of them. Twice. Do not look at me like that, look at their faces.',
-            opts: [{ q: 'They do look happy.', to: 'hub' }] },
-        },
-      }),
-    },
-    {
-      key: 'bota', name: 'Dr Finch', why: 'looking for a plant',
-      sprite: (f, pose) => Sprites.villager('bota', f, pose), sc: 1.55,
-      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
-      gift: () => { const c = U.pick(PLANTS_OF('crop')); G.seeds[c.key] = (G.seeds[c.key] || 0) + 2; return `Dr Finch left two ${c.name} seeds and a wave`; },
-      tree: () => ({
-        start: 'hub',
-        nodes: {
-          hub: { mood: 'think', sub: 'university of somewhere, thirty years ago',
-            say: 'Do not mind me. I am counting. There is something growing on your land that is not supposed to exist below the tree line and I would like to know how you managed it.',
-            opts: [
-              { q: 'Which one?', to: 'which' },
-              { q: 'Is it dangerous?', to: 'danger' },
-              { q: 'How do I grow more?', to: 'grow' },
-              { q: 'Count away.', end: true },
-            ] },
-          which: { mood: 'happy', say: 'If I tell you, you will dig it up and put it in a pot, and then it will die, and then I will cry in front of you. Let us not.',
-            opts: [{ q: 'Understood.', to: 'hub' }] },
-          danger: { mood: 'worry', say: 'The mandrake screams and the snapjaw bites. Neither is dangerous. The dreamcap is perfectly safe and I will not be saying anything further about the dreamcap.',
-            opts: [{ q: '...right.', to: 'hub' }] },
-          grow: { mood: 'proud', say: 'Every magical plant wants one thing and will sulk until it gets it. Night, drought, company, solitude, shade. Find the thing. Give it the thing.',
-            opts: [{ q: 'Find the thing. Got it.', to: 'hub' }] },
-        },
-      }),
-    },
-    {
-      key: 'bard', name: 'Little Ash', why: 'with a song about you',
-      sprite: (f, pose) => Sprites.villager('bard', f, pose), sc: 1.4,
-      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
-      gift: () => { const n = 30 + Math.floor(Math.random() * 40); G.wd += n; return `they passed the hat after the song and it came to ${U.fmt(n)} W$`; },
-      tree: () => ({
-        start: 'hub',
-        nodes: {
-          hub: { mood: 'happy', sub: 'twelve, and already unbearable',
-            say: 'I wrote a song about your wombats. It is four verses. There is a chorus. You do not have a choice about this.',
-            opts: [
-              { q: 'Go on then.', to: 'song' },
-              { q: 'Who taught you?', to: 'who' },
-              { q: 'Four verses?', to: 'four' },
-              { q: 'Maybe next time.', end: true },
-            ] },
-          song: { mood: 'proud', say: 'THE WOMBATS OF THE GROVE, they dig and they are ROUND. They leave behind a CUBE, the finest in the TOWN. ...There are three more verses.',
-            opts: [{ q: 'That was genuinely good.', to: 'good' }, { q: 'Three more?', to: 'four' }] },
-          good: { mood: 'happy', say: 'I know. I am going to be enormous.',
-            opts: [{ q: 'I believe you.', to: 'hub' }] },
-          four: { mood: 'cross', say: 'The fourth one is about Jim\'s pumpkins and it is the best one and nobody ever lets me get to it.',
-            opts: [{ q: 'Next time, I promise.', to: 'hub' }] },
-          who: { mood: 'talk', say: 'Nobody. There is one lute in the Flats and it was in a cupboard. It is mine now by the law of nobody else wanting it.',
-            opts: [{ q: 'That is how it works.', to: 'hub' }] },
-        },
-      }),
-    },
-  ];
-
   const GUESTS = [
     {
       key: 'shaz', name: 'Shaz', why: 'on her day off',
@@ -10977,54 +10240,27 @@ const Wild = (() => {
       }),
     },
     {
-      key: 'ranger', name: 'The Ranger', why: 'doing the rounds',
-      sprite: (f, pose) => Sprites.villager('ranger', f, pose === 'walk' ? 'walk' : pose === 'talk' ? 'talk' : 'idle'), sc: 1.45,
-      poses: { walk: 'walk', idle: 'idle', talk: 'idle' },
-      gift: () => { const n = 90 + Math.floor(Math.random() * 120); G.wd += n; return `the ranger paid ${U.fmt(n)} W$ for the count`; },
+      key: 'clark', name: 'Captain Clark', why: 'on his constitutional',
+      sprite: (f, pose) => Sprites.villager('clark', f, pose === 'walk' ? 'walk' : pose === 'talk' ? 'talk' : 'idle'), sc: 1.5,
+      poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
+      gift: () => { const n = 30 + Math.floor(Math.random() * 50); G.wd += n; return `the Captain left ${U.fmt(n)} W$ in a sardine tin`; },
       tree: () => ({
         start: 'hub',
         nodes: {
-          hub: { mood: 'think', sub: 'parks and wildlife, apparently',
-            say: 'Morning. Doing the burrow count. You have got more here than the whole of the Flats put together, which is either very good news or a paperwork problem.',
+          hub: { mood: 'happy', sub: 'he walks the long way round, for the sea air',
+            say: 'Ahoy the farm! Fine-looking vessel you have got here. Needs an ottoman, mind. Everything needs an ottoman.',
             opts: [
-              { q: 'Is that a problem?', to: 'problem' },
-              { q: 'Who do you work for?', to: 'who' },
-              { q: 'Count away.', end: true },
+              { q: 'Where is the sea, Captain?', to: 'sea' },
+              { q: 'Do wombats like ottomans?', to: 'otto' },
+              { q: 'Good to see you, Captain.', end: true },
             ] },
-          problem: { mood: 'sly', say: 'Not for me. I get paid per wombat counted. Keep going, you are funding my retirement.',
-            opts: [{ q: 'Glad to help.', to: 'hub' }] },
-          who: { mood: 'worry', say: 'The department. The one above that. It is best not to look into it too closely, and I say that as its employee.',
-            opts: [{ q: 'Noted.', to: 'hub' }] },
+          sea: { mood: 'think', say: 'Three hundred kilometres that way. I can smell it on a good day. Today is not a good day.',
+            opts: [{ q: 'Sorry to hear it.', to: 'hub' }] },
+          otto: { mood: 'laugh', say: 'Everyone likes ottomans. Put one out and see which of them sits on it first. My money is on the grey one.',
+            opts: [{ q: 'I will try it.', to: 'hub' }] },
         },
       }),
     },
-    {
-      key: 'kid', name: 'A Kid', why: 'on a bike',
-      sprite: (f, pose) => Sprites.wombat(pose === 'walk' ? 'walk' : 'idle', f, 'sand', 1, 'juvenile'), sc: 1.6,
-      poses: { walk: 'walk', idle: 'idle', talk: 'idle' },
-      gift: () => { G.offerings.plain = (G.offerings.plain || 0) + 2; return 'the kid left two cubes he found on the road'; },
-      tree: () => ({
-        start: 'hub',
-        nodes: {
-          hub: { mood: 'happy', sub: 'rode out from the Flat to see the wombats',
-            say: 'Is it true they do square ones? Mum says it is not true. Mum has never seen one.',
-            opts: [
-              { q: 'It is completely true.', to: 'yes' },
-              { q: 'Go and look for yourself.', to: 'look' },
-              { q: 'Careful on the road.', end: true },
-            ] },
-          yes: { mood: 'shock', say: 'SQUARE?! I am telling everyone. I am telling the whole bus.',
-            opts: [{ q: 'You do that.', to: 'hub' }] },
-          look: { mood: 'happy', say: 'I found two on the road on the way in. You can have them. I have got heaps.',
-            opts: [{ q: 'Very generous.', to: 'hub' }] },
-        },
-      }),
-    },
-    // ---- the village ------------------------------------------------------
-    // Six people from down the road, each with a reason to be here and
-    // something in their hands. They use the same walk-in, stand-about,
-    // leave-a-gift loop as everyone else.
-    ...VILLAGE,
   ];
   function spawnVisitor() {
     if (visitors.length) return;
@@ -11046,27 +10282,13 @@ const Wild = (() => {
   function talkTo(v) {
     if (!v) return;
     v.state = 'talk'; v.t = 0;
-    const who = { kid: 'kid' }[v.def.key] || (Sprites.VILLAGERS[v.def.key] ? 'villager:' + v.def.key : v.def.key);
+    const who = Sprites.VILLAGERS[v.def.key] ? 'villager:' + v.def.key : v.def.key;
     Talk.open(who, v.def.tree(), () => {
       if (v.state === 'talk') v.state = 'wander';
       if (!v.gave) {
         v.gave = true;
         const msg = v.def.gift();
         UI.toast(msg, 'good'); UI.refreshHUD(); UI.refreshTray(); Main.save();
-        // and they text on the way home
-        const BYE = {
-          bee: 'got back fine. that big grey one watched me the whole way to the gate',
-          fish: 'nothing on the line again. your wombats were better company',
-          post: 'nothing for you tomorrow either. see you then',
-          bake: 'eat the other one. do not save it. i will know',
-          bota: 'I have written you up as an anomaly. Meant kindly.',
-          bard: 'verse four is about the roses and it is the best one',
-          shaz: 'got home!! tell the big one i said hi 😄',
-          groot: 'I am Groot.',
-          ranger: 'Count logged. Nineteen. Nobody at the office believes me.',
-          kid: 'i told the whole bus. the whole bus knows now',
-        };
-        if (BYE[v.def.key]) setTimeout(() => Phone.push(v.def.key, BYE[v.def.key]), 9000);
       }
     });
   }
@@ -12439,7 +11661,7 @@ const Grove = (() => {
       }
       // things watching from the second row
       // haze thickens toward the back of the wood
-      const hz = (0.14 - d * 0.025) * (0.4 + Sky.light() * 0.6);
+      const hz = (0.07 - d * 0.015) * (0.4 + Sky.light() * 0.6);
       {                                       // soft sunny haze toward the back of the wood
         const hc = Sky.light() > 0.4 ? '#e4f2d8' : '#3a4a70', hy0 = SKY - 56 + d * 13;
         for (let i = 0; i < 5; i++) {
@@ -12447,7 +11669,8 @@ const Grove = (() => {
           Art.dither(g, L, hy0 + i * 14, R - L, 15, hc, aa);
         }
       }
-      // fog banks caught between the trunks
+      // fog banks caught between the trunks, only in the early morning
+      if (Sky.light() > 0.35) continue;
       for (const m of mist) {
         if (m.d !== Math.min(2, d)) continue;
         const mx = m.x + drift * PAR[d];
@@ -12481,8 +11704,8 @@ const Grove = (() => {
       g.drawImage(img, Math.round(ox - 12), Math.round(o.y - 26));
     }
     World.drawGround(g);
-    // ground fog rolling off the treeline into the plot
-    for (const m of mist) {
+    // ground fog rolling off the treeline into the plot, before the sun is up
+    for (const m of (Sky.light() > 0.35 ? [] : mist)) {
       if (m.d !== 2) continue;
       const mx = m.x * 0.7 + 60;
       const a = (0.07 + (1 - f) * 0.1) * (0.6 + 0.4 * Math.sin(G.time * 0.3 + m.x));
@@ -12597,17 +11820,9 @@ const Grove = (() => {
     }
     g.restore();
 
-    // The grade: violet in the shadows, warm gold in the light. One pass, and
-    // it is what ties the wood to the rest of the game's colour.
-    g.save();
-    g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = '#ffd9a0'; g.globalAlpha = 0.22; g.fillRect(0, 0, VW, VH);
-    g.globalAlpha = 0.5 + f * 0.2;
-    Art.glow(g, VW * 0.3, VH * 0.14, VH * 1.1, '#ffe296', 0.5, 6);
-    g.restore();
-
-    // the whole grove sits inside a soft violet frame
-    Art.vignette(g, VW, VH, '#6a4424', 0.14, 2.4, 0.5);          // a soft warm edge, nothing more
+    // No colour grade any more: the gold wash over everything read as a muddy
+    // filter. Clean colours, like the cover art, and the barest warm edge.
+    Art.vignette(g, VW, VH, '#3a2a14', 0.08, 2.6, 0.6);
     Sky.drawOver(g, VW, VH);          // the hour, the mist and the rain, over everything
     edgeArrows(g);
   }
@@ -12631,8 +11846,8 @@ const Grove = (() => {
         const pts = !at ? [[p.x0, y0], [p.x1, y0], [p.x1, y1], [p.x0, y1]]
           : sign.side > 0 ? [[p.x0, y0], [far, y0], [near, y1], [p.x0, y1]]
                           : [[far, y0], [p.x1, y0], [p.x1, y1], [near, y1]];
-        Art.poly(g, pts, 'rgba(26,18,42,0.52)');
-        Art.poly(g, pts, 'rgba(140,158,190,0.09)');
+        Art.poly(g, pts, 'rgba(40,34,20,0.24)');       // shaded, not blacked out
+        Art.poly(g, pts, 'rgba(255,236,190,0.06)');
       }
       if (at) fenceLine(g, at);
     }
@@ -13166,7 +12381,8 @@ const Scenery = (() => {
   }
   const px = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
   const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-  const bay = (x, y) => BAY[(y & 3) * 4 + (x & 3)] / 16;
+  // once a bayer threshold; a flat one gives clean bands instead of dots
+  const bay = () => 0.5;
   // draw a strip twice so it always covers the screen
   function strip(g, c, off, y) {
     const ox = -Math.round(wrap(off, PW));
@@ -13954,11 +13170,15 @@ const Atlas = (() => {
     }
   }
   // the animals. Each one is four or five pixels and that is all it needs.
+  // A tidy little block of a wombat: outlined, stubby legs, an ear and an eye.
   function wombat(q, x, y) {
-    Art.ell(q, x, y, 4.4, 3.2, '#5e442e'); Art.ell(q, x - 1, y - 1, 3, 1.8, '#7a5a3c');
-    Art.rect(q, x + 3, y - 2, 3, 3, '#5e442e'); Art.rect(q, x + 3, y - 3, 1, 1, '#4a3424');
-    Art.rect(q, x + 5, y - 1, 1, 1, '#ffcf6a');                 // one eye catching the light
-    Art.rect(q, x - 2, y + 2, 1, 2, '#8a5c3c'); Art.rect(q, x + 2, y + 2, 1, 2, '#8a5c3c');
+    x = Math.round(x); y = Math.round(y);
+    Art.rect(q, x - 4, y - 3, 9, 5, '#2a1a10');                // the outline
+    Art.rect(q, x - 3, y - 2, 7, 3, '#b86a3c');                // the body
+    Art.rect(q, x - 3, y - 2, 7, 1, '#d88a58');                // lit along the back
+    Art.rect(q, x + 3, y - 4, 1, 1, '#2a1a10');                // an ear
+    Art.rect(q, x + 2, y - 1, 1, 1, '#2a1a10');                // the eye
+    Art.rect(q, x - 3, y + 2, 1, 1, '#2a1a10'); Art.rect(q, x + 2, y + 2, 1, 1, '#2a1a10');   // stubby feet
   }
   function duck(q, x, y) {
     Art.ell(q, x, y, 3.4, 2.4, '#b4b0a2'); Art.rect(q, x + 2, y - 3, 2, 3, '#b4b0a2');
@@ -14186,25 +13406,6 @@ const Atlas = (() => {
       Art.poly(q, [[cx3 + 10, cy3 + 2], [cx3 + 13, cy3 - 3], [cx3 + 16, cy3 + 2]], '#5a3226');
       Art.rect(q, cx3 + 12, cy3 - 1, 2, 3, '#ffcf6a');
     }
-    // mist pooling in the low ground between the woods
-    for (let i = 0; i < 30; i++) {
-      const mx = r() * HW, my = r() * HH, mw = 12 + r() * 26;
-      const oa = q.globalAlpha; q.globalAlpha = 0.12 + r() * 0.1;
-      Art.ell(q, mx, my, mw, mw * 0.3, '#8aa8a0');
-      Art.ell(q, mx - mw * 0.3, my + 1.4, mw * 0.5, mw * 0.2, '#a4c0b8');
-      q.globalAlpha = oa;
-    }
-    // clouds drifting over the whole thing, so there is sky in it
-    for (let i = 0; i < 7; i++) {
-      const cx3 = r() * HW, cy3 = r() * HH, cw = 9 + r() * 12;
-      const oa = q.globalAlpha; q.globalAlpha = 0.16;
-      Art.ell(q, cx3, cy3, cw, cw * 0.4, '#8f9cb4');
-      Art.ell(q, cx3 - cw * 0.4, cy3 - 1.4, cw * 0.5, cw * 0.3, '#a8b4c8');
-      q.globalAlpha = oa * 0.3;
-      Art.ell(q, cx3 + 3, cy3 + 4, cw, cw * 0.4, '#070c08');       // and their shadow on the grass
-      q.globalAlpha = oa;
-    }
-
     // ---- blow it up ---------------------------------------------------------
     g.imageSmoothingEnabled = false;
     g.drawImage(hc.c, 0, 0, VW, VH);
@@ -14366,7 +13567,7 @@ const Atlas = (() => {
         if (d < 120) cover = Math.max(cover, 1 - d / 120);
       }
       const edge = Math.max(0, 1 - Math.min(x, VW - x, y, VH - y) / 70);
-      const a = Math.max(cover, edge * 0.5);
+      const a = Math.max(cover, edge * 0.12);
       if (a <= 0.02) continue;
       Art.glow(g, x, y, f.r, '#f4f0e4', 0.35 * a, 4);
     }
@@ -14666,7 +13867,6 @@ const Shop = (() => {
       if (!taught(G, t.key)) continue;                // Jim has not shown you this one yet
       out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
     }
-    if (taught(G, 'phone')) out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Texts, a camera, and Wombat Hop. Everyone out here has one.', sold: owns(G, 'phone') });
     for (const u of UPGRADES) {
       if (GARDEN_UP[u.key]) continue;                 // Groot stocks the garden half
       const l = G.up[u.key] || 0;
@@ -14825,7 +14025,6 @@ const Shop = (() => {
       const names = tools.filter((p) => p.key !== 'phone').map((p) => p.name);
       const bits = [];
       if (names.length) bits.push(`<b>${names.join(', ')}</b> ${names.length > 1 ? 'are' : 'is'} on your toolbar`);
-      if (tools.some((p) => p.key === 'phone')) bits.push('press <b>P</b> for your new phone');
       UI.toast(bits.join(' &middot; '), 'good');
     }
     basket.length = 0;
@@ -17228,23 +16427,16 @@ const Nursery = (() => {
 // A furniture showroom kept like the captain's cabin of an old liner: teal
 // damask walls with gold in them, brass portholes onto a moving sea, a ship's
 // wheel over the counter, and every piece on its own plinth with a tag hung
-// off it. Captain Clark stands behind the counter by the door.
-//
-// At the far end there is a door marked STAFF ONLY. He will ask you not to.
-// Behind it is Level 0: the back room of everywhere, yellow wallpaper, damp
-// carpet, the buzz of the strip lights, going on forever. Walk far enough
-// and you might find something that was lost in there.
+// off it. Captain Clark stands behind the counter by the door; click him
+// for the catalogue.
 const Ottoman = (() => {
   let G = null;
   const VW = 640, VH = 360;
   const FLOOR = 262;
   let t = 0, scroll = 0, tscroll = 0, worldW = 1800, drag = null, moved = 0, hover = null;
-  let phase = 'shop', fade = 0, fadeTo = null;
+  let fade = 0, fadeTo = null;
   let slots = [];
   const clark = { x: 170, t: 0, pose: 'idle', say: '', sayT: 0 };
-  // the back room
-  let bx = 0, tbx = 0, glitch = 0, humT = 0, recT = 0;
-  const DOOR_X = () => worldW - 120;
 
   // ---- stock ---------------------------------------------------------------------
   const stock = () => FURNITURE.filter((f) => !f.found);
@@ -17265,7 +16457,7 @@ const Ottoman = (() => {
     place(own, "THE CAPTAIN'S OWN");
     place(yard, 'FOR THE GARDEN');
     layout.bays = bays;
-    worldW = x + 260;
+    worldW = x + 140;
   }
   function crateCount(key) { return (G.crates && G.crates[key]) || 0; }
   function placed(key) { return (G.furniture || []).filter((f) => f.key === key).length; }
@@ -17307,46 +16499,22 @@ const Ottoman = (() => {
         opts: [
           { q: "Show me the catalogue.", act: () => { Talk.close(); openMenu(); } },
           { q: 'Why "Ottoman Empire"?', to: 'name' },
-          { q: 'What is behind the door at the back?', to: 'door' },
           { q: 'Were you really a captain?', to: 'captain' },
           { q: 'Just browsing.', end: true },
         ] },
       name: { mood: 'laugh', say: "Started with ottomans. Then I had a lot of ottomans. Then I had an empire of them. The sofas came later.", opts: [{ q: 'Fair enough.', to: 'hub' }] },
-      door: { mood: 'worry', say: "The back room. Don't. I went in for a spare leg for a stool in 1998. Came out three weeks later. Yellow wallpaper, wet carpet, and that hum. Always the hum.", opts: [{ q: 'How big is it?', to: 'big' }, { q: 'Right. Not going in.', to: 'hub' }] },
-      big: { mood: 'shock', say: "No end to it, far as I could tell. If you do go in, find a green EXIT sign and don't stop walking. And if you see something tall at the end of a hall, it isn't staff.", opts: [{ q: 'Noted.', to: 'hub' }] },
       captain: { mood: 'proud', say: "Thirty years at sea! Well. On the ferry. Well. Mostly the ferry. That wheel over there's off her. Don't ask how she sank.", opts: [{ q: 'She sank?', to: 'sank' }, { q: 'Good wheel.', to: 'hub' }] },
       sank: { mood: 'sly', say: "I said don't ask.", opts: [{ q: 'Sorry, Captain.', to: 'hub' }] },
     },
   };
-  function knock() {
-    Talk.open('villager:clark', { start: 'a', nodes: {
-      a: { mood: 'shock', say: "Oi! Not the back room! I'm telling you, it goes on forever and it smells like wet carpet.",
-        opts: [
-          { q: 'Go in anyway.', act: () => { Talk.close(); enterBack(); } },
-          { q: 'Leave it shut.', end: true },
-        ] },
-    } });
-  }
 
   // ---- scene flow ---------------------------------------------------------------------
   function enter() {
     layout();
-    phase = 'shop'; scroll = tscroll = 0; hover = null; t = 0; fade = 1; fadeTo = null; menu.open = false;
-    document.body.classList.remove('noclip');
+    scroll = tscroll = 0; hover = null; t = 0; fade = 1; fadeTo = null; menu.open = false;
     clark.pose = 'idle'; clark.t = 0;
     clarkSay('Ahoy! Click me for the catalogue.');
     Audio.setMode('pen'); Audio.play('door');
-  }
-  function enterBack() {
-    fadeTo = () => {
-      phase = 'back'; bx = tbx = 0; glitch = 1.2; recT = 0;
-      document.body.classList.add('noclip');
-      G.stats.backrooms = (G.stats.backrooms || 0) + 1;
-      Audio.play('whoosh');
-    };
-  }
-  function leaveBack() {
-    fadeTo = () => { document.body.classList.remove('noclip'); phase = 'shop'; tscroll = scroll = worldW - VW; clarkSay("Told you. Put the kettle on."); Audio.play('door'); };
   }
   function leave() { Main.setMode('map'); }
   function update(dt) {
@@ -17357,14 +16525,6 @@ const Ottoman = (() => {
     if (fadeTo) { fade = Math.min(1, fade + dt * 2.6); if (fade >= 1) { const f = fadeTo; fadeTo = null; f(); } }
     else fade = Math.max(0, fade - dt * 2);
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.002, dt));
-    if (phase === 'back') {
-      bx = U.lerp(bx, tbx, 1 - Math.pow(0.004, dt));
-      recT += dt;
-      glitch = Math.max(0, glitch - dt);
-      humT -= dt;
-      if (humT <= 0) { humT = 1.3; Audio.play('hum'); }
-      if (Math.random() < dt * 0.25) glitch = Math.max(glitch, 0.12);
-    }
   }
 
   // ---- input -----------------------------------------------------------------------------
@@ -17376,44 +16536,34 @@ const Ottoman = (() => {
     return null;
   }
   const overClark = (x, y) => Math.abs(x - (clark.x - scroll)) < 26 && y > 150 && y < FLOOR;
-  const overDoor = (x, y) => Math.abs(x - (DOOR_X() - scroll)) < 34 && y > 120 && y < FLOOR;
-  function press(x, y) { if (menu.open) { menuPress(x, y); return; } drag = { x, s: phase === 'shop' ? tscroll : tbx }; moved = 0; }
+  function press(x, y) { if (menu.open) { menuPress(x, y); return; } drag = { x, s: tscroll }; moved = 0; }
   function move(x, y) {
     if (menu.open) { menuMove(x, y); return; }
     if (!drag) return;
     moved = Math.max(moved, Math.abs(x - drag.x));
-    if (phase === 'shop') { tscroll = U.clamp(drag.s - (x - drag.x), 0, worldW - VW); scroll = tscroll; }
-    else { tbx = Math.max(0, drag.s - (x - drag.x) * 1.4); }
+    tscroll = U.clamp(drag.s - (x - drag.x), 0, worldW - VW); scroll = tscroll;
   }
   function release(x, y) {
     if (menu.open) { menuRelease(x, y); return; }
     if (!drag) return;
     const was = moved > 6; drag = null;
     if (was || fadeTo) return;
-    if (phase === 'back') { pressBack(x, y); return; }
     const s = slotAt(x, y);
     if (s) { offer(s.f); return; }
     if (overClark(x, y)) { openMenu(); return; }
-    if (overDoor(x, y)) { knock(); }
   }
   function hoverAt(x, y) {
-    if (phase === 'back') {
-      const th = backThingAt(x, y);
-      return th ? th.tip : null;
-    }
     if (menu.open) { menuHover(x, y); return null; }
     const s = slotAt(x, y);
     hover = s;
     if (overClark(x, y)) return '<b>Captain Clark</b> <span class="dim">the Ottoman Empire</span><br>click to see the catalogue';
-    if (overDoor(x, y)) return '<b>STAFF ONLY</b><br><span class="warn">do not go in the back room</span>';
     if (!s) return null;
     const f = s.f, have = crateCount(f.key) + placed(f.key);
     return `<b>${f.name}</b><br>${Icons.img('wdollar', 'sm')} ${U.fmt(f.cost)}${have ? ` &middot; <span class="dim">you have ${have}</span>` : ''}<br><span class="dim">${f.blurb}</span>`;
   }
   function wheel(dy) {
     if (menu.open) { menuScroll(dy > 0 ? 1 : -1); return; }
-    if (phase === 'shop') tscroll = U.clamp(tscroll + dy, 0, worldW - VW);
-    else tbx = Math.max(0, tbx + dy * 1.2);
+    tscroll = U.clamp(tscroll + dy, 0, worldW - VW);
   }
 
   // ---- the catalogue: the Captain's shop counter, farm-game style ----------------------------
@@ -17671,22 +16821,6 @@ const Ottoman = (() => {
     g.restore();
     if (clark.sayT > 0 && !Talk.isOpen()) Kit.bubble(g, x, FLOOR - 124, clark.say);
   }
-  function drawDoor(g) {
-    const x = DOOR_X() - scroll;
-    if (x < -60 || x > VW + 60) return;
-    Art.rect(g, x - 30, 108, 60, FLOOR - 108, '#1a0a04');
-    Art.rect(g, x - 26, 112, 52, FLOOR - 112, '#5a4a2a');
-    Art.rect(g, x - 22, 116, 44, 60, '#6a5a34'); Art.rect(g, x - 22, 182, 44, 70, '#6a5a34');
-    Art.rect(g, x + 14, 188, 5, 5, GOLD[1]);
-    // the yellow light leaking under it, and the sign that should stop you
-    const fl = Math.sin(t * 17) > 0.7 ? 0.25 : 0.55;
-    g.fillStyle = `rgba(255,240,140,${fl})`; g.fillRect(x - 26, FLOOR - 3, 52, 3);
-    Art.glow(g, x, FLOOR, 50, '#fff080', fl * 0.3, 4);
-    Art.rect(g, x - 26, 124, 52, 22, '#a01a1a'); Art.rect(g, x - 24, 126, 48, 18, '#e02a2a');
-    Font.draw(g, 'STAFF', x, 128, { scale: 1, color: '#ffffff', align: 'center' });
-    Font.draw(g, 'ONLY', x, 137, { scale: 1, color: '#ffffff', align: 'center' });
-    Art.rect(g, x - 18, 154, 36, 10, '#f4f0e0'); Font.draw(g, 'NO NOCLIP', x, 156, { scale: 1, color: '#2a2a2a', align: 'center' });
-  }
   // signal flags strung along under the moulding, swaying a little
   const FLAGS = [['#e8403a', '#ffffff'], ['#2a5ad0', '#f8d040'], ['#f8d040', '#e8403a'], ['#ffffff', '#2a5ad0'], ['#3aa050', '#ffffff']];
   function bunting(g, S) {
@@ -17746,7 +16880,6 @@ const Ottoman = (() => {
       Art.rect(g, cx - w / 2, 150, w, 18, '#2a0e04'); Art.rect(g, cx - w / 2 + 2, 152, w - 4, 14, GOLD[1]); Art.rect(g, cx - w / 2 + 2, 152, w - 4, 2, GOLD[2]);
       Font.draw(g, b.label, cx, 156, { scale: 1, color: '#3a1a04', align: 'center' });
     }
-    drawDoor(g);
     drawFloor(g, S);
     // sunlight coming in through the portholes and lying across the boards
     for (let x = 880; x < worldW; x += 300) {
@@ -17766,143 +16899,17 @@ const Ottoman = (() => {
     }
   }
 
-  // ---- Level 0 -------------------------------------------------------------------------------
-  // Drawn as the shop is: a long side-on corridor you drag along. It is made of
-  // segments, each decided by its own number, so it never ends and never
-  // repeats quite the same way twice.
-  const SEG = 160;
-  const hash = (n) => { let x = (n * 374761393) | 0; x = (x ^ (x >>> 13)) * 1274126177; return ((x ^ (x >>> 16)) >>> 0) / 4294967296; };
-  const EXIT_EVERY = 9, LOST_AT = 26, WATER_AT = 11;
-  function segKind(i) {
-    if (i > 0 && i % EXIT_EVERY === 0) return 'exit';
-    if (i === LOST_AT) return 'lost';
-    if (i === WATER_AT) return 'water';
-    const h = hash(i + 7);
-    return h < 0.34 ? 'door' : h < 0.55 ? 'pillar' : h < 0.7 ? 'dark' : 'wall';
-  }
-  function backThingAt(x, y) {
-    const i0 = Math.floor((bx - 40) / SEG), i1 = Math.floor((bx + VW + 40) / SEG);
-    for (let i = i0; i <= i1; i++) {
-      const k = segKind(i), sx = i * SEG - bx + SEG / 2;
-      if (k === 'exit' && Math.abs(x - sx) < 34 && y > 120 && y < 270) return { k, i, tip: '<b>EXIT</b><br>back to the showroom' };
-      if (k === 'lost' && !(G.found && G.found.lostottoman) && Math.abs(x - sx) < 40 && y > 230 && y < 300) return { k, i, tip: '<b>An ottoman?</b><br><span class="dim">out here?</span>' };
-      if (k === 'water' && !(G.found && G.found.water) && Math.abs(x - sx) < 20 && y > 240 && y < 300) return { k, i, tip: '<b>A bottle of almond water</b>' };
-    }
-    return null;
-  }
-  function pressBack(x, y) {
-    const th = backThingAt(x, y);
-    if (!th) return;
-    if (!G.found) G.found = {};
-    if (th.k === 'exit') { leaveBack(); return; }
-    if (th.k === 'water') {
-      G.found.water = 1; Audio.play('pop');
-      for (const w of G.wombats) w.hap = Math.min(100, w.hap + 10);
-      UI.toast('<b>Almond water.</b> Tastes like nothing. Everyone at home feels a bit better.', 'good');
-      Main.save();
-    }
-    if (th.k === 'lost') {
-      G.found.lostottoman = 1;
-      if (!G.crates) G.crates = {};
-      G.crates.lostottoman = (G.crates.lostottoman || 0) + 1;
-      if (!owns(G, 'build')) { G.owned.build = true; G.unlocked.build = true; }
-      Audio.play('levelup'); glitch = 1;
-      UI.toast('<b>The Lost Ottoman</b> is yours. It hums very quietly. Set it out with the hammer.', 'good');
-      Main.save();
-    }
-  }
-  const YEL = ['#b8a24a', '#cdb85a', '#dccb6e', '#e8da88'];
-  function renderBack(g) {
-    const off = bx;
-    const WALL0 = 58, WALL1 = 246;
-    // the drop ceiling
-    g.fillStyle = '#d8d0a4'; g.fillRect(0, 0, VW, WALL0);
-    for (let x = -(off % 48); x < VW; x += 48) { g.fillStyle = '#b8b08a'; g.fillRect(x, 0, 2, WALL0); }
-    for (let y = 0; y < WALL0; y += 19) { g.fillStyle = '#b8b08a'; g.fillRect(0, y, VW, 2); }
-    // the wallpaper: mono-yellow, with that faint repeating pattern
-    g.fillStyle = YEL[2]; g.fillRect(0, WALL0, VW, WALL1 - WALL0);
-    for (let x = -(off % 24); x < VW + 24; x += 24) {
-      g.fillStyle = YEL[1]; g.fillRect(x, WALL0, 2, WALL1 - WALL0);
-      for (let y = WALL0 + 8; y < WALL1; y += 22) { g.fillStyle = YEL[1]; g.fillRect(x + 10, y, 4, 4); g.fillStyle = YEL[3]; g.fillRect(x + 11, y + 1, 2, 2); }
-    }
-    const i0 = Math.floor(off / SEG) - 1, i1 = Math.floor((off + VW) / SEG) + 1;
-    for (let i = i0; i <= i1; i++) {
-      if (i < 0) continue;
-      const k = segKind(i), x = i * SEG - off;
-      if (k === 'door' || k === 'exit' || k === 'dark' || k === 'lost') {
-        // an opening onto more of the same, further away and dimmer
-        const dw = k === 'dark' ? 70 : 84, dx = x + SEG / 2 - dw / 2;
-        g.fillStyle = k === 'dark' ? '#6a5e2a' : YEL[1]; g.fillRect(dx, 100, dw, WALL1 - 100);
-        g.fillStyle = k === 'dark' ? '#4a4020' : YEL[0]; g.fillRect(dx + 10, 118, dw - 20, WALL1 - 118);
-        g.fillStyle = k === 'dark' ? '#2e2812' : '#a8923e'; g.fillRect(dx + 22, 132, dw - 44, WALL1 - 132);
-        g.fillStyle = '#8a7a38'; g.fillRect(dx, 100, dw, 3); g.fillRect(dx, 100, 3, WALL1 - 100); g.fillRect(dx + dw - 3, 100, 3, WALL1 - 100);
-        // something tall, at the far end of a dark hall, that is gone if you look properly
-        if (k === 'dark' && i > 12 && hash(i * 3) < 0.5 && glitch <= 0 && Math.abs(x + SEG / 2 - VW / 2) > 120) {
-          g.fillStyle = '#141008'; g.fillRect(x + SEG / 2 - 3, 148, 6, 58); g.fillRect(x + SEG / 2 - 5, 138, 10, 12);
-          g.fillStyle = '#141008'; g.fillRect(x + SEG / 2 - 7, 160, 2, 34); g.fillRect(x + SEG / 2 + 5, 160, 2, 34);
-        }
-      }
-      if (k === 'pillar') {
-        const px = x + SEG / 2 - 14;
-        g.fillStyle = YEL[3]; g.fillRect(px, WALL0, 28, WALL1 - WALL0 + 30);
-        g.fillStyle = YEL[1]; g.fillRect(px + 22, WALL0, 6, WALL1 - WALL0 + 30);
-        g.fillStyle = '#8a7a38'; g.fillRect(px, WALL1 + 26, 28, 4);
-      }
-      if (k === 'exit') {
-        const ex = x + SEG / 2;
-        g.fillStyle = '#0a2a10'; g.fillRect(ex - 20, 80, 40, 16);
-        g.fillStyle = Math.sin(t * 3) > -0.8 ? '#30e060' : '#1a8a3a'; g.fillRect(ex - 18, 82, 36, 12);
-        Font.draw(g, 'EXIT', ex, 85, { scale: 1, color: '#eaffee', align: 'center' });
-        Art.glow(g, ex, 88, 50, '#50ff80', 0.18, 4);
-      }
-      // the strip lights, one per segment, some of them dying
-      const lx = x + 40, flick = hash(i * 11) < 0.25 && Math.sin(t * (13 + i) + i) > 0.2;
-      g.fillStyle = '#8a846a'; g.fillRect(lx - 2, 22, 84, 14);
-      g.fillStyle = flick ? '#b8b490' : '#fffff0'; g.fillRect(lx, 24, 80, 10);
-      if (!flick) Art.glow(g, lx + 40, 40, 90, '#fff8c0', 0.07, 3);
-    }
-    // the carpet: damp, the colour of old mustard, stained in patches
-    g.fillStyle = '#9a8a48'; g.fillRect(0, WALL1, VW, VH - WALL1);
-    for (let y = WALL1; y < VH; y += 3) for (let x = -(off % 6); x < VW; x += 6) { g.fillStyle = (x + y + Math.floor(off / 6)) % 4 ? '#8e7e40' : '#a89650'; g.fillRect(x, y, 3, 1); }
-    for (let i = i0; i <= i1; i++) {
-      if (hash(i * 5) < 0.6) { const sx = i * SEG - off + hash(i) * SEG; Art.ell(g, sx, 300 + hash(i * 2) * 40, 26 + hash(i * 9) * 30, 7, 'rgba(90,76,30,0.35)'); }
-      const k = segKind(i), x = i * SEG - off + SEG / 2;
-      if (k === 'lost' && !(G.found && G.found.lostottoman)) { Art.glow(g, x, 270, 40, '#fff4a0', 0.2 + 0.1 * Math.sin(t * 3), 4); Props.drawFurniture(g, 'lostottoman', x, 284, 2); }
-      if (k === 'water' && !(G.found && G.found.water)) { Art.rect(g, x - 4, 262, 8, 18, '#e8f0f4'); Art.rect(g, x - 3, 264, 6, 12, '#f8f4e0'); Art.rect(g, x - 2, 258, 4, 4, '#4a8ac0'); Font.draw(g, 'A', x, 267, { scale: 1, color: '#8a6a3a', align: 'center' }); }
-    }
-    g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, WALL1, VW, 4);
-    // found footage: grain, a wobble, REC and the timestamp
-    for (let i = 0; i < 120; i++) { g.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)'; g.fillRect(Math.random() * VW, Math.random() * VH, 2, 1); }
-    if (glitch > 0) {
-      for (let i = 0; i < 8; i++) { const y = Math.random() * VH, h = 2 + Math.random() * 8; g.drawImage(g.canvas, 0, y * (g.canvas.height / VH), g.canvas.width, h, (Math.random() - 0.5) * 20, y, VW, h); }
-    }
-    Art.vignette(g, VW, VH, '#1a1404', 0.55, 2.2, 0.35);
-    if (Math.floor(recT * 1.5) % 2 === 0) Art.ell(g, 20, 20, 4, 4, '#ff2020');
-    Font.draw(g, 'REC', 30, 16, { scale: 1, color: '#ffffff' });
-    const secs = Math.floor(recT), stamp = `JUL 17 1998  ${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
-    Font.draw(g, stamp, VW - 14, 16, { scale: 1, color: '#ffffff', align: 'right' });
-    const depth = Math.floor(bx / 10);
-    Font.draw(g, `LEVEL 0  -  ${depth} m in`, 14, VH - 16, { scale: 1, color: '#fff8d0' });
-    if (recT < 5) {
-      g.globalAlpha = Math.min(1, recT, 5 - recT);
-      Kit.card(g, VW / 2 - 150, 120, 300, 54, {});
-      Font.draw(g, 'YOU NOCLIPPED INTO THE BACK ROOM', VW / 2, 132, { scale: 1, color: Kit.C.ink, align: 'center' });
-      Font.draw(g, 'drag to walk. find a green EXIT sign.', VW / 2, 148, { scale: 1, color: Kit.C.ink2, align: 'center' });
-      g.globalAlpha = 1;
-    }
-  }
-
   function render(g) {
-    if (phase === 'shop') renderShop(g); else renderBack(g);
-    if (menu.open && phase === 'shop') drawMenu(g);
-    if (fade > 0) { g.fillStyle = phase === 'back' || fadeTo ? `rgba(20,16,4,${fade.toFixed(2)})` : `rgba(20,8,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
+    renderShop(g);
+    if (menu.open) drawMenu(g);
+    if (fade > 0) { g.fillStyle = `rgba(20,8,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
     FX.drawParticles(g, 0); FX.drawConfetti(g); FX.drawFloaters(g, false); FX.drawComics(g, false);
   }
 
   return {
     init(g) { G = g; }, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
-    get phase() { return phase; }, enterBack, leaveBack, layout, openMenu, closeMenu, get menuOpen() { return menu.open; },
-    get slots() { return slots; }, walk(d) { tbx = Math.max(0, tbx + d); bx = tbx; },
+    layout, openMenu, closeMenu, get menuOpen() { return menu.open; },
+    get slots() { return slots; },
   };
 })();
 </script>
@@ -18164,7 +17171,7 @@ const Guide = (() => {
   const HUT = { x: 724, y: 0 };
   // the speech bubble: what he is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [0, 15, 20, 20, 25, 0, 20, 25, 30, 30, 30, 40, 50];
+  const REWARD = [0, 15, 20, 20, 25, 20, 25, 30, 30, 30, 40, 50];
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
@@ -18228,20 +17235,10 @@ const Guide = (() => {
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
-      key: 'phone', mood: 'talk', icon: 'ph_key', title: 'Buy a phone', praise: 'Welcome to this century.',
-      say: "You'll want a phone for this job. The mart has them.",
-      lesson: [
-        { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
-        { say: "You'll want a phone. Text the neighbours, take pictures of her, and play Wombat Hop. I'm on level 40. The mart has them now.", mood: 'talk' },
-      ],
-      unlock: ['phone'], label: 'DRIVE TO THE MART',
-      note: 'Buy a phone at Wombat Mart, then press P: messages, a camera and Wombat Hop.',
-      at: () => MART(), aty: () => MARTY(), done: (g) => has(g, 'phone'),
-    },
-    {
       key: 'sow', mood: 'talk', icon: 't_hoe', title: 'Dig a bed and sow it', praise: 'Sown. Good hands.',
       say: 'She will need feeding. Hoe a bed and sow some carrots.',
       lesson: [
+        { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
         { say: "She'll need feeding, so let's grow something.", mood: 'think' },
         { say: "A Hoe and a Seed Pouch are at the mart now. Get carrot seed from Groot's Cellar.", mood: 'talk' },
         { say: 'Hoe a patch of bare ground into a bed, then sow the seed on it.', mood: 'happy' },
@@ -18325,6 +17322,8 @@ const Guide = (() => {
     G = g;
     if (!G.visited) G.visited = {};
     if (typeof G.step !== 'number') G.step = 0;
+    // the phone used to be job six; a farm saved past it moves back one
+    if (!G.nophone) { if (G.step > 5) G.step--; G.nophone = 1; }
     if (!G.lessons) G.lessons = {};
     if (!G.unlocked) G.unlocked = {};
     // a farm further along has already had these lessons, and learnt these tools
@@ -18368,7 +17367,7 @@ const Guide = (() => {
         'Lovely day for it.', 'I looked after this place for twenty years.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
-        'Hot one today.', 'The gum trees smell like home.', 'Captain Clark sells furniture. Never go in his back room.', 'Clark reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
+        'Hot one today.', 'The gum trees smell like home.', 'Captain Clark sells furniture. Mind the cat on his counter.', 'Clark reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
       ] },
   ];
   let chatT = 14 + Math.random() * 10, lastChat = '';
@@ -18469,7 +17468,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: "Wombat Mart for tools, the phone and more wombats. Groot for seed and saplings. Captain Clark's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
+        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Clark's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {
@@ -18498,22 +17497,6 @@ const Guide = (() => {
     cult.pose = 'jump'; cult.castT = 0; cult.t = 0; cult.still = 0;
     Audio.play('chime');
     FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
-    // and he texts you about it afterwards, like anyone would
-    const AFTER = {
-      weeds: 'Good job on the weeds. They do creep back, mind.',
-      junk: 'The ants said you were very polite.',
-      grass: 'Green suits it. Keep the water up.',
-      arrive: 'She picked you! Legend.',
-      phone: 'Jim here. Saved my number for you. Beat my Wombat Hop score. You cannot.',
-      sow: 'A bed in the ground is dinner in the ground.',
-      pick: 'Anything you grow, she will eat.',
-      feed: 'One fed wombat. Try three!',
-      load: 'That old truck is good for something after all.',
-      fert: 'Told you. Poo is gold.',
-      sell: 'Pleasure. Bring me everything!',
-      shovel: 'That is the whole job. The rest is up to you, mate.',
-    };
-    if (AFTER[s.key]) setTimeout(() => Phone.push('cultist', AFTER[s.key]), 2600);
     UI.refreshAll();           // a finished step can hand over a new tool
     UI.refreshNotebook();
     Main.save();
@@ -18820,11 +17803,11 @@ const Guide = (() => {
     };
   }
   function toggle() { hidden = !hidden; UI.refreshNotebook(); }
-  // The job in hand, in the shape the phone wants it: a title, the long form of
+  // The job in hand, in the shape the notebook wants it: a title, the long form of
   // what she said, where it has to happen, and what she pays for it.
   const WHERE = {
     meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
-    arrive: 'in the grove', phone: 'Wombat Mart', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
+    arrive: 'in the grove', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
     feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere',
   };
   function current() {
@@ -18896,11 +17879,7 @@ const Talk = (() => {
     },
   };
 
-  SPEAKERS.kid = {
-    name: 'A Kid', sub: 'on a bike',
-    bg: ['#5a8ab0', '#2f5a7a'],
-    draw(mood, t) { return { img: Sprites.wombat(mood === 'happy' ? 'happy' : 'idle', Math.floor(t * 5), 'sand', 1, 'juvenile'), sc: 2.4, dy: 0 }; },
-  };
+
   // Every villager is the same speaker with a different kit, so one entry
   // covers the lot: `villager:bee`, `villager:post`, and so on.
   for (const key of Object.keys(Sprites.VILLAGERS)) {
@@ -19070,570 +18049,6 @@ const Talk = (() => {
 </script>
 
 <script>
-// ===== js/hop.js =====
-// ---- Wombat Hop: the game on your phone --------------------------------------------
-// Jim's favourite. A wombat runs and runs; tap (or press space) to hop over
-// logs and thistles, tap again in the air for a second hop, and grab the cubes
-// floating along the way. It gets faster. A good run earns a few W$, because
-// everyone out here has a sponsor.
-const Hop = (() => {
-  const W = 180, H = 240, GROUND = 196;
-  let cv = null, g = null, raf = 0, last = 0, G = null;
-  let st = null;
-  function fresh() {
-    return { t: 0, x: 0, sp: 70, y: 0, vy: 0, jumps: 0, over: false, started: false, score: 0, cubes: 0,
-      obs: [], bits: [], nextObs: 1.2, nextCube: 0.8, dust: [], paid: 0, flash: 0 };
-  }
-  function mount(canvas, game) {
-    G = game; cv = canvas; g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
-    st = fresh();
-    cv.onpointerdown = (e) => { e.preventDefault(); e.stopPropagation(); tap(); };
-    last = performance.now();
-    if (!raf) raf = requestAnimationFrame(loop);
-  }
-  function unmount() { cv = null; g = null; if (raf) cancelAnimationFrame(raf); raf = 0; }
-  const mounted = () => !!cv && document.body.contains(cv);
-  function tap() {
-    if (!st) return;
-    if (st.over) { if (st.t - st.overT > 0.5) { st = fresh(); st.started = true; } return; }
-    st.started = true;
-    if (st.y === 0 || st.jumps < 2) {
-      st.vy = st.jumps === 0 ? -250 : -210; st.jumps++;
-      Audio.play('bounce');
-      for (let i = 0; i < 5; i++) st.dust.push({ x: 44, y: GROUND, vx: -20 - Math.random() * 40, vy: -Math.random() * 30, t: 0 });
-    }
-  }
-  function key(e) { if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { tap(); return true; } return false; }
-  function loop(ms) {
-    if (!mounted()) { raf = 0; cv = null; return; }
-    raf = requestAnimationFrame(loop);
-    const dt = Math.min(0.05, (ms - last) / 1000); last = ms;
-    update(dt); draw();
-  }
-  function hit(a, b) { return Math.abs(a.x - b.x) < (a.w + b.w) / 2 && Math.abs(a.y - b.y) < (a.h + b.h) / 2; }
-  function update(dt) {
-    st.t += dt;
-    if (!st.started || st.over) return;
-    st.sp = Math.min(190, 70 + st.t * 4.2);
-    st.x += st.sp * dt;
-    st.score = Math.floor(st.x / 10) + st.cubes * 5;
-    // the hop
-    st.vy += 720 * dt; st.y = Math.min(0, st.y + st.vy * dt);
-    if (st.y === 0) { st.vy = 0; st.jumps = 0; }
-    // logs and thistles
-    st.nextObs -= dt;
-    if (st.nextObs <= 0) {
-      const big = Math.random() < 0.35;
-      st.obs.push({ x: W + 20, kind: big ? 'thistle' : 'log', w: big ? 14 : 22, h: big ? 26 : 12 });
-      st.nextObs = U.rand(0.9, 1.8) * (110 / st.sp) * 1.4;
-    }
-    st.nextCube -= dt;
-    if (st.nextCube <= 0) { st.bits.push({ x: W + 10, y: GROUND - 40 - Math.random() * 60, got: false }); st.nextCube = U.rand(0.6, 1.4); }
-    const me = { x: 44, y: GROUND - 14 + st.y, w: 26, h: 22 };
-    for (const o of st.obs) {
-      o.x -= st.sp * dt;
-      if (hit(me, { x: o.x, y: GROUND - o.h / 2, w: o.w - 4, h: o.h - 2 })) {
-        st.over = true; st.overT = st.t; st.flash = 1; Audio.play('thud');
-        if (!G.hopBest || st.score > G.hopBest) G.hopBest = st.score;
-        const pay = Math.min(25, Math.floor(st.score / 40));
-        if (pay > 0) { G.wd += pay; st.paid = pay; Audio.play('coin'); UI.refreshHUD(); }
-        Main.save();
-      }
-    }
-    for (const b of st.bits) {
-      b.x -= st.sp * dt;
-      if (!b.got && hit(me, { x: b.x, y: b.y, w: 10, h: 10 })) { b.got = true; st.cubes++; Audio.play('pop'); }
-    }
-    st.obs = st.obs.filter((o) => o.x > -30);
-    st.bits = st.bits.filter((b) => b.x > -20 && !b.got);
-    for (const d of st.dust) { d.t += dt; d.x += d.vx * dt; d.y += d.vy * dt; }
-    st.dust = st.dust.filter((d) => d.t < 0.5);
-  }
-  function draw() {
-    const R = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
-    // sky, sun, two ranks of hills going by at their own speeds
-    Art.vramp(g, 0, 0, W, GROUND, [[0, '#5aa8e8'], [1, '#bfe4f4']], 6);
-    Art.ell(g, 140, 40, 14, 14, '#fff0a0');
-    const off = st.x;
-    for (let x = -((off * 0.2) % 60) - 60; x < W + 60; x += 60) Art.ell(g, x + 30, GROUND - 6, 44, 28, '#8ac870');
-    for (let x = -((off * 0.5) % 46) - 46; x < W + 46; x += 46) Art.ell(g, x + 23, GROUND + 4, 30, 18, '#6aa84a');
-    R(0, GROUND, W, H - GROUND, '#8a5a34'); R(0, GROUND, W, 4, '#6aa84a'); R(0, GROUND + 4, W, 2, '#4a7a32');
-    for (let x = -(off % 12); x < W; x += 12) R(x, GROUND + 10 + ((x + off) % 24 > 12 ? 4 : 0), 3, 2, '#6a4024');
-    // cubes to grab
-    for (const b of st.bits) { R(b.x - 5, b.y - 5 + Math.sin(st.t * 6 + b.x) * 2, 10, 10, '#000'); R(b.x - 4, b.y - 4 + Math.sin(st.t * 6 + b.x) * 2, 8, 8, '#553d27'); }
-    // things to hop over
-    for (const o of st.obs) {
-      if (o.kind === 'log') {
-        R(o.x - 11, GROUND - 12, 22, 12, '#2a1608'); R(o.x - 10, GROUND - 11, 20, 10, '#8a5a30'); R(o.x - 10, GROUND - 11, 20, 2, '#b07840');
-        Art.ell(g, o.x + 9, GROUND - 6, 3, 5, '#d8b080'); Art.ell(g, o.x + 9, GROUND - 6, 1.5, 3, '#a87848');
-      } else {
-        R(o.x - 1, GROUND - 26, 3, 26, '#3a6a2a');
-        for (let i = 0; i < 4; i++) { R(o.x - 7 + (i % 2) * 8, GROUND - 22 + i * 5, 6, 2, '#4a8a34'); }
-        Art.ell(g, o.x + 0.5, GROUND - 28, 5, 4, '#8a4ab0'); Art.ell(g, o.x + 0.5, GROUND - 29, 3, 2, '#c08ae0');
-      }
-    }
-    for (const d of st.dust) { g.fillStyle = `rgba(200,170,120,${(1 - d.t * 2).toFixed(2)})`; g.fillRect(Math.round(d.x), Math.round(d.y), 2, 2); }
-    // the runner
-    const pose = st.over ? 'hurt' : st.y < 0 ? 'happy' : 'walk';
-    const img = Sprites.wombat(pose, Math.floor(st.t * 12), 'brown', 1, 'adult');
-    const sc = 0.8, w = img.width * sc, h = img.height * sc;
-    g.fillStyle = 'rgba(0,0,0,0.25)'; Art.ell(g, 44, GROUND, 12 + st.y * 0.05, 3);
-    g.drawImage(img, Math.round(44 - w / 2), Math.round(GROUND - h + 6 + st.y), Math.round(w), Math.round(h));
-    // the score, the best, and the words between runs
-    Font.draw(g, String(st.score), 8, 8, { scale: 2, color: '#ffffff', shadow: '#2a3a5a' });
-    Font.draw(g, 'BEST ' + (G.hopBest || 0), W - 8, 10, { scale: 1, color: '#ffffff', align: 'right', shadow: '#2a3a5a' });
-    if (!st.started) {
-      Kit.card(g, 18, 70, W - 36, 72, {});
-      Font.draw(g, 'WOMBAT HOP', W / 2, 82, { scale: 2, color: Kit.C.ink, align: 'center' });
-      Font.draw(g, 'tap to hop', W / 2, 104, { scale: 1, color: Kit.C.ink2, align: 'center' });
-      Font.draw(g, 'tap again for a double', W / 2, 116, { scale: 1, color: Kit.C.ink2, align: 'center' });
-    }
-    if (st.over) {
-      if (st.flash > 0) { st.flash = Math.max(0, st.flash - 0.05); g.fillStyle = `rgba(255,255,255,${st.flash.toFixed(2)})`; g.fillRect(0, 0, W, H); }
-      Kit.card(g, 18, 66, W - 36, 88, {});
-      Font.draw(g, 'BONK!', W / 2, 78, { scale: 2, color: Kit.C.coralD, align: 'center' });
-      Font.draw(g, `score ${st.score}  -  ${st.cubes} cubes`, W / 2, 100, { scale: 1, color: Kit.C.ink, align: 'center' });
-      Font.draw(g, st.paid ? `sponsor paid you ${st.paid} W$` : 'no sponsor money yet', W / 2, 114, { scale: 1, color: Kit.C.ink2, align: 'center' });
-      Font.draw(g, 'tap to go again', W / 2, 132, { scale: 1, color: Kit.C.ink2, align: 'center' });
-    }
-  }
-  return { mount, unmount, key, get running() { return !!raf; } };
-})();
-</script>
-
-<script>
-// ===== js/phone.js =====
-// ---- The phone ---------------------------------------------------------------
-// Everything you would otherwise have to remember lives in here: what the
-// Jim has asked for, how each wombat is doing, what is in the beds,
-// what is in the truck and where you can drive. It opens over
-// whatever scene you are in and pauses the world while it is up, because that
-// is what a phone does to a person.
-const Phone = (() => {
-  let G = null;
-  let app = 'home';
-  let raf = 0, t = 0;
-  const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-
-  // ---- the apps -------------------------------------------------------------
-  // Every app on the home screen, in the order they sit on it. `tint` is the
-  // icon's own colour, the way every phone gives an app one.
-  // A phone out here is for three things: texting the neighbours, taking
-  // pictures of the wombats, and Wombat Hop. Everything else you already know
-  // from standing in the paddock.
-  const APPS_ALL = [
-    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#7ee08a', '#2aa840'], blurb: 'Texts from the neighbours.' },
-    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#c8ccd4', '#6c7280'], blurb: 'Take a picture. Keep the roll.' },
-    { key: 'games', name: 'Wombat Hop', icon: 'wombat', tint: ['#ffc060', '#e86a2a'], blurb: 'Hop the logs, grab the cubes.' },
-  ];
-  const installed = (k) => APPS_ALL.some((a) => a.key === k);
-  const DOCK_KEYS = [];
-  let APPS = [];                                   // what is on the home screen right now
-  const ALL = APPS_ALL;
-  const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
-  const TITLE = Object.fromEntries(ALL.map((a) => [a.key, a.name]));
-
-  function init(g) { G = g; }
-
-  // ---- opening and closing --------------------------------------------------
-  // ---- the lock screen -------------------------------------------------------
-  // The phone comes out of your pocket locked, with the time across it and
-  // whatever has happened since you last looked stacked underneath. Swipe it,
-  // or press anything, and it opens.
-  let locked = true;
-  // Every notice wears the icon of the app it came out of, the way a notice
-  // on a real phone does. Nothing here borrows a tool out of the grove.
-  function notifications() {
-    const out = [];
-    const q = Guide.current();
-    if (q) out.push({ app: 'Jobs', icon: 'ph_jobs', title: q.title, body: q.where, go: 'quests' });
-    const th = threads();
-    for (const k of Object.keys(th)) {
-      const un = th[k].filter((m) => m.f === 't' && !m.seen);
-      if (!un.length) continue;
-      out.push({ app: 'Messages', icon: 'ph_msg', title: PEOPLE[k].name, body: un[un.length - 1].text, go: 'messages' });
-    }
-    for (const c of careList().slice(0, 2)) out.push({ app: 'Herd', icon: 'ph_herd', title: c.what, body: c.where, go: 'herd' });
-    for (const j of gardenJobs().slice(0, 2)) out.push({ app: 'Garden', icon: 'ph_garden', title: j.what, body: j.where, go: 'garden' });
-    const load = OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0);
-    if (load) out.push({ app: 'Larder', icon: 'ph_larder', title: load + ' in the truck', body: 'Jim buys these', go: 'larder' });
-    return out.filter((x) => installed(x.go)).slice(0, 6);
-  }
-  function paintLock() {
-    const el = $('ph-lock');
-    if (!el) return;
-    const n = notifications();
-    el.innerHTML = `
-      <div class="phlockclock">
-        <b>${clock24()}</b>
-        <span>${esc(Sky.partOfDay())} &middot; ${esc(Sky.def().name)}</span>
-      </div>
-      <div class="phnotes">${n.map((x) => `<button class="phnote" ${x.go ? `data-app="${x.go}"` : 'data-app="quests"'}>
-        <i class="phnico">${ic(x.icon)}</i>
-        <span class="phntx"><b>${esc(x.app)}</b><em>${esc(x.title)}</em><small>${esc(x.body)}</small></span>
-      </button>`).join('')}</div>
-      <div class="phswipe">SWIPE UP TO OPEN</div>`;
-    el.querySelectorAll('[data-app]').forEach((b) => b.onclick = (e) => {
-      e.stopPropagation();
-      locked = false; app = b.dataset.app; Audio.play('click'); render();
-    });
-    el.onclick = () => { locked = false; app = 'home'; Audio.play('click'); render(); };
-  }
-
-  function open(which) {
-    if (!G) return;
-    UI.closePanels();
-    if (which) locked = false;
-    app = which && installed(which) ? which : 'home';
-    $('panel-phone').hidden = false;
-    G.paused = true;
-    Audio.play('click');
-    render();
-    if (!raf) raf = requestAnimationFrame(tick);
-  }
-  // A 24-hour clock, the way a phone shows it
-  function clock24() {
-    const h = Math.floor(Sky.hour()), m = Math.floor((Sky.hour() % 1) * 60);
-    return `${h}:${String(m).padStart(2, '0')}`;
-  }
-  function close() {
-    Hop.unmount();
-    if ($('panel-phone').hidden) return;
-    relock();
-    $('panel-phone').hidden = true;
-    G.paused = false;
-    cancelAnimationFrame(raf); raf = 0;
-    Audio.play('click');
-    UI.refreshAll();
-  }
-  const isOpen = () => !$('panel-phone').hidden;
-  function toggle() {
-    if (isOpen()) { close(); return; }
-    if (!owns(G, 'phone')) { Audio.play('error'); UI.toast(`no phone yet &mdash; Wombat Mart sells them for W$${PHONE_PRICE}`, 'bad'); return; }
-    open();
-  }
-  function tick(ms) {
-    if (!isOpen()) { raf = 0; return; }
-    raf = requestAnimationFrame(tick);
-    t = ms / 1000;
-    const c = $('ph-clock');
-    if (c) c.textContent = clock24();
-  }
-
-  // ---- little pieces everyone uses ------------------------------------------
-  const bar = (v, max, col) => `<div class="phbar2"><i style="width:${Math.round(U.clamp(v / max, 0, 1) * 100)}%;background:${col}"></i></div>`;
-  const row = (inner, cls = '') => `<div class="phrow ${cls}">${inner}</div>`;
-  const ic = (n, cls = '') => Icons.img(n, cls);
-
-  // ---- the home screen ------------------------------------------------------
-  // ---- the home screen -------------------------------------------------------
-  // A widget across the top with the job in hand and the weather, then the grid,
-  // then the dock. Badges are real counts of things that want doing.
-  function badges() {
-    const q = Guide.current();
-    return {
-      quests: q ? 1 : 0,
-      herd: careList().length,
-      garden: gardenJobs().length,
-      larder: OFFER_ORDER.reduce((n, k) => n + (G.offerings[k] || 0) + (G.blessed[k] || 0), 0),
-      messages: unread(),
-    };
-  }
-  function appIcon(a, badge) {
-    return `<button class="phapp" data-app="${a.key}">
-      <i class="phico" style="--t1:${a.tint[0]};--t2:${a.tint[1]}">${ic(a.icon)}</i>
-      <b>${a.name}</b>${badge ? `<i class="phdot">${badge > 99 ? '99' : badge}</i>` : ''}
-    </button>`;
-  }
-  function paintHome() {
-    const b = badges();
-    const q = Guide.current();
-    const d = Sky.def();
-    $('ph-widget').innerHTML = `
-      <h5>${ic(Sky.isNight() ? 'ph_moon' : Sky.wet() > 0.2 ? 'ph_rain' : 'ph_sun', 'sm')} ${Sky.partOfDay().toUpperCase()} &middot; ${esc(d.name).toUpperCase()}</h5>
-      <p>${q ? esc(q.title) : 'Nothing owing. The wood is yours.'}</p>
-      <div class="phwrow">
-        <span>${ic('ph_larder', 'sm')} ${U.fmt(G.wd)}</span>
-        <span>${ic('ph_herd', 'sm')} ${G.wombats.length}</span>
-        <span>${ic('ph_garden', 'sm')} ${(World.crops || []).length}</span>
-      </div>`;
-    const dock = DOCK_KEYS.filter(installed);
-    APPS = APPS_ALL.filter((a) => installed(a.key) && !dock.includes(a.key));
-    $('ph-grid').innerHTML = APPS.map((a) => appIcon(a, b[a.key])).join('');
-    $('ph-dock').innerHTML = dock.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
-    $('ph-dock').style.gridTemplateColumns = `repeat(${Math.max(1, dock.length)}, 1fr)`;
-    $('ph-dock').hidden = !dock.length;
-    wire($('ph-home-view'));
-  }
-
-  // ---- jobs -----------------------------------------------------------------
-
-
-  // ---- the herd -------------------------------------------------------------
-
-  // what one animal is short of right now
-  function careOf(w) {
-    const out = [];
-    if (w.stomach === 'empty' && w.age !== 'baby') out.push('hungry');
-    if ((w.thirst || 0) > 60) out.push('thirsty');
-    if ((w.bored || 0) > 60) out.push('bored');
-    if (w.hap < 30) out.push('miserable');
-    if (w.gest > 0) out.push('expecting');
-    return out;
-  }
-  function careList() {
-    const out = [];
-    for (const w of G.wombats) {
-      for (const c of careOf(w)) {
-        if (c === 'expecting') continue;
-        out.push({ icon: c === 'thirsty' ? 't_water' : c === 'bored' ? 'heart' : 't_food', what: `${w.name} is ${c}`, where: c === 'thirsty' ? 'dig a pond or fill the trough' : c === 'bored' ? 'put a toy out, or go and pet her' : 'put a bowl down' });
-      }
-    }
-    return out;
-  }
-
-  // ---- the garden -----------------------------------------------------------
-  function gardenJobs() {
-    const out = [];
-    if (typeof World === 'undefined' || !World.crops) return out;
-    for (const c of World.crops) {
-      const def = CROP_BY_KEY[c.k];
-      if (!def) continue;
-      if (World.kindOf(c) === 'tree') {
-        if (c.wild > 1) out.push({ icon: 't_sickle', what: `${def.name} wants pruning`, where: 'in the beds' });
-        else if (c.fr > 0) out.push({ icon: 't_food', what: `${def.name} has ${c.fr} fruit on it`, where: 'pick it with the hand' });
-        else if (c.thirst > 50) out.push({ icon: 't_water', what: `${def.name} is dry`, where: 'in the beds' });
-      } else if (World.ripe(c)) out.push({ icon: 't_food', what: `${def.name} is ready`, where: 'pick it with the hand' });
-      else if (def.kind === 'magic' && c.stall > 3) out.push({ icon: 'c_runeberry', what: `${def.name} is sulking`, where: MAGIC_NEED[def.need] || 'it wants something' });
-      else if (c.thirst > 26) out.push({ icon: 't_water', what: `${def.name} is thirsty`, where: 'in the beds' });
-    }
-    return out.slice(0, 12);
-  }
-
-
-  // ---- places ---------------------------------------------------------------
-
-
-  // ---- the larder ------------------------------------------------------------
-  // The money, what is in the back of the truck and what is on the shelf, on
-  // one page. It replaces the wallet, the weather and the wombagram, none of
-  // which said anything the grove was not already saying out loud.
-
-
-  // ---- messages --------------------------------------------------------------
-  // Everyone in the district has your number. Threads live in the save, new
-  // lines arrive as things happen, and you can text back — badly.
-  const PEOPLE = {
-    cultist: { name: 'Jim', sub: 'the old caretaker' },
-    shaz: { name: 'Shaz', sub: 'Wombat Mart' },
-    groot: { name: 'Groot', sub: 'the cellar' },
-    bee: { name: 'Maud', sub: 'the hives' },
-    fish: { name: 'Errol', sub: 'the lake' },
-    post: { name: 'Bev', sub: 'the round' },
-    bake: { name: 'Nonna', sub: 'the bakery' },
-    bota: { name: 'Dr Finch', sub: 'botany' },
-    bard: { name: 'Little Ash', sub: 'the Flats' },
-  };
-  // What each of them opens with, so the inbox is never empty.
-  const SEED_MSGS = {
-    cultist: ['oi its jim. got ur number off shaz', 'bring me the cubes, any hour. good for the veg'],
-    shaz: ['hiii its shaz from the mart!! 😄', 'we got the good pies in. do not tell head office'],
-    groot: ['I am Groot.'],
-    bake: ['i left something on the fence post. eat it today not tomorrow'],
-  };
-  // The canned things you are able to say back, and what they say to that.
-  const REPLIES = [
-    { q: 'Thanks!', a: ['No trouble.', 'Any time.', 'You are very welcome.', 'I am Groot.'] },
-    { q: 'How are you?', a: ['Tired. The usual.', 'Better for asking.', 'Up since four.', 'I am Groot!'] },
-    { q: 'Come and see the wombats.', a: ['Try and stop me.', 'Sunday. I will bring something.', 'I was going to invite myself anyway.', 'I am Groot?'] },
-    { q: 'Busy right now.', a: ['Understood.', 'Go on then.', 'I will leave you to it.', 'I am Groot.'] },
-  ];
-  function threads() {
-    if (!G.msgs) G.msgs = {};
-    for (const k of Object.keys(SEED_MSGS)) {
-      if (!G.msgs[k]) G.msgs[k] = SEED_MSGS[k].map((text, i) => ({ f: 't', text, t: i }));
-    }
-    return G.msgs;
-  }
-  function unread() {
-    const th = threads();
-    return Object.keys(th).filter((k) => th[k].some((m) => m.f === 't' && !m.seen)).length;
-  }
-  // Anything in the game can drop somebody a line.
-  function push(who, text) {
-    if (!PEOPLE[who]) return;
-    const th = threads();
-    if (!th[who]) th[who] = [];
-    th[who].push({ f: 't', text, t: Math.round((G.time || 0)) });
-    if (th[who].length > 40) th[who].splice(0, th[who].length - 40);
-    if (typeof UI !== 'undefined' && UI.refreshHUD) UI.refreshHUD();
-  }
-  // a little round portrait for the thread list
-  function avatar(who) {
-    const c = document.createElement('canvas');
-    c.width = 40; c.height = 40;
-    const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
-    let img = null, sc = 1;
-    if (who === 'cultist') { img = Sprites.cultist(2, 'idle'); sc = 40 / img.height * 1.9; }
-    else if (who === 'shaz') { img = Sprites.cashier(2, 'talk'); sc = 40 / img.height * 1.9; }
-    else if (who === 'groot') { img = Sprites.groot(2, 'talk'); sc = 40 / img.height * 1.9; }
-    else if (Sprites.VILLAGERS[who]) { img = Sprites.villager(who, 2, 'talk'); sc = 40 / img.height * 2.1; }
-    if (!img) return c;
-    const w = img.width * sc, h = img.height * sc;
-    g2.drawImage(img, Math.round(20 - w / 2), Math.round(30 - h * 0.62), Math.round(w), Math.round(h));
-    return c;
-  }
-  let chatWith = null;
-  function messages() {
-    const th = threads();
-    if (chatWith && th[chatWith]) {
-      const list = th[chatWith];
-      for (const m of list) m.seen = 1;
-      return `<div class="phchat">${list.map((m) => `<div class="phmsg ${m.f === 't' ? 'them' : 'me'}">${esc(m.text)}</div>`).join('')}</div>
-        <div class="phreplies">${REPLIES.map((r, i) => `<button class="phreply" data-reply="${i}">${esc(r.q)}</button>`).join('')}</div>`;
-    }
-    const keys = Object.keys(th).filter((k) => PEOPLE[k] && th[k].length);
-    if (!keys.length) return `<div class="phcard big"><div class="phcardh"><b>No messages</b></div><p>Nobody has your number yet. Meet a few people.</p></div>`;
-    return keys.map((k) => {
-      const last = th[k][th[k].length - 1];
-      const un = th[k].some((m) => m.f === 't' && !m.seen);
-      return `<button class="phthread" data-chat="${k}">
-        <span class="phava" data-ava="${k}"></span>
-        <span class="phtx"><b>${esc(PEOPLE[k].name)}</b><small>${last.f === 'm' ? 'You: ' : ''}${esc(last.text)}</small></span>
-        ${un ? '<i class="phunread"></i>' : ''}
-      </button>`;
-    }).join('');
-  }
-
-  // ---- settings ---------------------------------------------------------------
-
-
-  // ---- the camera --------------------------------------------------------------
-  // It photographs whatever is on the screen behind the phone, which is the
-  // whole point of a camera. The roll sits underneath the shutter.
-  function camera() {
-    const shots = G.shots || [];
-    const roll = shots.length
-      ? `<div class="phsub">THE ROLL</div><div class="phphotos">${shots.map((sh) => `<div class="phphoto"><img src="${sh.url}" alt=""></div>`).join('')}</div>`
-      : '';
-    return `<div class="phcam">
-        <div class="phviewfinder" id="ph-vf"></div>
-        <div class="phcamrow">
-          <span class="phdim">${shots.length} in the roll</span>
-          <button class="phshutter" id="ph-shutter"></button>
-          <span class="phdim">wombat cam</span>
-        </div>
-      </div>${roll}`;
-  }
-  function takeShot() {
-    try {
-      const src = document.getElementById('game');
-      const c = document.createElement('canvas');
-      c.width = 160; c.height = 120;
-      const g2 = c.getContext('2d');
-      g2.imageSmoothingEnabled = false;
-      g2.drawImage(src, 0, 0, 160, 120);
-      if (!G.shots) G.shots = [];
-      G.shots.unshift({ url: c.toDataURL('image/png'), t: Math.round(G.time || 0), likes: 0, cap: '' });
-      if (G.shots.length > 12) G.shots.length = 12;
-      Audio.play('click'); Audio.play('pop');
-      UI.toast('<b>snap</b> &mdash; it is in your camera roll', 'good');
-    } catch (e) { UI.toast('the camera would not focus', 'bad'); }
-  }
-  // ---- drawing --------------------------------------------------------------
-  // ---- the app store -----------------------------------------------------------
-
-
-  function games() {
-    return `<div class="phgame"><canvas id="ph-hop" width="180" height="240"></canvas>
-      <div class="phsub">JIM'S HIGH SCORE: 1,204 &middot; YOURS: ${G.hopBest || 0}</div></div>`;
-  }
-  const BODY = { messages, camera, games };
-  function render() {
-    const homeV = $('ph-home-view'), appV = $('ph-app-view'), lockV = $('ph-lock');
-    if (!homeV || !appV) return;
-    if (lockV) lockV.hidden = !locked;
-    if (locked) { homeV.hidden = true; appV.hidden = true; paintLock(); return; }
-    if (app === 'home') {
-      homeV.hidden = false; appV.hidden = true;
-      paintHome();
-      return;
-    }
-    homeV.hidden = true; appV.hidden = false;
-    const scr = $('ph-screen');
-    $('ph-title').textContent = app === 'messages' && chatWith ? PEOPLE[chatWith].name : TITLE[app] || 'App';
-    $('ph-back').textContent = app === 'messages' && chatWith ? '‹ Messages' : '‹ Home';
-    scr.className = 'phscreen app-' + app;
-    scr.innerHTML = (BODY[app] || messages)();
-    scr.scrollTop = 0;
-    // the bits that need a canvas painting into them
-    scr.querySelectorAll('[data-ava]').forEach((el) => el.appendChild(avatar(el.dataset.ava)));
-    // the viewfinder is a live picture of what is behind the phone
-    const vf = scr.querySelector('#ph-vf');
-    if (vf) {
-      try {
-        const src = document.getElementById('game');
-        const c = document.createElement('canvas');
-        c.width = 160; c.height = 120;
-        const g2 = c.getContext('2d'); g2.imageSmoothingEnabled = false;
-        g2.drawImage(src, 0, 0, 160, 120);
-        vf.style.backgroundImage = `url(${c.toDataURL('image/png')})`;
-      } catch (e) { }
-    }
-    const hop = scr.querySelector('#ph-hop');
-    if (hop) Hop.mount(hop, G); else Hop.unmount();
-    const sh = scr.querySelector('#ph-shutter');
-    if (sh) sh.onclick = () => { takeShot(); render(); };
-    wire(scr);
-  }
-  function wire(scr) {
-    scr.querySelectorAll('[data-app]').forEach((b) => b.onclick = () => {
-      if (!installed(b.dataset.app)) { app = 'store'; render(); return; }
-      app = b.dataset.app; chatWith = null; Audio.play('click'); render();
-    });
-    scr.querySelectorAll('[data-chat]').forEach((b) => b.onclick = () => { chatWith = b.dataset.chat; Audio.play('click'); render(); });
-    scr.querySelectorAll('[data-reply]').forEach((b) => b.onclick = () => {
-      const r = REPLIES[+b.dataset.reply];
-      const th = threads();
-      th[chatWith].push({ f: 'm', text: r.q, t: Math.round(G.time || 0) });
-      Audio.play('click');
-      render();
-      setTimeout(() => {
-        if (!isOpen() || app !== 'messages') return;
-        const line = chatWith === 'groot' ? 'I am Groot.' : U.pick(r.a.filter((x) => x !== 'I am Groot.' && x !== 'I am Groot!' && x !== 'I am Groot?'));
-        push(chatWith, line);
-        if (isOpen() && app === 'messages') render();
-      }, 900 + Math.random() * 900);
-    });
-
-
-
-
-
-  }
-  function back() {
-    if (locked) { locked = false; app = 'home'; render(); return; }
-    if (app === 'messages' && chatWith) { chatWith = null; render(); return; }
-    app = 'home'; render();
-  }
-  // Putting it away locks it again, so it always comes out on the lock screen.
-  function relock() { locked = true; chatWith = null; app = 'home'; }
-  function key(e) {
-    if (!isOpen()) return false;
-    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (locked || app === 'home') close(); else back(); return true; }
-    if (locked) { locked = false; app = 'home'; render(); return true; }
-    if (app === 'games' && Hop.key(e)) return true;
-    const n = parseInt(e.key, 10) - 1;
-    if (app === 'home' && n >= 0 && n < APPS.length) { app = APPS[n].key; Audio.play('click'); render(); return true; }
-    return false;
-  }
-
-  return { init, open, close, toggle, back, isOpen, render, key, push, unread, gardenJobs, careOf, careList, APPS };
-})();
-</script>
-
-<script>
 // ===== js/ui.js =====
 // ---- Interface: money, a tool dock, and almost nothing else --------------
 const UI = (() => {
@@ -19659,13 +18074,6 @@ const UI = (() => {
     lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
     $('b-back').hidden = G.mode === 'grove';
-    $('b-phone').classList.toggle('nophone', !owns(G, 'phone'));
-    const dot = $('b-phone-dot');
-    if (dot) {
-      const jobs = (typeof Phone !== 'undefined') ? Phone.unread() : 0;
-      dot.hidden = jobs === 0;
-      dot.textContent = jobs > 9 ? '9+' : String(jobs);
-    }
     {
       // The head-up belongs to the game, not the title screen or the intro.
       const off = G.mode === 'menu' || G.mode === 'intro';
@@ -19961,11 +18369,11 @@ const UI = (() => {
   function showUnlock() {
     const u = unlockQ[0], el = $('unlock');
     if (!u || !el) return;
-    const t = TOOL_BY_KEY[u.key], sd = TOOL_SHOP_BY_KEY[u.key], phone = u.key === 'phone';
-    const name = phone ? 'A Phone' : (sd && sd.name) || (t ? t.name : u.key);
-    const icon = phone ? 'ph_key' : t ? t.icon : 'lock';
-    const price = phone ? PHONE_PRICE : sd ? sd.price : 0;
-    const what = phone ? 'Texts, a camera, and Wombat Hop.' : t ? t.desc : '';
+    const t = TOOL_BY_KEY[u.key], sd = TOOL_SHOP_BY_KEY[u.key];
+    const name = (sd && sd.name) || (t ? t.name : u.key);
+    const icon = t ? t.icon : 'lock';
+    const price = sd ? sd.price : 0;
+    const what = t ? t.desc : '';
     el.innerHTML = `<div class="ucard ${u.gift ? 'gift' : ''}">
       <div class="uhead">${u.gift ? 'YOU GOT' : 'NEW AT WOMBAT MART'}</div>
       <div class="upic">${ic(icon, 'xl')}</div>
@@ -20092,7 +18500,7 @@ const UI = (() => {
   function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat', 'panel-phone'];
+  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat'];
   function openPanel(id) {
     closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click');
     if (id === 'panel-basket') renderBasket();
@@ -20237,7 +18645,6 @@ const UI = (() => {
     FX.coinBurst(320, 200, 6);
     if (pawnMode === 'cult') {
       Guide.paid(each * sold);
-      if (sold >= 5) setTimeout(() => Phone.push('cultist', `${sold} in one go! the pumpkins r gonna be massive this year`), 3000);
     }
     Audio.play('sell');
     renderPawn(); refreshHUD(); Main.save();
@@ -20272,16 +18679,9 @@ const UI = (() => {
       setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'RESET'; armed = 0; } }, 4100);
     };
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
-    // the phone: a button in the corner, and P from anywhere
-    $('b-phone').onclick = () => Phone.toggle();
-    $('ph-close').onclick = () => Phone.close();
-    $('ph-home-btn').onclick = () => Phone.open('home');
-    $('ph-back').onclick = () => Phone.back();
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
       if (Talk.isOpen() && Talk.key(e)) { e.preventDefault(); return; }
-      if (Phone.isOpen() && Phone.key(e)) { e.preventDefault(); return; }
-      if ((e.key === 'p' || e.key === 'P') && G.mode !== 'intro' && G.mode !== 'menu' && !Talk.isOpen()) { Phone.toggle(); e.preventDefault(); return; }
       if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
     });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
@@ -20690,7 +19090,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [], owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, apps: { quests: 1, messages: 1, settings: 1, store: 1 },
+      brush: 1, crates: {}, furniture: [], owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -20736,9 +19136,8 @@ const Main = (() => {
       s.plots.home = true;                    // the home plot is never for sale
       // a farm started before tools had to be bought keeps everything it had
       if (!d.owned) {
-        s.owned = { drag: true, phone: true };
+        s.owned = { drag: true };
         for (const t of TOOL_SHOP) s.owned[t.key] = true;
-        s.apps = Object.fromEntries(Object.keys(APP_PRICES).map((k) => [k, 1]));
       }
       // the tutorial grew a first step (meeting Jim) and tools that unlock as you go
       if (s.tutorialV !== 2) {
@@ -20815,7 +19214,7 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       Sky.init(G); World.init(G); Grove.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
+      Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
@@ -20852,7 +19251,6 @@ const Main = (() => {
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
     if (Talk.isOpen()) Talk.close();          // nobody keeps talking to you across town
-    document.body.classList.remove('noclip');
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
@@ -20873,7 +19271,6 @@ const Main = (() => {
   }
   function back() {
     if (G.mode === 'ottoman' && Ottoman.closeMenu()) return;
-    if (G.mode === 'ottoman' && Ottoman.phase === 'back') { Audio.play('error'); UI.toast('there is no way back. find a green <b>EXIT</b> sign', 'bad'); return; }
     if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman') setMode('map');
     else setMode('grove');
   }
@@ -21115,7 +19512,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

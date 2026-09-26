@@ -136,11 +136,15 @@ const Atlas = (() => {
     }
   }
   // the animals. Each one is four or five pixels and that is all it needs.
+  // A tidy little block of a wombat: outlined, stubby legs, an ear and an eye.
   function wombat(q, x, y) {
-    Art.ell(q, x, y, 4.4, 3.2, '#5e442e'); Art.ell(q, x - 1, y - 1, 3, 1.8, '#7a5a3c');
-    Art.rect(q, x + 3, y - 2, 3, 3, '#5e442e'); Art.rect(q, x + 3, y - 3, 1, 1, '#4a3424');
-    Art.rect(q, x + 5, y - 1, 1, 1, '#ffcf6a');                 // one eye catching the light
-    Art.rect(q, x - 2, y + 2, 1, 2, '#8a5c3c'); Art.rect(q, x + 2, y + 2, 1, 2, '#8a5c3c');
+    x = Math.round(x); y = Math.round(y);
+    Art.rect(q, x - 4, y - 3, 9, 5, '#2a1a10');                // the outline
+    Art.rect(q, x - 3, y - 2, 7, 3, '#b86a3c');                // the body
+    Art.rect(q, x - 3, y - 2, 7, 1, '#d88a58');                // lit along the back
+    Art.rect(q, x + 3, y - 4, 1, 1, '#2a1a10');                // an ear
+    Art.rect(q, x + 2, y - 1, 1, 1, '#2a1a10');                // the eye
+    Art.rect(q, x - 3, y + 2, 1, 1, '#2a1a10'); Art.rect(q, x + 2, y + 2, 1, 1, '#2a1a10');   // stubby feet
   }
   function duck(q, x, y) {
     Art.ell(q, x, y, 3.4, 2.4, '#b4b0a2'); Art.rect(q, x + 2, y - 3, 2, 3, '#b4b0a2');
@@ -368,25 +372,6 @@ const Atlas = (() => {
       Art.poly(q, [[cx3 + 10, cy3 + 2], [cx3 + 13, cy3 - 3], [cx3 + 16, cy3 + 2]], '#5a3226');
       Art.rect(q, cx3 + 12, cy3 - 1, 2, 3, '#ffcf6a');
     }
-    // mist pooling in the low ground between the woods
-    for (let i = 0; i < 30; i++) {
-      const mx = r() * HW, my = r() * HH, mw = 12 + r() * 26;
-      const oa = q.globalAlpha; q.globalAlpha = 0.12 + r() * 0.1;
-      Art.ell(q, mx, my, mw, mw * 0.3, '#8aa8a0');
-      Art.ell(q, mx - mw * 0.3, my + 1.4, mw * 0.5, mw * 0.2, '#a4c0b8');
-      q.globalAlpha = oa;
-    }
-    // clouds drifting over the whole thing, so there is sky in it
-    for (let i = 0; i < 7; i++) {
-      const cx3 = r() * HW, cy3 = r() * HH, cw = 9 + r() * 12;
-      const oa = q.globalAlpha; q.globalAlpha = 0.16;
-      Art.ell(q, cx3, cy3, cw, cw * 0.4, '#8f9cb4');
-      Art.ell(q, cx3 - cw * 0.4, cy3 - 1.4, cw * 0.5, cw * 0.3, '#a8b4c8');
-      q.globalAlpha = oa * 0.3;
-      Art.ell(q, cx3 + 3, cy3 + 4, cw, cw * 0.4, '#070c08');       // and their shadow on the grass
-      q.globalAlpha = oa;
-    }
-
     // ---- blow it up ---------------------------------------------------------
     g.imageSmoothingEnabled = false;
     g.drawImage(hc.c, 0, 0, VW, VH);
@@ -548,7 +533,7 @@ const Atlas = (() => {
         if (d < 120) cover = Math.max(cover, 1 - d / 120);
       }
       const edge = Math.max(0, 1 - Math.min(x, VW - x, y, VH - y) / 70);
-      const a = Math.max(cover, edge * 0.5);
+      const a = Math.max(cover, edge * 0.12);
       if (a <= 0.02) continue;
       Art.glow(g, x, y, f.r, '#f4f0e4', 0.35 * a, 4);
     }

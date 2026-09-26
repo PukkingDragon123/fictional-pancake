@@ -97,8 +97,7 @@ const SUBTOOLS = [
 // ---- what you own -------------------------------------------------------------
 // You arrive with your two hands and W$300. Jim hands you his old sickle; every
 // other tool is *unlocked* when he teaches you the job it is for, and then
-// bought at Wombat Mart. The phone is the same, and its apps come from the App
-// Store on the phone itself.
+// bought at Wombat Mart.
 const TOOL_SHOP = [
   { key: 'sickle',  price: 25, blurb: 'Cuts weeds. The first thing you need.' },
   { key: 'destroy', price: 30, name: 'Ant Hire Card', blurb: 'The ants carry logs and rubble away for you.' },
@@ -112,9 +111,6 @@ const TOOL_SHOP = [
   { key: 'build',   price: 50, name: 'Hammer', blurb: 'For standing furniture about the place.' },
 ];
 const TOOL_SHOP_BY_KEY = Object.fromEntries(TOOL_SHOP.map((t) => [t.key, t]));
-const PHONE_PRICE = 80;
-// apps for the phone; the first four come with it
-const APP_PRICES = { quests: 0, messages: 0, settings: 0, store: 0, herd: 25, garden: 25, larder: 20, camera: 15, map: 40 };
 const owns = (g, key) => !!(g && g.owned && g.owned[key]);
 // taught: Jim has shown you it, so the mart will sell it to you
 const taught = (g, key) => owns(g, key) || !!(g && g.unlocked && g.unlocked[key]);
@@ -344,7 +340,7 @@ const FURNITURE = [
   { key: 'barrel',  name: 'Rain Barrel',   cost: 160,  w: 30, h: 36, water: 1,  blurb: 'Catches the rain. Beds near it dry out slower.' },
   { key: 'trough2', name: 'Stone Trough',  cost: 210,  w: 52, h: 24, thirst: 1, blurb: 'Cut from one block. They drink from it.' },
   { key: 'scare',   name: 'Scarecrow',     cost: 120,  w: 32, h: 60, blurb: 'Sack head, crossed sticks, one boot. Keeps the crows honest.' },
-  { key: 'hive',    name: 'Bee Skep',      cost: 240,  w: 30, h: 32, hap: 0.10, blurb: 'Straw skep on a stand. Maud will be pleased.' },
+  { key: 'hive',    name: 'Bee Skep',      cost: 240,  w: 30, h: 32, hap: 0.10, blurb: 'Straw skep on a stand. Somebody always moves in.' },
   { key: 'arch',    name: 'Rose Arch',     cost: 320,  w: 64, h: 70, hap: 0.18, blurb: 'Bent willow with something climbing it.' },
   { key: 'well',    name: 'Old Well',      cost: 460,  w: 48, h: 58, water: 2,  blurb: 'Stone ring, a roof, a bucket on a rope. Deep.' },
   { key: 'statue',  name: 'Wombat Statue', cost: 780,  w: 36, h: 50, hap: 0.12, blurb: 'Carved by someone who had only had one described to them.' },
@@ -362,8 +358,6 @@ const FURNITURE = [
   { key: 'deck',    name: 'Deck Chair',        cost: 120, w: 34, h: 34, hap: 0.10, blurb: 'Striped canvas off the old ferry.' },
   { key: 'helm',    name: "Ship's Wheel",      cost: 440, w: 44, h: 52, hap: 0.08, blurb: 'Off the Captain\'s last command. Do not ask how it sank.' },
   { key: 'anchor',  name: 'Old Anchor',        cost: 280, w: 38, h: 46, blurb: 'Rusty, heavy, and absolutely going nowhere.' },
-  // never on sale: it is only ever found, a long way back through the staff door
-  { key: 'lostottoman', name: 'The Lost Ottoman', cost: 0, w: 40, h: 24, hap: 0.3, found: 1, blurb: 'Damp carpet, humming faintly. Nobody remembers making it.' },
 ];
 const FURN_BY_KEY = Object.fromEntries(FURNITURE.map((f) => [f.key, f]));
 

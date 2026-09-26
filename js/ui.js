@@ -22,13 +22,6 @@ const UI = (() => {
     lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
     $('b-back').hidden = G.mode === 'grove';
-    $('b-phone').classList.toggle('nophone', !owns(G, 'phone'));
-    const dot = $('b-phone-dot');
-    if (dot) {
-      const jobs = (typeof Phone !== 'undefined') ? Phone.unread() : 0;
-      dot.hidden = jobs === 0;
-      dot.textContent = jobs > 9 ? '9+' : String(jobs);
-    }
     {
       // The head-up belongs to the game, not the title screen or the intro.
       const off = G.mode === 'menu' || G.mode === 'intro';
@@ -324,11 +317,11 @@ const UI = (() => {
   function showUnlock() {
     const u = unlockQ[0], el = $('unlock');
     if (!u || !el) return;
-    const t = TOOL_BY_KEY[u.key], sd = TOOL_SHOP_BY_KEY[u.key], phone = u.key === 'phone';
-    const name = phone ? 'A Phone' : (sd && sd.name) || (t ? t.name : u.key);
-    const icon = phone ? 'ph_key' : t ? t.icon : 'lock';
-    const price = phone ? PHONE_PRICE : sd ? sd.price : 0;
-    const what = phone ? 'Texts, a camera, and Wombat Hop.' : t ? t.desc : '';
+    const t = TOOL_BY_KEY[u.key], sd = TOOL_SHOP_BY_KEY[u.key];
+    const name = (sd && sd.name) || (t ? t.name : u.key);
+    const icon = t ? t.icon : 'lock';
+    const price = sd ? sd.price : 0;
+    const what = t ? t.desc : '';
     el.innerHTML = `<div class="ucard ${u.gift ? 'gift' : ''}">
       <div class="uhead">${u.gift ? 'YOU GOT' : 'NEW AT WOMBAT MART'}</div>
       <div class="upic">${ic(icon, 'xl')}</div>
@@ -455,7 +448,7 @@ const UI = (() => {
   function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat', 'panel-phone'];
+  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat'];
   function openPanel(id) {
     closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click');
     if (id === 'panel-basket') renderBasket();
@@ -600,7 +593,6 @@ const UI = (() => {
     FX.coinBurst(320, 200, 6);
     if (pawnMode === 'cult') {
       Guide.paid(each * sold);
-      if (sold >= 5) setTimeout(() => Phone.push('cultist', `${sold} in one go! the pumpkins r gonna be massive this year`), 3000);
     }
     Audio.play('sell');
     renderPawn(); refreshHUD(); Main.save();
@@ -635,16 +627,9 @@ const UI = (() => {
       setTimeout(() => { if (Date.now() >= armed) { b.textContent = 'RESET'; armed = 0; } }, 4100);
     };
     document.querySelectorAll('[data-close]').forEach((b) => b.onclick = () => { closePanels(); Audio.play('click'); });
-    // the phone: a button in the corner, and P from anywhere
-    $('b-phone').onclick = () => Phone.toggle();
-    $('ph-close').onclick = () => Phone.close();
-    $('ph-home-btn').onclick = () => Phone.open('home');
-    $('ph-back').onclick = () => Phone.back();
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
       if (Talk.isOpen() && Talk.key(e)) { e.preventDefault(); return; }
-      if (Phone.isOpen() && Phone.key(e)) { e.preventDefault(); return; }
-      if ((e.key === 'p' || e.key === 'P') && G.mode !== 'intro' && G.mode !== 'menu' && !Talk.isOpen()) { Phone.toggle(); e.preventDefault(); return; }
       if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
     });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';

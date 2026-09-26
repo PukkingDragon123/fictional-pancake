@@ -22,7 +22,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [], owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, apps: { quests: 1, messages: 1, settings: 1, store: 1 },
+      brush: 1, crates: {}, furniture: [], owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -68,9 +68,8 @@ const Main = (() => {
       s.plots.home = true;                    // the home plot is never for sale
       // a farm started before tools had to be bought keeps everything it had
       if (!d.owned) {
-        s.owned = { drag: true, phone: true };
+        s.owned = { drag: true };
         for (const t of TOOL_SHOP) s.owned[t.key] = true;
-        s.apps = Object.fromEntries(Object.keys(APP_PRICES).map((k) => [k, 1]));
       }
       // the tutorial grew a first step (meeting Jim) and tools that unlock as you go
       if (s.tutorialV !== 2) {
@@ -147,7 +146,7 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       Sky.init(G); World.init(G); Grove.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
+      Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
@@ -184,7 +183,6 @@ const Main = (() => {
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
     if (Talk.isOpen()) Talk.close();          // nobody keeps talking to you across town
-    document.body.classList.remove('noclip');
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
@@ -205,7 +203,6 @@ const Main = (() => {
   }
   function back() {
     if (G.mode === 'ottoman' && Ottoman.closeMenu()) return;
-    if (G.mode === 'ottoman' && Ottoman.phase === 'back') { Audio.play('error'); UI.toast('there is no way back. find a green <b>EXIT</b> sign', 'bad'); return; }
     if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman') setMode('map');
     else setMode('grove');
   }
@@ -447,7 +444,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

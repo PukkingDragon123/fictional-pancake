@@ -175,7 +175,6 @@ const Shop = (() => {
       if (!taught(G, t.key)) continue;                // Jim has not shown you this one yet
       out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
     }
-    if (taught(G, 'phone')) out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Texts, a camera, and Wombat Hop. Everyone out here has one.', sold: owns(G, 'phone') });
     for (const u of UPGRADES) {
       if (GARDEN_UP[u.key]) continue;                 // Groot stocks the garden half
       const l = G.up[u.key] || 0;
@@ -334,7 +333,6 @@ const Shop = (() => {
       const names = tools.filter((p) => p.key !== 'phone').map((p) => p.name);
       const bits = [];
       if (names.length) bits.push(`<b>${names.join(', ')}</b> ${names.length > 1 ? 'are' : 'is'} on your toolbar`);
-      if (tools.some((p) => p.key === 'phone')) bits.push('press <b>P</b> for your new phone');
       UI.toast(bits.join(' &middot; '), 'good');
     }
     basket.length = 0;

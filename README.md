@@ -20,9 +20,7 @@ Creek, and up to the farm gate where Jim is waiting.
 1. **Meet Jim.** You start with your hands and W$300. Jim hands you his old sickle and
    teaches each job in a dialogue box with his portrait. Every job unlocks the tool
    it needs, which you then buy at Wombat Mart (click the truck). An arrow points at
-   whatever the job is about, and the toolbar slot you need glows. A phone is W$80. It
-   does three things: texts, a camera, and Wombat Hop, a little runner that pays a few W$
-   for a good score.
+   whatever the job is about, and the toolbar slot you need glows.
 2. **Tidy up.** Cut the weeds with the sickle, have the ants take the old logs, and sow
    grass inside the rope. A tidy garden brings your first wombat.
 3. **Grow.** Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.
@@ -37,12 +35,9 @@ Creek, and up to the farm gate where Jim is waiting.
    ottomans, a Chesterfield, a captain's armchair, lamps, rugs, a hammock, a ship's wheel,
    and the garden things too. Click the Captain to open his catalogue: his face on the
    left, the stock on the right in two tabs, and one click buys a piece.
-   He'll ask you not to go through the STAFF ONLY door at the back. Behind it is Level 0,
-   yellow rooms that go on forever. Find a green EXIT sign to get out, and look out for
-   something that got lost in there.
 
-Jim tells you what to do next in a speech bubble and chats if you click him. Neighbours
-wander in now and then, the weather changes on its own, and a day is twelve minutes long.
+Jim tells you what to do next in a speech bubble and chats if you click him. Shaz from
+the mart, Groot and Captain Clark drop by now and then, the weather changes on its own, and a day is twelve minutes long.
 
 ## Controls
 
@@ -56,7 +51,6 @@ wander in now and then, the weather changes on its own, and a day is twelve minu
 | `[` `]` or wheel | Brush size |
 | Drag bare ground, arrows, A/D | Look around the garden |
 | M | Map |
-| P | Phone |
 | H | How to play |
 | Esc | Back / title screen / skip the drive in |
 
@@ -65,7 +59,7 @@ wander in now and then, the weather changes on its own, and a day is twelve minu
 - `js/main.js` - state, the save, input and the main loop
 - `js/grove.js` - the garden scene: wombats, tools, the truck, plots
 - `js/world.js` - the painted ground, grass, weeds, crops, trees and fertiliser
-- `js/wild.js` - the shovel's height field and flowing water, critters, visiting neighbours
+- `js/wild.js` - the shovel's height field and flowing water, critters, and visitors: Shaz, Groot and Captain Clark
 - `js/guide.js` - Jim: the jobs, his lessons, the tools each job unlocks, the pointer arrow
 - `js/talk.js`, `js/portraits.js` - the dialogue box and the big 64x64 faces with moods
 - `js/uikit.js`, `css/theme.css` - the pixel farm-game interface, on canvas and in HTML
@@ -73,10 +67,10 @@ wander in now and then, the weather changes on its own, and a day is twelve minu
 - `js/scenery.js` - the painted country: ranges, fields, forest, village, road, the car
 - `js/menu.js` - the title screen, driving through the forest
 - `js/intro.js` - the drive into Wombat Creek and up to the farm gate
-- `js/ottoman.js` - Captain Clark's Ottoman Empire, his catalogue, and the back room behind it
+- `js/ottoman.js` - Captain Clark's Ottoman Empire and his catalogue
 - `js/furnart.js` - the furniture, drawn pixel by pixel
 - `js/map.js`, `js/drive.js`, `js/shop.js`, `js/nursery.js` - the other scenes
-- `js/phone.js`, `js/hop.js`, `js/ui.js` - the phone, Wombat Hop, the HUD and toolbar
+- `js/ui.js` - the HUD, the toolbar and the panels
 - `js/art.js`, `js/sprites.js`, `js/props.js`, `js/icons.js`, `js/tex.js`, `js/fx.js` - the art
 - `js/data.js` - crops, tools, prices, apps and furniture
 
@@ -84,5 +78,5 @@ wander in now and then, the weather changes on its own, and a day is twelve minu
 
 `promo/cover.gif` (630x500) and `promo/banner.gif` (960x320) are looping pixel GIFs painted
 with the game's own sprites: the cover is the title with Jim and the wombats, the banner is
-everybody dancing and singing together. `promo/*.png` are stills. To redraw them, run
+Jim, Groot, Shaz and Captain Clark dancing and singing together. `promo/*.png` are stills. To redraw them, run
 `node promo/render.js` (it needs Playwright).

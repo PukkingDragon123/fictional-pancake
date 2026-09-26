@@ -52,7 +52,6 @@ img.ico.xl { width: 48px; height: 48px; }
     0 12px 0 5px rgba(0,0,0,0.5), 0 0 90px rgba(0,0,0,0.6); }
 #game { image-rendering: pixelated; display: block; cursor: crosshair; touch-action: none; width: 100%; height: 100%; }
 
-
 /* ---- the recipes, reused everywhere --------------------------------------
    PAGE    dark wood cover, parchment page, teal brackets in the corners
            (the panel, the to-do card, the tooltip, the card, the toast)
@@ -397,28 +396,13 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
     linear-gradient(90deg, var(--tl4) 0 22%, var(--tl2) 22% 62%, var(--tl1) 62% 100%) 100% 100%/10px 30px no-repeat;
 }
 /* the heading plank, laid across the top of the cover */
-.phead {
-  position: relative; z-index: 2; display: flex; align-items: center; gap: 10px;
-  margin: -26px 30px 14px; padding: 10px 20px 10px 16px;
-  color: #f4dfae; font-family: var(--ft); font-weight: 400; font-size: 16px; letter-spacing: 2px;
-  text-shadow: 0 2px 0 var(--wd0);
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 3px, rgba(255,214,150,0.05) 3px 7px, rgba(0,0,0,0) 7px 15px),
-    linear-gradient(180deg, var(--wd4) 0 16%, var(--wd3) 16% 58%, var(--wd2) 58% 84%, var(--wd1) 84% 100%);
-  border: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 var(--wd5), inset 0 -3px 0 var(--wd0), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
-}
+
 /* the two iron caps on the ends of the plank */
-.phead::before, .phead::after {
-  content: ''; position: absolute; top: -7px; bottom: -7px; width: 16px;
-  background: linear-gradient(180deg, var(--tl4) 0 14%, var(--tl3) 14% 34%, var(--tl2) 34% 68%, var(--tl1) 68% 100%);
-  border: 3px solid var(--ol);
-  box-shadow: inset 0 2px 0 rgba(200,244,255,0.5);
-}
-.phead::before { left: -12px; } .phead::after { right: -12px; }
-.phead img.ico { width: 22px; height: 22px; }
+
+ 
+
 .ptitle { flex: 1; }
-.phead .x { margin-left: auto; z-index: 1; }
+
 .pbody { position: relative; z-index: 1; overflow-y: auto; padding: 4px 20px 2px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
 .item { display: grid; grid-template-columns: 60px 1fr; gap: 5px 11px; padding: 9px; align-items: center;
@@ -622,7 +606,7 @@ kbd { background: var(--pg4); border: 3px solid var(--ol); border-bottom-width: 
   60%  { opacity: 1; transform: translateY(-2px) scale(1.01) }
   100% { opacity: 1; transform: none }
 }
-.panel .pbody, .panel .phead { animation: bodyin 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) backwards; }
+.panel .pbody { animation: bodyin 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) backwards; }
 @keyframes ping { 0% { transform: scale(1, 1) } 28% { transform: scale(1.26, 0.8) } 56% { transform: scale(0.9, 1.12) } 78% { transform: scale(1.04, 0.97) } 100% { transform: scale(1, 1) } }
 #money.ping { animation: ping 0.44s cubic-bezier(0.34, 1.8, 0.5, 1); }
 @keyframes bob { 0%, 100% { transform: translateY(0) scale(1, 1) } 42% { transform: translateY(-5px) scale(0.96, 1.05) } 70% { transform: translateY(1px) scale(1.04, 0.96) } }
@@ -692,7 +676,6 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 .spoke:active, .rbtn:active, .mbtn:active, .zbtn:active, .hq:active { transform: translateY(4px) scale(.86, 1.14); }
 @keyframes pop-in { 0% { transform: scale(.8, 1.16); opacity: 0 } 55% { transform: scale(1.08, 0.94); opacity: 1 } 80% { transform: scale(.98, 1.02) } 100% { transform: scale(1, 1) } }
 .tray:not([hidden]) { animation: pop-in .24s cubic-bezier(.3,1.7,.5,1); }
-
 
 /* ---- one kit, applied over everything ------------------------------------
    Old wood and parchment, teal iron where it has to hold, gold where it has to
@@ -840,348 +823,71 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
    every edge is a flat band of colour, and there is not a gradient or a
    blur anywhere in it.
    ========================================================================= */
-.phone {
-  position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
-  background: rgba(10,7,4,0.84);
-  animation: phfade .12s steps(3, end);
-}
-@keyframes phfade { from { opacity: 0 } to { opacity: 1 } }
 
 /* the case */
-.phshell {
-  --ph-h: min(94vh, 720px);
-  --case: #3d3529; --lit: #6b5c44; --dk: #17120c; --rivet: #a9750d;
-  position: relative; flex: 0 0 auto; height: var(--ph-h); width: calc(var(--ph-h) * 356 / 640);
-  min-width: 0; max-width: 96vw;
-  display: flex; flex-direction: column; padding: 30px 12px 62px;
-  background: var(--case);
-  box-shadow:
-    inset 0 4px 0 0 var(--lit), inset 0 -5px 0 0 var(--dk),
-    inset 4px 0 0 0 #4a4132, inset -4px 0 0 0 #2a2419,
-    0 0 0 4px var(--ol), 0 10px 0 4px rgba(0,0,0,0.45);
-  animation: phin .16s steps(4, end);
-}
-@keyframes phin { from { transform: translateY(18px); opacity: 0 } to { transform: none; opacity: 1 } }
+
 /* the speaker grille punched across the top, and a sensor dot beside it */
-.phshell::before {
-  content: ''; position: absolute; left: 50%; top: 12px; width: 78px; height: 8px; margin-left: -46px;
-  background: repeating-linear-gradient(90deg, var(--dk) 0 4px, transparent 4px 8px);
-  box-shadow: 30px 0 0 0 var(--dk), 34px 0 0 0 var(--dk);
-}
+
 /* the maker's stamp under the screen, because an old thing always has one */
-.phshell::after {
-  content: 'WOMBAT CO.'; position: absolute; left: 14px; bottom: 21px;
-  font-size: 9px; letter-spacing: 2px; color: #6b5c44;
-}
+
 /* the side keys: brass nubs, square */
-.phshell i[class^="phbtn-"] { position: absolute; background: var(--rivet); box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #d8a41c; }
-.phbtn-silent { left: -6px; top: 17%; width: 5px; height: 3%; }
-.phbtn-up     { left: -6px; top: 25%; width: 5px; height: 6%; }
-.phbtn-down   { left: -6px; top: 33%; width: 5px; height: 6%; }
-.phbtn-wake   { right: -6px; top: 27%; width: 5px; height: 9%; }
-.phclose {
-  position: absolute; right: -16px; top: -16px; width: 32px; height: 32px; border: 0; cursor: pointer;
-  font-family: var(--f); font-size: 18px; line-height: 1; color: #f0e2c4;
-  background: #8a3a1e; box-shadow: inset 0 3px 0 #b85a32, inset 0 -3px 0 #4a1a0a, 0 0 0 3px var(--ol);
-}
-.phclose:hover { background: #a8492a; }
-.phclose:active { transform: translateY(2px); }
 
 /* the screen, sunk into the case */
-.phglass {
-  position: relative; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
-  overflow: hidden; background: #241708;
-  box-shadow: inset 0 0 0 3px #0e0904, 0 0 0 3px #17120c, 0 0 0 5px #5a4d38;
-}
+
 /* the scanline and the dark corners of an old screen, over everything */
-.phglass::after {
-  content: ''; position: absolute; inset: 0; z-index: 9; pointer-events: none;
-  background:
-    repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0 1px, transparent 1px 3px),
-    radial-gradient(120% 90% at 50% 50%, transparent 58%, rgba(0,0,0,0.42) 100%);
-}
-.phwall {
-  position: absolute; inset: 0; pointer-events: none; background: #2a1a0c;
-  background-size: 100% 100%; background-repeat: no-repeat; image-rendering: pixelated;
-}
 
 /* the status strip */
-.phstatus {
-  position: relative; z-index: 3; flex: 0 0 auto; display: flex; align-items: center; gap: 6px;
-  padding: 5px 10px; font-size: 12px; color: #f0dcb0; letter-spacing: 1px;
-  background: rgba(20,12,6,0.74); box-shadow: inset 0 -2px 0 rgba(140,92,48,0.4);
-}
-.phstatus b { font-weight: 400; }
-.phisland { display: none; }
-.phsig { margin-left: auto; display: flex; align-items: flex-end; gap: 2px; height: 10px; }
-.phsig i { width: 3px; background: #f0dcb0; }
-.phsig i:nth-child(1) { height: 3px } .phsig i:nth-child(2) { height: 5px }
-.phsig i:nth-child(3) { height: 8px } .phsig i:nth-child(4) { height: 10px; background: #5a4326 }
-.phwifi { width: 12px; height: 10px; background:
-  linear-gradient(#f0dcb0 0 0) 4px 7px/4px 3px no-repeat,
-  linear-gradient(#f0dcb0 0 0) 2px 3px/8px 2px no-repeat,
-  linear-gradient(#f0dcb0 0 0) 0 0/12px 2px no-repeat; }
-.phbatt { position: relative; width: 20px; height: 11px; padding: 2px; box-shadow: inset 0 0 0 2px #a8875a; }
-.phbatt::after { content: ''; position: absolute; right: -4px; top: 3px; width: 3px; height: 5px; background: #a8875a; }
-.phbatt i { display: block; width: 74%; height: 100%; background: #f0dcb0; }
+
+ 
+ 
 
 /* the home screen */
-.phhome-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 8px 12px 0; }
-.phwidget {
-  margin: 4px 0 12px; padding: 8px 10px; color: #3a2410;
-  background: #ddc39a; box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0, 0 0 0 2px #1e1208;
-}
-.phwidget h5 { display: flex; align-items: center; gap: 5px; margin: 0 0 3px; font-size: 11px; font-weight: 400;
-  letter-spacing: 2px; color: #7a4f06; }
-.phwidget p { margin: 0; font-size: 14px; line-height: 1.4; }
-.phwidget .phwrow { display: flex; gap: 12px; margin-top: 6px; font-size: 12px; color: #6b4a26; }
-.phwidget .phwrow span { display: flex; align-items: center; gap: 4px; }
-.phwidget img.ico { width: 14px; height: 14px; image-rendering: pixelated; }
 
 /* the tiles are screwed to a board, so the labels always have something dark
    behind them instead of whatever the wallpaper happens to be doing */
-.phgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 6px; align-content: start;
-  padding: 8px 7px 6px; background: rgba(28,17,8,0.72);
-  box-shadow: inset 0 0 0 2px #5a3a1c, inset 0 2px 0 #8c5c30, 0 0 0 2px #140c06; }
-.phapp {
-  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 0; border: 0; background: none; cursor: pointer; font-family: inherit;
-}
+
 /* an app tile is a slot out of the same kit as the inventory: flat colour,
    a lit band across the top, a dark band under it, one line round it */
-.phapp i.phico {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; aspect-ratio: 1; background: var(--t2, #3d2714);
-  box-shadow:
-    inset 0 3px 0 var(--t1, #6b4423), inset 0 -3px 0 rgba(0,0,0,0.55),
-    inset 3px 0 0 rgba(255,220,170,0.1), inset -3px 0 0 rgba(0,0,0,0.35),
-    0 0 0 2px #a9750d, 0 0 0 4px #1e1208;
-}
-.phapp img.ico { width: 60%; height: 60%; image-rendering: pixelated; }
-.phapp b { display: block; width: 100%; height: 12px; line-height: 12px; font-size: 10px; font-weight: 400;
-  color: #f0dcb0; letter-spacing: 0.5px; text-shadow: 1px 1px 0 #1e1208;
-  overflow: hidden; white-space: nowrap; text-overflow: clip; }
-.phapp:hover i.phico { box-shadow:
-  inset 0 3px 0 var(--t1, #6b4423), inset 0 -3px 0 rgba(0,0,0,0.55),
-  inset 3px 0 0 rgba(255,220,170,0.1), inset -3px 0 0 rgba(0,0,0,0.35),
-  0 0 0 2px var(--gd3), 0 0 0 4px #1e1208, 0 0 0 6px var(--gd0); }
-.phapp:active { transform: translateY(2px); }
-.phdot {
-  position: absolute; top: -4px; right: -2px; min-width: 16px; height: 16px; line-height: 16px;
-  font-size: 10px; font-style: normal; text-align: center; color: #fff2e0; background: #b8412c;
-  box-shadow: 0 0 0 2px #0a0d08;
-}
-.phdots { display: flex; gap: 5px; justify-content: center; margin: 10px 0 8px; }
-.phdots { display: none; }
-.phdock {
-  margin: auto 0 10px; padding: 8px 6px;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-  background: rgba(30,18,8,0.82); box-shadow: inset 0 0 0 2px #5a3a1c, inset 0 2px 0 #8c5c30;
-}
-.phdock .phapp b { display: none; }
 
 /* an app, open */
-.phapp-view { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; min-height: 0;
-  background: #2e1e0e; animation: phopen .12s steps(3, end); }
-@keyframes phopen { from { opacity: 0 } to { opacity: 1 } }
-.phnav { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px 10px;
-  background: #4d2f16; box-shadow: inset 0 2px 0 #8c5c30, inset 0 -3px 0 #1e1208; }
-.phnav b { flex: 1 1 auto; text-align: center; font-size: 14px; font-weight: 400; color: #f0dcb0; letter-spacing: 1px; }
-.phnav-sp { flex: 0 0 56px; }
-.phback { flex: 0 0 56px; text-align: left; padding: 3px 0; border: 0; background: none; cursor: pointer;
-  font-family: inherit; font-size: 13px; color: #d8a41c; }
-.phback:hover { color: #ffe98a; }
-.phscreen { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 9px 10px 16px; display: flex; flex-direction: column; gap: 6px; }
-.phscreen::-webkit-scrollbar { width: 6px; }
-.phscreen::-webkit-scrollbar-track { background: #1e1208; }
-.phscreen::-webkit-scrollbar-thumb { background: #6b4423; }
 
 /* the one key under the screen */
-.phbar {
-  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 4;
-  width: 72px; height: 28px; border: 0; cursor: pointer;
-  background: #5a4d38; box-shadow: inset 0 3px 0 #8a7752, inset 0 -4px 0 #2a2418, 0 0 0 3px var(--ol);
-}
-.phbar:hover { background: #6b5c44; }
-/* while the phone is out, the toasts move into the bottom corner: dead centre
-   is where the home key sits, and you want to be able to see the key you are
-   about to press */
-#panel-phone:not([hidden]) ~ #toasts { left: 16px; bottom: 76px; transform: none; align-items: flex-start; }
-.phbar:active { transform: translateX(-50%) translateY(3px); box-shadow: inset 0 3px 0 #8a7752, inset 0 -2px 0 #2a2418, 0 0 0 3px var(--ol); }
 
 /* cards and rows inside an app */
-.phcard { min-width: 0; padding: 9px 10px; background: #ddc39a;
-  box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0, 0 0 0 2px #1e1208; }
-.phcard.big { background: #ecd6ac; box-shadow: inset 0 0 0 2px #ab8a5c, inset 0 2px 0 #f7ecd2, 0 0 0 2px #1e1208; }
-.phcard.shut { opacity: 0.45; }
-.phcardh { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #3a2410; }
-.phcardh img.ico { width: 20px; height: 20px; image-rendering: pixelated; }
-.phcardh b { flex: 0 1 auto; font-weight: 400; }
-.phcardh .phdim { margin-left: auto; }
-.phcard p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; color: #6b4a26; }
-.phmeta { display: flex; flex-wrap: wrap; gap: 3px 11px; margin-top: 6px; font-size: 11px; color: #8a6f45; }
-.phmeta img.ico { width: 13px; height: 13px; vertical-align: -2px; image-rendering: pixelated; }
-.phsub { margin: 9px 1px 0; font-size: 10px; letter-spacing: 2px; color: #c9a878; }
-.phrow { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px 10px; font-size: 12px; color: #3a2410;
-  background: #c9a878; box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #ddc39a; }
-.phrow.done { opacity: 0.4; }
-.phrow img.ico { width: 18px; height: 18px; image-rendering: pixelated; }
-.phrow b { font-weight: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.phnum { margin-left: auto; color: #7a4f06; }
-.phdim { font-size: 11px; color: #6b4a26; }
-.phrow .phdim { margin-left: auto; text-align: right; }
+
 /* a meter: a dark trough with a flat bar in it and one lit line on top */
-.phbar2 { height: 8px; margin: 5px 0 0; background: #3d2714; box-shadow: inset 0 0 0 2px #1e1208; overflow: hidden; }
-.phbar2 i { display: block; height: 100%; box-shadow: inset 0 2px 0 rgba(255,255,255,0.28); }
-.phstat { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px; color: #6b4a26; }
-.phstat span { flex: 0 0 48px; }
-.phstat .phbar2 { flex: 1 1 auto; margin: 0; }
-.phwant { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-.phwant em { font-style: normal; font-size: 10px; letter-spacing: 1px; padding: 3px 7px; color: #2a1a04; background: var(--gd2);
-  box-shadow: inset 0 2px 0 var(--gd3), 0 0 0 2px #0a0d08; }
-.phok { margin-top: 6px; font-size: 11px; color: #4d7430; }
-.phacts { display: flex; gap: 5px; margin-top: 9px; }
-.phbtn {
-  flex: 1 1 auto; padding: 8px 4px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
-  color: #f0dcb0; background: #5a3a1c;
-  box-shadow: inset 0 3px 0 #8c5c30, inset 0 -3px 0 #1e1208, 0 0 0 2px #140c06;
-}
-.phbtn.go { color: #2a1a04; background: var(--gd2); box-shadow: inset 0 3px 0 var(--gd3), inset 0 -3px 0 var(--gd0), 0 0 0 2px #140c06; }
-.phbtn:hover { filter: brightness(1.16); }
-.phbtn:active { transform: translateY(2px); }
 
 /* settings */
-.phgroup { background: #ddc39a; box-shadow: inset 0 0 0 2px #8a6f45, 0 0 0 2px #1e1208; }
-.phset { display: flex; align-items: center; gap: 10px; padding: 10px 11px; font-size: 13px; color: #3a2410;
-  box-shadow: inset 0 -2px 0 #ab8a5c; }
-.phset:last-child { box-shadow: none; }
-.phset span { flex: 1 1 auto; }
-.phset small { display: block; font-size: 10px; color: #8a6f45; }
+
 /* a square switch: a trough with a square knob that steps from end to end */
-.phsw { position: relative; flex: 0 0 auto; width: 42px; height: 22px; border: 0; cursor: pointer;
-  background: #5a3a1c; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #3d2714; }
-.phsw i { position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #a87642;
-  box-shadow: inset 0 2px 0 #c9a878, inset 0 -2px 0 #5a3a1c; transition: left .1s steps(3, end); }
-.phsw.on { background: #1c5568; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #2f7f96; }
-.phsw.on i { left: 23px; background: #8fd4e4; box-shadow: inset 0 2px 0 #cdeff8, inset 0 -2px 0 #2f7f96; }
-.phset .phgo { flex: 0 0 auto; padding: 6px 12px; border: 0; cursor: pointer;
-  font-family: inherit; font-size: 11px; color: #fff2e0; background: #8a3a1e;
-  box-shadow: inset 0 2px 0 #b85a32, inset 0 -2px 0 #4a1a0a, 0 0 0 2px #140c06; }
 
 /* messages */
-.phthread { display: flex; align-items: center; gap: 9px; padding: 8px 9px; cursor: pointer;
-  border: 0; width: 100%; text-align: left; font-family: inherit; background: #c9a878; color: #3a2410;
-  box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #ddc39a; }
-.phthread:hover { background: #ddc39a; }
-.phava { flex: 0 0 auto; width: 34px; height: 34px; overflow: hidden; background: #5a3a1c;
-  box-shadow: inset 0 0 0 2px #3d2714; display: flex; align-items: flex-end; justify-content: center; }
-.phava canvas { image-rendering: pixelated; }
-.phthread .phtx { flex: 1 1 auto; min-width: 0; }
-.phthread .phtx b { display: block; font-size: 13px; font-weight: 400; }
-.phthread .phtx small { display: block; font-size: 11px; color: #6b4a26; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.phunread { flex: 0 0 auto; width: 8px; height: 8px; background: #a8323a; box-shadow: 0 0 0 2px #1e1208; }
-.phchat { display: flex; flex-direction: column; gap: 6px; }
+
 /* a bubble with one step out of each corner, like everything else here */
-.phmsg { max-width: 80%; padding: 7px 10px; font-size: 12.5px; line-height: 1.4;
-  clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
-    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
-    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 4px 4px); }
-.phmsg.them { align-self: flex-start; background: #ecd6ac; color: #3a2410; }
-.phmsg.me { align-self: flex-end; background: #6b4423; color: #f7ecd2; }
-.phreplies { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
-.phreply { padding: 7px 11px; border: 0; cursor: pointer; font-family: inherit; font-size: 12px;
-  color: #ffe98a; background: #3d2714; box-shadow: inset 0 0 0 2px var(--gd0); }
-.phreply:hover { background: #5a3a1c; color: #fff; }
 
 /* photos */
-.phphotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-.phphoto { position: relative; aspect-ratio: 1; overflow: hidden; background: #3d2714;
-  box-shadow: inset 0 0 0 2px #8a6f45; display: flex; align-items: flex-end; justify-content: center; }
-.phphoto canvas { image-rendering: pixelated; width: 100%; height: 100%; object-fit: contain; }
-.phphoto img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
-.phphoto em { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-style: normal; font-size: 9px;
-  color: #f0dcb0; background: rgba(20,12,6,0.8); }
 
 /* the lock screen */
-.phlock { position: relative; z-index: 2; flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column;
-  padding: 14px 12px 0; cursor: pointer; animation: phopen .14s steps(3, end); }
-.phlockclock { text-align: center; margin: 10px 0 16px; color: #f7ecd2; }
-.phlockclock b { display: block; font-size: 46px; font-weight: 400; line-height: 1; text-shadow: 3px 3px 0 rgba(20,12,6,0.8); }
-.phlockclock span { display: block; margin-top: 6px; font-size: 12px; letter-spacing: 1px; color: #ddc39a; text-shadow: 2px 2px 0 rgba(20,12,6,0.8); }
-.phnotes { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; min-height: 0; }
-.phnotes::-webkit-scrollbar { width: 0; }
-.phnote { display: flex; align-items: flex-start; gap: 8px; width: 100%; text-align: left; padding: 8px 10px;
-  border: 0; cursor: pointer; font-family: inherit; color: #3a2410;
-  background: rgba(221,195,154,0.94); box-shadow: inset 0 0 0 2px #8a6f45, inset 0 2px 0 #f0dcb0; }
-.phnote:hover { background: #f0dcb0; }
-.phnico { flex: 0 0 auto; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
-  background: #4d2f16; box-shadow: inset 0 0 0 2px #1e1208, inset 0 2px 0 #8c5c30; }
-.phnico img.ico { width: 17px; height: 17px; image-rendering: pixelated; }
-.phntx { flex: 1 1 auto; min-width: 0; }
-.phntx b { display: block; font-size: 10px; font-weight: 400; letter-spacing: 1.5px; color: #7a4f06; }
-.phntx em { display: block; font-style: normal; font-size: 13px; }
-.phntx small { display: block; font-size: 11px; color: #6b4a26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.phswipe { margin-top: auto; padding: 12px 0 16px; text-align: center; font-size: 10px; letter-spacing: 3px;
-  color: #ddc39a; text-shadow: 2px 2px 0 rgba(20,12,6,0.8); }
 
 /* camera */
-.phcam { display: flex; flex-direction: column; gap: 10px; height: 100%; }
-.phviewfinder { flex: 1 1 auto; min-height: 170px; background: #000 center/cover no-repeat;
-  image-rendering: pixelated; box-shadow: inset 0 0 0 3px #8a6f45, inset 0 0 0 5px #1e1208; }
-.phcamrow { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 10px; }
-.phshutter { width: 48px; height: 48px; border: 0; cursor: pointer; background: #b8412c;
-  box-shadow: inset 0 4px 0 #e07050, inset 0 -4px 0 #6a1e10, 0 0 0 3px #140c06, 0 0 0 6px #8c5c30; }
-.phshutter:active { transform: translateY(3px); }
 
 /* Everything inside a scrolling screen keeps its own height; the column must
    not squeeze its children or long posts get clipped. */
-.phscreen > * { flex: 0 0 auto; }
-.phscreen.app-camera > .phcam { flex: 1 1 auto; }
-.phcard, .phrow, .phthread, .phgroup, .phphotos, .phsub, .phcam { flex: 0 0 auto; }
 
-/* ---- the phone button on the frame --------------------------------------
-   Not a small square with a glyph on it any more. A phone sat in a wooden
-   holster screwed to the corner of the frame, with what it is called, the key
-   that opens it, and a brass tally of everything waiting inside. */
-.phonebtn {
-  position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px;
-  border: 0; cursor: pointer; font-family: var(--f); text-align: left;
-  background: #5a3a1c;
-  box-shadow:
-    inset 0 3px 0 #8c5c30, inset 0 -4px 0 #2a1a0c,
-    inset 3px 0 0 #6b4423, inset -3px 0 0 #3d2714,
-    0 0 0 3px var(--ol), 0 5px 0 3px rgba(0,0,0,0.45);
-}
-.phonebtn img.ico { width: 26px; height: 26px; image-rendering: pixelated; }
-.phonebtn .pbtx { display: flex; flex-direction: column; line-height: 1; }
-.phonebtn .pbtx b { font-size: 15px; font-weight: 400; letter-spacing: 1.5px; color: #f0dcb0; text-shadow: 1px 2px 0 #1e1208; }
-.phonebtn .pbtx small { margin-top: 3px; font-size: 10px; letter-spacing: 1.5px; color: #c9a878; }
-.phonebtn:hover { background: #6b4423; }
-.phonebtn:hover .pbtx b { color: #ffe98a; }
-.phonebtn:active { transform: translateY(4px); box-shadow:
-  inset 0 3px 0 #8c5c30, inset 0 -3px 0 #2a1a0c,
-  inset 3px 0 0 #6b4423, inset -3px 0 0 #3d2714,
-  0 0 0 3px var(--ol), 0 1px 0 3px rgba(0,0,0,0.45); }
 /* the tally: a brass tag hung on the top corner */
-.phonebtn i {
-  position: absolute; top: -9px; right: -9px; min-width: 20px; height: 20px; line-height: 20px;
-  padding: 0 3px; font-style: normal; font-size: 12px; text-align: center;
-  color: #2a1a04; background: var(--gd2);
-  box-shadow: inset 0 2px 0 var(--gd4), inset 0 -2px 0 var(--gd0), 0 0 0 3px var(--ol);
-}
 
 /* ==== Stardew-style gold-cornered frames ===================================
    One nine-slice frame, painted at start-up in ui.js (goldFrameURL): a dark
    line, a gold ring lit on the top and shaded on the bottom, a brown inside,
    and a gold scroll in each corner. Everything you press or read wears it. */
-.gold, #money, #checklist, .tray, #tip, .toast, .panel, .hslot, .spoke, .phonebtn, .mbtn, .zbtn {
+.gold, #money, #checklist, .tray, #tip, .toast, .panel, .hslot, .spoke, .mbtn, .zbtn {
   border: 10px solid transparent !important;
   border-image: var(--gf-base) 10 fill / 10px / 0 stretch !important;
   background: none !important; box-shadow: none !important; clip-path: none !important;
   image-rendering: pixelated;
 }
 #tip, .toast, #checklist, .panel { border-image-source: var(--gf-paper) !important; }
-.hslot:hover, .spoke:hover, .phonebtn:hover, .mbtn:hover, .zbtn:hover { border-image-source: var(--gf-hot) !important; }
+.hslot:hover, .spoke:hover, .mbtn:hover, .zbtn:hover { border-image-source: var(--gf-hot) !important; }
 .hslot.on, .spoke.on { border-image-source: var(--gf-sel) !important; }
 
 /* the hotbar along the bottom of the picture */
@@ -1227,179 +933,18 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 #checklist, #checklist .task, #checklist .tname { line-height: 1.25; }
 #checklist .tname { font-size: 14px; }
 #toasts { bottom: 96px !important; }
-#b-phone.nophone { display: none !important; }
 
-/* =========================================================================
-   THE WHITE PHONE
-   A white iPhone with a dynamic island, the maker's default wallpaper, and
-   rounded glass everything. It is the one thing in the game that is not
-   pixel art, which is exactly how a phone looks held up against a farm.
-   ========================================================================= */
-.phone { background: rgba(30,24,16,0.55); backdrop-filter: blur(3px); animation: phfade .18s ease-out; }
-.phshell {
-  --ph-h: min(92vh, 700px);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
-  padding: 11px; border-radius: 58px;
-  background: linear-gradient(145deg, #fbfbfc 0%, #e9eaee 40%, #d6d8de 100%);
-  box-shadow:
-    inset 0 0 0 1.5px #c9ccd2, inset 0 2px 1px rgba(255,255,255,0.95), inset 0 -3px 4px rgba(0,0,0,0.08),
-    0 0 0 2px #b7bac1, 0 24px 60px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.25);
-  animation: phin2 .28s cubic-bezier(.2,.9,.3,1.15);
-}
-@keyframes phin2 { from { transform: translateY(40px) scale(.96); opacity: 0 } to { transform: none; opacity: 1 } }
-.phshell::before, .phshell::after { display: none; }
-.phshell i[class^="phbtn-"] { background: linear-gradient(90deg, #cfd2d8, #f4f5f7 50%, #c3c6cc); border-radius: 3px;
-  box-shadow: 0 0 0 1px #aeb1b8; }
-.phbtn-silent { left: -4px; width: 4px; } .phbtn-up, .phbtn-down { left: -4px; width: 4px; } .phbtn-wake { right: -4px; width: 4px; }
-.phclose { right: -14px; top: -14px; width: 34px; height: 34px; border-radius: 50%; font-family: inherit; font-size: 20px;
-  color: #3a3a3c; background: rgba(245,245,247,0.96); box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.08); }
-.phclose:hover { background: #fff; }
-.phglass { border-radius: 47px; background: #000; box-shadow: 0 0 0 5px #0b0b0c, 0 0 0 6px #d0d3d8; }
-.phglass::after { display: none; }
+  
+
 /* the default wallpaper: soft bands of colour folding into each other */
-.phwall {
-  background:
-    radial-gradient(90% 55% at 15% 12%, rgba(255,214,170,0.95) 0%, rgba(255,214,170,0) 60%),
-    radial-gradient(80% 60% at 95% 30%, rgba(255,138,160,0.85) 0%, rgba(255,138,160,0) 62%),
-    radial-gradient(110% 70% at 10% 70%, rgba(120,110,255,0.9) 0%, rgba(120,110,255,0) 64%),
-    radial-gradient(90% 60% at 85% 95%, rgba(40,150,255,0.95) 0%, rgba(40,150,255,0) 60%),
-    linear-gradient(170deg, #ffb48a 0%, #f07aa4 30%, #8f6cf0 62%, #2f7af0 100%);
-  image-rendering: auto;
-}
-.phwall::after { content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0) 22%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.22)); }
-.phstatus { padding: 14px 26px 6px; background: none; box-shadow: none; color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 0; }
-.phstatus b { font-weight: 600; }
-.phisland { display: block; position: absolute; left: 50%; top: 10px; width: 92px; height: 26px; margin-left: -46px;
-  background: #000; border-radius: 14px; }
-.phsig i { background: #fff; border-radius: 1px; } .phsig i:nth-child(4) { background: rgba(255,255,255,0.4); }
-.phwifi { filter: brightness(10); }
-.phbatt { width: 24px; height: 12px; padding: 1.5px; border-radius: 4px; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.55); }
-.phbatt::after { right: -3px; top: 4px; width: 2px; height: 4px; border-radius: 0 1px 1px 0; background: rgba(255,255,255,0.55); }
-.phbatt i { border-radius: 2px; background: #fff; }
-.phapp-view .phstatus, .phglass:has(.phapp-view:not([hidden])) .phstatus { color: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phsig i { background: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phbatt { box-shadow: inset 0 0 0 1.5px rgba(0,0,0,0.4); }
-.phglass:has(.phapp-view:not([hidden])) .phbatt i { background: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phwifi { filter: none; }
+
+ 
 
 /* home screen */
-.phhome-view { padding: 10px 18px 0; }
-.phwidget { margin: 6px 2px 18px; padding: 12px 14px; border-radius: 22px; color: #fff;
-  background: rgba(255,255,255,0.22); backdrop-filter: blur(24px) saturate(1.4);
-  box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.45), 0 4px 18px rgba(40,20,80,0.18); }
-.phwidget h5 { color: rgba(255,255,255,0.85); font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
-.phwidget p { font-size: 16px; font-weight: 600; line-height: 1.3; }
-.phwidget .phwrow { color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 500; }
-.phwidget img.ico { filter: drop-shadow(0 1px 0 rgba(0,0,0,0.2)); }
-.phgrid { gap: 16px 14px; padding: 0 2px; background: none; box-shadow: none; }
-.phapp { gap: 5px; }
-.phapp i.phico { border-radius: 23%; background: linear-gradient(180deg, var(--t1), var(--t2));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 3px 8px rgba(30,10,60,0.28); }
-.phapp:hover i.phico { box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 3px 8px rgba(30,10,60,0.28); filter: brightness(1.06); }
-.phapp:active { transform: scale(0.92); transition: transform .08s; }
-.phapp img.ico { width: 64%; height: 64%; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.18)); }
-.phapp b { height: 14px; line-height: 14px; font-size: 11px; font-weight: 500; letter-spacing: 0; color: #fff;
-  text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.35); text-overflow: ellipsis; }
-.phdot { top: -5px; right: -5px; min-width: 20px; height: 20px; line-height: 20px; border-radius: 10px; padding: 0 5px;
-  font-size: 12px; font-weight: 600; background: #ff3b30; box-shadow: none; }
-.phdock { margin: auto 0 26px; padding: 12px 14px; gap: 14px; border-radius: 30px;
-  background: rgba(255,255,255,0.24); backdrop-filter: blur(26px) saturate(1.5);
-  box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.4); }
-/* the home indicator, and the one gesture a phone has left */
-.phbar { bottom: 19px; width: 128px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.92);
-  box-shadow: 0 0 2px rgba(0,0,0,0.3); }
-.phbar:hover { background: #fff; }
-.phbar:active { transform: translateX(-50%); box-shadow: 0 0 2px rgba(0,0,0,0.3); }
-.phglass:has(.phapp-view:not([hidden])) ~ .phbar { background: rgba(0,0,0,0.85); }
-
-/* an app, open: a light grouped list like the phone's own */
-.phapp-view { background: #f2f2f7; animation: phopen2 .22s cubic-bezier(.2,.9,.3,1); }
-@keyframes phopen2 { from { transform: scale(0.94); opacity: 0 } to { transform: none; opacity: 1 } }
-.phnav { padding: 8px 14px 6px; background: rgba(242,242,247,0.9); box-shadow: 0 0.5px 0 rgba(0,0,0,0.15); }
-.phnav b { font-size: 16px; font-weight: 600; color: #000; letter-spacing: 0; }
-.phback { font-family: inherit; font-size: 15px; color: #007aff; }
-.phback:hover { color: #3395ff; }
-.phscreen { padding: 12px 14px 34px; gap: 8px; }
-.phscreen::-webkit-scrollbar-track { background: transparent; }
-.phscreen::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
-.phcard, .phcard.big { padding: 12px 14px; border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
-.phcardh { color: #000; font-size: 15px; font-weight: 600; }
-.phcard p { color: #3c3c43; font-size: 13px; }
-.phmeta { color: #8e8e93; font-size: 12px; }
-.phsub { margin: 14px 4px 2px; font-size: 12px; font-weight: 500; letter-spacing: 0.4px; color: #6d6d72; }
-.phrow { padding: 10px 14px; border-radius: 12px; color: #000; font-size: 14px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-.phnum { color: #8e8e93; font-weight: 500; }
-.phdim, .phrow .phdim { color: #8e8e93; font-size: 12px; }
-.phbar2 { height: 6px; border-radius: 3px; background: #e5e5ea; box-shadow: none; }
-.phbar2 i { border-radius: 3px; box-shadow: none; }
-.phstat { color: #3c3c43; font-size: 12px; }
-.phwant em { border-radius: 10px; padding: 3px 9px; font-size: 11px; letter-spacing: 0; color: #fff; background: #ff9500; box-shadow: none; }
-.phok { color: #34c759; font-size: 12px; font-weight: 500; }
-.phbtn { border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 600; color: #007aff; background: #e9e9ef; box-shadow: none; }
-.phbtn.go { color: #fff; background: #007aff; box-shadow: none; }
-.phbtn:active { transform: scale(0.97); }
-.phgroup { border-radius: 12px; overflow: hidden; background: #fff; box-shadow: none; }
-.phset { color: #000; font-size: 15px; box-shadow: inset 0 -0.5px 0 #d1d1d6; }
-.phset small { color: #8e8e93; font-size: 12px; }
-.phsw { width: 51px; height: 31px; border-radius: 16px; background: #e9e9eb; box-shadow: none; transition: background .2s; }
-.phsw i { left: 2px; top: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16); transition: left .2s ease; }
-.phsw.on { background: #34c759; box-shadow: none; }
-.phsw.on i { left: 22px; background: #fff; box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16); }
-.phset .phgo { border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; color: #fff; background: #ff3b30; box-shadow: none; }
-.phthread { padding: 10px 12px; border-radius: 12px; background: #fff; color: #000; box-shadow: none; }
-.phthread:hover { background: #fafafa; }
-.phava { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(#c7cbd3, #8e939c); box-shadow: none; }
-.phthread .phtx b { font-size: 15px; font-weight: 600; }
-.phthread .phtx small { color: #8e8e93; font-size: 13px; }
-.phunread { width: 10px; height: 10px; border-radius: 50%; background: #007aff; box-shadow: none; }
-.phmsg { clip-path: none; border-radius: 18px; font-size: 14px; padding: 8px 12px; }
-.phmsg.them { background: #e9e9eb; color: #000; border-bottom-left-radius: 5px; }
-.phmsg.me { background: #0a84ff; color: #fff; border-bottom-right-radius: 5px; }
-.phreply { border-radius: 16px; font-family: inherit; font-size: 13px; color: #007aff; background: #fff; box-shadow: inset 0 0 0 1px #c7c7cc; }
-.phreply:hover { background: #007aff; color: #fff; }
-.phphoto { border-radius: 4px; box-shadow: none; background: #d1d1d6; }
-.phphoto em { background: rgba(0,0,0,0.5); color: #fff; }
-.phviewfinder { border-radius: 14px; box-shadow: none; }
-.phshutter { width: 64px; height: 64px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px #f2f2f7, 0 0 0 7px #c7c7cc; }
-.phshutter:active { transform: scale(0.92); }
 
 /* the lock screen */
-.phlock { padding: 12px 14px 0; }
-.phlockclock { margin: 14px 0 22px; color: #fff; }
-.phlockclock b { font-size: 76px; font-weight: 700; letter-spacing: -2px; text-shadow: 0 2px 12px rgba(40,10,80,0.25); }
-.phlockclock span { order: -1; margin: 0 0 4px; font-size: 16px; font-weight: 600; letter-spacing: 0; color: rgba(255,255,255,0.9); text-shadow: none; }
-.phlockclock { display: flex; flex-direction: column; }
-.phnote { padding: 11px 13px; border-radius: 20px; color: #000;
-  background: rgba(255,255,255,0.62); backdrop-filter: blur(24px) saturate(1.6); box-shadow: none; }
-.phnote:hover { background: rgba(255,255,255,0.78); }
-.phnico { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(#fff, #e6e6ea); box-shadow: none; }
-.phnico img.ico { width: 22px; height: 22px; }
-.phntx b { font-size: 11px; font-weight: 600; letter-spacing: 0.3px; color: rgba(0,0,0,0.55); text-transform: uppercase; }
-.phntx em { font-size: 14px; font-weight: 600; }
-.phntx small { color: rgba(0,0,0,0.7); font-size: 13px; }
-.phswipe { padding: 12px 0 34px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: rgba(255,255,255,0.85); text-shadow: none; }
 
 /* the app store */
-.phstorehead { padding: 4px 4px 8px; }
-.phstorehead b { display: block; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: #000; }
-.phstorehead small { font-size: 13px; color: #8e8e93; }
-.phstoreitem { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: #fff; }
-.phstoreitem i.phico { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 52px; height: 52px;
-  border-radius: 23%; background: linear-gradient(180deg, var(--t1), var(--t2)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45); }
-.phstoreitem img.ico { width: 64%; height: 64%; image-rendering: pixelated; }
-.phstoreitem .phtx { flex: 1 1 auto; min-width: 0; }
-.phstoreitem .phtx b { display: block; font-size: 15px; font-weight: 600; color: #000; }
-.phstoreitem .phtx small { display: block; font-size: 12px; line-height: 1.3; color: #8e8e93; }
-.phget { flex: 0 0 auto; min-width: 70px; padding: 6px 14px; border: 0; border-radius: 16px; cursor: pointer;
-  font-family: inherit; font-size: 14px; font-weight: 700; color: #007aff; background: #eef0f6; }
-.phget:hover { background: #e2e6f0; }
-.phget.own { color: #007aff; }
-.phget:active { transform: scale(0.95); }
-.phglass:has(.phapp-view:not([hidden])) .phstatus { background: #f2f2f7; color: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phstatus b { color: #000; }
-.phglass:has(.phapp-view:not([hidden])) .phwifi { filter: brightness(0); }
 
 /* ---- the toolbar, cozier ---------------------------------------------------
    One oak tray along the bottom, tan wells sunk into it, the tool in hand in a

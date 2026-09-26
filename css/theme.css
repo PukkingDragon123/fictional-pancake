@@ -153,10 +153,6 @@ button { color: var(--ink); font-family: var(--f); }
 .mbtn img.ico { width: 24px; height: 24px; }
 .rbtn:not(.big) { filter: drop-shadow(2px 3px 0 rgba(60,20,4,0.45)); }
 .rbtn b { color: var(--ink) !important; -webkit-text-stroke: 0 !important; text-shadow: none !important; }
-.phonebtn .pbtx b { color: var(--ink) !important; text-shadow: 1px 1px 0 var(--pp2) !important; }
-.phonebtn .pbtx small { color: var(--ink2) !important; }
-.phonebtn:hover .pbtx b { color: var(--fr3) !important; }
-.phonebtn i { background: var(--tomato) !important; color: #ffffff !important; box-shadow: 0 0 0 2px var(--ol) !important; }
 .zbtn { color: var(--ink) !important; font-size: 18px; }
 #zbar { background: #b07838 !important; border: 2px solid var(--ol) !important; box-shadow: inset 2px 2px 0 rgba(0,0,0,0.25) !important; }
 #znub { background: var(--sun) !important; border: 2px solid var(--ol) !important; }
@@ -187,7 +183,6 @@ button { color: var(--ink); font-family: var(--f); }
 @keyframes newbob { 0%, 100% { transform: translate(-50%, 0) } 50% { transform: translate(-50%, -3px) } }
 @keyframes wantpulse { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 0 #f0c048) drop-shadow(3px 0 0 #f0c048) drop-shadow(-3px 0 0 #f0c048) drop-shadow(0 3px 0 #f0c048) drop-shadow(0 -3px 0 #f0c048); } }
 #toasts { bottom: 122px !important; }
-#b-phone.nophone { display: none !important; }
 
 .help ol { color: var(--ink) !important; }
 .help b { color: var(--fr3); }
@@ -266,36 +261,3 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 .uhow img.ico { display: inline-block; vertical-align: -4px; }
 .ucard .act { padding: 8px 26px; }
 
-/* ---- the phone, in pixels ----------------------------------------------------------------------------
-   Still the white phone with the island and the default wallpaper, but cut
-   from whole pixels: stepped corners, the pixel font, square app tiles. */
-.phshell, .phshell * { font-family: var(--f) !important; letter-spacing: 0.5px; }
-.phshell { clip-path: polygon(0 24px, 6px 24px, 6px 12px, 12px 12px, 12px 6px, 24px 6px, 24px 0, calc(100% - 24px) 0, calc(100% - 24px) 6px, calc(100% - 12px) 6px, calc(100% - 12px) 12px, calc(100% - 6px) 12px, calc(100% - 6px) 24px, 100% 24px,
-  100% calc(100% - 24px), calc(100% - 6px) calc(100% - 24px), calc(100% - 6px) calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) calc(100% - 6px), calc(100% - 24px) calc(100% - 6px), calc(100% - 24px) 100%,
-  24px 100%, 24px calc(100% - 6px), 12px calc(100% - 6px), 12px calc(100% - 12px), 6px calc(100% - 12px), 6px calc(100% - 24px), 0 calc(100% - 24px));
-  background: #f4f4f8 !important; box-shadow: inset 0 0 0 4px #c8ccd4, inset 6px 6px 0 4px #ffffff, inset -6px -6px 0 4px #a8acb8 !important; padding: 16px !important; }
-.phglass { clip-path: polygon(0 16px, 8px 16px, 8px 8px, 16px 8px, 16px 0, calc(100% - 16px) 0, calc(100% - 16px) 8px, calc(100% - 8px) 8px, calc(100% - 8px) 16px, 100% 16px,
-  100% calc(100% - 16px), calc(100% - 8px) calc(100% - 16px), calc(100% - 8px) calc(100% - 8px), calc(100% - 16px) calc(100% - 8px), calc(100% - 16px) 100%,
-  16px 100%, 16px calc(100% - 8px), 8px calc(100% - 8px), 8px calc(100% - 16px), 0 calc(100% - 16px)); box-shadow: none !important; }
-.phclose { right: 4px !important; top: 4px !important; z-index: 10; background: var(--tomato) !important; color: #fff !important; border: 3px solid var(--ol) !important; box-shadow: none !important; font-size: 16px !important; }
-.phapp i.phico, .phstoreitem i.phico, .phnico { box-shadow: inset 3px 3px 0 rgba(255,255,255,0.45), inset -3px -3px 0 rgba(0,0,0,0.2), 0 0 0 2px rgba(20,20,40,0.55) !important; }
-.phapp i.phico { background: var(--t2) !important; }
-.phwidget, .phdock, .phnote { backdrop-filter: none !important; box-shadow: 0 0 0 2px rgba(255,255,255,0.6) !important; }
-.phwidget, .phdock { background: rgba(255,255,255,0.28) !important; }
-.phnote { background: rgba(255,255,255,0.86) !important; }
-.phsw i { box-shadow: 0 0 0 2px #8a8a98 !important; }
-.phbar { height: 6px !important; }
-.phlockclock b { font-size: 60px !important; font-weight: 400 !important; letter-spacing: 2px !important; text-shadow: 4px 4px 0 rgba(60,20,90,0.35) !important; }
-.phwall { background: linear-gradient(180deg, #ff9a50 0%, #ff5a8a 28%, #8a4af0 60%, #1a6aff 100%) !important; }
-.phwall::after { background: repeating-linear-gradient(180deg, rgba(0,0,0,0.05) 0 4px, transparent 4px 8px) !important; }
-.phmsg.them, .phmsg.me { clip-path: polygon(0 4px, 4px 4px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)); }
-
-/* lost in the back room: no purse, no buttons, just the tape running */
-body.noclip #money, body.noclip #mini { display: none !important; }
-
-/* Wombat Hop, on the phone */
-.phgame { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.phgame canvas { width: 100%; max-width: 270px; aspect-ratio: 180 / 240; image-rendering: pixelated; cursor: pointer;
-  border: 3px solid #2a2a3a; box-shadow: 4px 4px 0 rgba(0,0,0,0.25); touch-action: none; }
-.phscreen.app-games { background: #2a2a3a; }
-.phscreen.app-games .phsub { color: #ffe890; text-align: center; }

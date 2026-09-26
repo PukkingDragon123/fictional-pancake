@@ -55,11 +55,7 @@ const Talk = (() => {
     },
   };
 
-  SPEAKERS.kid = {
-    name: 'A Kid', sub: 'on a bike',
-    bg: ['#5a8ab0', '#2f5a7a'],
-    draw(mood, t) { return { img: Sprites.wombat(mood === 'happy' ? 'happy' : 'idle', Math.floor(t * 5), 'sand', 1, 'juvenile'), sc: 2.4, dy: 0 }; },
-  };
+
   // Every villager is the same speaker with a different kit, so one entry
   // covers the lot: `villager:bee`, `villager:post`, and so on.
   for (const key of Object.keys(Sprites.VILLAGERS)) {

@@ -9,7 +9,7 @@ const Guide = (() => {
   const HUT = { x: 724, y: 0 };
   // the speech bubble: what he is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [0, 15, 20, 20, 25, 0, 20, 25, 30, 30, 30, 40, 50];
+  const REWARD = [0, 15, 20, 20, 25, 20, 25, 30, 30, 30, 40, 50];
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
@@ -73,20 +73,10 @@ const Guide = (() => {
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
-      key: 'phone', mood: 'talk', icon: 'ph_key', title: 'Buy a phone', praise: 'Welcome to this century.',
-      say: "You'll want a phone for this job. The mart has them.",
-      lesson: [
-        { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
-        { say: "You'll want a phone. Text the neighbours, take pictures of her, and play Wombat Hop. I'm on level 40. The mart has them now.", mood: 'talk' },
-      ],
-      unlock: ['phone'], label: 'DRIVE TO THE MART',
-      note: 'Buy a phone at Wombat Mart, then press P: messages, a camera and Wombat Hop.',
-      at: () => MART(), aty: () => MARTY(), done: (g) => has(g, 'phone'),
-    },
-    {
       key: 'sow', mood: 'talk', icon: 't_hoe', title: 'Dig a bed and sow it', praise: 'Sown. Good hands.',
       say: 'She will need feeding. Hoe a bed and sow some carrots.',
       lesson: [
+        { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
         { say: "She'll need feeding, so let's grow something.", mood: 'think' },
         { say: "A Hoe and a Seed Pouch are at the mart now. Get carrot seed from Groot's Cellar.", mood: 'talk' },
         { say: 'Hoe a patch of bare ground into a bed, then sow the seed on it.', mood: 'happy' },
@@ -170,6 +160,8 @@ const Guide = (() => {
     G = g;
     if (!G.visited) G.visited = {};
     if (typeof G.step !== 'number') G.step = 0;
+    // the phone used to be job six; a farm saved past it moves back one
+    if (!G.nophone) { if (G.step > 5) G.step--; G.nophone = 1; }
     if (!G.lessons) G.lessons = {};
     if (!G.unlocked) G.unlocked = {};
     // a farm further along has already had these lessons, and learnt these tools
@@ -213,7 +205,7 @@ const Guide = (() => {
         'Lovely day for it.', 'I looked after this place for twenty years.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
-        'Hot one today.', 'The gum trees smell like home.', 'Captain Clark sells furniture. Never go in his back room.', 'Clark reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
+        'Hot one today.', 'The gum trees smell like home.', 'Captain Clark sells furniture. Mind the cat on his counter.', 'Clark reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
       ] },
   ];
   let chatT = 14 + Math.random() * 10, lastChat = '';
@@ -314,7 +306,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: "Wombat Mart for tools, the phone and more wombats. Groot for seed and saplings. Captain Clark's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
+        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Clark's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {
@@ -343,22 +335,6 @@ const Guide = (() => {
     cult.pose = 'jump'; cult.castT = 0; cult.t = 0; cult.still = 0;
     Audio.play('chime');
     FX.sparkle(cult.x, cult.y - 40, 12, PAL.gold3);
-    // and he texts you about it afterwards, like anyone would
-    const AFTER = {
-      weeds: 'Good job on the weeds. They do creep back, mind.',
-      junk: 'The ants said you were very polite.',
-      grass: 'Green suits it. Keep the water up.',
-      arrive: 'She picked you! Legend.',
-      phone: 'Jim here. Saved my number for you. Beat my Wombat Hop score. You cannot.',
-      sow: 'A bed in the ground is dinner in the ground.',
-      pick: 'Anything you grow, she will eat.',
-      feed: 'One fed wombat. Try three!',
-      load: 'That old truck is good for something after all.',
-      fert: 'Told you. Poo is gold.',
-      sell: 'Pleasure. Bring me everything!',
-      shovel: 'That is the whole job. The rest is up to you, mate.',
-    };
-    if (AFTER[s.key]) setTimeout(() => Phone.push('cultist', AFTER[s.key]), 2600);
     UI.refreshAll();           // a finished step can hand over a new tool
     UI.refreshNotebook();
     Main.save();
@@ -665,11 +641,11 @@ const Guide = (() => {
     };
   }
   function toggle() { hidden = !hidden; UI.refreshNotebook(); }
-  // The job in hand, in the shape the phone wants it: a title, the long form of
+  // The job in hand, in the shape the notebook wants it: a title, the long form of
   // what she said, where it has to happen, and what she pays for it.
   const WHERE = {
     meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
-    arrive: 'in the grove', phone: 'Wombat Mart', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
+    arrive: 'in the grove', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
     feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere',
   };
   function current() {

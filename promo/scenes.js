@@ -113,63 +113,66 @@
   }
 
   // ---- the banner: 480 x 160, shown at 2x: everybody dancing and singing ------------------------
-  const BAND = ['bee', 'fish', 'post', 'bake', 'bota', 'bard', null, 'ranger', 'grimm', 'joiner', 'clark', 'warren'];
+  // the whole cast: Groot, Shaz, Jim in the middle, Captain Clark
+  const BAND = [
+    { key: 'groot', x: 118, sc: 0.95, poses: ['happy', 'wave'], sprite: (f, p) => Sprites.groot(f, p), note: 72 },
+    { key: 'shaz', x: 196, sc: 1.25, poses: ['cheer', 'wave'], sprite: (f, p) => Sprites.cashier(f, p), note: 58 },
+    { key: 'jim', x: 282, sc: 0.95, poses: ['cheer', 'clap'], sprite: (f, p) => Sprites.jim(f, p), note: 86 },
+    { key: 'clark', x: 364, sc: 1.55, poses: ['wave', 'talk'], sprite: (f, p) => Sprites.villager('clark', f, p), note: 72 },
+  ];
   function banner(g, u) {
-    const W = 480, H = 160, GY = 138;
+    const W = 480, H = 160, GY = 140;
     Art.vramp(g, 0, 0, W, GY, [[0, '#4a5aa8'], [0.5, '#c078a8'], [1, '#f8b878']], 10);
     for (let i = 0; i < 26; i++) { const tw = (u * 4 + i * 0.37) % 1; if (tw < 0.6) R(g, (i * 67) % W, (i * 23) % 44, 1, 1, tw < 0.3 ? '#ffffff' : '#c8c8f0'); }
-    Art.ell(g, 420, 26, 10, 10, '#fff4d0'); Art.ell(g, 424, 23, 8, 8, '#d8a8c0');
+    Art.ell(g, 440, 24, 10, 10, '#fff4d0'); Art.ell(g, 444, 21, 8, 8, '#d8a8c0');
     hills(g, W, 104, ['#4a6a58', '#3a5a40'], u, 6);
     trees(g, W, 124, 13, 77, 0.45, 0.5);
-    R(g, 0, GY - 10, W, H, '#5a8a3a'); R(g, 0, GY - 10, W, 2, '#7aaa4a');
-    for (let i = 0; i < 60; i++) R(g, (i * 41) % W, GY - 6 + (i * 13) % 26, 1, 2, i % 2 ? '#4a7a32' : '#7aaa4a');
+    R(g, 0, GY - 12, W, H, '#5a8a3a'); R(g, 0, GY - 12, W, 2, '#7aaa4a');
+    for (let i = 0; i < 60; i++) R(g, (i * 41) % W, GY - 8 + (i * 13) % 28, 1, 2, i % 2 ? '#4a7a32' : '#7aaa4a');
     // a string of fairy lights, blinking on the beat
     const beat = Math.floor(u * 8);
-    for (let x = 0; x < W; x += 2) { const y = 44 + Math.abs(Math.sin((x / W) * Math.PI * 3)) * -10 + 10; R(g, x, y, 2, 1, '#2a1a20'); }
+    const ly = (x) => 44 + Math.abs(Math.sin((x / W) * Math.PI * 3)) * -10 + 10;
+    for (let x = 0; x < W; x += 2) R(g, x, ly(x), 2, 1, '#2a1a20');
     for (let i = 0; i < 30; i++) {
-      const x = 8 + i * 16, y = 44 + Math.abs(Math.sin((x / W) * Math.PI * 3)) * -10 + 11;
+      const x = 8 + i * 16, y = ly(x) + 1;
       const col = ['#ff6a6a', '#ffd84a', '#6ae08a', '#6ab8ff', '#e08aff'][i % 5], on = (i + beat) % 2 === 0;
       if (on) Art.glow(g, x, y + 2, 9, col, 0.35, 3);
       R(g, x - 1, y, 3, 4, on ? col : U.shade(col, -0.45)); if (on) R(g, x - 1, y, 1, 1, '#ffffff');
     }
-    // the plaque with the name on it
-    Kit.card(g, W / 2 - 110, 4, 220, 40, {});
-    title(g, 'WOMBAT FARM', W / 2, 13, 3, u, { wave: 1 });
-    // the band: everybody in a line, bouncing on the beat, turning each bar
-    const n = BAND.length, span = W - 40;
-    BAND.forEach((k, i) => {
-      const x = 20 + (i + 0.5) * (span / n);
-      const ph = (u * 8 + (i % 2) * 0.5) % 1, hop = Math.abs(Math.sin(ph * Math.PI)) * (k ? 5 : 4);
-      const bar = Math.floor(u * 4), flip = (bar + i) % 2 === 1;
-      const squash = ph < 0.1 || ph > 0.9 ? 0.94 : 1;
-      g.fillStyle = 'rgba(20,30,20,0.35)'; Art.ell(g, x, GY + 2, k ? 9 : 14, 2.5);
-      if (k) {
-        const pose = (Math.floor(u * 8) + i) % 2 ? 'wave' : 'talk';
-        blit(g, Sprites.villager(k, Math.floor(u * 24) % 6, pose), x, GY + 3 - hop, 1, flip, squash);
-      } else {
-        const pose = Math.floor(u * 8) % 2 ? 'cheer' : 'clap';
-        blit(g, Sprites.jim(Math.floor(u * 24) % 6, pose), x, GY + 6 - hop, 0.78, false, squash);
-      }
-      // everybody singing: notes coming off them in turn
-      for (let j = 0; j < 2; j++) {
-        const v = (u * 2 + i * 0.13 + j * 0.5) % 1;
+    // a little stage of planks for them to dance on
+    R(g, 70, GY - 4, 340, 10, '#2a1406'); R(g, 72, GY - 4, 336, 8, '#a86a34'); R(g, 72, GY - 4, 336, 2, '#d8964c');
+    for (let x = 90; x < 408; x += 24) R(g, x, GY - 2, 1, 6, '#6a3a18');
+    // the plaque with the name on it, on the beat
+    const pb = Math.abs(Math.sin(u * Math.PI * 8)) * 1.5;
+    Kit.card(g, W / 2 - 110, 4 - pb, 220, 40, {});
+    title(g, 'WOMBAT FARM', W / 2, 13 - Math.round(pb), 3, u, { wave: 1 });
+    // the band: bouncing on the beat, turning each bar, singing
+    BAND.forEach((m, i) => {
+      const ph = (u * 8 + (i % 2) * 0.5) % 1, hop = Math.abs(Math.sin(ph * Math.PI)) * 6;
+      const bar = Math.floor(u * 4), flip = m.key !== 'jim' && (bar + i) % 2 === 1;
+      const squash = ph < 0.1 || ph > 0.9 ? 0.93 : 1;
+      const sway = Math.sin(u * TAU * 4 + i) * 3;
+      g.fillStyle = 'rgba(20,10,0,0.35)'; Art.ell(g, m.x + sway, GY - 3, 12 - hop * 0.6, 2.5);
+      const pose = m.poses[(Math.floor(u * 8) + i) % 2];
+      blit(g, m.sprite(Math.floor(u * 24) % 6, pose), m.x + sway, GY - 1 - hop, m.sc, flip, squash);
+      for (let j = 0; j < 3; j++) {
+        const v = (u * 2 + i * 0.21 + j / 3) % 1;
         if (v > 0.8) continue;
-        const nx = x + 6 + Math.sin(v * TAU * 1.5 + i) * 5, ny = GY - (k ? 48 : 64) - v * 26;
+        const nx = m.x + 10 + Math.sin(v * TAU * 1.5 + i) * 6, ny = GY - m.note - v * 30;
         note(g, Math.round(nx), Math.round(ny), ['#ffd84a', '#ff8aa8', '#8ae0ff', '#b8f07a'][(i + j) % 4], j === 0);
       }
     });
-    // wombats in the front row, doing their best
-    const WB = [['brown', 70], ['grey', 150], ['sand', 240], ['pale', 330], ['soot', 410]];
-    WB.forEach(([pelt, x], i) => {
-      const ph = (u * 8 + i * 0.25) % 1, hop = Math.abs(Math.sin(ph * Math.PI)) * 4;
-      g.fillStyle = 'rgba(20,30,20,0.35)'; Art.ell(g, x, H - 4, 9, 2);
-      blit(g, Sprites.wombat('happy', Math.floor(u * 16) % 8, pelt, (Math.floor(u * 4) + i) % 2 ? 1 : -1, 'adult'), x, H - 1 - hop, 0.62);
+    // wombats along the front, bopping, on their short little legs
+    const WB = [['brown', 40, 0], ['grey', 88, 0.5], ['sand', 164, 0.25], ['pale', 240, 0.75], ['soot', 318, 0.1], ['brown', 396, 0.6], ['sand', 444, 0.35]];
+    WB.forEach(([pelt, x, off], i) => {
+      const ph = (u * 8 + off) % 1, hop = Math.abs(Math.sin(ph * Math.PI)) * 4;
+      g.fillStyle = 'rgba(20,30,20,0.35)'; Art.ell(g, x, H - 4, 10, 2);
+      blit(g, Sprites.wombat('happy', Math.floor(u * 16) % 8, pelt, (Math.floor(u * 4) + i) % 2 ? 1 : -1, 'adult'), x, H + 3 - hop, 0.7);
     });
     // and the words, a line at a time over whoever has them
-    const LY = ['la la la!', 'WOMBAT FARM!', 'dig dig dig!', 'cubes for everyone!'];
-    const li = Math.floor(u * 4) % 4, who = [1, 6, 9, 3][li];
-    const bx = 20 + (who + 0.5) * (span / n);
-    Kit.bubble(g, bx, GY - (who === 6 ? 70 : 52), LY[li], { maxW: 120 });
+    const LY = ['I am Groot!', 'la la la!', 'WOMBAT FARM!', 'yo ho ho!'];
+    const li = Math.floor(u * 4) % 4, m = BAND[li];
+    Kit.bubble(g, m.x, GY - m.note - 6, LY[li], { maxW: 120 });
   }
 
   // render frames of a scene at 2x and hand back RGBA for the encoder

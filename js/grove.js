@@ -1078,7 +1078,7 @@ const Grove = (() => {
       }
       // things watching from the second row
       // haze thickens toward the back of the wood
-      const hz = (0.14 - d * 0.025) * (0.4 + Sky.light() * 0.6);
+      const hz = (0.07 - d * 0.015) * (0.4 + Sky.light() * 0.6);
       {                                       // soft sunny haze toward the back of the wood
         const hc = Sky.light() > 0.4 ? '#e4f2d8' : '#3a4a70', hy0 = SKY - 56 + d * 13;
         for (let i = 0; i < 5; i++) {
@@ -1086,7 +1086,8 @@ const Grove = (() => {
           Art.dither(g, L, hy0 + i * 14, R - L, 15, hc, aa);
         }
       }
-      // fog banks caught between the trunks
+      // fog banks caught between the trunks, only in the early morning
+      if (Sky.light() > 0.35) continue;
       for (const m of mist) {
         if (m.d !== Math.min(2, d)) continue;
         const mx = m.x + drift * PAR[d];
@@ -1120,8 +1121,8 @@ const Grove = (() => {
       g.drawImage(img, Math.round(ox - 12), Math.round(o.y - 26));
     }
     World.drawGround(g);
-    // ground fog rolling off the treeline into the plot
-    for (const m of mist) {
+    // ground fog rolling off the treeline into the plot, before the sun is up
+    for (const m of (Sky.light() > 0.35 ? [] : mist)) {
       if (m.d !== 2) continue;
       const mx = m.x * 0.7 + 60;
       const a = (0.07 + (1 - f) * 0.1) * (0.6 + 0.4 * Math.sin(G.time * 0.3 + m.x));
@@ -1236,17 +1237,9 @@ const Grove = (() => {
     }
     g.restore();
 
-    // The grade: violet in the shadows, warm gold in the light. One pass, and
-    // it is what ties the wood to the rest of the game's colour.
-    g.save();
-    g.globalCompositeOperation = 'soft-light';
-    g.fillStyle = '#ffd9a0'; g.globalAlpha = 0.22; g.fillRect(0, 0, VW, VH);
-    g.globalAlpha = 0.5 + f * 0.2;
-    Art.glow(g, VW * 0.3, VH * 0.14, VH * 1.1, '#ffe296', 0.5, 6);
-    g.restore();
-
-    // the whole grove sits inside a soft violet frame
-    Art.vignette(g, VW, VH, '#6a4424', 0.14, 2.4, 0.5);          // a soft warm edge, nothing more
+    // No colour grade any more: the gold wash over everything read as a muddy
+    // filter. Clean colours, like the cover art, and the barest warm edge.
+    Art.vignette(g, VW, VH, '#3a2a14', 0.08, 2.6, 0.6);
     Sky.drawOver(g, VW, VH);          // the hour, the mist and the rain, over everything
     edgeArrows(g);
   }
@@ -1270,8 +1263,8 @@ const Grove = (() => {
         const pts = !at ? [[p.x0, y0], [p.x1, y0], [p.x1, y1], [p.x0, y1]]
           : sign.side > 0 ? [[p.x0, y0], [far, y0], [near, y1], [p.x0, y1]]
                           : [[far, y0], [p.x1, y0], [p.x1, y1], [near, y1]];
-        Art.poly(g, pts, 'rgba(26,18,42,0.52)');
-        Art.poly(g, pts, 'rgba(140,158,190,0.09)');
+        Art.poly(g, pts, 'rgba(40,34,20,0.24)');       // shaded, not blacked out
+        Art.poly(g, pts, 'rgba(255,236,190,0.06)');
       }
       if (at) fenceLine(g, at);
     }

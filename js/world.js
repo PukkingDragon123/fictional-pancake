@@ -567,15 +567,15 @@ const World = (() => {
     const f = fraction();
     g.drawImage(dirtTex(), 0, GROUND - 2);
     {                                        // the green creeping back over warm earth
-      g.globalAlpha = 0.18 + Math.min(0.4, f * 0.6);
-      g.fillStyle = U.mix('#55803c', '#477f33', f);
+      g.globalAlpha = 0.42 + Math.min(0.4, f * 0.6);
+      g.fillStyle = U.mix('#6aa84a', '#5a9a3e', f);
       g.fillRect(0, GROUND - 2, W, H - GROUND + 2);
       g.globalAlpha = 1;
     }
     // the treeline throws a band of shade across the back of the plot
     // the treeline throws shade forward, but as a long soft run rather than the
     // hard black stripe it used to lay across the top of the plot
-    for (let i = 0; i < 12; i++) Art.dither(g, 0, GROUND - 2 + i * 5, W, 5, '#2a3a1e', 0.14 * (1 - i / 12));
+    for (let i = 0; i < 6; i++) Art.dither(g, 0, GROUND - 2 + i * 5, W, 5, '#2a4a1e', 0.1 * (1 - i / 6));
     g.drawImage(grass, 0, 0);
     g.drawImage(soil, 0, 0);
   }

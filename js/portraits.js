@@ -41,10 +41,10 @@ const Portraits = (() => {
     const spec = {
       skin: [U.shade(sk, 0.14), sk, U.shade(sk, -0.14), U.shade(sk, -0.28)], blush: U.mix(sk, '#f08080', 0.35),
       hair: [U.shade(hr, 0.22), hr, U.shade(hr, -0.16), U.shade(hr, -0.32)],
-      cut: { bee: 'bun', fish: 'short', post: 'bob', bake: 'bun', bota: 'short', bard: 'long', ranger: 'short', grimm: 'short', joiner: 'short', warren: 'bun' }[key] || 'short',
-      hat: K.hat, brow: U.shade(hr, -0.2), wide: key === 'joiner' || key === 'fish' ? 1.06 : 1,
+      cut: 'short',
+      hat: K.hat, brow: U.shade(hr, -0.2), wide: 1,
       top: 'shirt', cloth: [U.shade(sh, 0.18), sh, U.shade(sh, -0.14), U.shade(sh, -0.28)], shirt: null,
-      collar: null, glasses: key === 'bota' ? '#2a2420' : null, stubble: key === 'fish' || key === 'joiner' ? U.shade(hr, -0.1) : null,
+      collar: null, glasses: null, stubble: null,
     };
     return spec;
   }

@@ -326,7 +326,9 @@ const Sprites = (() => {
     const rows = TPL_SIDE;
     const W2 = rows[0].length;
     const x0 = AX - 14 + Math.round((p.headFwd || 0) * 0.3);
-    const legLen = 4;
+    // short and stubby, always: when it hops the whole wombat leaves the ground,
+    // the legs do not stretch down to meet it
+    const legLen = 3;
     const y0 = GY - rows.length - legLen + bob;
     const headDy = Math.round(Math.min(4, (p.headDip || 0) * 0.5));
     // legs first, so the body sits on them; far pair a step back
@@ -334,9 +336,10 @@ const Sprites = (() => {
       LEGS_SIDE.forEach((lx, i) => {
         // the pose table orders legs [rear far, rear near, front far, front near]
         const pi = [2, 3, 0, 1][i];
-        const lift = Math.round(U.clamp((p.leg[pi] || 0) * 0.6 + p.tuck * 3, 0, 3));
+        const air = bob < -2 ? 1 : 0;
+        const lift = Math.round(U.clamp((p.leg[pi] || 0) * 0.5 + p.tuck * 2 + air, 0, 2));
         const fx = Math.round(U.clamp(-(p.legX[pi] || 0) * 0.45, -2, 2));
-        leg(x0 + (W2 - 1 - lx) - 2, y0 + rows.length - 2, legLen + (bob < 0 ? -bob : 0), lift, fx);
+        leg(x0 + (W2 - 1 - lx) - 2, y0 + rows.length - 2, legLen + Math.min(1, bob < 0 ? -bob : 0), lift, fx);
       });
     }
     lay(rows, x0, y0, { mirror: true, headCols: HEAD_X, headDy });
@@ -1738,29 +1741,8 @@ const Sprites = (() => {
   // they are carrying and what colour they are. They walk, they talk, they wave.
   const VW2 = 30, VH2 = 46, VX = 15, VGY = 45;
   const VILLAGERS = {
-    bee: { name: 'Maud', skin: '#e8bd92', hair: '#8a6a3a', shirt: '#f2ece0', pants: '#6b5a44',
-      hat: 'veil', prop: 'hive', why: 'with a jar of something' },
-    fish: { name: 'Errol', skin: '#c9955f', hair: '#3a3028', shirt: '#4a7a9a', pants: '#3a4a58',
-      hat: 'bucket', prop: 'rod', why: 'back from the lake' },
-    post: { name: 'Bev', skin: '#e0b088', hair: '#a8462c', shirt: '#c9581f', pants: '#2f3a4a',
-      hat: 'cap', prop: 'sack', why: 'with the post' },
-    bake: { name: 'Nonna', skin: '#d8a878', hair: '#cfc4b0', shirt: '#f0e0c8', pants: '#8a4520',
-      hat: 'kerchief', prop: 'tray', why: 'with a tray of something hot' },
-    bota: { name: 'Dr Finch', skin: '#a87850', hair: '#2e2a26', shirt: '#7a9a5a', pants: '#4a5238',
-      hat: 'wide', prop: 'press', why: 'looking for a plant' },
-    bard: { name: 'Little Ash', skin: '#f0cba0', hair: '#f5cd5c', shirt: '#7a58a8', pants: '#4a3a6a',
-      hat: 'none', prop: 'lute', why: 'with a song about you' },
-    ranger: { name: 'The Ranger', skin: '#d8a878', hair: '#5a4030', shirt: '#8a7a4a', pants: '#4a4a30',
-      hat: 'wide', prop: 'press', why: 'doing the rounds' },
-    // the three behind the counters in town
-    grimm: { name: 'Grimm', skin: '#c9b8a8', hair: '#2a2630', shirt: '#2e2436', pants: '#1c1822',
-      hat: 'cap', prop: 'sack', why: 'behind the pawnshop counter' },
-    joiner: { name: 'Odger', skin: '#d8a878', hair: '#8a6a3a', shirt: '#9a6a3a', pants: '#5a3a1c',
-      hat: 'none', prop: 'press', why: 'up to the elbows in shavings' },
     clark: { name: 'Captain Clark', skin: '#f0b890', hair: '#f4f2ea', shirt: '#1c3470', pants: '#20263a',
       hat: 'captain', prop: 'none', why: 'the Ottoman Empire' },
-    warren: { name: 'Mrs Warren', skin: '#e0b088', hair: '#b8b0a0', shirt: '#2f5a44', pants: '#3a4438',
-      hat: 'wide', prop: 'hive', why: 'minding the livestock' },
   };
   function villager(kind, frame, pose = 'idle') {
     const K = VILLAGERS[kind] || VILLAGERS.bee;

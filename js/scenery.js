@@ -30,7 +30,8 @@ const Scenery = (() => {
   }
   const px = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
   const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-  const bay = (x, y) => BAY[(y & 3) * 4 + (x & 3)] / 16;
+  // once a bayer threshold; a flat one gives clean bands instead of dots
+  const bay = () => 0.5;
   // draw a strip twice so it always covers the screen
   function strip(g, c, off, y) {
     const ox = -Math.round(wrap(off, PW));
