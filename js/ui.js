@@ -31,6 +31,7 @@ const UI = (() => {
       }
     }
     $('b-back').hidden = G.mode === 'grove';
+    if ($('b-build')) $('b-build').hidden = G.mode !== 'grove' || !G.arrived;
     {
       // The head-up belongs to the game, not the title screen or the intro.
       const off = G.mode === 'menu' || G.mode === 'intro';
@@ -488,7 +489,7 @@ const UI = (() => {
   function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat'];
+  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat', 'panel-build'];
   function openPanel(id) {
     closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click');
     if (id === 'panel-basket') renderBasket();
@@ -671,9 +672,13 @@ const UI = (() => {
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
       if (Talk.isOpen() && Talk.key(e)) { e.preventDefault(); return; }
-      if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
+      if (e.key === 'Escape') {
+        if (G.mode === 'intro') Intro.skip();
+        else if (anyPanel()) { closePanels(); e.stopImmediatePropagation(); e.preventDefault(); }   // closing a panel is all Esc does
+      }
     });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
+    Factory.bindMenu();
     $('b-fx').onclick = () => { const on = Main.toggleShader(); $('b-fx').textContent = on ? 'SHADERS ON' : 'SHADERS OFF'; Audio.play('click'); };
     $('b-fx').textContent = Shader.on ? 'SHADERS ON' : 'SHADERS OFF';
     if (!Shader.ok) $('b-fx').hidden = true;

@@ -136,16 +136,6 @@ const Atlas = (() => {
     }
   }
   // the animals. Each one is four or five pixels and that is all it needs.
-  // A tidy little block of a wombat: outlined, stubby legs, an ear and an eye.
-  function wombat(q, x, y) {
-    x = Math.round(x); y = Math.round(y);
-    Art.rect(q, x - 4, y - 3, 9, 5, '#2a1a10');                // the outline
-    Art.rect(q, x - 3, y - 2, 7, 3, '#b86a3c');                // the body
-    Art.rect(q, x - 3, y - 2, 7, 1, '#d88a58');                // lit along the back
-    Art.rect(q, x + 3, y - 4, 1, 1, '#2a1a10');                // an ear
-    Art.rect(q, x + 2, y - 1, 1, 1, '#2a1a10');                // the eye
-    Art.rect(q, x - 3, y + 2, 1, 1, '#2a1a10'); Art.rect(q, x + 2, y + 2, 1, 1, '#2a1a10');   // stubby feet
-  }
   function duck(q, x, y) {
     Art.ell(q, x, y, 3.4, 2.4, '#b4b0a2'); Art.rect(q, x + 2, y - 3, 2, 3, '#b4b0a2');
     Art.rect(q, x + 4, y - 2, 2, 1, '#c08a2a'); Art.rect(q, x + 3, y - 3, 1, 1, '#141008');
@@ -338,8 +328,6 @@ const Atlas = (() => {
           const a = (k / 10) * TAU;
           Art.rect(q, bx + 4 + Math.cos(a) * 12, by + 3 + Math.sin(a) * 8, 1, 2, '#a58050');
         }
-        wombat(q, bx + 4 + (r() - 0.5) * 12, by + 4 + (r() - 0.5) * 8);
-        if (r() < 0.5) wombat(q, bx + 2 + (r() - 0.5) * 12, by + 6 + (r() - 0.5) * 6);
       }
     }
     // ---- the small living things -------------------------------------------
@@ -353,7 +341,6 @@ const Atlas = (() => {
       }
       return null;
     };
-    for (let i = 0; i < 16; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
     for (let i = 0; i < 26; i++) mushroom(q, r() * HW, r() * HH, ['#7a3a4a', '#6a5a2a', '#5a4a72'][i % 3]);
     for (let i = 0; i < 80; i++) flower(q, r() * HW, r() * HH, ['#7a5a72', '#6a6a3a', '#5a4a72', '#8a9088'][i % 4]);
     for (let i = 0; i < 14; i++) bird(q, r() * HW, 4 + r() * (HH * 0.5));
@@ -378,9 +365,9 @@ const Atlas = (() => {
 
     // ---- the names, at full resolution so they stay readable ---------------
     for (const [lx, ly, tx2, col] of [
-      [330, 246, 'WOMBAT FLAT', '#9cb88a'], [112, 74, 'FERN GULLY', '#9cb88a'],
-      [512, 44, 'STILL LAKE', '#8ab4c8'], [248, 128, 'THE SCRUB', '#9cb88a'],
-      [560, 292, 'BLACKWOOD', '#9cb88a'], [128, 320, 'STONE FLAT', '#9cb88a'],
+      [330, 246, 'WOMBAT FLAT', '#9cb88a'],
+      [248, 128, 'THE SCRUB', '#9cb88a'],
+      [128, 320, 'STONE FLAT', '#9cb88a'],
       [452, 340, 'THE FLATS', '#9cb88a']]) {
       const w = Font.width(tx2, 1);
       Art.rect(g, lx - w / 2 - 5, ly - 4, w + 10, 14, 'rgba(2,8,4,0.5)');
@@ -469,6 +456,7 @@ const Atlas = (() => {
       onDone: () => {
         const m = s.mode;
         G.lastSite = m;
+        if (s.place) G.exploreAt = s.place;
         travel = null;
         Main.setMode(m);
       },
@@ -483,7 +471,7 @@ const Atlas = (() => {
   }
   // Where the truck is parked right now: the last place you were, or the grove.
   function whereAmI() {
-    const byMode = SITES.find((s) => s.mode === (G.lastSite || 'grove'));
+    const byMode = SITES.find((s) => s.mode === (G.lastSite || 'grove') && (!s.place || s.place === G.exploreAt));
     return byMode || SITES[0];
   }
   // How far it is, in the money of the map: a straight line scaled to km.
@@ -614,8 +602,8 @@ const Atlas = (() => {
       g.save();
       g.translate(x, s.y + 16); g.scale(1 + sq, 1 - sq); g.translate(-x, -(s.y + 16));
     }
-    const col = open ? (s.mode === 'grove' ? '#3f8f4a' : s.mode === 'shop' ? '#2f7ad0' : s.mode === 'ottoman' ? '#9a3ad0' : '#e04a3c') : '#8b8780';
-    const dark = open ? (s.mode === 'grove' ? '#286633' : s.mode === 'shop' ? '#1c56a0' : s.mode === 'ottoman' ? '#62208e' : '#a52f26') : '#66635d';
+    const col = open ? (s.mode === 'grove' ? '#3f8f4a' : s.mode === 'shop' ? '#2f7ad0' : s.mode === 'ottoman' ? '#9a3ad0' : s.mode === 'explore' ? (Explore.owned(s.place) ? '#e0a020' : '#1a9a9a') : '#e04a3c') : '#8b8780';
+    const dark = open ? (s.mode === 'grove' ? '#286633' : s.mode === 'shop' ? '#1c56a0' : s.mode === 'ottoman' ? '#62208e' : s.mode === 'explore' ? (Explore.owned(s.place) ? '#9a6a10' : '#0e6a6a') : '#a52f26') : '#66635d';
     g.fillStyle = 'rgba(40,40,44,0.22)';                     // the marker's shadow on the paper
     Art.ell(g, x + 3, y + 15, 9, 3, 'rgba(40,40,44,0.22)');
     if (hot) {

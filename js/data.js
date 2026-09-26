@@ -95,7 +95,7 @@ const SUBTOOLS = [
   { key: 'fert',  name: 'Poo Scoop', icon: 't_scoop', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
 ];
 // ---- what you own -------------------------------------------------------------
-// You arrive with your two hands and W$300. Jim hands you his old sickle; every
+// You arrive with your two hands and W$300. Jim hands you her old sickle; every
 // other tool is *unlocked* when he teaches you the job it is for, and then
 // bought at Wombat Mart.
 const TOOL_SHOP = [
@@ -204,6 +204,10 @@ const SITES = [
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0 },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0 },
   { key: 'ottoman', name: 'Ottoman Empire',  x: 396, y: 270, icon: 'd_ottoman',  mode: 'ottoman', need: 0 },
+  // out past the farm: places to walk, forage and buy
+  { key: 'lake',  name: 'Still Lake', x: 566, y: 74,  icon: 't_water', mode: 'explore', place: 'lake', need: 0 },
+  { key: 'wood',  name: 'Blackwood',  x: 560, y: 262, icon: 'tree', mode: 'explore', place: 'wood', need: 0 },
+  { key: 'gully', name: 'Fern Gully', x: 118, y: 108, icon: 'c_whisperfern', mode: 'explore', place: 'gully', need: 0 },
 ];
 
 // ---- Things to buy with W$ ------------------------------------------------

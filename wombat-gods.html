@@ -980,6 +980,30 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
 #hotbar .hbname { padding: 1px 8px 3px; }
 #toasts { bottom: 122px !important; }
 
+/* ---- panel headings (restored: lost with the phone styles) ---- */
+.phead {
+  position: relative; z-index: 2; display: flex; align-items: center; gap: 10px;
+  margin: -26px 30px 14px; padding: 10px 20px 10px 16px;
+  color: #f4dfae; font-family: var(--ft); font-weight: 400; font-size: 16px; letter-spacing: 2px;
+  text-shadow: 0 2px 0 var(--wd0);
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 3px, rgba(255,214,150,0.05) 3px 7px, rgba(0,0,0,0) 7px 15px),
+    linear-gradient(180deg, var(--wd4) 0 16%, var(--wd3) 16% 58%, var(--wd2) 58% 84%, var(--wd1) 84% 100%);
+  border: 3px solid var(--ol);
+  box-shadow: inset 0 2px 0 var(--wd5), inset 0 -3px 0 var(--wd0), 0 4px 0 0 var(--wd0), 0 4px 0 3px var(--ol);
+}
+.phead::before, .phead::after {
+  content: ''; position: absolute; top: -7px; bottom: -7px; width: 16px;
+  background: linear-gradient(180deg, var(--tl4) 0 14%, var(--tl3) 14% 34%, var(--tl2) 34% 68%, var(--tl1) 68% 100%);
+  border: 3px solid var(--ol);
+  box-shadow: inset 0 2px 0 rgba(200,244,255,0.5);
+}
+.phead::before { left: -12px; }
+.phead::after { right: -12px; }
+.phead img.ico { width: 22px; height: 22px; }
+.phead .x { margin-left: auto; z-index: 1; }
+.panel .phead { animation: bodyin 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) backwards; }
+
 /* =============================================================================
    HARVEST: the interface skin
    Farm-game boxes cut from whole pixels. A dark line with its corners
@@ -1270,6 +1294,48 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 #hotbar .hslot:not(.locked):hover img.ico { transform: scale(1.12) rotate(-6deg); }
 #money { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
 #checklist { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
+
+/* ---- the build menu -------------------------------------------------------------------------------------- */
+.panel.build { width: min(900px, 96vw); }
+.btabs { display: flex; gap: 8px; margin: 2px 0 12px; flex-wrap: wrap; }
+.btabs .wbtn { padding: 6px 14px; font-size: 15px; }
+.btabs .wbtn.on { background: var(--sun) !important; transform: translateY(2px); }
+.btabs #b-pick { margin-left: auto; background: #f0b8a8 !important; }
+.bgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; }
+.bcard { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px 10px; line-height: 1.3;
+  background: var(--pp0); border: 3px solid var(--pp3); box-shadow: inset 2px 2px 0 #ffffff, 0 3px 0 var(--pp3); }
+.bcard b { font-size: 16px; font-weight: 400; color: var(--fr3); }
+.bcard p { margin: 0; font-size: 12px; color: var(--ink2); min-height: 44px; }
+.bpic { height: 70px; display: flex; align-items: center; justify-content: center; background: #cfe0a8; border: 3px solid #6a8a3a;
+  box-shadow: inset 3px 3px 0 #a8c080, inset -2px -2px 0 #e8f4c8; }
+.bpic img { height: 64px; image-rendering: pixelated; }
+.brow3 { display: flex; gap: 6px; align-items: center; }
+.brow3 .wbtn { padding: 4px 10px; font-size: 13px; }
+.brow3 .wbtn.go { background: var(--grass) !important; color: #fff !important; }
+.bprice { display: flex; align-items: center; gap: 3px; font-size: 16px; color: var(--ink); }
+.bhave { margin-left: auto; font-size: 15px; color: var(--grass-d); }
+.bempty { color: var(--ink2); padding: 20px; }
+.binv { margin-top: 12px; padding: 6px 8px; background: #d8b888; border: 3px solid var(--fr3); box-shadow: inset 2px 2px 0 rgba(0,0,0,0.18); }
+.binv > b { display: block; font-size: 13px; font-weight: 400; color: var(--ink); margin-bottom: 4px; }
+#b-inv { display: flex; gap: 6px; flex-wrap: wrap; min-height: 44px; align-items: center; }
+.binvi { position: relative; width: 44px; height: 44px; padding: 0; cursor: pointer; background: var(--pp0); border: 3px solid var(--ol); box-shadow: inset 2px 2px 0 #fff; }
+.binvi:hover { background: var(--sun-l); transform: translateY(-2px); }
+.binvi img { width: 38px; height: 38px; image-rendering: pixelated; }
+.binvi i { position: absolute; right: -6px; bottom: -6px; font-style: normal; font-size: 12px; line-height: 14px; padding: 0 4px; color: #fff; background: var(--tomato); box-shadow: 0 0 0 2px var(--ol); }
+.bfoot { margin: 10px 0 0; font-size: 12px; color: var(--ink2); }
+/* the BUILD button next to back, and the bar along the top while placing */
+.mbtn.bbuild { display: flex; align-items: center; gap: 6px; padding: 0 12px 0 8px !important; height: 50px; width: auto !important; }
+.mbtn.bbuild span { font-size: 16px; letter-spacing: 1px; color: var(--ink); }
+#placebar { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 12; display: flex; gap: 10px; align-items: center;
+  padding: 2px 8px; line-height: 1.3; font-size: 15px; color: var(--ink); white-space: nowrap;
+  border: 10px solid transparent; border-image: var(--gf-paper) 10 fill / 10px / 0 stretch; image-rendering: pixelated;
+  filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
+#placebar b { color: var(--fr3); font-weight: 400; }
+#placebar .wbtn { padding: 4px 10px; font-size: 13px; }
+#placebar[hidden] { display: none; }
+.bcard.locked { opacity: 0.72; background: #ecdcc0; }
+.bcard.locked .bpic img { filter: grayscale(0.8) brightness(0.8); }
+.block { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--am1); }
 </style>
 
 <div id="app">
@@ -1281,6 +1347,7 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
     <div id="money"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
     <div id="clock" hidden><canvas id="clock-dial" width="30" height="30"></canvas><div class="ctx"><b id="c-time">9:00am</b><small id="c-day">Day 1</small></div></div>
     <div id="checklist" hidden></div>
+    <div id="placebar" hidden><span id="pb-what"></span><button class="wbtn" id="pb-rot">ROTATE (R)</button><button class="wbtn" id="pb-stop">DONE (Esc)</button></div>
 
     <div id="side">
       <button class="rbtn big" id="b-tool" hidden><img class="ico" data-ico="t_sickle" alt=""></button>
@@ -1307,6 +1374,7 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
+      <button class="mbtn bbuild" id="b-build" title="Build (B)" hidden><img class="ico" data-ico="t_hammer" alt=""><span>BUILD</span></button>
     </div>
 
     <div id="zoomer" hidden>
@@ -1340,17 +1408,29 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
     <div class="pbody" id="wombat-body"></div>
   </div>
 
+  <div id="panel-build" class="panel build" hidden>
+    <div class="phead"><img class="ico" data-ico="t_hammer" alt=""><span class="ptitle">BUILD</span><button class="x" data-close="panel-build"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="pbody">
+      <div class="btabs"><button class="wbtn" data-btab="factory">FACTORY</button><button class="wbtn" data-btab="utility">UTILITY</button><button class="wbtn" data-btab="decor">DECOR</button><button class="wbtn" id="b-pick">PICK UP</button></div>
+      <div class="bgrid" id="b-grid"></div>
+      <div class="binv"><b>INVENTORY</b><div id="b-inv"></div></div>
+      <p class="bfoot"><span id="b-earned"></span> &middot; R rotates &middot; Esc stops placing</p>
+    </div>
+  </div>
+
   <div id="panel-help" class="panel" hidden>
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>You start with your two hands and W$300. Jim gives you his old sickle, and each job he teaches unlocks the next tool. Buy them at Wombat Mart: click the truck to drive there.</li>
-        <li>Jim, the old caretaker, tells you your next job in a speech bubble. Click him to chat, or to sell him your cubes.</li>
+        <li>You start with your two hands and W$300. Jim gives you her old sickle, and each job she teaches unlocks the next tool. Buy them at Wombat Mart: click the truck to drive there.</li>
+        <li>Jim, the caretaker in the wombat onesie, tells you your next job in a speech bubble. Click her to chat, or to sell her your cubes.</li>
         <li>Pick a tool on the toolbar along the bottom, or press <b>1</b>&ndash;<b>0</b>. Locked tools show a padlock; unlocked ones you have not bought show their price. An arrow points at your current job. Drag bare ground, roll the wheel or use the arrow keys to look around.</li>
         <li>Cut the weeds with the sickle, have the ants take the old logs, and sow grass. A tidy garden brings a wombat.</li>
         <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
         <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
         <li>The <b>shovel</b> paints the ground: hold the left button to dig down, the right button (or Shift) to heap up a hill. Water a hole with the can and it fills into a pond; water a trench and it runs like a creek. <b>[</b> and <b>]</b> change the brush size.</li>
+        <li>Press <b>B</b> (or BUILD) for the <b>Build menu</b>: buy machines into your inventory, place them on your land and turn them with <b>R</b>. A <b>Poop Hopper</b> sucks up cubes, belts carry them to a <b>Fertiliser Mill</b>, then a <b>Grow House</b> for carrots, then a <b>Pickup Point</b> sells them. The longer the chain, the more it pays.</li>
+        <li><b>Still Lake</b>, <b>Blackwood</b> and <b>Fern Gully</b> are on the map. Drag along them and click things to pick them up. Buy one and you find twice as much there, and it unlocks its own building.</li>
         <li>Captain Kirk's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-fx">SHADERS ON</button><button class="wbtn" id="b-reset">RESET</button></div>
@@ -3329,6 +3409,7 @@ const Sprites = (() => {
   }
   function jim(frame, pose = 'idle') {
     const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
+    if (typeof JimGirl !== 'undefined') return JimGirl.sprite(f, t, pose, faceMood);   // Jim, in her wombat onesie
     const key = `jim:${f}:${pose}:${faceMood}`;
     let img = cache.get(key); if (img) return img;
     if (pose === 'walk' || pose === 'run') { img = jimSide(f, t, pose === 'run'); cache.set(key, img); return img; }
@@ -7938,6 +8019,8 @@ const Portraits = (() => {
   // `t` drives the blink; `talking` flaps the mouth.
   function get(key, mood, t = 0, talking = false) {
     if ((key === 'clark' || key === 'villager:clark') && typeof Kirk !== 'undefined') return Kirk.bust(mood, t, talking);
+    if (key === 'jim' && typeof JimGirl !== 'undefined') return JimGirl.bust(mood, t, talking);
+    if (typeof Busts !== 'undefined' && Busts.has(key)) return Busts.get(key, mood, t, talking);
     const spec = specFor(key);
     if (!spec) return null;
     const blink = (t % 3.6) > 3.45;
@@ -8155,6 +8238,390 @@ const Kirk = (() => {
 </script>
 
 <script>
+// ===== js/jimgirl.js =====
+// ---- Jim: the caretaker, in her wombat onesie ------------------------------------------
+// A chibi anime girl: big head, huge sparkly teal eyes, soft pink hair with a
+// fringe and long locks, and brown wombat pyjamas with the hood up. The hood
+// has round ears and a little wombat face of its own (two button eyes and a
+// big soft nose) sitting over her fringe; the onesie has a cream tummy, paw
+// mittens and paw feet with toe beans, and a stubby tail.
+//
+// JimGirl.sprite(f, t, pose, mood) draws the 52x84 figure (feet at y 81, the
+// same box the old Jim used, so everything that draws him still lines up).
+// JimGirl.bust(mood, t, talking) is her 64x64 dialogue portrait.
+const JimGirl = (() => {
+  const cache = new Map();
+  const INK = '#2a1420';
+  const SKIN = ['#e8a88a', '#ffd6c0', '#fff0e4'];
+  const HAIR = ['#a8466a', '#d8688e', '#f494b4', '#ffc8da'];
+  const ONE = ['#4e2e1c', '#6e4428', '#8e5c38', '#b07a4e', '#cc9a6a'];      // the onesie, dark to light
+  const BELLY = ['#d8b88c', '#f0d8b0', '#fff0d4'];
+  const LINE = '#f4b4bc';                                                     // the hood's pink lining
+  const IRIS = ['#0e3a4a', '#1a6a78', '#2aa8a8', '#7ae8d8'];
+  const BLUSH = '#ff8aa0';
+  const TAU = Math.PI * 2;
+
+  // ---- eyes ---------------------------------------------------------------------------------
+  // (x, y) is the top-left of the eye box; s is 1 for the figure and 1.6 for the portrait
+  function eye(g, x, y, s, kind, look, R, P) {
+    const w = Math.round(5 * s), h = Math.round(7 * s);
+    if (kind === 'happy') {                                  // ^ ^
+      for (let i = 0; i < w; i++) { const d = Math.abs(i - (w - 1) / 2); R(x + i, y + Math.round(h * 0.35 + d * 0.9 * s) - Math.round(s), 1, Math.max(1, Math.round(s)), INK); }
+      return;
+    }
+    if (kind === 'shut') { R(x, y + Math.round(h * 0.6), w, Math.max(1, Math.round(s)), INK); R(x - 1, y + Math.round(h * 0.6) - 1, 1, 1, INK); return; }
+    const top = kind === 'narrow' ? Math.round(h * 0.35) : kind === 'squint' ? Math.round(h * 0.25) : 0;
+    const ew = kind === 'wide' ? w : w, eh = h - top;
+    R(x, y + top, ew, eh, '#ffffff');                        // the white
+    const ix = x + (look === 'side' ? Math.round(s) : 0), iy = y + top;
+    const iw = kind === 'wide' ? Math.max(3, Math.round(3.4 * s)) : w - Math.max(1, Math.round(s * 0.6));
+    const ixx = kind === 'wide' ? x + Math.round((w - iw) / 2) : ix;
+    R(ixx, iy, iw, eh, IRIS[2]);                             // the iris, dark at the top, light at the foot
+    R(ixx, iy, iw, Math.max(1, Math.round(eh * 0.35)), IRIS[1]);
+    R(ixx, iy + eh - Math.max(1, Math.round(eh * 0.25)), iw, Math.max(1, Math.round(eh * 0.25)), IRIS[3]);
+    R(ixx + Math.round(iw / 2 - s * 0.8), iy + Math.round(eh * 0.3), Math.max(1, Math.round(s * 1.6)), Math.max(1, Math.round(eh * 0.45)), IRIS[0]);   // the pupil
+    R(ixx, iy, Math.max(2, Math.round(s * 2)), Math.max(2, Math.round(s * 2)), '#ffffff');                    // the big glint
+    P(ixx + iw - Math.max(1, Math.round(s)), iy + eh - Math.max(2, Math.round(s * 2)), '#ffffff');                // the small one
+    R(x - Math.round(s * 0.6), y + top - 1, w + Math.round(s), Math.max(1, Math.round(s)), INK);                  // the lash line
+    R(x + w - 1, y + top - 1 - Math.round(s * 0.6), Math.max(1, Math.round(s * 0.8)), 1, INK);                  // a flick at the corner
+  }
+  function mouth(g, cx, y, kind, s, R, P) {
+    const u = Math.max(1, Math.round(s));
+    switch (kind) {
+      case 'open': R(cx - u, y, u * 3, u * 2, '#8a2a3a'); R(cx - u, y + u, u * 3, u, '#ff8a9a'); break;
+      case 'grin': R(cx - u * 2, y, u * 5, u * 2, '#8a2a3a'); R(cx - u * 2, y, u * 5, u, '#ffffff'); R(cx - u, y + u, u * 3, u, '#ff8a9a'); break;
+      case 'o': R(cx - u, y - u + 1, u * 2 + 1, u * 2 + 1, '#8a2a3a'); break;
+      case 'frown': R(cx - u, y + u, u * 3, u, INK); P(cx - u - 1, y + u + 1, INK); P(cx + u * 2, y + u + 1, INK); break;
+      case 'wobble': for (let i = -u * 2; i <= u * 2; i++) P(cx + i, y + ((i + 10) % 2), INK); break;
+      case 'flat': R(cx - u, y + u, u * 3, 1, INK); break;
+      case 'smirk': R(cx - u, y + u, u * 3, 1, INK); P(cx + u * 2, y, INK); break;
+      default:                                                    // the cat mouth: w
+        P(cx - u * 2, y, INK); P(cx - u, y + u, INK); P(cx, y, INK); P(cx + u, y + u, INK); P(cx + u * 2, y, INK);
+    }
+  }
+  const FACE = {
+    idle: ['open', 'cat'], talk: ['open', 'open'], happy: ['happy', 'grin'], proud: ['squint', 'grin'], laugh: ['happy', 'open'],
+    cross: ['narrow', 'frown'], worry: ['wide', 'wobble'], shock: ['wide', 'o'], think: ['open', 'flat'],
+    tired: ['shut', 'wobble'], sly: ['narrow', 'smirk'], sad: ['narrow', 'frown'],
+  };
+
+  // ---- the figure -------------------------------------------------------------------------------
+  function sprite(f, t, pose, mood) {
+    const key = `${f}:${pose}:${mood}`;
+    let c = cache.get(key); if (c) return c;
+    const o = Art.cv(52, 84), g = o.g; c = o.c;
+    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    const P = (x, y, col) => R(x, y, 1, 1, col);
+    const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
+    const S2 = Math.sin(t * TAU), A2 = Math.abs(Math.sin(t * TAU * 2));
+    // hands are offsets from the shoulder; negative y is up
+    let bob = 0, step = 0, sit = 0, lean = 0, tilt = 0, eyes = null;
+    let hl = [-4, 13], hr = [4, 13];
+    switch (pose) {
+      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-4, 13 + S2 * 0.6]; hr = [4, 13 - S2 * 0.6]; break;
+      case 'walk': case 'run': {
+        const k = pose === 'run' ? 1.4 : 1;
+        bob = -A2 * 2 * k; step = S2 * 2.2 * k; hl = [-5, 11 - S2 * 3 * k]; hr = [5, 11 + S2 * 3 * k]; lean = pose === 'run' ? 1 : 0; break;
+      }
+      case 'turn': bob = 0; break;
+      case 'jump': bob = [1, -8, -13, -8, 1][f] || 0; hl = [-8, -12]; hr = [8, -12]; break;
+      case 'cheer': bob = [0, -3, -6, -6, -3, 0][f] || 0; hl = [-7, -15]; hr = [7, -15]; eyes = 'happy'; break;
+      case 'laugh': bob = [0, -1, -2, -2, -1, 0][f] || 0; hl = [-3, 8]; hr = [3, 8]; tilt = S2 * 1.2; eyes = 'happy'; break;
+      case 'clap': { const k = f % 2 ? 1 : 3; hl = [7 - k, 5]; hr = [-7 + k, 5]; eyes = 'happy'; break; }
+      case 'wave': hr = [9, -13 + Math.round(Math.sin(t * TAU * 2) * 3)]; break;
+      case 'point': hr = [14, -2]; break;
+      case 'cast': hr = [8, -15]; hl = [-6, 6]; bob = f >= 3 ? -1 : 0; break;
+      case 'shrug': { const k = [0, 4, 5, 2][f] || 0; hl = [-6 - k, 8 - k]; hr = [6 + k, 8 - k]; break; }
+      case 'nod': bob = [0, 1, 2, 2, 1, 0][f] || 0; break;
+      case 'shake': tilt = Math.sin(t * TAU * 2) * 1.6; break;
+      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-2, 12]; hr = [2, 12]; eyes = 'shut'; break;
+      case 'hurt': bob = [2, 1, 0][f] || 0; hl = [-7, 4]; hr = [7, 4]; eyes = 'wide'; break;
+      case 'sulk': bob = 1; hl = [-2, 11]; hr = [2, 11]; break;
+      case 'sit': sit = 1; hl = [-5, 12]; hr = [5, 12]; break;
+      case 'sleep': sit = 1; hl = [-3, 11]; hr = [3, 11]; eyes = 'shut'; tilt = 1.5; break;
+    }
+    const [eyeKind, mouthKind] = FACE[mood] || FACE.idle;
+    const ek = eyes || (pose === 'hurt' ? 'wide' : eyeKind), mk = pose === 'hurt' ? 'o' : pose === 'laugh' || pose === 'cheer' ? 'open' : pose === 'sleep' ? 'flat' : mouthKind;
+    const cx = 26, y0 = Math.round(bob) + (sit ? 9 : 0);
+    g.save();
+    if (lean) { g.translate(cx, 81); g.transform(1, 0, 0.06, 1, 0, 0); g.translate(-cx, -81); }
+
+    // ---- long hair behind everything, and the tail
+    R(cx - 15, 30 + y0, 6, 22, HAIR[1]); R(cx + 9, 30 + y0, 6, 22, HAIR[1]);
+    R(cx - 15, 30 + y0, 2, 21, HAIR[2]); R(cx + 13, 31 + y0, 2, 20, HAIR[0]);
+    for (const x of [cx - 15, cx - 12, cx + 9, cx + 12]) R(x, 51 + y0, 3, 2, HAIR[1]);
+    E(cx + 12, 62 + y0, 3, 3, ONE[1]); E(cx + 12, 61 + y0, 2, 2, ONE[3]);
+
+    // ---- legs and paw feet
+    const hipY = 66 + y0;
+    for (const s2 of [-1, 1]) {
+      if (sit) {
+        const fx = cx + s2 * 6;
+        E(fx, hipY + 2, 5, 4, ONE[2]); E(fx, hipY + 1, 4, 3, ONE[3]);
+        E(fx + s2 * 2, hipY + 5, 4, 3, ONE[1]);                      // the paw, toes at you
+        for (let k = -1; k <= 1; k++) P(fx + s2 * 2 + k * 2, hipY + 5, BELLY[1]);
+        continue;
+      }
+      const fx = cx + s2 * 5 + step * s2, lift = step * s2 > 1 ? 2 : 0;
+      R(fx - 4, hipY, 8, 11 - lift, ONE[2]); R(fx - 4, hipY, 2, 10 - lift, ONE[3]); R(fx + 2, hipY, 2, 10 - lift, ONE[1]);
+      E(fx, hipY + 12 - lift, 5, 3, ONE[1]); E(fx, hipY + 11 - lift, 4.4, 2.4, ONE[2]);   // the paw foot
+      R(fx - 3, hipY + 13 - lift, 6, 1, ONE[0]);
+      for (let k = -1; k <= 1; k++) P(fx + k * 2, hipY + 10 - lift, BELLY[1]);           // toe beans
+    }
+
+    // ---- the far arm (only when it crosses in front does the order matter)
+    const shY = 45 + y0;
+    const arm = (s2, hand) => {
+      const sx = cx + s2 * 9, hx = sx + hand[0], hy = shY + hand[1];
+      Art.limb(g, sx, shY, hx, hy, 3.4, 3, ONE[1]);
+      Art.limb(g, sx, shY, hx, hy, 2.6, 2.2, ONE[2]);
+      E(hx, hy + 1, 3.4, 3.2, ONE[1]); E(hx - 0.5, hy + 0.5, 2.6, 2.4, ONE[3]);   // the paw mitten
+      P(hx, hy + 1, BELLY[1]);
+    };
+
+    // ---- the body: the onesie, round, with a cream tummy and a zip
+    E(cx, 56 + y0, 12, 13, ONE[1]);
+    E(cx, 55 + y0, 11, 12, ONE[2]);
+    E(cx - 4, 50 + y0, 5, 6, ONE[3]);
+    E(cx, 58 + y0, 7, 8, BELLY[0]); E(cx, 57 + y0, 6, 7, BELLY[1]); E(cx - 2, 55 + y0, 3, 3, BELLY[2]);
+    R(cx, 44 + y0, 1, 20, ONE[0]); R(cx - 1, 46 + y0, 3, 2, '#e8c050');           // the zip and its pull
+    if (!(pose === 'clap')) { arm(-1, hl); arm(1, hr); }
+
+    // ---- the head: the hood first, then the face inside it
+    const hy = 24 + y0, tl = tilt;
+    // hood ears, round, with pink insides
+    for (const s2 of [-1, 1]) { E(cx + s2 * 13 + tl, hy - 13, 5, 5, ONE[1]); E(cx + s2 * 13 + tl, hy - 13, 3, 3, LINE); }
+    E(cx + tl, hy, 19, 18, ONE[1]);
+    E(cx + tl, hy - 1, 18, 17, ONE[2]);
+    E(cx - 6 + tl, hy - 9, 8, 5, ONE[3]);                                          // light on the crown of it
+    // the hood's own little wombat face, over her fringe
+    E(cx + tl, hy - 12, 5, 3, ONE[0]); E(cx - 1 + tl, hy - 13, 2, 1, ONE[1]);    // its nose
+    for (const s2 of [-1, 1]) { R(cx + s2 * 8 - 1 + tl, hy - 14, 2, 2, INK); P(cx + s2 * 8 - 1 + tl, hy - 14, '#ffffff'); }
+    // the lining round the opening, then the face
+    E(cx + tl, hy + 4, 14, 13, LINE);
+    E(cx + tl, hy + 4, 12.5, 12, SKIN[1]);
+    E(cx - 4 + tl, hy + 1, 5, 4, SKIN[2]);
+    // the fringe: long points coming down over the brow, and side locks
+    const fr = [[-12, 5], [-9, 8], [-5, 6], [-2, 9], [1, 7], [4, 9], [7, 6], [10, 8]];
+    R(cx - 12 + tl, hy - 8, 24, 5, HAIR[1]);
+    for (const [dx, len] of fr) {
+      R(cx + dx + tl, hy - 4, 3, len - 2, HAIR[1]); R(cx + dx + 1 + tl, hy - 4, 1, len - 1, HAIR[2]);
+      P(cx + dx + 1 + tl, hy - 4 + len - 1, HAIR[1]);
+    }
+    R(cx - 11 + tl, hy - 7, 20, 1, HAIR[3]);                                        // the shine band
+    for (const s2 of [-1, 1]) {
+      const lx = s2 < 0 ? cx - 13 + tl : cx + 10 + tl;
+      R(lx, hy - 2, 3, 16, HAIR[1]); R(lx + (s2 < 0 ? 0 : 2), hy - 2, 1, 15, s2 < 0 ? HAIR[2] : HAIR[0]);
+      R(lx, hy + 14, 3, 2, HAIR[0]);
+    }
+    // eyes, blush, mouth
+    const ey = hy + 3;
+    eye(g, cx - 9 + tl, ey, 1, ek, mood === 'think' ? 'side' : null, R, P);
+    eye(g, cx + 4 + tl, ey, 1, ek, mood === 'think' ? 'side' : null, R, P);
+    R(cx - 11 + tl, ey + 8, 4, 2, BLUSH); R(cx + 7 + tl, ey + 8, 4, 2, BLUSH);
+    P(cx - 10 + tl, ey + 8, '#ffc0cc'); P(cx + 8 + tl, ey + 8, '#ffc0cc');
+    mouth(g, cx + tl, ey + 10, mk, 1, R, P);
+    if (pose === 'clap') { arm(-1, hl); arm(1, hr); }                             // the hands meet in front
+    if (pose === 'sleep') { Font.draw(g, 'z', cx + 14, hy - 20, { scale: 1, color: '#8a8ad8' }); }
+    g.restore();
+    Art.outline(c, INK, 1);
+    cache.set(key, c);
+    return c;
+  }
+
+  // ---- the portrait -----------------------------------------------------------------------------
+  function bust(mood = 'talk', t = 0, talking = false) {
+    const blink = (t % 3.6) > 3.45, open = talking && Math.floor(t * 9) % 2 === 0;
+    const key = `b:${mood}:${blink ? 1 : 0}:${open ? 1 : 0}`;
+    let c = cache.get(key); if (c) return c;
+    const o = Art.cv(64, 64), g = o.g; c = o.c;
+    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    const P = (x, y, col) => R(x, y, 1, 1, col);
+    const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
+    const cx = 32;
+    // long hair behind
+    R(8, 30, 9, 30, HAIR[1]); R(47, 30, 9, 30, HAIR[1]); R(8, 30, 3, 30, HAIR[2]); R(53, 30, 3, 30, HAIR[0]);
+    // shoulders: the onesie, a cream collar of tummy and the zip
+    E(cx, 64, 28, 12, ONE[1]); E(cx, 64, 27, 11, ONE[2]); E(cx - 10, 58, 8, 4, ONE[3]);
+    E(cx, 66, 12, 8, BELLY[1]); R(cx, 54, 1, 10, ONE[0]); R(cx - 1, 56, 3, 3, '#e8c050'); P(cx, 57, '#fff0a0');
+    // the hood: ears, the round of it, the wombat face on the front
+    for (const s2 of [-1, 1]) { E(cx + s2 * 19, 9, 7, 7, ONE[1]); E(cx + s2 * 19, 9, 4, 4, LINE); }
+    E(cx, 30, 27, 26, ONE[1]);
+    E(cx, 29, 26, 25, ONE[2]);
+    E(cx - 9, 16, 11, 6, ONE[3]);
+    E(cx, 12, 7, 4, ONE[0]); E(cx - 2, 11, 3, 1.4, ONE[1]);                        // its nose
+    for (const s2 of [-1, 1]) { R(cx + s2 * 12 - 2, 9, 3, 3, INK); P(cx + s2 * 12 - 2, 9, '#ffffff'); }
+    // the lining and the face
+    E(cx, 37, 21, 20, LINE);
+    E(cx, 37, 19, 19, SKIN[1]);
+    E(cx - 6, 32, 8, 6, SKIN[2]);
+    R(cx - 3, 45, 6, 1, SKIN[0]);                                                  // the soft line of the chin
+    // the fringe
+    R(cx - 18, 19, 36, 5, HAIR[1]);
+    const fr = [[-18, 9], [-14, 13], [-9, 10], [-5, 14], [-1, 11], [3, 14], [8, 10], [12, 13], [16, 9]];
+    for (const [dx, len] of fr) {
+      R(cx + dx, 24, 4, len - 3, HAIR[1]); R(cx + dx + 1, 24, 2, len - 2, HAIR[2]);
+      R(cx + dx + 1, 24 + len - 3, 2, 1, HAIR[1]);
+    }
+    R(cx - 16, 20, 30, 1, HAIR[3]); R(cx - 12, 21, 8, 1, HAIR[3]);                 // the shine band
+    for (const s2 of [-1, 1]) {                                                    // side locks
+      const lx = s2 < 0 ? cx - 20 : cx + 15;
+      R(lx, 26, 5, 26, HAIR[1]); R(lx + (s2 < 0 ? 1 : 3), 26, 1, 25, s2 < 0 ? HAIR[2] : HAIR[0]);
+      R(lx + 1, 51, 3, 3, HAIR[1]);
+    }
+    const [ek0, mk0] = FACE[mood] || FACE.talk;
+    const ek = blink ? 'shut' : ek0, mk = open ? 'open' : mk0;
+    eye(g, cx - 15, 29, 1.95, ek, mood === 'think' ? 'side' : null, R, P);
+    eye(g, cx + 5, 29, 1.95, ek, mood === 'think' ? 'side' : null, R, P);
+    if (mood === 'cross') { R(cx - 15, 28, 9, 1, INK); R(cx + 6, 28, 9, 1, INK); }
+    if (mood === 'worry' || mood === 'sad') { R(cx - 14, 27, 4, 1, INK); R(cx - 10, 26, 3, 1, INK); R(cx + 7, 26, 3, 1, INK); R(cx + 10, 27, 4, 1, INK); }
+    // blush, with the anime hatching
+    R(cx - 18, 44, 7, 3, BLUSH); R(cx + 11, 44, 7, 3, BLUSH);
+    for (let i = 0; i < 3; i++) { P(cx - 17 + i * 2, 44, '#ffc0cc'); P(cx + 12 + i * 2, 44, '#ffc0cc'); }
+    mouth(g, cx, 48, mk, 1.6, R, P);
+    if (mood === 'happy' || mood === 'proud') { P(cx + 22, 18, '#ffffff'); R(cx + 21, 19, 3, 1, '#ffffff'); P(cx + 22, 20, '#ffffff'); }   // a sparkle
+    Art.outline(c, INK, 1);
+    cache.set(key, c);
+    return c;
+  }
+  return { sprite, bust };
+})();
+</script>
+
+<script>
+// ===== js/busts.js =====
+// ---- Busts: proper 64x64 dialogue portraits for Shaz and Groot ----------------------------
+// Shaz is a friendly bull shark in the Wombat Mart cap and a navy suit with a
+// red tie; Groot is bark and moss with a crown of flowers and kind green eyes.
+// Both change face with the mood the dialogue asks for, blink, and talk.
+const Busts = (() => {
+  const cache = new Map();
+  const INK = '#1a1420';
+  const EYES = {
+    talk: 'open', idle: 'open', happy: 'happy', laugh: 'happy', proud: 'happy', think: 'side', worry: 'wide', sad: 'sad',
+    cross: 'cross', shock: 'wide', sly: 'half', tired: 'shut', curious: 'wide', surprise: 'wide', sleepy: 'shut',
+  };
+  const MOUTHS = {
+    talk: 'open', idle: 'smile', happy: 'grin', laugh: 'grin', proud: 'grin', think: 'flat', worry: 'wobble', sad: 'frown',
+    cross: 'frown', shock: 'o', sly: 'smirk', tired: 'flat', curious: 'o', surprise: 'o', sleepy: 'flat',
+  };
+  function kit(g) {
+    const R = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    const P = (x, y, c) => R(x, y, 1, 1, c);
+    const E = (x, y, rx, ry, c) => Art.ell(g, x, y, rx, ry, c);
+    return { R, P, E };
+  }
+  // a big round cartoon eye; iris colours from the caller
+  function eye(k, x, y, kind, iris) {
+    const { R, P, E } = k;
+    if (kind === 'happy') { for (let i = 0; i < 9; i++) { const d = Math.abs(i - 4); R(x + i, y + 2 + Math.round(d * 0.8), 1, 2, INK); } return; }
+    if (kind === 'shut') { R(x, y + 5, 9, 2, INK); return; }
+    E(x + 4.5, y + 4.5, 5, 5.5, INK);
+    E(x + 4.5, y + 4.5, 4.2, 4.7, '#ffffff');
+    const ox = kind === 'side' ? 1.5 : 0, r = kind === 'wide' ? 2.4 : 3.2;
+    E(x + 4.5 + ox, y + 5, r, r + 0.4, iris[0]); E(x + 4.5 + ox, y + 5.5, r * 0.7, r * 0.7, iris[1]);
+    R(x + 3 + ox, y + 2, 2, 2, '#ffffff'); P(x + 6 + ox, y + 7, '#ffffff');
+    if (kind === 'half') R(x - 1, y - 1, 11, 5, k.lid);
+    if (kind === 'cross') { for (let i = 0; i < 9; i++) R(x + i, y - 1 + Math.round(i * 0.35), 1, 2, INK); }
+    if (kind === 'sad') { for (let i = 0; i < 9; i++) R(x + i, y + 1 - Math.round(i * 0.3), 1, 2, INK); }
+  }
+  function mouth(k, cx, y, kind, teeth) {
+    const { R, P } = k;
+    switch (kind) {
+      case 'grin':
+        R(cx - 8, y, 16, 5, INK); R(cx - 7, y + 1, 14, 3, '#9a2a3a');
+        if (teeth) for (let i = 0; i < 7; i++) { R(cx - 7 + i * 2, y + 1, 1, 2, '#ffffff'); }
+        else R(cx - 7, y + 1, 14, 1, '#ffffff');
+        break;
+      case 'open': R(cx - 4, y, 8, 5, INK); R(cx - 3, y + 1, 6, 3, '#9a2a3a'); R(cx - 2, y + 3, 4, 1, '#ff8a9a');
+        if (teeth) for (let i = 0; i < 3; i++) R(cx - 3 + i * 2, y + 1, 1, 1, '#ffffff');
+        break;
+      case 'o': R(cx - 2, y - 1, 5, 6, INK); R(cx - 1, y, 3, 4, '#9a2a3a'); break;
+      case 'frown': R(cx - 5, y + 2, 10, 1, INK); P(cx - 6, y + 3, INK); P(cx + 5, y + 3, INK); break;
+      case 'wobble': for (let i = -5; i <= 5; i++) P(cx + i, y + 2 + ((i + 10) % 2), INK); break;
+      case 'flat': R(cx - 4, y + 2, 8, 1, INK); break;
+      case 'smirk': R(cx - 4, y + 2, 8, 1, INK); R(cx + 4, y + 1, 2, 1, INK); break;
+      default: R(cx - 5, y + 2, 10, 1, INK); P(cx - 6, y + 1, INK); P(cx + 5, y + 1, INK);
+        if (teeth) for (let i = 0; i < 4; i++) P(cx - 3 + i * 2, y + 3, '#ffffff');
+    }
+  }
+
+  // ---- Shaz ---------------------------------------------------------------------------------------
+  const SH = ['#2e4a6a', '#4a6e94', '#6a92ba', '#9ab8d8'], BELLY = ['#d8dce8', '#f4f6fa'];
+  const CAP = ['#1e5a2e', '#2e8a44', '#4ab060'], SUIT = ['#141c3a', '#22305a', '#34467a'];
+  function shaz(mood, t, talking) {
+    const blink = (t % 3.8) > 3.64, open = talking && Math.floor(t * 9) % 2 === 0;
+    const key = `s:${mood}:${blink ? 1 : 0}:${open ? 1 : 0}`;
+    let c = cache.get(key); if (c) return c;
+    const o = Art.cv(64, 64), k = kit(o.g); c = o.c; k.lid = SH[1];
+    const { R, P, E } = k;
+    // the suit, the white shirt collar and the red tie
+    E(32, 66, 29, 14, SUIT[1]); E(22, 58, 8, 4, SUIT[2]);
+    Art.poly(o.g, [[26, 52], [38, 52], [32, 64]], '#f4f6fa');
+    Art.poly(o.g, [[30, 54], [34, 54], [35, 64], [29, 64]], '#c8302a'); R(30, 53, 4, 3, '#e84a3a');
+    R(18, 60, 6, 2, '#e8c050');                                                     // the name badge
+    // the head: a big round shark head, pale underneath
+    E(32, 32, 25, 23, SH[1]); E(32, 31, 24, 22, SH[2]); E(24, 20, 10, 6, SH[3]);
+    E(32, 44, 18, 11, BELLY[0]); E(32, 43, 17, 10, BELLY[1]);
+    for (const x of [9, 12, 15]) R(x, 36 + (x - 9) / 3, 1, 5, SH[0]);              // the gills
+    for (const x of [49, 52, 55]) R(x, 38 - (x - 49) / 3, 1, 5, SH[0]);
+    // the cap, with the dorsal fin through a hole cut in the top
+    E(32, 14, 21, 9, CAP[1]); R(11, 14, 42, 5, CAP[1]); E(26, 10, 10, 4, CAP[2]);
+    R(9, 18, 46, 3, CAP[0]); R(30, 5, 12, 12, CAP[0]);
+    Art.poly(o.g, [[33, 12], [44, 12], [40, -1]], SH[1]); Art.poly(o.g, [[35, 11], [42, 11], [40, 2]], SH[2]);
+    R(22, 9, 9, 6, '#fff4d0'); R(24, 11, 5, 2, CAP[0]);                              // the W on the badge
+    // face
+    const ek = blink ? 'shut' : EYES[mood] || 'open', mk = open ? 'open' : MOUTHS[mood] || 'smile';
+    eye(k, 16, 25, ek, ['#2a2a3a', '#0a0a14']);
+    eye(k, 39, 25, ek, ['#2a2a3a', '#0a0a14']);
+    R(13, 37, 6, 2, '#f08aa8'); R(45, 37, 6, 2, '#f08aa8');
+    mouth(k, 32, 42, mk, true);
+    Art.outline(c, INK, 1);
+    cache.set(key, c);
+    return c;
+  }
+
+  // ---- Groot --------------------------------------------------------------------------------------
+  const BARK = ['#3a2412', '#5a3a1e', '#7a5430', '#9a7048'], MOSS = ['#2e5a22', '#4a8a32', '#7ab850'];
+  function groot(mood, t, talking) {
+    const blink = (t % 4.2) > 4.05, open = talking && Math.floor(t * 8) % 2 === 0;
+    const key = `g:${mood}:${blink ? 1 : 0}:${open ? 1 : 0}`;
+    let c = cache.get(key); if (c) return c;
+    const o = Art.cv(64, 64), k = kit(o.g); c = o.c; k.lid = BARK[2];
+    const { R, P, E } = k;
+    // shoulders: bark with moss down one side
+    E(32, 68, 28, 15, BARK[1]); E(20, 60, 9, 5, BARK[2]); E(46, 60, 8, 5, MOSS[1]); E(45, 59, 5, 3, MOSS[2]);
+    // the head: a rounded stump of a head, taller than wide, with the grain running down it
+    E(32, 34, 21, 24, BARK[1]); E(32, 33, 20, 23, BARK[2]); E(25, 22, 8, 10, BARK[3]);
+    for (const [x, y0, len] of [[17, 18, 30], [22, 12, 38], [42, 14, 34], [47, 20, 26], [32, 50, 8]]) R(x, y0, 1, len, BARK[1]);
+    E(44, 44, 4, 3, BARK[1]); E(44, 44, 2, 1.5, BARK[0]);                           // a knot
+    // the crown: leaves, moss and flowers
+    E(32, 12, 22, 8, MOSS[0]); E(32, 11, 21, 7, MOSS[1]);
+    for (let i = 0; i < 9; i++) { const x = 12 + i * 5, y = 6 + (i % 2) * 3; E(x, y, 4, 3, MOSS[i % 2 ? 1 : 2]); }
+    for (const [x, y, col] of [[18, 8, '#ff8ab0'], [30, 4, '#ffd84a'], [42, 7, '#ffffff'], [50, 12, '#ff8ab0'], [12, 14, '#ffd84a']]) {
+      for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) E(x + dx, y + dy, 1.6, 1.6, col);
+      E(x, y, 1.2, 1.2, '#f8a020');
+    }
+    // a sprout on top, because he is still growing
+    R(38, 0, 1, 5, MOSS[0]); E(36, 1, 2, 1, MOSS[2]); E(41, 2, 2, 1, MOSS[2]);
+    // face: kind green eyes, a mossy brow, a wide wooden smile
+    const ek = blink ? 'shut' : EYES[mood] || 'open', mk = open ? 'open' : MOUTHS[mood] || 'smile';
+    R(15, 23, 14, 2, BARK[0]); R(35, 23, 14, 2, BARK[0]);                               // the brow ridge
+    eye(k, 17, 27, ek, ['#3aa84a', '#1a5a22']);
+    eye(k, 38, 27, ek, ['#3aa84a', '#1a5a22']);
+    R(14, 39, 6, 2, '#c8784a'); R(44, 39, 6, 2, '#c8784a');
+    mouth(k, 32, 45, mk, false);
+    Art.outline(c, INK, 1);
+    cache.set(key, c);
+    return c;
+  }
+  const has = (key) => key === 'shaz' || key === 'groot';
+  function get(key, mood, t, talking) { return key === 'shaz' ? shaz(mood, t, talking) : groot(mood, t, talking); }
+  return { has, get, shaz, groot };
+})();
+</script>
+
+<script>
 // ===== js/data.js =====
 // ---- Balance data. Icon keys everywhere, almost no prose. -----------------
 const CUBE_SIZE = 30;          // one poop cube, and the game's unit of height
@@ -8253,7 +8720,7 @@ const SUBTOOLS = [
   { key: 'fert',  name: 'Poo Scoop', icon: 't_scoop', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
 ];
 // ---- what you own -------------------------------------------------------------
-// You arrive with your two hands and W$300. Jim hands you his old sickle; every
+// You arrive with your two hands and W$300. Jim hands you her old sickle; every
 // other tool is *unlocked* when he teaches you the job it is for, and then
 // bought at Wombat Mart.
 const TOOL_SHOP = [
@@ -8362,6 +8829,10 @@ const SITES = [
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0 },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0 },
   { key: 'ottoman', name: 'Ottoman Empire',  x: 396, y: 270, icon: 'd_ottoman',  mode: 'ottoman', need: 0 },
+  // out past the farm: places to walk, forage and buy
+  { key: 'lake',  name: 'Still Lake', x: 566, y: 74,  icon: 't_water', mode: 'explore', place: 'lake', need: 0 },
+  { key: 'wood',  name: 'Blackwood',  x: 560, y: 262, icon: 'tree', mode: 'explore', place: 'wood', need: 0 },
+  { key: 'gully', name: 'Fern Gully', x: 118, y: 108, icon: 'c_whisperfern', mode: 'explore', place: 'gully', need: 0 },
 ];
 
 // ---- Things to buy with W$ ------------------------------------------------
@@ -11194,6 +11665,7 @@ const Grove = (() => {
   }
 
   function update(dt) {
+    Factory.update(dt);
     Wild.update(dt);
     updateFoods(dt);
     // leaves tear loose on a gust
@@ -11653,6 +12125,7 @@ const Grove = (() => {
     const tool = G.tool;
     if (first && G.newTools && G.newTools[tool]) { delete G.newTools[tool]; UI.refreshHUD(); }   // used it: not new any more
     if (y < GROUND) return false;
+    if (Factory.active()) return Factory.press(x, y, first);
     // the two landmarks answer to any tool; they are doors, not ground -
     // unless a weed is standing in front of them, in which case you meant the weed
     if (first && !World.weeds.some((w) => Math.abs(w.x - x) < 16 && Math.abs(w.y - y) < 14)) {
@@ -11860,6 +12333,8 @@ const Grove = (() => {
     World.disturb(w.x, w.y, 18, 0.8);
   }
   function hover(x, y) {
+    if (Factory.active()) { Factory.pointer(x, y); return null; }
+    { const ft = G.tool === 'drag' ? Factory.tipAt(x, y) : null; if (ft) return ft; }
     hoverW = (G.tool === 'drag' || G.tool === 'food' || G.tool === 'pair') ? wombatAt(x, y) : null;
     hoverSpot = spotAt(x, y);
     hoverObj = G.tool === 'destroy' ? objAt(x, y) : null;
@@ -11876,7 +12351,7 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
-    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>he buys every cube you have';
+    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>Jim buys every cube you have';
     const pl2 = World.plantAt(x, y);
     if (pl2) return World.plantTip(pl2);
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
@@ -12009,6 +12484,7 @@ const Grove = (() => {
     World.drawSprouts(g);
     World.drawBlades(g);
     World.drawFlowers(g);
+    Factory.drawFloor(g, L, R);     // belts and machine pads lie on the ground
 
     drawZone(g, f);
     drawFences(g, L, R);
@@ -12035,12 +12511,14 @@ const Grove = (() => {
     if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
     for (const it of Wild.items(g)) items.push(it);
+    for (const it of Factory.sortables(g)) items.push(it);
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
     drawPlotPrompt(g, L, R);
     Guide.drawPointer(g);       // the arrow over the job in hand
     drawMagic(g, L, R);         // whatever the gods are leaving in the air
     drawBuildGhost(g);          // the piece riding on the pointer, and what it is
+    Factory.drawOver(g);        // sales popping off the pickup points, and the placing ghost
 
     // crows
     for (const b of birds) {
@@ -12654,6 +13132,8 @@ const Grove = (() => {
   return {
     init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, zoomBy, zoomTo, zoomFrac, edgeScroll, addWombat, newWombat, feed, pet, offline,
     cycleBuild, nudgeBrush, brushSize, furnAt,
+    selectFurniture(k) { const ks = crateKeys(), i = ks.indexOf(k); if (i >= 0) buildI = i; },
+    get dragging() { return dragging; },
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, TRUCK, GROUND, WALK, W, H, VW,
@@ -13484,16 +13964,6 @@ const Atlas = (() => {
     }
   }
   // the animals. Each one is four or five pixels and that is all it needs.
-  // A tidy little block of a wombat: outlined, stubby legs, an ear and an eye.
-  function wombat(q, x, y) {
-    x = Math.round(x); y = Math.round(y);
-    Art.rect(q, x - 4, y - 3, 9, 5, '#2a1a10');                // the outline
-    Art.rect(q, x - 3, y - 2, 7, 3, '#b86a3c');                // the body
-    Art.rect(q, x - 3, y - 2, 7, 1, '#d88a58');                // lit along the back
-    Art.rect(q, x + 3, y - 4, 1, 1, '#2a1a10');                // an ear
-    Art.rect(q, x + 2, y - 1, 1, 1, '#2a1a10');                // the eye
-    Art.rect(q, x - 3, y + 2, 1, 1, '#2a1a10'); Art.rect(q, x + 2, y + 2, 1, 1, '#2a1a10');   // stubby feet
-  }
   function duck(q, x, y) {
     Art.ell(q, x, y, 3.4, 2.4, '#b4b0a2'); Art.rect(q, x + 2, y - 3, 2, 3, '#b4b0a2');
     Art.rect(q, x + 4, y - 2, 2, 1, '#c08a2a'); Art.rect(q, x + 3, y - 3, 1, 1, '#141008');
@@ -13686,8 +14156,6 @@ const Atlas = (() => {
           const a = (k / 10) * TAU;
           Art.rect(q, bx + 4 + Math.cos(a) * 12, by + 3 + Math.sin(a) * 8, 1, 2, '#a58050');
         }
-        wombat(q, bx + 4 + (r() - 0.5) * 12, by + 4 + (r() - 0.5) * 8);
-        if (r() < 0.5) wombat(q, bx + 2 + (r() - 0.5) * 12, by + 6 + (r() - 0.5) * 6);
       }
     }
     // ---- the small living things -------------------------------------------
@@ -13701,7 +14169,6 @@ const Atlas = (() => {
       }
       return null;
     };
-    for (let i = 0; i < 16; i++) { const p2 = openSpot(); if (p2) wombat(q, p2[0], p2[1]); }
     for (let i = 0; i < 26; i++) mushroom(q, r() * HW, r() * HH, ['#7a3a4a', '#6a5a2a', '#5a4a72'][i % 3]);
     for (let i = 0; i < 80; i++) flower(q, r() * HW, r() * HH, ['#7a5a72', '#6a6a3a', '#5a4a72', '#8a9088'][i % 4]);
     for (let i = 0; i < 14; i++) bird(q, r() * HW, 4 + r() * (HH * 0.5));
@@ -13726,9 +14193,9 @@ const Atlas = (() => {
 
     // ---- the names, at full resolution so they stay readable ---------------
     for (const [lx, ly, tx2, col] of [
-      [330, 246, 'WOMBAT FLAT', '#9cb88a'], [112, 74, 'FERN GULLY', '#9cb88a'],
-      [512, 44, 'STILL LAKE', '#8ab4c8'], [248, 128, 'THE SCRUB', '#9cb88a'],
-      [560, 292, 'BLACKWOOD', '#9cb88a'], [128, 320, 'STONE FLAT', '#9cb88a'],
+      [330, 246, 'WOMBAT FLAT', '#9cb88a'],
+      [248, 128, 'THE SCRUB', '#9cb88a'],
+      [128, 320, 'STONE FLAT', '#9cb88a'],
       [452, 340, 'THE FLATS', '#9cb88a']]) {
       const w = Font.width(tx2, 1);
       Art.rect(g, lx - w / 2 - 5, ly - 4, w + 10, 14, 'rgba(2,8,4,0.5)');
@@ -13817,6 +14284,7 @@ const Atlas = (() => {
       onDone: () => {
         const m = s.mode;
         G.lastSite = m;
+        if (s.place) G.exploreAt = s.place;
         travel = null;
         Main.setMode(m);
       },
@@ -13831,7 +14299,7 @@ const Atlas = (() => {
   }
   // Where the truck is parked right now: the last place you were, or the grove.
   function whereAmI() {
-    const byMode = SITES.find((s) => s.mode === (G.lastSite || 'grove'));
+    const byMode = SITES.find((s) => s.mode === (G.lastSite || 'grove') && (!s.place || s.place === G.exploreAt));
     return byMode || SITES[0];
   }
   // How far it is, in the money of the map: a straight line scaled to km.
@@ -13962,8 +14430,8 @@ const Atlas = (() => {
       g.save();
       g.translate(x, s.y + 16); g.scale(1 + sq, 1 - sq); g.translate(-x, -(s.y + 16));
     }
-    const col = open ? (s.mode === 'grove' ? '#3f8f4a' : s.mode === 'shop' ? '#2f7ad0' : s.mode === 'ottoman' ? '#9a3ad0' : '#e04a3c') : '#8b8780';
-    const dark = open ? (s.mode === 'grove' ? '#286633' : s.mode === 'shop' ? '#1c56a0' : s.mode === 'ottoman' ? '#62208e' : '#a52f26') : '#66635d';
+    const col = open ? (s.mode === 'grove' ? '#3f8f4a' : s.mode === 'shop' ? '#2f7ad0' : s.mode === 'ottoman' ? '#9a3ad0' : s.mode === 'explore' ? (Explore.owned(s.place) ? '#e0a020' : '#1a9a9a') : '#e04a3c') : '#8b8780';
+    const dark = open ? (s.mode === 'grove' ? '#286633' : s.mode === 'shop' ? '#1c56a0' : s.mode === 'ottoman' ? '#62208e' : s.mode === 'explore' ? (Explore.owned(s.place) ? '#9a6a10' : '#0e6a6a') : '#a52f26') : '#66635d';
     g.fillStyle = 'rgba(40,40,44,0.22)';                     // the marker's shadow on the paper
     Art.ell(g, x + 3, y + 15, 9, 3, 'rgba(40,40,44,0.22)');
     if (hot) {
@@ -17488,11 +17956,11 @@ const Guide = (() => {
   const HUT = { x: 724, y: 0 };
   // the speech bubble: what he is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [0, 15, 20, 20, 25, 20, 25, 30, 30, 30, 40, 50];
+  const REWARD = [0, 15, 20, 20, 25, 20, 25, 30, 30, 30, 40, 50, 80];
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
-  // Each step is a job Jim gives you, and a place for him to stand.
+  // Each step is a job Jim gives you, and a place for her to stand.
   //   lesson   what he tells you in the dialogue box when the job comes up
   //   give     tools he hands over when he has finished explaining
   //   unlock   tools the mart will now sell you
@@ -17617,7 +18085,7 @@ const Guide = (() => {
       say: 'Got spare cubes? Bring them to me and I will pay you for the lot.',
       lesson: [{ say: "Spare cubes? I make compost. Click me and I'll buy the lot. More for a load than one at a time.", mood: 'happy' }],
       label: 'CLICK JIM',
-      note: 'Click Jim and sell. He pays more for a load than for one.',
+      note: 'Click Jim and sell. She pays more for a load than for one.',
       at: () => cult.x, aty: () => cult.y - 80, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
@@ -17632,6 +18100,19 @@ const Guide = (() => {
       note: 'Shovel: hold to dig down, right-click (or Shift) to heap up. Water a hole to fill it.',
       at: (g) => (has(g, 'shovel') ? 480 : MART()), aty: (g) => (has(g, 'shovel') ? Grove.WALK.y0 + 120 : MARTY()),
       done: (g) => (g.stats.flooded || 0) > 0,
+    },
+    {
+      key: 'factory', mood: 'proud', icon: 't_hammer', title: 'Build a poop factory', praise: 'A real factory. I am so proud.',
+      say: 'Press B for the Build menu. Hopper, belts, mill, grow house, belts, pickup point.',
+      lesson: [
+        { say: "Okay. Big idea. What if the poop sold itself?", mood: 'sly' },
+        { say: 'Press B, or click BUILD, for the Build menu. Buy a Poop Hopper, some belts, a Fertiliser Mill, a Grow House and a Pickup Point.', mood: 'talk' },
+        { say: 'The hopper sucks up cubes. Belts carry them to the mill for fertiliser, then the grow house for carrots, then the pickup point sells them. R turns a piece round.', mood: 'happy' },
+      ],
+      label: 'BUILD HERE',
+      note: 'B opens the Build menu. Hopper, belt, mill, belt, grow house, belt, pickup point. R rotates.',
+      at: () => 760, aty: () => Grove.WALK.y0 + 110,
+      done: (g) => (g.stats.factorySold || 0) > 0,
     },
   ];
 
@@ -17785,7 +18266,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
+        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. Still Lake, Blackwood and Fern Gully are out past the farm, worth a wander, and for sale. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {
@@ -17975,7 +18456,7 @@ const Guide = (() => {
         Audio.play('thud', 1.4); FX.shake(1.6);
         FX.burst(HUT.x, hutY(), 22, { color: [PAL.bark3, PAL.bark2, PAL.moss3], speed: 110, gravity: 260, life: 0.7, size: 3 });
         FX.comic(HUT.x, hutY() - 90, 'THUNK!', { ink: '#f5cd5c', edge: '#7a5210', life: 1 });
-        UI.toast('<b>Jim built a shed</b> at the west end &mdash; he buys cubes there', 'good');
+        UI.toast('<b>Jim built a shed</b> at the west end &mdash; she buys cubes there', 'good');
         Main.save();
       }
       return;
@@ -18125,7 +18606,7 @@ const Guide = (() => {
   const WHERE = {
     meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
     arrive: 'in the grove', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
-    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere',
+    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
   };
   function current() {
     const st = step();
@@ -18166,7 +18647,7 @@ const Talk = (() => {
   // modules already, so this is cheap to call every frame.
   const SPEAKERS = {
     cultist: {
-      name: 'Jim', sub: 'the old caretaker', face: 'jim',
+      name: 'Jim', sub: 'the caretaker, in her onesie', face: 'jim',
       bg: ['#c9763c', '#7c4630'],
       draw(mood, t) {
         Sprites.setFace(mood || 'happy');
@@ -18177,7 +18658,7 @@ const Talk = (() => {
       },
     },
     shaz: {
-      name: 'Shaz', sub: 'nineteen years on this till',
+      name: 'Shaz', sub: 'nineteen years on this till', face: 'shaz',
       bg: ['#1b3a52', '#0e1e2c'],
       draw(mood, t) {
         const pose = { happy: 'happy', talk: 'talk', cross: 'cross', think: 'think',
@@ -18186,7 +18667,7 @@ const Talk = (() => {
       },
     },
     groot: {
-      name: 'Groot', sub: 'he grows all of it',
+      name: 'Groot', sub: 'he grows all of it', face: 'groot',
       bg: ['#233318', '#121c0d'],
       draw(mood, t) {
         const pose = { happy: 'happy', talk: 'talk', cross: 'cross', think: 'curious',
@@ -18400,6 +18881,7 @@ const UI = (() => {
       }
     }
     $('b-back').hidden = G.mode === 'grove';
+    if ($('b-build')) $('b-build').hidden = G.mode !== 'grove' || !G.arrived;
     {
       // The head-up belongs to the game, not the title screen or the intro.
       const off = G.mode === 'menu' || G.mode === 'intro';
@@ -18857,7 +19339,7 @@ const UI = (() => {
   function hideTip() { $('tip').hidden = true; }
 
   // ---- panels -------------------------------------------------------------
-  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat'];
+  const PANELS = ['panel-basket', 'panel-pawn', 'panel-help', 'panel-talk', 'panel-wombat', 'panel-build'];
   function openPanel(id) {
     closePanels(); $(id).hidden = false; G.paused = true; Audio.play('click');
     if (id === 'panel-basket') renderBasket();
@@ -19040,9 +19522,13 @@ const UI = (() => {
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
       if (Talk.isOpen() && Talk.key(e)) { e.preventDefault(); return; }
-      if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
+      if (e.key === 'Escape') {
+        if (G.mode === 'intro') Intro.skip();
+        else if (anyPanel()) { closePanels(); e.stopImmediatePropagation(); e.preventDefault(); }   // closing a panel is all Esc does
+      }
     });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
+    Factory.bindMenu();
     $('b-fx').onclick = () => { const on = Main.toggleShader(); $('b-fx').textContent = on ? 'SHADERS ON' : 'SHADERS OFF'; Audio.play('click'); };
     $('b-fx').textContent = Shader.on ? 'SHADERS ON' : 'SHADERS OFF';
     if (!Shader.ok) $('b-fx').hidden = true;
@@ -19287,7 +19773,7 @@ const Menu = (() => {
   ];
   let rumour = 0;
   const HELP = [
-    ['t_drag', 'Start with your hands', 'Jim gives you his old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
+    ['t_drag', 'Start with your hands', 'Jim gives you her old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
     ['t_sickle', 'Tidy the garden', 'Cut the weeds, have the ants take the old logs, and sow grass. A tidy patch brings a wombat.'],
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],
@@ -19539,6 +20025,1118 @@ void main(){
 </script>
 
 <script>
+// ===== js/factory.js =====
+// ---- Factory: machines, belts and the poop economy ------------------------------------------
+// A grid over the grove floor where you stand machines and run conveyor belts
+// between them. The chain it is built for:
+//
+//   wombats poop -> POOP HOPPER sucks the cubes up -> belt -> FERTILISER MILL
+//   grinds a cube into a bag of fertiliser -> belt -> GROW HOUSE turns a bag
+//   into carrots -> belt -> PICKUP POINT sells whatever reaches it.
+//
+// Every stage is worth more than the one before it, so a longer chain pays
+// better. A SPLITTER shares a belt three ways, a STORAGE CRATE holds a queue,
+// a WOMBAT FEEDER hands carrots to hungry wombats (who make more poop), a
+// SPRINKLER waters the beds round it and a YARD LAMP lights the night.
+//
+// Buildings are bought into an inventory from the Build menu (B), placed from
+// it with a ghost on the pointer, rotated with R, and picked back up.
+// State lives in G.factory: { b: [{ k, c, r, d }], inv: { key: n } }.
+const Factory = (() => {
+  const T = 24, OY = 152, ROWS = 11;                   // tile size, top of the grid, rows down the floor
+  const MS = 1.3;                                      // machines are drawn this much bigger than their art
+  const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];     // right, down, left, up
+  const INK = '#1a1420';
+  let G = null;
+  let grid = new Map();                                 // "c,r" -> building
+  let mode = null;                                      // { key, rot } placing | { pick: true }
+  let ghost = null, lastTile = null, t = 0, sold = [];
+
+  // ---- the catalogue ------------------------------------------------------------------------
+  const DEFS = {
+    belt:      { name: 'Conveyor Belt', cat: 'factory', cost: 6,   blurb: 'Carries anything on it, one tile a moment, the way the arrows point. Drag to lay a run.' },
+    hopper:    { name: 'Poop Hopper', cat: 'factory', cost: 60,  blurb: 'Sucks up any wombat cube nearby and sends it out the front.' },
+    mill:      { name: 'Fertiliser Mill', cat: 'factory', cost: 150, blurb: 'Grinds one cube into a bag of fertiliser. Worth three times the cube.' },
+    grow:      { name: 'Grow House', cat: 'factory', cost: 240, blurb: 'Feed it fertiliser and it grows carrots under glass. Two for every bag.' },
+    depot:     { name: 'Pickup Point', cat: 'factory', cost: 120, blurb: 'The loading dock. Anything a belt brings here is sold on the spot.' },
+    splitter:  { name: 'Splitter', cat: 'factory', cost: 35,  blurb: 'Shares what comes in between its front, its left and its right.' },
+    chest:     { name: 'Storage Crate', cat: 'utility', cost: 45,  blurb: 'Holds up to twenty things and lets them out the front as there is room.' },
+    feeder:    { name: 'Wombat Feeder', cat: 'utility', cost: 110, blurb: 'Takes carrots off a belt and feeds any hungry wombat nearby.' },
+    sprinkler: { name: 'Sprinkler', cat: 'utility', cost: 90,  blurb: 'Waters the beds and grass around it every few seconds.' },
+    lamp:      { name: 'Yard Lamp', cat: 'utility', cost: 40,  blurb: 'A lamp on a post. Lights the yard at night; the wombats like it.' },
+    // one for each place you can buy out past the farm
+    fishtrap:  { name: 'Fish Trap', cat: 'factory', cost: 320, need: 'lake', blurb: 'A wire trap off Still Lake. Catches a fish every little while, all on its own.' },
+    shroomlog: { name: 'Mushroom Log', cat: 'factory', cost: 380, need: 'wood', blurb: 'A Blackwood log. Feed it fertiliser and it sprouts mushrooms, two a bag.' },
+    beehive:   { name: 'Beehive', cat: 'factory', cost: 460, need: 'gully', blurb: 'Bees from Fern Gully. They make honey and ask for nothing.' },
+  };
+  const ORDER = ['belt', 'hopper', 'mill', 'grow', 'depot', 'splitter', 'fishtrap', 'shroomlog', 'beehive', 'chest', 'feeder', 'sprinkler', 'lamp'];
+  const PRICE = { cube: 3, rich: 6, fert: 10, veg: 16, fish: 22, shroom: 15, honey: 20 };
+  const unlocked = (k) => !DEFS[k].need || (typeof Explore !== 'undefined' && Explore.owned(DEFS[k].need));
+  const priceOf = (it) => it.k === 'cube' ? (it.sub === 'rich' ? PRICE.rich : PRICE.cube) : PRICE[it.k] || 1;
+  const NAMES = { cube: 'poop cube', fert: 'fertiliser', veg: 'carrot', fish: 'fish', shroom: 'mushroom', honey: 'jar of honey' };
+
+  // ---- state -----------------------------------------------------------------------------------
+  function init(g) {
+    G = g;
+    if (!G.factory) G.factory = { b: [], inv: {} };
+    if (!G.factory.inv) G.factory.inv = {};
+    grid = new Map();
+    for (const b of G.factory.b) { if (!DEFS[b.k]) continue; fresh(b); grid.set(b.c + ',' + b.r, b); }
+    G.factory.b = G.factory.b.filter((b) => DEFS[b.k]);
+    mode = null; ghost = null; sold = [];
+  }
+  // the runtime parts of a building, never saved
+  function fresh(b) {
+    Object.defineProperty(b, 'rt', { value: { item: null, p: 0, inb: [], out: [], work: 0, spin: 0, turn: 0, flash: 0, cool: 0 }, enumerable: false, writable: true, configurable: true });
+  }
+  const at = (c, r) => grid.get(c + ',' + r) || null;
+  const centre = (c, r) => ({ x: c * T + T / 2, y: OY + r * T + T / 2 });
+  const tileOf = (x, y) => ({ c: Math.floor(x / T), r: Math.floor((y - OY) / T) });
+  const front = (b, d = b.d) => at(b.c + DIRS[d][0], b.r + DIRS[d][1]);
+  function canPlace(c, r) {
+    if (r < 0 || r >= ROWS || c < 0 || c * T >= Grove.W) return 'off the floor';
+    const { x, y } = centre(c, r);
+    if (!inOwned(G, x)) return 'not your land';
+    if (at(c, r)) return 'something is there';
+    const tr = Grove.truck;
+    if (Math.abs(x - tr.x) < 58 && y > tr.y - 44 && y < tr.y + 14) return 'the truck parks there';
+    return null;
+  }
+
+  // ---- inventory -------------------------------------------------------------------------------
+  const inv = (k) => (G.factory.inv[k] || 0);
+  function buy(k, n = 1) {
+    const d = DEFS[k]; if (!d) return false;
+    if (!unlocked(k)) { Audio.play('error'); UI.toast('buy the land it comes from first', 'bad'); return false; }
+    const cost = d.cost * n;
+    if (G.wd < cost) { Audio.play('error'); UI.toast(`need <b>${cost} W$</b>`, 'bad'); return false; }
+    G.wd -= cost;
+    G.factory.inv[k] = inv(k) + n;
+    Audio.play('cash'); UI.refreshHUD(); Main.save();
+    return true;
+  }
+  function place(k, c, r, d) {
+    if (inv(k) <= 0 || canPlace(c, r)) return false;
+    const b = { k, c, r, d: d & 3 };
+    fresh(b);
+    G.factory.b.push(b); grid.set(c + ',' + r, b);
+    G.factory.inv[k]--; if (!G.factory.inv[k]) delete G.factory.inv[k];
+    const { x, y } = centre(c, r);
+    FX.dust(x, y + 6, 6, PAL.soil3); Audio.play('place');
+    G.stats.built = (G.stats.built || 0) + 1;
+    return true;
+  }
+  function pickUp(b) {
+    grid.delete(b.c + ',' + b.r);
+    G.factory.b.splice(G.factory.b.indexOf(b), 1);
+    G.factory.inv[b.k] = inv(b.k) + 1;
+    const { x, y } = centre(b.c, b.r);
+    FX.dust(x, y + 6, 6, PAL.soil3); Audio.play('click');
+    UI.refreshHUD(); Main.save();
+  }
+
+  // ---- who takes what ------------------------------------------------------------------------------
+  // `from` is the direction the item is travelling in when it arrives
+  function accepts(b, it, from) {
+    if (!b) return false;
+    const rt = b.rt;
+    switch (b.k) {
+      case 'belt': return !rt.item && from !== ((b.d + 2) & 3);
+      case 'splitter': return !rt.item;
+      case 'mill': return it.k === 'cube' && rt.inb.length < 4 && from !== ((b.d + 2) & 3);
+      case 'shroomlog': return it.k === 'fert' && rt.inb.length < 3 && from !== ((b.d + 2) & 3);
+      case 'grow': return it.k === 'fert' && rt.inb.length < 3 && from !== ((b.d + 2) & 3);
+      case 'depot': return true;
+      case 'chest': return rt.inb.length < 20 && from !== ((b.d + 2) & 3);
+      case 'feeder': return it.k === 'veg' && rt.inb.length < 6;
+      default: return false;
+    }
+  }
+  function give(b, it, from) {
+    const rt = b.rt;
+    if (b.k === 'belt' || b.k === 'splitter') { rt.item = it; rt.p = 0; return; }
+    if (b.k === 'depot') { sell(b, it); return; }
+    rt.inb.push(it);
+  }
+  // push one item out of `b` in direction d; true if it went
+  function push(b, it, d) {
+    const nb = front(b, d);
+    if (!accepts(nb, it, d)) return false;
+    give(nb, it, d);
+    return true;
+  }
+  function sell(b, it) {
+    const n = priceOf(it);
+    G.wd += n;
+    G.stats.factorySold = (G.stats.factorySold || 0) + 1;
+    G.stats.factoryEarned = (G.stats.factoryEarned || 0) + n;
+    const { x, y } = centre(b.c, b.r);
+    sold.push({ x, y: y - 30, n, t: 0 });
+    b.rt.flash = 0.4;
+    if (Math.random() < 0.5) Audio.play('coin');
+    UI.refreshHUD();
+  }
+
+  // ---- the tick -----------------------------------------------------------------------------------
+  const SPEED = 1.6;                                    // tiles a second along a belt
+  function update(dt) {
+    t += dt;
+    const drops = Grove.drops;
+    for (const b of G.factory.b) {
+      const rt = b.rt;
+      rt.flash = Math.max(0, rt.flash - dt);
+      switch (b.k) {
+        case 'belt': case 'splitter':
+          if (rt.item) {
+            rt.p = Math.min(1, rt.p + dt * SPEED * (b.k === 'splitter' ? 1.4 : 1));
+            if (rt.p >= 1) {
+              if (b.k === 'belt') { if (push(b, rt.item, b.d)) rt.item = null; }
+              else {
+                // front, left, right in turn, starting after whichever went last
+                for (let k = 0; k < 3; k++) {
+                  const which = (rt.turn + k) % 3, d = [b.d, (b.d + 3) & 3, (b.d + 1) & 3][which];
+                  if (push(b, rt.item, d)) { rt.item = null; rt.turn = which + 1; break; }
+                }
+              }
+            }
+          }
+          break;
+        case 'hopper': {
+          rt.cool -= dt;
+          if (rt.cool <= 0 && rt.out.length < 6 && drops && drops.length) {
+            const { x, y } = centre(b.c, b.r);
+            let best = null, bd = 96;
+            for (const d of drops) { const dd = Math.hypot(d.x - x, d.y - y); if (dd < bd && d !== Grove.dragging) { bd = dd; best = d; } }
+            if (best) {
+              drops.splice(drops.indexOf(best), 1);
+              rt.out.push({ k: 'cube', sub: best.type === 'rich' ? 'rich' : 'plain' });
+              rt.suck = { x: best.x, y: best.y - 6, t: 0 };
+              rt.cool = 0.5; Audio.play('pop');
+              G.stats.gathered = (G.stats.gathered || 0) + 1;
+            } else rt.cool = 0.3;
+          }
+          if (rt.suck) { rt.suck.t += dt * 3; if (rt.suck.t >= 1) rt.suck = null; }
+          if (rt.out.length && push(b, rt.out[0], b.d)) rt.out.shift();
+          break;
+        }
+        case 'fishtrap': case 'beehive': {
+          const every = b.k === 'fishtrap' ? 14 : 18;
+          if (rt.out.length < 4) { rt.work += dt; if (rt.work >= every) { rt.work = 0; rt.out.push({ k: b.k === 'fishtrap' ? 'fish' : 'honey' }); rt.flash = 0.4; } }
+          if (rt.out.length && push(b, rt.out[0], b.d)) rt.out.shift();
+          break;
+        }
+        case 'mill': case 'grow': case 'shroomlog': {
+          const need = b.k === 'mill' ? 3.2 : b.k === 'grow' ? 7 : 6;
+          if (rt.inb.length && rt.out.length < 4) {
+            rt.work += dt; rt.spin += dt * 6;
+            if (rt.work >= need) {
+              rt.work = 0; rt.inb.shift();
+              if (b.k === 'mill') rt.out.push({ k: 'fert' });
+              else if (b.k === 'shroomlog') { rt.out.push({ k: 'shroom' }); rt.out.push({ k: 'shroom' }); }
+              else { rt.out.push({ k: 'veg', sub: 'carrot' }); rt.out.push({ k: 'veg', sub: 'carrot' }); }
+              rt.flash = 0.3;
+            }
+          }
+          if (rt.out.length && push(b, rt.out[0], b.d)) rt.out.shift();
+          break;
+        }
+        case 'chest':
+          rt.cool -= dt;
+          if (rt.inb.length && rt.cool <= 0 && push(b, rt.inb[0], b.d)) { rt.inb.shift(); rt.cool = 1 / SPEED; }
+          break;
+        case 'feeder': {
+          rt.cool -= dt;
+          if (rt.inb.length && rt.cool <= 0) {
+            rt.cool = 1.2;
+            const { x, y } = centre(b.c, b.r);
+            const w = G.wombats.filter((q) => q.age !== 'baby' && q.stomach === 'empty' && Math.hypot(q.x - x, q.y - y) < 160)
+              .sort((a, z) => Math.hypot(a.x - x, a.y - y) - Math.hypot(z.x - x, z.y - y))[0];
+            if (w) {
+              const it = rt.inb.shift();
+              G.food[it.sub] = (G.food[it.sub] || 0) + 1;
+              if (!Grove.feed(w, it.sub, true)) G.food[it.sub]--;
+              else FX.float(w.x, w.y - 50, 'fed!', { color: PAL.gold4, size: 8 });
+            }
+          }
+          break;
+        }
+        case 'sprinkler':
+          rt.cool -= dt;
+          if (rt.cool <= 0) {
+            rt.cool = 4;
+            const { x, y } = centre(b.c, b.r);
+            World.water(x, y, 64);
+            rt.spray = 1.2;
+          }
+          if (rt.spray) rt.spray = Math.max(0, rt.spray - dt);
+          break;
+      }
+    }
+    for (const s of sold) s.t += dt;
+    sold = sold.filter((s) => s.t < 1.2);
+  }
+
+  // ---- drawing: the items ---------------------------------------------------------------------------
+  function drawItem(g, it, x, y) {
+    x = Math.round(x); y = Math.round(y);
+    const R = (a, b2, w, h, c) => { g.fillStyle = c; g.fillRect(a, b2, w, h); };
+    if (it.k === 'cube') {
+      const s = it.sub === 'rich' ? 6 : 5;
+      R(x - s / 2 - 1, y - s - 1, s + 2, s + 2, '#000'); R(x - s / 2, y - s, s, s, it.sub === 'rich' ? '#3b2a1b' : '#6a4a2c');
+    } else if (it.k === 'fert') {
+      R(x - 4, y - 8, 8, 8, INK); R(x - 3, y - 7, 6, 6, '#e8d8a8'); R(x - 3, y - 5, 6, 2, '#4a9a3a'); R(x - 2, y - 9, 4, 2, INK);
+    } else if (it.k === 'fish') {
+      R(x - 6, y - 5, 10, 5, INK); R(x - 5, y - 4, 8, 3, '#6a9ac8'); R(x - 5, y - 4, 8, 1, '#a8d0f0'); R(x + 3, y - 6, 3, 7, INK); R(x + 4, y - 5, 1, 5, '#6a9ac8'); R(x - 4, y - 4, 1, 1, INK);
+    } else if (it.k === 'shroom') {
+      R(x - 1, y - 5, 3, 5, INK); R(x, y - 5, 1, 4, '#f0e8d0'); R(x - 5, y - 9, 11, 5, INK); R(x - 4, y - 8, 9, 3, '#b86a3a'); R(x - 3, y - 8, 2, 1, '#e8a878');
+    } else if (it.k === 'honey') {
+      R(x - 4, y - 9, 8, 9, INK); R(x - 3, y - 8, 6, 7, '#f0a820'); R(x - 3, y - 8, 2, 7, '#ffd060'); R(x - 4, y - 10, 8, 2, '#c8402c');
+    } else {
+      const img = Props.get('produce', it.sub || 'carrot');
+      g.drawImage(img, x - 7, y - 13, 14, 14);
+    }
+  }
+
+  // ---- drawing: belts on the floor ------------------------------------------------------------------
+  // The belt tile is cached per direction and per step of its scroll.
+  const tileCache = new Map();
+  function beltTile(d, s) {
+    const key = d + ':' + s;
+    let c = tileCache.get(key); if (c) return c;
+    const o = Art.cv(T, T), g = o.g; c = o.c;
+    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+    // drawn pointing right, then turned
+    g.save(); g.translate(T / 2, T / 2); g.rotate((d * Math.PI) / 2); g.translate(-T / 2, -T / 2);
+    R(0, 2, T, 16, '#2a2a34');
+    R(0, 4, T, 12, '#5a5a6a');
+    for (let x = -8 + s; x < T; x += 8) {                                  // the chevrons, moving along
+      for (let k = 0; k < 4; k++) { R(x + k, 6 + k, 2, 1, '#8a8aa0'); R(x + k, 13 - k, 2, 1, '#8a8aa0'); }
+    }
+    R(0, 2, T, 2, '#8a8a98'); R(0, 16, T, 2, '#1a1a22');                    // the rails
+    for (let x = 2; x < T; x += 6) { R(x, 2, 1, 1, '#c8c8d4'); R(x, 17, 1, 1, '#4a4a58'); }
+    g.restore();
+    tileCache.set(key, c);
+    return c;
+  }
+  function drawFloor(g, L, R) {
+    const s = Math.floor(t * SPEED * 8) % 8;
+    for (const b of G.factory.b) {
+      const x = b.c * T, y = OY + b.r * T;
+      if (x < L - T || x > R + T) continue;
+      if (b.k === 'belt') g.drawImage(beltTile(b.d, s), x, y);
+      else {
+        // a concrete pad under every machine, and an arrow for which way it sends
+        g.fillStyle = 'rgba(30,24,20,0.28)'; g.fillRect(x + 1, y + 3, T - 2, T - 3);
+        g.fillStyle = '#a8a49a'; g.fillRect(x + 1, y + 1, T - 2, T - 3);
+        g.fillStyle = '#c8c4b8'; g.fillRect(x + 1, y + 1, T - 2, 1);
+        if (b.k !== 'lamp' && b.k !== 'sprinkler' && b.k !== 'depot' && b.k !== 'feeder') {
+          const [dx, dy] = DIRS[b.d], ax = x + T / 2 + dx * 10, ay = y + T / 2 + dy * 10;
+          g.fillStyle = '#f0c048';
+          for (let k = 0; k < 3; k++) g.fillRect(Math.round(ax - dx * k - dy * k - 1), Math.round(ay - dy * k - dx * k - 1), 2, 2);
+          for (let k = 0; k < 3; k++) g.fillRect(Math.round(ax - dx * k + dy * k - 1), Math.round(ay - dy * k + dx * k - 1), 2, 2);
+        }
+      }
+    }
+    // items riding the belts and splitters
+    for (const b of G.factory.b) {
+      if ((b.k !== 'belt' && b.k !== 'splitter') || !b.rt.item) continue;
+      const { x, y } = centre(b.c, b.r), [dx, dy] = DIRS[b.d];
+      const u = b.k === 'belt' ? b.rt.p - 0.5 : 0;
+      drawItem(g, b.rt.item, x + dx * u * T, y + 6 + dy * u * T);
+    }
+  }
+
+  // ---- drawing: the machines ------------------------------------------------------------------------
+  const artCache = new Map();
+  function art(k, d, f, lit) {
+    const key = `${k}:${d}:${f}:${lit ? 1 : 0}`;
+    let c = artCache.get(key); if (c) return c;
+    const o = Art.cv(32, 44), g = o.g; c = o.c;
+    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    const P = (x, y, col) => R(x, y, 1, 1, col);
+    const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
+    const cx = 16, by = 42;
+    const MET = ['#2e3a4a', '#4a5a6e', '#6e8098', '#a0b0c4'];
+    switch (k) {
+      case 'hopper': {
+        // a green funnel on four legs with a chute out of the side it faces
+        for (const lx of [8, 22]) R(lx, by - 12, 2, 12, MET[1]);
+        R(9, by - 14, 14, 4, MET[1]); R(9, by - 14, 14, 1, MET[3]);
+        Art.poly(g, [[3, by - 34], [29, by - 34], [21, by - 14], [11, by - 14]], '#2e7a3a');
+        Art.poly(g, [[5, by - 33], [16, by - 33], [14, by - 15], [11, by - 15]], '#4ab050');
+        R(3, by - 36, 26, 3, '#1e5a28'); R(3, by - 36, 26, 1, '#6ad070');
+        E(16, by - 35, 10, 1.5, '#1a1a22');                                 // the mouth of it
+        R(12, by - 27, 8, 6, '#f4f0e0'); R(13, by - 26, 6, 1, '#2e7a3a'); R(13, by - 24, 6, 1, '#2e7a3a');   // a label
+        const [dx] = DIRS[d]; if (dx) R(dx > 0 ? 22 : 4, by - 12, 6, 4, MET[2]);
+        if (f % 2) R(14, by - 38, 4, 2, 'rgba(200,220,255,0.6)');           // a breath of suction
+        break;
+      }
+      case 'mill': {
+        // a little brick mill with a grinding wheel on the side and a chimney
+        R(5, by - 24, 22, 24, '#9a4a30'); R(5, by - 24, 22, 2, '#c86a48');
+        for (let y = by - 20; y < by; y += 4) for (let x = 5 + ((y / 4) % 2) * 3; x < 27; x += 6) R(x, y, 1, 3, '#6a2a1a');
+        Art.poly(g, [[3, by - 24], [29, by - 24], [22, by - 32], [10, by - 32]], '#5a3a2a');
+        R(20, by - 38, 5, 8, '#6a6a74'); R(20, by - 38, 5, 1, '#9a9aa4');
+        if (lit) for (let i = 0; i < 3; i++) E(22 + i * 2, by - 40 - i * 3 - (f % 3), 2 + i * 0.6, 1.6 + i * 0.5, 'rgba(230,230,230,0.75)');
+        R(10, by - 14, 8, 14, '#3a2014'); R(11, by - 13, 6, 12, '#5a3420');  // the door
+        // the wheel: spokes turning with f
+        E(26, by - 12, 6, 6, MET[1]); E(26, by - 12, 4.5, 4.5, MET[2]);
+        for (let i = 0; i < 4; i++) { const a = (i / 4) * Math.PI + f * 0.4; Art.limb(g, 26 - Math.cos(a) * 5, by - 12 - Math.sin(a) * 5, 26 + Math.cos(a) * 5, by - 12 + Math.sin(a) * 5, 0.8, 0.8, MET[0]); }
+        E(26, by - 12, 1.5, 1.5, '#e8c050');
+        R(7, by - 22, 11, 5, '#f4f0e0'); Font.draw(g, 'FERT', 8, by - 22, { scale: 1, color: '#4a8a32' });
+        break;
+      }
+      case 'grow': {
+        // a glasshouse: white frame, pale green panes, carrots growing inside
+        R(3, by - 20, 26, 20, '#cfe8e0');
+        Art.poly(g, [[2, by - 20], [30, by - 20], [16, by - 34]], '#b8dcd4');
+        for (const x of [3, 11, 20, 28]) R(x, by - 20, 1, 20, '#fbfbf4');
+        R(3, by - 20, 26, 1, '#fbfbf4'); R(3, by - 10, 26, 1, '#fbfbf4');
+        Art.line(g, 2, by - 20, 16, by - 34, '#fbfbf4', 1); Art.line(g, 30, by - 20, 16, by - 34, '#fbfbf4', 1);
+        R(6, by - 25, 5, 3, 'rgba(255,255,255,0.7)');                       // a glint on the glass
+        for (let i = 0; i < 5; i++) {                                         // what is growing in there
+          const x = 6 + i * 5, h = 3 + ((i + f) % 3) + (lit ? 2 : 0);
+          R(x, by - 2 - h, 1, h, '#3f8a32'); R(x - 1, by - 3 - h, 3, 1, '#6ab850');
+          if (lit && i % 2) R(x - 1, by - 3, 3, 2, '#e0763a');
+        }
+        R(3, by - 2, 26, 2, '#6a4a2c');
+        break;
+      }
+      case 'depot': {
+        // a wooden loading dock with crates, a sign, and a flag on a pole
+        R(1, by - 10, 30, 10, '#8a5a30'); R(1, by - 10, 30, 2, '#c08a50');
+        for (let x = 3; x < 31; x += 6) R(x, by - 8, 1, 8, '#5a3a1e');
+        R(4, by - 18, 9, 8, '#c8904c'); R(4, by - 18, 9, 1, '#e8b870'); R(8, by - 18, 1, 8, '#8a5a30');
+        R(14, by - 16, 7, 6, '#b07838'); R(14, by - 16, 7, 1, '#d8a060');
+        R(24, by - 38, 2, 28, '#5a3a1e');                                     // the pole
+        Art.poly(g, [[26, by - 38], [31, by - 35 + (f % 2)], [26, by - 32]], '#e84a3a');
+        R(2, by - 30, 20, 9, '#2e6a3a'); R(3, by - 29, 18, 7, '#3e8a4a');
+        Font.draw(g, 'SELL', 4, by - 29, { scale: 1, color: '#fff4d0' });
+        if (lit) R(2, by - 31, 20, 1, '#fff4a0');
+        break;
+      }
+      case 'splitter': {
+        R(6, by - 14, 20, 14, MET[1]); R(6, by - 14, 20, 2, MET[3]); R(6, by - 2, 20, 2, MET[0]);
+        R(10, by - 11, 12, 6, '#1a1a22');
+        const cols = ['#f0c048', '#6ab8ff', '#ff8a70'];
+        for (let i = 0; i < 3; i++) R(11 + i * 4, by - 10, 2, 4, (f % 3) === i ? '#ffffff' : cols[i]);
+        break;
+      }
+      case 'chest': {
+        R(4, by - 18, 24, 18, '#a86a34'); R(4, by - 18, 24, 3, '#d8964c');
+        for (const x of [4, 14, 26]) R(x, by - 18, 2, 18, '#5a3a1e');
+        R(4, by - 10, 24, 2, '#5a3a1e'); R(14, by - 12, 4, 4, '#e8c050');
+        break;
+      }
+      case 'feeder': {
+        // a trough under a little roof, with a carrot sign
+        R(3, by - 8, 26, 8, '#8a5a30'); R(4, by - 8, 24, 3, '#3a2a18'); R(3, by - 8, 26, 1, '#c08a50');
+        for (const x of [4, 27]) R(x, by - 26, 2, 18, '#5a3a1e');
+        Art.poly(g, [[1, by - 24], [31, by - 24], [16, by - 34]], '#c8402c'); R(1, by - 24, 30, 2, '#8a2a1a');
+        const img = Props.get('produce', 'carrot'); g.drawImage(img, 9, by - 22, 14, 14);
+        if (lit) for (let i = 0; i < 3; i++) R(8 + i * 6, by - 7, 4, 2, '#e0763a');
+        break;
+      }
+      case 'sprinkler': {
+        R(15, by - 16, 2, 16, MET[2]); R(12, by - 4, 8, 4, MET[1]);
+        E(16, by - 17, 3, 2, MET[3]);
+        const a = f * 0.9;
+        R(16 + Math.cos(a) * 4 - 1, by - 18, 2, 2, '#2a6ad0');
+        break;
+      }
+      case 'fishtrap': {
+        // a wire cage on a little barrel float, with a fish or two inside
+        E(16, by - 6, 13, 5, '#2a6a9a'); E(16, by - 7, 12, 4, '#4a90c0'); R(8, by - 8, 5, 1, '#a8d8f0');
+        R(6, by - 26, 20, 18, '#8a8a98'); R(7, by - 25, 18, 16, '#3a4a5a');
+        for (let x = 7; x < 25; x += 3) R(x, by - 25, 1, 16, '#9aa0b0');
+        for (let y = by - 25; y < by - 9; y += 3) R(7, y, 18, 1, '#9aa0b0');
+        R(11 + (f % 3), by - 18, 7, 3, '#6a9ac8'); R(17 + (f % 3), by - 19, 2, 5, '#6a9ac8');
+        R(4, by - 28, 24, 3, '#a86a34'); R(15, by - 34, 2, 6, '#5a3a1e'); R(17, by - 34, 5, 3, '#e84a3a');
+        break;
+      }
+      case 'shroomlog': {
+        // a mossy log on its side, mushrooms coming out of the bark
+        E(16, by - 8, 14, 7, '#5a3a1e'); R(2, by - 15, 28, 14, '#6a4424'); R(2, by - 15, 28, 3, '#8a5a30');
+        E(29, by - 8, 4, 7, '#c8a070'); E(29, by - 8, 2.4, 4, '#8a6a40');
+        for (let x = 4; x < 26; x += 5) R(x, by - 12, 1, 9, '#4a2c14');
+        E(8, by - 15, 6, 2.4, '#4a8a32');
+        const n = lit ? 4 : 2;
+        for (let i = 0; i < n; i++) { const x = 8 + i * 6; R(x, by - 20, 2, 5, '#f0e8d0'); E(x + 1, by - 21, 4, 2.4, '#b86a3a'); R(x - 1, by - 22, 2, 1, '#e8a878'); }
+        break;
+      }
+      case 'beehive': {
+        // a white box hive on a stand, bees coming and going
+        R(8, by - 6, 2, 6, '#5a3a1e'); R(22, by - 6, 2, 6, '#5a3a1e');
+        for (let i = 0; i < 3; i++) { R(6, by - 12 - i * 7, 20, 6, i % 2 ? '#f4f0e0' : '#e8e0c8'); R(6, by - 12 - i * 7, 20, 1, '#ffffff'); }
+        Art.poly(g, [[4, by - 26], [28, by - 26], [16, by - 34]], '#c8a060'); R(4, by - 26, 24, 2, '#8a6a30');
+        R(12, by - 9, 8, 2, '#3a2a18');
+        for (let i = 0; i < 4; i++) { const a = f * 0.9 + i * 1.6; const bx = 16 + Math.cos(a) * 12, by2 = by - 20 + Math.sin(a) * 8; R(bx, by2, 2, 1, '#2a1a08'); P(bx, by2 - 1, '#f8e040'); }
+        break;
+      }
+      case 'lamp': {
+        R(15, by - 30, 2, 30, '#3a3a44'); R(12, by - 3, 8, 3, '#3a3a44');
+        R(11, by - 36, 10, 7, '#2a2a34'); R(12, by - 35, 8, 5, lit ? '#ffe070' : '#c8b060');
+        R(10, by - 37, 12, 2, '#1a1a22');
+        break;
+      }
+    }
+    Art.outline(c, INK, 1);
+    artCache.set(key, c);
+    return c;
+  }
+  function drawMachine(g, b) {
+    const { x, y } = centre(b.c, b.r), rt = b.rt;
+    const night = typeof Sky !== 'undefined' ? 1 - Sky.light() : 0;
+    const busy = (b.k === 'mill' || b.k === 'grow' || b.k === 'shroomlog') ? rt.inb.length > 0 : b.k === 'feeder' ? rt.inb.length > 0 : b.k === 'lamp' ? night > 0.4 : (b.k === 'fishtrap' || b.k === 'beehive') ? rt.out.length > 0 || rt.flash > 0 : rt.flash > 0;
+    const f = Math.floor(t * (busy ? 8 : 2)) % 6;
+    const img = art(b.k, b.d, f, busy);
+    const mw = Math.round(32 * MS), mh = Math.round(44 * MS), foot = y + T / 2 - 2;
+    g.drawImage(img, Math.round(x - mw / 2), Math.round(foot - mh), mw, mh);
+    if (b.k === 'lamp' && night > 0.4) Art.glow(g, x, foot - 44, 56, '#ffe090', 0.28 * night, 5);
+    if (b.k === 'hopper' && rt.suck) {                                           // a cube flying in
+      const s = rt.suck, u = s.t;
+      const px = U.lerp(s.x, x, u), py = U.lerp(s.y, foot - 50, u) - Math.sin(u * Math.PI) * 18;
+      drawItem(g, { k: 'cube' }, px, py);
+    }
+    if (b.k === 'sprinkler' && rt.spray > 0) {
+      for (let i = 0; i < 14; i++) {
+        const a = (i / 14) * Math.PI * 2 + t * 3, rr = (1.2 - rt.spray) * 55;
+        g.fillStyle = 'rgba(140,200,255,0.7)';
+        g.fillRect(Math.round(x + Math.cos(a) * rr), Math.round(foot - 20 + Math.sin(a) * rr * 0.4 - Math.sin((1.2 - rt.spray) * 2.6) * 14), 2, 2);
+      }
+    }
+    // a little count over anything with a queue in it
+    const n = b.k === 'chest' ? rt.inb.length : (b.k === 'mill' || b.k === 'grow' || b.k === 'feeder' || b.k === 'shroomlog') ? rt.inb.length + rt.out.length : (b.k === 'fishtrap' || b.k === 'beehive') ? rt.out.length : 0;
+    if (n > 0 && b.k !== 'belt') {
+      const s = String(n), w2 = Font.width(s, 1) + 4;
+      g.fillStyle = INK; g.fillRect(Math.round(x + 9), Math.round(foot - mh + 6), w2 + 2, 9);
+      g.fillStyle = '#fff4d0'; g.fillRect(Math.round(x + 10), Math.round(foot - mh + 7), w2, 7);
+      Font.draw(g, s, x + 12, foot - mh + 7, { scale: 1, color: INK });
+    }
+    // work progress bar on the mill and the grow house
+    if (((b.k === 'mill' || b.k === 'grow' || b.k === 'shroomlog') && rt.inb.length) || b.k === 'fishtrap' || b.k === 'beehive') {
+      const need = b.k === 'mill' ? 3.2 : b.k === 'grow' ? 7 : b.k === 'shroomlog' ? 6 : b.k === 'fishtrap' ? 14 : 18, u = Math.min(1, rt.work / need);
+      g.fillStyle = INK; g.fillRect(Math.round(x - 12), Math.round(foot + 2), 24, 4);
+      g.fillStyle = '#6aa84a'; g.fillRect(Math.round(x - 11), Math.round(foot + 3), Math.round(22 * u), 2);
+    }
+  }
+  // the machines stand up and sort with everything else by their feet
+  function sortables(g) {
+    const out = [];
+    for (const b of G.factory.b) if (b.k !== 'belt') out.push({ y: centre(b.c, b.r).y + T / 2 - 2, fn: () => drawMachine(g, b) });
+    return out;
+  }
+  function drawOver(g) {
+    // money coming off the pickup points
+    for (const s of sold) {
+      const a = 1 - s.t / 1.2;
+      g.globalAlpha = a;
+      Font.draw(g, '+' + s.n, s.x, s.y - s.t * 20, { scale: 1, color: '#ffe070', align: 'center', shadow: '#3a2a04' });
+      g.globalAlpha = 1;
+    }
+    // the ghost of what you are placing, or the pick-up cursor
+    if (!mode || !ghost) return;
+    const { c, r } = ghost;
+    if (r < -1 || r > ROWS) return;
+    const x = c * T, y = OY + r * T;
+    // the grid, faintly, around the pointer
+    g.fillStyle = 'rgba(255,255,255,0.12)';
+    for (let dc = -4; dc <= 4; dc++) for (let dr = -3; dr <= 3; dr++) {
+      const rr = r + dr; if (rr < 0 || rr >= ROWS) continue;
+      g.fillRect((c + dc) * T, OY + rr * T, T, 1); g.fillRect((c + dc) * T, OY + rr * T, 1, T);
+    }
+    if (mode.pick) {
+      const b = at(c, r);
+      g.fillStyle = b ? 'rgba(255,90,60,0.45)' : 'rgba(255,255,255,0.15)'; g.fillRect(x, y, T, T);
+      return;
+    }
+    const bad = canPlace(c, r);
+    g.fillStyle = bad ? 'rgba(255,60,40,0.4)' : 'rgba(120,255,120,0.3)'; g.fillRect(x, y, T, T);
+    g.globalAlpha = 0.72;
+    if (mode.key === 'belt') g.drawImage(beltTile(mode.rot, 0), x, y);
+    else {
+      const { x: mx, y: my } = centre(c, r);
+      const mw = Math.round(32 * MS), mh = Math.round(44 * MS);
+      g.drawImage(art(mode.key, mode.rot, 0, false), Math.round(mx - mw / 2), Math.round(my + T / 2 - 2 - mh), mw, mh);
+      const [dx, dy] = DIRS[mode.rot];
+      g.fillStyle = '#f0c048'; g.fillRect(Math.round(mx + dx * 14 - 2), Math.round(my + dy * 14 - 2), 4, 4);
+    }
+    g.globalAlpha = 1;
+  }
+
+  // ---- input ---------------------------------------------------------------------------------------
+  function start(key) {
+    if (key === 'pick') { mode = { pick: true }; }
+    else { if (inv(key) <= 0) { Audio.play('error'); return; } mode = { key, rot: mode && mode.rot != null ? mode.rot : 0 }; }
+    lastTile = null;
+    UI.closePanels();
+    refreshBar();
+  }
+  function stop() { mode = null; ghost = null; lastTile = null; refreshBar(); }
+  const active = () => !!mode;
+  function rotate() { if (mode && !mode.pick) { mode.rot = (mode.rot + 1) & 3; Audio.play('click'); refreshBar(); } }
+  function pointer(x, y) { ghost = tileOf(x, y); }
+  function press(x, y, first) {
+    const { c, r } = tileOf(x, y);
+    ghost = { c, r };
+    if (mode.pick) {
+      if (!first) return true;
+      const b = at(c, r);
+      if (b) pickUp(b); else Audio.play('error');
+      refreshBar();
+      return true;
+    }
+    const k = mode.key;
+    if (!first) {
+      // dragging a belt lays a run, turning each piece toward where you went
+      if (k !== 'belt' || !lastTile || (lastTile.c === c && lastTile.r === r)) return true;
+      const dc = Math.sign(c - lastTile.c), dr = Math.sign(r - lastTile.r);
+      if (dc && dr) return true;
+      const d = dc > 0 ? 0 : dc < 0 ? 2 : dr > 0 ? 1 : 3;
+      const prev = at(lastTile.c, lastTile.r);
+      if (prev && prev.k === 'belt') prev.d = d;
+      mode.rot = d;
+      if (place(k, c, r, d)) lastTile = { c, r };
+      else if (at(c, r)) lastTile = { c, r };
+    } else {
+      const why = canPlace(c, r);
+      if (why) { Audio.play('error'); UI.toast(why, 'bad'); return true; }
+      if (place(k, c, r, mode.rot)) lastTile = { c, r };
+    }
+    if (inv(k) <= 0) { UI.toast(`out of <b>${DEFS[k].name}</b> &mdash; buy more in the Build menu (B)`, 'good'); stop(); }
+    refreshBar(); UI.refreshHUD(); Main.save();
+    return true;
+  }
+  function key(e) {
+    if (!G || G.mode !== 'grove') return false;
+    if (e.key === 'r' || e.key === 'R') { if (mode) { rotate(); return true; } return false; }
+    if (e.key === 'Escape' && mode) { stop(); return true; }
+    if (e.key === 'b' || e.key === 'B') { if (UI.anyPanel()) return false; openMenu(); return true; }
+    return false;
+  }
+  function tipAt(x, y) {
+    const { c, r } = tileOf(x, y), b = at(c, r);
+    if (!b) return null;
+    const d = DEFS[b.k], rt = b.rt;
+    const bits = [];
+    if (b.k === 'belt' && rt.item) bits.push(`carrying a ${NAMES[rt.item.k]}`);
+    if (b.k === 'mill' || b.k === 'grow') bits.push(`${rt.inb.length} in, ${rt.out.length} out`);
+    if (b.k === 'chest') bits.push(`${rt.inb.length} / 20`);
+    if (b.k === 'feeder') bits.push(`${rt.inb.length} carrots`);
+    if (b.k === 'depot') bits.push(`cube ${PRICE.cube} &middot; fertiliser ${PRICE.fert} &middot; carrot ${PRICE.veg}<br>fish ${PRICE.fish} &middot; mushroom ${PRICE.shroom} &middot; honey ${PRICE.honey}`);
+    if (b.k === 'fishtrap' || b.k === 'beehive') bits.push(`${rt.out.length} waiting`);
+    return `<b>${d.name}</b>${bits.length ? '<br>' + bits.join('<br>') : ''}<br><span class="dim">B: build menu</span>`;
+  }
+
+  // ---- the build menu --------------------------------------------------------------------------------
+  let tab = 'factory';
+  const iconCache = {};
+  function iconURL(k) {
+    if (iconCache[k]) return iconCache[k];
+    const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+    const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+    if (k === 'belt') { g.drawImage(beltTile(0, 3), 12, 12, 40, 40); }
+    else g.drawImage(art(k, 0, 1, true), 9, 0, 46, 64);
+    return (iconCache[k] = c.toDataURL());
+  }
+  function openMenu() {
+    if (!G || G.mode !== 'grove') { UI.toast('the build menu is for the grove', 'bad'); return; }
+    if (!G.arrived) { UI.toast('tidy the grove and meet your first wombat before you build', 'bad'); return; }
+    stop();
+    UI.openPanel('panel-build');
+    renderMenu();
+  }
+  function renderMenu() {
+    const el = document.getElementById('b-grid'); if (!el) return;
+    document.querySelectorAll('[data-btab]').forEach((b) => b.classList.toggle('on', b.dataset.btab === tab));
+    if (tab === 'decor') {
+      const ks = Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0);
+      el.innerHTML = ks.length ? ks.map((k) => {
+        const f = FURN_BY_KEY[k], img = Props.furniture(k);
+        return `<div class="bcard"><div class="bpic"><img src="${img ? img.toDataURL() : ''}" alt=""></div><b>${f.name}</b><p>${f.blurb}</p>
+          <div class="brow3"><span class="bhave">x${G.crates[k]}</span><button class="wbtn" data-bdecor="${k}">PLACE</button></div></div>`;
+      }).join('') : `<p class="bempty">No furniture in crates. Captain Kirk's Ottoman Empire, in town, sells it.</p>`;
+    } else {
+      el.innerHTML = ORDER.filter((k) => DEFS[k].cat === tab).map((k) => {
+        const d = DEFS[k], n = inv(k), can = G.wd >= d.cost;
+        if (!unlocked(k)) {
+          const pl = typeof Explore !== 'undefined' ? Explore.PLACES[d.need] : null;
+          return `<div class="bcard locked"><div class="bpic"><img src="${iconURL(k)}" alt=""></div><b>${d.name}</b><p>${d.blurb}</p>
+            <div class="brow3"><span class="block">${Icons.img('lock', 'sm')} buy ${pl ? pl.name : 'the land'} on the map</span></div></div>`;
+        }
+        return `<div class="bcard"><div class="bpic"><img src="${iconURL(k)}" alt=""></div><b>${d.name}</b><p>${d.blurb}</p>
+          <div class="brow3"><span class="bprice">${Icons.img('wdollar', 'sm')} ${d.cost}</span><span class="bhave">${n ? 'x' + n : ''}</span></div>
+          <div class="brow3"><button class="wbtn" data-bbuy="${k}" ${can ? '' : 'disabled'}>BUY${k === 'belt' ? ' 1' : ''}</button>
+          ${k === 'belt' ? `<button class="wbtn" data-bbuy5="${k}" ${G.wd >= d.cost * 5 ? '' : 'disabled'}>BUY 5</button>` : ''}
+          <button class="wbtn go" data-bplace="${k}" ${n ? '' : 'disabled'}>PLACE</button></div></div>`;
+      }).join('');
+    }
+    const invEl = document.getElementById('b-inv');
+    const keys = ORDER.filter((k) => inv(k) > 0);
+    invEl.innerHTML = keys.length ? keys.map((k) => `<button class="binvi" data-bplace="${k}" title="${DEFS[k].name}"><img src="${iconURL(k)}" alt=""><i>${inv(k)}</i></button>`).join('')
+      : '<span class="dim">empty &mdash; buy something above</span>';
+    const earned = G.stats.factoryEarned || 0;
+    document.getElementById('b-earned').textContent = earned ? `the factory has made ${U.fmt(earned)} W$` : 'hopper, belt, mill, grow house, belt, pickup point';
+    el.querySelectorAll('[data-bbuy]').forEach((b) => b.onclick = () => { if (buy(b.dataset.bbuy, 1)) renderMenu(); });
+    el.querySelectorAll('[data-bbuy5]').forEach((b) => b.onclick = () => { if (buy(b.dataset.bbuy5, 5)) renderMenu(); });
+    document.querySelectorAll('#panel-build [data-bplace]').forEach((b) => b.onclick = () => start(b.dataset.bplace));
+    el.querySelectorAll('[data-bdecor]').forEach((b) => b.onclick = () => {
+      G.tool = 'build'; if (!G.owned) G.owned = {}; G.owned.build = true; if (!G.unlocked) G.unlocked = {}; G.unlocked.build = true;
+      Grove.selectFurniture && Grove.selectFurniture(b.dataset.bdecor);
+      UI.closePanels(); UI.refreshTray(); UI.refreshHUD();
+      UI.toast('click the ground to set it down', 'good');
+    });
+  }
+  function bindMenu() {
+    document.querySelectorAll('[data-btab]').forEach((b) => b.onclick = () => { tab = b.dataset.btab; Audio.play('click'); renderMenu(); });
+    const pick = document.getElementById('b-pick'); if (pick) pick.onclick = () => start('pick');
+    const bb = document.getElementById('b-build'); if (bb) bb.onclick = () => openMenu();
+    const pr = document.getElementById('pb-rot'); if (pr) pr.onclick = () => rotate();
+    const ps = document.getElementById('pb-stop'); if (ps) ps.onclick = () => stop();
+  }
+  // the bar along the top while you are placing
+  function refreshBar() {
+    const bar = document.getElementById('placebar'); if (!bar) return;
+    bar.hidden = !mode;
+    if (!mode) return;
+    const arrows = ['&rarr;', '&darr;', '&larr;', '&uarr;'];
+    document.getElementById('pb-what').innerHTML = mode.pick ? '<b>PICK UP</b> click a building to put it back in your inventory'
+      : `<b>${DEFS[mode.key].name}</b> x${inv(mode.key)} &nbsp; facing ${arrows[mode.rot]}${mode.key === 'belt' ? ' &nbsp; <span class="dim">hold and drag to lay a run</span>' : ''}`;
+    document.getElementById('pb-rot').hidden = !!mode.pick;
+  }
+  return {
+    init, update, drawFloor, sortables, drawOver, press, pointer, key, tipAt, active, start, stop, rotate, openMenu, renderMenu, bindMenu, buy, place,
+    DEFS, ORDER, PRICE, get mode() { return mode; }, get grid() { return grid; }, T, OY, ROWS,
+  };
+})();
+</script>
+
+<script>
+// ===== js/explore.js =====
+// ---- Explore: places out past the farm you can walk, forage and buy ---------------------------
+// Three of them, each a long painted panorama you drag along (the near ground
+// moves at full speed, the hills and trees behind at their own):
+//   STILL LAKE   a lake at golden hour: willows, a jetty, a moored boat, reeds,
+//                lily pads, ducks going round, dragonflies over the water
+//   BLACKWOOD    old dark pines, shafts of light through them, mossy logs, a
+//                creek, glowing mushrooms, fireflies, an owl that blinks
+//   FERN GULLY   a green gully between rock walls: a waterfall into a pool,
+//                tree ferns, mist, crystals in the rock, butterflies
+// Things lie about to be picked up (they pay W$ and go in your field guide)
+// and come back each new day. Each place has a FOR SALE sign; buy it and you
+// find twice as much there, and it unlocks its own building for the factory.
+const Explore = (() => {
+  const VW = 640, VH = 360, WW = 1700, GY = 300;          // world width; where the ground is
+  let G = null, place = null, scroll = 0, tscroll = 0, t = 0, drag = null, moved = 0, hover = null, fade = 1;
+  const layers = {};
+  const TAU = Math.PI * 2;
+
+  // ---- the places ------------------------------------------------------------------------------
+  const PLACES = {
+    lake: {
+      name: 'Still Lake', cost: 900, unlock: 'fishtrap', seed: 101,
+      blurb: 'Glassy water, willows, a jetty somebody built and forgot.',
+      sky: [[0, '#6a8ad8'], [0.55, '#f0a8a0'], [1, '#ffd8a0']],
+      finds: [['shell', 'River Shell', 4], ['stone', 'Skipping Stone', 3], ['feather', 'Duck Feather', 5], ['lily', 'Water Lily', 9], ['bottle', 'Message in a Bottle', 40]],
+    },
+    wood: {
+      name: 'Blackwood', cost: 1400, unlock: 'shroomlog', seed: 202,
+      blurb: 'Old pines, a cold creek, and things that glow after dark.',
+      sky: [[0, '#1e3a4a'], [0.6, '#3e6a6a'], [1, '#8ab89a']],
+      finds: [['mushroom', 'Wild Mushroom', 6], ['pinecone', 'Pine Cone', 3], ['moss', 'Soft Moss', 4], ['antler', 'Shed Antler', 25], ['truffle', 'Black Truffle', 45]],
+    },
+    gully: {
+      name: 'Fern Gully', cost: 2200, unlock: 'beehive', seed: 303,
+      blurb: 'A waterfall, a green pool, and ferns taller than you.',
+      sky: [[0, '#5ab0e0'], [0.6, '#b0e4e8'], [1, '#e8f8d8']],
+      finds: [['frond', 'Fern Frond', 3], ['berry', 'Wild Berries', 5], ['orchid', 'Rock Orchid', 12], ['lyre', 'Lyrebird Feather', 20], ['crystal', 'Gully Crystal', 30]],
+    },
+  };
+  const owned = (k) => !!(G && G.lands && G.lands[k]);
+  const day = () => Math.floor((G.time || 0) / 720);
+
+  // ---- painting: done once per place into three canvases ------------------------------------------
+  function paint(k) {
+    if (layers[k]) return layers[k];
+    const P = PLACES[k], r = Art.rng(P.seed);
+    const farW = Math.ceil(VW + (WW - VW) * 0.3), midW = Math.ceil(VW + (WW - VW) * 0.6);
+    const sky = Art.cv(VW, VH), far = Art.cv(farW, VH), mid = Art.cv(midW, VH), near = Art.cv(WW, VH);
+    Art.vramp(sky.g, 0, 0, VW, VH, P.sky, 12);
+    const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    const ridge = (g, w, base, amp, f1, col, top, seed) => {
+      for (let x = 0; x < w; x++) {
+        const y = Math.round(base - Math.abs(Math.sin(x * f1 + seed)) * amp - Math.sin(x * f1 * 2.7 + seed * 2) * amp * 0.3);
+        R(g, x, y, 1, VH - y, col); if (top) R(g, x, y, 1, 2, top);
+      }
+    };
+    const tree = (g, kind, x, base, s, sh) => {
+      const img = Props.get('tree', `${kind}|${Math.floor(r() * 6)}|${sh.toFixed(2)}`);
+      const w = img.width * s, h = img.height * s;
+      g.drawImage(img, Math.round(x - w / 2), Math.round(base - h), Math.round(w), Math.round(h));
+    };
+    if (k === 'lake') {
+      // sun low on the water, two ranks of violet hills
+      Art.glow(sky.g, 470, 150, 110, '#fff0c0', 0.5, 7); Art.ell(sky.g, 470, 150, 20, 20, '#fff4d0');
+      ridge(far.g, farW, 196, 40, 0.008, '#8a7ab8', '#a898d0', 1);
+      ridge(far.g, farW, 206, 22, 0.016, '#6a6aa8', '#8484c0', 4);
+      // the far shore's treeline, then the water itself on the mid layer
+      for (let x = 0; x < midW; x += 18) tree(mid.g, r() < 0.4 ? 'pine' : 'oak', x + r() * 10, 214, 0.32 + r() * 0.08, 0.35);
+      R(mid.g, 0, 212, midW, 4, '#4a6a4a');
+      // the lake: bands of colour, the sun's path, reflections of the far trees
+      const WAT = ['#f0b0a0', '#d898a8', '#a888b8', '#7a80b8', '#5a74a8', '#4a6498'];
+      for (let i = 0; i < 6; i++) R(near.g, 0, 216 + i * 12, WW, 12, WAT[i]);
+      for (let x = 0; x < WW; x += 3) { const y = 222 + ((x * 7) % 60); R(near.g, x, y, 2 + (x % 5), 1, 'rgba(255,255,255,0.18)'); }
+      // near shore: sand then grass
+      R(near.g, 0, 288, WW, 8, '#e8c890'); R(near.g, 0, 288, WW, 2, '#fff0c0');
+      R(near.g, 0, 296, WW, VH, '#6aa84a'); R(near.g, 0, 296, WW, 2, '#8ac860');
+      for (let i = 0; i < 600; i++) R(near.g, r() * WW, 298 + r() * 60, 1, 2 + r() * 3, r() < 0.5 ? '#4a8a32' : '#8ac860');
+      // willows along the shore
+      for (const x of [140, 520, 1180, 1560]) {
+        R(near.g, x - 3, 230, 6, 70, '#5a3a1e'); R(near.g, x - 3, 230, 2, 70, '#7a5230');
+        for (let i = 0; i < 40; i++) {
+          const a = -Math.PI / 2 + (r() - 0.5) * 2.4, L = 30 + r() * 30, sx = x + Math.cos(a) * 20, sy = 228 + Math.sin(a) * 18;
+          for (let j = 0; j < L; j++) R(near.g, sx + Math.sin(j * 0.2 + i) * 2 + (sx - x) * j * 0.012, sy + j, 1, 1, j % 5 ? '#6aa84a' : '#9ad06a');
+        }
+      }
+      // the jetty, with a boat tied to it
+      const jx = 820;
+      for (let i = 0; i < 9; i++) R(near.g, jx + i * 10, 262, 9, 4, i % 2 ? '#a8783e' : '#b8884a');
+      R(near.g, jx, 266, 90, 2, '#5a3a1e');
+      for (const px of [jx, jx + 40, jx + 86]) R(near.g, px, 262, 3, 30, '#5a3a1e');
+      Art.poly(near.g, [[jx + 100, 262], [jx + 150, 262], [jx + 142, 272], [jx + 108, 272]], '#c84a3a');
+      R(near.g, jx + 100, 262, 50, 2, '#f4f0e0'); R(near.g, jx + 118, 258, 14, 4, '#8a5a30');
+      // reeds and lily pads
+      for (let i = 0; i < 70; i++) {
+        const x = r() * WW, h = 10 + r() * 16;
+        R(near.g, x, 290 - h, 1, h, '#4a7a32'); if (r() < 0.4) R(near.g, x - 1, 290 - h, 3, 5, '#7a4a2a');
+      }
+      for (let i = 0; i < 26; i++) { const x = r() * WW, y = 250 + r() * 34; Art.ell(near.g, x, y, 6, 2.5, '#4a8a42'); R(near.g, x, y - 1, 3, 1, '#2e5a2a'); if (r() < 0.3) Art.ell(near.g, x + 2, y - 2, 2, 2, '#f8b0c8'); }
+      // the near bank: flowers, bushes, rocks, a bench to sit and watch it from
+      for (let i = 0; i < 70; i++) { const img = Props.get('flower', Math.floor(r() * 6)); near.g.drawImage(img, Math.round(r() * WW), 298 + Math.round(r() * 48)); }
+      for (let i = 0; i < 20; i++) { const img = Props.get('rock', i % 3); near.g.drawImage(img, Math.round(r() * WW), 300 + Math.round(r() * 44)); }
+      for (let i = 0; i < 14; i++) {
+        const x = r() * WW, y = 318 + r() * 30;
+        Art.ell(near.g, x, y, 18, 10, '#2e6a2a'); Art.ell(near.g, x - 3, y - 3, 14, 8, '#4a8a3a'); Art.ell(near.g, x - 6, y - 6, 7, 4, '#6aac4a');
+        for (let j = 0; j < 4; j++) Art.ell(near.g, x - 10 + j * 7, y - 4 - (j % 2) * 3, 1.6, 1.6, j % 2 ? '#f8f0f8' : '#f890b0');
+      }
+      for (const bx of [380, 1320]) {
+        R(near.g, bx, 306, 44, 4, '#a8783e'); R(near.g, bx, 306, 44, 1, '#d8a868'); R(near.g, bx, 298, 44, 3, '#a8783e');
+        R(near.g, bx + 2, 310, 3, 10, '#5a3a1e'); R(near.g, bx + 39, 310, 3, 10, '#5a3a1e'); R(near.g, bx + 2, 298, 2, 12, '#5a3a1e'); R(near.g, bx + 40, 298, 2, 12, '#5a3a1e');
+      }
+    } else if (k === 'wood') {
+      ridge(far.g, farW, 150, 30, 0.01, '#16303a', null, 2);
+      for (let x = 0; x < farW; x += 14) tree(far.g, 'pine', x + r() * 8, 250, 0.5 + r() * 0.2, 0.75);
+      for (let x = 0; x < midW; x += 30) tree(mid.g, r() < 0.8 ? 'pine' : 'gnarl', x + r() * 16, 280, 0.8 + r() * 0.3, 0.5);
+      // the forest floor: needles, moss, the creek
+      R(near.g, 0, 282, WW, VH, '#3a4a2a'); R(near.g, 0, 282, WW, 3, '#5a7a3a');
+      for (let i = 0; i < 900; i++) R(near.g, r() * WW, 284 + r() * 76, 2, 1, ['#5a4a2a', '#4a6a2e', '#6a5a34', '#2e3a22'][Math.floor(r() * 4)]);
+      for (let x = 0; x < WW; x++) { const y = 318 + Math.sin(x * 0.01) * 10; R(near.g, x, y, 1, 10, '#3a6a8a'); R(near.g, x, y, 1, 2, '#6aa0c0'); }
+      for (let i = 0; i < 12; i++) { const img = Props.get('fallen', i % 3); near.g.drawImage(img, Math.round(r() * WW), 262 + Math.round(r() * 20)); }
+      for (let i = 0; i < 40; i++) { const img = Props.get('rock', i % 3); near.g.drawImage(img, Math.round(r() * WW), 290 + Math.round(r() * 50)); }
+      // big trunks right up close
+      for (const x of [60, 420, 760, 1120, 1480]) {
+        R(near.g, x - 14, 0, 28, 300, '#2a1a10'); R(near.g, x - 14, 0, 7, 300, '#4a3220'); R(near.g, x + 8, 0, 6, 300, '#1a100a');
+        for (let y = 20; y < 290; y += 16) R(near.g, x - 10 + (y % 3) * 4, y, 6, 2, '#1a100a');
+        for (let i = 0; i < 12; i++) Art.ell(near.g, x - 14 + r() * 6, 180 + r() * 110, 4, 3, '#4a7a32');
+      }
+      // ferns along the floor
+      for (let i = 0; i < 60; i++) {
+        const x = r() * WW, y = 284 + r() * 30;
+        for (let j = 0; j < 6; j++) Art.limb(near.g, x, y, x + (j - 2.5) * 5, y - 10 - r() * 6, 1.2, 0.6, j % 2 ? '#3a7a32' : '#5a9a3e');
+      }
+    } else {
+      // the rock walls of the gully: layered strata, cracks, moss on every ledge
+      const ROCK = ['#4e5a50', '#5e6a5e', '#6e7a6c', '#808c7c', '#98a490'];
+      for (let x = 0; x < farW; x++) {
+        const top = Math.round(96 - Math.abs(Math.sin(x * 0.011 + 3)) * 44 - Math.sin(x * 0.03) * 8);
+        for (let y = top; y < VH; y++) {
+          const band = Math.floor((y + Math.sin(x * 0.02) * 4) / 14);
+          R(far.g, x, y, 1, 1, ROCK[1 + (band % 3)]);
+        }
+        R(far.g, x, top, 1, 2, ROCK[4]);
+        for (let band = Math.ceil(top / 14); band < 22; band++) {                // the lit lip of each ledge
+          const y = Math.round(band * 14 - Math.sin(x * 0.02) * 4);
+          if (y > top + 2) { R(far.g, x, y, 1, 1, ROCK[4]); R(far.g, x, y + 1, 1, 1, ROCK[0]); }
+        }
+      }
+      for (let i = 0; i < 60; i++) {                                              // cracks running down
+        let x = r() * farW, y = 90 + r() * 120;
+        for (let j = 0; j < 14 + r() * 20; j++) { R(far.g, x, y, 1, 2, ROCK[0]); x += (r() - 0.5) * 2; y += 2; }
+      }
+      for (let i = 0; i < 220; i++) {                                             // moss sitting on the ledges
+        const x = r() * farW, band = 7 + Math.floor(r() * 14), y = band * 14 - Math.sin(x * 0.02) * 4;
+        Art.ell(far.g, x, y - 1, 4 + r() * 8, 2 + r() * 1.5, r() < 0.5 ? '#4a8a3a' : '#6aac4a');
+      }
+      for (let i = 0; i < 45; i++) {                                              // vines hanging off them
+        const x = r() * farW, y0 = 100 + r() * 90, len = 20 + r() * 50;
+        for (let j = 0; j < len; j++) { const xx = x + Math.sin(j * 0.2 + i) * 1.5; R(far.g, xx, y0 + j, 1, 1, '#3a7a32'); if (j % 5 === 0) R(far.g, xx - 1, y0 + j, 3, 2, '#6ab850'); }
+      }
+      // tree ferns: a shaggy trunk and a crown of long arching fronds with leaflets
+      const frond = (g, x, y, a, len, droop, c1, c2) => {
+        let px = x, py = y;
+        for (let j = 0; j < len; j++) {
+          const u = j / len, ang = a + droop * u * u;
+          px += Math.cos(ang); py += Math.sin(ang);
+          R(g, px, py, 1, 1, c1);
+          if (j % 2 === 0 && u > 0.1) {                                          // a leaflet each side
+            const l = Math.round((1 - u) * 6 + 2), na = ang + Math.PI / 2;
+            for (let q = 1; q <= l; q++) { R(g, px + Math.cos(na) * q, py + Math.sin(na) * q + q * 0.4, 1, 1, c2); R(g, px - Math.cos(na) * q, py - Math.sin(na) * q + q * 0.4, 1, 1, c2); }
+          }
+        }
+      };
+      for (let x = 0; x < midW; x += 70) {
+        const bx = x + r() * 30, base = 292, h = 80 + r() * 50;
+        R(mid.g, bx - 4, base - h, 8, h, '#4a2e1c'); R(mid.g, bx - 4, base - h, 3, h, '#6a4630');
+        for (let y = base - h; y < base; y += 5) R(mid.g, bx - 5 + (y % 2), y, 10, 2, '#3a2214');     // the shaggy stubs
+        for (let j = 0; j < 11; j++) {
+          const a = -Math.PI + (j / 10) * Math.PI;
+          frond(mid.g, bx, base - h, a, 34 + r() * 14, (a < -Math.PI / 2 ? -1 : 1) * 1.1, '#2e6a2a', j % 2 ? '#4a9a3a' : '#6ab850');
+        }
+        Art.ell(mid.g, bx, base - h, 5, 3, '#3a7a32');
+      }
+      // the floor: lush green with stones, and the pool under the waterfall
+      R(near.g, 0, 290, WW, VH, '#4a9a3a'); R(near.g, 0, 290, WW, 3, '#7ac860');
+      for (let i = 0; i < 1400; i++) R(near.g, r() * WW, 292 + r() * 68, 1, 2 + r() * 4, r() < 0.5 ? '#3a8a2e' : '#8ad060');
+      Art.ell(near.g, 1100, 312, 150, 26, '#2a7a8a'); Art.ell(near.g, 1100, 310, 140, 22, '#4aa0b0'); Art.ell(near.g, 1080, 305, 70, 8, '#8ad0d8');
+      for (let i = 0; i < 60; i++) { const x = 960 + r() * 280; R(near.g, x, 286 + r() * 8, 2 + r() * 3, 1, '#c8f0f4'); }
+      // the cliff the water comes off, in the same strata
+      for (let x = 1040; x < 1160; x++) for (let y = 40; y < 300; y++) R(near.g, x, y, 1, 1, ROCK[1 + (Math.floor((y + Math.sin(x * 0.05) * 3) / 12) % 3)]);
+      R(near.g, 1040, 40, 120, 3, ROCK[4]);
+      for (let i = 0; i < 30; i++) Art.ell(near.g, 1040 + r() * 120, 60 + r() * 220, 5 + r() * 5, 2.5, r() < 0.5 ? '#4a8a3a' : '#6aac4a');
+      for (let i = 0; i < 40; i++) { const img = Props.get('rock', i % 3); near.g.drawImage(img, Math.round(r() * WW), 292 + Math.round(r() * 50)); }
+      for (let i = 0; i < 50; i++) { const img = Props.get('flower', Math.floor(r() * 6)); near.g.drawImage(img, Math.round(r() * WW), 290 + Math.round(r() * 50)); }
+      // big fern clumps in the foreground
+      for (let i = 0; i < 26; i++) {
+        const x = r() * WW, y = 300 + r() * 50;
+        for (let j = 0; j < 7; j++) { const a = -Math.PI + 0.3 + (j / 6) * (Math.PI - 0.6); frond(near.g, x, y, a, 18 + r() * 10, (a < -Math.PI / 2 ? -1 : 1) * 1.4, '#2e6a2a', j % 2 ? '#4a9a3a' : '#7ac860'); }
+      }
+    }
+    layers[k] = { sky: sky.c, far: far.c, mid: mid.c, near: near.c };
+    return layers[k];
+  }
+
+  // ---- the forage -----------------------------------------------------------------------------------
+  function finds() {
+    if (!G.forage) G.forage = {};
+    const P = PLACES[place];
+    let f = G.forage[place];
+    if (!f || f.day !== day()) {
+      const r = Art.rng(P.seed * 7 + day() * 13);
+      const n = owned(place) ? 16 : 8, items = [];
+      for (let i = 0; i < n; i++) {
+        const roll = r();
+        const idx = roll < 0.3 ? 0 : roll < 0.55 ? 1 : roll < 0.78 ? 2 : roll < 0.94 ? 3 : 4;
+        items.push({ id: i, k: idx, x: 120 + r() * (WW - 240), y: (place === 'lake' ? 300 : 296) + r() * 44, taken: false });
+      }
+      f = G.forage[place] = { day: day(), items };
+    }
+    return f.items;
+  }
+  function findArt(g, k, i, x, y, tt) {
+    const R = (a, b, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(a), Math.round(b), w, h); };
+    const E = (a, b, rx, ry, c) => Art.ell(g, a, b, rx, ry, c);
+    const bob = Math.round(Math.sin(tt * 3 + x) * 1.5);
+    y += bob;
+    // a sparkle, so it reads as something to pick up
+    if (Math.floor(tt * 2 + x) % 3 === 0) { R(x + 6, y - 14, 1, 3, '#ffffff'); R(x + 5, y - 13, 3, 1, '#ffffff'); }
+    const key = PLACES[k].finds[i][0];
+    switch (key) {
+      case 'shell': E(x, y - 3, 5, 3, '#1a1420'); E(x, y - 3, 4, 2.4, '#f0d0c0'); for (let j = -3; j <= 3; j += 2) R(x + j, y - 5, 1, 3, '#c8a098'); break;
+      case 'stone': E(x, y - 3, 5, 3, '#1a1420'); E(x, y - 3, 4.2, 2.4, '#9a9aa8'); R(x - 2, y - 5, 3, 1, '#d8d8e0'); break;
+      case 'feather': for (let j = 0; j < 9; j++) R(x - 4 + j, y - 2 - j * 0.6, 2, 2, j % 2 ? '#f4f0e8' : '#c8c0b0'); R(x - 5, y - 1, 1, 1, '#1a1420'); break;
+      case 'lily': E(x, y - 2, 6, 2.5, '#2e6a2a'); for (let j = 0; j < 5; j++) E(x + (j - 2) * 2, y - 5 - (j % 2), 1.6, 2.4, '#f8b0c8'); E(x, y - 5, 1.4, 1.4, '#ffe070'); break;
+      case 'bottle': R(x - 5, y - 6, 10, 5, '#1a1420'); R(x - 4, y - 5, 8, 3, '#7ac8a8'); R(x + 4, y - 5, 3, 2, '#c8a060'); R(x - 2, y - 4, 4, 1, '#fff4d0'); break;
+      case 'mushroom': R(x - 1, y - 5, 2, 5, '#f0e8d0'); E(x, y - 6, 5, 3, '#1a1420'); E(x, y - 6, 4, 2.4, '#d8402c'); R(x - 2, y - 7, 1, 1, '#ffffff'); R(x + 1, y - 6, 1, 1, '#ffffff'); break;
+      case 'pinecone': E(x, y - 4, 3, 5, '#1a1420'); E(x, y - 4, 2.4, 4.2, '#8a5a30'); for (let j = 0; j < 3; j++) R(x - 2, y - 7 + j * 3, 4, 1, '#5a3a1e'); break;
+      case 'moss': E(x, y - 2, 6, 3, '#1a1420'); E(x, y - 2, 5, 2.4, '#5aa03e'); R(x - 2, y - 4, 3, 1, '#8ad060'); break;
+      case 'antler': for (let j = 0; j < 10; j++) R(x - 5 + j, y - 2 - Math.abs(j - 5) * 0.8, 2, 2, '#e8dcc0'); R(x - 3, y - 7, 1, 3, '#e8dcc0'); R(x + 3, y - 7, 1, 3, '#e8dcc0'); break;
+      case 'truffle': E(x, y - 3, 5, 4, '#1a1420'); E(x, y - 3, 4, 3.2, '#3a2a20'); R(x - 1, y - 5, 1, 1, '#6a5a4a'); R(x + 2, y - 3, 1, 1, '#6a5a4a'); break;
+      case 'frond': for (let j = 0; j < 8; j++) { R(x - 4 + j, y - 1 - j, 1, 1, '#2e6a2a'); R(x - 5 + j, y - 3 - j, 3, 1, '#5ab050'); } break;
+      case 'berry': for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 1]]) { E(x + dx, y - 3 + dy, 2.2, 2.2, '#1a1420'); E(x + dx, y - 3 + dy, 1.6, 1.6, '#8a2a8a'); } R(x - 1, y - 7, 2, 2, '#4a8a32'); break;
+      case 'orchid': R(x, y - 8, 1, 8, '#4a8a32'); for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) E(x + dx, y - 9 + dy, 1.8, 1.8, '#e8a8f0'); E(x, y - 9, 1.2, 1.2, '#ffe070'); break;
+      case 'lyre': for (let j = 0; j < 12; j++) R(x - 6 + j, y - 2 - Math.sin(j * 0.4) * 6, 2, 2, j % 3 ? '#8a6a4a' : '#e8d8b0'); break;
+      case 'crystal': Art.poly(g, [[x - 4, y], [x - 2, y - 10], [x + 1, y], [x + 2, y - 7], [x + 5, y]], '#1a1420'); Art.poly(g, [[x - 3, y - 1], [x - 2, y - 8], [x, y - 1]], '#8ae0f0'); Art.poly(g, [[x + 1, y - 1], [x + 2, y - 5], [x + 4, y - 1]], '#c0f4ff'); break;
+    }
+  }
+  function collect(it) {
+    const P = PLACES[place], [key, name, value] = P.finds[it.k];
+    it.taken = true;
+    G.wd += value;
+    if (!G.fieldGuide) G.fieldGuide = {};
+    G.fieldGuide[key] = (G.fieldGuide[key] || 0) + 1;
+    G.stats.foraged = (G.stats.foraged || 0) + 1;
+    FX.float(it.x - scroll, it.y - 22, `+${value} ${name}`, { color: PAL.gold4, size: 8 });
+    FX.sparkle(it.x - scroll, it.y - 8, 8, PAL.gold3);
+    Audio.play(value >= 20 ? 'chime' : 'pop');
+    if (value >= 20) UI.toast(`a rare find: <b>${name}</b> (+${value} W$)`, 'good');
+    UI.refreshHUD(); Main.save();
+  }
+
+  // ---- the deed ------------------------------------------------------------------------------------------
+  const SIGN_X = 260;
+  function buyLand() {
+    const P = PLACES[place];
+    if (owned(place)) { UI.toast(`<b>${P.name}</b> is yours`, 'good'); return; }
+    if (G.wd < P.cost) { Audio.play('error'); UI.toast(`need <b>${P.cost} W$</b> to buy ${P.name}`, 'bad'); return; }
+    G.wd -= P.cost;
+    if (!G.lands) G.lands = {};
+    G.lands[place] = true;
+    if (G.forage) delete G.forage[place];                 // a fresh, fuller day's finds
+    Audio.play('levelup'); FX.confettiBurst(VW / 2, 120, 50);
+    const b = Factory.DEFS[P.unlock];
+    UI.toast(`<b>${P.name}</b> is yours! Twice the finds here, and the <b>${b ? b.name : 'new building'}</b> is in the Build menu`, 'good');
+    UI.refreshHUD(); Main.save();
+  }
+
+  // ---- scene flow -----------------------------------------------------------------------------------
+  function enter(k) {
+    place = PLACES[k] ? k : 'lake';
+    paint(place);
+    scroll = tscroll = 0; t = 0; hover = null; fade = 1;
+    Audio.setMode('pen');
+    const P = PLACES[place];
+    UI.toast(`<b>${P.name}</b> &mdash; ${P.blurb} Drag to look along it; click things to pick them up.`, 'good');
+  }
+  function update(dt) {
+    t += dt; fade = Math.max(0, fade - dt * 2);
+    scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.002, dt));
+  }
+  const itemAt = (x, y) => finds().find((it) => !it.taken && Math.abs(x - (it.x - scroll)) < 16 && Math.abs(y - (it.y - 8)) < 16);
+  const overSign = (x, y) => Math.abs(x - (SIGN_X - scroll)) < 40 && y > 220 && y < 300;
+  function press(x, y) { drag = { x, s: tscroll }; moved = 0; }
+  function move(x) { if (!drag) return; moved = Math.max(moved, Math.abs(x - drag.x)); tscroll = U.clamp(drag.s - (x - drag.x), 0, WW - VW); scroll = tscroll; }
+  function release(x, y) {
+    const was = drag && moved > 6; drag = null;
+    if (was) return;
+    const it = itemAt(x, y);
+    if (it) { collect(it); return; }
+    if (overSign(x, y)) buyLand();
+  }
+  function hoverAt(x, y) {
+    const it = itemAt(x, y);
+    if (it) { const [, name, v] = PLACES[place].finds[it.k]; return `<b>${name}</b><br>${v} W$ &middot; click to pick it up`; }
+    if (overSign(x, y)) {
+      const P = PLACES[place], b = Factory.DEFS[P.unlock];
+      return owned(place) ? `<b>${P.name}</b><br>yours` : `<b>${P.name}</b> &mdash; for sale<br>${P.cost} W$ &middot; twice the finds, and unlocks the <b>${b ? b.name : ''}</b>`;
+    }
+    return null;
+  }
+  function wheel(dy) { tscroll = U.clamp(tscroll + dy, 0, WW - VW); }
+
+  // ---- drawing --------------------------------------------------------------------------------------
+  function render(g) {
+    const L = paint(place), P = PLACES[place];
+    g.drawImage(L.sky, 0, 0);
+    g.drawImage(L.far, -Math.round(scroll * 0.3), 0);
+    if (place === 'lake') for (let i = 0; i < 5; i++) {                         // clouds going over
+      const x = ((i * 170 + t * 6) % (VW + 200)) - 100;
+      for (const [dx, dy, rx, ry] of [[0, 0, 22, 6], [-16, 3, 14, 5], [18, 3, 16, 5]]) Art.ell(g, x + dx, 60 + i * 14 + dy, rx, ry, 'rgba(255,240,240,0.7)');
+    }
+    g.drawImage(L.mid, -Math.round(scroll * 0.6), 0);
+    g.drawImage(L.near, -Math.round(scroll), 0);
+    const S = scroll;
+    // ---- the moving parts of each place
+    if (place === 'lake') {
+      for (let i = 0; i < 40; i++) {                                          // glitter on the water
+        const x = ((i * 97) % WW) - S, y = 222 + (i * 13) % 60;
+        if (x < -4 || x > VW + 4) continue;
+        const on = Math.sin(t * 3 + i * 1.7) > 0.6;
+        if (on) { g.fillStyle = '#fff8e0'; g.fillRect(Math.round(x), y, 3, 1); }
+      }
+      for (let i = 0; i < 3; i++) {                                           // ducks paddling round
+        const u = ((t * 0.02 + i * 0.33) % 1), x = 200 + u * (WW - 400) - S, y = 244 + i * 12 + Math.sin(t * 2 + i) * 1;
+        if (x < -20 || x > VW + 20) continue;
+        Art.ell(g, x, y, 6, 3, '#1a1420'); Art.ell(g, x, y, 5, 2.4, '#8a6a4a'); Art.ell(g, x + 4, y - 3, 2.4, 2.4, '#2a7a3a');
+        g.fillStyle = '#f0a020'; g.fillRect(Math.round(x + 6), Math.round(y - 3), 2, 1);
+        g.fillStyle = 'rgba(255,255,255,0.4)'; g.fillRect(Math.round(x - 8), Math.round(y + 3), 6, 1);
+      }
+      for (let i = 0; i < 4; i++) {                                           // dragonflies
+        const x = ((i * 300 + Math.sin(t * 0.7 + i) * 80) % WW) - S, y = 250 + Math.sin(t * 1.9 + i * 2) * 14;
+        g.fillStyle = '#2aa0c8'; g.fillRect(Math.round(x), Math.round(y), 4, 1);
+        g.fillStyle = 'rgba(220,240,255,0.8)'; g.fillRect(Math.round(x + 1), Math.round(y - 1 - (Math.floor(t * 20) % 2)), 2, 1);
+      }
+    } else if (place === 'wood') {
+      for (let i = 0; i < 5; i++) {                                           // shafts of light through the pines
+        const x = 180 + i * 330 - S * 0.8;
+        g.save(); g.globalAlpha = 0.07 + 0.03 * Math.sin(t * 0.5 + i);
+        Art.poly(g, [[x, 0], [x + 30, 0], [x + 110, 300], [x + 50, 300]], '#fff4c0'); g.restore();
+      }
+      for (let i = 0; i < 30; i++) {                                          // fireflies
+        const x = ((i * 61 + Math.sin(t * 0.6 + i) * 30) % WW) - S, y = 180 + (i * 37) % 110 + Math.sin(t + i) * 8;
+        const p = 0.5 + 0.5 * Math.sin(t * 2.4 + i * 2.1);
+        if (p < 0.3) continue;
+        Art.glow(g, x, y, 6, '#d8ff70', 0.35 * p, 3);
+        g.fillStyle = '#f0ffb0'; g.fillRect(Math.round(x), Math.round(y), 1, 1);
+      }
+      for (let i = 0; i < 16; i++) {                                          // mushrooms that glow
+        const x = ((i * 113) % WW) - S, y = 292 + (i * 17) % 30;
+        if (x < -10 || x > VW + 10) continue;
+        Art.glow(g, x, y - 3, 8, '#80f0ff', 0.2 + 0.1 * Math.sin(t * 2 + i), 3);
+        g.fillStyle = '#e8f0e0'; g.fillRect(Math.round(x), y - 3, 1, 3);
+        Art.ell(g, x, y - 4, 3, 1.6, '#60d0e8');
+      }
+      const ox = 760 - S;                                                     // an owl on the big trunk
+      if (ox > -20 && ox < VW + 20) {
+        const img = Sprites.owl(Math.floor(t * 0.8) % 7 === 0 ? 3 : 0);
+        g.drawImage(img, Math.round(ox - 12), 150);
+      }
+    } else {
+      // the waterfall: moving stripes down the cliff, spray at the foot
+      const fx = 1070 - S;
+      if (fx > -80 && fx < VW + 20) {
+        g.fillStyle = '#9ad8e8'; g.fillRect(Math.round(fx), 60, 60, 240);
+        for (let i = 0; i < 14; i++) {
+          const y = ((t * 90 + i * 22) % 240) + 60;
+          g.fillStyle = i % 2 ? '#e8f8ff' : '#c0ecf8';
+          g.fillRect(Math.round(fx + (i * 7) % 56), Math.round(y), 3, 14);
+        }
+        for (let i = 0; i < 20; i++) {
+          const a = (i / 20) * Math.PI, rr = 10 + ((t * 30 + i * 7) % 30);
+          g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(Math.round(fx + 30 + Math.cos(a) * rr * 1.8), Math.round(300 - Math.sin(a) * rr * 0.6), 2, 2);
+        }
+      }
+      for (let i = 0; i < 8; i++) {                                           // mist drifting through
+        const x = ((i * 240 + t * 8) % (WW + 200)) - 100 - S;
+        g.save(); g.globalAlpha = 0.14; Art.ell(g, x, 270 + (i % 3) * 10, 90, 10, '#ffffff'); g.restore();
+      }
+      for (let i = 0; i < 10; i++) {                                          // butterflies
+        const x = ((i * 170 + Math.sin(t * 0.5 + i) * 60) % WW) - S, y = 240 + Math.sin(t * 1.3 + i) * 30;
+        const w = Math.floor(t * 12 + i) % 2 ? 3 : 1;
+        g.fillStyle = ['#ffd84a', '#ff8ab0', '#8ad0ff'][i % 3];
+        g.fillRect(Math.round(x - w), Math.round(y), w, 2); g.fillRect(Math.round(x + 1), Math.round(y), w, 2);
+        g.fillStyle = '#1a1420'; g.fillRect(Math.round(x), Math.round(y), 1, 2);
+      }
+    }
+    // ---- the finds
+    for (const it of finds()) {
+      if (it.taken) continue;
+      const x = it.x - S;
+      if (x < -12 || x > VW + 12) continue;
+      g.save(); g.translate(Math.round(x), Math.round(it.y)); g.scale(2, 2);
+      findArt(g, place, it.k, 0, 0, t + x * 0.01);
+      g.restore();
+    }
+    // ---- the sign
+    const sx = SIGN_X - S;
+    if (sx > -60 && sx < VW + 60) {
+      g.fillStyle = '#4a2a14'; g.fillRect(Math.round(sx - 2), 250, 4, 48);
+      const yours = owned(place);
+      Kit.card(g, sx - 44, 222, 88, 38, { fill: yours ? '#d8f0b8' : undefined });
+      Font.draw(g, yours ? 'YOURS' : 'FOR SALE', sx, 229, { scale: 1, color: yours ? Kit.C.mintD : Kit.C.coralD, align: 'center' });
+      Font.draw(g, yours ? P.name : `${P.cost} W$`, sx, 242, { scale: 1, color: Kit.C.ink, align: 'center' });
+    }
+    // ---- the name of the place, and how much of it there is still to find
+    const left = finds().filter((it) => !it.taken).length;
+    Kit.tab(g, 12, 60, 150, 18, P.name.toUpperCase(), { col: Kit.C.frameM });
+    Font.draw(g, left ? `${left} things to find` : 'all found for today', 16, 82, { scale: 1, color: '#ffffff', shadow: '#1a1420' });
+    if (fade > 0) { g.fillStyle = `rgba(20,10,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
+    FX.drawParticles(g, 0); FX.drawConfetti(g); FX.drawFloaters(g, false);
+  }
+  return { init(g) { G = g; }, enter, update, render, press, move, release, hover: hoverAt, wheel, PLACES, owned, get place() { return place; } };
+})();
+</script>
+
+<script>
 // ===== js/main.js =====
 // ---- State, save/load, input, loop ---------------------------------------
 const Main = (() => {
@@ -19564,7 +21162,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [], owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
+      brush: 1, crates: {}, furniture: [], factory: { b: [], inv: {} }, lands: {}, forage: {}, fieldGuide: {}, exploreAt: 'lake', owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -19687,7 +21285,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      Sky.init(G); World.init(G); Grove.init(G); Atlas.init(G);
+      Sky.init(G); World.init(G); Grove.init(G); Factory.init(G); Explore.init(G); Atlas.init(G);
       Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -19732,7 +21330,7 @@ const Main = (() => {
     if (mode !== 'grove' && G.wombats.some((w) => w.riding)) G.rode = true;   // somebody came along
     UI.setMode(mode);
     FX.clear(); FX.flash('#efe8f6', 0.42);   // scenes change through a breath of cloud, not a blackout
-    if (mode !== 'shop' && mode !== 'nursery' && mode !== 'ottoman') Audio.play('whoosh');
+    if (mode !== 'shop' && mode !== 'nursery' && mode !== 'ottoman' && mode !== 'explore') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
     if (mode === 'intro') Intro.enter();
     else if (mode === 'grove') Grove.enter();
@@ -19740,12 +21338,13 @@ const Main = (() => {
     else if (mode === 'shop') Shop.enter();
     else if (mode === 'nursery') Nursery.enter();
     else if (mode === 'ottoman') Ottoman.enter();
+    else if (mode === 'explore') Explore.enter(G.exploreAt);
     Audio.setMode('pen');
     save();
   }
   function back() {
     if (G.mode === 'ottoman' && Ottoman.closeMenu()) return;
-    if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman') setMode('map');
+    if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman' || G.mode === 'explore') setMode('map');
     else setMode('grove');
   }
 
@@ -19800,6 +21399,7 @@ const Main = (() => {
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
       else if (G.mode === 'ottoman') Ottoman.press(p.x, p.y);
+      else if (G.mode === 'explore') Explore.press(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -19818,6 +21418,7 @@ const Main = (() => {
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'nursery') { Nursery.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'ottoman') { Ottoman.move(p.x, p.y); UI.hideTip(); return; }
+        if (G.mode === 'explore') { Explore.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
@@ -19825,6 +21426,7 @@ const Main = (() => {
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
       else if (G.mode === 'nursery') tip = Nursery.hover(p.x, p.y);
       else if (G.mode === 'ottoman') tip = Ottoman.hover(p.x, p.y);
+      else if (G.mode === 'explore') tip = Explore.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
@@ -19836,6 +21438,7 @@ const Main = (() => {
       else if (G.mode === 'shop') Shop.release(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.release(p.x, p.y);
       else if (G.mode === 'ottoman') Ottoman.release(p.x, p.y);
+      else if (G.mode === 'explore') Explore.release(p.x, p.y);
       else if (G.mode === 'map' && moved < 8) Atlas.click(p.x, p.y);
       down = false; lastP = null; downP = null; panning = false;
     };
@@ -19856,6 +21459,7 @@ const Main = (() => {
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'nursery') { e.preventDefault(); Nursery.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'ottoman') { e.preventDefault(); Ottoman.wheel(e.deltaY * 0.6); }
+      else if (G.mode === 'explore') { e.preventDefault(); Explore.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
     document.addEventListener('keydown', (e) => {
@@ -19865,6 +21469,7 @@ const Main = (() => {
       if (UI.anyPanel()) return;
       if (G.mode === 'grove' && (e.key === '[' || e.key === ']')) { Grove.nudgeBrush(e.key === ']' ? 1 : -1); e.preventDefault(); return; }
       if (e.key === 'Tab' || e.key === ' ') { if (G.mode === 'grove') { e.preventDefault(); if (UI.wheelOpen()) UI.closeWheel(); else UI.openWheel(screenP.x, screenP.y); } return; }
+      if (Factory.key(e)) { e.preventDefault(); return; }
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (UI.wheelOpen()) { UI.closeWheel(); return; }
         if (G.mode !== 'grove') back(); else toMenu();
@@ -19927,6 +21532,7 @@ const Main = (() => {
       else if (G.mode === 'shop') Shop.update(real);
       else if (G.mode === 'nursery') Nursery.update(real);
       else if (G.mode === 'ottoman') Ottoman.update(real);
+      else if (G.mode === 'explore') Explore.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
@@ -19950,6 +21556,7 @@ const Main = (() => {
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
       else if (G.mode === 'ottoman') Ottoman.render(g);
+      else if (G.mode === 'explore') Explore.render(g);
       else Nursery.render(g);
       g.restore();
     }
@@ -19988,7 +21595,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
+    Grove.init(G); Factory.init(G); Explore.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

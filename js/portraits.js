@@ -308,6 +308,8 @@ const Portraits = (() => {
   // `t` drives the blink; `talking` flaps the mouth.
   function get(key, mood, t = 0, talking = false) {
     if ((key === 'clark' || key === 'villager:clark') && typeof Kirk !== 'undefined') return Kirk.bust(mood, t, talking);
+    if (key === 'jim' && typeof JimGirl !== 'undefined') return JimGirl.bust(mood, t, talking);
+    if (typeof Busts !== 'undefined' && Busts.has(key)) return Busts.get(key, mood, t, talking);
     const spec = specFor(key);
     if (!spec) return null;
     const blink = (t % 3.6) > 3.45;

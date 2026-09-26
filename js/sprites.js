@@ -853,6 +853,7 @@ const Sprites = (() => {
   }
   function jim(frame, pose = 'idle') {
     const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
+    if (typeof JimGirl !== 'undefined') return JimGirl.sprite(f, t, pose, faceMood);   // Jim, in her wombat onesie
     const key = `jim:${f}:${pose}:${faceMood}`;
     let img = cache.get(key); if (img) return img;
     if (pose === 'walk' || pose === 'run') { img = jimSide(f, t, pose === 'run'); cache.set(key, img); return img; }

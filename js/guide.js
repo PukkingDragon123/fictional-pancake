@@ -9,11 +9,11 @@ const Guide = (() => {
   const HUT = { x: 724, y: 0 };
   // the speech bubble: what he is saying, how much of it has been typed, how long it stays
   const bubble = { text: '', shown: 0, life: 0, pop: 0, kind: 'order' };
-  const REWARD = [0, 15, 20, 20, 25, 20, 25, 30, 30, 30, 40, 50];
+  const REWARD = [0, 15, 20, 20, 25, 20, 25, 30, 30, 30, 40, 50, 80];
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
-  // Each step is a job Jim gives you, and a place for him to stand.
+  // Each step is a job Jim gives you, and a place for her to stand.
   //   lesson   what he tells you in the dialogue box when the job comes up
   //   give     tools he hands over when he has finished explaining
   //   unlock   tools the mart will now sell you
@@ -138,7 +138,7 @@ const Guide = (() => {
       say: 'Got spare cubes? Bring them to me and I will pay you for the lot.',
       lesson: [{ say: "Spare cubes? I make compost. Click me and I'll buy the lot. More for a load than one at a time.", mood: 'happy' }],
       label: 'CLICK JIM',
-      note: 'Click Jim and sell. He pays more for a load than for one.',
+      note: 'Click Jim and sell. She pays more for a load than for one.',
       at: () => cult.x, aty: () => cult.y - 80, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
@@ -153,6 +153,19 @@ const Guide = (() => {
       note: 'Shovel: hold to dig down, right-click (or Shift) to heap up. Water a hole to fill it.',
       at: (g) => (has(g, 'shovel') ? 480 : MART()), aty: (g) => (has(g, 'shovel') ? Grove.WALK.y0 + 120 : MARTY()),
       done: (g) => (g.stats.flooded || 0) > 0,
+    },
+    {
+      key: 'factory', mood: 'proud', icon: 't_hammer', title: 'Build a poop factory', praise: 'A real factory. I am so proud.',
+      say: 'Press B for the Build menu. Hopper, belts, mill, grow house, belts, pickup point.',
+      lesson: [
+        { say: "Okay. Big idea. What if the poop sold itself?", mood: 'sly' },
+        { say: 'Press B, or click BUILD, for the Build menu. Buy a Poop Hopper, some belts, a Fertiliser Mill, a Grow House and a Pickup Point.', mood: 'talk' },
+        { say: 'The hopper sucks up cubes. Belts carry them to the mill for fertiliser, then the grow house for carrots, then the pickup point sells them. R turns a piece round.', mood: 'happy' },
+      ],
+      label: 'BUILD HERE',
+      note: 'B opens the Build menu. Hopper, belt, mill, belt, grow house, belt, pickup point. R rotates.',
+      at: () => 760, aty: () => Grove.WALK.y0 + 110,
+      done: (g) => (g.stats.factorySold || 0) > 0,
     },
   ];
 
@@ -306,7 +319,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
+        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. Still Lake, Blackwood and Fern Gully are out past the farm, worth a wander, and for sale. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {
@@ -496,7 +509,7 @@ const Guide = (() => {
         Audio.play('thud', 1.4); FX.shake(1.6);
         FX.burst(HUT.x, hutY(), 22, { color: [PAL.bark3, PAL.bark2, PAL.moss3], speed: 110, gravity: 260, life: 0.7, size: 3 });
         FX.comic(HUT.x, hutY() - 90, 'THUNK!', { ink: '#f5cd5c', edge: '#7a5210', life: 1 });
-        UI.toast('<b>Jim built a shed</b> at the west end &mdash; he buys cubes there', 'good');
+        UI.toast('<b>Jim built a shed</b> at the west end &mdash; she buys cubes there', 'good');
         Main.save();
       }
       return;
@@ -646,7 +659,7 @@ const Guide = (() => {
   const WHERE = {
     meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
     arrive: 'in the grove', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
-    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere',
+    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
   };
   function current() {
     const st = step();

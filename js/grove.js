@@ -319,6 +319,7 @@ const Grove = (() => {
   }
 
   function update(dt) {
+    Factory.update(dt);
     Wild.update(dt);
     updateFoods(dt);
     // leaves tear loose on a gust
@@ -778,6 +779,7 @@ const Grove = (() => {
     const tool = G.tool;
     if (first && G.newTools && G.newTools[tool]) { delete G.newTools[tool]; UI.refreshHUD(); }   // used it: not new any more
     if (y < GROUND) return false;
+    if (Factory.active()) return Factory.press(x, y, first);
     // the two landmarks answer to any tool; they are doors, not ground -
     // unless a weed is standing in front of them, in which case you meant the weed
     if (first && !World.weeds.some((w) => Math.abs(w.x - x) < 16 && Math.abs(w.y - y) < 14)) {
@@ -985,6 +987,8 @@ const Grove = (() => {
     World.disturb(w.x, w.y, 18, 0.8);
   }
   function hover(x, y) {
+    if (Factory.active()) { Factory.pointer(x, y); return null; }
+    { const ft = G.tool === 'drag' ? Factory.tipAt(x, y) : null; if (ft) return ft; }
     hoverW = (G.tool === 'drag' || G.tool === 'food' || G.tool === 'pair') ? wombatAt(x, y) : null;
     hoverSpot = spotAt(x, y);
     hoverObj = G.tool === 'destroy' ? objAt(x, y) : null;
@@ -1001,7 +1005,7 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
-    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>he buys every cube you have';
+    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>Jim buys every cube you have';
     const pl2 = World.plantAt(x, y);
     if (pl2) return World.plantTip(pl2);
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
@@ -1134,6 +1138,7 @@ const Grove = (() => {
     World.drawSprouts(g);
     World.drawBlades(g);
     World.drawFlowers(g);
+    Factory.drawFloor(g, L, R);     // belts and machine pads lie on the ground
 
     drawZone(g, f);
     drawFences(g, L, R);
@@ -1160,12 +1165,14 @@ const Grove = (() => {
     if (TRUCK.parked || TRUCK.x < W + 100) items.push({ y: TRUCK.y, fn: () => drawTruck(g) });
     for (const a of ants) items.push({ y: a.y, fn: () => drawAnt(g, a) });
     for (const it of Wild.items(g)) items.push(it);
+    for (const it of Factory.sortables(g)) items.push(it);
     items.sort((a, b) => a.y - b.y);
     for (const it of items) it.fn();
     drawPlotPrompt(g, L, R);
     Guide.drawPointer(g);       // the arrow over the job in hand
     drawMagic(g, L, R);         // whatever the gods are leaving in the air
     drawBuildGhost(g);          // the piece riding on the pointer, and what it is
+    Factory.drawOver(g);        // sales popping off the pickup points, and the placing ghost
 
     // crows
     for (const b of birds) {
@@ -1779,6 +1786,8 @@ const Grove = (() => {
   return {
     init, update, render, enter, press, move, release, hover, clearPair, toWorld, panBy, panTo, zoomBy, zoomTo, zoomFrac, edgeScroll, addWombat, newWombat, feed, pet, offline,
     cycleBuild, nudgeBrush, brushSize, furnAt,
+    selectFurniture(k) { const ks = crateKeys(), i = ks.indexOf(k); if (i >= 0) buildI = i; },
+    get dragging() { return dragging; },
     capacity, hapCap, adults, drops, objects, tasks, groveClean, callTruck, demolish, saveObjects, reward,
     get truck() { return TRUCK; }, get arriving() { return !!arrival; },
     SEED, POST, TRUCK, GROUND, WALK, W, H, VW,

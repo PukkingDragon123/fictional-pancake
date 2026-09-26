@@ -206,7 +206,7 @@ const Menu = (() => {
   ];
   let rumour = 0;
   const HELP = [
-    ['t_drag', 'Start with your hands', 'Jim gives you his old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
+    ['t_drag', 'Start with your hands', 'Jim gives you her old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
     ['t_sickle', 'Tidy the garden', 'Cut the weeds, have the ants take the old logs, and sow grass. A tidy patch brings a wombat.'],
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],

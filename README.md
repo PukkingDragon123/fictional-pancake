@@ -17,8 +17,8 @@ inlined). Rebuild it with `python3 build.py` after changing anything in `js/` or
 The game opens with the drive in: through the forest, down the one street of Wombat
 Creek, and up to the farm gate where Jim is waiting.
 
-1. **Meet Jim.** You start with your hands and W$300. Jim hands you his old sickle and
-   teaches each job in a dialogue box with his portrait. Every job unlocks the tool
+1. **Meet Jim.** You start with your hands and W$300. Jim hands you her old sickle and
+   teaches each job in a dialogue box with her portrait. Every job unlocks the tool
    it needs, which you then buy at Wombat Mart (click the truck). An arrow points at
    whatever the job is about, and the toolbar slot you need glows.
 2. **Tidy up.** Cut the weeds with the sickle, have the ants take the old logs, and sow
@@ -36,7 +36,18 @@ Creek, and up to the farm gate where Jim is waiting.
    and the garden things too. Click the Captain to open his catalogue: his face on the
    left, the stock on the right in two tabs, and one click buys a piece.
 
-Jim tells you what to do next in a speech bubble and chats if you click him. Shaz from
+8. **Build a factory.** Press B for the Build menu: buy machines into an inventory, place
+   them on your land, turn them with R, pick them back up. A Poop Hopper sucks up cubes,
+   conveyor belts carry them to a Fertiliser Mill (a bag is worth three cubes), then a Grow
+   House (two carrots a bag), then a Pickup Point sells whatever arrives. Splitters, Storage
+   Crates, a Wombat Feeder that hands carrots to hungry wombats, Sprinklers and Yard Lamps
+   help out.
+9. **Go exploring.** Still Lake, Blackwood and Fern Gully are on the map: long painted places
+   to drag along, with things lying about to pick up for W$ (new ones each day). Each is for
+   sale; buy it and you find twice as much there, and it unlocks a building of its own: a Fish
+   Trap, a Mushroom Log or a Beehive.
+
+Jim tells you what to do next in a speech bubble and chats if you click her. Jim is a cheerful girl in a wombat onesie. Shaz from
 the mart, Groot and Captain Kirk drop by now and then, the weather changes on its own, and a day is twelve minutes long.
 
 The clock under your purse shows the time, the day and the weather. The picture goes
@@ -56,6 +67,7 @@ if your machine struggles; without WebGL the game simply draws without it.
 | `[` `]` or wheel | Brush size |
 | Drag bare ground, arrows, A/D | Look around the garden |
 | M | Map |
+| B | Build menu (R rotates, Esc stops placing) |
 | H | How to play |
 | Esc | Back / title screen / skip the drive in |
 
@@ -74,6 +86,9 @@ if your machine struggles; without WebGL the game simply draws without it.
 - `js/intro.js` - the drive into Wombat Creek and up to the farm gate
 - `js/ottoman.js` - Captain Kirk's Ottoman Empire and his catalogue
 - `js/kirk.js` - Captain Kirk, the robot: his figure and his portrait
+- `js/jimgirl.js`, `js/busts.js` - Jim in her onesie, and portraits for Shaz and Groot
+- `js/factory.js` - the machines, belts, the Build menu and the poop economy
+- `js/explore.js` - Still Lake, Blackwood and Fern Gully
 - `js/shader.js` - the WebGL pass over the finished picture: glow, colour grade, paper grain, night tint, vignette
 - `js/furnart.js` - the furniture, drawn pixel by pixel
 - `js/map.js`, `js/drive.js`, `js/shop.js`, `js/nursery.js` - the other scenes

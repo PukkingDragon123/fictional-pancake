@@ -20,6 +20,7 @@
     <div id="money"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
     <div id="clock" hidden><canvas id="clock-dial" width="30" height="30"></canvas><div class="ctx"><b id="c-time">9:00am</b><small id="c-day">Day 1</small></div></div>
     <div id="checklist" hidden></div>
+    <div id="placebar" hidden><span id="pb-what"></span><button class="wbtn" id="pb-rot">ROTATE (R)</button><button class="wbtn" id="pb-stop">DONE (Esc)</button></div>
 
     <div id="side">
       <button class="rbtn big" id="b-tool" hidden><img class="ico" data-ico="t_sickle" alt=""></button>
@@ -46,6 +47,7 @@
 
     <div id="mini">
       <button class="mbtn" id="b-back" hidden><img class="ico sm" data-ico="back" alt=""></button>
+      <button class="mbtn bbuild" id="b-build" title="Build (B)" hidden><img class="ico" data-ico="t_hammer" alt=""><span>BUILD</span></button>
     </div>
 
     <div id="zoomer" hidden>
@@ -79,17 +81,29 @@
     <div class="pbody" id="wombat-body"></div>
   </div>
 
+  <div id="panel-build" class="panel build" hidden>
+    <div class="phead"><img class="ico" data-ico="t_hammer" alt=""><span class="ptitle">BUILD</span><button class="x" data-close="panel-build"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="pbody">
+      <div class="btabs"><button class="wbtn" data-btab="factory">FACTORY</button><button class="wbtn" data-btab="utility">UTILITY</button><button class="wbtn" data-btab="decor">DECOR</button><button class="wbtn" id="b-pick">PICK UP</button></div>
+      <div class="bgrid" id="b-grid"></div>
+      <div class="binv"><b>INVENTORY</b><div id="b-inv"></div></div>
+      <p class="bfoot"><span id="b-earned"></span> &middot; R rotates &middot; Esc stops placing</p>
+    </div>
+  </div>
+
   <div id="panel-help" class="panel" hidden>
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>You start with your two hands and W$300. Jim gives you his old sickle, and each job he teaches unlocks the next tool. Buy them at Wombat Mart: click the truck to drive there.</li>
-        <li>Jim, the old caretaker, tells you your next job in a speech bubble. Click him to chat, or to sell him your cubes.</li>
+        <li>You start with your two hands and W$300. Jim gives you her old sickle, and each job she teaches unlocks the next tool. Buy them at Wombat Mart: click the truck to drive there.</li>
+        <li>Jim, the caretaker in the wombat onesie, tells you your next job in a speech bubble. Click her to chat, or to sell her your cubes.</li>
         <li>Pick a tool on the toolbar along the bottom, or press <b>1</b>&ndash;<b>0</b>. Locked tools show a padlock; unlocked ones you have not bought show their price. An arrow points at your current job. Drag bare ground, roll the wheel or use the arrow keys to look around.</li>
         <li>Cut the weeds with the sickle, have the ants take the old logs, and sow grass. A tidy garden brings a wombat.</li>
         <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
         <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
         <li>The <b>shovel</b> paints the ground: hold the left button to dig down, the right button (or Shift) to heap up a hill. Water a hole with the can and it fills into a pond; water a trench and it runs like a creek. <b>[</b> and <b>]</b> change the brush size.</li>
+        <li>Press <b>B</b> (or BUILD) for the <b>Build menu</b>: buy machines into your inventory, place them on your land and turn them with <b>R</b>. A <b>Poop Hopper</b> sucks up cubes, belts carry them to a <b>Fertiliser Mill</b>, then a <b>Grow House</b> for carrots, then a <b>Pickup Point</b> sells them. The longer the chain, the more it pays.</li>
+        <li><b>Still Lake</b>, <b>Blackwood</b> and <b>Fern Gully</b> are on the map. Drag along them and click things to pick them up. Buy one and you find twice as much there, and it unlocks its own building.</li>
         <li>Captain Kirk's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-fx">SHADERS ON</button><button class="wbtn" id="b-reset">RESET</button></div>
@@ -114,6 +128,8 @@
 <script src="js/uikit.js"></script>
 <script src="js/portraits.js"></script>
 <script src="js/kirk.js"></script>
+<script src="js/jimgirl.js"></script>
+<script src="js/busts.js"></script>
 <script src="js/data.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/sky.js"></script>
@@ -132,6 +148,8 @@
 <script src="js/ui.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/shader.js"></script>
+<script src="js/factory.js"></script>
+<script src="js/explore.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -22,7 +22,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [], owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
+      brush: 1, crates: {}, furniture: [], factory: { b: [], inv: {} }, lands: {}, forage: {}, fieldGuide: {}, exploreAt: 'lake', owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -145,7 +145,7 @@ const Main = (() => {
       for (const k of Object.keys(G)) delete G[k];
       Object.assign(G, g2);
       applySettings();
-      Sky.init(G); World.init(G); Grove.init(G); Atlas.init(G);
+      Sky.init(G); World.init(G); Grove.init(G); Factory.init(G); Explore.init(G); Atlas.init(G);
       Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
@@ -190,7 +190,7 @@ const Main = (() => {
     if (mode !== 'grove' && G.wombats.some((w) => w.riding)) G.rode = true;   // somebody came along
     UI.setMode(mode);
     FX.clear(); FX.flash('#efe8f6', 0.42);   // scenes change through a breath of cloud, not a blackout
-    if (mode !== 'shop' && mode !== 'nursery' && mode !== 'ottoman') Audio.play('whoosh');
+    if (mode !== 'shop' && mode !== 'nursery' && mode !== 'ottoman' && mode !== 'explore') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
     if (mode === 'intro') Intro.enter();
     else if (mode === 'grove') Grove.enter();
@@ -198,12 +198,13 @@ const Main = (() => {
     else if (mode === 'shop') Shop.enter();
     else if (mode === 'nursery') Nursery.enter();
     else if (mode === 'ottoman') Ottoman.enter();
+    else if (mode === 'explore') Explore.enter(G.exploreAt);
     Audio.setMode('pen');
     save();
   }
   function back() {
     if (G.mode === 'ottoman' && Ottoman.closeMenu()) return;
-    if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman') setMode('map');
+    if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman' || G.mode === 'explore') setMode('map');
     else setMode('grove');
   }
 
@@ -258,6 +259,7 @@ const Main = (() => {
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
       else if (G.mode === 'ottoman') Ottoman.press(p.x, p.y);
+      else if (G.mode === 'explore') Explore.press(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -276,6 +278,7 @@ const Main = (() => {
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'nursery') { Nursery.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'ottoman') { Ottoman.move(p.x, p.y); UI.hideTip(); return; }
+        if (G.mode === 'explore') { Explore.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
@@ -283,6 +286,7 @@ const Main = (() => {
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
       else if (G.mode === 'nursery') tip = Nursery.hover(p.x, p.y);
       else if (G.mode === 'ottoman') tip = Ottoman.hover(p.x, p.y);
+      else if (G.mode === 'explore') tip = Explore.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
@@ -294,6 +298,7 @@ const Main = (() => {
       else if (G.mode === 'shop') Shop.release(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.release(p.x, p.y);
       else if (G.mode === 'ottoman') Ottoman.release(p.x, p.y);
+      else if (G.mode === 'explore') Explore.release(p.x, p.y);
       else if (G.mode === 'map' && moved < 8) Atlas.click(p.x, p.y);
       down = false; lastP = null; downP = null; panning = false;
     };
@@ -314,6 +319,7 @@ const Main = (() => {
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'nursery') { e.preventDefault(); Nursery.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'ottoman') { e.preventDefault(); Ottoman.wheel(e.deltaY * 0.6); }
+      else if (G.mode === 'explore') { e.preventDefault(); Explore.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
     document.addEventListener('keydown', (e) => {
@@ -323,6 +329,7 @@ const Main = (() => {
       if (UI.anyPanel()) return;
       if (G.mode === 'grove' && (e.key === '[' || e.key === ']')) { Grove.nudgeBrush(e.key === ']' ? 1 : -1); e.preventDefault(); return; }
       if (e.key === 'Tab' || e.key === ' ') { if (G.mode === 'grove') { e.preventDefault(); if (UI.wheelOpen()) UI.closeWheel(); else UI.openWheel(screenP.x, screenP.y); } return; }
+      if (Factory.key(e)) { e.preventDefault(); return; }
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (UI.wheelOpen()) { UI.closeWheel(); return; }
         if (G.mode !== 'grove') back(); else toMenu();
@@ -385,6 +392,7 @@ const Main = (() => {
       else if (G.mode === 'shop') Shop.update(real);
       else if (G.mode === 'nursery') Nursery.update(real);
       else if (G.mode === 'ottoman') Ottoman.update(real);
+      else if (G.mode === 'explore') Explore.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
@@ -408,6 +416,7 @@ const Main = (() => {
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
       else if (G.mode === 'ottoman') Ottoman.render(g);
+      else if (G.mode === 'explore') Explore.render(g);
       else Nursery.render(g);
       g.restore();
     }
@@ -446,7 +455,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
+    Grove.init(G); Factory.init(G); Explore.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();
