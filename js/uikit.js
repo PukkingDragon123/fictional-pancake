@@ -8,13 +8,13 @@
 const Kit = (() => {
   const C = {
     line: '#4a1e0e', inner: '#7a3414',
-    frameL: '#ffb858', frame: '#e07a30', frameM: '#c8622a', frameD: '#a0461a',
-    paper: '#ffe3a4', paperL: '#fff4cc', paperD: '#f2c47a',
+    frameL: '#f2b870', frame: '#d4843e', frameM: '#bc6a32', frameD: '#9a5024',
+    paper: '#f8e2b2', paperL: '#fff3d4', paperD: '#eac48a',
     ink: '#5a2610', ink2: '#8a5028',
     // the accents: grass green, sunflower, tomato, sky
-    mint: '#5cc03c', mintL: '#a8ec6a', mintD: '#2f8a26', mintDD: '#1a5a14', mintW: '#fff4cc',
-    sun: '#ffc81c', sunL: '#fff08a', sunD: '#c8840c',
-    coral: '#e8402c', coralD: '#a01e14', sky: '#3aa0f0',
+    mint: '#6aa84a', mintL: '#a8d880', mintD: '#3f7a32', mintDD: '#264e20', mintW: '#fff3d4',
+    sun: '#f0c048', sunL: '#fbe8a0', sunD: '#b8842a',
+    coral: '#d45a40', coralD: '#983224', sky: '#5a9ad0',
     shadow: 'rgba(60,20,4,0.32)',
   };
   const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
@@ -31,7 +31,7 @@ const Kit = (() => {
   // the box: every card, panel and plaque on the canvas
   function card(g, x, y, w, h, o = {}) {
     x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
-    const hot = o.ring, fr = hot ? ['#fff08a', '#ffc81c', '#f0a010', '#c8840c'] : [C.frameL, C.frame, C.frameM, C.frameD];
+    const hot = o.ring, fr = hot ? ['#fbe8a0', '#f0c048', '#f0a010', '#b8842a'] : [C.frameL, C.frame, C.frameM, C.frameD];
     if (o.shadow !== false) rr(g, x + 2, y + 3, w, h, 2, C.shadow);
     rr(g, x, y, w, h, 2, C.line);
     R(g, x + 1, y + 1, w - 2, h - 2, fr[1]);
@@ -76,7 +76,7 @@ const Kit = (() => {
     const sc = o.scale || 1;
     const ty = y + Math.round((h - sc * 7) / 2);
     Font.draw(g, text, x + w / 2 + 1, ty + 1, { scale: sc, color: C.line, align: 'center' });
-    Font.draw(g, text, x + w / 2, ty, { scale: sc, color: '#fff4cc', align: 'center' });
+    Font.draw(g, text, x + w / 2, ty, { scale: sc, color: '#fff3d4', align: 'center' });
   }
   // a tag for a short label or a price
   function pill(g, x, y, text, o = {}) {

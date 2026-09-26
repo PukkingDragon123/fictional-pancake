@@ -22,15 +22,17 @@ const Ottoman = (() => {
 
   // ---- stock ---------------------------------------------------------------------
   const stock = () => FURNITURE.filter((f) => !f.found);
+  const OWN = ['ottoman', 'pouf', 'armchair', 'sofa', 'rug', 'lamp', 'shelf', 'hammock', 'deck', 'helm', 'anchor'];
+  const scOf = (f) => (f.w > 60 || f.h > 56 ? 1.2 : 1.5);
   function layout() {
     slots = [];
-    const own = stock().filter((f) => ['ottoman', 'pouf', 'armchair', 'sofa', 'rug', 'lamp', 'shelf', 'hammock', 'deck', 'helm', 'anchor'].includes(f.key));
+    const own = stock().filter((f) => OWN.includes(f.key));
     const yard = stock().filter((f) => !own.includes(f));
     let x = 330;
     const bays = [];
     const place = (arr, label) => {
       const x0 = x;
-      for (const f of arr) { slots.push({ f, x }); x += Math.max(96, f.w * 2 + 36); }
+      for (const f of arr) { slots.push({ f, x }); x += Math.max(92, f.w * scOf(f) + 34); }
       bays.push({ label, x0, x1: x - 60 });
       x += 60;
     };
@@ -45,12 +47,14 @@ const Ottoman = (() => {
   // ---- the captain talks ------------------------------------------------------------
   function clarkSay(s) { clark.say = s; clark.sayT = 3.4; }
   function buy(f) {
-    if (G.wd < f.cost) { Audio.play('error'); clarkSay("Short on doubloons, matey."); UI.toast(`need <b>${f.cost} W$</b>`, 'bad'); return; }
+    if (G.wd < f.cost) { Audio.play('error'); clarkSay("Short on doubloons, matey."); menuSay("Short on doubloons, matey. Come back when the wombats have been busy.", 'worry'); UI.toast(`need <b>${f.cost} W$</b>`, 'bad'); return; }
     G.wd -= f.cost;
     if (!G.crates) G.crates = {};
     G.crates[f.key] = (G.crates[f.key] || 0) + 1;
     Audio.play('cash'); FX.confettiBurst(VW / 2, 150, 40);
-    clarkSay(U.pick(['A fine choice!', 'Sold, to the wombat farmer!', 'She\'ll serve you well.', 'Mind the corners going out.']));
+    const line = U.pick(['A fine choice!', 'Sold, to the wombat farmer!', 'She\'ll serve you well.', 'Mind the corners going out.']);
+    clarkSay(line); menuSay(line + ` The ${f.name} goes out in a crate.`, 'laugh');
+    menu.flash = f.key; menu.flashT = 0.6;
     clark.pose = 'wave'; clark.t = 0;
     // furniture wants a hammer to stand it up, and the Captain throws one in
     if (!owns(G, 'build')) {
@@ -75,6 +79,7 @@ const Ottoman = (() => {
     nodes: {
       hub: { mood: 'happy', say: "Ahoy! Captain Clark, Ottoman Empire. Finest furniture this side of the Bass Strait. Have a look round, click anything you fancy.",
         opts: [
+          { q: "Show me the catalogue.", act: () => { Talk.close(); openMenu(); } },
           { q: 'Why "Ottoman Empire"?', to: 'name' },
           { q: 'What is behind the door at the back?', to: 'door' },
           { q: 'Were you really a captain?', to: 'captain' },
@@ -100,10 +105,10 @@ const Ottoman = (() => {
   // ---- scene flow ---------------------------------------------------------------------
   function enter() {
     layout();
-    phase = 'shop'; scroll = tscroll = 0; hover = null; t = 0; fade = 1; fadeTo = null;
+    phase = 'shop'; scroll = tscroll = 0; hover = null; t = 0; fade = 1; fadeTo = null; menu.open = false;
     document.body.classList.remove('noclip');
     clark.pose = 'idle'; clark.t = 0;
-    clarkSay('Ahoy there!');
+    clarkSay('Ahoy! Click me for the catalogue.');
     Audio.setMode('pen'); Audio.play('door');
   }
   function enterBack() {
@@ -122,6 +127,7 @@ const Ottoman = (() => {
     t += dt; clark.t += dt;
     if (clark.sayT > 0) clark.sayT -= dt;
     if (clark.pose === 'wave' && clark.t > 1.6) clark.pose = 'idle';
+    menu.t += dt; if (menu.flashT > 0) menu.flashT -= dt; if (menu.moodT > 0) menu.moodT -= dt;
     if (fadeTo) { fade = Math.min(1, fade + dt * 2.6); if (fade >= 1) { const f = fadeTo; fadeTo = null; f(); } }
     else fade = Math.max(0, fade - dt * 2);
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.002, dt));
@@ -138,28 +144,30 @@ const Ottoman = (() => {
   // ---- input -----------------------------------------------------------------------------
   function slotAt(x, y) {
     for (const s of slots) {
-      const sx = s.x - scroll, w = Math.max(40, s.f.w * 2) / 2 + 8;
-      if (x > sx - w && x < sx + w && y > FLOOR - s.f.h * 2 - 26 && y < FLOOR + 14) return s;
+      const sc = scOf(s.f), sx = s.x - scroll, w = Math.max(40, s.f.w * sc) / 2 + 8;
+      if (x > sx - w && x < sx + w && y > FLOOR - s.f.h * sc - 26 && y < FLOOR + 14) return s;
     }
     return null;
   }
   const overClark = (x, y) => Math.abs(x - (clark.x - scroll)) < 26 && y > 150 && y < FLOOR;
   const overDoor = (x, y) => Math.abs(x - (DOOR_X() - scroll)) < 34 && y > 120 && y < FLOOR;
-  function press(x, y) { drag = { x, s: phase === 'shop' ? tscroll : tbx }; moved = 0; }
+  function press(x, y) { if (menu.open) { menuPress(x, y); return; } drag = { x, s: phase === 'shop' ? tscroll : tbx }; moved = 0; }
   function move(x, y) {
+    if (menu.open) { menuMove(x, y); return; }
     if (!drag) return;
     moved = Math.max(moved, Math.abs(x - drag.x));
     if (phase === 'shop') { tscroll = U.clamp(drag.s - (x - drag.x), 0, worldW - VW); scroll = tscroll; }
     else { tbx = Math.max(0, drag.s - (x - drag.x) * 1.4); }
   }
   function release(x, y) {
+    if (menu.open) { menuRelease(x, y); return; }
     if (!drag) return;
     const was = moved > 6; drag = null;
     if (was || fadeTo) return;
     if (phase === 'back') { pressBack(x, y); return; }
     const s = slotAt(x, y);
     if (s) { offer(s.f); return; }
-    if (overClark(x, y)) { Talk.open('villager:clark', TREE); return; }
+    if (overClark(x, y)) { openMenu(); return; }
     if (overDoor(x, y)) { knock(); }
   }
   function hoverAt(x, y) {
@@ -167,17 +175,151 @@ const Ottoman = (() => {
       const th = backThingAt(x, y);
       return th ? th.tip : null;
     }
+    if (menu.open) { menuHover(x, y); return null; }
     const s = slotAt(x, y);
     hover = s;
-    if (overClark(x, y)) return '<b>Captain Clark</b> <span class="dim">the Ottoman Empire</span><br>click to talk';
+    if (overClark(x, y)) return '<b>Captain Clark</b> <span class="dim">the Ottoman Empire</span><br>click to see the catalogue';
     if (overDoor(x, y)) return '<b>STAFF ONLY</b><br><span class="warn">do not go in the back room</span>';
     if (!s) return null;
     const f = s.f, have = crateCount(f.key) + placed(f.key);
     return `<b>${f.name}</b><br>${Icons.img('wdollar', 'sm')} ${U.fmt(f.cost)}${have ? ` &middot; <span class="dim">you have ${have}</span>` : ''}<br><span class="dim">${f.blurb}</span>`;
   }
   function wheel(dy) {
+    if (menu.open) { menuScroll(dy > 0 ? 1 : -1); return; }
     if (phase === 'shop') tscroll = U.clamp(tscroll + dy, 0, worldW - VW);
     else tbx = Math.max(0, tbx + dy * 1.2);
+  }
+
+  // ---- the catalogue: the Captain's shop counter, farm-game style ----------------------------
+  // Click the Captain and the counter opens up: his face and what he has to say
+  // on the left, the stock on the right in rows, a picture of each piece, its
+  // name and its price, and a tab for the garden things. Click a row to buy.
+  const menu = { open: false, tab: 0, scroll: 0, hover: -1, hoverBtn: null, say: '', mood: 'happy', moodT: 0, t: 0, flash: null, flashT: 0, drag: null };
+  const TABS = [["CAPTAIN'S OWN", (f) => OWN.includes(f.key)], ['FOR THE GARDEN', (f) => !OWN.includes(f.key)]];
+  const ML = { x: 18, y: 30, w: 160, h: 300 }, MR = { x: 186, y: 30, w: 436, h: 300 };
+  const ROW = 40, VIS = 7, LX = MR.x + 10, LY = MR.y + 12, LW = MR.w - 38;
+  const BTN = { talk: { x: ML.x + 12, y: ML.y + ML.h - 34, w: 64, h: 24 }, done: { x: ML.x + ML.w - 76, y: ML.y + ML.h - 34, w: 64, h: 24 } };
+  const HELLO = [
+    "Welcome aboard! Every stick of it came off a good ship. Or a ferry.",
+    "Take your time. The ottomans aren't going anywhere. Mostly.",
+    "Ahoy! See anything you fancy, give it a click.",
+  ];
+  const menuItems = () => stock().filter(TABS[menu.tab][1]);
+  function menuSay(s, mood = 'happy') { menu.say = s; menu.mood = mood; menu.moodT = 2.2; menu.t = 0; }
+  function openMenu() {
+    menu.open = true; menu.scroll = 0; menu.hover = -1; menu.drag = null;
+    menuSay(U.pick(HELLO), 'happy'); menu.moodT = 0;
+    clark.pose = 'wave'; clark.t = 0; Audio.play('pop');
+  }
+  function closeMenu() { if (!menu.open) return false; menu.open = false; Audio.play('click'); return true; }
+  function menuScroll(d) {
+    const max = Math.max(0, menuItems().length - VIS);
+    menu.scroll = U.clamp(menu.scroll + d, 0, max);
+  }
+  const inB = (b, x, y) => x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h;
+  const tabBox = (i) => ({ x: MR.x + 12 + i * 124, y: MR.y - 18, w: 118, h: 20 });
+  const barBox = () => ({ x: MR.x + MR.w - 22, y: LY, w: 12, h: VIS * ROW - 4 });
+  function rowAt(x, y) {
+    if (x < LX || x > LX + LW || y < LY || y >= LY + VIS * ROW) return -1;
+    const i = menu.scroll + Math.floor((y - LY) / ROW);
+    return i < menuItems().length ? i : -1;
+  }
+  function menuHover(x, y) {
+    menu.hover = rowAt(x, y);
+    menu.hoverBtn = inB(BTN.talk, x, y) ? 'talk' : inB(BTN.done, x, y) ? 'done' : null;
+  }
+  function menuPress(x, y) {
+    const bb = barBox();
+    if (inB({ x: bb.x - 4, y: bb.y, w: bb.w + 8, h: bb.h }, x, y)) { menu.drag = { y }; menuBarTo(y); }
+  }
+  function menuBarTo(y) {
+    const bb = barBox(), max = Math.max(0, menuItems().length - VIS);
+    menu.scroll = Math.round(U.clamp((y - bb.y) / bb.h, 0, 1) * max);
+  }
+  function menuMove(x, y) { if (menu.drag) menuBarTo(y); else menuHover(x, y); }
+  function menuRelease(x, y) {
+    if (menu.drag) { menu.drag = null; return; }
+    for (let i = 0; i < TABS.length; i++) if (inB(tabBox(i), x, y)) { if (menu.tab !== i) { menu.tab = i; menu.scroll = 0; Audio.play('click'); } return; }
+    if (inB(BTN.done, x, y)) { closeMenu(); return; }
+    if (inB(BTN.talk, x, y)) { menu.open = false; Talk.open('villager:clark', TREE); return; }
+    const i = rowAt(x, y);
+    if (i >= 0) { buy(menuItems()[i]); return; }
+    // a click outside both boxes puts the catalogue away
+    if (!inB(ML, x, y) && !inB(MR, x, y) && y > MR.y - 20) closeMenu();
+  }
+  function coin(g, x, y) { Icons.blit(g, 'wdollar', x, y, 1); }
+  function drawMenu(g) {
+    const C = Kit.C;
+    g.fillStyle = 'rgba(30,12,4,0.55)'; g.fillRect(0, 0, VW, VH);
+    // ---- the Captain's side
+    Kit.card(g, ML.x, ML.y, ML.w, ML.h, {});
+    const px = ML.x + (ML.w - 132) / 2, py = ML.y + 10;
+    Kit.rr(g, px - 2, py - 2, 136, 136, 1, C.line);
+    Art.vramp(g, px, py, 132, 132, [[0, '#8ac8f0'], [1, '#d8f0f8']], 6);
+    g.fillStyle = '#6aa84a'; g.fillRect(px, py + 104, 132, 28);
+    const mood = menu.moodT > 0 ? menu.mood : 'happy';
+    const talking = menu.t < Math.min(2.4, menu.say.length * 0.03);
+    const pc = Portraits.get('villager:clark', mood, menu.t + t, talking) || Portraits.get('clark', mood, menu.t + t, talking);
+    if (pc) g.drawImage(pc, px + 2, py + 4, 128, 128);
+    Kit.tab(g, ML.x + 14, py + 138, ML.w - 28, 18, 'Captain Clark');
+    const shown = menu.say.slice(0, Math.floor(menu.t * 45));
+    Font.wrap(shown, ML.w - 26, 1).slice(0, 8).forEach((l, i) => Font.draw(g, l, ML.x + 13, py + 164 + i * 10, { scale: 1, color: C.ink }));
+    Kit.button(g, BTN.talk, 'TALK', null, { hot: menu.hoverBtn === 'talk', kind: 'paper', scale: 1 });
+    Kit.button(g, BTN.done, 'DONE', null, { hot: menu.hoverBtn === 'done', kind: 'coral', scale: 1 });
+    // ---- the stock
+    for (let i = 0; i < TABS.length; i++) {
+      const b = tabBox(i), on = menu.tab === i;
+      Kit.tab(g, b.x, b.y + (on ? 0 : 3), b.w, b.h, TABS[i][0], { col: on ? C.coral : C.frameD });
+    }
+    Kit.card(g, MR.x, MR.y, MR.w, MR.h, {});
+    const list = menuItems();
+    for (let r = 0; r < VIS; r++) {
+      const i = menu.scroll + r, f = list[i];
+      const x = LX, y = LY + r * ROW, w = LW, h = ROW - 4;
+      if (!f) { Kit.rr(g, x, y, w, h, 1, 'rgba(154,80,36,0.12)'); continue; }
+      const hot = menu.hover === i, flash = menu.flash === f.key && menu.flashT > 0;
+      const afford = G.wd >= f.cost;
+      Kit.rr(g, x, y, w, h, 1, hot ? C.sunD : C.frameD);
+      Kit.rr(g, x + 1, y + 1, w - 2, h - 2, 1, flash ? '#c8f0a0' : hot ? '#fff3d4' : C.paper);
+      g.fillStyle = hot ? '#fbe8a0' : C.paperL; g.fillRect(x + 2, y + 1, w - 4, 1);
+      g.fillStyle = C.paperD; g.fillRect(x + 2, y + h - 2, w - 4, 1);
+      // the picture of it, in a little window
+      Kit.rr(g, x + 4, y + 3, 46, h - 6, 1, C.frameM);
+      g.fillStyle = hot ? '#fbe0a8' : '#eed2a0'; g.fillRect(x + 5, y + 4, 44, h - 8);
+      const img = Props.furniture(f.key);
+      if (img) {
+        let s = Math.min(42 / img.width, (h - 10) / img.height);
+        if (s > 1) s = Math.floor(s);
+        const iw = Math.round(img.width * s), ih = Math.round(img.height * s);
+        const bob = hot ? Math.round(Math.sin(menu.t * 6) * 1) : 0;
+        g.drawImage(img, Math.round(x + 27 - iw / 2), Math.round(y + h - 5 - ih + bob), iw, ih);
+      }
+      // name, a line of patter, and the price
+      Font.draw(g, f.name, x + 58, y + 5, { scale: 2, color: C.ink });
+      let bl = f.blurb; const maxB = w - 58 - 92;
+      while (Font.width(bl, 1) > maxB && bl.length > 4) bl = bl.slice(0, -2).trimEnd() + '.';
+      if (bl !== f.blurb) bl = bl.replace(/\.+$/, '...');
+      Font.draw(g, bl, x + 58, y + 22, { scale: 1, color: C.ink2 });
+      const price = U.fmt(f.cost);
+      const pw = Font.width(price, 2);
+      Font.draw(g, price, x + w - 8, y + 11, { scale: 2, color: afford ? C.ink : C.coralD, align: 'right' });
+      coin(g, x + w - 12 - pw - 16, y + 10);
+      const have = crateCount(f.key) + placed(f.key);
+      if (have) Kit.pill(g, x + w - 44, y + h - 14, 'x' + have, { col: C.mint, ink: '#ffffff' });
+    }
+    // the scroll bar: a groove and a little brass slider
+    const bb = barBox(), max = Math.max(0, list.length - VIS);
+    Kit.rr(g, bb.x, bb.y, bb.w, bb.h, 1, C.line); g.fillStyle = C.frameD; g.fillRect(bb.x + 2, bb.y + 2, bb.w - 4, bb.h - 4);
+    const th = Math.max(24, bb.h * Math.min(1, VIS / Math.max(1, list.length)));
+    const ty = bb.y + (max ? (menu.scroll / max) * (bb.h - th) : 0);
+    Kit.rr(g, bb.x, ty, bb.w, th, 1, C.line); g.fillStyle = C.sun; g.fillRect(bb.x + 1, ty + 1, bb.w - 2, th - 2);
+    g.fillStyle = C.sunL; g.fillRect(bb.x + 1, ty + 1, bb.w - 2, 2); g.fillStyle = C.sunD; g.fillRect(bb.x + 1, ty + th - 3, bb.w - 2, 2);
+    // what's in your pocket, bottom right
+    const wal = U.fmt(G.wd);
+    const ww = Font.width(wal, 2) + 34;
+    Kit.card(g, MR.x + MR.w - ww - 8, MR.y + MR.h - 4, ww + 8, 26, { shadow: false });
+    coin(g, MR.x + MR.w - ww + 2, MR.y + MR.h + 1);
+    Font.draw(g, wal, MR.x + MR.w - 10, MR.y + MR.h + 3, { scale: 2, color: C.ink, align: 'right' });
   }
 
   // ---- the showroom ------------------------------------------------------------------------
@@ -257,7 +399,7 @@ const Ottoman = (() => {
     g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(0, FLOOR, VW, 4);
   }
   function drawSlot(g, s) {
-    const x = s.x - scroll, f = s.f, sc = f.w > 50 ? 1.6 : 2;
+    const x = s.x - scroll, f = s.f, sc = scOf(f);
     const pw = Math.max(40, f.w * sc) + 16;
     const hot = hover === s;
     // the plinth
@@ -291,7 +433,7 @@ const Ottoman = (() => {
     for (let i = 0; i < 4; i++) { Art.rect(g, x - 62 + i * 34, FLOOR - 44, 28, 36, '#8a4418'); Art.rect(g, x - 62 + i * 34, FLOOR - 44, 28, 2, '#a85a28'); }
     Art.rect(g, x - 74, FLOOR - 56, 148, 6, '#a85a28'); Art.rect(g, x - 74, FLOOR - 56, 148, 1, '#e08a48');
     // brass bell and a cash register
-    Art.ell(g, x - 40, FLOOR - 58, 6, 5, GOLD[1]); Art.ell(g, x - 42, FLOOR - 60, 2, 2, GOLD[2]); Art.rect(g, x - 47, FLOOR - 57, 14, 2, GOLD[0]);
+    Art.ell(g, x - 28, FLOOR - 58, 6, 5, GOLD[1]); Art.ell(g, x - 30, FLOOR - 60, 2, 2, GOLD[2]); Art.rect(g, x - 35, FLOOR - 57, 14, 2, GOLD[0]);
     Art.rect(g, x + 26, FLOOR - 76, 34, 20, '#2a2a34'); Art.rect(g, x + 28, FLOOR - 74, 30, 8, '#4ac070'); Font.draw(g, 'W$', x + 43, FLOOR - 73, { scale: 1, color: '#0a3a18', align: 'center' });
     for (let i = 0; i < 6; i++) Art.rect(g, x + 29 + (i % 3) * 10, FLOOR - 64 + Math.floor(i / 3) * 4, 8, 3, '#e0dcd0');
     // the captain, behind it from the waist up
@@ -319,10 +461,48 @@ const Ottoman = (() => {
     Font.draw(g, 'ONLY', x, 137, { scale: 1, color: '#ffffff', align: 'center' });
     Art.rect(g, x - 18, 154, 36, 10, '#f4f0e0'); Font.draw(g, 'NO NOCLIP', x, 156, { scale: 1, color: '#2a2a2a', align: 'center' });
   }
+  // signal flags strung along under the moulding, swaying a little
+  const FLAGS = [['#e8403a', '#ffffff'], ['#2a5ad0', '#f8d040'], ['#f8d040', '#e8403a'], ['#ffffff', '#2a5ad0'], ['#3aa050', '#ffffff']];
+  function bunting(g, S) {
+    const step = 22;
+    for (let x = -(S % (step * 5)) - step * 5; x < VW + step; x += step) {
+      const i = Math.floor((x + S) / step), k = ((i % 5) + 5) % 5, sag = 4 + Math.sin((x + S) / 88 * Math.PI) * 3;
+      const sw = Math.sin(t * 2 + i) * 1.2, y = 18 + sag;
+      g.fillStyle = '#3a1a08'; g.fillRect(x, y - 1, step, 1);
+      const [a, b] = FLAGS[k];
+      Art.poly(g, [[x + 3, y], [x + 17, y], [x + 10 + sw, y + 14]], '#2a0e04');
+      Art.poly(g, [[x + 4, y], [x + 16, y], [x + 10 + sw, y + 12]], a);
+      Art.poly(g, [[x + 7, y], [x + 13, y], [x + 10 + sw, y + 6]], b);
+    }
+  }
+  // a big fern in a glazed pot, and a sleeping ginger cat
+  function plant(g, x) {
+    const y = FLOOR;
+    for (let i = 0; i < 9; i++) {
+      const a = -Math.PI / 2 + (i - 4) * 0.34 + Math.sin(t * 1.3 + i) * 0.03, L = 26 + (i % 3) * 6;
+      Art.limb(g, x, y - 24, x + Math.cos(a) * L, y - 24 + Math.sin(a) * L, 1.6, 0.8, i % 2 ? '#3f7a32' : '#5a9a40');
+      for (let s = 0.35; s < 1; s += 0.16) { const px = x + Math.cos(a) * L * s, py = y - 24 + Math.sin(a) * L * s; g.fillStyle = '#6ab048'; g.fillRect(Math.round(px - 2), Math.round(py), 4, 1); }
+    }
+    Art.rect(g, x - 12, y - 26, 24, 4, '#2a0e04'); Art.rect(g, x - 11, y - 25, 22, 2, '#3a7ab8');
+    Art.poly(g, [[x - 11, y - 22], [x + 11, y - 22], [x + 8, y], [x - 8, y]], '#2a5a98');
+    Art.rect(g, x - 9, y - 16, 18, 2, '#f4f0e0'); Art.rect(g, x - 9, y - 21, 3, 20, 'rgba(255,255,255,0.18)');
+    g.fillStyle = 'rgba(0,0,0,0.3)'; Art.ell(g, x, y + 1, 12, 2);
+  }
+  function cat(g, x, y) {
+    const br = Math.sin(t * 2.2) * 0.8;
+    Art.ell(g, x, y - 5, 12, 6 + br, '#2a0e04'); Art.ell(g, x, y - 5, 11, 5 + br, '#e08a30'); Art.ell(g, x - 2, y - 7, 7, 3, '#f8b060');
+    for (let i = -6; i <= 6; i += 4) g.fillStyle = '#b8601c', g.fillRect(x + i, y - 9 - br, 2, 3);
+    Art.ell(g, x + 10, y - 7, 6, 5, '#2a0e04'); Art.ell(g, x + 10, y - 7, 5, 4, '#e08a30');
+    Art.poly(g, [[x + 6, y - 10], [x + 8, y - 15], [x + 10, y - 10]], '#e08a30'); Art.poly(g, [[x + 11, y - 10], [x + 13, y - 15], [x + 15, y - 9]], '#e08a30');
+    g.fillStyle = '#5a2a10'; g.fillRect(x + 8, y - 7, 2, 1); g.fillRect(x + 12, y - 7, 2, 1);
+    Art.limb(g, x - 11, y - 3, x - 2, y, 2.2, 2, '#e08a30');
+    if (Math.floor(t * 0.7) % 2 === 0) Font.draw(g, 'z', x + 16, y - 20 - (t * 6 % 6), { scale: 1, color: '#fff4d8' });
+  }
   function renderShop(g) {
     const S = scroll;
     drawWall(g, S);
     for (let x = 880; x < worldW; x += 300) { const px = x - S; if (px > -40 && px < VW + 40) porthole(g, px, 96); }
+    bunting(g, S);
     { const fx = 640 - S; if (fx > -80 && fx < VW + 80) frame(g, fx - 36, 64, 72, 54, drawShip); }
     // the shop sign over the door
     const sx = 385 - S;
@@ -342,7 +522,15 @@ const Ottoman = (() => {
     }
     drawDoor(g);
     drawFloor(g, S);
+    // sunlight coming in through the portholes and lying across the boards
+    for (let x = 880; x < worldW; x += 300) {
+      const px = x - S; if (px < -120 || px > VW + 60) continue;
+      g.fillStyle = 'rgba(255,236,170,0.07)'; Art.poly(g, [[px - 14, 104], [px + 14, 104], [px + 70, FLOOR + 40], [px + 22, FLOOR + 40]], 'rgba(255,236,170,0.07)');
+    }
     drawCounter(g);
+    { const cx = clark.x - S; if (cx > -80 && cx < VW + 80) cat(g, cx - 56, FLOOR - 56); }
+    for (const b of (layout.bays || [])) { const px = b.x1 + 30 - S; if (px > -30 && px < VW + 30) plant(g, px); }
+    { const px = 272 - S; if (px > -30 && px < VW + 30) plant(g, px); }
     for (const s of slots) { const x = s.x - S; if (x > -90 && x < VW + 90) drawSlot(g, s); }
     Art.vignette(g, VW, VH, '#1a0804', 0.4, 2.4, 0.4);
     if (tscroll < 20 && t < 6) {
@@ -480,13 +668,14 @@ const Ottoman = (() => {
 
   function render(g) {
     if (phase === 'shop') renderShop(g); else renderBack(g);
+    if (menu.open && phase === 'shop') drawMenu(g);
     if (fade > 0) { g.fillStyle = phase === 'back' || fadeTo ? `rgba(20,16,4,${fade.toFixed(2)})` : `rgba(20,8,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
     FX.drawParticles(g, 0); FX.drawConfetti(g); FX.drawFloaters(g, false); FX.drawComics(g, false);
   }
 
   return {
     init(g) { G = g; }, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
-    get phase() { return phase; }, enterBack, leaveBack, layout,
+    get phase() { return phase; }, enterBack, leaveBack, layout, openMenu, closeMenu, get menuOpen() { return menu.open; },
     get slots() { return slots; }, walk(d) { tbx = Math.max(0, tbx + d); bx = tbx; },
   };
 })();

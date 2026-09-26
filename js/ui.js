@@ -25,7 +25,7 @@ const UI = (() => {
     $('b-phone').classList.toggle('nophone', !owns(G, 'phone'));
     const dot = $('b-phone-dot');
     if (dot) {
-      const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length + Phone.unread() : 0;
+      const jobs = (typeof Phone !== 'undefined') ? Phone.unread() : 0;
       dot.hidden = jobs === 0;
       dot.textContent = jobs > 9 ? '9+' : String(jobs);
     }
@@ -299,9 +299,9 @@ const UI = (() => {
       R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffe4b0'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#ffe0a8');
       return c.toDataURL();
     }
-    const fr = kind === 'hot' ? ['#ffd070', '#ff9a3a', '#e07a30', '#b0501c']
-      : kind === 'sel' ? ['#fff08a', '#ffc81c', '#f0a010', '#c8840c'] : ['#ffb858', '#e07a30', '#c8622a', '#a0461a'];
-    const paper = ['#fff4cc', '#ffe3a4', '#f2c47a'];
+    const fr = kind === 'hot' ? ['#ffd070', '#ff9a3a', '#d4843e', '#b0501c']
+      : kind === 'sel' ? ['#fbe8a0', '#f0c048', '#f0a010', '#b8842a'] : ['#f2b870', '#d4843e', '#bc6a32', '#9a5024'];
+    const paper = ['#fff3d4', '#f8e2b2', '#eac48a'];
     R(2, 0, N - 4, N, line); R(0, 2, N, N - 4, line); R(1, 1, N - 2, N - 2, line);   // the line, corners knocked off
     R(2, 1, N - 4, N - 2, fr[1]); R(1, 2, N - 2, N - 4, fr[1]);
     R(2, 1, N - 4, 1, fr[0]); R(1, 2, 1, N - 4, fr[0]);                                   // lit top and left
@@ -328,7 +328,7 @@ const UI = (() => {
     const name = phone ? 'A Phone' : (sd && sd.name) || (t ? t.name : u.key);
     const icon = phone ? 'ph_key' : t ? t.icon : 'lock';
     const price = phone ? PHONE_PRICE : sd ? sd.price : 0;
-    const what = phone ? 'Jobs, your herd, texts, and an App Store.' : t ? t.desc : '';
+    const what = phone ? 'Texts, a camera, and Wombat Hop.' : t ? t.desc : '';
     el.innerHTML = `<div class="ucard ${u.gift ? 'gift' : ''}">
       <div class="uhead">${u.gift ? 'YOU GOT' : 'NEW AT WOMBAT MART'}</div>
       <div class="upic">${ic(icon, 'xl')}</div>

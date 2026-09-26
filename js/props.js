@@ -1458,8 +1458,9 @@ const Props = (() => {
   // A piece of furniture, drawn at the size the catalogue says it is.
   function furniture(key) {
     const def = FURN_BY_KEY[key];
-    if (!def || !FURN[key]) return null;
-    return cached('fn:' + key, def.w, def.h, (g, w, h) => FURN[key](g, w, h));
+    const fn = (typeof FurnArt !== 'undefined' && FurnArt.has(key)) ? FurnArt.A[key] : FURN[key];
+    if (!def || !fn) return null;
+    return cached('fn:' + key, def.w, def.h, (g, w, h) => fn(g, w, h));
   }
   function drawFurniture(g, key, x, y, scale = 1) {
     const c = furniture(key);

@@ -1738,7 +1738,7 @@ const Grove = (() => {
       const k = d.sq0 * Math.exp(-7 * d.sqT) * Math.cos(d.sqT * 24);
       g.translate(0, (h / 2) * k); g.scale(1 + k, 1 - k);
     }
-    Sprites.drawCube(g, def, w, h, { blessed: d.blessed, outline: held ? PAL.gold4 : d.blessed ? PAL.div4 : null });
+    Sprites.drawCube(g, def, w, h, {});
     g.restore();
     if (d.blessed && Math.sin(d.t * 7) > 0.4) { g.fillStyle = PAL.div5; g.fillRect(d.x + w / 2 - 2, d.y - d.z - h - 3, 2, 2); }
   }

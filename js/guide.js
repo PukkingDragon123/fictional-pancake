@@ -77,10 +77,10 @@ const Guide = (() => {
       say: "You'll want a phone for this job. The mart has them.",
       lesson: [
         { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
-        { say: "You'll want a phone for this job. It keeps your jobs, your herd and your texts. The mart has them now.", mood: 'talk' },
+        { say: "You'll want a phone. Text the neighbours, take pictures of her, and play Wombat Hop. I'm on level 40. The mart has them now.", mood: 'talk' },
       ],
       unlock: ['phone'], label: 'DRIVE TO THE MART',
-      note: 'Buy a phone at Wombat Mart, then press P. More apps are in its App Store.',
+      note: 'Buy a phone at Wombat Mart, then press P: messages, a camera and Wombat Hop.',
       at: () => MART(), aty: () => MARTY(), done: (g) => has(g, 'phone'),
     },
     {
@@ -349,7 +349,7 @@ const Guide = (() => {
       junk: 'The ants said you were very polite.',
       grass: 'Green suits it. Keep the water up.',
       arrive: 'She picked you! Legend.',
-      phone: 'Jim here. Saved my number for you. Get some apps from the store.',
+      phone: 'Jim here. Saved my number for you. Beat my Wombat Hop score. You cannot.',
       sow: 'A bed in the ground is dinner in the ground.',
       pick: 'Anything you grow, she will eat.',
       feed: 'One fed wombat. Try three!',
@@ -553,7 +553,12 @@ const Guide = (() => {
       cult.pose = Math.abs(dx) > 120 ? 'run' : 'walk'; cult.still = 0;
     } else {
       cult.still += dt;
-      cult.pose = cult.still > 16 ? 'sit' : 'idle';       // she takes a seat if you dawdle
+      cult.pose = cult.still > 22 ? 'sit' : 'idle';       // he takes a seat if you dawdle
+      // and he is never quite still: a shrug, a nod, a stretch, a laugh at nothing
+      if (cult.still < 22 && Math.random() < dt * 0.22) {
+        cult.pose = U.pick(['shrug', 'nod', 'laugh', 'clap', 'cheer', 'wave']); cult.castT = 1.1 + Math.random() * 0.8; cult.t = 0;
+        if (cult.pose === 'laugh') Sprites.setFace('happy');
+      }
     }
     check();
   }

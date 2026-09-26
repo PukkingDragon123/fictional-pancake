@@ -14,21 +14,16 @@ const Phone = (() => {
   // ---- the apps -------------------------------------------------------------
   // Every app on the home screen, in the order they sit on it. `tint` is the
   // icon's own colour, the way every phone gives an app one.
-  // The phone comes with four apps. The rest you get from the App Store,
-  // for a few W$ each, once you have the money to spare.
+  // A phone out here is for three things: texting the neighbours, taking
+  // pictures of the wombats, and Wombat Hop. Everything else you already know
+  // from standing in the paddock.
   const APPS_ALL = [
-    { key: 'quests', name: 'Jobs', icon: 'ph_jobs', tint: ['#ffb04a', '#f07a1c'], blurb: 'What Jim wants doing next, and the standing jobs.' },
-    { key: 'store', name: 'App Store', icon: 'ph_key', tint: ['#4fb6ff', '#1a6cf0'], blurb: 'Get more apps.' },
-    { key: 'herd', name: 'Herd', icon: 'ph_herd', tint: ['#d8a070', '#a06238'], blurb: 'How every wombat is doing, and where she is.' },
-    { key: 'garden', name: 'Garden', icon: 'ph_garden', tint: ['#8ee06a', '#34a83a'], blurb: 'Every bed: what wants water, what is ready.' },
-    { key: 'larder', name: 'Larder', icon: 'ph_larder', tint: ['#ffe07a', '#f0b020'], blurb: 'What is in the truck and the feed bin.' },
-    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#c8ccd4', '#7c828e'], blurb: 'Take a picture of the plot. Keep the roll.' },
-    { key: 'map', name: 'Places', icon: 'ph_places', tint: ['#7fd4ff', '#2a8ae0'], blurb: 'Drive anywhere in the district from here.' },
-    { key: 'settings', name: 'Settings', icon: 'ph_settings', tint: ['#b8bcc6', '#6e7480'], blurb: 'Sound, display, and starting over.' },
-    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#7ef08a', '#22b83a'], blurb: 'Texts from the neighbours.' },
+    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#7ee08a', '#2aa840'], blurb: 'Texts from the neighbours.' },
+    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#c8ccd4', '#6c7280'], blurb: 'Take a picture. Keep the roll.' },
+    { key: 'games', name: 'Wombat Hop', icon: 'wombat', tint: ['#ffc060', '#e86a2a'], blurb: 'Hop the logs, grab the cubes.' },
   ];
-  const installed = (k) => k === 'store' || !!(G && G.apps && G.apps[k]);
-  const DOCK_KEYS = ['messages', 'map', 'quests', 'store'];
+  const installed = (k) => APPS_ALL.some((a) => a.key === k);
+  const DOCK_KEYS = [];
   let APPS = [];                                   // what is on the home screen right now
   const ALL = APPS_ALL;
   const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
@@ -98,6 +93,7 @@ const Phone = (() => {
     return `${h}:${String(m).padStart(2, '0')}`;
   }
   function close() {
+    Hop.unmount();
     if ($('panel-phone').hidden) return;
     relock();
     $('panel-phone').hidden = true;
@@ -162,55 +158,15 @@ const Phone = (() => {
     $('ph-grid').innerHTML = APPS.map((a) => appIcon(a, b[a.key])).join('');
     $('ph-dock').innerHTML = dock.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
     $('ph-dock').style.gridTemplateColumns = `repeat(${Math.max(1, dock.length)}, 1fr)`;
+    $('ph-dock').hidden = !dock.length;
     wire($('ph-home-view'));
   }
 
   // ---- jobs -----------------------------------------------------------------
-  function quests() {
-    const q = Guide.current();
-    const where = q ? (q.where || 'in the grove') : '';
-    const list = G.mode === 'grove' && !G.arrived ? Grove.tasks() : [];
-    let html = '';
-    if (q) {
-      html += `<div class="phcard big">
-        <div class="phcardh">${ic(q.icon)}<b>${esc(q.title)}</b></div>
-        <p>${esc(q.note)}</p>
-        <div class="phmeta"><span>${ic('map', 'sm')} ${esc(where)}</span><span>${ic('wdollar', 'sm')} ${q.reward || 0} on the nail</span></div>
-      </div>`;
-    } else {
-      html += `<div class="phcard big"><div class="phcardh">${ic('eye')}<b>Nothing owing</b></div>
-        <p>Jim has shown you everything. What happens next is up to you: more land, more wombats, more veg.</p></div>`;
-    }
-    if (list.length) {
-      html += `<div class="phsub">CLEAN-UP</div>` + list.map((ts) => row(
-        `${ic(ts.icon)}<b>${esc(ts.name || ts.key)}</b><span class="phnum">${Math.round(ts.at)}/${ts.need}</span>`,
-        ts.done ? 'done' : '') + bar(ts.at, ts.need, ts.done ? '#84bb59' : '#d8a52f')).join('');
-    }
-    const jobs = gardenJobs().concat(careList());
-    if (jobs.length) {
-      html += `<div class="phsub">STANDING JOBS</div>` + jobs.map((j) => row(`${ic(j.icon)}<b>${esc(j.what)}</b><span class="phdim">${esc(j.where)}</span>`)).join('');
-    }
-    return html;
-  }
+
 
   // ---- the herd -------------------------------------------------------------
-  function herd() {
-    if (!G.wombats.length) return `<div class="phcard big"><div class="phcardh">${ic('wombat')}<b>Nobody yet</b></div><p>Clean the grove and one will come. After that the mart has a cage of them.</p></div>`;
-    return G.wombats.map((w, i) => {
-      const fur = Sprites.furOf(w.pelt);
-      const age = Sprites.AGE[w.age].name;
-      const care = careOf(w);
-      return `<div class="phcard wom" data-wom="${w.id}">
-        <div class="phcardh">${ic('wombat')}<b>${esc(w.name)}</b><span class="phdim">${esc(fur.name)} ${esc(age)}</span></div>
-        <div class="phstat"><span>happy</span>${bar(w.hap, 100, w.hap > 60 ? '#84bb59' : w.hap > 30 ? '#d8a52f' : '#b8412c')}</div>
-        <div class="phstat"><span>fed</span>${bar(w.stomach === 'empty' ? 6 : 100, 100, '#e0763a')}</div>
-        <div class="phstat"><span>water</span>${bar(100 - (w.thirst || 0), 100, '#57b6c9')}</div>
-        <div class="phstat"><span>play</span>${bar(100 - (w.bored || 0), 100, '#b98ef0')}</div>
-        ${care.length ? `<div class="phwant">${care.map((c) => `<em>${esc(c)}</em>`).join('')}</div>` : '<div class="phok">wants for nothing</div>'}
-        <div class="phacts"><button class="phbtn" data-find="${w.id}">FIND HER</button><button class="phbtn" data-papers="${w.id}">PAPERS</button></div>
-      </div>`;
-    }).join('');
-  }
+
   // what one animal is short of right now
   function careOf(w) {
     const out = [];
@@ -249,74 +205,16 @@ const Phone = (() => {
     }
     return out.slice(0, 12);
   }
-  function garden() {
-    const beds = World.crops || [];
-    const by = { crop: 0, tree: 0, magic: 0 };
-    for (const c of beds) by[World.kindOf(c)]++;
-    const jobs = gardenJobs();
-    let html = `<div class="phcard big"><div class="phcardh">${ic('c_broadleaf')}<b>${beds.length} in the ground</b></div>
-      <div class="phmeta"><span>${by.crop} crops</span><span>${by.tree} trees</span><span>${by.magic} magical</span></div></div>`;
-    if (jobs.length) html += `<div class="phsub">WANTS DOING</div>` + jobs.map((j) => row(`${ic(j.icon)}<b>${esc(j.what)}</b><span class="phdim">${esc(j.where)}</span>`)).join('');
-    const seeds = CROPS.filter((c) => (G.seeds[c.key] || 0) > 0);
-    if (seeds.length) {
-      html += `<div class="phsub">IN THE SEED TIN</div>` + seeds.map((c) => row(
-        `${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${G.seeds[c.key]}</span><span class="phdim">${esc(c.kind === 'tree' ? `${c.grow}s to establish` : c.kind === 'magic' ? MAGIC_NEED[c.need] : `${c.grow}s`)}</span>`)).join('');
-    }
-    const growing = CROPS.filter((c) => beds.some((b) => b.k === c.key));
-    if (growing.length) {
-      html += `<div class="phsub">WHAT IS IN THE BEDS</div>` + growing.map((c) => {
-        const mine = beds.filter((b) => b.k === c.key);
-        const ready = mine.filter((b) => World.ripe(b)).length;
-        return row(`${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${mine.length}</span><span class="phdim">${ready ? `${ready} ready` : esc(PLANT_KINDS[c.kind].blurb)}</span>`);
-      }).join('');
-    }
-    return html;
-  }
+
 
   // ---- places ---------------------------------------------------------------
-  const SITE_BLURB = {
-    grove: 'Your land. The wombats, the beds and the truck.',
-    mart: 'Shaz on the till. Hardware, drinks, a gumball machine and a cage of wombats.',
-    nursery: 'Groot. Seed, saplings, garden tools, a trough and a nest.',
-    ottoman: "Captain Clark's furniture showroom. Ottomans, sofas, lamps, rugs. Do not go in the back room.",
-  };
-  function places() {
-    const here = Atlas.whereAmI();
-    return SITES.map((s) => {
-      const open = Atlas.siteOpen(s);
-      const km = Atlas.kmBetween(here, s);
-      const now = s.mode === G.mode || (s.key === 'grove' && G.mode === 'grove');
-      const why = !open ? (s.gate && !s.gate(G) ? s.why : 'not yet') : '';
-      return `<div class="phcard site ${open ? '' : 'shut'}">
-        <div class="phcardh">${ic(s.icon)}<b>${esc(open ? s.name : '???')}</b><span class="phdim">${now ? 'you are here' : km + ' km'}</span></div>
-        <p>${esc(open ? (SITE_BLURB[s.key] || '') : why)}</p>
-        ${open && s.mode && !now ? `<div class="phacts"><button class="phbtn go" data-go="${s.key}">DRIVE OVER</button></div>` : ''}
-      </div>`;
-    }).join('');
-  }
+
 
   // ---- the larder ------------------------------------------------------------
   // The money, what is in the back of the truck and what is on the shelf, on
   // one page. It replaces the wallet, the weather and the wombagram, none of
   // which said anything the grove was not already saying out loud.
-  function larder() {
-    const offs = OFFER_ORDER.filter((k) => (G.offerings[k] || 0) + (G.blessed[k] || 0) > 0);
-    const food = CROPS.filter((c) => (G.food[c.key] || 0) > 0);
-    const d = Sky.def();
-    let html = `<div class="phcard big"><div class="phcardh">${ic('ph_larder')}<b>${U.fmt(G.wd)} W$</b></div>
-      <div class="phmeta"><span>earned ${U.fmt(Math.round(G.stats.earned || 0))}</span><span>${G.wombats.length} in the herd</span></div></div>
-      ${row(`${ic(Sky.isNight() ? 'ph_moon' : Sky.wet() > 0.2 ? 'ph_rain' : 'ph_sun')}<b>${esc(d.name)}</b><span class="phdim">${esc(d.blurb)}</span>`)}`;
-    if (offs.length) {
-      html += `<div class="phsub">IN THE TRUCK</div>` + offs.map((k) => row(
-        `${ic(OFFERINGS[k].icon)}<b>${esc(OFFERINGS[k].name)}</b><span class="phnum">${(G.offerings[k] || 0) + (G.blessed[k] || 0)}</span><span class="phdim">Jim buys these</span>`)).join('');
-    }
-    if (food.length) {
-      html += `<div class="phsub">IN THE LARDER</div>` + food.map((c) => row(
-        `${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${G.food[c.key]}</span><span class="phdim">+${c.hap} happy</span>`)).join('');
-    }
-    if (!offs.length && !food.length) html += `<div class="phsub">EMPTY</div>${row('<b>Nothing in the back and nothing in the larder.</b>')}`;
-    return html;
-  }
+
 
   // ---- messages --------------------------------------------------------------
   // Everyone in the district has your number. Threads live in the save, new
@@ -404,32 +302,7 @@ const Phone = (() => {
   }
 
   // ---- settings ---------------------------------------------------------------
-  function settings() {
-    const st = Main.settings;
-    const row = (k, name, sub, on) => `<div class="phset"><span>${esc(name)}<small>${esc(sub)}</small></span>
-      <button class="phsw ${on ? 'on' : ''}" data-tog="${k}"><i></i></button></div>`;
-    return `<div class="phsub">SOUND</div>
-      <div class="phgroup">
-        ${row('muted', 'Silent', 'everything off', st.muted)}
-        ${row('musicOff', 'Music', 'the wood has a tune', !st.musicOff)}
-      </div>
-      <div class="phsub">DISPLAY</div>
-      <div class="phgroup">
-        ${row('shake', 'Screen shake', 'things land harder', st.shake !== false)}
-        ${row('bigText', 'Larger text', 'for reading across a room', !!st.bigText)}
-      </div>
-      <div class="phsub">ABOUT</div>
-      <div class="phgroup">
-        <div class="phset"><span>Wombat OS<small>version 41, built in a wood</small></span></div>
-        <div class="phset"><span>Storage<small>${(World.crops || []).length} plants &middot; ${G.wombats.length} wombats</small></span></div>
-        <div class="phset"><span>Time in the grove<small>${U.time(Math.round(G.time || 0))}</small></span></div>
-      </div>
-      <div class="phsub">DANGER</div>
-      <div class="phgroup">
-        <div class="phset"><span>Erase this grove<small>everything, permanently</small></span>
-          <button class="phgo" data-wipe="1" id="ph-wipe">ERASE</button></div>
-      </div>`;
-  }
+
 
   // ---- the camera --------------------------------------------------------------
   // It photographs whatever is on the screen behind the phone, which is the
@@ -465,32 +338,13 @@ const Phone = (() => {
   }
   // ---- drawing --------------------------------------------------------------
   // ---- the app store -----------------------------------------------------------
-  function store() {
-    const list = APPS_ALL.filter((a) => a.key !== 'store');
-    const have = list.filter((a) => installed(a.key)).length;
-    let html = `<div class="phstorehead"><b>Today</b><small>${have} of ${list.length} apps on this phone &middot; W$${U.fmt(G.wd)} to spend</small></div>`;
-    html += list.map((a) => {
-      const own = installed(a.key), price = APP_PRICES[a.key] || 0;
-      const btn = own ? `<button class="phget own" data-app="${a.key}">OPEN</button>`
-        : `<button class="phget" data-buyapp="${a.key}">${price ? 'W$' + price : 'GET'}</button>`;
-      return `<div class="phstoreitem">
-        <i class="phico" style="--t1:${a.tint[0]};--t2:${a.tint[1]}">${ic(a.icon)}</i>
-        <span class="phtx"><b>${esc(a.name)}</b><small>${esc(a.blurb)}</small></span>${btn}</div>`;
-    }).join('');
-    return html;
+
+
+  function games() {
+    return `<div class="phgame"><canvas id="ph-hop" width="180" height="240"></canvas>
+      <div class="phsub">JIM'S HIGH SCORE: 1,204 &middot; YOURS: ${G.hopBest || 0}</div></div>`;
   }
-  function buyApp(k) {
-    const price = APP_PRICES[k] || 0;
-    if (installed(k)) return;
-    if (G.wd < price) { Audio.play('error'); UI.toast(`not enough &mdash; ${APP_BY_KEY[k].name} is W$${price}`, 'bad'); return; }
-    G.wd -= price;
-    if (!G.apps) G.apps = {};
-    G.apps[k] = 1;
-    Audio.play('cash');
-    UI.toast(`<b>${APP_BY_KEY[k].name}</b> is on your phone`, 'good');
-    UI.refreshHUD(); Main.save();
-  }
-  const BODY = { quests, herd, map: places, garden, larder, messages, settings, camera, store };
+  const BODY = { messages, camera, games };
   function render() {
     const homeV = $('ph-home-view'), appV = $('ph-app-view'), lockV = $('ph-lock');
     if (!homeV || !appV) return;
@@ -506,7 +360,7 @@ const Phone = (() => {
     $('ph-title').textContent = app === 'messages' && chatWith ? PEOPLE[chatWith].name : TITLE[app] || 'App';
     $('ph-back').textContent = app === 'messages' && chatWith ? '‹ Messages' : '‹ Home';
     scr.className = 'phscreen app-' + app;
-    scr.innerHTML = (BODY[app] || quests)();
+    scr.innerHTML = (BODY[app] || messages)();
     scr.scrollTop = 0;
     // the bits that need a canvas painting into them
     scr.querySelectorAll('[data-ava]').forEach((el) => el.appendChild(avatar(el.dataset.ava)));
@@ -522,6 +376,8 @@ const Phone = (() => {
         vf.style.backgroundImage = `url(${c.toDataURL('image/png')})`;
       } catch (e) { }
     }
+    const hop = scr.querySelector('#ph-hop');
+    if (hop) Hop.mount(hop, G); else Hop.unmount();
     const sh = scr.querySelector('#ph-shutter');
     if (sh) sh.onclick = () => { takeShot(); render(); };
     wire(scr);
@@ -531,7 +387,6 @@ const Phone = (() => {
       if (!installed(b.dataset.app)) { app = 'store'; render(); return; }
       app = b.dataset.app; chatWith = null; Audio.play('click'); render();
     });
-    scr.querySelectorAll('[data-buyapp]').forEach((b) => b.onclick = () => { buyApp(b.dataset.buyapp); render(); });
     scr.querySelectorAll('[data-chat]').forEach((b) => b.onclick = () => { chatWith = b.dataset.chat; Audio.play('click'); render(); });
     scr.querySelectorAll('[data-reply]').forEach((b) => b.onclick = () => {
       const r = REPLIES[+b.dataset.reply];
@@ -546,36 +401,11 @@ const Phone = (() => {
         if (isOpen() && app === 'messages') render();
       }, 900 + Math.random() * 900);
     });
-    scr.querySelectorAll('[data-tog]').forEach((b) => b.onclick = () => {
-      Main.menuAction({ toggle: b.dataset.tog });
-      render();
-    });
-    const wipe = scr.querySelector('#ph-wipe');
-    if (wipe) {
-      let armed = 0;
-      wipe.onclick = () => {
-        if (Date.now() < armed) { Main.reset(); return; }
-        armed = Date.now() + 4000; wipe.textContent = 'SURE?'; Audio.play('alarm');
-        setTimeout(() => { if (Date.now() >= armed) wipe.textContent = 'ERASE'; }, 4100);
-      };
-    }
-    scr.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => {
-      const s = SITES.find((x) => x.key === b.dataset.go);
-      close();
-      if (G.mode !== 'map') { Main.setMode('map'); setTimeout(() => Atlas.go(s), 260); }
-      else Atlas.go(s);
-    });
-    scr.querySelectorAll('[data-find]').forEach((b) => b.onclick = () => {
-      const w = G.wombats.find((x) => String(x.id) === b.dataset.find);
-      if (!w) return;
-      close();
-      if (G.mode !== 'grove') { Main.setMode('grove'); }
-      setTimeout(() => { Grove.panTo(w.x); FX.comic(w.x, w.y - 40, 'HERE!', { ink: '#d8f0a0', edge: '#5d9440', life: 0.9 }); }, 200);
-    });
-    scr.querySelectorAll('[data-papers]').forEach((b) => b.onclick = () => {
-      const w = G.wombats.find((x) => String(x.id) === b.dataset.papers);
-      if (w) { close(); UI.openWombat(w); }
-    });
+
+
+
+
+
   }
   function back() {
     if (locked) { locked = false; app = 'home'; render(); return; }
@@ -588,6 +418,7 @@ const Phone = (() => {
     if (!isOpen()) return false;
     if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (locked || app === 'home') close(); else back(); return true; }
     if (locked) { locked = false; app = 'home'; render(); return true; }
+    if (app === 'games' && Hop.key(e)) return true;
     const n = parseInt(e.key, 10) - 1;
     if (app === 'home' && n >= 0 && n < APPS.length) { app = APPS[n].key; Audio.play('click'); render(); return true; }
     return false;

@@ -7,18 +7,18 @@
    ========================================================================== */
 :root {
   --ol: #4a1e0e; --inner: #7a3414;
-  --fr0: #ffb858; --fr1: #e07a30; --fr2: #c8622a; --fr3: #a0461a;
-  --pp0: #fff4cc; --pp1: #ffe3a4; --pp2: #f2c47a; --pp3: #d49a54;
+  --fr0: #f2b870; --fr1: #d4843e; --fr2: #bc6a32; --fr3: #9a5024;
+  --pp0: #fff3d4; --pp1: #f8e2b2; --pp2: #eac48a; --pp3: #d49a54;
   --ink: #5a2610; --ink2: #8a5028;
-  --cream: #fff4cc; --parch: #ffe3a4;
+  --cream: #fff3d4; --parch: #f8e2b2;
   /* the old palette names, pointed at the new colours so older rules follow */
-  --wd0: #3a1406; --wd1: #5a2610; --wd2: #7a3414; --wd3: #a0461a; --wd4: #c8622a; --wd5: #e07a30;
-  --pg0: #c89858; --pg1: #f2c47a; --pg2: #ffe3a4; --pg3: #ffecbc; --pg4: #fff4cc; --pg5: #8a5028;
-  --gd0: #1a5a14; --gd1: #2f8a26; --gd2: #5cc03c; --gd3: #a8ec6a; --gd4: #d8ffa8;
-  --tl0: #0a3a6a; --tl1: #1a5aa0; --tl2: #3aa0f0; --tl3: #7ac8ff; --tl4: #c0e8ff;
-  --am0: #6a0e06; --am1: #a01e14; --am2: #e8402c; --am3: #ff8a70;
-  --grass: #5cc03c; --grass-d: #2f8a26; --grass-dd: #1a5a14; --grass-l: #a8ec6a;
-  --sun: #ffc81c; --sun-l: #fff08a; --sun-d: #c8840c; --tomato: #e8402c; --sky: #3aa0f0;
+  --wd0: #3a1406; --wd1: #5a2610; --wd2: #7a3414; --wd3: #9a5024; --wd4: #bc6a32; --wd5: #d4843e;
+  --pg0: #c89858; --pg1: #eac48a; --pg2: #f8e2b2; --pg3: #ffecbc; --pg4: #fff3d4; --pg5: #8a5028;
+  --gd0: #264e20; --gd1: #3f7a32; --gd2: #6aa84a; --gd3: #a8d880; --gd4: #d8ffa8;
+  --tl0: #0a3a6a; --tl1: #1a5aa0; --tl2: #5a9ad0; --tl3: #7ac8ff; --tl4: #c0e8ff;
+  --am0: #6a0e06; --am1: #983224; --am2: #d45a40; --am3: #ff8a70;
+  --grass: #6aa84a; --grass-d: #3f7a32; --grass-dd: #264e20; --grass-l: #a8d880;
+  --sun: #f0c048; --sun-l: #fbe8a0; --sun-d: #b8842a; --tomato: #d45a40; --sky: #5a9ad0;
   --bev: inset 2px 2px 0 rgba(255,255,255,0.45), inset -2px -2px 0 rgba(0,0,0,0.22);
 }
 * { border-radius: 0 !important; }
@@ -32,8 +32,8 @@ button { color: var(--ink); font-family: var(--f); }
 }
 /* the picture sits in a thick pixel frame of its own */
 #frame { box-shadow: 0 0 0 3px var(--ol), 0 0 0 6px var(--fr1), 0 0 0 7px var(--fr0), 0 0 0 10px var(--fr3), 0 0 0 13px var(--ol), 8px 12px 0 13px rgba(40,20,4,0.35) !important; }
-/* and the picture itself, a notch more saturated than it was painted */
-#game { filter: saturate(1.28) contrast(1.06); }
+/* and the picture itself, calmed a touch so the farm reads soft and warm */
+#game { filter: saturate(0.94) contrast(1.03); }
 .dim { color: var(--ink2); } .good { color: var(--grass-d); } .warn { color: #c0301c; }
 
 /* ---- words over the picture --------------------------------------------------------- */
@@ -185,7 +185,7 @@ button { color: var(--ink); font-family: var(--f); }
 #hotbar .hslot.want { animation: wantpulse 0.9s steps(2) infinite; }
 #hotbar .hslot.sealed .lk img.ico { opacity: 0.55; }
 @keyframes newbob { 0%, 100% { transform: translate(-50%, 0) } 50% { transform: translate(-50%, -3px) } }
-@keyframes wantpulse { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 0 #ffc81c) drop-shadow(3px 0 0 #ffc81c) drop-shadow(-3px 0 0 #ffc81c) drop-shadow(0 3px 0 #ffc81c) drop-shadow(0 -3px 0 #ffc81c); } }
+@keyframes wantpulse { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 0 #f0c048) drop-shadow(3px 0 0 #f0c048) drop-shadow(-3px 0 0 #f0c048) drop-shadow(0 3px 0 #f0c048) drop-shadow(0 -3px 0 #f0c048); } }
 #toasts { bottom: 122px !important; }
 #b-phone.nophone { display: none !important; }
 
@@ -292,3 +292,10 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 
 /* lost in the back room: no purse, no buttons, just the tape running */
 body.noclip #money, body.noclip #mini { display: none !important; }
+
+/* Wombat Hop, on the phone */
+.phgame { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.phgame canvas { width: 100%; max-width: 270px; aspect-ratio: 180 / 240; image-rendering: pixelated; cursor: pointer;
+  border: 3px solid #2a2a3a; box-shadow: 4px 4px 0 rgba(0,0,0,0.25); touch-action: none; }
+.phscreen.app-games { background: #2a2a3a; }
+.phscreen.app-games .phsub { color: #ffe890; text-align: center; }

@@ -20,8 +20,9 @@ Creek, and up to the farm gate where Jim is waiting.
 1. **Meet Jim.** You start with your hands and W$300. Jim hands you his old sickle and
    teaches each job in a dialogue box with his portrait. Every job unlocks the tool
    it needs, which you then buy at Wombat Mart (click the truck). An arrow points at
-   whatever the job is about, and the toolbar slot you need glows. A phone is W$80; its
-   apps come from the App Store on the phone itself.
+   whatever the job is about, and the toolbar slot you need glows. A phone is W$80. It
+   does three things: texts, a camera, and Wombat Hop, a little runner that pays a few W$
+   for a good score.
 2. **Tidy up.** Cut the weeds with the sickle, have the ants take the old logs, and sow
    grass inside the rope. A tidy garden brings your first wombat.
 3. **Grow.** Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.
@@ -33,7 +34,9 @@ Creek, and up to the farm gate where Jim is waiting.
    so you can make ponds and creeks. Frogs move in.
 
 7. **Furnish it.** Captain Clark's Ottoman Empire, in town, sells every piece of furniture:
-   ottomans, a Chesterfield, a captain's armchair, lamps, rugs, a hammock, a ship's wheel.
+   ottomans, a Chesterfield, a captain's armchair, lamps, rugs, a hammock, a ship's wheel,
+   and the garden things too. Click the Captain to open his catalogue: his face on the
+   left, the stock on the right in two tabs, and one click buys a piece.
    He'll ask you not to go through the STAFF ONLY door at the back. Behind it is Level 0,
    yellow rooms that go on forever. Find a green EXIT sign to get out, and look out for
    something that got lost in there.
@@ -70,8 +73,16 @@ wander in now and then, the weather changes on its own, and a day is twelve minu
 - `js/scenery.js` - the painted country: ranges, fields, forest, village, road, the car
 - `js/menu.js` - the title screen, driving through the forest
 - `js/intro.js` - the drive into Wombat Creek and up to the farm gate
-- `js/ottoman.js` - Captain Clark's Ottoman Empire and the back room behind it
+- `js/ottoman.js` - Captain Clark's Ottoman Empire, his catalogue, and the back room behind it
+- `js/furnart.js` - the furniture, drawn pixel by pixel
 - `js/map.js`, `js/drive.js`, `js/shop.js`, `js/nursery.js` - the other scenes
-- `js/phone.js`, `js/ui.js` - the white phone and its App Store, the HUD and toolbar
+- `js/phone.js`, `js/hop.js`, `js/ui.js` - the phone, Wombat Hop, the HUD and toolbar
 - `js/art.js`, `js/sprites.js`, `js/props.js`, `js/icons.js`, `js/tex.js`, `js/fx.js` - the art
 - `js/data.js` - crops, tools, prices, apps and furniture
+
+## itch.io art
+
+`promo/cover.gif` (630x500) and `promo/banner.gif` (960x320) are looping pixel GIFs painted
+with the game's own sprites: the cover is the title with Jim and the wombats, the banner is
+everybody dancing and singing together. `promo/*.png` are stills. To redraw them, run
+`node promo/render.js` (it needs Playwright).

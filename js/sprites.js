@@ -773,10 +773,86 @@ const Sprites = (() => {
   // hair under a red sweatband, black-rimmed glasses, ginger stubble, a grey
   // check fleece with a thick cream collar, a pink shirt over a good belly,
   // brown shorts, and freckled, hairy legs.
+  // Jim from the side, walking: the belly leads, the arms swing, the mop of
+  // hair bounces on every step. Drawn facing right; the grove flips him.
+  function jimSide(f, t, run) {
+    const { c, g } = Art.cv(CW, CH);
+    const R = (x, y, w, h, col) => Art.rect(g, x, y, w, h, col);
+    const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
+    const SKIN = '#eeb088', SKIN0 = '#c98460', SKIN2 = '#f8cca4', FRECK = '#c8703a';
+    const HAIR = '#e8962e', HAIR0 = '#b8661c', HAIR2 = '#ffc05a';
+    const FLE = '#8e9098', FLE0 = '#6a6c74', FLE2 = '#b4b6bc';
+    const SHIRT = '#e57e9c', SHIRT0 = '#c05a7c', SHIRT2 = '#ffa6be';
+    const SHORT = '#8a6440', SHORT0 = '#664628', SHOE = '#4a3426', SOLE = '#e8e0d0';
+    const ph = t * TAU, sw = Math.sin(ph) * (run ? 8 : 6.5);
+    const bob = -Math.abs(Math.sin(ph)) * (run ? 2.6 : 1.6);
+    const y0 = bob;
+    const cx = CX - 2, hipY = 62 + y0;
+    // the far leg and far arm first, in shade
+    const leg = (dx, near) => {
+      const fx = cx + dx, top = hipY + 3;
+      Art.limb(g, cx, top, fx, CGY - 5, 7, 6.5, near ? SKIN : SKIN0);
+      R(fx - 4, CGY - 6, 11, 5, near ? SHOE : '#3a2a1e'); R(fx - 4, CGY - 2, 11, 2, near ? SOLE : '#b8b0a0');
+      if (near) { R(fx - 1, top + 5, 1, 1, FRECK); R(fx + 1, top + 9, 1, 1, FRECK); }
+    };
+    leg(-sw, false);
+    Art.limb(g, cx - 2, 43 + y0, cx - 2 - sw * 1.1, 58 + y0, 4.6, 4, FLE0);          // the far arm
+    E(cx - 2 - sw * 1.1, 59 + y0, 2.8, 2.6, SKIN0);
+    // shorts
+    R(cx - 10, hipY - 6, 20, 10, SHORT); R(cx - 10, hipY + 2, 20, 2, SHORT0);
+    // the belly, out in front, in its pink shirt
+    E(cx + 5, 50 + y0, 13, 12.5, SHIRT0);
+    E(cx + 4, 49 + y0, 12.5, 12, SHIRT);
+    E(cx + 7, 45 + y0, 5, 4, SHIRT2);
+    E(cx + 4, 56 + y0, 10, 4, SHIRT0); E(cx + 4, 54.5 + y0, 10, 3.6, SHIRT);
+    R(cx + 10, 58 + y0, 5, 2, SKIN); R(cx + 12, 58 + y0, 1, 1, SKIN0);              // the gap above the shorts
+    // the fleece down his back, open at the front, the sherpa collar round his neck
+    Art.poly(g, [[cx - 12, 36 + y0], [cx + 2, 35 + y0], [cx + 1, 60 + y0], [cx - 12, 60 + y0]], FLE);
+    R(cx - 12, 36 + y0, 3, 24, FLE2); R(cx - 1, 36 + y0, 2, 24, FLE0);
+    for (let i = 0; i < 5; i++) R(cx - 9, 38 + y0 + i * 5, 8, 1, FLE0);
+    for (let i = 0; i < 6; i++) { E(cx - 10 + i * 2.6, 36 + y0 - Math.sin(i * 0.6) * 1.2, 3.2, 2.8, '#d4c8b4'); E(cx - 10 + i * 2.6, 35.4 + y0 - Math.sin(i * 0.6) * 1.2, 2.6, 2.2, '#f4ecdc'); }
+    // the head: round, big, a nose out front, glasses side on, a double chin
+    const hx = cx + 2, hy = 21 + y0 + (Math.sin(ph * 2) > 0.6 ? -0.5 : 0);
+    E(hx, hy + 1, 13.5, 13.5, SKIN0);
+    E(hx - 0.5, hy, 13, 13, SKIN);
+    E(hx - 4, hy - 4, 6, 4, SKIN2);
+    E(hx + 12.5, hy + 3, 2.6, 2.4, SKIN);                                      // the nose
+    E(hx + 12.5, hy + 3.6, 2, 1.4, SKIN0);
+    E(hx + 5, hy + 13, 7, 3.4, SKIN0); E(hx + 5, hy + 12.4, 6, 2.6, SKIN);      // the double chin
+    for (let i = 0; i < 14; i++) R(hx + 2 + (i * 5) % 11, hy + 7 + (i * 3) % 6, 1, 1, '#d8884a');   // stubble
+    E(hx - 3, hy + 2, 2.6, 3.4, SKIN0); E(hx - 3, hy + 2, 1.6, 2.4, SKIN);       // an ear
+    // glasses: the near lens and the arm back to the ear
+    R(hx + 4, hy - 2, 7, 1.4, '#1e1814'); R(hx + 4, hy + 2.6, 7, 1.4, '#1e1814'); R(hx + 9.8, hy - 2, 1.4, 6, '#1e1814'); R(hx + 4, hy - 2, 1.2, 6, '#1e1814');
+    R(hx - 2, hy - 1, 6, 1.2, '#1e1814');
+    R(hx + 7, hy - 0.5, 2, 3, '#2a1a18'); R(hx + 7, hy - 0.5, 1, 1, '#ffffff');   // his eye
+    R(hx + 5.4, hy - 1, 1.6, 0.8, 'rgba(255,255,255,0.7)');
+    R(hx + 8, hy + 8, 4, 1, '#9a4a3a'); R(hx + 11, hy + 7, 1, 1, '#9a4a3a');       // a smile
+    E(hx + 7, hy + 5, 2, 1.2, '#f2a08c');
+    // the mop of hair, bouncing, tufts blown back
+    const hb = Math.sin(ph * 2) * 0.8;
+    E(hx - 1, hy - 9 + hb, 14, 7, HAIR0);
+    E(hx, hy - 10 + hb, 13, 6, HAIR);
+    E(hx + 2, hy - 12 + hb, 6, 2.5, HAIR2);
+    for (const [dx, h2, lean] of [[-10, 6, -5], [-5, 9, -4], [0, 10, -3], [5, 8, -2], [9, 5, -1]]) Art.poly(g, [[hx + dx - 3, hy - 10 + hb], [hx + dx + lean, hy - 10 - h2 + hb], [hx + dx + 3, hy - 10 + hb]], HAIR);
+    E(hx - 11, hy - 3, 4, 6, HAIR0);                                           // the back of it, over the collar
+    // the red sweatband, and its tails flying out behind
+    R(hx - 13, hy - 8, 26, 4.4, '#d8342a'); R(hx - 13, hy - 8, 26, 1.3, '#ff6a50'); R(hx - 13, hy - 4.4, 26, 0.9, '#8a1a14');
+    const flap = Math.sin(ph * 2) * 2;
+    Art.poly(g, [[hx - 13, hy - 7], [hx - 20, hy - 6 + flap], [hx - 19, hy - 3 + flap], [hx - 13, hy - 5]], '#d8342a');
+    // the near leg and the near arm, swinging
+    leg(sw, true);
+    const ax = cx + 1 + sw * 1.1, ay = 58 + y0;
+    Art.limb(g, cx + 1, 41 + y0, ax, ay, 5.4, 4.8, FLE0);
+    Art.limb(g, cx + 1, 41 + y0, ax, ay, 4.6, 4, FLE);
+    E(ax, ay + 1, 3.2, 3, SKIN); E(ax - 0.6, ay, 1.6, 1.4, SKIN2);
+    Art.outline(c, '#1a100a', 1);
+    return c;
+  }
   function jim(frame, pose = 'idle') {
     const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
     const key = `jim:${f}:${pose}:${faceMood}`;
     let img = cache.get(key); if (img) return img;
+    if (pose === 'walk' || pose === 'run') { img = jimSide(f, t, pose === 'run'); cache.set(key, img); return img; }
     const { c, g } = Art.cv(CW, CH);
     const SKIN = '#eeb088', SKIN0 = '#c98460', SKIN2 = '#f8cca4', FRECK = '#c8703a';
     const HAIR = '#e8962e', HAIR0 = '#b8661c', HAIR2 = '#ffc05a';
@@ -840,17 +916,23 @@ const Sprites = (() => {
     }
     // ---- body: a round belly in a pink shirt, the check fleece open over it --
     const chestY = 40 + y0;
-    R(CX - 10, chestY - 4, 20, 25, SHIRT);                             // the shirt, straight down
-    E(CX, chestY + 19, 11, 4, SHIRT);                                  // over the belly
-    R(CX - 10, chestY + 19, 20, 3, SHIRT0);
-    R(CX - 6, chestY + 2, 3, 6, SHIRT2);
+    // the beer belly: round, proud, and breathing, straining the pink shirt
+    // and hanging a little over the waistband
+    const breath = (pose === 'idle' || pose === 'sit' || pose === 'sulk') ? Math.sin(t * TAU) * 0.6 : 0;
+    const bR = 15 + breath;
+    R(CX - 9, chestY - 4, 18, 10, SHIRT);
+    E(CX, chestY + 13, bR + 1, 12.5 + breath * 0.5, SHIRT0);
+    E(CX, chestY + 12, bR, 12 + breath * 0.5, SHIRT);
+    E(CX - 5, chestY + 7, 5, 4, SHIRT2); R(CX - 7, chestY + 5, 2, 2, '#ffd0de');
+    E(CX, chestY + 18, bR - 2, 5, SHIRT0); E(CX, chestY + 16.5, bR - 2.5, 4.6, SHIRT);   // the shade under it
+    for (let i = 0; i < 4; i++) R(CX - 0.5 + Math.sin(i) * 0.4, chestY + 1 + i * 5, 1, 1, SHIRT0);   // buttons, holding on
+    R(CX - 4, chestY + 23, 8, 2, SKIN); R(CX - 1, chestY + 23, 2, 1, SKIN0);   // a strip of belly and a belly button
     Art.poly(g, [[CX - 4, chestY - 3], [CX + 4, chestY - 3], [CX, chestY + 3]], SKIN0);   // the open neck
-    for (let i = 0; i < 3; i++) R(CX - 0.5, chestY + 6 + i * 5, 1, 1, SHIRT0);        // buttons
     for (const s2 of [-1, 1]) {                                       // the fleece, open at the front
-      Art.poly(g, [[CX + s2 * 6, chestY - 3], [CX + s2 * 17, chestY - 2], [CX + s2 * 18, chestY + 19], [CX + s2 * 7, chestY + 21], [CX + s2 * 6.5, chestY + 8]], FLE);
+      Art.poly(g, [[CX + s2 * 6, chestY - 3], [CX + s2 * 17, chestY - 2], [CX + s2 * 19, chestY + 21], [CX + s2 * 14, chestY + 22], [CX + s2 * 12, chestY + 8]], FLE);
       Art.poly(g, [[CX + s2 * 14, chestY - 1], [CX + s2 * 17, chestY - 2], [CX + s2 * 18, chestY + 19], [CX + s2 * 15, chestY + 20]], s2 < 0 ? FLE2 : FLE0);
-      for (let yy = 0; yy < 5; yy++) R(CX + s2 * 12, chestY + 1 + yy * 4, 1, 2, FLE0);     // the check in it
-      for (let yy = 0; yy < 4; yy++) R(CX + s2 * (8 + yy % 2 * 5), chestY + 3 + yy * 5, 4, 1, FLE0);
+      for (let yy = 0; yy < 5; yy++) R(CX + s2 * 15, chestY + 1 + yy * 4, 1, 2, FLE0);     // the check in it
+      for (let yy = 0; yy < 4; yy++) R(CX + s2 * (13 + yy % 2 * 3) - 1, chestY + 3 + yy * 5, 3, 1, FLE0);
     }
     // ---- arms -------------------------------------------------------------------
     for (const [s2, sw] of [[-1, armL], [1, armR]]) {
@@ -884,6 +966,9 @@ const Sprites = (() => {
       R(hx + Math.cos(a) * 11 - 0.5, hy + 3 + Math.sin(a) * 9.4, 1.2, 1.2, i % 3 ? '#d8884a' : HAIR0);
     }
     for (let i = 0; i < 7; i++) R(hx - 3 + i, hy + 11 + (i % 2), 1, 1, '#d8884a');
+    // a double chin, tucked under the jaw
+    E(hx, hy + 13.5, 8.5, 3, SKIN0); E(hx - 0.5, hy + 13, 7.5, 2.2, SKIN); R(hx - 5, hy + 14, 10, 1, SKIN0);
+    for (let i = 0; i < 5; i++) R(hx - 4 + i * 2, hy + 13 + (i % 2), 1, 1, '#d8884a');
     // the face: eyes behind the glasses, a mouth that goes with the mood
     const mood = faceMood;
     const shut = pose === 'laugh' || pose === 'sleep' || mood === 'laugh' || (pose === 'idle' && f === 5);
@@ -1639,89 +1724,13 @@ const Sprites = (() => {
 
   // ---- cubes (offerings) --------------------------------------------------
   function drawCube(g, def, w, h, opts = {}) {
+    // A wombat cube is a cube: one flat colour and a hard black line round it.
+    // No shading, no texture, nothing clever. It is funnier that way.
     const col = opts.color || def.color;
-    const px = Math.max(1, Math.round(Math.min(w, h) / 10));
-    const x0 = -w / 2, y0 = -h / 2;
-    g.fillStyle = col; g.fillRect(x0, y0, w, h);
-    g.fillStyle = U.shade(col, 0.3); g.fillRect(x0, y0, w, px); g.fillRect(x0, y0, px, h);
-    g.fillStyle = U.shade(col, 0.5); g.fillRect(x0, y0, px * 2, px);
-    g.fillStyle = U.shade(col, -0.34); g.fillRect(x0, y0 + h - px, w, px); g.fillRect(x0 + w - px, y0, px, h);
-    // ---- surface: it is a compressed brick of chewed grass, so it says so ----
-    // A stable per-cube noise (no Math.random, the thing has to hold still) laid
-    // down in four passes: grain, fibres, pits and crumbs off the edges.
-    const seed = Math.round(w * 31 + h * 7 + (def.mark ? def.mark.length * 97 : 0));
-    let n = seed | 0;
-    const rnd = () => { n = (n * 1664525 + 1013904223) & 0x7fffffff; return n / 0x7fffffff; };
-    const iw = Math.max(1, Math.round(w - px * 2)), ih = Math.max(1, Math.round(h - px * 2));
-    const GRAIN = [U.shade(col, -0.2), U.shade(col, -0.1), U.shade(col, 0.14), U.shade(col, 0.24)];
-    for (let i = 0; i < Math.round(iw * ih * 0.3); i++) {   // grain
-      g.fillStyle = GRAIN[(rnd() * 4) | 0];
-      g.fillRect(Math.round(x0 + px + rnd() * iw), Math.round(y0 + px + rnd() * ih), 1, 1);
-    }
-    for (let i = 0; i < Math.max(5, Math.round(iw * 0.55)); i++) {   // straw and leaf fibres
-      const fx = Math.round(x0 + px + rnd() * (iw - 3)), fy = Math.round(y0 + px + rnd() * (ih - 2));
-      const len = 2 + ((rnd() * 3) | 0), k = rnd();
-      g.fillStyle = k < 0.42 ? '#6f7a3e' : k < 0.72 ? '#8d8a52' : U.shade(col, 0.34);
-      if (rnd() < 0.62) g.fillRect(fx, fy, len, 1); else g.fillRect(fx, fy, 1, len);
-      if (rnd() < 0.4) { g.fillStyle = U.shade(col, -0.34); g.fillRect(fx, fy + 1, len, 1); }
-    }
-    for (let i = 0; i < 5; i++) {                            // pits, each with a lit lower lip
-      const pw = px * (1 + ((rnd() * 2) | 0)), ph2 = px;
-      const dx2 = Math.round(x0 + px * 1.5 + rnd() * Math.max(1, iw - pw - px));
-      const dy2 = Math.round(y0 + px * 1.5 + rnd() * Math.max(1, ih - ph2 * 2 - px));
-      g.fillStyle = U.shade(col, -0.4); g.fillRect(dx2, dy2, pw, ph2);
-      g.fillStyle = U.shade(col, 0.3); g.fillRect(dx2, dy2 + ph2, pw, 1);
-    }
-    g.fillStyle = U.shade(col, -0.5);                        // knocked-off lower corners
-    g.fillRect(Math.round(x0), Math.round(y0 + h - px), px, px);
-    g.fillRect(Math.round(x0 + w - px), Math.round(y0 + h - px), px, px);
-    g.fillStyle = U.shade(col, 0.42);                        // and a lit chip off the top right
-    g.fillRect(Math.round(x0 + w - px * 2), Math.round(y0), px, px);
-    switch (def.mark) {
-      case 'sticky':
-        g.fillStyle = U.shade(col, 0.45);
-        g.fillRect(x0 + px, y0 + h - px * 3, px * 2, px * 3);
-        g.fillRect(x0 + w - px * 4, y0 + h - px * 2, px * 2, px * 2);
-        break;
-      case 'rune':
-        g.fillStyle = PAL.div4;
-        g.fillRect(x0 + px * 2, y0 + px * 3, px, px * 4); g.fillRect(x0 + px * 2, y0 + px * 3, px * 3, px);
-        g.fillRect(x0 + w - px * 4, y0 + h - px * 5, px, px * 3);
-        break;
-      case 'gold':
-        g.fillStyle = PAL.gold4; g.fillRect(x0 + px * 2, y0 + px * 2, px * 2, px * 2);
-        g.fillStyle = U.shade(col, -0.25); g.fillRect(-px * 2, -px * 2, px * 4, px * 4);
-        g.fillStyle = PAL.gold4; g.fillRect(-px, -px * 2, px * 2, px);
-        break;
-      case 'stone':
-        g.fillStyle = U.shade(col, 0.34);
-        for (let i = 0; i < 4; i++) g.fillRect((i % 2 ? 1 : -1) * (w / 2 - px * 3) - px / 2, (i < 2 ? -1 : 1) * (h / 2 - px * 3) - px / 2, px, px);
-        break;
-      case 'light':
-        g.fillStyle = U.shade(col, 0.5);
-        g.fillRect(-px / 2, y0 + px * 2, px, h - px * 4);
-        for (let i = 1; i < 4; i++) { g.fillRect(-px * 2, y0 + px * 2 + i * px * 1.6, px * 1.5, px); g.fillRect(px / 2, y0 + px * 2.8 + i * px * 1.6, px * 1.5, px); }
-        break;
-      case 'slab':
-        g.fillStyle = U.shade(col, -0.25);
-        for (let i = 1; i < 4; i++) g.fillRect(x0 + (w / 4) * i - px / 2, y0 + px, px, h - px * 2);
-        break;
-    }
-    if (opts.blessed) {
-      // sparks over the top of it, not two dots on the front: a blessed cube
-      // is lit from above, it is not looking at you.
-      const e = Math.max(1, Math.round(w / 9));
-      g.fillStyle = PAL.div5;
-      g.fillRect(-w / 6 - e / 2, y0 - e * 2, e, e);
-      g.fillRect(w / 5 - e / 2, y0 - e * 3, e, e);
-      g.fillRect(-e / 2, y0 - e * 4, e, e);
-    }
-    if (opts.outline) {                                      // a pixel border, never a stroke
-      const o = Math.max(1, Math.round(px));
-      g.fillStyle = opts.outline;
-      g.fillRect(x0, y0, w, o); g.fillRect(x0, y0 + h - o, w, o);
-      g.fillRect(x0, y0, o, h); g.fillRect(x0 + w - o, y0, o, h);
-    }
+    const x0 = Math.round(-w / 2), y0 = Math.round(-h / 2), W2 = Math.round(w), H2 = Math.round(h);
+    const ln = Math.max(1, Math.round(Math.min(w, h) / 9));
+    g.fillStyle = opts.outline || '#000000'; g.fillRect(x0 - ln, y0 - ln, W2 + ln * 2, H2 + ln * 2);
+    g.fillStyle = col; g.fillRect(x0, y0, W2, H2);
   }
   // ---- villagers -------------------------------------------------------------
   // The people who live down the road. One routine builds all of them: a chibi

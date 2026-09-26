@@ -1444,18 +1444,18 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
    ========================================================================== */
 :root {
   --ol: #4a1e0e; --inner: #7a3414;
-  --fr0: #ffb858; --fr1: #e07a30; --fr2: #c8622a; --fr3: #a0461a;
-  --pp0: #fff4cc; --pp1: #ffe3a4; --pp2: #f2c47a; --pp3: #d49a54;
+  --fr0: #f2b870; --fr1: #d4843e; --fr2: #bc6a32; --fr3: #9a5024;
+  --pp0: #fff3d4; --pp1: #f8e2b2; --pp2: #eac48a; --pp3: #d49a54;
   --ink: #5a2610; --ink2: #8a5028;
-  --cream: #fff4cc; --parch: #ffe3a4;
+  --cream: #fff3d4; --parch: #f8e2b2;
   /* the old palette names, pointed at the new colours so older rules follow */
-  --wd0: #3a1406; --wd1: #5a2610; --wd2: #7a3414; --wd3: #a0461a; --wd4: #c8622a; --wd5: #e07a30;
-  --pg0: #c89858; --pg1: #f2c47a; --pg2: #ffe3a4; --pg3: #ffecbc; --pg4: #fff4cc; --pg5: #8a5028;
-  --gd0: #1a5a14; --gd1: #2f8a26; --gd2: #5cc03c; --gd3: #a8ec6a; --gd4: #d8ffa8;
-  --tl0: #0a3a6a; --tl1: #1a5aa0; --tl2: #3aa0f0; --tl3: #7ac8ff; --tl4: #c0e8ff;
-  --am0: #6a0e06; --am1: #a01e14; --am2: #e8402c; --am3: #ff8a70;
-  --grass: #5cc03c; --grass-d: #2f8a26; --grass-dd: #1a5a14; --grass-l: #a8ec6a;
-  --sun: #ffc81c; --sun-l: #fff08a; --sun-d: #c8840c; --tomato: #e8402c; --sky: #3aa0f0;
+  --wd0: #3a1406; --wd1: #5a2610; --wd2: #7a3414; --wd3: #9a5024; --wd4: #bc6a32; --wd5: #d4843e;
+  --pg0: #c89858; --pg1: #eac48a; --pg2: #f8e2b2; --pg3: #ffecbc; --pg4: #fff3d4; --pg5: #8a5028;
+  --gd0: #264e20; --gd1: #3f7a32; --gd2: #6aa84a; --gd3: #a8d880; --gd4: #d8ffa8;
+  --tl0: #0a3a6a; --tl1: #1a5aa0; --tl2: #5a9ad0; --tl3: #7ac8ff; --tl4: #c0e8ff;
+  --am0: #6a0e06; --am1: #983224; --am2: #d45a40; --am3: #ff8a70;
+  --grass: #6aa84a; --grass-d: #3f7a32; --grass-dd: #264e20; --grass-l: #a8d880;
+  --sun: #f0c048; --sun-l: #fbe8a0; --sun-d: #b8842a; --tomato: #d45a40; --sky: #5a9ad0;
   --bev: inset 2px 2px 0 rgba(255,255,255,0.45), inset -2px -2px 0 rgba(0,0,0,0.22);
 }
 * { border-radius: 0 !important; }
@@ -1469,8 +1469,8 @@ button { color: var(--ink); font-family: var(--f); }
 }
 /* the picture sits in a thick pixel frame of its own */
 #frame { box-shadow: 0 0 0 3px var(--ol), 0 0 0 6px var(--fr1), 0 0 0 7px var(--fr0), 0 0 0 10px var(--fr3), 0 0 0 13px var(--ol), 8px 12px 0 13px rgba(40,20,4,0.35) !important; }
-/* and the picture itself, a notch more saturated than it was painted */
-#game { filter: saturate(1.28) contrast(1.06); }
+/* and the picture itself, calmed a touch so the farm reads soft and warm */
+#game { filter: saturate(0.94) contrast(1.03); }
 .dim { color: var(--ink2); } .good { color: var(--grass-d); } .warn { color: #c0301c; }
 
 /* ---- words over the picture --------------------------------------------------------- */
@@ -1622,7 +1622,7 @@ button { color: var(--ink); font-family: var(--f); }
 #hotbar .hslot.want { animation: wantpulse 0.9s steps(2) infinite; }
 #hotbar .hslot.sealed .lk img.ico { opacity: 0.55; }
 @keyframes newbob { 0%, 100% { transform: translate(-50%, 0) } 50% { transform: translate(-50%, -3px) } }
-@keyframes wantpulse { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 0 #ffc81c) drop-shadow(3px 0 0 #ffc81c) drop-shadow(-3px 0 0 #ffc81c) drop-shadow(0 3px 0 #ffc81c) drop-shadow(0 -3px 0 #ffc81c); } }
+@keyframes wantpulse { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 0 #f0c048) drop-shadow(3px 0 0 #f0c048) drop-shadow(-3px 0 0 #f0c048) drop-shadow(0 3px 0 #f0c048) drop-shadow(0 -3px 0 #f0c048); } }
 #toasts { bottom: 122px !important; }
 #b-phone.nophone { display: none !important; }
 
@@ -1729,6 +1729,13 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 
 /* lost in the back room: no purse, no buttons, just the tape running */
 body.noclip #money, body.noclip #mini { display: none !important; }
+
+/* Wombat Hop, on the phone */
+.phgame { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.phgame canvas { width: 100%; max-width: 270px; aspect-ratio: 180 / 240; image-rendering: pixelated; cursor: pointer;
+  border: 3px solid #2a2a3a; box-shadow: 4px 4px 0 rgba(0,0,0,0.25); touch-action: none; }
+.phscreen.app-games { background: #2a2a3a; }
+.phscreen.app-games .phsub { color: #ffe890; text-align: center; }
 </style>
 
 <div id="app">
@@ -1843,8 +1850,8 @@ body.noclip #money, body.noclip #mini { display: none !important; }
         <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
         <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
         <li>The <b>shovel</b> paints the ground: hold the left button to dig down, the right button (or Shift) to heap up a hill. Water a hole with the can and it fills into a pond; water a trench and it runs like a creek. <b>[</b> and <b>]</b> change the brush size.</li>
-        <li>Captain Clark's <b>Ottoman Empire</b> in town sells furniture. Set it out with the hammer. Whatever you do, do not go through the door at the back.</li>
-        <li>Press <b>P</b> for your phone once you have one. It comes with Jobs, Messages and Settings; get more apps from the App Store.</li>
+        <li>Captain Clark's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer. Whatever you do, do not go through the door at the back.</li>
+        <li>Press <b>P</b> for your phone once you have one. It has your messages, a camera, and Wombat Hop.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
@@ -3755,10 +3762,86 @@ const Sprites = (() => {
   // hair under a red sweatband, black-rimmed glasses, ginger stubble, a grey
   // check fleece with a thick cream collar, a pink shirt over a good belly,
   // brown shorts, and freckled, hairy legs.
+  // Jim from the side, walking: the belly leads, the arms swing, the mop of
+  // hair bounces on every step. Drawn facing right; the grove flips him.
+  function jimSide(f, t, run) {
+    const { c, g } = Art.cv(CW, CH);
+    const R = (x, y, w, h, col) => Art.rect(g, x, y, w, h, col);
+    const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
+    const SKIN = '#eeb088', SKIN0 = '#c98460', SKIN2 = '#f8cca4', FRECK = '#c8703a';
+    const HAIR = '#e8962e', HAIR0 = '#b8661c', HAIR2 = '#ffc05a';
+    const FLE = '#8e9098', FLE0 = '#6a6c74', FLE2 = '#b4b6bc';
+    const SHIRT = '#e57e9c', SHIRT0 = '#c05a7c', SHIRT2 = '#ffa6be';
+    const SHORT = '#8a6440', SHORT0 = '#664628', SHOE = '#4a3426', SOLE = '#e8e0d0';
+    const ph = t * TAU, sw = Math.sin(ph) * (run ? 8 : 6.5);
+    const bob = -Math.abs(Math.sin(ph)) * (run ? 2.6 : 1.6);
+    const y0 = bob;
+    const cx = CX - 2, hipY = 62 + y0;
+    // the far leg and far arm first, in shade
+    const leg = (dx, near) => {
+      const fx = cx + dx, top = hipY + 3;
+      Art.limb(g, cx, top, fx, CGY - 5, 7, 6.5, near ? SKIN : SKIN0);
+      R(fx - 4, CGY - 6, 11, 5, near ? SHOE : '#3a2a1e'); R(fx - 4, CGY - 2, 11, 2, near ? SOLE : '#b8b0a0');
+      if (near) { R(fx - 1, top + 5, 1, 1, FRECK); R(fx + 1, top + 9, 1, 1, FRECK); }
+    };
+    leg(-sw, false);
+    Art.limb(g, cx - 2, 43 + y0, cx - 2 - sw * 1.1, 58 + y0, 4.6, 4, FLE0);          // the far arm
+    E(cx - 2 - sw * 1.1, 59 + y0, 2.8, 2.6, SKIN0);
+    // shorts
+    R(cx - 10, hipY - 6, 20, 10, SHORT); R(cx - 10, hipY + 2, 20, 2, SHORT0);
+    // the belly, out in front, in its pink shirt
+    E(cx + 5, 50 + y0, 13, 12.5, SHIRT0);
+    E(cx + 4, 49 + y0, 12.5, 12, SHIRT);
+    E(cx + 7, 45 + y0, 5, 4, SHIRT2);
+    E(cx + 4, 56 + y0, 10, 4, SHIRT0); E(cx + 4, 54.5 + y0, 10, 3.6, SHIRT);
+    R(cx + 10, 58 + y0, 5, 2, SKIN); R(cx + 12, 58 + y0, 1, 1, SKIN0);              // the gap above the shorts
+    // the fleece down his back, open at the front, the sherpa collar round his neck
+    Art.poly(g, [[cx - 12, 36 + y0], [cx + 2, 35 + y0], [cx + 1, 60 + y0], [cx - 12, 60 + y0]], FLE);
+    R(cx - 12, 36 + y0, 3, 24, FLE2); R(cx - 1, 36 + y0, 2, 24, FLE0);
+    for (let i = 0; i < 5; i++) R(cx - 9, 38 + y0 + i * 5, 8, 1, FLE0);
+    for (let i = 0; i < 6; i++) { E(cx - 10 + i * 2.6, 36 + y0 - Math.sin(i * 0.6) * 1.2, 3.2, 2.8, '#d4c8b4'); E(cx - 10 + i * 2.6, 35.4 + y0 - Math.sin(i * 0.6) * 1.2, 2.6, 2.2, '#f4ecdc'); }
+    // the head: round, big, a nose out front, glasses side on, a double chin
+    const hx = cx + 2, hy = 21 + y0 + (Math.sin(ph * 2) > 0.6 ? -0.5 : 0);
+    E(hx, hy + 1, 13.5, 13.5, SKIN0);
+    E(hx - 0.5, hy, 13, 13, SKIN);
+    E(hx - 4, hy - 4, 6, 4, SKIN2);
+    E(hx + 12.5, hy + 3, 2.6, 2.4, SKIN);                                      // the nose
+    E(hx + 12.5, hy + 3.6, 2, 1.4, SKIN0);
+    E(hx + 5, hy + 13, 7, 3.4, SKIN0); E(hx + 5, hy + 12.4, 6, 2.6, SKIN);      // the double chin
+    for (let i = 0; i < 14; i++) R(hx + 2 + (i * 5) % 11, hy + 7 + (i * 3) % 6, 1, 1, '#d8884a');   // stubble
+    E(hx - 3, hy + 2, 2.6, 3.4, SKIN0); E(hx - 3, hy + 2, 1.6, 2.4, SKIN);       // an ear
+    // glasses: the near lens and the arm back to the ear
+    R(hx + 4, hy - 2, 7, 1.4, '#1e1814'); R(hx + 4, hy + 2.6, 7, 1.4, '#1e1814'); R(hx + 9.8, hy - 2, 1.4, 6, '#1e1814'); R(hx + 4, hy - 2, 1.2, 6, '#1e1814');
+    R(hx - 2, hy - 1, 6, 1.2, '#1e1814');
+    R(hx + 7, hy - 0.5, 2, 3, '#2a1a18'); R(hx + 7, hy - 0.5, 1, 1, '#ffffff');   // his eye
+    R(hx + 5.4, hy - 1, 1.6, 0.8, 'rgba(255,255,255,0.7)');
+    R(hx + 8, hy + 8, 4, 1, '#9a4a3a'); R(hx + 11, hy + 7, 1, 1, '#9a4a3a');       // a smile
+    E(hx + 7, hy + 5, 2, 1.2, '#f2a08c');
+    // the mop of hair, bouncing, tufts blown back
+    const hb = Math.sin(ph * 2) * 0.8;
+    E(hx - 1, hy - 9 + hb, 14, 7, HAIR0);
+    E(hx, hy - 10 + hb, 13, 6, HAIR);
+    E(hx + 2, hy - 12 + hb, 6, 2.5, HAIR2);
+    for (const [dx, h2, lean] of [[-10, 6, -5], [-5, 9, -4], [0, 10, -3], [5, 8, -2], [9, 5, -1]]) Art.poly(g, [[hx + dx - 3, hy - 10 + hb], [hx + dx + lean, hy - 10 - h2 + hb], [hx + dx + 3, hy - 10 + hb]], HAIR);
+    E(hx - 11, hy - 3, 4, 6, HAIR0);                                           // the back of it, over the collar
+    // the red sweatband, and its tails flying out behind
+    R(hx - 13, hy - 8, 26, 4.4, '#d8342a'); R(hx - 13, hy - 8, 26, 1.3, '#ff6a50'); R(hx - 13, hy - 4.4, 26, 0.9, '#8a1a14');
+    const flap = Math.sin(ph * 2) * 2;
+    Art.poly(g, [[hx - 13, hy - 7], [hx - 20, hy - 6 + flap], [hx - 19, hy - 3 + flap], [hx - 13, hy - 5]], '#d8342a');
+    // the near leg and the near arm, swinging
+    leg(sw, true);
+    const ax = cx + 1 + sw * 1.1, ay = 58 + y0;
+    Art.limb(g, cx + 1, 41 + y0, ax, ay, 5.4, 4.8, FLE0);
+    Art.limb(g, cx + 1, 41 + y0, ax, ay, 4.6, 4, FLE);
+    E(ax, ay + 1, 3.2, 3, SKIN); E(ax - 0.6, ay, 1.6, 1.4, SKIN2);
+    Art.outline(c, '#1a100a', 1);
+    return c;
+  }
   function jim(frame, pose = 'idle') {
     const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
     const key = `jim:${f}:${pose}:${faceMood}`;
     let img = cache.get(key); if (img) return img;
+    if (pose === 'walk' || pose === 'run') { img = jimSide(f, t, pose === 'run'); cache.set(key, img); return img; }
     const { c, g } = Art.cv(CW, CH);
     const SKIN = '#eeb088', SKIN0 = '#c98460', SKIN2 = '#f8cca4', FRECK = '#c8703a';
     const HAIR = '#e8962e', HAIR0 = '#b8661c', HAIR2 = '#ffc05a';
@@ -3822,17 +3905,23 @@ const Sprites = (() => {
     }
     // ---- body: a round belly in a pink shirt, the check fleece open over it --
     const chestY = 40 + y0;
-    R(CX - 10, chestY - 4, 20, 25, SHIRT);                             // the shirt, straight down
-    E(CX, chestY + 19, 11, 4, SHIRT);                                  // over the belly
-    R(CX - 10, chestY + 19, 20, 3, SHIRT0);
-    R(CX - 6, chestY + 2, 3, 6, SHIRT2);
+    // the beer belly: round, proud, and breathing, straining the pink shirt
+    // and hanging a little over the waistband
+    const breath = (pose === 'idle' || pose === 'sit' || pose === 'sulk') ? Math.sin(t * TAU) * 0.6 : 0;
+    const bR = 15 + breath;
+    R(CX - 9, chestY - 4, 18, 10, SHIRT);
+    E(CX, chestY + 13, bR + 1, 12.5 + breath * 0.5, SHIRT0);
+    E(CX, chestY + 12, bR, 12 + breath * 0.5, SHIRT);
+    E(CX - 5, chestY + 7, 5, 4, SHIRT2); R(CX - 7, chestY + 5, 2, 2, '#ffd0de');
+    E(CX, chestY + 18, bR - 2, 5, SHIRT0); E(CX, chestY + 16.5, bR - 2.5, 4.6, SHIRT);   // the shade under it
+    for (let i = 0; i < 4; i++) R(CX - 0.5 + Math.sin(i) * 0.4, chestY + 1 + i * 5, 1, 1, SHIRT0);   // buttons, holding on
+    R(CX - 4, chestY + 23, 8, 2, SKIN); R(CX - 1, chestY + 23, 2, 1, SKIN0);   // a strip of belly and a belly button
     Art.poly(g, [[CX - 4, chestY - 3], [CX + 4, chestY - 3], [CX, chestY + 3]], SKIN0);   // the open neck
-    for (let i = 0; i < 3; i++) R(CX - 0.5, chestY + 6 + i * 5, 1, 1, SHIRT0);        // buttons
     for (const s2 of [-1, 1]) {                                       // the fleece, open at the front
-      Art.poly(g, [[CX + s2 * 6, chestY - 3], [CX + s2 * 17, chestY - 2], [CX + s2 * 18, chestY + 19], [CX + s2 * 7, chestY + 21], [CX + s2 * 6.5, chestY + 8]], FLE);
+      Art.poly(g, [[CX + s2 * 6, chestY - 3], [CX + s2 * 17, chestY - 2], [CX + s2 * 19, chestY + 21], [CX + s2 * 14, chestY + 22], [CX + s2 * 12, chestY + 8]], FLE);
       Art.poly(g, [[CX + s2 * 14, chestY - 1], [CX + s2 * 17, chestY - 2], [CX + s2 * 18, chestY + 19], [CX + s2 * 15, chestY + 20]], s2 < 0 ? FLE2 : FLE0);
-      for (let yy = 0; yy < 5; yy++) R(CX + s2 * 12, chestY + 1 + yy * 4, 1, 2, FLE0);     // the check in it
-      for (let yy = 0; yy < 4; yy++) R(CX + s2 * (8 + yy % 2 * 5), chestY + 3 + yy * 5, 4, 1, FLE0);
+      for (let yy = 0; yy < 5; yy++) R(CX + s2 * 15, chestY + 1 + yy * 4, 1, 2, FLE0);     // the check in it
+      for (let yy = 0; yy < 4; yy++) R(CX + s2 * (13 + yy % 2 * 3) - 1, chestY + 3 + yy * 5, 3, 1, FLE0);
     }
     // ---- arms -------------------------------------------------------------------
     for (const [s2, sw] of [[-1, armL], [1, armR]]) {
@@ -3866,6 +3955,9 @@ const Sprites = (() => {
       R(hx + Math.cos(a) * 11 - 0.5, hy + 3 + Math.sin(a) * 9.4, 1.2, 1.2, i % 3 ? '#d8884a' : HAIR0);
     }
     for (let i = 0; i < 7; i++) R(hx - 3 + i, hy + 11 + (i % 2), 1, 1, '#d8884a');
+    // a double chin, tucked under the jaw
+    E(hx, hy + 13.5, 8.5, 3, SKIN0); E(hx - 0.5, hy + 13, 7.5, 2.2, SKIN); R(hx - 5, hy + 14, 10, 1, SKIN0);
+    for (let i = 0; i < 5; i++) R(hx - 4 + i * 2, hy + 13 + (i % 2), 1, 1, '#d8884a');
     // the face: eyes behind the glasses, a mouth that goes with the mood
     const mood = faceMood;
     const shut = pose === 'laugh' || pose === 'sleep' || mood === 'laugh' || (pose === 'idle' && f === 5);
@@ -4621,89 +4713,13 @@ const Sprites = (() => {
 
   // ---- cubes (offerings) --------------------------------------------------
   function drawCube(g, def, w, h, opts = {}) {
+    // A wombat cube is a cube: one flat colour and a hard black line round it.
+    // No shading, no texture, nothing clever. It is funnier that way.
     const col = opts.color || def.color;
-    const px = Math.max(1, Math.round(Math.min(w, h) / 10));
-    const x0 = -w / 2, y0 = -h / 2;
-    g.fillStyle = col; g.fillRect(x0, y0, w, h);
-    g.fillStyle = U.shade(col, 0.3); g.fillRect(x0, y0, w, px); g.fillRect(x0, y0, px, h);
-    g.fillStyle = U.shade(col, 0.5); g.fillRect(x0, y0, px * 2, px);
-    g.fillStyle = U.shade(col, -0.34); g.fillRect(x0, y0 + h - px, w, px); g.fillRect(x0 + w - px, y0, px, h);
-    // ---- surface: it is a compressed brick of chewed grass, so it says so ----
-    // A stable per-cube noise (no Math.random, the thing has to hold still) laid
-    // down in four passes: grain, fibres, pits and crumbs off the edges.
-    const seed = Math.round(w * 31 + h * 7 + (def.mark ? def.mark.length * 97 : 0));
-    let n = seed | 0;
-    const rnd = () => { n = (n * 1664525 + 1013904223) & 0x7fffffff; return n / 0x7fffffff; };
-    const iw = Math.max(1, Math.round(w - px * 2)), ih = Math.max(1, Math.round(h - px * 2));
-    const GRAIN = [U.shade(col, -0.2), U.shade(col, -0.1), U.shade(col, 0.14), U.shade(col, 0.24)];
-    for (let i = 0; i < Math.round(iw * ih * 0.3); i++) {   // grain
-      g.fillStyle = GRAIN[(rnd() * 4) | 0];
-      g.fillRect(Math.round(x0 + px + rnd() * iw), Math.round(y0 + px + rnd() * ih), 1, 1);
-    }
-    for (let i = 0; i < Math.max(5, Math.round(iw * 0.55)); i++) {   // straw and leaf fibres
-      const fx = Math.round(x0 + px + rnd() * (iw - 3)), fy = Math.round(y0 + px + rnd() * (ih - 2));
-      const len = 2 + ((rnd() * 3) | 0), k = rnd();
-      g.fillStyle = k < 0.42 ? '#6f7a3e' : k < 0.72 ? '#8d8a52' : U.shade(col, 0.34);
-      if (rnd() < 0.62) g.fillRect(fx, fy, len, 1); else g.fillRect(fx, fy, 1, len);
-      if (rnd() < 0.4) { g.fillStyle = U.shade(col, -0.34); g.fillRect(fx, fy + 1, len, 1); }
-    }
-    for (let i = 0; i < 5; i++) {                            // pits, each with a lit lower lip
-      const pw = px * (1 + ((rnd() * 2) | 0)), ph2 = px;
-      const dx2 = Math.round(x0 + px * 1.5 + rnd() * Math.max(1, iw - pw - px));
-      const dy2 = Math.round(y0 + px * 1.5 + rnd() * Math.max(1, ih - ph2 * 2 - px));
-      g.fillStyle = U.shade(col, -0.4); g.fillRect(dx2, dy2, pw, ph2);
-      g.fillStyle = U.shade(col, 0.3); g.fillRect(dx2, dy2 + ph2, pw, 1);
-    }
-    g.fillStyle = U.shade(col, -0.5);                        // knocked-off lower corners
-    g.fillRect(Math.round(x0), Math.round(y0 + h - px), px, px);
-    g.fillRect(Math.round(x0 + w - px), Math.round(y0 + h - px), px, px);
-    g.fillStyle = U.shade(col, 0.42);                        // and a lit chip off the top right
-    g.fillRect(Math.round(x0 + w - px * 2), Math.round(y0), px, px);
-    switch (def.mark) {
-      case 'sticky':
-        g.fillStyle = U.shade(col, 0.45);
-        g.fillRect(x0 + px, y0 + h - px * 3, px * 2, px * 3);
-        g.fillRect(x0 + w - px * 4, y0 + h - px * 2, px * 2, px * 2);
-        break;
-      case 'rune':
-        g.fillStyle = PAL.div4;
-        g.fillRect(x0 + px * 2, y0 + px * 3, px, px * 4); g.fillRect(x0 + px * 2, y0 + px * 3, px * 3, px);
-        g.fillRect(x0 + w - px * 4, y0 + h - px * 5, px, px * 3);
-        break;
-      case 'gold':
-        g.fillStyle = PAL.gold4; g.fillRect(x0 + px * 2, y0 + px * 2, px * 2, px * 2);
-        g.fillStyle = U.shade(col, -0.25); g.fillRect(-px * 2, -px * 2, px * 4, px * 4);
-        g.fillStyle = PAL.gold4; g.fillRect(-px, -px * 2, px * 2, px);
-        break;
-      case 'stone':
-        g.fillStyle = U.shade(col, 0.34);
-        for (let i = 0; i < 4; i++) g.fillRect((i % 2 ? 1 : -1) * (w / 2 - px * 3) - px / 2, (i < 2 ? -1 : 1) * (h / 2 - px * 3) - px / 2, px, px);
-        break;
-      case 'light':
-        g.fillStyle = U.shade(col, 0.5);
-        g.fillRect(-px / 2, y0 + px * 2, px, h - px * 4);
-        for (let i = 1; i < 4; i++) { g.fillRect(-px * 2, y0 + px * 2 + i * px * 1.6, px * 1.5, px); g.fillRect(px / 2, y0 + px * 2.8 + i * px * 1.6, px * 1.5, px); }
-        break;
-      case 'slab':
-        g.fillStyle = U.shade(col, -0.25);
-        for (let i = 1; i < 4; i++) g.fillRect(x0 + (w / 4) * i - px / 2, y0 + px, px, h - px * 2);
-        break;
-    }
-    if (opts.blessed) {
-      // sparks over the top of it, not two dots on the front: a blessed cube
-      // is lit from above, it is not looking at you.
-      const e = Math.max(1, Math.round(w / 9));
-      g.fillStyle = PAL.div5;
-      g.fillRect(-w / 6 - e / 2, y0 - e * 2, e, e);
-      g.fillRect(w / 5 - e / 2, y0 - e * 3, e, e);
-      g.fillRect(-e / 2, y0 - e * 4, e, e);
-    }
-    if (opts.outline) {                                      // a pixel border, never a stroke
-      const o = Math.max(1, Math.round(px));
-      g.fillStyle = opts.outline;
-      g.fillRect(x0, y0, w, o); g.fillRect(x0, y0 + h - o, w, o);
-      g.fillRect(x0, y0, o, h); g.fillRect(x0 + w - o, y0, o, h);
-    }
+    const x0 = Math.round(-w / 2), y0 = Math.round(-h / 2), W2 = Math.round(w), H2 = Math.round(h);
+    const ln = Math.max(1, Math.round(Math.min(w, h) / 9));
+    g.fillStyle = opts.outline || '#000000'; g.fillRect(x0 - ln, y0 - ln, W2 + ln * 2, H2 + ln * 2);
+    g.fillStyle = col; g.fillRect(x0, y0, W2, H2);
   }
   // ---- villagers -------------------------------------------------------------
   // The people who live down the road. One routine builds all of them: a chibi
@@ -4885,6 +4901,540 @@ const Sprites = (() => {
   }
 
   return { S, AGE, POSES, CULT_POSES, KW, KH, cashier, villager, VILLAGERS, VW2, VH2, GW, GH, GX, GGY, groot, wombat, blit, shadow, wombachu, furOf, cupid, godForm, artifact, drawCube, ant, crow, owl, mascot, cultist: jim, jim, setFace, get face() { return faceMood; }, FACES, init() { }, clear: () => cache.clear() };
+})();
+</script>
+
+<script>
+// ===== js/furnart.js =====
+// ---- Furniture, drawn properly -------------------------------------------------------
+// The Captain's stock, each piece painted pixel by pixel at a size that leaves
+// room for the details that sell it: deep diamond tufting and a button in
+// every dimple, gold piping, pleated aprons, rolled arms, brass nailheads,
+// turned legs, fringe on the lamp shade and the rug. Everything is lit from
+// the upper left, three or four tones to a colour. Props uses these in place
+// of its own sketches whenever a key is in here.
+const FurnArt = (() => {
+  const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+  const P = (g, x, y, c) => R(g, x, y, 1, 1, c);
+  const E = (g, x, y, rx, ry, c) => Art.ell(g, x, y, rx, ry, c);
+  const VEL = ['#3e0812', '#6e1020', '#a41c34', '#d63a50', '#ff7a86'];
+  const OXB = ['#2a0808', '#4e1010', '#7a1c18', '#a2322a', '#cc5a44'];
+  const LEA = ['#0c2a18', '#16482a', '#246a3e', '#3e9258', '#78c88a'];
+  const GLD = ['#5a3606', '#9a6410', '#d8a024', '#ffdc6a', '#fff4b8'];
+  const WDD = ['#261204', '#442410', '#6a3a1a', '#925428', '#bc7a40'];
+  const KNT = ['#08302e', '#0e5450', '#187c74', '#34a898', '#7ad8c8'];
+
+  // a turned leg or a ball foot in gold or wood
+  function foot(g, x, y, h, ramp) {
+    R(g, x, y, 4, h, ramp[1]); R(g, x, y, 2, h, ramp[2]); P(g, x, y, ramp[3]);
+    E(g, x + 2, y + h - 1, 2.6, 1.8, ramp[1]); P(g, x + 1, y + h - 2, ramp[3]);
+  }
+  // deep diamond tufting across a panel: a button in each dimple, pleats between
+  function tuft(g, x0, y0, w, h, ramp, step = 7) {
+    for (let row = 0, y = y0 + 3; y < y0 + h - 2; y += step * 0.72, row++) {
+      for (let x = x0 + 3 + (row % 2 ? step / 2 : 0); x < x0 + w - 2; x += step) {
+        // the dimple, the pleat lines running off it, the button in it
+        P(g, x - 1, y, ramp[0]); P(g, x + 1, y, ramp[0]); P(g, x, y - 1, ramp[0]);
+        for (let k = 1; k < 3; k++) { P(g, x - k - 1, y - k, ramp[1]); P(g, x + k + 1, y - k, ramp[1]); }
+        P(g, x - 2, y + 1, ramp[3]); P(g, x + 2, y + 1, ramp[3]);
+        R(g, x, y, 1, 1, ramp[0]); P(g, x - 1, y - 1, ramp[4]);
+      }
+    }
+  }
+  // a row of brass nailheads
+  function nails(g, x0, x1, y, step = 3) { for (let x = x0; x <= x1; x += step) { P(g, x, y, GLD[3]); P(g, x + 1, y, GLD[1]); } }
+  // gold piping along an edge
+  function piping(g, x, y, w) { R(g, x, y, w, 1, GLD[3]); R(g, x, y + 1, w, 1, GLD[1]); for (let i = x + 1; i < x + w; i += 3) P(g, i, y, GLD[4]); }
+
+  const A = {
+    ottoman: (g, w, h) => ottomanOf(g, w, h, VEL, GLD),
+    lostottoman: (g, w, h) => {
+      ottomanOf(g, w, h, ['#6a5a24', '#a08c3e', '#cab45a', '#e2d27a', '#f6ecb0'], ['#5a5a52', '#7a7a70', '#a4a498', '#cacac0', '#eeeee6']);
+      for (let i = 0; i < 30; i++) P(g, 3 + (i * 7) % (w - 6), 3 + (i * 5) % (h - 10), i % 3 ? '#8a7a36' : '#f6ecb0');   // carpet pile
+      E(g, w * 0.66, h * 0.52, 5, 2, 'rgba(90,70,20,0.45)');                                                // a damp patch
+    },
+    pouf: (g, w, h) => {
+      const cx = w / 2, top = 5;
+      E(g, cx, h - 5, w / 2 - 1, 4, KNT[0]);
+      R(g, 1, top + 1, w - 2, h - top - 6, KNT[1]);
+      // chunky cable knit: plaited columns, lit on their left
+      for (let x = 2; x < w - 2; x += 5) {
+        for (let y = top + 2; y < h - 6; y += 3) {
+          R(g, x, y, 3, 2, KNT[2]); P(g, x, y, KNT[3]); P(g, x + 2, y + 1, KNT[1]);
+        }
+        R(g, x + 3, top + 2, 1, h - top - 8, KNT[0]);
+      }
+      R(g, 1, top + 1, 3, h - top - 6, 'rgba(255,255,255,0.12)');
+      R(g, w - 5, top + 1, 4, h - top - 6, 'rgba(0,0,0,0.22)');
+      E(g, cx, top + 1, w / 2 - 1, 4, KNT[2]); E(g, cx - 2, top, w / 2 - 5, 2.4, KNT[3]);
+      E(g, cx, top + 1, 2, 1.4, GLD[2]); P(g, cx - 1, top, GLD[4]);
+    },
+    armchair: (g, w, h) => {
+      const L = LEA;
+      // the tall back, deep buttoned, with the wings curving forward
+      R(g, 6, 2, w - 12, h - 18, L[1]);
+      R(g, 7, 2, w - 14, 2, L[3]);
+      tuft(g, 8, 4, w - 16, h - 22, L, 6);
+      for (const s of [0, 1]) {
+        const x = s ? w - 9 : 1;
+        R(g, x, 6, 8, h - 20, L[s ? 1 : 2]); E(g, x + 4, 7, 4, 4, L[s ? 1 : 3]); R(g, x + (s ? 0 : 1), 8, 2, h - 24, L[s ? 0 : 4]);
+      }
+      // rolled arms with scrolled fronts and a line of nailheads
+      for (const s of [0, 1]) {
+        const x = s ? w - 10 : 0;
+        R(g, x, h - 22, 10, 12, L[s ? 1 : 2]);
+        E(g, x + 5, h - 22, 5, 3, L[s ? 2 : 3]); R(g, x + 1, h - 23, 8, 1, L[4]);
+        E(g, x + 5, h - 16, 3, 3, L[0]); E(g, x + 5, h - 16, 2, 2, L[s ? 2 : 3]);     // the scroll
+        nails(g, x + 1, x + 8, h - 11);
+      }
+      // the seat cushion, plump
+      R(g, 9, h - 17, w - 18, 7, L[2]); R(g, 9, h - 17, w - 18, 2, L[4]); R(g, 9, h - 11, w - 18, 1, L[0]);
+      R(g, w / 2, h - 16, 1, 5, L[1]);
+      // the skirt and the turned legs
+      R(g, 2, h - 10, w - 4, 4, L[1]); nails(g, 3, w - 5, h - 9, 3);
+      foot(g, 4, h - 6, 6, WDD); foot(g, w - 8, h - 6, 6, WDD);
+    },
+    sofa: (g, w, h) => {
+      const L = OXB;
+      // a Chesterfield: back and arms the same height, all of it buttoned
+      R(g, 8, 4, w - 16, h - 18, L[1]);
+      R(g, 8, 4, w - 16, 2, L[3]);
+      tuft(g, 10, 6, w - 20, h - 22, L, 7);
+      piping(g, 8, 3, w - 16);
+      for (const s of [0, 1]) {
+        const x = s ? w - 12 : 0;
+        R(g, x, 8, 12, h - 18, L[s ? 1 : 2]);
+        E(g, x + 6, 9, 6, 4, L[s ? 2 : 3]); R(g, x + 2, 6, 8, 1, L[4]);
+        // the pleated fan on the front of the roll
+        for (let k = 0; k < 5; k++) { const a = Math.PI * (0.15 + k * 0.18); P(g, x + 6 + Math.cos(a) * 3, 10 + Math.sin(a) * 3, L[0]); }
+        E(g, x + 6, 11, 1.5, 1.5, L[0]);
+        tuft(g, x + 1, 14, 10, h - 26, L, 5);
+      }
+      // three seat cushions
+      for (let i = 0; i < 3; i++) {
+        const cw = (w - 24) / 3, x = 12 + i * cw;
+        R(g, x, h - 16, cw - 1, 7, L[2]); R(g, x, h - 16, cw - 1, 2, L[4]); R(g, x, h - 10, cw - 1, 1, L[0]);
+        P(g, x + 1, h - 15, '#ffb0a0');
+      }
+      R(g, 2, h - 9, w - 4, 4, L[1]); nails(g, 3, w - 5, h - 8, 3);
+      for (const x of [4, w / 2 - 2, w - 8]) { E(g, x + 2, h - 3, 2.6, 2.4, GLD[1]); P(g, x + 1, h - 4, GLD[3]); }
+    },
+    rug: (g, w, h) => {
+      const C = { r0: '#5a0e16', r1: '#9a1c24', r2: '#c83a30', gold: '#e8a830', navy: '#16306a', navy2: '#28509a', cream: '#f4e2b8', grn: '#2a6a4a' };
+      R(g, 3, 1, w - 6, h - 2, C.r0);
+      R(g, 4, 2, w - 8, h - 4, C.navy);                       // the outer border
+      for (let x = 6; x < w - 6; x += 4) { P(g, x, 3, C.gold); P(g, x + 2, h - 4, C.gold); }
+      R(g, 7, 4, w - 14, h - 8, C.r1);                        // the field
+      for (let y = 5; y < h - 5; y += 2) for (let x = 9 + (y % 4 ? 2 : 0); x < w - 9; x += 5) P(g, x, y, C.r2);
+      // the medallion in the middle, and a corner piece at each end
+      const cx = w / 2, cy = h / 2;
+      Art.poly(g, [[cx, cy - 5], [cx + 12, cy], [cx, cy + 5], [cx - 12, cy]], C.navy2);
+      Art.poly(g, [[cx, cy - 3], [cx + 7, cy], [cx, cy + 3], [cx - 7, cy]], C.gold);
+      R(g, cx - 1, cy - 1, 3, 2, C.cream); P(g, cx, cy - 2, C.grn); P(g, cx, cy + 1, C.grn);
+      for (const x of [12, w - 14]) { Art.poly(g, [[x, cy - 3], [x + 3, cy], [x, cy + 3], [x - 3, cy]], C.gold); P(g, x, cy, C.r0); }
+      // the fringe at each end
+      for (let y = 2; y < h - 2; y += 2) { R(g, 0, y, 3, 1, C.cream); R(g, w - 3, y, 3, 1, C.cream); }
+    },
+    lamp: (g, w, h) => {
+      const cx = Math.floor(w / 2);
+      // the base: a brass dish on three feet
+      E(g, cx, h - 3, 8, 2.6, GLD[0]); E(g, cx, h - 4, 7, 2, GLD[2]); E(g, cx - 2, h - 5, 3, 1, GLD[4]);
+      // the pole: turned brass, with a knop halfway
+      R(g, cx - 1, 22, 3, h - 26, GLD[1]); R(g, cx - 1, 22, 1, h - 26, GLD[3]);
+      E(g, cx, h * 0.6, 2.6, 2, GLD[2]); P(g, cx - 1, h * 0.6 - 1, GLD[4]);
+      // the shade: pleated silk, glowing, fringed
+      Art.poly(g, [[2, 22], [w - 2, 22], [w - 5, 3], [5, 3]], '#8a1a3a');
+      Art.poly(g, [[3, 21], [cx, 21], [cx - 1, 4], [6, 4]], '#d0385e');
+      Art.poly(g, [[cx, 21], [w - 3, 21], [w - 6, 4], [cx + 1, 4]], '#a8264a');
+      for (let x = 5; x < w - 4; x += 2) R(g, x, 5, 1, 16, 'rgba(0,0,0,0.12)');          // the pleats
+      R(g, 5, 3, w - 10, 1, '#ff9ab4'); R(g, 3, 21, w - 6, 1, '#6a0e28');
+      for (let x = 2; x < w - 2; x += 2) { R(g, x, 22, 1, 3 + (x % 4 ? 1 : 0), GLD[2]); P(g, x, 22, GLD[4]); }
+      E(g, cx, 21, 6, 1.4, 'rgba(255,240,170,0.8)');                                     // light spilling from under it
+    },
+    shelf: (g, w, h) => {
+      // the carcass: a crown on top, a plinth below, the back in shadow
+      R(g, 0, 3, w, h - 3, WDD[1]); R(g, 0, 3, 2, h - 3, WDD[3]); R(g, w - 2, 3, 2, h - 3, WDD[0]);
+      R(g, -0, 0, w, 4, WDD[2]); R(g, 0, 0, w, 1, WDD[4]); R(g, 0, h - 4, w, 4, WDD[2]); R(g, 0, h - 4, w, 1, WDD[3]);
+      R(g, 3, 4, w - 6, h - 8, '#1e0e04');
+      const BK = [['#b82a2a', '#e04a3a'], ['#1c4a98', '#3a70c8'], ['#d8a020', '#f4c840'], ['#2a7a48', '#48a468'], ['#7a3a98', '#a060c0'], ['#d86a2a', '#f08a48'], ['#e8dcc0', '#ffffff'], ['#3a2a1a', '#5a4430']];
+      const rows = 4, rh = (h - 8) / rows;
+      for (let r = 0; r < rows; r++) {
+        const y1 = 4 + (r + 1) * rh;
+        R(g, 3, y1 - 2, w - 6, 2, WDD[3]); R(g, 3, y1 - 2, w - 6, 1, WDD[4]);
+        let x = 4, i = r * 5;
+        while (x < w - 6) {
+          if (r === 1 && x > w - 16 && x < w - 8) {                                         // a globe on one shelf
+            E(g, x + 4, y1 - 7, 4, 4, '#2a6ab8'); E(g, x + 3, y1 - 8, 2, 2, '#4ac070'); P(g, x + 2, y1 - 9, '#ffffff'); R(g, x + 3, y1 - 3, 3, 1, GLD[2]); x += 9; continue;
+          }
+          const bw = 2 + (i * 7) % 3, bh = Math.min(rh - 3, 7 + (i * 5) % 4), col = BK[i % BK.length];
+          const lean = r === 2 && i % 7 === 3;
+          if (lean) { Art.poly(g, [[x, y1 - 2], [x + 2, y1 - 2], [x + 5, y1 - 2 - bh + 1], [x + 3, y1 - 2 - bh]], col[0]); x += 6; i++; continue; }
+          R(g, x, y1 - 2 - bh, bw, bh, col[0]); R(g, x, y1 - 2 - bh, 1, bh, col[1]);
+          P(g, x, y1 - bh + 1, GLD[3]); if (bw > 2) P(g, x + 1, y1 - bh + 1, GLD[3]);        // gold lettering
+          x += bw + (i % 4 === 0 ? 1 : 0); i++;
+        }
+      }
+      // a pot plant on the crown
+      R(g, w - 12, -1, 7, 4, '#b8603a'); for (const [dx, dy] of [[-2, -4], [1, -6], [4, -4], [2, -3]]) E(g, w - 9 + dx, -1 + dy, 2.4, 1.6, '#3a8a3a');
+    },
+    hammock: (g, w, h) => {
+      // two stout posts with a cap each
+      for (const x of [2, w - 8]) { R(g, x, 3, 6, h - 3, WDD[2]); R(g, x, 3, 2, h - 3, WDD[4]); R(g, x + 5, 3, 1, h - 3, WDD[0]); R(g, x - 1, 1, 8, 3, WDD[1]); }
+      const sag = (u) => 9 + Math.sin(u * Math.PI) * 16;
+      // the ropes out to the rings
+      for (const [x0, x1] of [[7, 14], [w - 7, w - 14]]) Art.limb(g, x0, 6, x1, sag(x0 < w / 2 ? 0.08 : 0.92), 1, 1, '#c8a060');
+      // the cloth: a fat sagging band in stripes, lit along its top edge
+      for (let x = 12; x < w - 12; x++) {
+        const u = (x - 12) / (w - 24), y = sag(0.08 + u * 0.84);
+        const c = Math.floor(x / 5) % 2 ? '#f4e0a0' : '#d8503a';
+        R(g, x, y, 1, 8, c); P(g, x, y, '#fff4d0'); R(g, x, y + 7, 1, 1, '#7a2a14');
+        if (x % 3 === 0) R(g, x, y + 8, 1, 2, '#c8a060');                                    // fringe
+      }
+      // a cushion in it
+      const cu = sag(0.4);
+      E(g, w * 0.36, cu + 1, 7, 3, '#3a70c8'); E(g, w * 0.35, cu, 5, 2, '#6a98e0');
+    },
+    deck: (g, w, h) => {
+      // seen from the front, leaning back: two rails, a slung canvas in
+      // wide stripes that bellies where you sit, arms, a front bar, splayed legs
+      const top = 2, seat = h - 11;
+      const lx = (y) => 5 + (y - top) * 0.1, rx = (y) => w - 6 - (y - top) * 0.1;
+      const ST = [['#c8402c', '#e8604a', '#9a2a1c'], ['#f8f0dc', '#ffffff', '#d8ccb0'], ['#2a6ad0', '#5a90e8', '#1a4a9a']];
+      for (let y = top + 1; y < seat + 3; y++) {
+        const sag = y > seat - 8 ? Math.round(Math.sin(((y - (seat - 8)) / 11) * Math.PI) * 2) : 0;
+        const x0 = lx(y) + 2, x1 = rx(y) - 1;
+        for (let x = Math.round(x0); x < x1; x++) {
+          const k = Math.floor((x - x0) / 4) % 3, cc = ST[k === 2 ? 0 : k === 1 ? 1 : 2];
+          const lit = y < top + 4 ? 1 : (y > seat - 2 + sag ? 2 : 0);
+          R(g, x, y + sag * 0, 1, 1, cc[lit]);
+        }
+      }
+      // the belly of the sling, shaded under the sitter
+      for (let x = Math.round(lx(seat) + 3); x < rx(seat) - 2; x++) P(g, x, seat - 4, 'rgba(0,0,0,0.12)');
+      // the rails, lit on the left
+      for (const f of [lx, rx]) for (let y = top; y < h - 1; y++) { R(g, f(y), y, 2, 1, WDD[3]); P(g, f(y), y, WDD[4]); }
+      R(g, lx(top) - 1, top - 1, 4, 2, WDD[3]); R(g, rx(top) - 1, top - 1, 4, 2, WDD[3]);
+      // the arms, reaching forward
+      R(g, 1, seat - 7, 8, 2, WDD[3]); R(g, 1, seat - 7, 8, 1, WDD[4]);
+      R(g, w - 9, seat - 7, 8, 2, WDD[3]); R(g, w - 9, seat - 7, 8, 1, WDD[4]);
+      R(g, 2, seat - 5, 2, h - seat + 4, WDD[2]); R(g, w - 4, seat - 5, 2, h - seat + 4, WDD[2]);
+      // the front bar the canvas wraps round, and a brass stud each end
+      R(g, lx(seat), seat + 2, rx(seat) - lx(seat) + 2, 3, WDD[2]); R(g, lx(seat), seat + 2, rx(seat) - lx(seat) + 2, 1, WDD[4]);
+      P(g, lx(seat) + 1, seat + 3, GLD[3]); P(g, rx(seat), seat + 3, GLD[3]);
+      R(g, 1, h - 2, w - 2, 1, WDD[1]);
+    },
+    helm: (g, w, h) => {
+      const cx = w / 2, cy = 19, rO = 18, rI = 11;
+      R(g, cx - 4, cy + 4, 8, h - cy - 8, WDD[2]); R(g, cx - 4, cy + 4, 2, h - cy - 8, WDD[4]);
+      R(g, cx - 11, h - 5, 22, 5, WDD[1]); R(g, cx - 11, h - 5, 22, 1, WDD[3]);
+      for (let i = 0; i < 8; i++) {                                                                   // spokes ending in turned handles
+        const a = (i / 8) * TAU;
+        Art.limb(g, cx, cy, cx + Math.cos(a) * (rO + 4), cy + Math.sin(a) * (rO + 4), 2.4, 2.4, WDD[3]);
+        E(g, cx + Math.cos(a) * (rO + 5), cy + Math.sin(a) * (rO + 5), 2.4, 2.4, WDD[4]);
+      }
+      // the rim: a wooden ring with brass bands
+      for (let k = 0; k < 64; k++) {
+        const a = (k / 64) * TAU;
+        for (let r2 = rI; r2 <= rI + 3; r2++) P(g, cx + Math.cos(a) * r2, cy + Math.sin(a) * r2, r2 === rI + 3 ? WDD[1] : a > 3.4 && a < 5.6 ? WDD[4] : WDD[3]);
+      }
+      for (let k = 0; k < 8; k++) { const a = (k / 8) * TAU + 0.39; E(g, cx + Math.cos(a) * (rI + 1.5), cy + Math.sin(a) * (rI + 1.5), 1.4, 1.4, GLD[2]); }
+      E(g, cx, cy, 4, 4, GLD[1]); E(g, cx - 1, cy - 1, 2.4, 2.4, GLD[3]); P(g, cx - 2, cy - 2, GLD[4]);
+    },
+    anchor: (g, w, h) => {
+      const cx = Math.floor(w / 2), IR = ['#24242c', '#3c3c48', '#5c5c6c', '#8a8a9c'], RU = '#a8501c';
+      // the ring at the top, the stock across, the shank down, the arms and flukes
+      for (let k = 0; k < 40; k++) { const a = (k / 40) * TAU; R(g, cx + Math.cos(a) * 4.5 - 1, 6 + Math.sin(a) * 4.5 - 1, 2, 2, a > 3 && a < 5 ? IR[3] : IR[1]); }
+      R(g, cx - 12, 13, 24, 4, IR[1]); R(g, cx - 12, 13, 24, 1, IR[3]); E(g, cx - 12, 15, 2, 2.4, IR[2]); E(g, cx + 12, 15, 2, 2.4, IR[2]);
+      R(g, cx - 2, 10, 5, h - 18, IR[1]); R(g, cx - 2, 10, 2, h - 18, IR[3]);
+      for (let i = 0; i <= 16; i++) { const u = i / 16, a = Math.PI * (0.08 + u * 0.84); R(g, cx + Math.cos(a) * 15 - 2, h - 20 + Math.sin(a) * 14 - 2, 5, 5, IR[u < 0.5 ? 1 : 2]); }
+      for (const s of [-1, 1]) Art.poly(g, [[cx + s * 16, h - 20], [cx + s * 10, h - 23], [cx + s * 13, h - 13]], IR[2]);
+      for (let i = 0; i < 14; i++) R(g, cx - 12 + (i * 7) % 24, 12 + (i * 11) % (h - 14), 2, 1, RU);   // rust
+      // a turn of old rope round the shank
+      for (let i = 0; i < 6; i++) R(g, cx - 4, 20 + i * 2, 9, 1, i % 2 ? '#c8a060' : '#e8c880');
+    },
+  };
+  function ottomanOf(g, w, h, L, F) {
+    // ball feet, a pleated apron with piping, and a deep buttoned top that
+    // rolls over the edge
+    foot(g, 4, h - 6, 6, F); foot(g, w - 8, h - 6, 6, F);
+    R(g, 1, 10, w - 2, h - 16, L[1]);
+    for (let x = 2; x < w - 2; x += 3) { R(g, x, 12, 1, h - 19, L[2]); P(g, x + 1, 12, L[0]); }
+    piping(g, 1, h - 7, w - 2);
+    R(g, 0, 3, w, 9, L[2]); R(g, 1, 2, w - 2, 1, L[3]); R(g, 2, 1, w - 4, 1, L[4]);
+    R(g, 0, 10, w, 2, L[1]);
+    tuft(g, 1, 2, w - 2, 9, L, 7);
+    piping(g, 0, 11, w);
+    R(g, w - 3, 3, 3, 8, 'rgba(0,0,0,0.2)');
+  }
+  // ---- the garden pieces from the shop in the village --------------------------------
+  const PAL = ['#6a4020', '#94602c', '#c08a48', '#e0b46c', '#f6d898'];   // split, weathered pine
+  const STN = ['#2e2c34', '#4c4a56', '#6e6c7a', '#9694a2', '#c4c2cc'];   // field stone
+  const MOS = ['#2e4a1c', '#4a7a2a', '#78a840'];
+  const IRN = ['#1a1a20', '#34343e', '#5a5a68', '#8a8a9a'];
+  // a mossy tuft and a pale mushroom at the foot of things
+  function moss(g, x, y, n = 5) { for (let i = 0; i < n; i++) { P(g, x + i, y - (i % 2), MOS[1]); P(g, x + i, y, MOS[0]); } P(g, x + 1, y - 1, MOS[2]); }
+  function shroom(g, x, y) { R(g, x, y - 2, 1, 2, '#f0e8d0'); R(g, x - 1, y - 3, 3, 1, '#d04a3a'); P(g, x, y - 3, '#ff9a8a'); }
+  // a plank seen from above-front: a lit top face with grain, and a darker edge
+  function plank(g, x, y, w, top, edge, ramp) {
+    R(g, x, y, w, top, ramp[3]); R(g, x, y, w, 1, ramp[4]);
+    for (let i = 0; i < w; i += 7) { R(g, x + i + 2, y + 1 + (i % 2), 4, 1, ramp[2]); }
+    R(g, x, y + top, w, edge, ramp[1]); R(g, x, y + top + edge - 1, w, 1, ramp[0]);
+    P(g, x + 3, y + top + 1, ramp[0]); P(g, x + w - 5, y + top + 1, ramp[0]);   // nail heads
+  }
+  // a stone block with a lit top and left edge, a crack and a chip
+  function stone(g, x, y, w, h, ramp = STN) {
+    R(g, x, y, w, h, ramp[2]); R(g, x, y, w, 1, ramp[4]); R(g, x, y, 1, h, ramp[3]);
+    R(g, x, y + h - 1, w, 1, ramp[0]); R(g, x + w - 1, y, 1, h, ramp[1]);
+    if (w > 5) { P(g, x + (w >> 1), y + 2, ramp[1]); P(g, x + (w >> 1) + 1, y + 3, ramp[1]); }
+  }
+  Object.assign(A, {
+    bench: (g, w, h) => {
+      // a split log on two rounds, bark on the front, rings on the ends
+      for (const lx of [7, w - 18]) {
+        R(g, lx, 12, 11, h - 13, WDD[2]);
+        for (let i = 1; i < 11; i += 3) R(g, lx + i, 13, 1, h - 15, WDD[1]);
+        R(g, lx, 12, 2, h - 13, WDD[3]); R(g, lx, h - 2, 11, 1, WDD[0]);
+      }
+      R(g, 2, 6, w - 4, 5, PAL[3]); R(g, 2, 6, w - 4, 1, PAL[4]);
+      for (let x = 5; x < w - 6; x += 6) R(g, x, 8 + (x % 2), 4, 1, PAL[2]);
+      R(g, 1, 11, w - 2, 6, WDD[2]);
+      for (let x = 3; x < w - 3; x += 3) { R(g, x, 12, 1, 4, WDD[1]); P(g, x + 1, 11, WDD[3]); }
+      R(g, 1, 16, w - 2, 1, WDD[0]);
+      for (const ex of [3, w - 4]) { E(g, ex, 11, 2.6, 5, PAL[3]); E(g, ex, 11, 1.6, 3.4, PAL[2]); P(g, ex, 11, PAL[1]); }
+      // a cushion somebody left out, and a bit of the wood coming back
+      R(g, 12, 3, 12, 4, '#c8503a'); R(g, 12, 3, 12, 1, '#e8806a'); P(g, 18, 5, '#8a2a1a');
+      moss(g, 6, h - 2); shroom(g, w - 5, h - 1);
+    },
+    table: (g, w, h) => {
+      // two trestles and a thick top, a gingham runner, a jug and a pie
+      const ty = 12;
+      for (const lx of [8, w - 16]) {
+        Art.limb(g, lx, ty + 6, lx + 8, h - 2, 1.6, 1.6, WDD[2]); Art.limb(g, lx + 8, ty + 6, lx, h - 2, 1.6, 1.6, WDD[3]);
+        R(g, lx - 2, h - 3, 12, 2, WDD[1]);
+      }
+      R(g, 10, h - 11, w - 20, 2, WDD[2]); R(g, 10, h - 11, w - 20, 1, WDD[3]);   // the stretcher
+      plank(g, 1, ty, w - 2, 4, 4, PAL);
+      for (let x = 12; x < w - 12; x += 12) R(g, x, ty, 1, 4, PAL[2]);            // plank joins
+      // gingham runner, hanging over the front
+      for (let x = 18; x < w - 18; x++) for (let y = ty; y < ty + 9; y++) {
+        const c = ((x >> 1) + (y >> 1)) % 2 ? '#e84a4a' : '#fff4e8';
+        if (y < ty + 4 || (y < ty + 9 - ((x % 5) === 0 ? 1 : 0))) P(g, x, y, c);
+      }
+      R(g, 18, ty + 8, w - 36, 1, '#a02a2a');
+      // the jug
+      R(g, 22, ty - 9, 7, 9, '#4a7ac8'); R(g, 22, ty - 9, 2, 9, '#7aa8e8'); R(g, 23, ty - 10, 5, 1, '#2a4a8a');
+      R(g, 29, ty - 7, 2, 1, '#2a4a8a'); R(g, 30, ty - 7, 1, 4, '#2a4a8a'); R(g, 23, ty - 6, 5, 1, '#fff4e8');
+      // the pie, steaming a bit
+      E(g, w - 26, ty - 1, 7, 2.5, '#c88a3a'); E(g, w - 26, ty - 2, 6, 2, '#e8b060');
+      for (let i = -4; i <= 4; i += 2) P(g, w - 26 + i, ty - 2, '#a86a2a');
+      P(g, w - 28, ty - 6, 'rgba(255,255,255,0.6)'); P(g, w - 27, ty - 8, 'rgba(255,255,255,0.45)'); P(g, w - 24, ty - 7, 'rgba(255,255,255,0.5)');
+    },
+    lantern: (g, w, h) => {
+      // a post with an arm, and a candle lantern hanging off it
+      const px = 5;
+      stone(g, 1, h - 5, 11, 5);
+      R(g, px, 4, 4, h - 9, WDD[2]); R(g, px, 4, 1, h - 9, WDD[3]); R(g, px + 3, 4, 1, h - 9, WDD[1]);
+      R(g, px - 1, 3, 15, 2, WDD[3]); R(g, px - 1, 3, 15, 1, WDD[4]); R(g, px + 3, 5, 3, 1, WDD[2]); R(g, px + 4, 6, 1, 1, WDD[2]);
+      const lx = w - 7;
+      R(g, lx, 5, 1, 3, IRN[2]);                                   // the ring
+      g.fillStyle = 'rgba(255,220,120,0.18)'; E(g, lx, 17, 8, 9);   // the glow in the glass
+      R(g, lx - 4, 8, 9, 2, IRN[1]); R(g, lx - 3, 7, 7, 1, IRN[2]); // the roof
+      R(g, lx - 4, 10, 9, 11, IRN[1]);
+      R(g, lx - 3, 11, 3, 9, '#ffd860'); R(g, lx + 1, 11, 3, 9, '#ffc040');
+      R(g, lx - 2, 12, 1, 3, '#fff6c0');
+      R(g, lx, 10, 1, 11, IRN[1]);
+      R(g, lx - 1, 15, 2, 4, '#fff8e0'); P(g, lx - 1, 13, '#ff8a20'); P(g, lx, 14, '#ffe080');   // the candle
+      R(g, lx - 4, 21, 9, 2, IRN[1]); R(g, lx - 2, 23, 5, 1, IRN[2]);
+      moss(g, 1, h - 5, 4);
+    },
+    barrel: (g, w, h) => {
+      // oak staves bellied out, three iron hoops with rivets, rain on top, a tap
+      for (let y = 4; y < h - 1; y++) {
+        const u = (y - 4) / (h - 5), bul = Math.round(Math.sin(u * Math.PI) * 2);
+        const x0 = 3 - bul, x1 = w - 3 + bul;
+        for (let x = x0; x < x1; x++) {
+          const k = Math.floor((x - x0) / 5);
+          const edge = (x - x0) % 5 === 0;
+          const lit = x < x0 + 3 ? 4 : x > x1 - 5 ? 1 : 3 - (k % 2);
+          P(g, x, y, edge ? WDD[1] : WDD[lit]);
+        }
+      }
+      for (const hy of [7, (h >> 1) + 1, h - 6]) {
+        const bul = Math.round(Math.sin(((hy - 4) / (h - 5)) * Math.PI) * 2);
+        R(g, 3 - bul, hy, w - 6 + bul * 2, 2, IRN[1]); R(g, 3 - bul, hy, w - 6 + bul * 2, 1, IRN[3]);
+        for (let x = 5 - bul; x < w - 4 + bul; x += 6) P(g, x, hy + 1, IRN[3]);
+      }
+      E(g, w / 2, 4, w / 2 - 3, 3, WDD[1]); E(g, w / 2, 4, w / 2 - 5, 2, '#3a7ab8');
+      R(g, w / 2 - 6, 3, 4, 1, '#a8dcf8'); P(g, w / 2 + 3, 4, '#7ab8e8');
+      // the tap, with a drip
+      R(g, w - 6, h - 12, 5, 2, '#d8a024'); R(g, w - 3, h - 10, 2, 2, '#b08018'); P(g, w - 2, h - 7, '#7ab8e8');
+    },
+    trough2: (g, w, h) => {
+      // one block of stone, hollowed: a lip, water with the sky in it, moss
+      R(g, 2, 5, w - 4, h - 6, STN[2]);
+      for (let x = 2; x < w - 2; x += 9) R(g, x, 9, 1, h - 11, STN[1]);          // tool marks
+      R(g, 2, h - 2, w - 4, 1, STN[0]);
+      R(g, 1, 3, w - 2, 4, STN[3]); R(g, 1, 3, w - 2, 1, STN[4]);                // the lip
+      R(g, 4, 4, w - 8, 3, '#2e6aa0'); R(g, 4, 4, w - 8, 1, '#4a8ac0');
+      R(g, 8, 5, 6, 1, '#b8e4f8'); R(g, w - 16, 5, 3, 1, '#8ac8f0');
+      R(g, 1, 7, w - 2, 1, STN[1]);
+      // a chip out of the corner and a lick of moss up the side
+      R(g, w - 5, 3, 3, 2, STN[1]); moss(g, 3, h - 2, 7); moss(g, w - 14, h - 2, 4);
+      for (let i = 0; i < 4; i++) P(g, 2, 8 + i * 3, MOS[1]);
+    },
+    scare: (g, w, h) => {
+      // a sack head with button eyes and a stitched grin, a straw hat, a
+      // checked shirt with a patch, straw at the cuffs, and a crow on the arm
+      const cx = w >> 1;
+      R(g, cx - 1, 20, 3, h - 20, WDD[2]); R(g, cx - 1, 20, 1, h - 20, WDD[3]);
+      R(g, 2, 24, w - 4, 3, WDD[2]); R(g, 2, 24, w - 4, 1, WDD[3]);
+      // shirt
+      for (let y = 22; y < 40; y++) for (let x = cx - 8; x <= cx + 8; x++) P(g, x, y, ((x >> 1) + (y >> 1)) % 2 ? '#c84a3a' : '#a0302a');
+      for (let y = 23; y < 29; y++) for (let x = 3; x < w - 3; x++) if (x < cx - 8 || x > cx + 8) P(g, x, y, ((x >> 1) + (y >> 1)) % 2 ? '#c84a3a' : '#a0302a');
+      R(g, cx + 2, 31, 5, 5, '#4a7ac8'); P(g, cx + 2, 31, '#fff'); P(g, cx + 6, 35, '#fff');   // the patch
+      R(g, cx - 1, 23, 2, 16, '#6a1a14');
+      for (const sx of [1, w - 3]) for (let i = 0; i < 4; i++) R(g, sx + (i % 2), 23 + i * 2, 2, 1, '#f0c848');
+      for (let i = 0; i < 5; i++) R(g, cx - 6 + i * 3, 40, 1, 3 + (i % 2), '#f0c848');
+      // the head
+      E(g, cx, 14, 7, 7, '#d8b880'); E(g, cx - 2, 12, 4, 4, '#ecd4a0');
+      R(g, cx - 4, 12, 2, 2, IRN[0]); R(g, cx + 2, 12, 2, 2, IRN[0]); P(g, cx - 4, 12, '#fff'); P(g, cx + 2, 12, '#fff');
+      for (let i = -3; i <= 3; i++) P(g, cx + i, 17 + (Math.abs(i) === 3 ? -1 : 0), '#6a3a1a');
+      for (let i = -2; i <= 2; i += 2) P(g, cx + i, 18, '#6a3a1a');
+      P(g, cx - 6, 15, '#e88a7a'); P(g, cx + 6, 15, '#e88a7a');
+      R(g, cx - 3, 20, 7, 2, '#8a5a2a');                        // the twine at the neck
+      // the hat
+      R(g, cx - 11, 7, 23, 2, '#e0b448'); R(g, cx - 11, 7, 23, 1, '#f8d870');
+      R(g, cx - 6, 2, 13, 5, '#d0a038'); R(g, cx - 6, 2, 13, 1, '#f0cc60'); R(g, cx - 6, 5, 13, 1, '#c8403a');
+      // the crow, not scared in the least
+      const bx = w - 6;
+      E(g, bx, 21, 3, 2.4, IRN[0]); E(g, bx + 1, 18, 2, 2, IRN[0]); P(g, bx + 1, 18, '#fff');
+      R(g, bx + 3, 18, 2, 1, '#e0a020'); R(g, bx - 4, 21, 2, 1, IRN[0]);
+    },
+    hive: (g, w, h) => {
+      // a coiled straw skep on a little wooden stand, bees coming and going
+      R(g, 3, h - 7, w - 6, 3, WDD[3]); R(g, 3, h - 7, w - 6, 1, WDD[4]);
+      R(g, 5, h - 4, 3, 4, WDD[2]); R(g, w - 8, h - 4, 3, 4, WDD[2]);
+      const cx = w / 2, top = 5, bot = h - 7;
+      for (let y = top, row = 0; y < bot; y += 3, row++) {
+        const u = (y - top) / (bot - top), rw = Math.round(3 + Math.sin(Math.min(1, u * 1.3) * Math.PI / 2) * (w / 2 - 4));
+        R(g, cx - rw, y, rw * 2, 3, '#d8a840'); R(g, cx - rw, y, rw * 2, 1, '#f8d880'); R(g, cx - rw, y + 2, rw * 2, 1, '#a87820');
+        for (let x = cx - rw + 2 + (row % 2) * 2; x < cx + rw - 1; x += 4) P(g, x, y + 1, '#b88a28');
+      }
+      R(g, cx - 1, 2, 3, 3, '#c89838'); P(g, cx, 2, '#f8d880');
+      E(g, cx, bot - 3, 3, 2, '#3a2008'); R(g, cx - 4, bot - 1, 9, 1, WDD[3]);
+      for (const [bx, by] of [[3, 8], [w - 5, 12], [w - 8, 3]]) { R(g, bx, by, 2, 1, '#2a1a08'); P(g, bx, by - 1, '#f8e040'); P(g, bx + 1, by - 1, '#ffffff'); }
+    },
+    arch: (g, w, h) => {
+      // two bent willow posts meeting overhead, with a climbing rose all over it
+      const L = 6, Rt = w - 7, top = 6, spring = 24;
+      for (const x of [L, Rt]) { R(g, x, spring, 4, h - spring, WDD[2]); R(g, x, spring, 1, h - spring, WDD[3]); for (let y = spring + 3; y < h; y += 6) P(g, x + 2, y, WDD[1]); }
+      const cx = w / 2, rx = (Rt - L) / 2, ry = spring - top;
+      for (let i = 0; i <= 40; i++) {
+        const a = Math.PI + (i / 40) * Math.PI, x = cx + Math.cos(a) * rx + 0.5, y = spring + Math.sin(a) * ry;
+        R(g, x, y, 4, 4, WDD[2]); P(g, x, y, WDD[3]);
+      }
+      // the rose: a twining stem, leaves, and blooms in three pinks
+      const rng = Art.rng(7);
+      for (let i = 0; i <= 60; i++) {
+        const u = i / 60, side = u < 0.5 ? 0 : 1;
+        let x, y;
+        if (u < 0.25) { x = L + 2 + Math.sin(u * 40) * 3; y = h - 2 - (u / 0.25) * (h - spring); }
+        else if (u < 0.75) { const a = Math.PI + ((u - 0.25) / 0.5) * Math.PI; x = cx + Math.cos(a) * rx + 2 + Math.sin(u * 40) * 2; y = spring + Math.sin(a) * ry + 2; }
+        else { x = Rt + 2 + Math.sin(u * 40) * 3; y = spring + ((u - 0.75) / 0.25) * (h - spring - 20); }
+        P(g, x, y, MOS[0]);
+        if (i % 2 === 0) { R(g, x + (rng() < 0.5 ? -2 : 1), y, 2, 2, MOS[1]); P(g, x + 1, y - 1, MOS[2]); }
+        if (i % 5 === 0 && (u < 0.2 || u > 0.18)) {
+          const pk = ['#e84a78', '#ff7aa0', '#c82a5a'][i % 3], bx = x + (rng() - 0.5) * 5, by = y + (rng() - 0.5) * 4;
+          E(g, bx, by, 2.2, 2, pk); P(g, bx, by - 1, '#ffd0e0'); P(g, bx, by, U.shade(pk, -0.3));
+        }
+        void side;
+      }
+      stone(g, L - 2, h - 3, 8, 3); stone(g, Rt - 2, h - 3, 8, 3);
+    },
+    well: (g, w, h) => {
+      // a round of fitted stone, a shingled roof on two posts, a winch and a bucket
+      const ring = h - 20;
+      for (let row = 0; row < 3; row++) for (let x = 2 + (row % 2) * 4, i = 0; x < w - 2; x += 8, i++) {
+        stone(g, x, ring + row * 6, Math.min(8, w - 2 - x), 6);
+      }
+      R(g, 1, ring - 2, w - 2, 3, STN[3]); R(g, 1, ring - 2, w - 2, 1, STN[4]);
+      R(g, 5, ring - 1, w - 10, 1, '#1a2a3a');
+      moss(g, 3, h - 1, 6); moss(g, w - 12, h - 1, 5);
+      // posts and roof
+      for (const x of [5, w - 9]) { R(g, x, 12, 4, ring - 12, WDD[2]); R(g, x, 12, 1, ring - 12, WDD[3]); }
+      for (let r = 0; r < 4; r++) {
+        const y = 3 + r * 3, inset = 12 - r * 4;
+        R(g, 1 + inset, y, w - 2 - inset * 2, 4, r % 2 ? '#a83a2a' : '#c84a34');
+        for (let x = 1 + inset + (r % 2) * 3; x < w - 1 - inset; x += 5) R(g, x, y + 3, 1, 1, '#6a1a14');
+        R(g, 1 + inset, y, w - 2 - inset * 2, 1, '#e87a5a');
+      }
+      R(g, w / 2 - 2, 1, 4, 2, '#8a2a1a');
+      // winch, crank, rope and bucket
+      R(g, 9, 17, w - 18, 3, WDD[3]); R(g, 9, 17, w - 18, 1, WDD[4]);
+      for (let x = 14; x < w - 14; x += 3) P(g, x, 18, '#d8b880');
+      R(g, w - 9, 18, 5, 1, IRN[2]); R(g, w - 5, 18, 1, 5, IRN[2]); R(g, w - 6, 22, 3, 2, WDD[2]);
+      R(g, w / 2, 20, 1, ring - 30, '#d8b880');
+      const by = ring - 11;
+      R(g, w / 2 - 4, by, 9, 7, WDD[2]); R(g, w / 2 - 4, by, 2, 7, WDD[3]); R(g, w / 2 - 4, by + 1, 9, 1, IRN[2]); R(g, w / 2 - 4, by + 5, 9, 1, IRN[2]);
+      R(g, w / 2 - 3, by - 1, 7, 1, '#4a8ac0');
+    },
+    statue: (g, w, h) => {
+      // a stone wombat, sitting up, carved by somebody who had it described to
+      // them: very round, very pleased, a bit too many teeth
+      stone(g, 2, h - 12, w - 4, 12);
+      R(g, 4, h - 9, w - 8, 1, STN[1]);
+      const cx = w / 2, by = h - 22;
+      E(g, cx, by, 13, 11, STN[2]); E(g, cx - 3, by - 3, 8, 7, STN[3]); E(g, cx - 5, by - 5, 3, 3, STN[4]);
+      E(g, cx, by - 13, 10, 8, STN[2]); E(g, cx - 3, by - 15, 6, 4, STN[3]);
+      E(g, cx - 8, by - 20, 3, 3, STN[2]); E(g, cx + 8, by - 20, 3, 3, STN[2]); P(g, cx - 8, by - 20, STN[1]); P(g, cx + 8, by - 20, STN[1]);
+      R(g, cx - 5, by - 14, 2, 2, STN[0]); R(g, cx + 3, by - 14, 2, 2, STN[0]);
+      E(g, cx, by - 10, 3.5, 2.4, STN[1]); R(g, cx - 2, by - 11, 4, 1, STN[0]);
+      R(g, cx - 2, by - 7, 5, 1, STN[0]); for (let i = -2; i <= 2; i++) P(g, cx + i, by - 6, STN[4]);
+      E(g, cx - 7, by + 1, 3, 3, STN[3]); E(g, cx + 7, by + 1, 3, 3, STN[2]);    // paws
+      E(g, cx, by + 3, 6, 4, STN[3]);                                             // belly
+      moss(g, 4, h - 12, 6); moss(g, cx + 4, by - 20, 3);
+      for (let i = 0; i < 6; i++) P(g, 3 + i * 5, h - 4 - (i % 2), MOS[1]);
+    },
+    firepit: (g, w, h) => {
+      // a ring of stones round a heap of ash, crossed logs, a small fire
+      const cy = h - 7;
+      E(g, w / 2, cy, w / 2 - 3, 5, '#3a3030'); E(g, w / 2, cy, w / 2 - 8, 3, '#6a5a50');
+      Art.limb(g, 10, cy + 1, w - 12, cy - 5, 2.4, 2.4, WDD[2]); Art.limb(g, 12, cy - 5, w - 10, cy + 1, 2.4, 2.4, WDD[3]);
+      E(g, w - 10, cy + 1, 1.6, 2, PAL[3]); E(g, 12, cy - 5, 1.6, 2, PAL[3]);
+      // flames, three tongues
+      Art.poly(g, [[w / 2 - 8, cy - 1], [w / 2 - 4, cy - 12], [w / 2, cy - 5], [w / 2 + 3, cy - 16], [w / 2 + 6, cy - 6], [w / 2 + 8, cy - 10], [w / 2 + 9, cy - 1]], '#e85020');
+      Art.poly(g, [[w / 2 - 5, cy - 1], [w / 2 - 2, cy - 8], [w / 2 + 1, cy - 4], [w / 2 + 3, cy - 11], [w / 2 + 6, cy - 2]], '#ffa020');
+      Art.poly(g, [[w / 2 - 1, cy - 1], [w / 2 + 2, cy - 6], [w / 2 + 4, cy - 1]], '#fff080');
+      P(g, w / 2 - 7, cy - 15, '#ffb040'); P(g, w / 2 + 10, cy - 18, '#ff8020');
+      // the stones, front row drawn over the fire's foot
+      for (let i = 0; i < 9; i++) {
+        const a = Math.PI * (i / 8), x = w / 2 - Math.cos(a) * (w / 2 - 5), y = cy + Math.sin(a) * 4 - 1;
+        E(g, x, y, 4, 3, STN[2]); E(g, x - 1, y - 1, 2.4, 1.6, STN[3]); P(g, x - 1, y - 2, STN[4]);
+      }
+      for (const x of [5, w - 6]) { E(g, x, cy - 3, 3.4, 2.6, STN[2]); P(g, x - 1, cy - 5, STN[4]); }
+    },
+    shrine2: (g, w, h) => {
+      // a little house on a pole, with a red roof, a round door, a perch and
+      // whoever lives there looking out
+      const cx = w >> 1;
+      stone(g, cx - 6, h - 4, 12, 4);
+      R(g, cx - 2, 26, 4, h - 30, WDD[2]); R(g, cx - 2, 26, 1, h - 30, WDD[3]);
+      R(g, cx - 7, 30, 14, 2, WDD[2]); Art.limb(g, cx - 6, 32, cx - 1, 38, 1, 1, WDD[2]); Art.limb(g, cx + 6, 32, cx + 1, 38, 1, 1, WDD[2]);
+      R(g, cx - 9, 10, 18, 18, '#e8c890'); R(g, cx - 9, 10, 2, 18, '#f8e0b0'); R(g, cx + 7, 10, 2, 18, '#c8a060');
+      for (let y = 13; y < 28; y += 4) R(g, cx - 9, y, 18, 1, '#c8a060');
+      // the roof, stepped, with a dab of snow-white trim
+      for (let r = 0; r < 6; r++) R(g, cx - 12 + r * 2, 11 - r * 2, 24 - r * 4, 2, r % 2 ? '#c8403a' : '#e0584a');
+      R(g, cx - 13, 11, 26, 1, '#fff4e8'); R(g, cx - 1, 0, 2, 2, '#8a2a1a');
+      // the door, the bird in it, and the perch
+      E(g, cx, 18, 4, 4, '#2a1a10');
+      E(g, cx, 19, 2.8, 2.6, '#6a9ad8'); P(g, cx - 1, 18, '#ffffff'); P(g, cx - 1, 18, IRN[0]); P(g, cx + 1, 18, IRN[0]);
+      R(g, cx - 1, 20, 2, 1, '#f0a020'); E(g, cx, 21.5, 2, 1, '#f8e8d0');
+      R(g, cx - 1, 24, 3, 1, WDD[1]); R(g, cx + 2, 24, 3, 1, WDD[3]);
+      // a flower in a tin at the foot
+      R(g, cx + 5, h - 7, 4, 3, IRN[2]); R(g, cx + 6, h - 11, 1, 4, MOS[1]); E(g, cx + 6.5, h - 12, 1.6, 1.6, '#f8d040');
+    },
+  });
+  return { A, has: (k) => !!A[k] };
 })();
 </script>
 
@@ -6350,8 +6900,9 @@ const Props = (() => {
   // A piece of furniture, drawn at the size the catalogue says it is.
   function furniture(key) {
     const def = FURN_BY_KEY[key];
-    if (!def || !FURN[key]) return null;
-    return cached('fn:' + key, def.w, def.h, (g, w, h) => FURN[key](g, w, h));
+    const fn = (typeof FurnArt !== 'undefined' && FurnArt.has(key)) ? FurnArt.A[key] : FURN[key];
+    if (!def || !fn) return null;
+    return cached('fn:' + key, def.w, def.h, (g, w, h) => fn(g, w, h));
   }
   function drawFurniture(g, key, x, y, scale = 1) {
     const c = furniture(key);
@@ -6787,38 +7338,38 @@ const IconArt = (() => {
     o_plain: [
       '................',
       '................',
-      '................',
-      '....EEEEEEEEE...',
-      '...EETEEEEEEEe..',
-      '..EEEEEEEEEEeef.',
-      '..eeeeeeeeeeeff.',
-      '..eeEeeeeeeeeff.',
-      '..eeeeeeeeeeeff.',
-      '..eeeeeeeefeeff.',
-      '..eeeeeeeeeeeff.',
-      '..eeeeeeeeeeef..',
-      '..ffffffffffff..',
+      '..KKKKKKKKKKKK..',
+      '..KeeeeeeeeeeK..',
+      '..KeeeeeeeeeeK..',
+      '..KeeeeeeeeeeK..',
+      '..KeeeeeeeeeeK..',
+      '..KeeeeeeeeeeK..',
+      '..KeeeeeeeeeeK..',
+      '..KeeeeeeeeeeK..',
+      '..KeeeeeeeeeeK..',
+      '..KeeeeeeeeeeK..',
+      '..KKKKKKKKKKKK..',
       '................',
       '................',
       '................',
     ],
     o_rich: [
       '................',
-      '..Y.............',
-      '.YxY............',
-      '..Y.eeeeeeeee...',
-      '...eeEeeeeeeef..',
-      '..eeeeeeeeeeffK.',
-      '..ffffffffffffK.',
-      '..ffeffffffffKK.',
-      '..ffffffffffffK.',
-      '..ffffffffKfffK.',
-      '..ffffffffffffK.',
-      '..fffffffffffK..',
+      '................',
       '..KKKKKKKKKKKK..',
-      '...........Y....',
-      '..........YxY...',
-      '...........Y....',
+      '..KffffffffffK..',
+      '..KffffffffffK..',
+      '..KffffffffffK..',
+      '..KffffffffffK..',
+      '..KffffffffffK..',
+      '..KffffffffffK..',
+      '..KffffffffffK..',
+      '..KffffffffffK..',
+      '..KffffffffffK..',
+      '..KKKKKKKKKKKK..',
+      '................',
+      '................',
+      '................',
     ],
     wdollar: [
       '................',
@@ -7515,13 +8066,13 @@ const Icons = (() => {
 const Kit = (() => {
   const C = {
     line: '#4a1e0e', inner: '#7a3414',
-    frameL: '#ffb858', frame: '#e07a30', frameM: '#c8622a', frameD: '#a0461a',
-    paper: '#ffe3a4', paperL: '#fff4cc', paperD: '#f2c47a',
+    frameL: '#f2b870', frame: '#d4843e', frameM: '#bc6a32', frameD: '#9a5024',
+    paper: '#f8e2b2', paperL: '#fff3d4', paperD: '#eac48a',
     ink: '#5a2610', ink2: '#8a5028',
     // the accents: grass green, sunflower, tomato, sky
-    mint: '#5cc03c', mintL: '#a8ec6a', mintD: '#2f8a26', mintDD: '#1a5a14', mintW: '#fff4cc',
-    sun: '#ffc81c', sunL: '#fff08a', sunD: '#c8840c',
-    coral: '#e8402c', coralD: '#a01e14', sky: '#3aa0f0',
+    mint: '#6aa84a', mintL: '#a8d880', mintD: '#3f7a32', mintDD: '#264e20', mintW: '#fff3d4',
+    sun: '#f0c048', sunL: '#fbe8a0', sunD: '#b8842a',
+    coral: '#d45a40', coralD: '#983224', sky: '#5a9ad0',
     shadow: 'rgba(60,20,4,0.32)',
   };
   const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
@@ -7538,7 +8089,7 @@ const Kit = (() => {
   // the box: every card, panel and plaque on the canvas
   function card(g, x, y, w, h, o = {}) {
     x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
-    const hot = o.ring, fr = hot ? ['#fff08a', '#ffc81c', '#f0a010', '#c8840c'] : [C.frameL, C.frame, C.frameM, C.frameD];
+    const hot = o.ring, fr = hot ? ['#fbe8a0', '#f0c048', '#f0a010', '#b8842a'] : [C.frameL, C.frame, C.frameM, C.frameD];
     if (o.shadow !== false) rr(g, x + 2, y + 3, w, h, 2, C.shadow);
     rr(g, x, y, w, h, 2, C.line);
     R(g, x + 1, y + 1, w - 2, h - 2, fr[1]);
@@ -7583,7 +8134,7 @@ const Kit = (() => {
     const sc = o.scale || 1;
     const ty = y + Math.round((h - sc * 7) / 2);
     Font.draw(g, text, x + w / 2 + 1, ty + 1, { scale: sc, color: C.line, align: 'center' });
-    Font.draw(g, text, x + w / 2, ty, { scale: sc, color: '#fff4cc', align: 'center' });
+    Font.draw(g, text, x + w / 2, ty, { scale: sc, color: '#fff3d4', align: 'center' });
   }
   // a tag for a short label or a price
   function pill(g, x, y, text, o = {}) {
@@ -7638,7 +8189,7 @@ const Portraits = (() => {
       skin: ['#ffdcbc', '#f4c29c', '#d9976e', '#b8734e'], blush: '#f2a08c',
       hair: ['#ffd27a', '#f0a23a', '#c8741e', '#8a4a14'], cut: 'spiky',
       band: ['#ff7a66', '#dc3a2c', '#a02418'], glasses: '#1e1814', stubble: '#c47a3c',
-      brow: '#b8661e', wide: 1.12,
+      brow: '#b8661e', wide: 1.12, doubleChin: true,
       top: 'fleece', cloth: ['#b4b6be', '#92949c', '#74767e', '#5a5c64'], shirt: ['#ffa6bc', '#e57e9c', '#b8566e'],
       collar: ['#fffaf0', '#f0e6d2', '#d4c6aa'],
     },
@@ -7797,9 +8348,16 @@ const Portraits = (() => {
       const bh = spec.hair;
       E(cx, 45, 17 * W, 10, OUT); E(cx, 45, 16 * W, 9, bh[1]);
       for (const s2 of [-1, 1]) { E(cx + s2 * 14 * W, 37, 3, 7, OUT); E(cx + s2 * 14 * W, 37, 2, 6, bh[1]); }   // sideburns
-      E(cx - 4, 42, 9, 5, bh[0]); E(cx + 7, 47, 8, 6, bh[2]);
+      E(cx - 4, 42, 9, 5, bh[0]);
+      // strands combed down through it, darker toward the tips
+      for (let x = cx - 13; x <= cx + 13; x += 3) { const d = Math.abs(x - cx); P(x, 47 + (d < 8 ? 2 : 0), bh[2]); P(x, 48 + (d < 8 ? 2 : 0), bh[2]); P(x + 1, 45, bh[2]); }
       for (let i = 0; i < 14; i++) P(cx - 12 + (i * 5) % 24, 42 + (i * 3) % 10, bh[2]);
       for (const s2 of [-1, 1]) { E(cx + s2 * 5, 39, 6, 2.5, OUT); E(cx + s2 * 5, 39, 5, 1.8, bh[0]); }   // moustache
+    }
+    // a double chin, stubbled, tucked under the jaw
+    if (spec.doubleChin) {
+      E(cx, 47, 12 * W, 4, OUT); E(cx, 46.5, 11 * W, 3, sk[2]); E(cx - 1, 46, 10 * W, 2, sk[1]);
+      for (let i = 0; i < 9; i++) P(cx - 9 + i * 2, 46 + (i % 2), spec.stubble || sk[3]);
     }
     // cheeks
     if (F.mouth === 'grin' || F.mouth === 'laugh' || F.eyes === 'happy') { E(cx - 11, 36, 3, 1.5, spec.blush); E(cx + 11, 36, 3, 1.5, spec.blush); }
@@ -8275,32 +8833,32 @@ const RESTORE_TARGET = 172000;  // painted grass pixels that count as a whole fo
 // furniture is placed by hand, picked back up, and is worth what you paid for
 // it minus a little. Most of it does something small; some of it is just nice.
 const FURNITURE = [
-  { key: 'bench',   name: 'Log Bench',     cost: 90,   w: 46, h: 20, hap: 0.10, blurb: 'Split log on two rounds. Somewhere to sit and watch them.' },
-  { key: 'table',   name: 'Trestle Table', cost: 140,  w: 52, h: 26, hap: 0.08, blurb: 'Two trestles and a top. Every wood needs one.' },
-  { key: 'lantern', name: 'Post Lantern',  cost: 180,  w: 16, h: 52, hap: 0.14, light: 1, blurb: 'A candle in a box on a post. Burns all night.' },
-  { key: 'barrel',  name: 'Rain Barrel',   cost: 160,  w: 26, h: 30, water: 1,  blurb: 'Catches the rain. Beds near it dry out slower.' },
-  { key: 'trough2', name: 'Stone Trough',  cost: 210,  w: 44, h: 18, thirst: 1, blurb: 'Cut from one block. They drink from it.' },
-  { key: 'scare',   name: 'Scarecrow',     cost: 120,  w: 22, h: 54, blurb: 'Sack head, crossed sticks, one boot. Keeps the crows honest.' },
-  { key: 'hive',    name: 'Bee Skep',      cost: 240,  w: 24, h: 26, hap: 0.10, blurb: 'Straw skep on a stand. Maud will be pleased.' },
-  { key: 'arch',    name: 'Rose Arch',     cost: 320,  w: 56, h: 60, hap: 0.18, blurb: 'Bent willow with something climbing it.' },
-  { key: 'well',    name: 'Old Well',      cost: 460,  w: 40, h: 46, water: 2,  blurb: 'Stone ring, a roof, a bucket on a rope. Deep.' },
-  { key: 'statue',  name: 'Wombat Statue', cost: 780,  w: 32, h: 44, hap: 0.12, blurb: 'Carved by someone who had only had one described to them.' },
-  { key: 'firepit', name: 'Fire Pit',      cost: 350,  w: 40, h: 18, hap: 0.22, light: 1, blurb: 'A ring of stones and a heap of ash. Sit round it.' },
-  { key: 'shrine2', name: 'Bird Box',      cost: 900,  w: 28, h: 50, hap: 0.14, blurb: 'A little house on a pole. Somebody always moves in.' },
+  { key: 'bench',   name: 'Log Bench',     cost: 90,   w: 56, h: 26, hap: 0.10, blurb: 'Split log on two rounds. Somewhere to sit and watch them.' },
+  { key: 'table',   name: 'Trestle Table', cost: 140,  w: 60, h: 34, hap: 0.08, blurb: 'Two trestles and a top. Every wood needs one.' },
+  { key: 'lantern', name: 'Post Lantern',  cost: 180,  w: 20, h: 60, hap: 0.14, light: 1, blurb: 'A candle in a box on a post. Burns all night.' },
+  { key: 'barrel',  name: 'Rain Barrel',   cost: 160,  w: 30, h: 36, water: 1,  blurb: 'Catches the rain. Beds near it dry out slower.' },
+  { key: 'trough2', name: 'Stone Trough',  cost: 210,  w: 52, h: 24, thirst: 1, blurb: 'Cut from one block. They drink from it.' },
+  { key: 'scare',   name: 'Scarecrow',     cost: 120,  w: 32, h: 60, blurb: 'Sack head, crossed sticks, one boot. Keeps the crows honest.' },
+  { key: 'hive',    name: 'Bee Skep',      cost: 240,  w: 30, h: 32, hap: 0.10, blurb: 'Straw skep on a stand. Maud will be pleased.' },
+  { key: 'arch',    name: 'Rose Arch',     cost: 320,  w: 64, h: 70, hap: 0.18, blurb: 'Bent willow with something climbing it.' },
+  { key: 'well',    name: 'Old Well',      cost: 460,  w: 48, h: 58, water: 2,  blurb: 'Stone ring, a roof, a bucket on a rope. Deep.' },
+  { key: 'statue',  name: 'Wombat Statue', cost: 780,  w: 36, h: 50, hap: 0.12, blurb: 'Carved by someone who had only had one described to them.' },
+  { key: 'firepit', name: 'Fire Pit',      cost: 350,  w: 48, h: 24, hap: 0.22, light: 1, blurb: 'A ring of stones and a heap of ash. Sit round it.' },
+  { key: 'shrine2', name: 'Bird Box',      cost: 900,  w: 30, h: 56, hap: 0.14, blurb: 'A little house on a pole. Somebody always moves in.' },
   // the Captain's own stock: the good stuff, from the good ships
-  { key: 'ottoman', name: 'Velvet Ottoman',    cost: 150, w: 30, h: 18, hap: 0.14, blurb: 'Red velvet, gold feet, deep buttons. The name of the shop.' },
-  { key: 'pouf',    name: 'Knitted Pouf',      cost: 80,  w: 22, h: 15, hap: 0.08, blurb: 'Hand-knitted by the Captain on the long night watches.' },
-  { key: 'armchair', name: "Captain's Armchair", cost: 380, w: 34, h: 34, hap: 0.18, blurb: 'Green leather wingback. Smells faintly of pipe and sea.' },
-  { key: 'sofa',    name: 'Chesterfield Sofa',  cost: 620, w: 60, h: 30, hap: 0.24, blurb: 'Oxblood leather, a hundred buttons. Three wombats wide.' },
-  { key: 'rug',     name: 'Persian Rug',       cost: 260, w: 62, h: 12, hap: 0.12, flat: 1, blurb: 'Came off a ship from somewhere warm. Lies flat on the grass.' },
-  { key: 'lamp',    name: 'Standard Lamp',     cost: 210, w: 18, h: 52, hap: 0.10, light: 1, blurb: 'Fringed shade, brass pole. Glows at night.' },
-  { key: 'shelf',   name: 'Bookshelf',         cost: 300, w: 34, h: 46, hap: 0.10, blurb: 'Stuffed with sea charts and paperbacks with no ends.' },
-  { key: 'hammock', name: 'Rope Hammock',      cost: 340, w: 62, h: 32, hap: 0.20, blurb: 'Two posts and a net. A wombat will fall asleep in it.' },
-  { key: 'deck',    name: 'Deck Chair',        cost: 120, w: 26, h: 26, hap: 0.10, blurb: 'Striped canvas off the old ferry.' },
-  { key: 'helm',    name: "Ship's Wheel",      cost: 440, w: 36, h: 42, hap: 0.08, blurb: 'Off the Captain\'s last command. Do not ask how it sank.' },
-  { key: 'anchor',  name: 'Old Anchor',        cost: 280, w: 30, h: 36, blurb: 'Rusty, heavy, and absolutely going nowhere.' },
+  { key: 'ottoman', name: 'Velvet Ottoman',    cost: 150, w: 40, h: 24, hap: 0.14, blurb: 'Red velvet, gold feet, deep buttons. The name of the shop.' },
+  { key: 'pouf',    name: 'Knitted Pouf',      cost: 80,  w: 28, h: 20, hap: 0.08, blurb: 'Hand-knitted by the Captain on the long night watches.' },
+  { key: 'armchair', name: "Captain's Armchair", cost: 380, w: 44, h: 44, hap: 0.18, blurb: 'Green leather wingback. Smells faintly of pipe and sea.' },
+  { key: 'sofa',    name: 'Chesterfield Sofa',  cost: 620, w: 80, h: 40, hap: 0.24, blurb: 'Oxblood leather, a hundred buttons. Three wombats wide.' },
+  { key: 'rug',     name: 'Persian Rug',       cost: 260, w: 84, h: 16, hap: 0.12, flat: 1, blurb: 'Came off a ship from somewhere warm. Lies flat on the grass.' },
+  { key: 'lamp',    name: 'Standard Lamp',     cost: 210, w: 22, h: 64, hap: 0.10, light: 1, blurb: 'Fringed shade, brass pole. Glows at night.' },
+  { key: 'shelf',   name: 'Bookshelf',         cost: 300, w: 44, h: 60, hap: 0.10, blurb: 'Stuffed with sea charts and paperbacks with no ends.' },
+  { key: 'hammock', name: 'Rope Hammock',      cost: 340, w: 80, h: 40, hap: 0.20, blurb: 'Two posts and a net. A wombat will fall asleep in it.' },
+  { key: 'deck',    name: 'Deck Chair',        cost: 120, w: 34, h: 34, hap: 0.10, blurb: 'Striped canvas off the old ferry.' },
+  { key: 'helm',    name: "Ship's Wheel",      cost: 440, w: 44, h: 52, hap: 0.08, blurb: 'Off the Captain\'s last command. Do not ask how it sank.' },
+  { key: 'anchor',  name: 'Old Anchor',        cost: 280, w: 38, h: 46, blurb: 'Rusty, heavy, and absolutely going nowhere.' },
   // never on sale: it is only ever found, a long way back through the staff door
-  { key: 'lostottoman', name: 'The Lost Ottoman', cost: 0, w: 30, h: 18, hap: 0.3, found: 1, blurb: 'Damp carpet, humming faintly. Nobody remembers making it.' },
+  { key: 'lostottoman', name: 'The Lost Ottoman', cost: 0, w: 40, h: 24, hap: 0.3, found: 1, blurb: 'Damp carpet, humming faintly. Nobody remembers making it.' },
 ];
 const FURN_BY_KEY = Object.fromEntries(FURNITURE.map((f) => [f.key, f]));
 </script>
@@ -12541,7 +13099,7 @@ const Grove = (() => {
       const k = d.sq0 * Math.exp(-7 * d.sqT) * Math.cos(d.sqT * 24);
       g.translate(0, (h / 2) * k); g.scale(1 + k, 1 - k);
     }
-    Sprites.drawCube(g, def, w, h, { blessed: d.blessed, outline: held ? PAL.gold4 : d.blessed ? PAL.div4 : null });
+    Sprites.drawCube(g, def, w, h, {});
     g.restore();
     if (d.blessed && Math.sin(d.t * 7) > 0.4) { g.fillStyle = PAL.div5; g.fillRect(d.x + w / 2 - 2, d.y - d.z - h - 3, 2, 2); }
   }
@@ -14108,7 +14666,7 @@ const Shop = (() => {
       if (!taught(G, t.key)) continue;                // Jim has not shown you this one yet
       out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
     }
-    if (taught(G, 'phone')) out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Jobs, messages and an App Store. Everyone out here has one.', sold: owns(G, 'phone') });
+    if (taught(G, 'phone')) out.push({ id: 'phone', kind: 'tool', key: 'phone', name: 'A Phone', price: PHONE_PRICE, sprite: 'tool', icon: 'ph_key', note: 'Texts, a camera, and Wombat Hop. Everyone out here has one.', sold: owns(G, 'phone') });
     for (const u of UPGRADES) {
       if (GARDEN_UP[u.key]) continue;                 // Groot stocks the garden half
       const l = G.up[u.key] || 0;
@@ -16690,15 +17248,17 @@ const Ottoman = (() => {
 
   // ---- stock ---------------------------------------------------------------------
   const stock = () => FURNITURE.filter((f) => !f.found);
+  const OWN = ['ottoman', 'pouf', 'armchair', 'sofa', 'rug', 'lamp', 'shelf', 'hammock', 'deck', 'helm', 'anchor'];
+  const scOf = (f) => (f.w > 60 || f.h > 56 ? 1.2 : 1.5);
   function layout() {
     slots = [];
-    const own = stock().filter((f) => ['ottoman', 'pouf', 'armchair', 'sofa', 'rug', 'lamp', 'shelf', 'hammock', 'deck', 'helm', 'anchor'].includes(f.key));
+    const own = stock().filter((f) => OWN.includes(f.key));
     const yard = stock().filter((f) => !own.includes(f));
     let x = 330;
     const bays = [];
     const place = (arr, label) => {
       const x0 = x;
-      for (const f of arr) { slots.push({ f, x }); x += Math.max(96, f.w * 2 + 36); }
+      for (const f of arr) { slots.push({ f, x }); x += Math.max(92, f.w * scOf(f) + 34); }
       bays.push({ label, x0, x1: x - 60 });
       x += 60;
     };
@@ -16713,12 +17273,14 @@ const Ottoman = (() => {
   // ---- the captain talks ------------------------------------------------------------
   function clarkSay(s) { clark.say = s; clark.sayT = 3.4; }
   function buy(f) {
-    if (G.wd < f.cost) { Audio.play('error'); clarkSay("Short on doubloons, matey."); UI.toast(`need <b>${f.cost} W$</b>`, 'bad'); return; }
+    if (G.wd < f.cost) { Audio.play('error'); clarkSay("Short on doubloons, matey."); menuSay("Short on doubloons, matey. Come back when the wombats have been busy.", 'worry'); UI.toast(`need <b>${f.cost} W$</b>`, 'bad'); return; }
     G.wd -= f.cost;
     if (!G.crates) G.crates = {};
     G.crates[f.key] = (G.crates[f.key] || 0) + 1;
     Audio.play('cash'); FX.confettiBurst(VW / 2, 150, 40);
-    clarkSay(U.pick(['A fine choice!', 'Sold, to the wombat farmer!', 'She\'ll serve you well.', 'Mind the corners going out.']));
+    const line = U.pick(['A fine choice!', 'Sold, to the wombat farmer!', 'She\'ll serve you well.', 'Mind the corners going out.']);
+    clarkSay(line); menuSay(line + ` The ${f.name} goes out in a crate.`, 'laugh');
+    menu.flash = f.key; menu.flashT = 0.6;
     clark.pose = 'wave'; clark.t = 0;
     // furniture wants a hammer to stand it up, and the Captain throws one in
     if (!owns(G, 'build')) {
@@ -16743,6 +17305,7 @@ const Ottoman = (() => {
     nodes: {
       hub: { mood: 'happy', say: "Ahoy! Captain Clark, Ottoman Empire. Finest furniture this side of the Bass Strait. Have a look round, click anything you fancy.",
         opts: [
+          { q: "Show me the catalogue.", act: () => { Talk.close(); openMenu(); } },
           { q: 'Why "Ottoman Empire"?', to: 'name' },
           { q: 'What is behind the door at the back?', to: 'door' },
           { q: 'Were you really a captain?', to: 'captain' },
@@ -16768,10 +17331,10 @@ const Ottoman = (() => {
   // ---- scene flow ---------------------------------------------------------------------
   function enter() {
     layout();
-    phase = 'shop'; scroll = tscroll = 0; hover = null; t = 0; fade = 1; fadeTo = null;
+    phase = 'shop'; scroll = tscroll = 0; hover = null; t = 0; fade = 1; fadeTo = null; menu.open = false;
     document.body.classList.remove('noclip');
     clark.pose = 'idle'; clark.t = 0;
-    clarkSay('Ahoy there!');
+    clarkSay('Ahoy! Click me for the catalogue.');
     Audio.setMode('pen'); Audio.play('door');
   }
   function enterBack() {
@@ -16790,6 +17353,7 @@ const Ottoman = (() => {
     t += dt; clark.t += dt;
     if (clark.sayT > 0) clark.sayT -= dt;
     if (clark.pose === 'wave' && clark.t > 1.6) clark.pose = 'idle';
+    menu.t += dt; if (menu.flashT > 0) menu.flashT -= dt; if (menu.moodT > 0) menu.moodT -= dt;
     if (fadeTo) { fade = Math.min(1, fade + dt * 2.6); if (fade >= 1) { const f = fadeTo; fadeTo = null; f(); } }
     else fade = Math.max(0, fade - dt * 2);
     scroll = U.lerp(scroll, tscroll, 1 - Math.pow(0.002, dt));
@@ -16806,28 +17370,30 @@ const Ottoman = (() => {
   // ---- input -----------------------------------------------------------------------------
   function slotAt(x, y) {
     for (const s of slots) {
-      const sx = s.x - scroll, w = Math.max(40, s.f.w * 2) / 2 + 8;
-      if (x > sx - w && x < sx + w && y > FLOOR - s.f.h * 2 - 26 && y < FLOOR + 14) return s;
+      const sc = scOf(s.f), sx = s.x - scroll, w = Math.max(40, s.f.w * sc) / 2 + 8;
+      if (x > sx - w && x < sx + w && y > FLOOR - s.f.h * sc - 26 && y < FLOOR + 14) return s;
     }
     return null;
   }
   const overClark = (x, y) => Math.abs(x - (clark.x - scroll)) < 26 && y > 150 && y < FLOOR;
   const overDoor = (x, y) => Math.abs(x - (DOOR_X() - scroll)) < 34 && y > 120 && y < FLOOR;
-  function press(x, y) { drag = { x, s: phase === 'shop' ? tscroll : tbx }; moved = 0; }
+  function press(x, y) { if (menu.open) { menuPress(x, y); return; } drag = { x, s: phase === 'shop' ? tscroll : tbx }; moved = 0; }
   function move(x, y) {
+    if (menu.open) { menuMove(x, y); return; }
     if (!drag) return;
     moved = Math.max(moved, Math.abs(x - drag.x));
     if (phase === 'shop') { tscroll = U.clamp(drag.s - (x - drag.x), 0, worldW - VW); scroll = tscroll; }
     else { tbx = Math.max(0, drag.s - (x - drag.x) * 1.4); }
   }
   function release(x, y) {
+    if (menu.open) { menuRelease(x, y); return; }
     if (!drag) return;
     const was = moved > 6; drag = null;
     if (was || fadeTo) return;
     if (phase === 'back') { pressBack(x, y); return; }
     const s = slotAt(x, y);
     if (s) { offer(s.f); return; }
-    if (overClark(x, y)) { Talk.open('villager:clark', TREE); return; }
+    if (overClark(x, y)) { openMenu(); return; }
     if (overDoor(x, y)) { knock(); }
   }
   function hoverAt(x, y) {
@@ -16835,17 +17401,151 @@ const Ottoman = (() => {
       const th = backThingAt(x, y);
       return th ? th.tip : null;
     }
+    if (menu.open) { menuHover(x, y); return null; }
     const s = slotAt(x, y);
     hover = s;
-    if (overClark(x, y)) return '<b>Captain Clark</b> <span class="dim">the Ottoman Empire</span><br>click to talk';
+    if (overClark(x, y)) return '<b>Captain Clark</b> <span class="dim">the Ottoman Empire</span><br>click to see the catalogue';
     if (overDoor(x, y)) return '<b>STAFF ONLY</b><br><span class="warn">do not go in the back room</span>';
     if (!s) return null;
     const f = s.f, have = crateCount(f.key) + placed(f.key);
     return `<b>${f.name}</b><br>${Icons.img('wdollar', 'sm')} ${U.fmt(f.cost)}${have ? ` &middot; <span class="dim">you have ${have}</span>` : ''}<br><span class="dim">${f.blurb}</span>`;
   }
   function wheel(dy) {
+    if (menu.open) { menuScroll(dy > 0 ? 1 : -1); return; }
     if (phase === 'shop') tscroll = U.clamp(tscroll + dy, 0, worldW - VW);
     else tbx = Math.max(0, tbx + dy * 1.2);
+  }
+
+  // ---- the catalogue: the Captain's shop counter, farm-game style ----------------------------
+  // Click the Captain and the counter opens up: his face and what he has to say
+  // on the left, the stock on the right in rows, a picture of each piece, its
+  // name and its price, and a tab for the garden things. Click a row to buy.
+  const menu = { open: false, tab: 0, scroll: 0, hover: -1, hoverBtn: null, say: '', mood: 'happy', moodT: 0, t: 0, flash: null, flashT: 0, drag: null };
+  const TABS = [["CAPTAIN'S OWN", (f) => OWN.includes(f.key)], ['FOR THE GARDEN', (f) => !OWN.includes(f.key)]];
+  const ML = { x: 18, y: 30, w: 160, h: 300 }, MR = { x: 186, y: 30, w: 436, h: 300 };
+  const ROW = 40, VIS = 7, LX = MR.x + 10, LY = MR.y + 12, LW = MR.w - 38;
+  const BTN = { talk: { x: ML.x + 12, y: ML.y + ML.h - 34, w: 64, h: 24 }, done: { x: ML.x + ML.w - 76, y: ML.y + ML.h - 34, w: 64, h: 24 } };
+  const HELLO = [
+    "Welcome aboard! Every stick of it came off a good ship. Or a ferry.",
+    "Take your time. The ottomans aren't going anywhere. Mostly.",
+    "Ahoy! See anything you fancy, give it a click.",
+  ];
+  const menuItems = () => stock().filter(TABS[menu.tab][1]);
+  function menuSay(s, mood = 'happy') { menu.say = s; menu.mood = mood; menu.moodT = 2.2; menu.t = 0; }
+  function openMenu() {
+    menu.open = true; menu.scroll = 0; menu.hover = -1; menu.drag = null;
+    menuSay(U.pick(HELLO), 'happy'); menu.moodT = 0;
+    clark.pose = 'wave'; clark.t = 0; Audio.play('pop');
+  }
+  function closeMenu() { if (!menu.open) return false; menu.open = false; Audio.play('click'); return true; }
+  function menuScroll(d) {
+    const max = Math.max(0, menuItems().length - VIS);
+    menu.scroll = U.clamp(menu.scroll + d, 0, max);
+  }
+  const inB = (b, x, y) => x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h;
+  const tabBox = (i) => ({ x: MR.x + 12 + i * 124, y: MR.y - 18, w: 118, h: 20 });
+  const barBox = () => ({ x: MR.x + MR.w - 22, y: LY, w: 12, h: VIS * ROW - 4 });
+  function rowAt(x, y) {
+    if (x < LX || x > LX + LW || y < LY || y >= LY + VIS * ROW) return -1;
+    const i = menu.scroll + Math.floor((y - LY) / ROW);
+    return i < menuItems().length ? i : -1;
+  }
+  function menuHover(x, y) {
+    menu.hover = rowAt(x, y);
+    menu.hoverBtn = inB(BTN.talk, x, y) ? 'talk' : inB(BTN.done, x, y) ? 'done' : null;
+  }
+  function menuPress(x, y) {
+    const bb = barBox();
+    if (inB({ x: bb.x - 4, y: bb.y, w: bb.w + 8, h: bb.h }, x, y)) { menu.drag = { y }; menuBarTo(y); }
+  }
+  function menuBarTo(y) {
+    const bb = barBox(), max = Math.max(0, menuItems().length - VIS);
+    menu.scroll = Math.round(U.clamp((y - bb.y) / bb.h, 0, 1) * max);
+  }
+  function menuMove(x, y) { if (menu.drag) menuBarTo(y); else menuHover(x, y); }
+  function menuRelease(x, y) {
+    if (menu.drag) { menu.drag = null; return; }
+    for (let i = 0; i < TABS.length; i++) if (inB(tabBox(i), x, y)) { if (menu.tab !== i) { menu.tab = i; menu.scroll = 0; Audio.play('click'); } return; }
+    if (inB(BTN.done, x, y)) { closeMenu(); return; }
+    if (inB(BTN.talk, x, y)) { menu.open = false; Talk.open('villager:clark', TREE); return; }
+    const i = rowAt(x, y);
+    if (i >= 0) { buy(menuItems()[i]); return; }
+    // a click outside both boxes puts the catalogue away
+    if (!inB(ML, x, y) && !inB(MR, x, y) && y > MR.y - 20) closeMenu();
+  }
+  function coin(g, x, y) { Icons.blit(g, 'wdollar', x, y, 1); }
+  function drawMenu(g) {
+    const C = Kit.C;
+    g.fillStyle = 'rgba(30,12,4,0.55)'; g.fillRect(0, 0, VW, VH);
+    // ---- the Captain's side
+    Kit.card(g, ML.x, ML.y, ML.w, ML.h, {});
+    const px = ML.x + (ML.w - 132) / 2, py = ML.y + 10;
+    Kit.rr(g, px - 2, py - 2, 136, 136, 1, C.line);
+    Art.vramp(g, px, py, 132, 132, [[0, '#8ac8f0'], [1, '#d8f0f8']], 6);
+    g.fillStyle = '#6aa84a'; g.fillRect(px, py + 104, 132, 28);
+    const mood = menu.moodT > 0 ? menu.mood : 'happy';
+    const talking = menu.t < Math.min(2.4, menu.say.length * 0.03);
+    const pc = Portraits.get('villager:clark', mood, menu.t + t, talking) || Portraits.get('clark', mood, menu.t + t, talking);
+    if (pc) g.drawImage(pc, px + 2, py + 4, 128, 128);
+    Kit.tab(g, ML.x + 14, py + 138, ML.w - 28, 18, 'Captain Clark');
+    const shown = menu.say.slice(0, Math.floor(menu.t * 45));
+    Font.wrap(shown, ML.w - 26, 1).slice(0, 8).forEach((l, i) => Font.draw(g, l, ML.x + 13, py + 164 + i * 10, { scale: 1, color: C.ink }));
+    Kit.button(g, BTN.talk, 'TALK', null, { hot: menu.hoverBtn === 'talk', kind: 'paper', scale: 1 });
+    Kit.button(g, BTN.done, 'DONE', null, { hot: menu.hoverBtn === 'done', kind: 'coral', scale: 1 });
+    // ---- the stock
+    for (let i = 0; i < TABS.length; i++) {
+      const b = tabBox(i), on = menu.tab === i;
+      Kit.tab(g, b.x, b.y + (on ? 0 : 3), b.w, b.h, TABS[i][0], { col: on ? C.coral : C.frameD });
+    }
+    Kit.card(g, MR.x, MR.y, MR.w, MR.h, {});
+    const list = menuItems();
+    for (let r = 0; r < VIS; r++) {
+      const i = menu.scroll + r, f = list[i];
+      const x = LX, y = LY + r * ROW, w = LW, h = ROW - 4;
+      if (!f) { Kit.rr(g, x, y, w, h, 1, 'rgba(154,80,36,0.12)'); continue; }
+      const hot = menu.hover === i, flash = menu.flash === f.key && menu.flashT > 0;
+      const afford = G.wd >= f.cost;
+      Kit.rr(g, x, y, w, h, 1, hot ? C.sunD : C.frameD);
+      Kit.rr(g, x + 1, y + 1, w - 2, h - 2, 1, flash ? '#c8f0a0' : hot ? '#fff3d4' : C.paper);
+      g.fillStyle = hot ? '#fbe8a0' : C.paperL; g.fillRect(x + 2, y + 1, w - 4, 1);
+      g.fillStyle = C.paperD; g.fillRect(x + 2, y + h - 2, w - 4, 1);
+      // the picture of it, in a little window
+      Kit.rr(g, x + 4, y + 3, 46, h - 6, 1, C.frameM);
+      g.fillStyle = hot ? '#fbe0a8' : '#eed2a0'; g.fillRect(x + 5, y + 4, 44, h - 8);
+      const img = Props.furniture(f.key);
+      if (img) {
+        let s = Math.min(42 / img.width, (h - 10) / img.height);
+        if (s > 1) s = Math.floor(s);
+        const iw = Math.round(img.width * s), ih = Math.round(img.height * s);
+        const bob = hot ? Math.round(Math.sin(menu.t * 6) * 1) : 0;
+        g.drawImage(img, Math.round(x + 27 - iw / 2), Math.round(y + h - 5 - ih + bob), iw, ih);
+      }
+      // name, a line of patter, and the price
+      Font.draw(g, f.name, x + 58, y + 5, { scale: 2, color: C.ink });
+      let bl = f.blurb; const maxB = w - 58 - 92;
+      while (Font.width(bl, 1) > maxB && bl.length > 4) bl = bl.slice(0, -2).trimEnd() + '.';
+      if (bl !== f.blurb) bl = bl.replace(/\.+$/, '...');
+      Font.draw(g, bl, x + 58, y + 22, { scale: 1, color: C.ink2 });
+      const price = U.fmt(f.cost);
+      const pw = Font.width(price, 2);
+      Font.draw(g, price, x + w - 8, y + 11, { scale: 2, color: afford ? C.ink : C.coralD, align: 'right' });
+      coin(g, x + w - 12 - pw - 16, y + 10);
+      const have = crateCount(f.key) + placed(f.key);
+      if (have) Kit.pill(g, x + w - 44, y + h - 14, 'x' + have, { col: C.mint, ink: '#ffffff' });
+    }
+    // the scroll bar: a groove and a little brass slider
+    const bb = barBox(), max = Math.max(0, list.length - VIS);
+    Kit.rr(g, bb.x, bb.y, bb.w, bb.h, 1, C.line); g.fillStyle = C.frameD; g.fillRect(bb.x + 2, bb.y + 2, bb.w - 4, bb.h - 4);
+    const th = Math.max(24, bb.h * Math.min(1, VIS / Math.max(1, list.length)));
+    const ty = bb.y + (max ? (menu.scroll / max) * (bb.h - th) : 0);
+    Kit.rr(g, bb.x, ty, bb.w, th, 1, C.line); g.fillStyle = C.sun; g.fillRect(bb.x + 1, ty + 1, bb.w - 2, th - 2);
+    g.fillStyle = C.sunL; g.fillRect(bb.x + 1, ty + 1, bb.w - 2, 2); g.fillStyle = C.sunD; g.fillRect(bb.x + 1, ty + th - 3, bb.w - 2, 2);
+    // what's in your pocket, bottom right
+    const wal = U.fmt(G.wd);
+    const ww = Font.width(wal, 2) + 34;
+    Kit.card(g, MR.x + MR.w - ww - 8, MR.y + MR.h - 4, ww + 8, 26, { shadow: false });
+    coin(g, MR.x + MR.w - ww + 2, MR.y + MR.h + 1);
+    Font.draw(g, wal, MR.x + MR.w - 10, MR.y + MR.h + 3, { scale: 2, color: C.ink, align: 'right' });
   }
 
   // ---- the showroom ------------------------------------------------------------------------
@@ -16925,7 +17625,7 @@ const Ottoman = (() => {
     g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(0, FLOOR, VW, 4);
   }
   function drawSlot(g, s) {
-    const x = s.x - scroll, f = s.f, sc = f.w > 50 ? 1.6 : 2;
+    const x = s.x - scroll, f = s.f, sc = scOf(f);
     const pw = Math.max(40, f.w * sc) + 16;
     const hot = hover === s;
     // the plinth
@@ -16959,7 +17659,7 @@ const Ottoman = (() => {
     for (let i = 0; i < 4; i++) { Art.rect(g, x - 62 + i * 34, FLOOR - 44, 28, 36, '#8a4418'); Art.rect(g, x - 62 + i * 34, FLOOR - 44, 28, 2, '#a85a28'); }
     Art.rect(g, x - 74, FLOOR - 56, 148, 6, '#a85a28'); Art.rect(g, x - 74, FLOOR - 56, 148, 1, '#e08a48');
     // brass bell and a cash register
-    Art.ell(g, x - 40, FLOOR - 58, 6, 5, GOLD[1]); Art.ell(g, x - 42, FLOOR - 60, 2, 2, GOLD[2]); Art.rect(g, x - 47, FLOOR - 57, 14, 2, GOLD[0]);
+    Art.ell(g, x - 28, FLOOR - 58, 6, 5, GOLD[1]); Art.ell(g, x - 30, FLOOR - 60, 2, 2, GOLD[2]); Art.rect(g, x - 35, FLOOR - 57, 14, 2, GOLD[0]);
     Art.rect(g, x + 26, FLOOR - 76, 34, 20, '#2a2a34'); Art.rect(g, x + 28, FLOOR - 74, 30, 8, '#4ac070'); Font.draw(g, 'W$', x + 43, FLOOR - 73, { scale: 1, color: '#0a3a18', align: 'center' });
     for (let i = 0; i < 6; i++) Art.rect(g, x + 29 + (i % 3) * 10, FLOOR - 64 + Math.floor(i / 3) * 4, 8, 3, '#e0dcd0');
     // the captain, behind it from the waist up
@@ -16987,10 +17687,48 @@ const Ottoman = (() => {
     Font.draw(g, 'ONLY', x, 137, { scale: 1, color: '#ffffff', align: 'center' });
     Art.rect(g, x - 18, 154, 36, 10, '#f4f0e0'); Font.draw(g, 'NO NOCLIP', x, 156, { scale: 1, color: '#2a2a2a', align: 'center' });
   }
+  // signal flags strung along under the moulding, swaying a little
+  const FLAGS = [['#e8403a', '#ffffff'], ['#2a5ad0', '#f8d040'], ['#f8d040', '#e8403a'], ['#ffffff', '#2a5ad0'], ['#3aa050', '#ffffff']];
+  function bunting(g, S) {
+    const step = 22;
+    for (let x = -(S % (step * 5)) - step * 5; x < VW + step; x += step) {
+      const i = Math.floor((x + S) / step), k = ((i % 5) + 5) % 5, sag = 4 + Math.sin((x + S) / 88 * Math.PI) * 3;
+      const sw = Math.sin(t * 2 + i) * 1.2, y = 18 + sag;
+      g.fillStyle = '#3a1a08'; g.fillRect(x, y - 1, step, 1);
+      const [a, b] = FLAGS[k];
+      Art.poly(g, [[x + 3, y], [x + 17, y], [x + 10 + sw, y + 14]], '#2a0e04');
+      Art.poly(g, [[x + 4, y], [x + 16, y], [x + 10 + sw, y + 12]], a);
+      Art.poly(g, [[x + 7, y], [x + 13, y], [x + 10 + sw, y + 6]], b);
+    }
+  }
+  // a big fern in a glazed pot, and a sleeping ginger cat
+  function plant(g, x) {
+    const y = FLOOR;
+    for (let i = 0; i < 9; i++) {
+      const a = -Math.PI / 2 + (i - 4) * 0.34 + Math.sin(t * 1.3 + i) * 0.03, L = 26 + (i % 3) * 6;
+      Art.limb(g, x, y - 24, x + Math.cos(a) * L, y - 24 + Math.sin(a) * L, 1.6, 0.8, i % 2 ? '#3f7a32' : '#5a9a40');
+      for (let s = 0.35; s < 1; s += 0.16) { const px = x + Math.cos(a) * L * s, py = y - 24 + Math.sin(a) * L * s; g.fillStyle = '#6ab048'; g.fillRect(Math.round(px - 2), Math.round(py), 4, 1); }
+    }
+    Art.rect(g, x - 12, y - 26, 24, 4, '#2a0e04'); Art.rect(g, x - 11, y - 25, 22, 2, '#3a7ab8');
+    Art.poly(g, [[x - 11, y - 22], [x + 11, y - 22], [x + 8, y], [x - 8, y]], '#2a5a98');
+    Art.rect(g, x - 9, y - 16, 18, 2, '#f4f0e0'); Art.rect(g, x - 9, y - 21, 3, 20, 'rgba(255,255,255,0.18)');
+    g.fillStyle = 'rgba(0,0,0,0.3)'; Art.ell(g, x, y + 1, 12, 2);
+  }
+  function cat(g, x, y) {
+    const br = Math.sin(t * 2.2) * 0.8;
+    Art.ell(g, x, y - 5, 12, 6 + br, '#2a0e04'); Art.ell(g, x, y - 5, 11, 5 + br, '#e08a30'); Art.ell(g, x - 2, y - 7, 7, 3, '#f8b060');
+    for (let i = -6; i <= 6; i += 4) g.fillStyle = '#b8601c', g.fillRect(x + i, y - 9 - br, 2, 3);
+    Art.ell(g, x + 10, y - 7, 6, 5, '#2a0e04'); Art.ell(g, x + 10, y - 7, 5, 4, '#e08a30');
+    Art.poly(g, [[x + 6, y - 10], [x + 8, y - 15], [x + 10, y - 10]], '#e08a30'); Art.poly(g, [[x + 11, y - 10], [x + 13, y - 15], [x + 15, y - 9]], '#e08a30');
+    g.fillStyle = '#5a2a10'; g.fillRect(x + 8, y - 7, 2, 1); g.fillRect(x + 12, y - 7, 2, 1);
+    Art.limb(g, x - 11, y - 3, x - 2, y, 2.2, 2, '#e08a30');
+    if (Math.floor(t * 0.7) % 2 === 0) Font.draw(g, 'z', x + 16, y - 20 - (t * 6 % 6), { scale: 1, color: '#fff4d8' });
+  }
   function renderShop(g) {
     const S = scroll;
     drawWall(g, S);
     for (let x = 880; x < worldW; x += 300) { const px = x - S; if (px > -40 && px < VW + 40) porthole(g, px, 96); }
+    bunting(g, S);
     { const fx = 640 - S; if (fx > -80 && fx < VW + 80) frame(g, fx - 36, 64, 72, 54, drawShip); }
     // the shop sign over the door
     const sx = 385 - S;
@@ -17010,7 +17748,15 @@ const Ottoman = (() => {
     }
     drawDoor(g);
     drawFloor(g, S);
+    // sunlight coming in through the portholes and lying across the boards
+    for (let x = 880; x < worldW; x += 300) {
+      const px = x - S; if (px < -120 || px > VW + 60) continue;
+      g.fillStyle = 'rgba(255,236,170,0.07)'; Art.poly(g, [[px - 14, 104], [px + 14, 104], [px + 70, FLOOR + 40], [px + 22, FLOOR + 40]], 'rgba(255,236,170,0.07)');
+    }
     drawCounter(g);
+    { const cx = clark.x - S; if (cx > -80 && cx < VW + 80) cat(g, cx - 56, FLOOR - 56); }
+    for (const b of (layout.bays || [])) { const px = b.x1 + 30 - S; if (px > -30 && px < VW + 30) plant(g, px); }
+    { const px = 272 - S; if (px > -30 && px < VW + 30) plant(g, px); }
     for (const s of slots) { const x = s.x - S; if (x > -90 && x < VW + 90) drawSlot(g, s); }
     Art.vignette(g, VW, VH, '#1a0804', 0.4, 2.4, 0.4);
     if (tscroll < 20 && t < 6) {
@@ -17148,13 +17894,14 @@ const Ottoman = (() => {
 
   function render(g) {
     if (phase === 'shop') renderShop(g); else renderBack(g);
+    if (menu.open && phase === 'shop') drawMenu(g);
     if (fade > 0) { g.fillStyle = phase === 'back' || fadeTo ? `rgba(20,16,4,${fade.toFixed(2)})` : `rgba(20,8,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
     FX.drawParticles(g, 0); FX.drawConfetti(g); FX.drawFloaters(g, false); FX.drawComics(g, false);
   }
 
   return {
     init(g) { G = g; }, enter, leave, update, render, press, move, release, hover: hoverAt, wheel,
-    get phase() { return phase; }, enterBack, leaveBack, layout,
+    get phase() { return phase; }, enterBack, leaveBack, layout, openMenu, closeMenu, get menuOpen() { return menu.open; },
     get slots() { return slots; }, walk(d) { tbx = Math.max(0, tbx + d); bx = tbx; },
   };
 })();
@@ -17485,10 +18232,10 @@ const Guide = (() => {
       say: "You'll want a phone for this job. The mart has them.",
       lesson: [
         { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
-        { say: "You'll want a phone for this job. It keeps your jobs, your herd and your texts. The mart has them now.", mood: 'talk' },
+        { say: "You'll want a phone. Text the neighbours, take pictures of her, and play Wombat Hop. I'm on level 40. The mart has them now.", mood: 'talk' },
       ],
       unlock: ['phone'], label: 'DRIVE TO THE MART',
-      note: 'Buy a phone at Wombat Mart, then press P. More apps are in its App Store.',
+      note: 'Buy a phone at Wombat Mart, then press P: messages, a camera and Wombat Hop.',
       at: () => MART(), aty: () => MARTY(), done: (g) => has(g, 'phone'),
     },
     {
@@ -17757,7 +18504,7 @@ const Guide = (() => {
       junk: 'The ants said you were very polite.',
       grass: 'Green suits it. Keep the water up.',
       arrive: 'She picked you! Legend.',
-      phone: 'Jim here. Saved my number for you. Get some apps from the store.',
+      phone: 'Jim here. Saved my number for you. Beat my Wombat Hop score. You cannot.',
       sow: 'A bed in the ground is dinner in the ground.',
       pick: 'Anything you grow, she will eat.',
       feed: 'One fed wombat. Try three!',
@@ -17961,7 +18708,12 @@ const Guide = (() => {
       cult.pose = Math.abs(dx) > 120 ? 'run' : 'walk'; cult.still = 0;
     } else {
       cult.still += dt;
-      cult.pose = cult.still > 16 ? 'sit' : 'idle';       // she takes a seat if you dawdle
+      cult.pose = cult.still > 22 ? 'sit' : 'idle';       // he takes a seat if you dawdle
+      // and he is never quite still: a shrug, a nod, a stretch, a laugh at nothing
+      if (cult.still < 22 && Math.random() < dt * 0.22) {
+        cult.pose = U.pick(['shrug', 'nod', 'laugh', 'clap', 'cheer', 'wave']); cult.castT = 1.1 + Math.random() * 0.8; cult.t = 0;
+        if (cult.pose === 'laugh') Sprites.setFace('happy');
+      }
     }
     check();
   }
@@ -18318,6 +19070,138 @@ const Talk = (() => {
 </script>
 
 <script>
+// ===== js/hop.js =====
+// ---- Wombat Hop: the game on your phone --------------------------------------------
+// Jim's favourite. A wombat runs and runs; tap (or press space) to hop over
+// logs and thistles, tap again in the air for a second hop, and grab the cubes
+// floating along the way. It gets faster. A good run earns a few W$, because
+// everyone out here has a sponsor.
+const Hop = (() => {
+  const W = 180, H = 240, GROUND = 196;
+  let cv = null, g = null, raf = 0, last = 0, G = null;
+  let st = null;
+  function fresh() {
+    return { t: 0, x: 0, sp: 70, y: 0, vy: 0, jumps: 0, over: false, started: false, score: 0, cubes: 0,
+      obs: [], bits: [], nextObs: 1.2, nextCube: 0.8, dust: [], paid: 0, flash: 0 };
+  }
+  function mount(canvas, game) {
+    G = game; cv = canvas; g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+    st = fresh();
+    cv.onpointerdown = (e) => { e.preventDefault(); e.stopPropagation(); tap(); };
+    last = performance.now();
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  function unmount() { cv = null; g = null; if (raf) cancelAnimationFrame(raf); raf = 0; }
+  const mounted = () => !!cv && document.body.contains(cv);
+  function tap() {
+    if (!st) return;
+    if (st.over) { if (st.t - st.overT > 0.5) { st = fresh(); st.started = true; } return; }
+    st.started = true;
+    if (st.y === 0 || st.jumps < 2) {
+      st.vy = st.jumps === 0 ? -250 : -210; st.jumps++;
+      Audio.play('bounce');
+      for (let i = 0; i < 5; i++) st.dust.push({ x: 44, y: GROUND, vx: -20 - Math.random() * 40, vy: -Math.random() * 30, t: 0 });
+    }
+  }
+  function key(e) { if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { tap(); return true; } return false; }
+  function loop(ms) {
+    if (!mounted()) { raf = 0; cv = null; return; }
+    raf = requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (ms - last) / 1000); last = ms;
+    update(dt); draw();
+  }
+  function hit(a, b) { return Math.abs(a.x - b.x) < (a.w + b.w) / 2 && Math.abs(a.y - b.y) < (a.h + b.h) / 2; }
+  function update(dt) {
+    st.t += dt;
+    if (!st.started || st.over) return;
+    st.sp = Math.min(190, 70 + st.t * 4.2);
+    st.x += st.sp * dt;
+    st.score = Math.floor(st.x / 10) + st.cubes * 5;
+    // the hop
+    st.vy += 720 * dt; st.y = Math.min(0, st.y + st.vy * dt);
+    if (st.y === 0) { st.vy = 0; st.jumps = 0; }
+    // logs and thistles
+    st.nextObs -= dt;
+    if (st.nextObs <= 0) {
+      const big = Math.random() < 0.35;
+      st.obs.push({ x: W + 20, kind: big ? 'thistle' : 'log', w: big ? 14 : 22, h: big ? 26 : 12 });
+      st.nextObs = U.rand(0.9, 1.8) * (110 / st.sp) * 1.4;
+    }
+    st.nextCube -= dt;
+    if (st.nextCube <= 0) { st.bits.push({ x: W + 10, y: GROUND - 40 - Math.random() * 60, got: false }); st.nextCube = U.rand(0.6, 1.4); }
+    const me = { x: 44, y: GROUND - 14 + st.y, w: 26, h: 22 };
+    for (const o of st.obs) {
+      o.x -= st.sp * dt;
+      if (hit(me, { x: o.x, y: GROUND - o.h / 2, w: o.w - 4, h: o.h - 2 })) {
+        st.over = true; st.overT = st.t; st.flash = 1; Audio.play('thud');
+        if (!G.hopBest || st.score > G.hopBest) G.hopBest = st.score;
+        const pay = Math.min(25, Math.floor(st.score / 40));
+        if (pay > 0) { G.wd += pay; st.paid = pay; Audio.play('coin'); UI.refreshHUD(); }
+        Main.save();
+      }
+    }
+    for (const b of st.bits) {
+      b.x -= st.sp * dt;
+      if (!b.got && hit(me, { x: b.x, y: b.y, w: 10, h: 10 })) { b.got = true; st.cubes++; Audio.play('pop'); }
+    }
+    st.obs = st.obs.filter((o) => o.x > -30);
+    st.bits = st.bits.filter((b) => b.x > -20 && !b.got);
+    for (const d of st.dust) { d.t += dt; d.x += d.vx * dt; d.y += d.vy * dt; }
+    st.dust = st.dust.filter((d) => d.t < 0.5);
+  }
+  function draw() {
+    const R = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    // sky, sun, two ranks of hills going by at their own speeds
+    Art.vramp(g, 0, 0, W, GROUND, [[0, '#5aa8e8'], [1, '#bfe4f4']], 6);
+    Art.ell(g, 140, 40, 14, 14, '#fff0a0');
+    const off = st.x;
+    for (let x = -((off * 0.2) % 60) - 60; x < W + 60; x += 60) Art.ell(g, x + 30, GROUND - 6, 44, 28, '#8ac870');
+    for (let x = -((off * 0.5) % 46) - 46; x < W + 46; x += 46) Art.ell(g, x + 23, GROUND + 4, 30, 18, '#6aa84a');
+    R(0, GROUND, W, H - GROUND, '#8a5a34'); R(0, GROUND, W, 4, '#6aa84a'); R(0, GROUND + 4, W, 2, '#4a7a32');
+    for (let x = -(off % 12); x < W; x += 12) R(x, GROUND + 10 + ((x + off) % 24 > 12 ? 4 : 0), 3, 2, '#6a4024');
+    // cubes to grab
+    for (const b of st.bits) { R(b.x - 5, b.y - 5 + Math.sin(st.t * 6 + b.x) * 2, 10, 10, '#000'); R(b.x - 4, b.y - 4 + Math.sin(st.t * 6 + b.x) * 2, 8, 8, '#553d27'); }
+    // things to hop over
+    for (const o of st.obs) {
+      if (o.kind === 'log') {
+        R(o.x - 11, GROUND - 12, 22, 12, '#2a1608'); R(o.x - 10, GROUND - 11, 20, 10, '#8a5a30'); R(o.x - 10, GROUND - 11, 20, 2, '#b07840');
+        Art.ell(g, o.x + 9, GROUND - 6, 3, 5, '#d8b080'); Art.ell(g, o.x + 9, GROUND - 6, 1.5, 3, '#a87848');
+      } else {
+        R(o.x - 1, GROUND - 26, 3, 26, '#3a6a2a');
+        for (let i = 0; i < 4; i++) { R(o.x - 7 + (i % 2) * 8, GROUND - 22 + i * 5, 6, 2, '#4a8a34'); }
+        Art.ell(g, o.x + 0.5, GROUND - 28, 5, 4, '#8a4ab0'); Art.ell(g, o.x + 0.5, GROUND - 29, 3, 2, '#c08ae0');
+      }
+    }
+    for (const d of st.dust) { g.fillStyle = `rgba(200,170,120,${(1 - d.t * 2).toFixed(2)})`; g.fillRect(Math.round(d.x), Math.round(d.y), 2, 2); }
+    // the runner
+    const pose = st.over ? 'hurt' : st.y < 0 ? 'happy' : 'walk';
+    const img = Sprites.wombat(pose, Math.floor(st.t * 12), 'brown', 1, 'adult');
+    const sc = 0.8, w = img.width * sc, h = img.height * sc;
+    g.fillStyle = 'rgba(0,0,0,0.25)'; Art.ell(g, 44, GROUND, 12 + st.y * 0.05, 3);
+    g.drawImage(img, Math.round(44 - w / 2), Math.round(GROUND - h + 6 + st.y), Math.round(w), Math.round(h));
+    // the score, the best, and the words between runs
+    Font.draw(g, String(st.score), 8, 8, { scale: 2, color: '#ffffff', shadow: '#2a3a5a' });
+    Font.draw(g, 'BEST ' + (G.hopBest || 0), W - 8, 10, { scale: 1, color: '#ffffff', align: 'right', shadow: '#2a3a5a' });
+    if (!st.started) {
+      Kit.card(g, 18, 70, W - 36, 72, {});
+      Font.draw(g, 'WOMBAT HOP', W / 2, 82, { scale: 2, color: Kit.C.ink, align: 'center' });
+      Font.draw(g, 'tap to hop', W / 2, 104, { scale: 1, color: Kit.C.ink2, align: 'center' });
+      Font.draw(g, 'tap again for a double', W / 2, 116, { scale: 1, color: Kit.C.ink2, align: 'center' });
+    }
+    if (st.over) {
+      if (st.flash > 0) { st.flash = Math.max(0, st.flash - 0.05); g.fillStyle = `rgba(255,255,255,${st.flash.toFixed(2)})`; g.fillRect(0, 0, W, H); }
+      Kit.card(g, 18, 66, W - 36, 88, {});
+      Font.draw(g, 'BONK!', W / 2, 78, { scale: 2, color: Kit.C.coralD, align: 'center' });
+      Font.draw(g, `score ${st.score}  -  ${st.cubes} cubes`, W / 2, 100, { scale: 1, color: Kit.C.ink, align: 'center' });
+      Font.draw(g, st.paid ? `sponsor paid you ${st.paid} W$` : 'no sponsor money yet', W / 2, 114, { scale: 1, color: Kit.C.ink2, align: 'center' });
+      Font.draw(g, 'tap to go again', W / 2, 132, { scale: 1, color: Kit.C.ink2, align: 'center' });
+    }
+  }
+  return { mount, unmount, key, get running() { return !!raf; } };
+})();
+</script>
+
+<script>
 // ===== js/phone.js =====
 // ---- The phone ---------------------------------------------------------------
 // Everything you would otherwise have to remember lives in here: what the
@@ -18335,21 +19219,16 @@ const Phone = (() => {
   // ---- the apps -------------------------------------------------------------
   // Every app on the home screen, in the order they sit on it. `tint` is the
   // icon's own colour, the way every phone gives an app one.
-  // The phone comes with four apps. The rest you get from the App Store,
-  // for a few W$ each, once you have the money to spare.
+  // A phone out here is for three things: texting the neighbours, taking
+  // pictures of the wombats, and Wombat Hop. Everything else you already know
+  // from standing in the paddock.
   const APPS_ALL = [
-    { key: 'quests', name: 'Jobs', icon: 'ph_jobs', tint: ['#ffb04a', '#f07a1c'], blurb: 'What Jim wants doing next, and the standing jobs.' },
-    { key: 'store', name: 'App Store', icon: 'ph_key', tint: ['#4fb6ff', '#1a6cf0'], blurb: 'Get more apps.' },
-    { key: 'herd', name: 'Herd', icon: 'ph_herd', tint: ['#d8a070', '#a06238'], blurb: 'How every wombat is doing, and where she is.' },
-    { key: 'garden', name: 'Garden', icon: 'ph_garden', tint: ['#8ee06a', '#34a83a'], blurb: 'Every bed: what wants water, what is ready.' },
-    { key: 'larder', name: 'Larder', icon: 'ph_larder', tint: ['#ffe07a', '#f0b020'], blurb: 'What is in the truck and the feed bin.' },
-    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#c8ccd4', '#7c828e'], blurb: 'Take a picture of the plot. Keep the roll.' },
-    { key: 'map', name: 'Places', icon: 'ph_places', tint: ['#7fd4ff', '#2a8ae0'], blurb: 'Drive anywhere in the district from here.' },
-    { key: 'settings', name: 'Settings', icon: 'ph_settings', tint: ['#b8bcc6', '#6e7480'], blurb: 'Sound, display, and starting over.' },
-    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#7ef08a', '#22b83a'], blurb: 'Texts from the neighbours.' },
+    { key: 'messages', name: 'Messages', icon: 'ph_msg', tint: ['#7ee08a', '#2aa840'], blurb: 'Texts from the neighbours.' },
+    { key: 'camera', name: 'Camera', icon: 'ph_camera', tint: ['#c8ccd4', '#6c7280'], blurb: 'Take a picture. Keep the roll.' },
+    { key: 'games', name: 'Wombat Hop', icon: 'wombat', tint: ['#ffc060', '#e86a2a'], blurb: 'Hop the logs, grab the cubes.' },
   ];
-  const installed = (k) => k === 'store' || !!(G && G.apps && G.apps[k]);
-  const DOCK_KEYS = ['messages', 'map', 'quests', 'store'];
+  const installed = (k) => APPS_ALL.some((a) => a.key === k);
+  const DOCK_KEYS = [];
   let APPS = [];                                   // what is on the home screen right now
   const ALL = APPS_ALL;
   const APP_BY_KEY = Object.fromEntries(ALL.map((a) => [a.key, a]));
@@ -18419,6 +19298,7 @@ const Phone = (() => {
     return `${h}:${String(m).padStart(2, '0')}`;
   }
   function close() {
+    Hop.unmount();
     if ($('panel-phone').hidden) return;
     relock();
     $('panel-phone').hidden = true;
@@ -18483,55 +19363,15 @@ const Phone = (() => {
     $('ph-grid').innerHTML = APPS.map((a) => appIcon(a, b[a.key])).join('');
     $('ph-dock').innerHTML = dock.map((k) => appIcon(APP_BY_KEY[k], b[k])).join('');
     $('ph-dock').style.gridTemplateColumns = `repeat(${Math.max(1, dock.length)}, 1fr)`;
+    $('ph-dock').hidden = !dock.length;
     wire($('ph-home-view'));
   }
 
   // ---- jobs -----------------------------------------------------------------
-  function quests() {
-    const q = Guide.current();
-    const where = q ? (q.where || 'in the grove') : '';
-    const list = G.mode === 'grove' && !G.arrived ? Grove.tasks() : [];
-    let html = '';
-    if (q) {
-      html += `<div class="phcard big">
-        <div class="phcardh">${ic(q.icon)}<b>${esc(q.title)}</b></div>
-        <p>${esc(q.note)}</p>
-        <div class="phmeta"><span>${ic('map', 'sm')} ${esc(where)}</span><span>${ic('wdollar', 'sm')} ${q.reward || 0} on the nail</span></div>
-      </div>`;
-    } else {
-      html += `<div class="phcard big"><div class="phcardh">${ic('eye')}<b>Nothing owing</b></div>
-        <p>Jim has shown you everything. What happens next is up to you: more land, more wombats, more veg.</p></div>`;
-    }
-    if (list.length) {
-      html += `<div class="phsub">CLEAN-UP</div>` + list.map((ts) => row(
-        `${ic(ts.icon)}<b>${esc(ts.name || ts.key)}</b><span class="phnum">${Math.round(ts.at)}/${ts.need}</span>`,
-        ts.done ? 'done' : '') + bar(ts.at, ts.need, ts.done ? '#84bb59' : '#d8a52f')).join('');
-    }
-    const jobs = gardenJobs().concat(careList());
-    if (jobs.length) {
-      html += `<div class="phsub">STANDING JOBS</div>` + jobs.map((j) => row(`${ic(j.icon)}<b>${esc(j.what)}</b><span class="phdim">${esc(j.where)}</span>`)).join('');
-    }
-    return html;
-  }
+
 
   // ---- the herd -------------------------------------------------------------
-  function herd() {
-    if (!G.wombats.length) return `<div class="phcard big"><div class="phcardh">${ic('wombat')}<b>Nobody yet</b></div><p>Clean the grove and one will come. After that the mart has a cage of them.</p></div>`;
-    return G.wombats.map((w, i) => {
-      const fur = Sprites.furOf(w.pelt);
-      const age = Sprites.AGE[w.age].name;
-      const care = careOf(w);
-      return `<div class="phcard wom" data-wom="${w.id}">
-        <div class="phcardh">${ic('wombat')}<b>${esc(w.name)}</b><span class="phdim">${esc(fur.name)} ${esc(age)}</span></div>
-        <div class="phstat"><span>happy</span>${bar(w.hap, 100, w.hap > 60 ? '#84bb59' : w.hap > 30 ? '#d8a52f' : '#b8412c')}</div>
-        <div class="phstat"><span>fed</span>${bar(w.stomach === 'empty' ? 6 : 100, 100, '#e0763a')}</div>
-        <div class="phstat"><span>water</span>${bar(100 - (w.thirst || 0), 100, '#57b6c9')}</div>
-        <div class="phstat"><span>play</span>${bar(100 - (w.bored || 0), 100, '#b98ef0')}</div>
-        ${care.length ? `<div class="phwant">${care.map((c) => `<em>${esc(c)}</em>`).join('')}</div>` : '<div class="phok">wants for nothing</div>'}
-        <div class="phacts"><button class="phbtn" data-find="${w.id}">FIND HER</button><button class="phbtn" data-papers="${w.id}">PAPERS</button></div>
-      </div>`;
-    }).join('');
-  }
+
   // what one animal is short of right now
   function careOf(w) {
     const out = [];
@@ -18570,74 +19410,16 @@ const Phone = (() => {
     }
     return out.slice(0, 12);
   }
-  function garden() {
-    const beds = World.crops || [];
-    const by = { crop: 0, tree: 0, magic: 0 };
-    for (const c of beds) by[World.kindOf(c)]++;
-    const jobs = gardenJobs();
-    let html = `<div class="phcard big"><div class="phcardh">${ic('c_broadleaf')}<b>${beds.length} in the ground</b></div>
-      <div class="phmeta"><span>${by.crop} crops</span><span>${by.tree} trees</span><span>${by.magic} magical</span></div></div>`;
-    if (jobs.length) html += `<div class="phsub">WANTS DOING</div>` + jobs.map((j) => row(`${ic(j.icon)}<b>${esc(j.what)}</b><span class="phdim">${esc(j.where)}</span>`)).join('');
-    const seeds = CROPS.filter((c) => (G.seeds[c.key] || 0) > 0);
-    if (seeds.length) {
-      html += `<div class="phsub">IN THE SEED TIN</div>` + seeds.map((c) => row(
-        `${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${G.seeds[c.key]}</span><span class="phdim">${esc(c.kind === 'tree' ? `${c.grow}s to establish` : c.kind === 'magic' ? MAGIC_NEED[c.need] : `${c.grow}s`)}</span>`)).join('');
-    }
-    const growing = CROPS.filter((c) => beds.some((b) => b.k === c.key));
-    if (growing.length) {
-      html += `<div class="phsub">WHAT IS IN THE BEDS</div>` + growing.map((c) => {
-        const mine = beds.filter((b) => b.k === c.key);
-        const ready = mine.filter((b) => World.ripe(b)).length;
-        return row(`${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${mine.length}</span><span class="phdim">${ready ? `${ready} ready` : esc(PLANT_KINDS[c.kind].blurb)}</span>`);
-      }).join('');
-    }
-    return html;
-  }
+
 
   // ---- places ---------------------------------------------------------------
-  const SITE_BLURB = {
-    grove: 'Your land. The wombats, the beds and the truck.',
-    mart: 'Shaz on the till. Hardware, drinks, a gumball machine and a cage of wombats.',
-    nursery: 'Groot. Seed, saplings, garden tools, a trough and a nest.',
-    ottoman: "Captain Clark's furniture showroom. Ottomans, sofas, lamps, rugs. Do not go in the back room.",
-  };
-  function places() {
-    const here = Atlas.whereAmI();
-    return SITES.map((s) => {
-      const open = Atlas.siteOpen(s);
-      const km = Atlas.kmBetween(here, s);
-      const now = s.mode === G.mode || (s.key === 'grove' && G.mode === 'grove');
-      const why = !open ? (s.gate && !s.gate(G) ? s.why : 'not yet') : '';
-      return `<div class="phcard site ${open ? '' : 'shut'}">
-        <div class="phcardh">${ic(s.icon)}<b>${esc(open ? s.name : '???')}</b><span class="phdim">${now ? 'you are here' : km + ' km'}</span></div>
-        <p>${esc(open ? (SITE_BLURB[s.key] || '') : why)}</p>
-        ${open && s.mode && !now ? `<div class="phacts"><button class="phbtn go" data-go="${s.key}">DRIVE OVER</button></div>` : ''}
-      </div>`;
-    }).join('');
-  }
+
 
   // ---- the larder ------------------------------------------------------------
   // The money, what is in the back of the truck and what is on the shelf, on
   // one page. It replaces the wallet, the weather and the wombagram, none of
   // which said anything the grove was not already saying out loud.
-  function larder() {
-    const offs = OFFER_ORDER.filter((k) => (G.offerings[k] || 0) + (G.blessed[k] || 0) > 0);
-    const food = CROPS.filter((c) => (G.food[c.key] || 0) > 0);
-    const d = Sky.def();
-    let html = `<div class="phcard big"><div class="phcardh">${ic('ph_larder')}<b>${U.fmt(G.wd)} W$</b></div>
-      <div class="phmeta"><span>earned ${U.fmt(Math.round(G.stats.earned || 0))}</span><span>${G.wombats.length} in the herd</span></div></div>
-      ${row(`${ic(Sky.isNight() ? 'ph_moon' : Sky.wet() > 0.2 ? 'ph_rain' : 'ph_sun')}<b>${esc(d.name)}</b><span class="phdim">${esc(d.blurb)}</span>`)}`;
-    if (offs.length) {
-      html += `<div class="phsub">IN THE TRUCK</div>` + offs.map((k) => row(
-        `${ic(OFFERINGS[k].icon)}<b>${esc(OFFERINGS[k].name)}</b><span class="phnum">${(G.offerings[k] || 0) + (G.blessed[k] || 0)}</span><span class="phdim">Jim buys these</span>`)).join('');
-    }
-    if (food.length) {
-      html += `<div class="phsub">IN THE LARDER</div>` + food.map((c) => row(
-        `${ic(c.icon)}<b>${esc(c.name)}</b><span class="phnum">${G.food[c.key]}</span><span class="phdim">+${c.hap} happy</span>`)).join('');
-    }
-    if (!offs.length && !food.length) html += `<div class="phsub">EMPTY</div>${row('<b>Nothing in the back and nothing in the larder.</b>')}`;
-    return html;
-  }
+
 
   // ---- messages --------------------------------------------------------------
   // Everyone in the district has your number. Threads live in the save, new
@@ -18725,32 +19507,7 @@ const Phone = (() => {
   }
 
   // ---- settings ---------------------------------------------------------------
-  function settings() {
-    const st = Main.settings;
-    const row = (k, name, sub, on) => `<div class="phset"><span>${esc(name)}<small>${esc(sub)}</small></span>
-      <button class="phsw ${on ? 'on' : ''}" data-tog="${k}"><i></i></button></div>`;
-    return `<div class="phsub">SOUND</div>
-      <div class="phgroup">
-        ${row('muted', 'Silent', 'everything off', st.muted)}
-        ${row('musicOff', 'Music', 'the wood has a tune', !st.musicOff)}
-      </div>
-      <div class="phsub">DISPLAY</div>
-      <div class="phgroup">
-        ${row('shake', 'Screen shake', 'things land harder', st.shake !== false)}
-        ${row('bigText', 'Larger text', 'for reading across a room', !!st.bigText)}
-      </div>
-      <div class="phsub">ABOUT</div>
-      <div class="phgroup">
-        <div class="phset"><span>Wombat OS<small>version 41, built in a wood</small></span></div>
-        <div class="phset"><span>Storage<small>${(World.crops || []).length} plants &middot; ${G.wombats.length} wombats</small></span></div>
-        <div class="phset"><span>Time in the grove<small>${U.time(Math.round(G.time || 0))}</small></span></div>
-      </div>
-      <div class="phsub">DANGER</div>
-      <div class="phgroup">
-        <div class="phset"><span>Erase this grove<small>everything, permanently</small></span>
-          <button class="phgo" data-wipe="1" id="ph-wipe">ERASE</button></div>
-      </div>`;
-  }
+
 
   // ---- the camera --------------------------------------------------------------
   // It photographs whatever is on the screen behind the phone, which is the
@@ -18786,32 +19543,13 @@ const Phone = (() => {
   }
   // ---- drawing --------------------------------------------------------------
   // ---- the app store -----------------------------------------------------------
-  function store() {
-    const list = APPS_ALL.filter((a) => a.key !== 'store');
-    const have = list.filter((a) => installed(a.key)).length;
-    let html = `<div class="phstorehead"><b>Today</b><small>${have} of ${list.length} apps on this phone &middot; W$${U.fmt(G.wd)} to spend</small></div>`;
-    html += list.map((a) => {
-      const own = installed(a.key), price = APP_PRICES[a.key] || 0;
-      const btn = own ? `<button class="phget own" data-app="${a.key}">OPEN</button>`
-        : `<button class="phget" data-buyapp="${a.key}">${price ? 'W$' + price : 'GET'}</button>`;
-      return `<div class="phstoreitem">
-        <i class="phico" style="--t1:${a.tint[0]};--t2:${a.tint[1]}">${ic(a.icon)}</i>
-        <span class="phtx"><b>${esc(a.name)}</b><small>${esc(a.blurb)}</small></span>${btn}</div>`;
-    }).join('');
-    return html;
+
+
+  function games() {
+    return `<div class="phgame"><canvas id="ph-hop" width="180" height="240"></canvas>
+      <div class="phsub">JIM'S HIGH SCORE: 1,204 &middot; YOURS: ${G.hopBest || 0}</div></div>`;
   }
-  function buyApp(k) {
-    const price = APP_PRICES[k] || 0;
-    if (installed(k)) return;
-    if (G.wd < price) { Audio.play('error'); UI.toast(`not enough &mdash; ${APP_BY_KEY[k].name} is W$${price}`, 'bad'); return; }
-    G.wd -= price;
-    if (!G.apps) G.apps = {};
-    G.apps[k] = 1;
-    Audio.play('cash');
-    UI.toast(`<b>${APP_BY_KEY[k].name}</b> is on your phone`, 'good');
-    UI.refreshHUD(); Main.save();
-  }
-  const BODY = { quests, herd, map: places, garden, larder, messages, settings, camera, store };
+  const BODY = { messages, camera, games };
   function render() {
     const homeV = $('ph-home-view'), appV = $('ph-app-view'), lockV = $('ph-lock');
     if (!homeV || !appV) return;
@@ -18827,7 +19565,7 @@ const Phone = (() => {
     $('ph-title').textContent = app === 'messages' && chatWith ? PEOPLE[chatWith].name : TITLE[app] || 'App';
     $('ph-back').textContent = app === 'messages' && chatWith ? '‹ Messages' : '‹ Home';
     scr.className = 'phscreen app-' + app;
-    scr.innerHTML = (BODY[app] || quests)();
+    scr.innerHTML = (BODY[app] || messages)();
     scr.scrollTop = 0;
     // the bits that need a canvas painting into them
     scr.querySelectorAll('[data-ava]').forEach((el) => el.appendChild(avatar(el.dataset.ava)));
@@ -18843,6 +19581,8 @@ const Phone = (() => {
         vf.style.backgroundImage = `url(${c.toDataURL('image/png')})`;
       } catch (e) { }
     }
+    const hop = scr.querySelector('#ph-hop');
+    if (hop) Hop.mount(hop, G); else Hop.unmount();
     const sh = scr.querySelector('#ph-shutter');
     if (sh) sh.onclick = () => { takeShot(); render(); };
     wire(scr);
@@ -18852,7 +19592,6 @@ const Phone = (() => {
       if (!installed(b.dataset.app)) { app = 'store'; render(); return; }
       app = b.dataset.app; chatWith = null; Audio.play('click'); render();
     });
-    scr.querySelectorAll('[data-buyapp]').forEach((b) => b.onclick = () => { buyApp(b.dataset.buyapp); render(); });
     scr.querySelectorAll('[data-chat]').forEach((b) => b.onclick = () => { chatWith = b.dataset.chat; Audio.play('click'); render(); });
     scr.querySelectorAll('[data-reply]').forEach((b) => b.onclick = () => {
       const r = REPLIES[+b.dataset.reply];
@@ -18867,36 +19606,11 @@ const Phone = (() => {
         if (isOpen() && app === 'messages') render();
       }, 900 + Math.random() * 900);
     });
-    scr.querySelectorAll('[data-tog]').forEach((b) => b.onclick = () => {
-      Main.menuAction({ toggle: b.dataset.tog });
-      render();
-    });
-    const wipe = scr.querySelector('#ph-wipe');
-    if (wipe) {
-      let armed = 0;
-      wipe.onclick = () => {
-        if (Date.now() < armed) { Main.reset(); return; }
-        armed = Date.now() + 4000; wipe.textContent = 'SURE?'; Audio.play('alarm');
-        setTimeout(() => { if (Date.now() >= armed) wipe.textContent = 'ERASE'; }, 4100);
-      };
-    }
-    scr.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => {
-      const s = SITES.find((x) => x.key === b.dataset.go);
-      close();
-      if (G.mode !== 'map') { Main.setMode('map'); setTimeout(() => Atlas.go(s), 260); }
-      else Atlas.go(s);
-    });
-    scr.querySelectorAll('[data-find]').forEach((b) => b.onclick = () => {
-      const w = G.wombats.find((x) => String(x.id) === b.dataset.find);
-      if (!w) return;
-      close();
-      if (G.mode !== 'grove') { Main.setMode('grove'); }
-      setTimeout(() => { Grove.panTo(w.x); FX.comic(w.x, w.y - 40, 'HERE!', { ink: '#d8f0a0', edge: '#5d9440', life: 0.9 }); }, 200);
-    });
-    scr.querySelectorAll('[data-papers]').forEach((b) => b.onclick = () => {
-      const w = G.wombats.find((x) => String(x.id) === b.dataset.papers);
-      if (w) { close(); UI.openWombat(w); }
-    });
+
+
+
+
+
   }
   function back() {
     if (locked) { locked = false; app = 'home'; render(); return; }
@@ -18909,6 +19623,7 @@ const Phone = (() => {
     if (!isOpen()) return false;
     if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { if (locked || app === 'home') close(); else back(); return true; }
     if (locked) { locked = false; app = 'home'; render(); return true; }
+    if (app === 'games' && Hop.key(e)) return true;
     const n = parseInt(e.key, 10) - 1;
     if (app === 'home' && n >= 0 && n < APPS.length) { app = APPS[n].key; Audio.play('click'); render(); return true; }
     return false;
@@ -18947,7 +19662,7 @@ const UI = (() => {
     $('b-phone').classList.toggle('nophone', !owns(G, 'phone'));
     const dot = $('b-phone-dot');
     if (dot) {
-      const jobs = (typeof Phone !== 'undefined') ? Phone.careList().length + Phone.gardenJobs().length + Phone.unread() : 0;
+      const jobs = (typeof Phone !== 'undefined') ? Phone.unread() : 0;
       dot.hidden = jobs === 0;
       dot.textContent = jobs > 9 ? '9+' : String(jobs);
     }
@@ -19221,9 +19936,9 @@ const UI = (() => {
       R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffe4b0'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#ffe0a8');
       return c.toDataURL();
     }
-    const fr = kind === 'hot' ? ['#ffd070', '#ff9a3a', '#e07a30', '#b0501c']
-      : kind === 'sel' ? ['#fff08a', '#ffc81c', '#f0a010', '#c8840c'] : ['#ffb858', '#e07a30', '#c8622a', '#a0461a'];
-    const paper = ['#fff4cc', '#ffe3a4', '#f2c47a'];
+    const fr = kind === 'hot' ? ['#ffd070', '#ff9a3a', '#d4843e', '#b0501c']
+      : kind === 'sel' ? ['#fbe8a0', '#f0c048', '#f0a010', '#b8842a'] : ['#f2b870', '#d4843e', '#bc6a32', '#9a5024'];
+    const paper = ['#fff3d4', '#f8e2b2', '#eac48a'];
     R(2, 0, N - 4, N, line); R(0, 2, N, N - 4, line); R(1, 1, N - 2, N - 2, line);   // the line, corners knocked off
     R(2, 1, N - 4, N - 2, fr[1]); R(1, 2, N - 2, N - 4, fr[1]);
     R(2, 1, N - 4, 1, fr[0]); R(1, 2, 1, N - 4, fr[0]);                                   // lit top and left
@@ -19250,7 +19965,7 @@ const UI = (() => {
     const name = phone ? 'A Phone' : (sd && sd.name) || (t ? t.name : u.key);
     const icon = phone ? 'ph_key' : t ? t.icon : 'lock';
     const price = phone ? PHONE_PRICE : sd ? sd.price : 0;
-    const what = phone ? 'Jobs, your herd, texts, and an App Store.' : t ? t.desc : '';
+    const what = phone ? 'Texts, a camera, and Wombat Hop.' : t ? t.desc : '';
     el.innerHTML = `<div class="ucard ${u.gift ? 'gift' : ''}">
       <div class="uhead">${u.gift ? 'YOU GOT' : 'NEW AT WOMBAT MART'}</div>
       <div class="upic">${ic(icon, 'xl')}</div>
@@ -20157,6 +20872,7 @@ const Main = (() => {
     save();
   }
   function back() {
+    if (G.mode === 'ottoman' && Ottoman.closeMenu()) return;
     if (G.mode === 'ottoman' && Ottoman.phase === 'back') { Audio.play('error'); UI.toast('there is no way back. find a green <b>EXIT</b> sign', 'bad'); return; }
     if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman') setMode('map');
     else setMode('grove');

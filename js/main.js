@@ -204,6 +204,7 @@ const Main = (() => {
     save();
   }
   function back() {
+    if (G.mode === 'ottoman' && Ottoman.closeMenu()) return;
     if (G.mode === 'ottoman' && Ottoman.phase === 'back') { Audio.play('error'); UI.toast('there is no way back. find a green <b>EXIT</b> sign', 'bad'); return; }
     if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman') setMode('map');
     else setMode('grove');

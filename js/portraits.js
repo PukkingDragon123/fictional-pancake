@@ -19,7 +19,7 @@ const Portraits = (() => {
       skin: ['#ffdcbc', '#f4c29c', '#d9976e', '#b8734e'], blush: '#f2a08c',
       hair: ['#ffd27a', '#f0a23a', '#c8741e', '#8a4a14'], cut: 'spiky',
       band: ['#ff7a66', '#dc3a2c', '#a02418'], glasses: '#1e1814', stubble: '#c47a3c',
-      brow: '#b8661e', wide: 1.12,
+      brow: '#b8661e', wide: 1.12, doubleChin: true,
       top: 'fleece', cloth: ['#b4b6be', '#92949c', '#74767e', '#5a5c64'], shirt: ['#ffa6bc', '#e57e9c', '#b8566e'],
       collar: ['#fffaf0', '#f0e6d2', '#d4c6aa'],
     },
@@ -178,9 +178,16 @@ const Portraits = (() => {
       const bh = spec.hair;
       E(cx, 45, 17 * W, 10, OUT); E(cx, 45, 16 * W, 9, bh[1]);
       for (const s2 of [-1, 1]) { E(cx + s2 * 14 * W, 37, 3, 7, OUT); E(cx + s2 * 14 * W, 37, 2, 6, bh[1]); }   // sideburns
-      E(cx - 4, 42, 9, 5, bh[0]); E(cx + 7, 47, 8, 6, bh[2]);
+      E(cx - 4, 42, 9, 5, bh[0]);
+      // strands combed down through it, darker toward the tips
+      for (let x = cx - 13; x <= cx + 13; x += 3) { const d = Math.abs(x - cx); P(x, 47 + (d < 8 ? 2 : 0), bh[2]); P(x, 48 + (d < 8 ? 2 : 0), bh[2]); P(x + 1, 45, bh[2]); }
       for (let i = 0; i < 14; i++) P(cx - 12 + (i * 5) % 24, 42 + (i * 3) % 10, bh[2]);
       for (const s2 of [-1, 1]) { E(cx + s2 * 5, 39, 6, 2.5, OUT); E(cx + s2 * 5, 39, 5, 1.8, bh[0]); }   // moustache
+    }
+    // a double chin, stubbled, tucked under the jaw
+    if (spec.doubleChin) {
+      E(cx, 47, 12 * W, 4, OUT); E(cx, 46.5, 11 * W, 3, sk[2]); E(cx - 1, 46, 10 * W, 2, sk[1]);
+      for (let i = 0; i < 9; i++) P(cx - 9 + i * 2, 46 + (i % 2), spec.stubble || sk[3]);
     }
     // cheeks
     if (F.mouth === 'grin' || F.mouth === 'laugh' || F.eyes === 'happy') { E(cx - 11, 36, 3, 1.5, spec.blush); E(cx + 11, 36, 3, 1.5, spec.blush); }
