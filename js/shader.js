@@ -42,7 +42,7 @@ void main(){
   c = (c - 0.5) * 1.04 + 0.5;
   // texture: a fine grain on every game pixel and a coarser weave under it
   float g1 = hash(px) - 0.5, g2 = hash(floor(px / 3.0) + 17.0) - 0.5, g3 = hash(floor(px / 7.0) + 3.0) - 0.5;
-  c *= 1.0 + g1 * 0.045 + g2 * 0.03 + g3 * 0.02;
+  c *= 1.0 + g1 * 0.018 + g2 * 0.012 + g3 * 0.008;
   // after dark: a blue cast
   c = mix(c, c * vec3(0.7, 0.78, 1.08), u_night * 0.45);
   // by day: a faint warm light falling from the upper left

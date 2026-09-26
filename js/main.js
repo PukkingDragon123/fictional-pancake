@@ -22,7 +22,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [], factory: { b: [], inv: {} }, lands: {}, forage: {}, fieldGuide: {}, exploreAt: 'lake', owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
+      brush: 1, crates: {}, furniture: [], factory: { b: [], inv: {} }, lands: {}, forage: {}, fieldGuide: {}, exploreAt: 'lake', boughtFurn: false, owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -71,7 +71,7 @@ const Main = (() => {
         s.owned = { drag: true };
         for (const t of TOOL_SHOP) s.owned[t.key] = true;
       }
-      // the tutorial grew a first step (meeting Jim) and tools that unlock as you go
+      // the tutorial grew a first step (meeting Momo) and tools that unlock as you go
       if (s.tutorialV !== 2) {
         s.tutorialV = 2;
         s.unlocked = s.unlocked || {};

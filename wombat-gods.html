@@ -1012,14 +1012,15 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
    Nothing on this page is round. Loaded after style.css and louder than it.
    ========================================================================== */
 :root {
-  --ol: #4a1e0e; --inner: #7a3414;
-  --fr0: #f2b870; --fr1: #d4843e; --fr2: #bc6a32; --fr3: #9a5024;
-  --pp0: #fff3d4; --pp1: #f8e2b2; --pp2: #eac48a; --pp3: #d49a54;
-  --ink: #5a2610; --ink2: #8a5028;
-  --cream: #fff3d4; --parch: #f8e2b2;
+  --ol: #3b2616; --inner: #2f5a2a;
+  --fr0: #b8e08a; --fr1: #7cb85a; --fr2: #5a9a44; --fr3: #3f7a34;
+  --pp0: #fffaf0; --pp1: #fdf0d8; --pp2: #f2dcb4; --pp3: #d8b888;
+  --ink: #4a3222; --ink2: #8a6a4c;
+  --cream: #fffaf0; --parch: #fdf0d8;
+  --berry: #f07a8a; --berry-d: #c83a4c; --honey: #f8d060; --honey-d: #b88420;
   /* the old palette names, pointed at the new colours so older rules follow */
-  --wd0: #3a1406; --wd1: #5a2610; --wd2: #7a3414; --wd3: #9a5024; --wd4: #bc6a32; --wd5: #d4843e;
-  --pg0: #c89858; --pg1: #eac48a; --pg2: #f8e2b2; --pg3: #ffecbc; --pg4: #fff3d4; --pg5: #8a5028;
+  --wd0: #1e3a1a; --wd1: #2f5a2a; --wd2: #3f7a34; --wd3: #5a9a44; --wd4: #7cb85a; --wd5: #b8e08a;
+  --pg0: #d8b888; --pg1: #f2dcb4; --pg2: #fdf0d8; --pg3: #fff4e0; --pg4: #fffaf0; --pg5: #8a6a4c;
   --gd0: #264e20; --gd1: #3f7a32; --gd2: #6aa84a; --gd3: #a8d880; --gd4: #d8ffa8;
   --tl0: #0a3a6a; --tl1: #1a5aa0; --tl2: #5a9ad0; --tl3: #7ac8ff; --tl4: #c0e8ff;
   --am0: #6a0e06; --am1: #983224; --am2: #d45a40; --am3: #ff8a70;
@@ -1279,15 +1280,6 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 #clock small { display: block; font-size: 12px; color: var(--ink2); margin-top: 2px; }
 #clock[hidden] { display: none; }
 
-/* ---- paper grain on every box on the frame ------------------------------------------------------------- */
-.toast, #hotbar .hbrow, #hotbar .hbname, .dlg-box { position: relative; }
-#money::after, #clock::after, #checklist::after, #tip::after, .toast::after, #hotbar .hbrow::after, #hotbar .hbname::after,
-.dlg-box::after, .ucard::after, .panel::after {
-  content: '' !important; display: block !important; position: absolute; inset: -2px; pointer-events: none; z-index: 0;
-  background: var(--grain) 0 0 / 48px 48px repeat !important; mix-blend-mode: multiply; opacity: 0.5; image-rendering: pixelated;
-}
-#money > *, #clock > *, #checklist > *, .dlg-box > *, .ucard > *, .panel > * { position: relative; z-index: 1; }
-
 /* ---- small life in the toolbar: the tool in hand breathes ---------------------------------------------- */
 #hotbar .hslot.on img.ico { animation: toolbob 1.2s steps(2) infinite; }
 @keyframes toolbob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-2px) } }
@@ -1295,34 +1287,59 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 #money { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
 #checklist { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
 
-/* ---- the build menu -------------------------------------------------------------------------------------- */
-.panel.build { width: min(900px, 96vw); }
-.btabs { display: flex; gap: 8px; margin: 2px 0 12px; flex-wrap: wrap; }
-.btabs .wbtn { padding: 6px 14px; font-size: 15px; }
-.btabs .wbtn.on { background: var(--sun) !important; transform: translateY(2px); }
-.btabs #b-pick { margin-left: auto; background: #f0b8a8 !important; }
-.bgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; }
-.bcard { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px 10px; line-height: 1.3;
-  background: var(--pp0); border: 3px solid var(--pp3); box-shadow: inset 2px 2px 0 #ffffff, 0 3px 0 var(--pp3); }
-.bcard b { font-size: 16px; font-weight: 400; color: var(--fr3); }
-.bcard p { margin: 0; font-size: 12px; color: var(--ink2); min-height: 44px; }
-.bpic { height: 70px; display: flex; align-items: center; justify-content: center; background: #cfe0a8; border: 3px solid #6a8a3a;
-  box-shadow: inset 3px 3px 0 #a8c080, inset -2px -2px 0 #e8f4c8; }
-.bpic img { height: 64px; image-rendering: pixelated; }
-.brow3 { display: flex; gap: 6px; align-items: center; }
-.brow3 .wbtn { padding: 4px 10px; font-size: 13px; }
-.brow3 .wbtn.go { background: var(--grass) !important; color: #fff !important; }
-.bprice { display: flex; align-items: center; gap: 3px; font-size: 16px; color: var(--ink); }
-.bhave { margin-left: auto; font-size: 15px; color: var(--grass-d); }
-.bempty { color: var(--ink2); padding: 20px; }
-.binv { margin-top: 12px; padding: 6px 8px; background: #d8b888; border: 3px solid var(--fr3); box-shadow: inset 2px 2px 0 rgba(0,0,0,0.18); }
-.binv > b { display: block; font-size: 13px; font-weight: 400; color: var(--ink); margin-bottom: 4px; }
-#b-inv { display: flex; gap: 6px; flex-wrap: wrap; min-height: 44px; align-items: center; }
-.binvi { position: relative; width: 44px; height: 44px; padding: 0; cursor: pointer; background: var(--pp0); border: 3px solid var(--ol); box-shadow: inset 2px 2px 0 #fff; }
-.binvi:hover { background: var(--sun-l); transform: translateY(-2px); }
-.binvi img { width: 38px; height: 38px; image-rendering: pixelated; }
-.binvi i { position: absolute; right: -6px; bottom: -6px; font-style: normal; font-size: 12px; line-height: 14px; padding: 0 4px; color: #fff; background: var(--tomato); box-shadow: 0 0 0 2px var(--ol); }
-.bfoot { margin: 10px 0 0; font-size: 12px; color: var(--ink2); }
+/* ---- the build menu: a Dragon City bottom sheet ------------------------------------------------------------
+   A strip along the bottom of the picture: a ribbon with the title and your coins, big icon tabs down
+   the left, and a row of fat cards you scroll sideways. */
+.panel.build.dc { top: auto !important; bottom: 12px; transform: translateX(-50%) !important; width: min(1120px, 97vw); max-height: none; padding: 0 0 10px !important; animation: dcup .22s steps(4, end) !important; }
+@keyframes dcup { from { transform: translate(-50%, 40px); opacity: 0 } to { transform: translate(-50%, 0); opacity: 1 } }
+.dc-top { display: flex; align-items: center; gap: 12px; margin: -26px 18px 6px; position: relative; z-index: 2; }
+.dc-title { display: flex; align-items: center; gap: 8px; padding: 6px 22px 8px 14px; font-size: 22px; letter-spacing: 3px; color: #fffaf0;
+  text-shadow: 2px 2px 0 var(--ol); background: var(--berry); border: 3px solid var(--ol);
+  box-shadow: inset 3px 3px 0 #ffb0bc, inset -3px -3px 0 var(--berry-d), 0 4px 0 rgba(40,20,10,0.35); }
+.dc-title img.ico { width: 26px; height: 26px; }
+.dc-coins { display: flex; align-items: center; gap: 6px; padding: 4px 12px; font-size: 18px; color: var(--ink); background: var(--honey);
+  border: 3px solid var(--ol); box-shadow: inset 2px 2px 0 #fff4c0, inset -2px -2px 0 var(--honey-d); }
+.dc-coins b { font-weight: 400; }
+.dc-top .x { margin-left: auto; }
+.dc-body { display: flex; gap: 12px; padding: 0 12px; }
+.dc-tabs { display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; }
+.dc-tabs button { width: 74px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 0 4px; cursor: pointer;
+  font-family: var(--f); font-size: 12px; letter-spacing: 1px; color: var(--ink); background: var(--pp1);
+  border: 3px solid var(--ol); box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 var(--pp3), 0 3px 0 var(--ol); }
+.dc-tabs button img.ico { width: 26px; height: 26px; }
+.dc-tabs button:hover { background: #fff4c0; transform: translateY(-1px); }
+.dc-tabs button.on { background: var(--fr1); color: #fffaf0; text-shadow: 1px 1px 0 var(--ol); box-shadow: inset 2px 2px 0 var(--fr0), inset -2px -2px 0 var(--fr3), 0 1px 0 var(--ol); transform: translateY(2px); }
+.dc-tabs #b-pick { background: #ffd8e0; }
+.dc-row { flex: 1; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; padding: 6px 4px 12px; scroll-snap-type: x mandatory; align-items: flex-start; min-height: 200px; }
+.dc-row::-webkit-scrollbar { height: 12px; }
+.dc-row::-webkit-scrollbar-thumb { background: var(--honey); border: 3px solid var(--ol); }
+.dc-row::-webkit-scrollbar-track { background: var(--pp2); }
+.dcc { position: relative; flex: 0 0 150px; height: auto; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; padding: 0 0 8px;
+  border: 3px solid var(--ol); box-shadow: inset 0 0 0 3px #ffffff80, 0 4px 0 var(--ol); background: #cfeaf8; }
+.dcc.cat-utility { background: #fbe8a8; } .dcc.cat-decor { background: #ffd8e2; }
+.dcc:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 3px #ffffffb0, 0 7px 0 var(--ol); }
+.dcc-name { align-self: stretch; margin: 0 0 4px; padding: 4px 4px 5px; text-align: center; font-size: 14px; line-height: 1.1; color: #fffaf0;
+  text-shadow: 1px 1px 0 var(--ol); background: var(--fr2); border-bottom: 3px solid var(--ol); box-shadow: inset 0 2px 0 var(--fr0); }
+.dcc.cat-utility .dcc-name { background: #d8a030; box-shadow: inset 0 2px 0 #f8d060; }
+.dcc.cat-decor .dcc-name { background: var(--berry); box-shadow: inset 0 2px 0 #ffb0bc; }
+.dcc-art { width: 132px; height: 104px; display: flex; align-items: flex-end; justify-content: center; position: relative;
+  background: radial-gradient(ellipse 50% 18% at 50% 88%, rgba(60,120,40,0.55) 0 98%, transparent 100%); }
+.dcc-art img { width: 96px; height: auto; max-height: 100px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 3px 0 rgba(40,30,10,0.25)); }
+.dcc-have { position: absolute; top: 30px; right: 6px; font-style: normal; font-size: 13px; padding: 1px 6px; color: #fff; background: var(--berry-d); border: 2px solid var(--ol); }
+.dcc-tag { font-size: 12px; color: var(--ink2); margin: 2px 0 6px; min-height: 14px; }
+.panel.build.dc .dc-tabs { justify-content: flex-start; }
+.dc-tabs button { padding: 3px 0 2px; }
+.dc-tabs button img.ico { width: 22px !important; height: 22px !important; }
+.dcc-btn { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 116px; padding: 6px 10px; cursor: pointer;
+  font-family: var(--f); font-size: 18px; color: var(--ink); border: 3px solid var(--ol); }
+.dcc-btn.buy { background: var(--honey); box-shadow: inset 2px 2px 0 #fff4c0, inset -2px -2px 0 var(--honey-d), 0 3px 0 var(--ol); }
+.dcc-btn.place { background: var(--fr1); color: #fffaf0; text-shadow: 1px 1px 0 var(--ol); box-shadow: inset 2px 2px 0 var(--fr0), inset -2px -2px 0 var(--fr3), 0 3px 0 var(--ol); }
+.dcc-btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.dcc-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: none; }
+.dcc-btn:disabled { filter: grayscale(0.7); opacity: 0.6; cursor: default; }
+.dcc.locked .dcc-art img { filter: grayscale(1) brightness(0.55); }
+.dcc-lock { display: flex; align-items: center; gap: 4px; padding: 6px 8px; font-size: 12px; color: #fffaf0; background: #6a5a4a; border: 3px solid var(--ol); }
+.dc-empty { align-self: center; margin: auto; font-size: 18px; color: var(--ink2); }
 /* the BUILD button next to back, and the bar along the top while placing */
 .mbtn.bbuild { display: flex; align-items: center; gap: 6px; padding: 0 12px 0 8px !important; height: 50px; width: auto !important; }
 .mbtn.bbuild span { font-size: 16px; letter-spacing: 1px; color: var(--ink); }
@@ -1333,9 +1350,11 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 #placebar b { color: var(--fr3); font-weight: 400; }
 #placebar .wbtn { padding: 4px 10px; font-size: 13px; }
 #placebar[hidden] { display: none; }
-.bcard.locked { opacity: 0.72; background: #ecdcc0; }
-.bcard.locked .bpic img { filter: grayscale(0.8) brightness(0.8); }
-.block { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--am1); }
+.panel .dcc-btn, .panel .dc-tabs button { border-image: none !important; border: 3px solid var(--ol) !important; }
+.panel .dcc-btn.buy { background: var(--honey) !important; }
+.panel .dcc-btn.place { background: var(--fr1) !important; }
+.credit { text-align: center; margin: 10px 0 8px; font-size: 14px; color: var(--ink2); }
+.credit b { color: var(--berry-d); font-weight: 400; }
 </style>
 
 <div id="app">
@@ -1347,7 +1366,7 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
     <div id="money"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
     <div id="clock" hidden><canvas id="clock-dial" width="30" height="30"></canvas><div class="ctx"><b id="c-time">9:00am</b><small id="c-day">Day 1</small></div></div>
     <div id="checklist" hidden></div>
-    <div id="placebar" hidden><span id="pb-what"></span><button class="wbtn" id="pb-rot">ROTATE (R)</button><button class="wbtn" id="pb-stop">DONE (Esc)</button></div>
+    <div id="placebar" hidden><span id="pb-what"></span><button class="wbtn" id="pb-rot">R</button><button class="wbtn" id="pb-stop">DONE</button></div>
 
     <div id="side">
       <button class="rbtn big" id="b-tool" hidden><img class="ico" data-ico="t_sickle" alt=""></button>
@@ -1408,13 +1427,17 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
     <div class="pbody" id="wombat-body"></div>
   </div>
 
-  <div id="panel-build" class="panel build" hidden>
-    <div class="phead"><img class="ico" data-ico="t_hammer" alt=""><span class="ptitle">BUILD</span><button class="x" data-close="panel-build"><img class="ico sm" data-ico="close" alt=""></button></div>
-    <div class="pbody">
-      <div class="btabs"><button class="wbtn" data-btab="factory">FACTORY</button><button class="wbtn" data-btab="utility">UTILITY</button><button class="wbtn" data-btab="decor">DECOR</button><button class="wbtn" id="b-pick">PICK UP</button></div>
-      <div class="bgrid" id="b-grid"></div>
-      <div class="binv"><b>INVENTORY</b><div id="b-inv"></div></div>
-      <p class="bfoot"><span id="b-earned"></span> &middot; R rotates &middot; Esc stops placing</p>
+  <div id="panel-build" class="panel build dc" hidden>
+    <div class="dc-top"><span class="dc-title"><img class="ico" data-ico="t_hammer" alt="">BUILD</span><span class="dc-coins"><img class="ico sm" data-ico="wdollar" alt=""><b id="b-coins">0</b></span><button class="x" data-close="panel-build"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="dc-body">
+      <div class="dc-tabs">
+        <button data-btab="factory"><img class="ico" data-ico="t_hammer" alt=""><span>MAKE</span></button>
+        <button data-btab="utility"><img class="ico" data-ico="t_water" alt=""><span>HELP</span></button>
+        <button data-btab="decor"><img class="ico" data-ico="d_ottoman" alt=""><span>DECOR</span></button>
+        <button data-btab="storage"><img class="ico" data-ico="basket" alt=""><span>BAG</span></button>
+        <button id="b-pick"><img class="ico" data-ico="t_drag" alt=""><span>MOVE</span></button>
+      </div>
+      <div class="dc-row" id="b-grid"></div>
     </div>
   </div>
 
@@ -1422,17 +1445,14 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>You start with your two hands and W$300. Jim gives you her old sickle, and each job she teaches unlocks the next tool. Buy them at Wombat Mart: click the truck to drive there.</li>
-        <li>Jim, the caretaker in the wombat onesie, tells you your next job in a speech bubble. Click her to chat, or to sell her your cubes.</li>
-        <li>Pick a tool on the toolbar along the bottom, or press <b>1</b>&ndash;<b>0</b>. Locked tools show a padlock; unlocked ones you have not bought show their price. An arrow points at your current job. Drag bare ground, roll the wheel or use the arrow keys to look around.</li>
-        <li>Cut the weeds with the sickle, have the ants take the old logs, and sow grass. A tidy garden brings a wombat.</li>
-        <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
-        <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
-        <li>The <b>shovel</b> paints the ground: hold the left button to dig down, the right button (or Shift) to heap up a hill. Water a hole with the can and it fills into a pond; water a trench and it runs like a creek. <b>[</b> and <b>]</b> change the brush size.</li>
-        <li>Press <b>B</b> (or BUILD) for the <b>Build menu</b>: buy machines into your inventory, place them on your land and turn them with <b>R</b>. A <b>Poop Hopper</b> sucks up cubes, belts carry them to a <b>Fertiliser Mill</b>, then a <b>Grow House</b> for carrots, then a <b>Pickup Point</b> sells them. The longer the chain, the more it pays.</li>
-        <li><b>Still Lake</b>, <b>Blackwood</b> and <b>Fern Gully</b> are on the map. Drag along them and click things to pick them up. Buy one and you find twice as much there, and it unlocks its own building.</li>
-        <li>Captain Kirk's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
+        <li><b>Momo</b> gives you jobs. Click her to chat or sell cubes.</li>
+        <li>Tools: <b>1</b>&ndash;<b>0</b>. Buy them at <b>Wombat Mart</b> (click the truck).</li>
+        <li>Cut weeds, clear logs, sow grass. A wombat comes!</li>
+        <li>Grow veg, feed wombats, collect their <b>cube poop</b>.</li>
+        <li>Buy furniture from <b>Captain Kirk</b>, then <b>BUILD</b> (<b>B</b>) a poop factory. <b>R</b> rotates.</li>
+        <li>Explore <b>Still Lake</b>, <b>Blackwood</b> and <b>Fern Gully</b> on the map (<b>M</b>).</li>
       </ol>
+      <p class="credit">Wombat Farm &middot; made by <b>Pulling Dragon</b></p>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-fx">SHADERS ON</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
   </div>
@@ -3327,12 +3347,12 @@ const Sprites = (() => {
     return c;
   }
 
-  // ---- Jim ------------------------------------------------------------------
+  // ---- Momo ------------------------------------------------------------------
   // The caretaker who shows you the job. A big friendly bloke: swept ginger
   // hair under a red sweatband, black-rimmed glasses, ginger stubble, a grey
   // check fleece with a thick cream collar, a pink shirt over a good belly,
   // brown shorts, and freckled, hairy legs.
-  // Jim from the side, walking: the belly leads, the arms swing, the mop of
+  // Momo from the side, walking: the belly leads, the arms swing, the mop of
   // hair bounces on every step. Drawn facing right; the grove flips him.
   function jimSide(f, t, run) {
     const { c, g } = Art.cv(CW, CH);
@@ -3409,7 +3429,7 @@ const Sprites = (() => {
   }
   function jim(frame, pose = 'idle') {
     const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
-    if (typeof JimGirl !== 'undefined') return JimGirl.sprite(f, t, pose, faceMood);   // Jim, in her wombat onesie
+    if (typeof JimGirl !== 'undefined') return JimGirl.sprite(f, t, pose, faceMood);   // Momo, in her wombat onesie
     const key = `jim:${f}:${pose}:${faceMood}`;
     let img = cache.get(key); if (img) return img;
     if (pose === 'walk' || pose === 'run') { img = jimSide(f, t, pose === 'run'); cache.set(key, img); return img; }
@@ -7606,15 +7626,15 @@ const Icons = (() => {
 // Nothing is round.
 const Kit = (() => {
   const C = {
-    line: '#4a1e0e', inner: '#7a3414',
-    frameL: '#f2b870', frame: '#d4843e', frameM: '#bc6a32', frameD: '#9a5024',
-    paper: '#f8e2b2', paperL: '#fff3d4', paperD: '#eac48a',
-    ink: '#5a2610', ink2: '#8a5028',
+    line: '#3b2616', inner: '#2f5a2a',
+    frameL: '#b8e08a', frame: '#7cb85a', frameM: '#5a9a44', frameD: '#3f7a34',
+    paper: '#fdf0d8', paperL: '#fffaf0', paperD: '#f2dcb4',
+    ink: '#4a3222', ink2: '#8a6a4c',
     // the accents: grass green, sunflower, tomato, sky
     mint: '#6aa84a', mintL: '#a8d880', mintD: '#3f7a32', mintDD: '#264e20', mintW: '#fff3d4',
     sun: '#f0c048', sunL: '#fbe8a0', sunD: '#b8842a',
     coral: '#d45a40', coralD: '#983224', sky: '#5a9ad0',
-    shadow: 'rgba(60,20,4,0.32)',
+    shadow: 'rgba(40,30,10,0.3)',
   };
   const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
   // a rectangle with a single pixel knocked off each corner: the only
@@ -7630,7 +7650,7 @@ const Kit = (() => {
   // the box: every card, panel and plaque on the canvas
   function card(g, x, y, w, h, o = {}) {
     x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
-    const hot = o.ring, fr = hot ? ['#fbe8a0', '#f0c048', '#f0a010', '#b8842a'] : [C.frameL, C.frame, C.frameM, C.frameD];
+    const hot = o.ring, fr = hot ? ['#fff0b0', '#f8d060', '#e8b040', '#b88420'] : [C.frameL, C.frame, C.frameM, C.frameD];
     if (o.shadow !== false) rr(g, x + 2, y + 3, w, h, 2, C.shadow);
     rr(g, x, y, w, h, 2, C.line);
     R(g, x + 1, y + 1, w - 2, h - 2, fr[1]);
@@ -7642,7 +7662,9 @@ const Kit = (() => {
     R(g, x + 4, y + 4, w - 8, 1, o.top || C.paperL);
     R(g, x + 4, y + h - 5, w - 8, 1, o.low || C.paperD);
     // a nub of brass in each corner of the frame
-    for (const [cx, cy] of [[x + 1, y + 1], [x + w - 3, y + 1], [x + 1, y + h - 3], [x + w - 3, y + h - 3]]) { R(g, cx, cy, 2, 2, '#ffd070'); R(g, cx + 1, cy + 1, 1, 1, C.frameD); }
+    for (const [cx, cy] of [[x, y], [x + w - 3, y], [x, y + h - 3], [x + w - 3, y + h - 3]]) {   // a pink flower in each corner
+      R(g, cx + 1, cy, 1, 1, '#ffb0c0'); R(g, cx, cy + 1, 1, 1, '#ffb0c0'); R(g, cx + 2, cy + 1, 1, 1, '#ffb0c0'); R(g, cx + 1, cy + 2, 1, 1, '#ffb0c0'); R(g, cx + 1, cy + 1, 1, 1, '#ffe070');
+    }
   }
   // a button: a small box that lifts under the pointer and sinks when pressed
   function button(g, b, label, sub, o = {}) {
@@ -7653,7 +7675,7 @@ const Kit = (() => {
     const x = b.x, y = b.y + lift, w = b.w, h = b.h;
     rr(g, x + 2, b.y + 4, w, h, 2, C.shadow);
     rr(g, x, y, w, h, 2, C.line);
-    R(g, x + 1, y + 1, w - 2, h - 2, hot ? '#ffcc5a' : C.frame);
+    R(g, x + 1, y + 1, w - 2, h - 2, hot ? '#f8d060' : C.frame);
     R(g, x + 2, y + 1, w - 4, 1, C.frameL); R(g, x + 2, y + h - 2, w - 4, 1, C.frameD);
     R(g, x + 3, y + 3, w - 6, h - 6, C.inner);
     R(g, x + 4, y + 4, w - 8, h - 8, hot ? U.shade(fill[0], 0.12) : fill[0]);
@@ -7723,7 +7745,7 @@ const Portraits = (() => {
 
   // ---- who looks like what --------------------------------------------------
   const SPECS = {
-    // Jim: heavyset, messy ginger-blond hair sticking up over a red headband,
+    // Momo: heavyset, messy ginger-blond hair sticking up over a red headband,
     // thick black glasses, ginger stubble, a grey check fleece with a big
     // cream sherpa collar over a pink shirt.
     jim: {
@@ -8239,7 +8261,7 @@ const Kirk = (() => {
 
 <script>
 // ===== js/jimgirl.js =====
-// ---- Jim: the caretaker, in her wombat onesie ------------------------------------------
+// ---- Momo: the caretaker, in her wombat onesie ------------------------------------------
 // A chibi anime girl: big head, huge sparkly teal eyes, soft pink hair with a
 // fringe and long locks, and brown wombat pyjamas with the hood up. The hood
 // has round ears and a little wombat face of its own (two button eyes and a
@@ -8247,7 +8269,7 @@ const Kirk = (() => {
 // mittens and paw feet with toe beans, and a stubby tail.
 //
 // JimGirl.sprite(f, t, pose, mood) draws the 52x84 figure (feet at y 81, the
-// same box the old Jim used, so everything that draws him still lines up).
+// same box the old Momo used, so everything that draws him still lines up).
 // JimGirl.bust(mood, t, talking) is her 64x64 dialogue portrait.
 const JimGirl = (() => {
   const cache = new Map();
@@ -8626,7 +8648,7 @@ const Busts = (() => {
 // ---- Balance data. Icon keys everywhere, almost no prose. -----------------
 const CUBE_SIZE = 30;          // one poop cube, and the game's unit of height
 
-// Cubes: what a wombat leaves behind. Jim buys them for compost, or you spread them as fertiliser.
+// Cubes: what a wombat leaves behind. Momo buys them for compost, or you spread them as fertiliser.
 const OFFERINGS = {
   plain: { key: 'plain', name: 'Plain', icon: 'o_plain', mark: '', w: 1, h: 1, density: 1, friction: 0.62, restitution: 0.02, adhesion: 0, value: 6, color: '#553d27' },
   rich:  { key: 'rich', name: 'Rich', icon: 'o_rich', mark: '', w: 1.45, h: 1.45, density: 1, friction: 0.66, restitution: 0.02, adhesion: 0, value: 13, color: '#3b2a1b' },
@@ -8720,7 +8742,7 @@ const SUBTOOLS = [
   { key: 'fert',  name: 'Poo Scoop', icon: 't_scoop', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
 ];
 // ---- what you own -------------------------------------------------------------
-// You arrive with your two hands and W$300. Jim hands you her old sickle; every
+// You arrive with your two hands and W$300. Momo hands you her old sickle; every
 // other tool is *unlocked* when he teaches you the job it is for, and then
 // bought at Wombat Mart.
 const TOOL_SHOP = [
@@ -8737,7 +8759,7 @@ const TOOL_SHOP = [
 ];
 const TOOL_SHOP_BY_KEY = Object.fromEntries(TOOL_SHOP.map((t) => [t.key, t]));
 const owns = (g, key) => !!(g && g.owned && g.owned[key]);
-// taught: Jim has shown you it, so the mart will sell it to you
+// taught: Momo has shown you it, so the mart will sell it to you
 const taught = (g, key) => owns(g, key) || !!(g && g.unlocked && g.unlocked[key]);
 const GATES = {
   drag: () => true,
@@ -8748,7 +8770,7 @@ const GATE_WHY = {
   pair: 'needs a nest from Groot\'s cellar',
 };
 const whyLocked = (key, g) => GATE_WHY[key] || (TOOL_SHOP_BY_KEY[key]
-  ? (g && !taught(g, key) ? 'locked &middot; Jim will show you this one soon' : `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}`)
+  ? (g && !taught(g, key) ? 'locked &middot; Momo will show you this one soon' : `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}`)
   : 'not yet');
 // number keys 1-9, in the order you are likely to want them
 const HOTKEYS = ['drag', 'sickle', 'destroy', 'moss', 'water', 'hoe', 'seed', 'food', 'fert', 'shovel', 'build'];
@@ -8930,7 +8952,7 @@ function rollLotto() {
 }
 
 // Every Golden Wombat on the shelf pays a little more at the stack, for good.
-// ---- What Jim pays for a cube ----------------------------------
+// ---- What Momo pays for a cube ----------------------------------
 // He buys the lot. The price is the offering's own worth plus a little for
 // bulk: one cube is a curiosity, a truckload is a supply.
 const trophyBonus = (g) => (g.trophies || 0) * 0.08;
@@ -12061,7 +12083,7 @@ const Grove = (() => {
     FX.comic(TRUCK.x, TRUCK.y - 58, U.pick(['LOADED!', 'CLUNK!', 'IN!']), { ink: '#a8d0e0', edge: '#33495c', life: 0.6 });
     UI.refreshHUD();
   }
-  // A handful of coins tossed from wherever Jim is standing.
+  // A handful of coins tossed from wherever Momo is standing.
   function reward(x, y, n) {
     for (let i = 0; i < n; i++) coins.push({ x: x + U.rand(-6, 6), y, vx: U.rand(-60, 60), vy: U.rand(-190, -110), z: 0, t: -i * 0.04, n: 1 });
     Audio.play('cash');
@@ -12351,7 +12373,7 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
-    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>Jim buys every cube you have';
+    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>Momo buys every cube you have';
     const pl2 = World.plantAt(x, y);
     if (pl2) return World.plantTip(pl2);
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
@@ -14646,7 +14668,7 @@ const Shop = (() => {
     const out = [];
     for (const t of TOOL_SHOP) {
       const def = TOOL_BY_KEY[t.key];
-      if (!taught(G, t.key)) continue;                // Jim has not shown you this one yet
+      if (!taught(G, t.key)) continue;                // Momo has not shown you this one yet
       out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
     }
     for (const u of UPGRADES) {
@@ -17251,6 +17273,7 @@ const Ottoman = (() => {
     G.wd -= f.cost;
     if (!G.crates) G.crates = {};
     G.crates[f.key] = (G.crates[f.key] || 0) + 1;
+    if (!G.boughtFurn) { G.boughtFurn = true; UI.toast('<b>BUILD</b> unlocked!', 'good'); }
     Audio.play('cash'); FX.confettiBurst(VW / 2, 150, 40);
     const line = U.pick(['A fine choice!', 'Sold, to the wombat farmer!', 'She\'ll serve you well.', 'Mind the corners going out.']);
     clarkSay(line); menuSay(line + ` The ${f.name} goes out in a crate.`, 'laugh');
@@ -17456,11 +17479,7 @@ const Ottoman = (() => {
         g.drawImage(img, Math.round(x + 27 - iw / 2), Math.round(y + h - 5 - ih + bob), iw, ih);
       }
       // name, a line of patter, and the price
-      Font.draw(g, f.name, x + 58, y + 5, { scale: 2, color: C.ink });
-      let bl = f.blurb; const maxB = w - 58 - 92;
-      while (Font.width(bl, 1) > maxB && bl.length > 4) bl = bl.slice(0, -2).trimEnd() + '.';
-      if (bl !== f.blurb) bl = bl.replace(/\.+$/, '...');
-      Font.draw(g, bl, x + 58, y + 22, { scale: 1, color: C.ink2 });
+      Font.draw(g, f.name, x + 58, y + 11, { scale: 2, color: C.ink });
       const price = U.fmt(f.cost);
       const pw = Font.width(price, 2);
       Font.draw(g, price, x + w - 8, y + 11, { scale: 2, color: afford ? C.ink : C.coralD, align: 'right' });
@@ -17705,7 +17724,7 @@ const Ottoman = (() => {
 // No phone this time. You have taken the job, the car is packed, and the
 // opening is the drive itself: out of the forest, down the one street of
 // Wombat Creek past the bakery and the mart and the pub, and up to the farm
-// gate, where Jim is waiting to show you round.
+// gate, where Momo is waiting to show you round.
 //
 // Hold the mouse to put your foot down; Esc skips the lot.
 const Intro = (() => {
@@ -17742,7 +17761,7 @@ const Intro = (() => {
   const LOCALS = [{ at: 1560, sp: -8 }, { at: 1905, sp: 6 }, { at: 2230, sp: -5 }];
   // what gets said on the way, as a card in the corner
   const CAPTIONS = [
-    { from: 0, to: 640, head: 'THE NEW JOB', lines: ['Caretaker wanted. Wombat farm, a bit run down.', 'Board, lodging, and wombats. Apply to Jim.'] },
+    { from: 0, to: 640, head: 'THE NEW JOB', lines: ['Caretaker wanted. Wombat farm, a bit run down.', 'Board, lodging, and wombats. Apply to Momo.'] },
     { from: 700, to: 1200, head: 'JIM, ON THE PHONE', lines: ['"Past the gum trees, through the village,', 'first gate on the left. Can\'t miss it."'] },
     { from: 1250, to: 2300, head: 'WOMBAT CREEK', lines: ['One street: a bakery, the post, the mart, the pub.', 'Everybody waves.'] },
   ];
@@ -17853,7 +17872,7 @@ const Intro = (() => {
     c.lines.forEach((l, i) => Font.draw(g, l, x + 14, y + 13 + i * 12, { scale: 1, color: Kit.C.ink }));
     g.globalAlpha = 1;
   }
-  // Jim at the gate talks in the same box as the rest of the game: the words
+  // Momo at the gate talks in the same box as the rest of the game: the words
   // on the left, his face in a frame on the right, his name on a plate.
   function dialogue(g, text, mood, typedN) {
     const W = 560, H = 96, X = (VW - W) / 2, Y = VH - H - 10;
@@ -17901,7 +17920,7 @@ const Intro = (() => {
           Sprites.shadow(g2, wx, R - 6, 'walk', Math.floor(t * 9), 'brown', dir, 'adult', 0.8);
           Sprites.blit(g2, wx, R - 6, 'walk', Math.floor(t * 9), 'brown', dir, 'adult', 0.8);
         }
-        // Jim at the gate, waving you in
+        // Momo at the gate, waving you in
         const jx = GATE_AT - d - 90;
         if (jx > -60 && jx < VW + 60) {
           Sprites.setFace('happy');
@@ -17917,7 +17936,7 @@ const Intro = (() => {
     if (stopped() && stopT > 0.5) {
       const jx = GATE_AT - d - 90;
       const first = stopT < 4.2;
-      const line = first ? "G'day! You must be the new caretaker. I'm Jim. Welcome to Wombat Farm!" : "Bit of a mess, I'll be honest. Come on in and I'll show you round.";
+      const line = first ? "Hi hi! You're the new farmer? I'm Momo! Welcome~" : "It's a bit messy. Come in!";
       const since = first ? stopT - 0.5 : stopT - 4.2;
       dialogue(g, line, first ? 'happy' : 'laugh', Math.floor(since * 38));
       if (stopT > 1.6) {
@@ -17945,7 +17964,7 @@ const Intro = (() => {
 
 <script>
 // ===== js/guide.js =====
-// ---- Jim: the old caretaker who teaches you the job and buys the cubes -----
+// ---- Momo: the caretaker in the wombat onesie, who teaches the job and buys the cubes -----
 const Guide = (() => {
   let G = null;
   const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0, happyT: 0 };
@@ -17960,7 +17979,7 @@ const Guide = (() => {
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
-  // Each step is a job Jim gives you, and a place for her to stand.
+  // Each step is a job Momo gives you, and a place for her to stand.
   //   lesson   what he tells you in the dialogue box when the job comes up
   //   give     tools he hands over when he has finished explaining
   //   unlock   tools the mart will now sell you
@@ -17969,148 +17988,137 @@ const Guide = (() => {
   const MART = () => Grove.TRUCK.x - 10, MARTY = () => Grove.TRUCK.y - 60;
   const STEPS = [
     {
-      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Jim', praise: 'Go on, give it a swing.',
-      say: "G'day! I'm Jim. This farm's yours now. Here, take my old sickle.",
+      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Momo', praise: 'Go on, give it a swing.',
+      say: "Hi hi! I'm Momo. Take my sickle!",
       lesson: [
-        { say: "G'day! You made it. I'm Jim. I've looked after this farm for twenty years.", mood: 'happy' },
-        { say: "My knees have had it, so it's all yours now. Bit of a mess, I'll be honest.", mood: 'sad' },
-        { say: "Here, have my old sickle. That's the first job: the weeds. Pick it on your toolbar, or press 2.", mood: 'proud' },
+        { say: "Hi hi! I'm Momo! This farm is yours now~", mood: 'happy' },
+        { say: "Take my sickle and cut the weeds. Press 2!", mood: 'proud' },
       ],
-      give: ['sickle'], tool: 'sickle', note: 'Talk to Jim.',
+      give: ['sickle'], tool: 'sickle', note: 'Talk to Momo.',
       at: () => cult.x - 40, done: (g) => has(g, 'sickle'),
     },
     {
       key: 'weeds', mood: 'talk', icon: 't_sickle', title: 'Cut the weeds', praise: 'Tidy! Here, for your trouble.',
-      say: 'Drag the sickle across the weeds inside the rope. The big ones take a few swings.',
+      say: 'Drag across the weeds!',
       lesson: null, tool: 'sickle', label: 'WEEDS',
-      note: 'Pick the sickle (key 2) and drag across the weeds inside the rope.',
+      note: 'Sickle (2), drag on weeds.',
       at: () => ZONE.x - 60, aty: () => Grove.WALK.y0 + 70, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
       key: 'junk', mood: 'think', icon: 't_destroy', title: 'Clear the old logs', praise: 'Love the ants. Hard workers.',
-      say: "Those old logs are too heavy for us. The ants in town will shift them. Buy an Ant Hire Card at the mart.",
+      say: "Ants move logs. Buy an Ant Card!",
       lesson: [
-        { say: 'Beauty! Now, those old logs and ruins are far too heavy for the two of us.', mood: 'think' },
-        { say: "The ants in town will shift anything for a small fee. I've asked Shaz at Wombat Mart to sell you an Ant Hire Card.", mood: 'talk' },
-        { say: 'Click the truck to drive there. Back here, pick the card and click each log.', mood: 'happy' },
+        { say: 'Yay! Those logs are too heavy though.', mood: 'think' },
+        { say: 'Drive to the mart (click the truck) for an Ant Card, then click each log.', mood: 'happy' },
       ],
       unlock: ['destroy'], tool: 'destroy', label: 'DRIVE TO THE MART',
-      note: 'Click the truck, go to Wombat Mart, buy an Ant Hire Card. Then click each log inside the rope.',
+      note: 'Mart: Ant Card. Click logs.',
       at: (g) => (has(g, 'destroy') ? ((Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)) || { x: ZONE.x }).x) : MART()),
       aty: (g) => (has(g, 'destroy') ? ((Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)) || { y: Grove.WALK.y0 + 60 }).y - 30) : MARTY()),
       done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
       key: 'grass', mood: 'talk', icon: 't_moss', title: 'Sow the grass', praise: 'Green again. Beauty.',
-      say: 'Wombats will not live on bare dirt. Sow grass seed inside the rope and water it.',
+      say: 'Sow grass, then water it!',
       lesson: [
-        { say: "Now it's clear, it needs grass. No wombat will live on bare dirt.", mood: 'talk' },
-        { say: 'Grass Seed and a Watering Can are on the shelf at the mart now. Brush the seed on inside the rope, then water it so it takes.', mood: 'happy' },
+        { say: 'Wombats need grass! Seed and a can are at the mart.', mood: 'happy' },
       ],
       unlock: ['moss', 'water'], tool: 'moss', label: 'SOW HERE',
-      note: 'Buy Grass Seed and a Watering Can. Brush grass inside the rope, then water it.',
+      note: 'Seed + can. Sow, then water.',
       at: (g) => (has(g, 'moss') ? ZONE.x : MART()), aty: (g) => (has(g, 'moss') ? Grove.WALK.y0 + 70 : MARTY()),
       done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
       key: 'arrive', mood: 'worry', icon: 'wombat', title: 'Wait for a wombat', praise: 'There she is! Your first wombat.',
-      say: 'Shh. Watch the treeline. A tidy patch always brings one round.',
-      lesson: [{ say: 'Shh! Look at the treeline. A tidy, grassy patch always brings one of them round. Just wait.', mood: 'shock' }],
-      note: 'A tidy patch brings a wombat. One always comes.',
+      say: 'Shh... watch the trees!',
+      lesson: [{ say: 'Shh! A wombat is coming...', mood: 'shock' }],
+      note: 'Wait for a wombat.',
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
       key: 'sow', mood: 'talk', icon: 't_hoe', title: 'Dig a bed and sow it', praise: 'Sown. Good hands.',
-      say: 'She will need feeding. Hoe a bed and sow some carrots.',
+      say: 'Hoe a bed, sow carrots!',
       lesson: [
-        { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
-        { say: "She'll need feeding, so let's grow something.", mood: 'think' },
-        { say: "A Hoe and a Seed Pouch are at the mart now. Get carrot seed from Groot's Cellar.", mood: 'talk' },
-        { say: 'Hoe a patch of bare ground into a bed, then sow the seed on it.', mood: 'happy' },
+        { say: "She picked you! Kyaa~ so cute!", mood: 'laugh' },
+        { say: "Hoe and seed pouch at the mart, carrot seed from Groot.", mood: 'talk' },
       ],
       unlock: ['hoe', 'seed'], tool: 'hoe', label: 'DIG A BED HERE',
-      note: 'Hoe and Seed Pouch from the mart, carrot seed from Groot. Hoe bare soil, then sow on it.',
+      note: 'Hoe a bed, sow seed.',
       at: (g) => (has(g, 'hoe') ? 380 : MART()), aty: (g) => (has(g, 'hoe') ? Grove.WALK.y0 + 110 : MARTY()),
       done: () => World.crops.length > 0,
     },
     {
       key: 'pick', mood: 'talk', icon: 't_water', title: 'Water, then pick', praise: 'Your first harvest!',
-      say: 'Water it every so often. When it glows, pick it with your hand.',
-      lesson: [{ say: 'Keep it watered. A thirsty bed sulks. When a crop glows, pick it with your hand.', mood: 'talk' }],
+      say: 'Water it. Pick it when it glows!',
+      lesson: [{ say: 'Water it! When it glows, pick it.', mood: 'talk' }],
       tool: 'water', label: 'WATER ME',
-      note: 'Water the bed. When a crop glows, click it with the hand.',
+      note: 'Water, then pick.',
       at: () => { const c = World.crops[0]; return c ? c.x : 380; }, aty: () => { const c = World.crops[0]; return c ? c.y - 20 : Grove.WALK.y0 + 90; },
       done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
     },
     {
       key: 'feed', mood: 'happy', icon: 't_food', title: 'Feed your wombat', praise: 'Fed and happy. Good job.',
-      say: 'Buy a feed bowl and put your veg down near her.',
+      say: 'Feed her your veggies!',
       lesson: [
-        { say: "Now feed her. She's been watching you pick that.", mood: 'sly' },
-        { say: 'The mart has a Feed Bowl for you now. Choose what you grew on the bowl, then click near her.', mood: 'talk' },
+        { say: "She's hungry! Get a Feed Bowl at the mart.", mood: 'talk' },
       ],
       unlock: ['food'], tool: 'food', label: 'FEED HER',
-      note: 'Feed Bowl from the mart. Pick the food, then click near the wombat.',
+      note: 'Feed Bowl, click near her.',
       at: (g) => (has(g, 'food') ? (g.wombats[0] ? g.wombats[0].x : 340) : MART()),
       aty: (g) => (has(g, 'food') ? (g.wombats[0] ? g.wombats[0].y - 40 : Grove.WALK.y0 + 80) : MARTY()),
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
       key: 'load', mood: 'proud', icon: 'truck', title: 'Load the cubes', praise: 'Loaded. That is the job, really.',
-      say: 'What she leaves is a cube. Drag the cubes into the truck.',
+      say: 'Drag the cubes to the truck!',
       lesson: [
-        { say: 'See what she left behind? A cube. Wombats really do that. Best fertiliser going.', mood: 'laugh' },
-        { say: 'Drag the cubes into the back of the truck with your hand.', mood: 'talk' },
+        { say: 'Eep! A cube poop! Drag it into the truck.', mood: 'laugh' },
       ],
       tool: 'drag', label: 'INTO THE TRUCK',
-      note: 'Wombats leave square cubes. Drag them into the back of the truck.',
+      note: 'Drag cubes to the truck.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : Grove.TRUCK.x), aty: () => (Grove.drops[0] ? Grove.drops[0].y - 30 : MARTY()),
       done: (g) => cubes(g) > 0 || (g.stats.sold || 0) > 0 || (g.stats.fertilised || 0) > 0,
     },
     {
       key: 'fert', mood: 'sly', icon: 't_scoop', title: 'Fertilise a bed', praise: 'Watch that grow now.',
-      say: 'Poo is fertiliser. Spread a cube on a bed with a poo scoop.',
+      say: 'Scoop poop onto a bed!',
       lesson: [
-        { say: "Here's my secret: poo is fertiliser!", mood: 'sly' },
-        { say: 'Buy a Poo Scoop at the mart. Click a planted bed with it and one cube goes on. It grows twice as fast.', mood: 'happy' },
+        { say: "Secret: poop makes plants grow twice as fast! Get a Poo Scoop.", mood: 'sly' },
       ],
       unlock: ['fert'], tool: 'fert', label: 'SCOOP A BED',
-      note: 'Poo Scoop from the mart. Click a planted bed and one cube from the truck goes on.',
+      note: 'Poo Scoop on a bed.',
       at: (g) => (has(g, 'fert') ? (World.crops[0] ? World.crops[0].x : 380) : MART()),
       aty: (g) => (has(g, 'fert') ? (World.crops[0] ? World.crops[0].y - 20 : Grove.WALK.y0 + 90) : MARTY()),
       done: (g) => (g.stats.fertilised || 0) > 0,
     },
     {
-      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Jim your spare cubes', praise: 'Pleasure doing business!',
-      say: 'Got spare cubes? Bring them to me and I will pay you for the lot.',
-      lesson: [{ say: "Spare cubes? I make compost. Click me and I'll buy the lot. More for a load than one at a time.", mood: 'happy' }],
+      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Momo your spare cubes', praise: 'Pleasure doing business!',
+      say: 'Sell me your cubes!',
+      lesson: [{ say: "Click me and I'll buy your cubes!", mood: 'happy' }],
       label: 'CLICK JIM',
-      note: 'Click Jim and sell. She pays more for a load than for one.',
+      note: 'Click Momo to sell.',
       at: () => cult.x, aty: () => cult.y - 80, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
       key: 'shovel', mood: 'proud', icon: 't_shovel', title: 'Dig a pond', praise: 'Now that is a farm.',
-      say: 'Last trick. Dig with the shovel, then water the hole and it fills.',
+      say: 'Dig a hole, fill it with water!',
       lesson: [
-        { say: "Last trick, and it's the fun one.", mood: 'proud' },
-        { say: 'The Shovel is on the shelf now. It digs like a paintbrush: hold to dig down, right-click to heap up a hill.', mood: 'talk' },
-        { say: 'Water a hole and it fills into a pond. Dig a trench and it runs like a creek. The frogs love it.', mood: 'happy' },
+        { say: 'Fun one! Get a Shovel. Hold to dig, right-click to heap.', mood: 'happy' },
       ],
       unlock: ['shovel'], tool: 'shovel', label: 'DIG HERE',
-      note: 'Shovel: hold to dig down, right-click (or Shift) to heap up. Water a hole to fill it.',
+      note: 'Dig, then water.',
       at: (g) => (has(g, 'shovel') ? 480 : MART()), aty: (g) => (has(g, 'shovel') ? Grove.WALK.y0 + 120 : MARTY()),
       done: (g) => (g.stats.flooded || 0) > 0,
     },
     {
-      key: 'factory', mood: 'proud', icon: 't_hammer', title: 'Build a poop factory', praise: 'A real factory. I am so proud.',
-      say: 'Press B for the Build menu. Hopper, belts, mill, grow house, belts, pickup point.',
+      key: 'factory', mood: 'proud', icon: 't_hammer', title: 'Build a poop factory', praise: 'A real factory! Sugoi!',
+      say: 'Buy furniture from Kirk, then BUILD!',
       lesson: [
-        { say: "Okay. Big idea. What if the poop sold itself?", mood: 'sly' },
-        { say: 'Press B, or click BUILD, for the Build menu. Buy a Poop Hopper, some belts, a Fertiliser Mill, a Grow House and a Pickup Point.', mood: 'talk' },
-        { say: 'The hopper sucks up cubes. Belts carry them to the mill for fertiliser, then the grow house for carrots, then the pickup point sells them. R turns a piece round.', mood: 'happy' },
+        { say: "Big idea: a poop factory!", mood: 'sly' },
+        { say: "Buy furniture from Captain Kirk and BUILD appears. Hopper, belts, mill, grow house, pickup point!", mood: 'happy' },
       ],
       label: 'BUILD HERE',
-      note: 'B opens the Build menu. Hopper, belt, mill, belt, grow house, belt, pickup point. R rotates.',
+      note: 'Hopper > mill > grow > sell. R rotates.',
       at: () => 760, aty: () => Grove.WALK.y0 + 110,
       done: (g) => (g.stats.factorySold || 0) > 0,
     },
@@ -18149,7 +18157,7 @@ const Guide = (() => {
   // question first, so he comments on what is actually in front of him.
   const CHAT = [
     { when: (g) => g.wombats.some((w) => w.stomach === 'empty'), mood: 'worry',
-      lines: ['Somebody looks peckish.', 'Put a bowl out, mate. She will find it.', 'A hungry wombat is a grumpy wombat.'] },
+      lines: ['Somebody looks peckish.', 'Put a bowl out! She will find it.', 'A hungry wombat is a grumpy wombat.'] },
     { when: () => Grove.drops.length > 2, mood: 'happy',
       lines: ['Cubes everywhere. Beautiful.', 'Pop those in the truck before someone trips.', 'Every cube is a bag of fertiliser.'] },
     { when: (g) => g.wd > 400, mood: 'proud',
@@ -18162,7 +18170,7 @@ const Guide = (() => {
       lines: ['Nearly bedtime.', 'Listen to the frogs.', 'Fireflies are out. Best bit of the day.'] },
     { when: () => true, mood: 'idle',
       lines: [
-        'Lovely day for it.', 'I looked after this place for twenty years.', 'A wombat can outrun you. I have tested this.',
+        'Lovely day for it.', 'This onesie is the comfiest thing ever.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
         'Hot one today.', 'The gum trees smell like home.', 'Captain Kirk sells furniture. Mind the cat on his counter.', 'Kirk reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
@@ -18231,9 +18239,9 @@ const Guide = (() => {
         say: () => {
           const s = step();
           if (!s && G.cultAway === 2) return 'Come in, mind the step. Cubes round the back, money in your hand.';
-          return s ? s.say : 'Look at this place. Green as anything, and all those wombats. You did that, mate.';
+          return s ? s.say : 'Look at all these wombats! You did that!';
         },
-        sub: () => (G.cultAway === 2 ? 'at his shed door' : 'the old caretaker'),
+        sub: () => (G.cultAway === 2 ? 'at her shed door' : 'the caretaker'),
         opts: [
           { q: () => `Sell you the cubes. I have ${cubesHere()}.`, if: () => cubesHere() > 0,
             act: () => { Talk.close(); UI.openPawn('cult'); } },
@@ -18256,12 +18264,12 @@ const Guide = (() => {
       },
       who: {
         mood: 'happy',
-        say: 'Jim. Caretaker here for twenty years. Retired now, sort of. I live in the shed out the back and I play a lot of video games.',
-        opts: [{ q: 'Nice headband.', to: 'band' }, { q: 'Something else.', to: 'hub' }],
+        say: "Momo! I look after the wombats. I live in the shed and play a LOT of video games.",
+        opts: [{ q: 'Cute onesie.', to: 'band' }, { q: 'Something else.', to: 'hub' }],
       },
       band: {
         mood: 'proud',
-        say: 'Keeps the sweat out of my eyes. Gaming is a sport, mate.',
+        say: 'Thank you! It has ears! And a tail!',
         opts: [{ q: 'Fair enough.', to: 'hub' }],
       },
       money: {
@@ -18429,7 +18437,7 @@ const Guide = (() => {
   }
   function paid(n) {
     if (n <= 0) return;
-    say(U.pick(['Lovely. Square as anything.', 'Straight onto the compost heap.', 'Top quality, that.', 'A fair price, mate.']), 'chat', 'happy');
+    say(U.pick(['Lovely. Square as anything.', 'Straight onto the compost heap.', 'Top quality, that.', 'A fair price!']), 'chat', 'happy');
     cult.happyT = 1.2;
   }
 
@@ -18445,7 +18453,7 @@ const Guide = (() => {
         FX.hearts(cult.x, cult.y - 50, 6);
         FX.comic(cult.x, cult.y - 60, 'BYE!', { ink: '#ffe6a0', edge: '#8a5a20', life: 0.8 });
         Audio.play('whoosh'); Audio.play('chime'); FX.shake(1.2);
-        UI.toast('Jim has gone to build himself a shed', '');
+        UI.toast('Momo has gone to build himself a shed', '');
       }
       return;
     }
@@ -18456,7 +18464,7 @@ const Guide = (() => {
         Audio.play('thud', 1.4); FX.shake(1.6);
         FX.burst(HUT.x, hutY(), 22, { color: [PAL.bark3, PAL.bark2, PAL.moss3], speed: 110, gravity: 260, life: 0.7, size: 3 });
         FX.comic(HUT.x, hutY() - 90, 'THUNK!', { ink: '#f5cd5c', edge: '#7a5210', life: 1 });
-        UI.toast('<b>Jim built a shed</b> at the west end &mdash; she buys cubes there', 'good');
+        UI.toast('<b>Momo built a shed</b> at the west end &mdash; she buys cubes there', 'good');
         Main.save();
       }
       return;
@@ -18606,7 +18614,7 @@ const Guide = (() => {
   const WHERE = {
     meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
     arrive: 'in the grove', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
-    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
+    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Momo is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
   };
   function current() {
     const st = step();
@@ -18647,7 +18655,7 @@ const Talk = (() => {
   // modules already, so this is cheap to call every frame.
   const SPEAKERS = {
     cultist: {
-      name: 'Jim', sub: 'the caretaker, in her onesie', face: 'jim',
+      name: 'Momo', sub: 'the caretaker, in her onesie', face: 'jim',
       bg: ['#c9763c', '#7c4630'],
       draw(mood, t) {
         Sprites.setFace(mood || 'happy');
@@ -18881,7 +18889,7 @@ const UI = (() => {
       }
     }
     $('b-back').hidden = G.mode === 'grove';
-    if ($('b-build')) $('b-build').hidden = G.mode !== 'grove' || !G.arrived;
+    if ($('b-build')) $('b-build').hidden = G.mode !== 'grove' || !Factory.open();
     {
       // The head-up belongs to the game, not the title screen or the intro.
       const off = G.mode === 'menu' || G.mode === 'intro';
@@ -18900,7 +18908,7 @@ const UI = (() => {
   }
 
   // ---- the job card -------------------------------------------------------
-  // Always in the corner of the grove: whatever Jim wants next, and once
+  // Always in the corner of the grove: whatever Momo wants next, and once
   // he has shown you round, the daily round itself, ticked off as you go.
   function refreshList() {
     const box = $('checklist');
@@ -18931,12 +18939,12 @@ const UI = (() => {
       html += row('t_seed', 'Grow veg', growing ? `${growing} growing, ${food} picked` : 'hoe a bed and sow it', food > 0);
       html += row('t_food', 'Feed the wombats', hungry ? `${hungry} hungry` : 'everyone is full', hungry === 0);
       html += row('truck', 'Load the truck', loose ? `${loose} cubes on the ground` : 'nothing lying about', loose === 0);
-      html += row('wdollar', 'Sell to Jim', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
+      html += row('wdollar', 'Sell to Momo', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
     }
     box.innerHTML = html;
   }
 
-  function refreshNotebook() { }           // Jim speaks for himself now
+  function refreshNotebook() { }           // Momo speaks for himself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
   // Twenty of them is too many for one grid. They come in four bands, each
@@ -19141,20 +19149,20 @@ const UI = (() => {
     const c = document.createElement('canvas'); c.width = c.height = N * P2;
     const g = c.getContext('2d');
     const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const line = '#4a1e0e', inner = '#7a3414';
+    const line = '#3b2616', inner = '#2f5a2a';
     if (kind === 'slot' || kind === 'slotsel') {
       const sel = kind === 'slotsel';
-      R(1, 0, N - 2, N, sel ? '#e8301c' : '#8a4a1c'); R(0, 1, N, N - 2, sel ? '#e8301c' : '#8a4a1c');
-      if (sel) { R(1, 1, N - 2, N - 2, '#ff6a3a'); R(2, 1, N - 4, 1, '#ffb08a'); }
+      R(1, 0, N - 2, N, sel ? '#c83a4c' : '#6a4a30'); R(0, 1, N, N - 2, sel ? '#c83a4c' : '#6a4a30');
+      if (sel) { R(1, 1, N - 2, N - 2, '#f07a8a'); R(2, 1, N - 4, 1, '#ffc0c8'); }
       const o = sel ? 2 : 1;
-      R(o, o, N - o * 2, N - o * 2, '#f6cc84');
-      R(o, o, N - o * 2, 2, '#d49a54'); R(o, o, 2, N - o * 2, '#dca660');              // sunk: dark top and left
-      R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffe4b0'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#ffe0a8');
+      R(o, o, N - o * 2, N - o * 2, '#fdf0d8');
+      R(o, o, N - o * 2, 2, '#e8d0a4'); R(o, o, 2, N - o * 2, '#ecd8b0');              // sunk: dark top and left
+      R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffffff'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#fffaf0');
       return c.toDataURL();
     }
-    const fr = kind === 'hot' ? ['#ffd070', '#ff9a3a', '#d4843e', '#b0501c']
-      : kind === 'sel' ? ['#fbe8a0', '#f0c048', '#f0a010', '#b8842a'] : ['#f2b870', '#d4843e', '#bc6a32', '#9a5024'];
-    const paper = ['#fff3d4', '#f8e2b2', '#eac48a'];
+    const fr = kind === 'hot' ? ['#fff0b0', '#f8d060', '#e8b040', '#b88420']
+      : kind === 'sel' ? ['#ffc0c8', '#f07a8a', '#d85a6a', '#a83848'] : ['#b8e08a', '#7cb85a', '#5a9a44', '#3f7a34'];
+    const paper = ['#fffaf0', '#fdf0d8', '#f2dcb4'];
     R(2, 0, N - 4, N, line); R(0, 2, N, N - 4, line); R(1, 1, N - 2, N - 2, line);   // the line, corners knocked off
     R(2, 1, N - 4, N - 2, fr[1]); R(1, 2, N - 2, N - 4, fr[1]);
     R(2, 1, N - 4, 1, fr[0]); R(1, 2, 1, N - 4, fr[0]);                                   // lit top and left
@@ -19163,23 +19171,10 @@ const UI = (() => {
     R(3, 3, N - 6, N - 6, inner);
     R(4, 4, N - 8, N - 8, paper[1]);
     R(4, 4, N - 8, 1, paper[0]); R(4, N - 5, N - 8, 1, paper[2]);
-    for (const [x, y] of [[1, 1], [N - 3, 1], [1, N - 3], [N - 3, N - 3]]) { R(x, y, 2, 2, '#ffd070'); R(x + 1, y + 1, 1, 1, fr[3]); }
-    return c.toDataURL();
-  }
-  // A tile of paper grain for every box on the frame: mostly white, so under a
-  // multiply blend it only darkens where the fibres and flecks are.
-  function grainURL() {
-    const N = 24, P2 = 2, c = document.createElement('canvas'); c.width = c.height = N * P2;
-    const g = c.getContext('2d'), r = Art.rng(77);
-    g.fillStyle = '#ffffff'; g.fillRect(0, 0, N * P2, N * P2);
-    for (let i = 0; i < N * N; i++) {
-      const x = i % N, y = Math.floor(i / N), v = r();
-      if (v < 0.16) { g.fillStyle = '#f4e6cc'; g.fillRect(x * P2, y * P2, P2, P2); }
-      else if (v < 0.21) { g.fillStyle = '#e6cfa6'; g.fillRect(x * P2, y * P2, P2, P2); }
-    }
-    for (let i = 0; i < 9; i++) {                                // a few long fibres
-      const x = Math.floor(r() * N), y = Math.floor(r() * N), len = 2 + Math.floor(r() * 4);
-      g.fillStyle = '#ead6b2'; g.fillRect(x * P2, y * P2, len * P2, P2 / 2 + 1);
+    // a little pink flower in each corner of the frame
+    for (const [x, y] of [[1, 1], [N - 4, 1], [1, N - 4], [N - 4, N - 4]]) {
+      R(x + 1, y, 1, 1, '#ffb0c0'); R(x, y + 1, 1, 1, '#ffb0c0'); R(x + 2, y + 1, 1, 1, '#ffb0c0'); R(x + 1, y + 2, 1, 1, '#ffb0c0');
+      R(x + 1, y + 1, 1, 1, '#ffe070');
     }
     return c.toDataURL();
   }
@@ -19200,7 +19195,7 @@ const UI = (() => {
   function pickTool() { }
 
   // ---- "you got a new tool" -------------------------------------------------
-  // A card that drops into the middle of the picture when Jim hands you
+  // A card that drops into the middle of the picture when Momo hands you
   // something or the mart starts stocking it. They queue, one at a time.
   const unlockQ = [];
   function unlockCard(key, gift) { unlockQ.push({ key, gift }); if (unlockQ.length === 1) showUnlock(); }
@@ -19245,7 +19240,7 @@ const UI = (() => {
       el.className = 'chip' + (keys && G.selOffer === k ? ' on' : '');
       el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
       el.onclick = (e) => onClick(k, e);
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Jim${bl ? '<br><b>blessed</b>' : ''}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Momo${bl ? '<br><b>blessed</b>' : ''}`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
@@ -19264,7 +19259,7 @@ const UI = (() => {
     purseT = setTimeout(() => el.classList.remove('ping'), 320);
   }
 
-  // Jim buys the cubes off you at his shed.
+  // Momo buys the cubes off you at his shed.
   function refreshRunHUD() { }
   function onRunStart() { }
   function onRunPlay() { }
@@ -19443,7 +19438,7 @@ const UI = (() => {
     paintPup();
   }
 
-  // Jim buys every cube they leave for his compost heap, and pays more
+  // Momo buys every cube they leave for his compost heap, and pays more
   // for a load than for one. The mart counter buys them at the same rate.
   let pawnMode = 'shop';
   function openPawn(mode) { pawnMode = mode || 'shop'; openPanel('panel-pawn'); }
@@ -19502,7 +19497,6 @@ const UI = (() => {
     G = g;
     Tex.install();                         // wood, paper, metal and gold, painted not faked
     for (const k of ['base', 'hot', 'sel', 'paper', 'slot', 'slotsel']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
-    document.documentElement.style.setProperty('--grain', `url(${grainURL()})`);
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };
@@ -19730,6 +19724,9 @@ const Menu = (() => {
     Font.draw(g, 'WOMBAT FARM', VW / 2 + 2, 43 + bob, { scale: 4, color: '#f0a040', align: 'center' });
     Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: '#5a2610', align: 'center' });
     Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: Kit.C.ink2, align: 'center' });
+    // the credit, on a pink ribbon hanging under the board
+    { const cw = Font.width('made by Pulling Dragon', 1) + 16;
+      Kit.tab(g, VW / 2 - cw / 2, 96 + bob, cw, 15, 'made by Pulling Dragon', { col: '#f07a8a' }); }
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
     const bx = 430, bw = 184;
     const play = { id: 'enter', x: bx, y: 118, w: bw, h: 44 };
@@ -19761,7 +19758,7 @@ const Menu = (() => {
   // under the buttons that changes every time you come back.
   const RUMOURS = [
     'wombats sleep sixteen hours a day. goals.',
-    'Jim says the pumpkins have never been bigger',
+    'Momo says the pumpkins have never been bigger',
     'the mart shuts at six but Shaz never leaves',
     'a wombat can dig a whole burrow in one night',
     'Groot grows the best carrots in the district',
@@ -19773,11 +19770,11 @@ const Menu = (() => {
   ];
   let rumour = 0;
   const HELP = [
-    ['t_drag', 'Start with your hands', 'Jim gives you her old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
+    ['t_drag', 'Start with your hands', 'Momo gives you her old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
     ['t_sickle', 'Tidy the garden', 'Cut the weeds, have the ants take the old logs, and sow grass. A tidy patch brings a wombat.'],
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],
-    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Jim.'],
+    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Momo.'],
     ['t_shovel', 'Shape the land', 'Hold to dig down, right-click to heap up. Water a hole and it fills into a pond or a creek.'],
   ];
 
@@ -19957,7 +19954,7 @@ void main(){
   c = (c - 0.5) * 1.04 + 0.5;
   // texture: a fine grain on every game pixel and a coarser weave under it
   float g1 = hash(px) - 0.5, g2 = hash(floor(px / 3.0) + 17.0) - 0.5, g3 = hash(floor(px / 7.0) + 3.0) - 0.5;
-  c *= 1.0 + g1 * 0.045 + g2 * 0.03 + g3 * 0.02;
+  c *= 1.0 + g1 * 0.018 + g2 * 0.012 + g3 * 0.008;
   // after dark: a blue cast
   c = mix(c, c * vec3(0.7, 0.78, 1.08), u_night * 0.45);
   // by day: a faint warm light falling from the upper left
@@ -20105,6 +20102,8 @@ const Factory = (() => {
 
   // ---- inventory -------------------------------------------------------------------------------
   const inv = (k) => (G.factory.inv[k] || 0);
+  // the Build menu only turns up once you own a piece of furniture
+  const open = () => !!G && (G.boughtFurn || Object.keys(G.crates || {}).length > 0 || (G.furniture || []).length > 0);
   function buy(k, n = 1) {
     const d = DEFS[k]; if (!d) return false;
     if (!unlocked(k)) { Audio.play('error'); UI.toast('buy the land it comes from first', 'bad'); return false; }
@@ -20603,7 +20602,7 @@ const Factory = (() => {
       if (why) { Audio.play('error'); UI.toast(why, 'bad'); return true; }
       if (place(k, c, r, mode.rot)) lastTile = { c, r };
     }
-    if (inv(k) <= 0) { UI.toast(`out of <b>${DEFS[k].name}</b> &mdash; buy more in the Build menu (B)`, 'good'); stop(); }
+    if (inv(k) <= 0) stop();
     refreshBar(); UI.refreshHUD(); Main.save();
     return true;
   }
@@ -20641,50 +20640,65 @@ const Factory = (() => {
   }
   function openMenu() {
     if (!G || G.mode !== 'grove') { UI.toast('the build menu is for the grove', 'bad'); return; }
-    if (!G.arrived) { UI.toast('tidy the grove and meet your first wombat before you build', 'bad'); return; }
+    if (!open()) { UI.toast('buy furniture from <b>Captain Kirk</b> first', 'bad'); return; }
     stop();
     UI.openPanel('panel-build');
     renderMenu();
   }
+  // A row of big cards along the bottom, Dragon City style: a name ribbon,
+  // the building on a little lawn, a short tag, and a fat gold price button
+  // that buys it and puts it straight on your pointer to place.
+  const TAG = {
+    belt: 'moves things', hopper: 'sucks up poop', mill: 'poop to fertiliser', grow: 'fertiliser to carrots', depot: 'sells it all',
+    splitter: 'splits 3 ways', fishtrap: 'catches fish', shroomlog: 'grows mushrooms', beehive: 'makes honey',
+    chest: 'holds 20', feeder: 'feeds wombats', sprinkler: 'waters beds', lamp: 'lights the night',
+  };
+  const coin = () => Icons.img('wdollar', 'sm');
+  function card(k, o) {
+    const cls = ['dcc', 'cat-' + (o.cat || 'factory')];
+    if (o.locked) cls.push('locked');
+    return `<div class="${cls.join(' ')}" title="${o.title || ''}">
+      <div class="dcc-name">${o.name}</div>
+      <div class="dcc-art"><img src="${o.img}" alt=""></div>
+      ${o.have ? `<i class="dcc-have">x${o.have}</i>` : ''}
+      <div class="dcc-tag">${o.tag || ''}</div>
+      ${o.locked ? `<div class="dcc-lock">${Icons.img('lock', 'sm')} ${o.lockText}</div>` : o.btn}
+    </div>`;
+  }
   function renderMenu() {
     const el = document.getElementById('b-grid'); if (!el) return;
     document.querySelectorAll('[data-btab]').forEach((b) => b.classList.toggle('on', b.dataset.btab === tab));
-    if (tab === 'decor') {
-      const ks = Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0);
-      el.innerHTML = ks.length ? ks.map((k) => {
-        const f = FURN_BY_KEY[k], img = Props.furniture(k);
-        return `<div class="bcard"><div class="bpic"><img src="${img ? img.toDataURL() : ''}" alt=""></div><b>${f.name}</b><p>${f.blurb}</p>
-          <div class="brow3"><span class="bhave">x${G.crates[k]}</span><button class="wbtn" data-bdecor="${k}">PLACE</button></div></div>`;
-      }).join('') : `<p class="bempty">No furniture in crates. Captain Kirk's Ottoman Empire, in town, sells it.</p>`;
+    const coins = document.getElementById('b-coins'); if (coins) coins.textContent = U.fmt(G.wd);
+    const out = [];
+    const decor = () => Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0).map((k) => {
+      const f = FURN_BY_KEY[k], img = Props.furniture(k);
+      return card(k, { cat: 'decor', name: f.name, img: img ? img.toDataURL() : '', have: G.crates[k], tag: 'furniture', title: f.blurb,
+        btn: `<button class="dcc-btn place" data-bdecor="${k}">PLACE</button>` });
+    });
+    if (tab === 'decor') out.push(...decor());
+    else if (tab === 'storage') {
+      for (const k of ORDER) if (inv(k) > 0) out.push(card(k, { cat: DEFS[k].cat, name: DEFS[k].name, img: iconURL(k), have: inv(k), tag: TAG[k], title: DEFS[k].blurb,
+        btn: `<button class="dcc-btn place" data-bplace="${k}">PLACE</button>` }));
+      out.push(...decor());
     } else {
-      el.innerHTML = ORDER.filter((k) => DEFS[k].cat === tab).map((k) => {
-        const d = DEFS[k], n = inv(k), can = G.wd >= d.cost;
-        if (!unlocked(k)) {
-          const pl = typeof Explore !== 'undefined' ? Explore.PLACES[d.need] : null;
-          return `<div class="bcard locked"><div class="bpic"><img src="${iconURL(k)}" alt=""></div><b>${d.name}</b><p>${d.blurb}</p>
-            <div class="brow3"><span class="block">${Icons.img('lock', 'sm')} buy ${pl ? pl.name : 'the land'} on the map</span></div></div>`;
-        }
-        return `<div class="bcard"><div class="bpic"><img src="${iconURL(k)}" alt=""></div><b>${d.name}</b><p>${d.blurb}</p>
-          <div class="brow3"><span class="bprice">${Icons.img('wdollar', 'sm')} ${d.cost}</span><span class="bhave">${n ? 'x' + n : ''}</span></div>
-          <div class="brow3"><button class="wbtn" data-bbuy="${k}" ${can ? '' : 'disabled'}>BUY${k === 'belt' ? ' 1' : ''}</button>
-          ${k === 'belt' ? `<button class="wbtn" data-bbuy5="${k}" ${G.wd >= d.cost * 5 ? '' : 'disabled'}>BUY 5</button>` : ''}
-          <button class="wbtn go" data-bplace="${k}" ${n ? '' : 'disabled'}>PLACE</button></div></div>`;
-      }).join('');
+      for (const k of ORDER.filter((q) => DEFS[q].cat === tab)) {
+        const d = DEFS[k], n = inv(k), five = k === 'belt' ? 5 : 1, cost = d.cost * five;
+        const pl = d.need && typeof Explore !== 'undefined' ? Explore.PLACES[d.need] : null;
+        out.push(card(k, { cat: d.cat, name: d.name, img: iconURL(k), have: n, tag: TAG[k] + (five > 1 ? ' &middot; x5' : ''), title: d.blurb,
+          locked: !unlocked(k), lockText: pl ? pl.name : '',
+          btn: `<button class="dcc-btn buy" data-bbuy="${k}" ${G.wd >= cost ? '' : 'disabled'}>${coin()} ${U.fmt(cost)}</button>` }));
+      }
     }
-    const invEl = document.getElementById('b-inv');
-    const keys = ORDER.filter((k) => inv(k) > 0);
-    invEl.innerHTML = keys.length ? keys.map((k) => `<button class="binvi" data-bplace="${k}" title="${DEFS[k].name}"><img src="${iconURL(k)}" alt=""><i>${inv(k)}</i></button>`).join('')
-      : '<span class="dim">empty &mdash; buy something above</span>';
-    const earned = G.stats.factoryEarned || 0;
-    document.getElementById('b-earned').textContent = earned ? `the factory has made ${U.fmt(earned)} W$` : 'hopper, belt, mill, grow house, belt, pickup point';
-    el.querySelectorAll('[data-bbuy]').forEach((b) => b.onclick = () => { if (buy(b.dataset.bbuy, 1)) renderMenu(); });
-    el.querySelectorAll('[data-bbuy5]').forEach((b) => b.onclick = () => { if (buy(b.dataset.bbuy5, 5)) renderMenu(); });
-    document.querySelectorAll('#panel-build [data-bplace]').forEach((b) => b.onclick = () => start(b.dataset.bplace));
+    el.innerHTML = out.length ? out.join('') : `<div class="dc-empty">${tab === 'decor' ? 'Buy furniture from Captain Kirk' : 'Nothing here yet'}</div>`;
+    el.querySelectorAll('[data-bbuy]').forEach((b) => b.onclick = () => {
+      const k = b.dataset.bbuy;
+      if (buy(k, k === 'belt' ? 5 : 1)) start(k);                  // bought: straight onto the pointer
+    });
+    el.querySelectorAll('[data-bplace]').forEach((b) => b.onclick = () => start(b.dataset.bplace));
     el.querySelectorAll('[data-bdecor]').forEach((b) => b.onclick = () => {
       G.tool = 'build'; if (!G.owned) G.owned = {}; G.owned.build = true; if (!G.unlocked) G.unlocked = {}; G.unlocked.build = true;
       Grove.selectFurniture && Grove.selectFurniture(b.dataset.bdecor);
       UI.closePanels(); UI.refreshTray(); UI.refreshHUD();
-      UI.toast('click the ground to set it down', 'good');
     });
   }
   function bindMenu() {
@@ -20693,6 +20707,8 @@ const Factory = (() => {
     const bb = document.getElementById('b-build'); if (bb) bb.onclick = () => openMenu();
     const pr = document.getElementById('pb-rot'); if (pr) pr.onclick = () => rotate();
     const ps = document.getElementById('pb-stop'); if (ps) ps.onclick = () => stop();
+    const row = document.getElementById('b-grid');
+    if (row) row.addEventListener('wheel', (e) => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { row.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
   }
   // the bar along the top while you are placing
   function refreshBar() {
@@ -20700,12 +20716,12 @@ const Factory = (() => {
     bar.hidden = !mode;
     if (!mode) return;
     const arrows = ['&rarr;', '&darr;', '&larr;', '&uarr;'];
-    document.getElementById('pb-what').innerHTML = mode.pick ? '<b>PICK UP</b> click a building to put it back in your inventory'
-      : `<b>${DEFS[mode.key].name}</b> x${inv(mode.key)} &nbsp; facing ${arrows[mode.rot]}${mode.key === 'belt' ? ' &nbsp; <span class="dim">hold and drag to lay a run</span>' : ''}`;
+    document.getElementById('pb-what').innerHTML = mode.pick ? '<b>MOVE</b> click a building'
+      : `<b>${DEFS[mode.key].name}</b> x${inv(mode.key)} ${arrows[mode.rot]}`;
     document.getElementById('pb-rot').hidden = !!mode.pick;
   }
   return {
-    init, update, drawFloor, sortables, drawOver, press, pointer, key, tipAt, active, start, stop, rotate, openMenu, renderMenu, bindMenu, buy, place,
+    init, open, update, drawFloor, sortables, drawOver, press, pointer, key, tipAt, active, start, stop, rotate, openMenu, renderMenu, bindMenu, buy, place,
     DEFS, ORDER, PRICE, get mode() { return mode; }, get grid() { return grid; }, T, OY, ROWS,
   };
 })();
@@ -20965,7 +20981,7 @@ const Explore = (() => {
     if (!G.fieldGuide) G.fieldGuide = {};
     G.fieldGuide[key] = (G.fieldGuide[key] || 0) + 1;
     G.stats.foraged = (G.stats.foraged || 0) + 1;
-    FX.float(it.x - scroll, it.y - 22, `+${value} ${name}`, { color: PAL.gold4, size: 8 });
+    FX.float(it.x - scroll, it.y - 22, `+${value}`, { color: PAL.gold4, size: 8 });
     FX.sparkle(it.x - scroll, it.y - 8, 8, PAL.gold3);
     Audio.play(value >= 20 ? 'chime' : 'pop');
     if (value >= 20) UI.toast(`a rare find: <b>${name}</b> (+${value} W$)`, 'good');
@@ -20994,8 +21010,6 @@ const Explore = (() => {
     paint(place);
     scroll = tscroll = 0; t = 0; hover = null; fade = 1;
     Audio.setMode('pen');
-    const P = PLACES[place];
-    UI.toast(`<b>${P.name}</b> &mdash; ${P.blurb} Drag to look along it; click things to pick them up.`, 'good');
   }
   function update(dt) {
     t += dt; fade = Math.max(0, fade - dt * 2);
@@ -21128,7 +21142,7 @@ const Explore = (() => {
     // ---- the name of the place, and how much of it there is still to find
     const left = finds().filter((it) => !it.taken).length;
     Kit.tab(g, 12, 60, 150, 18, P.name.toUpperCase(), { col: Kit.C.frameM });
-    Font.draw(g, left ? `${left} things to find` : 'all found for today', 16, 82, { scale: 1, color: '#ffffff', shadow: '#1a1420' });
+    Font.draw(g, `${left} left`, 16, 82, { scale: 1, color: '#ffffff', shadow: '#1a1420' });
     if (fade > 0) { g.fillStyle = `rgba(20,10,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
     FX.drawParticles(g, 0); FX.drawConfetti(g); FX.drawFloaters(g, false);
   }
@@ -21162,7 +21176,7 @@ const Main = (() => {
       seeds: { ashgrass: 6 }, food: {}, offerings: {}, blessed: {}, artifacts: {}, lastSite: 'grove',
       summoned: {}, blessings: {}, fruits: {}, up: {}, decor: {}, staged: {}, plots: { home: true },
       world: { strokes: [], blades: [], flowers: [], crops: [], sprouts: [], weeds: null, restored: 0 },
-      brush: 1, crates: {}, furniture: [], factory: { b: [], inv: {} }, lands: {}, forage: {}, fieldGuide: {}, exploreAt: 'lake', owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
+      brush: 1, crates: {}, furniture: [], factory: { b: [], inv: {} }, lands: {}, forage: {}, fieldGuide: {}, exploreAt: 'lake', boughtFurn: false, owned: { drag: true }, unlocked: {}, lessons: {}, tutorialV: 2, nophone: 1,
       msgs: null, shots: null, trophies: 0, spins: 0, wombats: [], objects: null, arrived: false, pairFirst: null, step: 0, visited: {}, tiers: { sickle: 0, hoe: 0, water: 0 },
       stats: { fed: 0, pets: 0, left: 0, gathered: 0, harvested: 0, earned: 0, lost: 0, collapses: 0, summons: 0, sold: 0, fertilised: 0 },
       pointer: { x: 320, y: 240, on: false },
@@ -21211,7 +21225,7 @@ const Main = (() => {
         s.owned = { drag: true };
         for (const t of TOOL_SHOP) s.owned[t.key] = true;
       }
-      // the tutorial grew a first step (meeting Jim) and tools that unlock as you go
+      // the tutorial grew a first step (meeting Momo) and tools that unlock as you go
       if (s.tutorialV !== 2) {
         s.tutorialV = 2;
         s.unlocked = s.unlocked || {};

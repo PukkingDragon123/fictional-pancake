@@ -86,7 +86,7 @@
     }
     // cubes on the grass
     cube(g, 62, GY + 22, 7); cube(g, 72, GY + 25, 5); cube(g, 250, GY + 30, 7); cube(g, 152, GY + 40, 6);
-    // Jim, waving at you, belly and all
+    // Momo, waving at you, belly and all
     const jf = Math.floor(u * 12) % 6;
     g.fillStyle = 'rgba(40,60,20,0.3)'; Art.ell(g, 158, GY + 12, 18, 4);
     blit(g, Sprites.jim(jf, 'wave'), 158, GY + 15, 1);
@@ -110,10 +110,12 @@
     title(g, 'FARM', W / 2, 62, 6, (u + 0.5) % 1, { wave: 2, top: '#c8f08a', low: '#6aa84a', line: '#1c3a12' });
     void tw;
     Kit.tab(g, W / 2 - 62, 112, 124, 16, 'a cozy little grove', { col: Kit.C.coral });
+    const cw = Font.width('made by Pulling Dragon', 1) + 14;
+    Kit.tab(g, W / 2 - cw / 2, H - 20, cw, 15, 'made by Pulling Dragon', { col: '#f07a8a' });
   }
 
   // ---- the banner: 480 x 160, shown at 2x: everybody dancing and singing ------------------------
-  // the whole cast: Groot, Shaz, Jim in the middle, Captain Kirk
+  // the whole cast: Groot, Shaz, Momo in the middle, Captain Kirk
   const BAND = [
     { key: 'groot', x: 118, sc: 0.95, poses: ['happy', 'wave'], sprite: (f, p) => Sprites.groot(f, p), note: 72 },
     { key: 'shaz', x: 196, sc: 1.25, poses: ['cheer', 'wave'], sprite: (f, p) => Sprites.cashier(f, p), note: 58 },
@@ -173,6 +175,7 @@
     const LY = ['I am Groot!', 'la la la!', 'WOMBAT FARM!', 'beep boop!'];
     const li = Math.floor(u * 4) % 4, m = BAND[li];
     Kit.bubble(g, m.x, GY - m.note - 6, LY[li], { maxW: 120 });
+    Font.draw(g, 'made by Pulling Dragon', W - 6, 4, { scale: 1, color: '#fff4d0', align: 'right', shadow: '#2a1420' });
   }
 
   // render frames of a scene at 2x and hand back RGBA for the encoder

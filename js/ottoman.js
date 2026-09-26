@@ -44,6 +44,7 @@ const Ottoman = (() => {
     G.wd -= f.cost;
     if (!G.crates) G.crates = {};
     G.crates[f.key] = (G.crates[f.key] || 0) + 1;
+    if (!G.boughtFurn) { G.boughtFurn = true; UI.toast('<b>BUILD</b> unlocked!', 'good'); }
     Audio.play('cash'); FX.confettiBurst(VW / 2, 150, 40);
     const line = U.pick(['A fine choice!', 'Sold, to the wombat farmer!', 'She\'ll serve you well.', 'Mind the corners going out.']);
     clarkSay(line); menuSay(line + ` The ${f.name} goes out in a crate.`, 'laugh');
@@ -249,11 +250,7 @@ const Ottoman = (() => {
         g.drawImage(img, Math.round(x + 27 - iw / 2), Math.round(y + h - 5 - ih + bob), iw, ih);
       }
       // name, a line of patter, and the price
-      Font.draw(g, f.name, x + 58, y + 5, { scale: 2, color: C.ink });
-      let bl = f.blurb; const maxB = w - 58 - 92;
-      while (Font.width(bl, 1) > maxB && bl.length > 4) bl = bl.slice(0, -2).trimEnd() + '.';
-      if (bl !== f.blurb) bl = bl.replace(/\.+$/, '...');
-      Font.draw(g, bl, x + 58, y + 22, { scale: 1, color: C.ink2 });
+      Font.draw(g, f.name, x + 58, y + 11, { scale: 2, color: C.ink });
       const price = U.fmt(f.cost);
       const pw = Font.width(price, 2);
       Font.draw(g, price, x + w - 8, y + 11, { scale: 2, color: afford ? C.ink : C.coralD, align: 'right' });

@@ -1,7 +1,7 @@
 // ---- Balance data. Icon keys everywhere, almost no prose. -----------------
 const CUBE_SIZE = 30;          // one poop cube, and the game's unit of height
 
-// Cubes: what a wombat leaves behind. Jim buys them for compost, or you spread them as fertiliser.
+// Cubes: what a wombat leaves behind. Momo buys them for compost, or you spread them as fertiliser.
 const OFFERINGS = {
   plain: { key: 'plain', name: 'Plain', icon: 'o_plain', mark: '', w: 1, h: 1, density: 1, friction: 0.62, restitution: 0.02, adhesion: 0, value: 6, color: '#553d27' },
   rich:  { key: 'rich', name: 'Rich', icon: 'o_rich', mark: '', w: 1.45, h: 1.45, density: 1, friction: 0.66, restitution: 0.02, adhesion: 0, value: 13, color: '#3b2a1b' },
@@ -95,7 +95,7 @@ const SUBTOOLS = [
   { key: 'fert',  name: 'Poo Scoop', icon: 't_scoop', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
 ];
 // ---- what you own -------------------------------------------------------------
-// You arrive with your two hands and W$300. Jim hands you her old sickle; every
+// You arrive with your two hands and W$300. Momo hands you her old sickle; every
 // other tool is *unlocked* when he teaches you the job it is for, and then
 // bought at Wombat Mart.
 const TOOL_SHOP = [
@@ -112,7 +112,7 @@ const TOOL_SHOP = [
 ];
 const TOOL_SHOP_BY_KEY = Object.fromEntries(TOOL_SHOP.map((t) => [t.key, t]));
 const owns = (g, key) => !!(g && g.owned && g.owned[key]);
-// taught: Jim has shown you it, so the mart will sell it to you
+// taught: Momo has shown you it, so the mart will sell it to you
 const taught = (g, key) => owns(g, key) || !!(g && g.unlocked && g.unlocked[key]);
 const GATES = {
   drag: () => true,
@@ -123,7 +123,7 @@ const GATE_WHY = {
   pair: 'needs a nest from Groot\'s cellar',
 };
 const whyLocked = (key, g) => GATE_WHY[key] || (TOOL_SHOP_BY_KEY[key]
-  ? (g && !taught(g, key) ? 'locked &middot; Jim will show you this one soon' : `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}`)
+  ? (g && !taught(g, key) ? 'locked &middot; Momo will show you this one soon' : `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}`)
   : 'not yet');
 // number keys 1-9, in the order you are likely to want them
 const HOTKEYS = ['drag', 'sickle', 'destroy', 'moss', 'water', 'hoe', 'seed', 'food', 'fert', 'shovel', 'build'];
@@ -305,7 +305,7 @@ function rollLotto() {
 }
 
 // Every Golden Wombat on the shelf pays a little more at the stack, for good.
-// ---- What Jim pays for a cube ----------------------------------
+// ---- What Momo pays for a cube ----------------------------------
 // He buys the lot. The price is the offering's own worth plus a little for
 // bulk: one cube is a curiosity, a truckload is a supply.
 const trophyBonus = (g) => (g.trophies || 0) * 0.08;

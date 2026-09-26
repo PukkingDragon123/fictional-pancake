@@ -163,6 +163,9 @@ const Menu = (() => {
     Font.draw(g, 'WOMBAT FARM', VW / 2 + 2, 43 + bob, { scale: 4, color: '#f0a040', align: 'center' });
     Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: '#5a2610', align: 'center' });
     Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: Kit.C.ink2, align: 'center' });
+    // the credit, on a pink ribbon hanging under the board
+    { const cw = Font.width('made by Pulling Dragon', 1) + 16;
+      Kit.tab(g, VW / 2 - cw / 2, 96 + bob, cw, 15, 'made by Pulling Dragon', { col: '#f07a8a' }); }
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
     const bx = 430, bw = 184;
     const play = { id: 'enter', x: bx, y: 118, w: bw, h: 44 };
@@ -194,7 +197,7 @@ const Menu = (() => {
   // under the buttons that changes every time you come back.
   const RUMOURS = [
     'wombats sleep sixteen hours a day. goals.',
-    'Jim says the pumpkins have never been bigger',
+    'Momo says the pumpkins have never been bigger',
     'the mart shuts at six but Shaz never leaves',
     'a wombat can dig a whole burrow in one night',
     'Groot grows the best carrots in the district',
@@ -206,11 +209,11 @@ const Menu = (() => {
   ];
   let rumour = 0;
   const HELP = [
-    ['t_drag', 'Start with your hands', 'Jim gives you her old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
+    ['t_drag', 'Start with your hands', 'Momo gives you her old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
     ['t_sickle', 'Tidy the garden', 'Cut the weeds, have the ants take the old logs, and sow grass. A tidy patch brings a wombat.'],
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],
-    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Jim.'],
+    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Momo.'],
     ['t_shovel', 'Shape the land', 'Hold to dig down, right-click to heap up. Water a hole and it fills into a pond or a creek.'],
   ];
 

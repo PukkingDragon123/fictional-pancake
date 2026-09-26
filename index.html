@@ -20,7 +20,7 @@
     <div id="money"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
     <div id="clock" hidden><canvas id="clock-dial" width="30" height="30"></canvas><div class="ctx"><b id="c-time">9:00am</b><small id="c-day">Day 1</small></div></div>
     <div id="checklist" hidden></div>
-    <div id="placebar" hidden><span id="pb-what"></span><button class="wbtn" id="pb-rot">ROTATE (R)</button><button class="wbtn" id="pb-stop">DONE (Esc)</button></div>
+    <div id="placebar" hidden><span id="pb-what"></span><button class="wbtn" id="pb-rot">R</button><button class="wbtn" id="pb-stop">DONE</button></div>
 
     <div id="side">
       <button class="rbtn big" id="b-tool" hidden><img class="ico" data-ico="t_sickle" alt=""></button>
@@ -81,13 +81,17 @@
     <div class="pbody" id="wombat-body"></div>
   </div>
 
-  <div id="panel-build" class="panel build" hidden>
-    <div class="phead"><img class="ico" data-ico="t_hammer" alt=""><span class="ptitle">BUILD</span><button class="x" data-close="panel-build"><img class="ico sm" data-ico="close" alt=""></button></div>
-    <div class="pbody">
-      <div class="btabs"><button class="wbtn" data-btab="factory">FACTORY</button><button class="wbtn" data-btab="utility">UTILITY</button><button class="wbtn" data-btab="decor">DECOR</button><button class="wbtn" id="b-pick">PICK UP</button></div>
-      <div class="bgrid" id="b-grid"></div>
-      <div class="binv"><b>INVENTORY</b><div id="b-inv"></div></div>
-      <p class="bfoot"><span id="b-earned"></span> &middot; R rotates &middot; Esc stops placing</p>
+  <div id="panel-build" class="panel build dc" hidden>
+    <div class="dc-top"><span class="dc-title"><img class="ico" data-ico="t_hammer" alt="">BUILD</span><span class="dc-coins"><img class="ico sm" data-ico="wdollar" alt=""><b id="b-coins">0</b></span><button class="x" data-close="panel-build"><img class="ico sm" data-ico="close" alt=""></button></div>
+    <div class="dc-body">
+      <div class="dc-tabs">
+        <button data-btab="factory"><img class="ico" data-ico="t_hammer" alt=""><span>MAKE</span></button>
+        <button data-btab="utility"><img class="ico" data-ico="t_water" alt=""><span>HELP</span></button>
+        <button data-btab="decor"><img class="ico" data-ico="d_ottoman" alt=""><span>DECOR</span></button>
+        <button data-btab="storage"><img class="ico" data-ico="basket" alt=""><span>BAG</span></button>
+        <button id="b-pick"><img class="ico" data-ico="t_drag" alt=""><span>MOVE</span></button>
+      </div>
+      <div class="dc-row" id="b-grid"></div>
     </div>
   </div>
 
@@ -95,17 +99,14 @@
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li>You start with your two hands and W$300. Jim gives you her old sickle, and each job she teaches unlocks the next tool. Buy them at Wombat Mart: click the truck to drive there.</li>
-        <li>Jim, the caretaker in the wombat onesie, tells you your next job in a speech bubble. Click her to chat, or to sell her your cubes.</li>
-        <li>Pick a tool on the toolbar along the bottom, or press <b>1</b>&ndash;<b>0</b>. Locked tools show a padlock; unlocked ones you have not bought show their price. An arrow points at your current job. Drag bare ground, roll the wheel or use the arrow keys to look around.</li>
-        <li>Cut the weeds with the sickle, have the ants take the old logs, and sow grass. A tidy garden brings a wombat.</li>
-        <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
-        <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
-        <li>The <b>shovel</b> paints the ground: hold the left button to dig down, the right button (or Shift) to heap up a hill. Water a hole with the can and it fills into a pond; water a trench and it runs like a creek. <b>[</b> and <b>]</b> change the brush size.</li>
-        <li>Press <b>B</b> (or BUILD) for the <b>Build menu</b>: buy machines into your inventory, place them on your land and turn them with <b>R</b>. A <b>Poop Hopper</b> sucks up cubes, belts carry them to a <b>Fertiliser Mill</b>, then a <b>Grow House</b> for carrots, then a <b>Pickup Point</b> sells them. The longer the chain, the more it pays.</li>
-        <li><b>Still Lake</b>, <b>Blackwood</b> and <b>Fern Gully</b> are on the map. Drag along them and click things to pick them up. Buy one and you find twice as much there, and it unlocks its own building.</li>
-        <li>Captain Kirk's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
+        <li><b>Momo</b> gives you jobs. Click her to chat or sell cubes.</li>
+        <li>Tools: <b>1</b>&ndash;<b>0</b>. Buy them at <b>Wombat Mart</b> (click the truck).</li>
+        <li>Cut weeds, clear logs, sow grass. A wombat comes!</li>
+        <li>Grow veg, feed wombats, collect their <b>cube poop</b>.</li>
+        <li>Buy furniture from <b>Captain Kirk</b>, then <b>BUILD</b> (<b>B</b>) a poop factory. <b>R</b> rotates.</li>
+        <li>Explore <b>Still Lake</b>, <b>Blackwood</b> and <b>Fern Gully</b> on the map (<b>M</b>).</li>
       </ol>
+      <p class="credit">Wombat Farm &middot; made by <b>Pulling Dragon</b></p>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-fx">SHADERS ON</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
   </div>

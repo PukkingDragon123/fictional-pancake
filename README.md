@@ -1,6 +1,6 @@
 # Wombat Farm
 
-A cozy pixel-art farm game: take over a run-down wombat farm from Jim, the old
+A cozy pixel-art farm game: take over a run-down wombat farm from Momo, the old
 caretaker. Tidy the overgrown garden, grow veg, feed the wombats who move in, and sell
 the little square cubes they leave (or spread them on the beds as fertiliser). No build
 step, no dependencies: open `index.html`, or serve the folder.
@@ -15,9 +15,9 @@ inlined). Rebuild it with `python3 build.py` after changing anything in `js/` or
 ## Playing
 
 The game opens with the drive in: through the forest, down the one street of Wombat
-Creek, and up to the farm gate where Jim is waiting.
+Creek, and up to the farm gate where Momo is waiting.
 
-1. **Meet Jim.** You start with your hands and W$300. Jim hands you her old sickle and
+1. **Meet Momo.** You start with your hands and W$300. Momo hands you her old sickle and
    teaches each job in a dialogue box with her portrait. Every job unlocks the tool
    it needs, which you then buy at Wombat Mart (click the truck). An arrow points at
    whatever the job is about, and the toolbar slot you need glows.
@@ -25,7 +25,7 @@ Creek, and up to the farm gate where Jim is waiting.
    grass inside the rope. A tidy garden brings your first wombat.
 3. **Grow.** Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.
 4. **Feed.** Put a bowl down with the feed tool. She eats, wanders off, and leaves a cube.
-5. **Sell or spread.** Load cubes into the truck and sell them to Jim, who pays more for a
+5. **Sell or spread.** Load cubes into the truck and sell them to Momo, who pays more for a
    load. Or spread one on a planted bed with the Poo Scoop: it grows twice as fast.
 6. **Shape the land.** The shovel is a brush: dig down with the left button, heap up
    hills with the right. Water poured into a hole stays and flows along any dug channel,
@@ -47,7 +47,7 @@ Creek, and up to the farm gate where Jim is waiting.
    sale; buy it and you find twice as much there, and it unlocks a building of its own: a Fish
    Trap, a Mushroom Log or a Beehive.
 
-Jim tells you what to do next in a speech bubble and chats if you click her. Jim is a cheerful girl in a wombat onesie. Shaz from
+Momo tells you what to do next in a speech bubble and chats if you click her. Momo is a cheerful girl in a wombat onesie. Shaz from
 the mart, Groot and Captain Kirk drop by now and then, the weather changes on its own, and a day is twelve minutes long.
 
 The clock under your purse shows the time, the day and the weather. The picture goes
@@ -77,7 +77,7 @@ if your machine struggles; without WebGL the game simply draws without it.
 - `js/grove.js` - the garden scene: wombats, tools, the truck, plots
 - `js/world.js` - the painted ground, grass, weeds, crops, trees and fertiliser
 - `js/wild.js` - the shovel's height field and flowing water, critters, and visitors: Shaz, Groot and Captain Kirk
-- `js/guide.js` - Jim: the jobs, his lessons, the tools each job unlocks, the pointer arrow
+- `js/guide.js` - Momo: the jobs, his lessons, the tools each job unlocks, the pointer arrow
 - `js/talk.js`, `js/portraits.js` - the dialogue box and the big 64x64 faces with moods
 - `js/uikit.js`, `css/theme.css` - the pixel farm-game interface, on canvas and in HTML
 - `js/iconart.js` - the hand-drawn 16x16 tool and item icons
@@ -86,7 +86,7 @@ if your machine struggles; without WebGL the game simply draws without it.
 - `js/intro.js` - the drive into Wombat Creek and up to the farm gate
 - `js/ottoman.js` - Captain Kirk's Ottoman Empire and his catalogue
 - `js/kirk.js` - Captain Kirk, the robot: his figure and his portrait
-- `js/jimgirl.js`, `js/busts.js` - Jim in her onesie, and portraits for Shaz and Groot
+- `js/jimgirl.js`, `js/busts.js` - Momo in her onesie, and portraits for Shaz and Groot
 - `js/factory.js` - the machines, belts, the Build menu and the poop economy
 - `js/explore.js` - Still Lake, Blackwood and Fern Gully
 - `js/shader.js` - the WebGL pass over the finished picture: glow, colour grade, paper grain, night tint, vignette
@@ -99,6 +99,10 @@ if your machine struggles; without WebGL the game simply draws without it.
 ## itch.io art
 
 `promo/cover.gif` (630x500) and `promo/banner.gif` (960x320) are looping pixel GIFs painted
-with the game's own sprites: the cover is the title with Jim and the wombats, the banner is
-Jim, Groot, Shaz and Captain Kirk dancing and singing together. `promo/*.png` are stills. To redraw them, run
+with the game's own sprites: the cover is the title with Momo and the wombats, the banner is
+Momo, Groot, Shaz and Captain Kirk dancing and singing together. `promo/*.png` are stills. To redraw them, run
 `node promo/render.js` (it needs Playwright).
+
+## Credits
+
+Wombat Farm is made by **Pulling Dragon**.

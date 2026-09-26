@@ -1,4 +1,4 @@
-// ---- Jim: the caretaker, in her wombat onesie ------------------------------------------
+// ---- Momo: the caretaker, in her wombat onesie ------------------------------------------
 // A chibi anime girl: big head, huge sparkly teal eyes, soft pink hair with a
 // fringe and long locks, and brown wombat pyjamas with the hood up. The hood
 // has round ears and a little wombat face of its own (two button eyes and a
@@ -6,7 +6,7 @@
 // mittens and paw feet with toe beans, and a stubby tail.
 //
 // JimGirl.sprite(f, t, pose, mood) draws the 52x84 figure (feet at y 81, the
-// same box the old Jim used, so everything that draws him still lines up).
+// same box the old Momo used, so everything that draws him still lines up).
 // JimGirl.bust(mood, t, talking) is her 64x64 dialogue portrait.
 const JimGirl = (() => {
   const cache = new Map();

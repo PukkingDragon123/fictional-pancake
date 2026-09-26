@@ -172,7 +172,7 @@ const Shop = (() => {
     const out = [];
     for (const t of TOOL_SHOP) {
       const def = TOOL_BY_KEY[t.key];
-      if (!taught(G, t.key)) continue;                // Jim has not shown you this one yet
+      if (!taught(G, t.key)) continue;                // Momo has not shown you this one yet
       out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
     }
     for (const u of UPGRADES) {

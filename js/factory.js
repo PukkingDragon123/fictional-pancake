@@ -77,6 +77,8 @@ const Factory = (() => {
 
   // ---- inventory -------------------------------------------------------------------------------
   const inv = (k) => (G.factory.inv[k] || 0);
+  // the Build menu only turns up once you own a piece of furniture
+  const open = () => !!G && (G.boughtFurn || Object.keys(G.crates || {}).length > 0 || (G.furniture || []).length > 0);
   function buy(k, n = 1) {
     const d = DEFS[k]; if (!d) return false;
     if (!unlocked(k)) { Audio.play('error'); UI.toast('buy the land it comes from first', 'bad'); return false; }
@@ -575,7 +577,7 @@ const Factory = (() => {
       if (why) { Audio.play('error'); UI.toast(why, 'bad'); return true; }
       if (place(k, c, r, mode.rot)) lastTile = { c, r };
     }
-    if (inv(k) <= 0) { UI.toast(`out of <b>${DEFS[k].name}</b> &mdash; buy more in the Build menu (B)`, 'good'); stop(); }
+    if (inv(k) <= 0) stop();
     refreshBar(); UI.refreshHUD(); Main.save();
     return true;
   }
@@ -613,50 +615,65 @@ const Factory = (() => {
   }
   function openMenu() {
     if (!G || G.mode !== 'grove') { UI.toast('the build menu is for the grove', 'bad'); return; }
-    if (!G.arrived) { UI.toast('tidy the grove and meet your first wombat before you build', 'bad'); return; }
+    if (!open()) { UI.toast('buy furniture from <b>Captain Kirk</b> first', 'bad'); return; }
     stop();
     UI.openPanel('panel-build');
     renderMenu();
   }
+  // A row of big cards along the bottom, Dragon City style: a name ribbon,
+  // the building on a little lawn, a short tag, and a fat gold price button
+  // that buys it and puts it straight on your pointer to place.
+  const TAG = {
+    belt: 'moves things', hopper: 'sucks up poop', mill: 'poop to fertiliser', grow: 'fertiliser to carrots', depot: 'sells it all',
+    splitter: 'splits 3 ways', fishtrap: 'catches fish', shroomlog: 'grows mushrooms', beehive: 'makes honey',
+    chest: 'holds 20', feeder: 'feeds wombats', sprinkler: 'waters beds', lamp: 'lights the night',
+  };
+  const coin = () => Icons.img('wdollar', 'sm');
+  function card(k, o) {
+    const cls = ['dcc', 'cat-' + (o.cat || 'factory')];
+    if (o.locked) cls.push('locked');
+    return `<div class="${cls.join(' ')}" title="${o.title || ''}">
+      <div class="dcc-name">${o.name}</div>
+      <div class="dcc-art"><img src="${o.img}" alt=""></div>
+      ${o.have ? `<i class="dcc-have">x${o.have}</i>` : ''}
+      <div class="dcc-tag">${o.tag || ''}</div>
+      ${o.locked ? `<div class="dcc-lock">${Icons.img('lock', 'sm')} ${o.lockText}</div>` : o.btn}
+    </div>`;
+  }
   function renderMenu() {
     const el = document.getElementById('b-grid'); if (!el) return;
     document.querySelectorAll('[data-btab]').forEach((b) => b.classList.toggle('on', b.dataset.btab === tab));
-    if (tab === 'decor') {
-      const ks = Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0);
-      el.innerHTML = ks.length ? ks.map((k) => {
-        const f = FURN_BY_KEY[k], img = Props.furniture(k);
-        return `<div class="bcard"><div class="bpic"><img src="${img ? img.toDataURL() : ''}" alt=""></div><b>${f.name}</b><p>${f.blurb}</p>
-          <div class="brow3"><span class="bhave">x${G.crates[k]}</span><button class="wbtn" data-bdecor="${k}">PLACE</button></div></div>`;
-      }).join('') : `<p class="bempty">No furniture in crates. Captain Kirk's Ottoman Empire, in town, sells it.</p>`;
+    const coins = document.getElementById('b-coins'); if (coins) coins.textContent = U.fmt(G.wd);
+    const out = [];
+    const decor = () => Object.keys(G.crates || {}).filter((k) => FURN_BY_KEY[k] && G.crates[k] > 0).map((k) => {
+      const f = FURN_BY_KEY[k], img = Props.furniture(k);
+      return card(k, { cat: 'decor', name: f.name, img: img ? img.toDataURL() : '', have: G.crates[k], tag: 'furniture', title: f.blurb,
+        btn: `<button class="dcc-btn place" data-bdecor="${k}">PLACE</button>` });
+    });
+    if (tab === 'decor') out.push(...decor());
+    else if (tab === 'storage') {
+      for (const k of ORDER) if (inv(k) > 0) out.push(card(k, { cat: DEFS[k].cat, name: DEFS[k].name, img: iconURL(k), have: inv(k), tag: TAG[k], title: DEFS[k].blurb,
+        btn: `<button class="dcc-btn place" data-bplace="${k}">PLACE</button>` }));
+      out.push(...decor());
     } else {
-      el.innerHTML = ORDER.filter((k) => DEFS[k].cat === tab).map((k) => {
-        const d = DEFS[k], n = inv(k), can = G.wd >= d.cost;
-        if (!unlocked(k)) {
-          const pl = typeof Explore !== 'undefined' ? Explore.PLACES[d.need] : null;
-          return `<div class="bcard locked"><div class="bpic"><img src="${iconURL(k)}" alt=""></div><b>${d.name}</b><p>${d.blurb}</p>
-            <div class="brow3"><span class="block">${Icons.img('lock', 'sm')} buy ${pl ? pl.name : 'the land'} on the map</span></div></div>`;
-        }
-        return `<div class="bcard"><div class="bpic"><img src="${iconURL(k)}" alt=""></div><b>${d.name}</b><p>${d.blurb}</p>
-          <div class="brow3"><span class="bprice">${Icons.img('wdollar', 'sm')} ${d.cost}</span><span class="bhave">${n ? 'x' + n : ''}</span></div>
-          <div class="brow3"><button class="wbtn" data-bbuy="${k}" ${can ? '' : 'disabled'}>BUY${k === 'belt' ? ' 1' : ''}</button>
-          ${k === 'belt' ? `<button class="wbtn" data-bbuy5="${k}" ${G.wd >= d.cost * 5 ? '' : 'disabled'}>BUY 5</button>` : ''}
-          <button class="wbtn go" data-bplace="${k}" ${n ? '' : 'disabled'}>PLACE</button></div></div>`;
-      }).join('');
+      for (const k of ORDER.filter((q) => DEFS[q].cat === tab)) {
+        const d = DEFS[k], n = inv(k), five = k === 'belt' ? 5 : 1, cost = d.cost * five;
+        const pl = d.need && typeof Explore !== 'undefined' ? Explore.PLACES[d.need] : null;
+        out.push(card(k, { cat: d.cat, name: d.name, img: iconURL(k), have: n, tag: TAG[k] + (five > 1 ? ' &middot; x5' : ''), title: d.blurb,
+          locked: !unlocked(k), lockText: pl ? pl.name : '',
+          btn: `<button class="dcc-btn buy" data-bbuy="${k}" ${G.wd >= cost ? '' : 'disabled'}>${coin()} ${U.fmt(cost)}</button>` }));
+      }
     }
-    const invEl = document.getElementById('b-inv');
-    const keys = ORDER.filter((k) => inv(k) > 0);
-    invEl.innerHTML = keys.length ? keys.map((k) => `<button class="binvi" data-bplace="${k}" title="${DEFS[k].name}"><img src="${iconURL(k)}" alt=""><i>${inv(k)}</i></button>`).join('')
-      : '<span class="dim">empty &mdash; buy something above</span>';
-    const earned = G.stats.factoryEarned || 0;
-    document.getElementById('b-earned').textContent = earned ? `the factory has made ${U.fmt(earned)} W$` : 'hopper, belt, mill, grow house, belt, pickup point';
-    el.querySelectorAll('[data-bbuy]').forEach((b) => b.onclick = () => { if (buy(b.dataset.bbuy, 1)) renderMenu(); });
-    el.querySelectorAll('[data-bbuy5]').forEach((b) => b.onclick = () => { if (buy(b.dataset.bbuy5, 5)) renderMenu(); });
-    document.querySelectorAll('#panel-build [data-bplace]').forEach((b) => b.onclick = () => start(b.dataset.bplace));
+    el.innerHTML = out.length ? out.join('') : `<div class="dc-empty">${tab === 'decor' ? 'Buy furniture from Captain Kirk' : 'Nothing here yet'}</div>`;
+    el.querySelectorAll('[data-bbuy]').forEach((b) => b.onclick = () => {
+      const k = b.dataset.bbuy;
+      if (buy(k, k === 'belt' ? 5 : 1)) start(k);                  // bought: straight onto the pointer
+    });
+    el.querySelectorAll('[data-bplace]').forEach((b) => b.onclick = () => start(b.dataset.bplace));
     el.querySelectorAll('[data-bdecor]').forEach((b) => b.onclick = () => {
       G.tool = 'build'; if (!G.owned) G.owned = {}; G.owned.build = true; if (!G.unlocked) G.unlocked = {}; G.unlocked.build = true;
       Grove.selectFurniture && Grove.selectFurniture(b.dataset.bdecor);
       UI.closePanels(); UI.refreshTray(); UI.refreshHUD();
-      UI.toast('click the ground to set it down', 'good');
     });
   }
   function bindMenu() {
@@ -665,6 +682,8 @@ const Factory = (() => {
     const bb = document.getElementById('b-build'); if (bb) bb.onclick = () => openMenu();
     const pr = document.getElementById('pb-rot'); if (pr) pr.onclick = () => rotate();
     const ps = document.getElementById('pb-stop'); if (ps) ps.onclick = () => stop();
+    const row = document.getElementById('b-grid');
+    if (row) row.addEventListener('wheel', (e) => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { row.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
   }
   // the bar along the top while you are placing
   function refreshBar() {
@@ -672,12 +691,12 @@ const Factory = (() => {
     bar.hidden = !mode;
     if (!mode) return;
     const arrows = ['&rarr;', '&darr;', '&larr;', '&uarr;'];
-    document.getElementById('pb-what').innerHTML = mode.pick ? '<b>PICK UP</b> click a building to put it back in your inventory'
-      : `<b>${DEFS[mode.key].name}</b> x${inv(mode.key)} &nbsp; facing ${arrows[mode.rot]}${mode.key === 'belt' ? ' &nbsp; <span class="dim">hold and drag to lay a run</span>' : ''}`;
+    document.getElementById('pb-what').innerHTML = mode.pick ? '<b>MOVE</b> click a building'
+      : `<b>${DEFS[mode.key].name}</b> x${inv(mode.key)} ${arrows[mode.rot]}`;
     document.getElementById('pb-rot').hidden = !!mode.pick;
   }
   return {
-    init, update, drawFloor, sortables, drawOver, press, pointer, key, tipAt, active, start, stop, rotate, openMenu, renderMenu, bindMenu, buy, place,
+    init, open, update, drawFloor, sortables, drawOver, press, pointer, key, tipAt, active, start, stop, rotate, openMenu, renderMenu, bindMenu, buy, place,
     DEFS, ORDER, PRICE, get mode() { return mode; }, get grid() { return grid; }, T, OY, ROWS,
   };
 })();

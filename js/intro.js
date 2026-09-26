@@ -2,7 +2,7 @@
 // No phone this time. You have taken the job, the car is packed, and the
 // opening is the drive itself: out of the forest, down the one street of
 // Wombat Creek past the bakery and the mart and the pub, and up to the farm
-// gate, where Jim is waiting to show you round.
+// gate, where Momo is waiting to show you round.
 //
 // Hold the mouse to put your foot down; Esc skips the lot.
 const Intro = (() => {
@@ -39,7 +39,7 @@ const Intro = (() => {
   const LOCALS = [{ at: 1560, sp: -8 }, { at: 1905, sp: 6 }, { at: 2230, sp: -5 }];
   // what gets said on the way, as a card in the corner
   const CAPTIONS = [
-    { from: 0, to: 640, head: 'THE NEW JOB', lines: ['Caretaker wanted. Wombat farm, a bit run down.', 'Board, lodging, and wombats. Apply to Jim.'] },
+    { from: 0, to: 640, head: 'THE NEW JOB', lines: ['Caretaker wanted. Wombat farm, a bit run down.', 'Board, lodging, and wombats. Apply to Momo.'] },
     { from: 700, to: 1200, head: 'JIM, ON THE PHONE', lines: ['"Past the gum trees, through the village,', 'first gate on the left. Can\'t miss it."'] },
     { from: 1250, to: 2300, head: 'WOMBAT CREEK', lines: ['One street: a bakery, the post, the mart, the pub.', 'Everybody waves.'] },
   ];
@@ -150,7 +150,7 @@ const Intro = (() => {
     c.lines.forEach((l, i) => Font.draw(g, l, x + 14, y + 13 + i * 12, { scale: 1, color: Kit.C.ink }));
     g.globalAlpha = 1;
   }
-  // Jim at the gate talks in the same box as the rest of the game: the words
+  // Momo at the gate talks in the same box as the rest of the game: the words
   // on the left, his face in a frame on the right, his name on a plate.
   function dialogue(g, text, mood, typedN) {
     const W = 560, H = 96, X = (VW - W) / 2, Y = VH - H - 10;
@@ -198,7 +198,7 @@ const Intro = (() => {
           Sprites.shadow(g2, wx, R - 6, 'walk', Math.floor(t * 9), 'brown', dir, 'adult', 0.8);
           Sprites.blit(g2, wx, R - 6, 'walk', Math.floor(t * 9), 'brown', dir, 'adult', 0.8);
         }
-        // Jim at the gate, waving you in
+        // Momo at the gate, waving you in
         const jx = GATE_AT - d - 90;
         if (jx > -60 && jx < VW + 60) {
           Sprites.setFace('happy');
@@ -214,7 +214,7 @@ const Intro = (() => {
     if (stopped() && stopT > 0.5) {
       const jx = GATE_AT - d - 90;
       const first = stopT < 4.2;
-      const line = first ? "G'day! You must be the new caretaker. I'm Jim. Welcome to Wombat Farm!" : "Bit of a mess, I'll be honest. Come on in and I'll show you round.";
+      const line = first ? "Hi hi! You're the new farmer? I'm Momo! Welcome~" : "It's a bit messy. Come in!";
       const since = first ? stopT - 0.5 : stopT - 4.2;
       dialogue(g, line, first ? 'happy' : 'laugh', Math.floor(since * 38));
       if (stopT > 1.6) {

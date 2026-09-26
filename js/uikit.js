@@ -7,15 +7,15 @@
 // Nothing is round.
 const Kit = (() => {
   const C = {
-    line: '#4a1e0e', inner: '#7a3414',
-    frameL: '#f2b870', frame: '#d4843e', frameM: '#bc6a32', frameD: '#9a5024',
-    paper: '#f8e2b2', paperL: '#fff3d4', paperD: '#eac48a',
-    ink: '#5a2610', ink2: '#8a5028',
+    line: '#3b2616', inner: '#2f5a2a',
+    frameL: '#b8e08a', frame: '#7cb85a', frameM: '#5a9a44', frameD: '#3f7a34',
+    paper: '#fdf0d8', paperL: '#fffaf0', paperD: '#f2dcb4',
+    ink: '#4a3222', ink2: '#8a6a4c',
     // the accents: grass green, sunflower, tomato, sky
     mint: '#6aa84a', mintL: '#a8d880', mintD: '#3f7a32', mintDD: '#264e20', mintW: '#fff3d4',
     sun: '#f0c048', sunL: '#fbe8a0', sunD: '#b8842a',
     coral: '#d45a40', coralD: '#983224', sky: '#5a9ad0',
-    shadow: 'rgba(60,20,4,0.32)',
+    shadow: 'rgba(40,30,10,0.3)',
   };
   const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
   // a rectangle with a single pixel knocked off each corner: the only
@@ -31,7 +31,7 @@ const Kit = (() => {
   // the box: every card, panel and plaque on the canvas
   function card(g, x, y, w, h, o = {}) {
     x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
-    const hot = o.ring, fr = hot ? ['#fbe8a0', '#f0c048', '#f0a010', '#b8842a'] : [C.frameL, C.frame, C.frameM, C.frameD];
+    const hot = o.ring, fr = hot ? ['#fff0b0', '#f8d060', '#e8b040', '#b88420'] : [C.frameL, C.frame, C.frameM, C.frameD];
     if (o.shadow !== false) rr(g, x + 2, y + 3, w, h, 2, C.shadow);
     rr(g, x, y, w, h, 2, C.line);
     R(g, x + 1, y + 1, w - 2, h - 2, fr[1]);
@@ -43,7 +43,9 @@ const Kit = (() => {
     R(g, x + 4, y + 4, w - 8, 1, o.top || C.paperL);
     R(g, x + 4, y + h - 5, w - 8, 1, o.low || C.paperD);
     // a nub of brass in each corner of the frame
-    for (const [cx, cy] of [[x + 1, y + 1], [x + w - 3, y + 1], [x + 1, y + h - 3], [x + w - 3, y + h - 3]]) { R(g, cx, cy, 2, 2, '#ffd070'); R(g, cx + 1, cy + 1, 1, 1, C.frameD); }
+    for (const [cx, cy] of [[x, y], [x + w - 3, y], [x, y + h - 3], [x + w - 3, y + h - 3]]) {   // a pink flower in each corner
+      R(g, cx + 1, cy, 1, 1, '#ffb0c0'); R(g, cx, cy + 1, 1, 1, '#ffb0c0'); R(g, cx + 2, cy + 1, 1, 1, '#ffb0c0'); R(g, cx + 1, cy + 2, 1, 1, '#ffb0c0'); R(g, cx + 1, cy + 1, 1, 1, '#ffe070');
+    }
   }
   // a button: a small box that lifts under the pointer and sinks when pressed
   function button(g, b, label, sub, o = {}) {
@@ -54,7 +56,7 @@ const Kit = (() => {
     const x = b.x, y = b.y + lift, w = b.w, h = b.h;
     rr(g, x + 2, b.y + 4, w, h, 2, C.shadow);
     rr(g, x, y, w, h, 2, C.line);
-    R(g, x + 1, y + 1, w - 2, h - 2, hot ? '#ffcc5a' : C.frame);
+    R(g, x + 1, y + 1, w - 2, h - 2, hot ? '#f8d060' : C.frame);
     R(g, x + 2, y + 1, w - 4, 1, C.frameL); R(g, x + 2, y + h - 2, w - 4, 1, C.frameD);
     R(g, x + 3, y + 3, w - 6, h - 6, C.inner);
     R(g, x + 4, y + 4, w - 8, h - 8, hot ? U.shade(fill[0], 0.12) : fill[0]);

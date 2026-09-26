@@ -1,4 +1,4 @@
-// ---- Jim: the old caretaker who teaches you the job and buys the cubes -----
+// ---- Momo: the caretaker in the wombat onesie, who teaches the job and buys the cubes -----
 const Guide = (() => {
   let G = null;
   const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0, happyT: 0 };
@@ -13,7 +13,7 @@ const Guide = (() => {
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
-  // Each step is a job Jim gives you, and a place for her to stand.
+  // Each step is a job Momo gives you, and a place for her to stand.
   //   lesson   what he tells you in the dialogue box when the job comes up
   //   give     tools he hands over when he has finished explaining
   //   unlock   tools the mart will now sell you
@@ -22,148 +22,137 @@ const Guide = (() => {
   const MART = () => Grove.TRUCK.x - 10, MARTY = () => Grove.TRUCK.y - 60;
   const STEPS = [
     {
-      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Jim', praise: 'Go on, give it a swing.',
-      say: "G'day! I'm Jim. This farm's yours now. Here, take my old sickle.",
+      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Momo', praise: 'Go on, give it a swing.',
+      say: "Hi hi! I'm Momo. Take my sickle!",
       lesson: [
-        { say: "G'day! You made it. I'm Jim. I've looked after this farm for twenty years.", mood: 'happy' },
-        { say: "My knees have had it, so it's all yours now. Bit of a mess, I'll be honest.", mood: 'sad' },
-        { say: "Here, have my old sickle. That's the first job: the weeds. Pick it on your toolbar, or press 2.", mood: 'proud' },
+        { say: "Hi hi! I'm Momo! This farm is yours now~", mood: 'happy' },
+        { say: "Take my sickle and cut the weeds. Press 2!", mood: 'proud' },
       ],
-      give: ['sickle'], tool: 'sickle', note: 'Talk to Jim.',
+      give: ['sickle'], tool: 'sickle', note: 'Talk to Momo.',
       at: () => cult.x - 40, done: (g) => has(g, 'sickle'),
     },
     {
       key: 'weeds', mood: 'talk', icon: 't_sickle', title: 'Cut the weeds', praise: 'Tidy! Here, for your trouble.',
-      say: 'Drag the sickle across the weeds inside the rope. The big ones take a few swings.',
+      say: 'Drag across the weeds!',
       lesson: null, tool: 'sickle', label: 'WEEDS',
-      note: 'Pick the sickle (key 2) and drag across the weeds inside the rope.',
+      note: 'Sickle (2), drag on weeds.',
       at: () => ZONE.x - 60, aty: () => Grove.WALK.y0 + 70, done: () => World.weeds.every((w) => !inZone(w.x, w.y)),
     },
     {
       key: 'junk', mood: 'think', icon: 't_destroy', title: 'Clear the old logs', praise: 'Love the ants. Hard workers.',
-      say: "Those old logs are too heavy for us. The ants in town will shift them. Buy an Ant Hire Card at the mart.",
+      say: "Ants move logs. Buy an Ant Card!",
       lesson: [
-        { say: 'Beauty! Now, those old logs and ruins are far too heavy for the two of us.', mood: 'think' },
-        { say: "The ants in town will shift anything for a small fee. I've asked Shaz at Wombat Mart to sell you an Ant Hire Card.", mood: 'talk' },
-        { say: 'Click the truck to drive there. Back here, pick the card and click each log.', mood: 'happy' },
+        { say: 'Yay! Those logs are too heavy though.', mood: 'think' },
+        { say: 'Drive to the mart (click the truck) for an Ant Card, then click each log.', mood: 'happy' },
       ],
       unlock: ['destroy'], tool: 'destroy', label: 'DRIVE TO THE MART',
-      note: 'Click the truck, go to Wombat Mart, buy an Ant Hire Card. Then click each log inside the rope.',
+      note: 'Mart: Ant Card. Click logs.',
       at: (g) => (has(g, 'destroy') ? ((Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)) || { x: ZONE.x }).x) : MART()),
       aty: (g) => (has(g, 'destroy') ? ((Grove.objects.find((x) => !x.gone && inZone(x.x, x.y)) || { y: Grove.WALK.y0 + 60 }).y - 30) : MARTY()),
       done: () => Grove.objects.every((o) => o.gone || !inZone(o.x, o.y)),
     },
     {
       key: 'grass', mood: 'talk', icon: 't_moss', title: 'Sow the grass', praise: 'Green again. Beauty.',
-      say: 'Wombats will not live on bare dirt. Sow grass seed inside the rope and water it.',
+      say: 'Sow grass, then water it!',
       lesson: [
-        { say: "Now it's clear, it needs grass. No wombat will live on bare dirt.", mood: 'talk' },
-        { say: 'Grass Seed and a Watering Can are on the shelf at the mart now. Brush the seed on inside the rope, then water it so it takes.', mood: 'happy' },
+        { say: 'Wombats need grass! Seed and a can are at the mart.', mood: 'happy' },
       ],
       unlock: ['moss', 'water'], tool: 'moss', label: 'SOW HERE',
-      note: 'Buy Grass Seed and a Watering Can. Brush grass inside the rope, then water it.',
+      note: 'Seed + can. Sow, then water.',
       at: (g) => (has(g, 'moss') ? ZONE.x : MART()), aty: (g) => (has(g, 'moss') ? Grove.WALK.y0 + 70 : MARTY()),
       done: () => World.zoneFraction() >= ZONE_GRASS,
     },
     {
       key: 'arrive', mood: 'worry', icon: 'wombat', title: 'Wait for a wombat', praise: 'There she is! Your first wombat.',
-      say: 'Shh. Watch the treeline. A tidy patch always brings one round.',
-      lesson: [{ say: 'Shh! Look at the treeline. A tidy, grassy patch always brings one of them round. Just wait.', mood: 'shock' }],
-      note: 'A tidy patch brings a wombat. One always comes.',
+      say: 'Shh... watch the trees!',
+      lesson: [{ say: 'Shh! A wombat is coming...', mood: 'shock' }],
+      note: 'Wait for a wombat.',
       at: () => 320, done: (g) => g.wombats.length > 0,
     },
     {
       key: 'sow', mood: 'talk', icon: 't_hoe', title: 'Dig a bed and sow it', praise: 'Sown. Good hands.',
-      say: 'She will need feeding. Hoe a bed and sow some carrots.',
+      say: 'Hoe a bed, sow carrots!',
       lesson: [
-        { say: "Would you look at that. She's picked you! Wombats don't do that for just anyone.", mood: 'laugh' },
-        { say: "She'll need feeding, so let's grow something.", mood: 'think' },
-        { say: "A Hoe and a Seed Pouch are at the mart now. Get carrot seed from Groot's Cellar.", mood: 'talk' },
-        { say: 'Hoe a patch of bare ground into a bed, then sow the seed on it.', mood: 'happy' },
+        { say: "She picked you! Kyaa~ so cute!", mood: 'laugh' },
+        { say: "Hoe and seed pouch at the mart, carrot seed from Groot.", mood: 'talk' },
       ],
       unlock: ['hoe', 'seed'], tool: 'hoe', label: 'DIG A BED HERE',
-      note: 'Hoe and Seed Pouch from the mart, carrot seed from Groot. Hoe bare soil, then sow on it.',
+      note: 'Hoe a bed, sow seed.',
       at: (g) => (has(g, 'hoe') ? 380 : MART()), aty: (g) => (has(g, 'hoe') ? Grove.WALK.y0 + 110 : MARTY()),
       done: () => World.crops.length > 0,
     },
     {
       key: 'pick', mood: 'talk', icon: 't_water', title: 'Water, then pick', praise: 'Your first harvest!',
-      say: 'Water it every so often. When it glows, pick it with your hand.',
-      lesson: [{ say: 'Keep it watered. A thirsty bed sulks. When a crop glows, pick it with your hand.', mood: 'talk' }],
+      say: 'Water it. Pick it when it glows!',
+      lesson: [{ say: 'Water it! When it glows, pick it.', mood: 'talk' }],
       tool: 'water', label: 'WATER ME',
-      note: 'Water the bed. When a crop glows, click it with the hand.',
+      note: 'Water, then pick.',
       at: () => { const c = World.crops[0]; return c ? c.x : 380; }, aty: () => { const c = World.crops[0]; return c ? c.y - 20 : Grove.WALK.y0 + 90; },
       done: (g) => CROPS.some((c) => (g.food[c.key] || 0) > 0),
     },
     {
       key: 'feed', mood: 'happy', icon: 't_food', title: 'Feed your wombat', praise: 'Fed and happy. Good job.',
-      say: 'Buy a feed bowl and put your veg down near her.',
+      say: 'Feed her your veggies!',
       lesson: [
-        { say: "Now feed her. She's been watching you pick that.", mood: 'sly' },
-        { say: 'The mart has a Feed Bowl for you now. Choose what you grew on the bowl, then click near her.', mood: 'talk' },
+        { say: "She's hungry! Get a Feed Bowl at the mart.", mood: 'talk' },
       ],
       unlock: ['food'], tool: 'food', label: 'FEED HER',
-      note: 'Feed Bowl from the mart. Pick the food, then click near the wombat.',
+      note: 'Feed Bowl, click near her.',
       at: (g) => (has(g, 'food') ? (g.wombats[0] ? g.wombats[0].x : 340) : MART()),
       aty: (g) => (has(g, 'food') ? (g.wombats[0] ? g.wombats[0].y - 40 : Grove.WALK.y0 + 80) : MARTY()),
       done: (g) => g.wombats.some((w) => w.stomach !== 'empty'),
     },
     {
       key: 'load', mood: 'proud', icon: 'truck', title: 'Load the cubes', praise: 'Loaded. That is the job, really.',
-      say: 'What she leaves is a cube. Drag the cubes into the truck.',
+      say: 'Drag the cubes to the truck!',
       lesson: [
-        { say: 'See what she left behind? A cube. Wombats really do that. Best fertiliser going.', mood: 'laugh' },
-        { say: 'Drag the cubes into the back of the truck with your hand.', mood: 'talk' },
+        { say: 'Eep! A cube poop! Drag it into the truck.', mood: 'laugh' },
       ],
       tool: 'drag', label: 'INTO THE TRUCK',
-      note: 'Wombats leave square cubes. Drag them into the back of the truck.',
+      note: 'Drag cubes to the truck.',
       at: () => (Grove.drops[0] ? Grove.drops[0].x : Grove.TRUCK.x), aty: () => (Grove.drops[0] ? Grove.drops[0].y - 30 : MARTY()),
       done: (g) => cubes(g) > 0 || (g.stats.sold || 0) > 0 || (g.stats.fertilised || 0) > 0,
     },
     {
       key: 'fert', mood: 'sly', icon: 't_scoop', title: 'Fertilise a bed', praise: 'Watch that grow now.',
-      say: 'Poo is fertiliser. Spread a cube on a bed with a poo scoop.',
+      say: 'Scoop poop onto a bed!',
       lesson: [
-        { say: "Here's my secret: poo is fertiliser!", mood: 'sly' },
-        { say: 'Buy a Poo Scoop at the mart. Click a planted bed with it and one cube goes on. It grows twice as fast.', mood: 'happy' },
+        { say: "Secret: poop makes plants grow twice as fast! Get a Poo Scoop.", mood: 'sly' },
       ],
       unlock: ['fert'], tool: 'fert', label: 'SCOOP A BED',
-      note: 'Poo Scoop from the mart. Click a planted bed and one cube from the truck goes on.',
+      note: 'Poo Scoop on a bed.',
       at: (g) => (has(g, 'fert') ? (World.crops[0] ? World.crops[0].x : 380) : MART()),
       aty: (g) => (has(g, 'fert') ? (World.crops[0] ? World.crops[0].y - 20 : Grove.WALK.y0 + 90) : MARTY()),
       done: (g) => (g.stats.fertilised || 0) > 0,
     },
     {
-      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Jim your spare cubes', praise: 'Pleasure doing business!',
-      say: 'Got spare cubes? Bring them to me and I will pay you for the lot.',
-      lesson: [{ say: "Spare cubes? I make compost. Click me and I'll buy the lot. More for a load than one at a time.", mood: 'happy' }],
+      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Momo your spare cubes', praise: 'Pleasure doing business!',
+      say: 'Sell me your cubes!',
+      lesson: [{ say: "Click me and I'll buy your cubes!", mood: 'happy' }],
       label: 'CLICK JIM',
-      note: 'Click Jim and sell. She pays more for a load than for one.',
+      note: 'Click Momo to sell.',
       at: () => cult.x, aty: () => cult.y - 80, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
       key: 'shovel', mood: 'proud', icon: 't_shovel', title: 'Dig a pond', praise: 'Now that is a farm.',
-      say: 'Last trick. Dig with the shovel, then water the hole and it fills.',
+      say: 'Dig a hole, fill it with water!',
       lesson: [
-        { say: "Last trick, and it's the fun one.", mood: 'proud' },
-        { say: 'The Shovel is on the shelf now. It digs like a paintbrush: hold to dig down, right-click to heap up a hill.', mood: 'talk' },
-        { say: 'Water a hole and it fills into a pond. Dig a trench and it runs like a creek. The frogs love it.', mood: 'happy' },
+        { say: 'Fun one! Get a Shovel. Hold to dig, right-click to heap.', mood: 'happy' },
       ],
       unlock: ['shovel'], tool: 'shovel', label: 'DIG HERE',
-      note: 'Shovel: hold to dig down, right-click (or Shift) to heap up. Water a hole to fill it.',
+      note: 'Dig, then water.',
       at: (g) => (has(g, 'shovel') ? 480 : MART()), aty: (g) => (has(g, 'shovel') ? Grove.WALK.y0 + 120 : MARTY()),
       done: (g) => (g.stats.flooded || 0) > 0,
     },
     {
-      key: 'factory', mood: 'proud', icon: 't_hammer', title: 'Build a poop factory', praise: 'A real factory. I am so proud.',
-      say: 'Press B for the Build menu. Hopper, belts, mill, grow house, belts, pickup point.',
+      key: 'factory', mood: 'proud', icon: 't_hammer', title: 'Build a poop factory', praise: 'A real factory! Sugoi!',
+      say: 'Buy furniture from Kirk, then BUILD!',
       lesson: [
-        { say: "Okay. Big idea. What if the poop sold itself?", mood: 'sly' },
-        { say: 'Press B, or click BUILD, for the Build menu. Buy a Poop Hopper, some belts, a Fertiliser Mill, a Grow House and a Pickup Point.', mood: 'talk' },
-        { say: 'The hopper sucks up cubes. Belts carry them to the mill for fertiliser, then the grow house for carrots, then the pickup point sells them. R turns a piece round.', mood: 'happy' },
+        { say: "Big idea: a poop factory!", mood: 'sly' },
+        { say: "Buy furniture from Captain Kirk and BUILD appears. Hopper, belts, mill, grow house, pickup point!", mood: 'happy' },
       ],
       label: 'BUILD HERE',
-      note: 'B opens the Build menu. Hopper, belt, mill, belt, grow house, belt, pickup point. R rotates.',
+      note: 'Hopper > mill > grow > sell. R rotates.',
       at: () => 760, aty: () => Grove.WALK.y0 + 110,
       done: (g) => (g.stats.factorySold || 0) > 0,
     },
@@ -202,7 +191,7 @@ const Guide = (() => {
   // question first, so he comments on what is actually in front of him.
   const CHAT = [
     { when: (g) => g.wombats.some((w) => w.stomach === 'empty'), mood: 'worry',
-      lines: ['Somebody looks peckish.', 'Put a bowl out, mate. She will find it.', 'A hungry wombat is a grumpy wombat.'] },
+      lines: ['Somebody looks peckish.', 'Put a bowl out! She will find it.', 'A hungry wombat is a grumpy wombat.'] },
     { when: () => Grove.drops.length > 2, mood: 'happy',
       lines: ['Cubes everywhere. Beautiful.', 'Pop those in the truck before someone trips.', 'Every cube is a bag of fertiliser.'] },
     { when: (g) => g.wd > 400, mood: 'proud',
@@ -215,7 +204,7 @@ const Guide = (() => {
       lines: ['Nearly bedtime.', 'Listen to the frogs.', 'Fireflies are out. Best bit of the day.'] },
     { when: () => true, mood: 'idle',
       lines: [
-        'Lovely day for it.', 'I looked after this place for twenty years.', 'A wombat can outrun you. I have tested this.',
+        'Lovely day for it.', 'This onesie is the comfiest thing ever.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
         'Hot one today.', 'The gum trees smell like home.', 'Captain Kirk sells furniture. Mind the cat on his counter.', 'Kirk reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
@@ -284,9 +273,9 @@ const Guide = (() => {
         say: () => {
           const s = step();
           if (!s && G.cultAway === 2) return 'Come in, mind the step. Cubes round the back, money in your hand.';
-          return s ? s.say : 'Look at this place. Green as anything, and all those wombats. You did that, mate.';
+          return s ? s.say : 'Look at all these wombats! You did that!';
         },
-        sub: () => (G.cultAway === 2 ? 'at his shed door' : 'the old caretaker'),
+        sub: () => (G.cultAway === 2 ? 'at her shed door' : 'the caretaker'),
         opts: [
           { q: () => `Sell you the cubes. I have ${cubesHere()}.`, if: () => cubesHere() > 0,
             act: () => { Talk.close(); UI.openPawn('cult'); } },
@@ -309,12 +298,12 @@ const Guide = (() => {
       },
       who: {
         mood: 'happy',
-        say: 'Jim. Caretaker here for twenty years. Retired now, sort of. I live in the shed out the back and I play a lot of video games.',
-        opts: [{ q: 'Nice headband.', to: 'band' }, { q: 'Something else.', to: 'hub' }],
+        say: "Momo! I look after the wombats. I live in the shed and play a LOT of video games.",
+        opts: [{ q: 'Cute onesie.', to: 'band' }, { q: 'Something else.', to: 'hub' }],
       },
       band: {
         mood: 'proud',
-        say: 'Keeps the sweat out of my eyes. Gaming is a sport, mate.',
+        say: 'Thank you! It has ears! And a tail!',
         opts: [{ q: 'Fair enough.', to: 'hub' }],
       },
       money: {
@@ -482,7 +471,7 @@ const Guide = (() => {
   }
   function paid(n) {
     if (n <= 0) return;
-    say(U.pick(['Lovely. Square as anything.', 'Straight onto the compost heap.', 'Top quality, that.', 'A fair price, mate.']), 'chat', 'happy');
+    say(U.pick(['Lovely. Square as anything.', 'Straight onto the compost heap.', 'Top quality, that.', 'A fair price!']), 'chat', 'happy');
     cult.happyT = 1.2;
   }
 
@@ -498,7 +487,7 @@ const Guide = (() => {
         FX.hearts(cult.x, cult.y - 50, 6);
         FX.comic(cult.x, cult.y - 60, 'BYE!', { ink: '#ffe6a0', edge: '#8a5a20', life: 0.8 });
         Audio.play('whoosh'); Audio.play('chime'); FX.shake(1.2);
-        UI.toast('Jim has gone to build himself a shed', '');
+        UI.toast('Momo has gone to build himself a shed', '');
       }
       return;
     }
@@ -509,7 +498,7 @@ const Guide = (() => {
         Audio.play('thud', 1.4); FX.shake(1.6);
         FX.burst(HUT.x, hutY(), 22, { color: [PAL.bark3, PAL.bark2, PAL.moss3], speed: 110, gravity: 260, life: 0.7, size: 3 });
         FX.comic(HUT.x, hutY() - 90, 'THUNK!', { ink: '#f5cd5c', edge: '#7a5210', life: 1 });
-        UI.toast('<b>Jim built a shed</b> at the west end &mdash; she buys cubes there', 'good');
+        UI.toast('<b>Momo built a shed</b> at the west end &mdash; she buys cubes there', 'good');
         Main.save();
       }
       return;
@@ -659,7 +648,7 @@ const Guide = (() => {
   const WHERE = {
     meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
     arrive: 'in the grove', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
-    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Jim is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
+    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Momo is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
   };
   function current() {
     const st = step();

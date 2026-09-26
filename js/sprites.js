@@ -771,12 +771,12 @@ const Sprites = (() => {
     return c;
   }
 
-  // ---- Jim ------------------------------------------------------------------
+  // ---- Momo ------------------------------------------------------------------
   // The caretaker who shows you the job. A big friendly bloke: swept ginger
   // hair under a red sweatband, black-rimmed glasses, ginger stubble, a grey
   // check fleece with a thick cream collar, a pink shirt over a good belly,
   // brown shorts, and freckled, hairy legs.
-  // Jim from the side, walking: the belly leads, the arms swing, the mop of
+  // Momo from the side, walking: the belly leads, the arms swing, the mop of
   // hair bounces on every step. Drawn facing right; the grove flips him.
   function jimSide(f, t, run) {
     const { c, g } = Art.cv(CW, CH);
@@ -853,7 +853,7 @@ const Sprites = (() => {
   }
   function jim(frame, pose = 'idle') {
     const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
-    if (typeof JimGirl !== 'undefined') return JimGirl.sprite(f, t, pose, faceMood);   // Jim, in her wombat onesie
+    if (typeof JimGirl !== 'undefined') return JimGirl.sprite(f, t, pose, faceMood);   // Momo, in her wombat onesie
     const key = `jim:${f}:${pose}:${faceMood}`;
     let img = cache.get(key); if (img) return img;
     if (pose === 'walk' || pose === 'run') { img = jimSide(f, t, pose === 'run'); cache.set(key, img); return img; }

@@ -250,7 +250,7 @@ const Explore = (() => {
     if (!G.fieldGuide) G.fieldGuide = {};
     G.fieldGuide[key] = (G.fieldGuide[key] || 0) + 1;
     G.stats.foraged = (G.stats.foraged || 0) + 1;
-    FX.float(it.x - scroll, it.y - 22, `+${value} ${name}`, { color: PAL.gold4, size: 8 });
+    FX.float(it.x - scroll, it.y - 22, `+${value}`, { color: PAL.gold4, size: 8 });
     FX.sparkle(it.x - scroll, it.y - 8, 8, PAL.gold3);
     Audio.play(value >= 20 ? 'chime' : 'pop');
     if (value >= 20) UI.toast(`a rare find: <b>${name}</b> (+${value} W$)`, 'good');
@@ -279,8 +279,6 @@ const Explore = (() => {
     paint(place);
     scroll = tscroll = 0; t = 0; hover = null; fade = 1;
     Audio.setMode('pen');
-    const P = PLACES[place];
-    UI.toast(`<b>${P.name}</b> &mdash; ${P.blurb} Drag to look along it; click things to pick them up.`, 'good');
   }
   function update(dt) {
     t += dt; fade = Math.max(0, fade - dt * 2);
@@ -413,7 +411,7 @@ const Explore = (() => {
     // ---- the name of the place, and how much of it there is still to find
     const left = finds().filter((it) => !it.taken).length;
     Kit.tab(g, 12, 60, 150, 18, P.name.toUpperCase(), { col: Kit.C.frameM });
-    Font.draw(g, left ? `${left} things to find` : 'all found for today', 16, 82, { scale: 1, color: '#ffffff', shadow: '#1a1420' });
+    Font.draw(g, `${left} left`, 16, 82, { scale: 1, color: '#ffffff', shadow: '#1a1420' });
     if (fade > 0) { g.fillStyle = `rgba(20,10,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
     FX.drawParticles(g, 0); FX.drawConfetti(g); FX.drawFloaters(g, false);
   }

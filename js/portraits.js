@@ -12,7 +12,7 @@ const Portraits = (() => {
 
   // ---- who looks like what --------------------------------------------------
   const SPECS = {
-    // Jim: heavyset, messy ginger-blond hair sticking up over a red headband,
+    // Momo: heavyset, messy ginger-blond hair sticking up over a red headband,
     // thick black glasses, ginger stubble, a grey check fleece with a big
     // cream sherpa collar over a pink shirt.
     jim: {

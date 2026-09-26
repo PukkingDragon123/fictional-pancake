@@ -715,7 +715,7 @@ const Grove = (() => {
     FX.comic(TRUCK.x, TRUCK.y - 58, U.pick(['LOADED!', 'CLUNK!', 'IN!']), { ink: '#a8d0e0', edge: '#33495c', life: 0.6 });
     UI.refreshHUD();
   }
-  // A handful of coins tossed from wherever Jim is standing.
+  // A handful of coins tossed from wherever Momo is standing.
   function reward(x, y, n) {
     for (let i = 0; i < n; i++) coins.push({ x: x + U.rand(-6, 6), y, vx: U.rand(-60, 60), vy: U.rand(-190, -110), z: 0, t: -i * 0.04, n: 1 });
     Audio.play('cash');
@@ -1005,7 +1005,7 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
-    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>Jim buys every cube you have';
+    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>Momo buys every cube you have';
     const pl2 = World.plantAt(x, y);
     if (pl2) return World.plantTip(pl2);
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';

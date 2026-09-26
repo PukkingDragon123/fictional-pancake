@@ -31,7 +31,7 @@ const UI = (() => {
       }
     }
     $('b-back').hidden = G.mode === 'grove';
-    if ($('b-build')) $('b-build').hidden = G.mode !== 'grove' || !G.arrived;
+    if ($('b-build')) $('b-build').hidden = G.mode !== 'grove' || !Factory.open();
     {
       // The head-up belongs to the game, not the title screen or the intro.
       const off = G.mode === 'menu' || G.mode === 'intro';
@@ -50,7 +50,7 @@ const UI = (() => {
   }
 
   // ---- the job card -------------------------------------------------------
-  // Always in the corner of the grove: whatever Jim wants next, and once
+  // Always in the corner of the grove: whatever Momo wants next, and once
   // he has shown you round, the daily round itself, ticked off as you go.
   function refreshList() {
     const box = $('checklist');
@@ -81,12 +81,12 @@ const UI = (() => {
       html += row('t_seed', 'Grow veg', growing ? `${growing} growing, ${food} picked` : 'hoe a bed and sow it', food > 0);
       html += row('t_food', 'Feed the wombats', hungry ? `${hungry} hungry` : 'everyone is full', hungry === 0);
       html += row('truck', 'Load the truck', loose ? `${loose} cubes on the ground` : 'nothing lying about', loose === 0);
-      html += row('wdollar', 'Sell to Jim', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
+      html += row('wdollar', 'Sell to Momo', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
     }
     box.innerHTML = html;
   }
 
-  function refreshNotebook() { }           // Jim speaks for himself now
+  function refreshNotebook() { }           // Momo speaks for himself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
   // Twenty of them is too many for one grid. They come in four bands, each
@@ -291,20 +291,20 @@ const UI = (() => {
     const c = document.createElement('canvas'); c.width = c.height = N * P2;
     const g = c.getContext('2d');
     const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const line = '#4a1e0e', inner = '#7a3414';
+    const line = '#3b2616', inner = '#2f5a2a';
     if (kind === 'slot' || kind === 'slotsel') {
       const sel = kind === 'slotsel';
-      R(1, 0, N - 2, N, sel ? '#e8301c' : '#8a4a1c'); R(0, 1, N, N - 2, sel ? '#e8301c' : '#8a4a1c');
-      if (sel) { R(1, 1, N - 2, N - 2, '#ff6a3a'); R(2, 1, N - 4, 1, '#ffb08a'); }
+      R(1, 0, N - 2, N, sel ? '#c83a4c' : '#6a4a30'); R(0, 1, N, N - 2, sel ? '#c83a4c' : '#6a4a30');
+      if (sel) { R(1, 1, N - 2, N - 2, '#f07a8a'); R(2, 1, N - 4, 1, '#ffc0c8'); }
       const o = sel ? 2 : 1;
-      R(o, o, N - o * 2, N - o * 2, '#f6cc84');
-      R(o, o, N - o * 2, 2, '#d49a54'); R(o, o, 2, N - o * 2, '#dca660');              // sunk: dark top and left
-      R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffe4b0'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#ffe0a8');
+      R(o, o, N - o * 2, N - o * 2, '#fdf0d8');
+      R(o, o, N - o * 2, 2, '#e8d0a4'); R(o, o, 2, N - o * 2, '#ecd8b0');              // sunk: dark top and left
+      R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffffff'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#fffaf0');
       return c.toDataURL();
     }
-    const fr = kind === 'hot' ? ['#ffd070', '#ff9a3a', '#d4843e', '#b0501c']
-      : kind === 'sel' ? ['#fbe8a0', '#f0c048', '#f0a010', '#b8842a'] : ['#f2b870', '#d4843e', '#bc6a32', '#9a5024'];
-    const paper = ['#fff3d4', '#f8e2b2', '#eac48a'];
+    const fr = kind === 'hot' ? ['#fff0b0', '#f8d060', '#e8b040', '#b88420']
+      : kind === 'sel' ? ['#ffc0c8', '#f07a8a', '#d85a6a', '#a83848'] : ['#b8e08a', '#7cb85a', '#5a9a44', '#3f7a34'];
+    const paper = ['#fffaf0', '#fdf0d8', '#f2dcb4'];
     R(2, 0, N - 4, N, line); R(0, 2, N, N - 4, line); R(1, 1, N - 2, N - 2, line);   // the line, corners knocked off
     R(2, 1, N - 4, N - 2, fr[1]); R(1, 2, N - 2, N - 4, fr[1]);
     R(2, 1, N - 4, 1, fr[0]); R(1, 2, 1, N - 4, fr[0]);                                   // lit top and left
@@ -313,23 +313,10 @@ const UI = (() => {
     R(3, 3, N - 6, N - 6, inner);
     R(4, 4, N - 8, N - 8, paper[1]);
     R(4, 4, N - 8, 1, paper[0]); R(4, N - 5, N - 8, 1, paper[2]);
-    for (const [x, y] of [[1, 1], [N - 3, 1], [1, N - 3], [N - 3, N - 3]]) { R(x, y, 2, 2, '#ffd070'); R(x + 1, y + 1, 1, 1, fr[3]); }
-    return c.toDataURL();
-  }
-  // A tile of paper grain for every box on the frame: mostly white, so under a
-  // multiply blend it only darkens where the fibres and flecks are.
-  function grainURL() {
-    const N = 24, P2 = 2, c = document.createElement('canvas'); c.width = c.height = N * P2;
-    const g = c.getContext('2d'), r = Art.rng(77);
-    g.fillStyle = '#ffffff'; g.fillRect(0, 0, N * P2, N * P2);
-    for (let i = 0; i < N * N; i++) {
-      const x = i % N, y = Math.floor(i / N), v = r();
-      if (v < 0.16) { g.fillStyle = '#f4e6cc'; g.fillRect(x * P2, y * P2, P2, P2); }
-      else if (v < 0.21) { g.fillStyle = '#e6cfa6'; g.fillRect(x * P2, y * P2, P2, P2); }
-    }
-    for (let i = 0; i < 9; i++) {                                // a few long fibres
-      const x = Math.floor(r() * N), y = Math.floor(r() * N), len = 2 + Math.floor(r() * 4);
-      g.fillStyle = '#ead6b2'; g.fillRect(x * P2, y * P2, len * P2, P2 / 2 + 1);
+    // a little pink flower in each corner of the frame
+    for (const [x, y] of [[1, 1], [N - 4, 1], [1, N - 4], [N - 4, N - 4]]) {
+      R(x + 1, y, 1, 1, '#ffb0c0'); R(x, y + 1, 1, 1, '#ffb0c0'); R(x + 2, y + 1, 1, 1, '#ffb0c0'); R(x + 1, y + 2, 1, 1, '#ffb0c0');
+      R(x + 1, y + 1, 1, 1, '#ffe070');
     }
     return c.toDataURL();
   }
@@ -350,7 +337,7 @@ const UI = (() => {
   function pickTool() { }
 
   // ---- "you got a new tool" -------------------------------------------------
-  // A card that drops into the middle of the picture when Jim hands you
+  // A card that drops into the middle of the picture when Momo hands you
   // something or the mart starts stocking it. They queue, one at a time.
   const unlockQ = [];
   function unlockCard(key, gift) { unlockQ.push({ key, gift }); if (unlockQ.length === 1) showUnlock(); }
@@ -395,7 +382,7 @@ const UI = (() => {
       el.className = 'chip' + (keys && G.selOffer === k ? ' on' : '');
       el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
       el.onclick = (e) => onClick(k, e);
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Jim${bl ? '<br><b>blessed</b>' : ''}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Momo${bl ? '<br><b>blessed</b>' : ''}`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
@@ -414,7 +401,7 @@ const UI = (() => {
     purseT = setTimeout(() => el.classList.remove('ping'), 320);
   }
 
-  // Jim buys the cubes off you at his shed.
+  // Momo buys the cubes off you at his shed.
   function refreshRunHUD() { }
   function onRunStart() { }
   function onRunPlay() { }
@@ -593,7 +580,7 @@ const UI = (() => {
     paintPup();
   }
 
-  // Jim buys every cube they leave for his compost heap, and pays more
+  // Momo buys every cube they leave for his compost heap, and pays more
   // for a load than for one. The mart counter buys them at the same rate.
   let pawnMode = 'shop';
   function openPawn(mode) { pawnMode = mode || 'shop'; openPanel('panel-pawn'); }
@@ -652,7 +639,6 @@ const UI = (() => {
     G = g;
     Tex.install();                         // wood, paper, metal and gold, painted not faked
     for (const k of ['base', 'hot', 'sel', 'paper', 'slot', 'slotsel']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
-    document.documentElement.style.setProperty('--grain', `url(${grainURL()})`);
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };
