@@ -147,7 +147,7 @@ const Main = (() => {
       Object.assign(G, g2);
       applySettings();
       Sky.init(G); World.init(G); Grove.init(G); Atlas.init(G);
-      Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
+      Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G);
       FX.clear(); FX.clearComics();
       const away = (Date.now() - (G.lastSave || Date.now())) / 1000;
       if (away > 30) {
@@ -184,6 +184,7 @@ const Main = (() => {
   // ---- modes --------------------------------------------------------------
   function setMode(mode) {
     if (Talk.isOpen()) Talk.close();          // nobody keeps talking to you across town
+    document.body.classList.remove('noclip');
     G.mode = mode;
     if (!G.visited) G.visited = {};
     G.visited[mode] = true;
@@ -191,18 +192,20 @@ const Main = (() => {
     if (mode !== 'grove' && G.wombats.some((w) => w.riding)) G.rode = true;   // somebody came along
     UI.setMode(mode);
     FX.clear(); FX.flash('#efe8f6', 0.42);   // scenes change through a breath of cloud, not a blackout
-    if (mode !== 'shop' && mode !== 'nursery') Audio.play('whoosh');
+    if (mode !== 'shop' && mode !== 'nursery' && mode !== 'ottoman') Audio.play('whoosh');
     FX.cam.x = 320; FX.cam.y = 180; FX.cam.zoom = 1; FX.cam.tzoom = 1; FX.cam.tx = 320; FX.cam.ty = 180;
     if (mode === 'intro') Intro.enter();
     else if (mode === 'grove') Grove.enter();
     else if (mode === 'map') Atlas.enter();
     else if (mode === 'shop') Shop.enter();
     else if (mode === 'nursery') Nursery.enter();
+    else if (mode === 'ottoman') Ottoman.enter();
     Audio.setMode('pen');
     save();
   }
   function back() {
-    if (G.mode === 'shop' || G.mode === 'nursery') setMode('map');
+    if (G.mode === 'ottoman' && Ottoman.phase === 'back') { Audio.play('error'); UI.toast('there is no way back. find a green <b>EXIT</b> sign', 'bad'); return; }
+    if (G.mode === 'shop' || G.mode === 'nursery' || G.mode === 'ottoman') setMode('map');
     else setMode('grove');
   }
 
@@ -256,6 +259,7 @@ const Main = (() => {
         else { panning = true; lastP = p; }     // grabbed nothing: drag the view
       } else if (G.mode === 'shop') Shop.press(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.press(p.x, p.y);
+      else if (G.mode === 'ottoman') Ottoman.press(p.x, p.y);
     });
     canvas.addEventListener('pointermove', (e) => {
       const p = pos(e);
@@ -273,12 +277,14 @@ const Main = (() => {
         }
         if (G.mode === 'shop') { Shop.move(p.x, p.y); UI.hideTip(); return; }
         if (G.mode === 'nursery') { Nursery.move(p.x, p.y); UI.hideTip(); return; }
+        if (G.mode === 'ottoman') { Ottoman.move(p.x, p.y); UI.hideTip(); return; }
       }
       let tip = null;
       if (G.mode === 'grove') tip = Grove.hover(wp.x, wp.y);
       else if (G.mode === 'map') tip = Atlas.hover(p.x, p.y);
       else if (G.mode === 'shop') tip = Shop.hover(p.x, p.y);
       else if (G.mode === 'nursery') tip = Nursery.hover(p.x, p.y);
+      else if (G.mode === 'ottoman') tip = Ottoman.hover(p.x, p.y);
       if (tip) UI.showTip(e, tip); else UI.hideTip();
     });
     const release = (e) => {
@@ -289,6 +295,7 @@ const Main = (() => {
       if (G.mode === 'grove') { if (!panning) Grove.release(wp.x, wp.y); }
       else if (G.mode === 'shop') Shop.release(p.x, p.y);
       else if (G.mode === 'nursery') Nursery.release(p.x, p.y);
+      else if (G.mode === 'ottoman') Ottoman.release(p.x, p.y);
       else if (G.mode === 'map' && moved < 8) Atlas.click(p.x, p.y);
       down = false; lastP = null; downP = null; panning = false;
     };
@@ -308,6 +315,7 @@ const Main = (() => {
       }
       else if (G.mode === 'shop') { e.preventDefault(); Shop.wheel(e.deltaY * 0.6); }
       else if (G.mode === 'nursery') { e.preventDefault(); Nursery.wheel(e.deltaY * 0.6); }
+      else if (G.mode === 'ottoman') { e.preventDefault(); Ottoman.wheel(e.deltaY * 0.6); }
     }, { passive: false });
 
     document.addEventListener('keydown', (e) => {
@@ -378,6 +386,7 @@ const Main = (() => {
       else if (G.mode === 'map') Atlas.update(real);
       else if (G.mode === 'shop') Shop.update(real);
       else if (G.mode === 'nursery') Nursery.update(real);
+      else if (G.mode === 'ottoman') Ottoman.update(real);
     } else if (Grove.arriving) {
       Grove.update(real);
     }
@@ -400,6 +409,7 @@ const Main = (() => {
       else if (G.mode === 'grove') Grove.render(g);
       else if (G.mode === 'map') Atlas.render(g);
       else if (G.mode === 'shop') Shop.render(g);
+      else if (G.mode === 'ottoman') Ottoman.render(g);
       else Nursery.render(g);
       g.restore();
     }
@@ -436,7 +446,7 @@ const Main = (() => {
     G.mode = 'menu';
     window.G = G;
     Sky.init(G); World.init(G);
-    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
+    Grove.init(G); Atlas.init(G); Shop.init(G); Nursery.init(G); Ottoman.init(G); Guide.init(G); Intro.init(G); Talk.init(G); Phone.init(G); UI.init(G);
     Menu.init(settings, booted, menuAction);
     Menu.enter();
     applySettings();

@@ -213,7 +213,7 @@ const Guide = (() => {
         'Lovely day for it.', 'I looked after this place for twenty years.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
-        'Hot one today.', 'The gum trees smell like home.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
+        'Hot one today.', 'The gum trees smell like home.', 'Captain Clark sells furniture. Never go in his back room.', 'Clark reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
       ] },
   ];
   let chatT = 14 + Math.random() * 10, lastChat = '';
@@ -314,7 +314,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: 'Wombat Mart for tools, the phone, furniture and more wombats. Groot for seed and saplings. I buy cubes. The gumball machine takes one coin and is terribly exciting.',
+        say: "Wombat Mart for tools, the phone and more wombats. Groot for seed and saplings. Captain Clark's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {
@@ -594,9 +594,7 @@ const Guide = (() => {
     Art.rect(g, x - 5, y - 12, 3, 7, '#ffc2b2');
     if (s.label) {
       const w = Font.width(s.label, 1) + 14;
-      Kit.rr(g, x - w / 2, y - 31, w, 17, 7, Kit.C.line);
-      Kit.rr(g, x - w / 2 + 2, y - 29, w - 4, 13, 6, '#ffffff');
-      Font.draw(g, s.label, x, y - 26, { scale: 1, color: Kit.C.line, align: 'center' });
+      Kit.tab(g, x - w / 2, y - 31, w, 16, s.label);
     }
   }
 
@@ -644,35 +642,15 @@ const Guide = (() => {
 
   function drawBubble(g) {
     if (bubble.life <= 0 || !bubble.text || Talk.isOpen()) return;
-    // a small speech tag over his head for chatter: cream, one slate line,
-    // rounded, and a little tail. Anything that matters goes in the dialogue box.
-    const maxW = 132;
-    const words = bubble.text.replace(/\*/g, '').split(' ');
-    const lines = []; let line = '';
-    for (const w of words) {
-      const t2 = line ? line + ' ' + w : w;
-      if (Font.width(t2, 1) > maxW && line) { lines.push(line); line = w; } else line = t2;
-    }
-    if (line) lines.push(line);
+    // a small pixel speech tag over his head for chatter; anything that matters goes in the dialogue box
+
     const shown = Math.floor(bubble.shown);
-    const W2 = Math.max(40, Math.max(...lines.map((l) => Font.width(l, 1)))) + 14, H2 = lines.length * 10 + 9;
-    const half = W2 / 2 + 6;
+    const text = bubble.text.replace(/\*/g, '').slice(0, Math.max(1, shown));
+    const half = 80;
     const lo = FX.cam.x - 320 / FX.cam.zoom + half, hi = FX.cam.x + 320 / FX.cam.zoom - half;
     const bx = lo > hi ? FX.cam.x : U.clamp(cult.x, lo, hi);
     const pop = bubble.pop > 0 ? Math.round(bubble.pop * 3) : 0;
-    const X = Math.round(bx - W2 / 2), Y = Math.round(cult.y - 92 - H2 - pop);
-    const tx = U.clamp(Math.round(cult.x), X + 8, X + W2 - 8);
-    Kit.rr(g, X, Y + 3, W2, H2, 5, 'rgba(44,64,72,0.2)');
-    Kit.rr(g, X - 1, Y - 1, W2 + 2, H2 + 2, 6, Kit.C.line);
-    Kit.rr(g, X + 1, Y + 1, W2 - 2, H2 - 2, 5, bubble.kind === 'praise' ? '#fff4c8' : '#fffaf0');
-    Art.poly(g, [[tx - 5, Y + H2], [tx + 4, Y + H2], [tx, Y + H2 + 6]], Kit.C.line);
-    Art.poly(g, [[tx - 3, Y + H2 - 1], [tx + 2, Y + H2 - 1], [tx, Y + H2 + 3]], bubble.kind === 'praise' ? '#fff4c8' : '#fffaf0');
-    let n = 0;
-    lines.forEach((l, i) => {
-      const part = l.slice(0, Math.max(0, shown - n));
-      n += l.length + 1;
-      if (part) Font.draw(g, part, X + 7, Y + 5 + i * 10, { scale: 1, color: Kit.C.ink });
-    });
+    Kit.bubble(g, bx, cult.y - 94 - pop, text, { fill: bubble.kind === 'praise' ? '#fff08a' : '#fff8e0', maxW: 132 });
   }
 
   function state() {

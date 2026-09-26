@@ -24,6 +24,14 @@ const Portraits = (() => {
       collar: ['#fffaf0', '#f0e6d2', '#d4c6aa'],
     },
   };
+  // Captain Clark: weathered, a huge white beard, a white peaked cap with a
+  // gold anchor, a navy double-breasted coat with brass buttons
+  SPECS.clark = {
+    skin: ['#ffd2b0', '#f0b48c', '#d08a66', '#a8674a'], blush: '#f08c7c',
+    hair: ['#ffffff', '#ecebe4', '#c8c6bc', '#8a887e'], cut: 'short', hat: 'captain', beard: true,
+    brow: '#d8d6cc', wide: 1.06,
+    top: 'coat', cloth: ['#2c4c9c', '#1c3470', '#132554', '#0a1638'], shirt: null, collar: null,
+  };
   // the villagers are drawn from their own kits
   function specFor(key) {
     if (SPECS[key]) return SPECS[key];
@@ -91,6 +99,13 @@ const Portraits = (() => {
     E(cx, 76, 32 * W, 24, cl[1]);
     E(cx - 10, 70, 16 * W, 12, cl[0]);
     E(cx + 18, 78, 14, 18, cl[2]);
+    if (spec.top === 'coat') {                             // a double-breasted coat: lapels, two rows of brass
+      g.fillStyle = cl[3];
+      g.beginPath(); g.moveTo(cx - 11, 50); g.lineTo(cx, S); g.lineTo(cx + 11, 50); g.lineTo(cx + 6, 50); g.lineTo(cx, 58); g.lineTo(cx - 6, 50); g.fill();
+      R(cx - 5, 50, 10, 8, '#f4f2ea');
+      for (const [dx, y] of [[-8, 55], [8, 55], [-9, 61], [9, 61]]) { E(cx + dx, y, 1.8, 1.8, '#a87008'); P(cx + dx - 1, y - 1, '#ffe070'); }
+      for (let x = 6; x < 20; x += 3) { P(cx - 22 + x, 54, '#e0a010'); P(cx + 22 - x, 54, '#e0a010'); }   // braid on the shoulders
+    }
     if (spec.top === 'fleece') {                           // the check of the fleece
       for (let y = 50; y < S; y++) for (let x = 0; x < S; x++) {
         const d = g.getImageData(x, y, 1, 1).data;
@@ -158,6 +173,15 @@ const Portraits = (() => {
         if ((x * 3 + y * 5) % 4 === 0 || ((x + y) % 5 === 0 && y > 40)) P(x, y, spec.stubble);
       }
     }
+    // a big white sea-captain's beard, from ear to ear, with the moustache over it
+    if (spec.beard) {
+      const bh = spec.hair;
+      E(cx, 45, 17 * W, 10, OUT); E(cx, 45, 16 * W, 9, bh[1]);
+      for (const s2 of [-1, 1]) { E(cx + s2 * 14 * W, 37, 3, 7, OUT); E(cx + s2 * 14 * W, 37, 2, 6, bh[1]); }   // sideburns
+      E(cx - 4, 42, 9, 5, bh[0]); E(cx + 7, 47, 8, 6, bh[2]);
+      for (let i = 0; i < 14; i++) P(cx - 12 + (i * 5) % 24, 42 + (i * 3) % 10, bh[2]);
+      for (const s2 of [-1, 1]) { E(cx + s2 * 5, 39, 6, 2.5, OUT); E(cx + s2 * 5, 39, 5, 1.8, bh[0]); }   // moustache
+    }
     // cheeks
     if (F.mouth === 'grin' || F.mouth === 'laugh' || F.eyes === 'happy') { E(cx - 11, 36, 3, 1.5, spec.blush); E(cx + 11, 36, 3, 1.5, spec.blush); }
 
@@ -208,6 +232,13 @@ const Portraits = (() => {
     if (spec.hat === 'wide') { E(cx, 15, 25, 4, OUT); E(cx, 15, 24, 3, '#c8a060'); E(cx, 10, 13, 7, OUT); E(cx, 10, 12, 6, '#d8b070'); R(cx - 12, 13, 24, 2, '#8a5a2a'); }
     if (spec.hat === 'kerchief') { E(cx, 13, 16, 7, OUT); E(cx, 13, 15, 6, '#d84a3a'); for (let i = 0; i < 8; i++) P(cx - 12 + i * 3, 12 + (i % 2), '#fff0e0'); }
     if (spec.hat === 'bucket') { E(cx, 15, 20, 4, OUT); E(cx, 15, 19, 3, '#6a8a5a'); E(cx, 10, 13, 7, OUT); E(cx, 10, 12, 6, '#7a9a6a'); }
+    if (spec.hat === 'captain') {
+      E(cx, 11, 21 * W, 7, OUT); E(cx, 11, 20 * W, 6, '#ffffff'); E(cx - 6, 9, 10, 3, '#ffffff');
+      E(cx + 6, 12, 12, 3, '#e4e4ec');
+      R(cx - 18 * W, 13, 36 * W, 6, OUT); R(cx - 17 * W, 14, 34 * W, 4, '#1c2a5a'); R(cx - 17 * W, 14, 34 * W, 1, '#3a4a8a');
+      E(cx, 16, 3, 3, '#e0a010'); P(cx - 1, 15, '#fff0a0'); R(cx - 1, 17, 3, 1, '#a87008');   // the anchor badge
+      R(cx - 16 * W, 19, 32 * W, 3, OUT); R(cx - 15 * W, 19, 30 * W, 2, '#141418'); R(cx - 12, 19, 14, 1, '#4a4a58');
+    }
     if (spec.hat === 'veil') { E(cx, 12, 17, 7, OUT); E(cx, 12, 16, 6, '#f2ece0'); for (let x = cx - 18; x <= cx + 18; x += 2) R(x, 16, 1, 10, 'rgba(242,236,224,0.55)'); }
 
     // ---- the face ---------------------------------------------------------------------

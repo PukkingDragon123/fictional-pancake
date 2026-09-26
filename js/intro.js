@@ -156,9 +156,10 @@ const Intro = (() => {
     const W = 560, H = 96, X = (VW - W) / 2, Y = VH - H - 10;
     Kit.card(g, X, Y, W, H, { r: 8 });
     const FX0 = X + W - 88, FY0 = Y + 8;
-    Kit.rr(g, FX0 - 2, FY0 - 2, 76, 76, 7, Kit.C.line);
-    Kit.rr(g, FX0, FY0, 72, 72, 6, Kit.C.mint);
-    Kit.rr(g, FX0 + 2, FY0 + 2, 68, 68, 5, '#dff2f8');
+    Kit.card(g, FX0 - 6, FY0 - 6, 84, 84, { fill: '#b07838', shadow: false });
+    Art.rect(g, FX0, FY0, 72, 72, Kit.C.line);
+    Art.rect(g, FX0 + 2, FY0 + 2, 68, 68, '#7ac8ff');
+    Art.rect(g, FX0 + 2, FY0 + 50, 68, 20, '#5cc03c');
     const face = Portraits.get('jim', mood, t, typedN < text.length);
     if (face) g.drawImage(face, FX0 + 4, FY0 + 4, 64, 64);
     Kit.tab(g, FX0 - 6, Y + H - 16, 84, 13, 'JIM');

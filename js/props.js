@@ -1229,6 +1229,16 @@ const Props = (() => {
     Art.rect(g, x, y - s * 2 - f, s, s * 2, '#f2a01c');
     Art.rect(g, x, y - s - f, s, s, '#ffe98a');
   }
+  // a buttoned, footed cushion: every ottoman in the empire starts here
+  function velvet(g, w, h, L, foot) {
+    Art.rect(g, 3, h - 4, 3, 4, foot); Art.rect(g, w - 6, h - 4, 3, 4, foot);
+    Art.rect(g, 1, 3, w - 2, h - 7, L[0]);
+    Art.rect(g, 2, 2, w - 4, h - 8, L[1]);
+    Art.rect(g, 3, 2, w - 6, 5, L[2]);
+    Art.rect(g, 4, 2, w - 8, 1, L[3]);
+    for (let x = 6; x < w - 5; x += 6) { Art.rect(g, x, 4, 1, 1, L[0]); Art.rect(g, x + 3, 8, 1, 1, L[0]); }
+    Art.rect(g, 1, h - 6, w - 2, 2, foot); Art.rect(g, 1, h - 6, w - 2, 1, '#fff0a0');
+  }
   const FURN = {
     bench: (g, w, h) => {
       plank(g, 2, 4, w - 4, 7, 3);
@@ -1338,6 +1348,111 @@ const Props = (() => {
       Art.rect(g, 7, 11, 3, 3, '#c42a1e'); Art.rect(g, w - 10, 11, 3, 3, '#c42a1e');
       Art.rect(g, w / 2 - 2, 16, 4, 2, '#e8dcc0');
       Art.rect(g, 2, h - 6, w - 4, 3, ST[1]);
+    },
+    // ---- the Ottoman Empire's stock ------------------------------------------
+    ottoman: (g, w, h) => velvet(g, w, h, ['#6a0e1c', '#a8182c', '#d8384a', '#ff7a86'], '#e8b020'),
+    lostottoman: (g, w, h) => {
+      velvet(g, w, h, ['#8a7a3a', '#c8b660', '#e2d27a', '#f4e8a4'], '#8a8478');
+      for (let i = 0; i < 18; i++) Art.rect(g, 3 + (i * 7) % (w - 6), 4 + (i * 5) % 8, 1, 1, i % 2 ? '#a89850' : '#fff4b8');   // carpet pile
+      Art.rect(g, w / 2 - 6, 2, 12, 1, 'rgba(255,255,220,0.8)');
+    },
+    pouf: (g, w, h) => {
+      Art.ell(g, w / 2, h - 7, w / 2, 7, '#0e5a5a');
+      Art.ell(g, w / 2, h - 8, w / 2 - 1, 6, '#18908a');
+      for (let x = 2; x < w - 2; x += 3) Art.rect(g, x, h - 13, 1, 10, '#0e6a66');     // the knit
+      Art.ell(g, w / 2 - 3, h - 11, 5, 2, '#5cd0c0');
+      Art.rect(g, w / 2 - 1, h - 14, 2, 2, '#f4c030');
+    },
+    armchair: (g, w, h) => {
+      const L = ['#0c3a22', '#16603a', '#2a8a52', '#58c07a'];
+      Art.rect(g, 4, 0, w - 8, h - 12, L[0]); Art.rect(g, 5, 1, w - 10, h - 14, L[1]);   // the back
+      Art.ell(g, 6, 6, 6, 7, L[0]); Art.ell(g, w - 6, 6, 6, 7, L[0]);                    // wings
+      Art.ell(g, 6, 6, 5, 6, L[2]); Art.ell(g, w - 6, 6, 5, 6, L[1]);
+      for (let y = 4; y < h - 14; y += 5) for (let x = 9; x < w - 9; x += 6) Art.rect(g, x, y, 2, 2, L[0]);   // buttons
+      Art.rect(g, 0, h - 16, 8, 10, L[1]); Art.rect(g, w - 8, h - 16, 8, 10, L[1]);        // arms
+      Art.rect(g, 0, h - 16, 8, 2, L[3]); Art.rect(g, w - 8, h - 16, 8, 2, L[2]);
+      Art.rect(g, 6, h - 12, w - 12, 6, L[2]); Art.rect(g, 6, h - 12, w - 12, 2, L[3]);    // seat
+      Art.rect(g, 3, h - 6, 3, 6, '#5a2a10'); Art.rect(g, w - 6, h - 6, 3, 6, '#5a2a10');
+    },
+    sofa: (g, w, h) => {
+      const L = ['#3a0a0a', '#6e1414', '#9c2420', '#d0503c'];
+      Art.rect(g, 4, 2, w - 8, h - 12, L[0]); Art.rect(g, 5, 3, w - 10, h - 14, L[1]);
+      for (let y = 5; y < h - 12; y += 4) for (let x = 8 + (y % 8 ? 2 : 0); x < w - 8; x += 5) Art.rect(g, x, y, 1, 1, L[0]);
+      Art.rect(g, 5, 3, w - 10, 1, L[3]);
+      Art.ell(g, 5, h - 14, 6, 6, L[0]); Art.ell(g, w - 5, h - 14, 6, 6, L[0]);           // rolled arms
+      Art.ell(g, 5, h - 14, 5, 5, L[2]); Art.ell(g, w - 5, h - 14, 5, 5, L[1]);
+      Art.rect(g, 0, h - 14, 10, 8, L[1]); Art.rect(g, w - 10, h - 14, 10, 8, L[1]);
+      Art.rect(g, 8, h - 11, w - 16, 5, L[2]); Art.rect(g, 8, h - 11, w - 16, 1, L[3]);
+      Art.rect(g, w / 2, h - 11, 1, 5, L[0]);
+      for (const x of [3, w / 2 - 1, w - 5]) Art.rect(g, x, h - 6, 3, 6, '#e0a020');
+    },
+    rug: (g, w, h) => {
+      const C = ['#7a1420', '#c02a2a', '#f0a030', '#1c3a7a', '#f4e0b0'];
+      Art.rect(g, 0, 2, w, h - 2, C[0]);
+      Art.rect(g, 2, 3, w - 4, h - 4, C[1]);
+      Art.rect(g, 4, 4, w - 8, h - 6, C[3]);
+      Art.rect(g, 8, 5, w - 16, h - 8, C[1]);
+      for (let x = 10; x < w - 10; x += 6) { Art.rect(g, x, 6, 3, 1, C[2]); Art.rect(g, x + 1, h - 5, 2, 1, C[4]); }
+      Art.rect(g, w / 2 - 4, h / 2, 8, 2, C[2]); Art.rect(g, w / 2 - 1, h / 2 - 1, 2, 4, C[4]);
+      for (let y = 2; y < h; y += 2) { Art.rect(g, 0, y, 1, 1, C[4]); Art.rect(g, w - 1, y, 1, 1, C[4]); }   // tassels
+    },
+    lamp: (g, w, h) => {
+      Art.rect(g, w / 2 - 1, 16, 2, h - 20, '#c89020'); Art.rect(g, w / 2 - 1, 16, 1, h - 20, '#ffe070');
+      Art.ell(g, w / 2, h - 3, 6, 3, '#8a5a10'); Art.ell(g, w / 2, h - 4, 5, 2, '#e0a020');
+      Art.poly(g, [[3, 16], [w - 3, 16], [w - 5, 2], [5, 2]], '#b82a4a');
+      Art.poly(g, [[4, 15], [w / 2, 15], [w / 2 - 1, 3], [6, 3]], '#e8506a');
+      for (let x = 3; x < w - 3; x += 2) Art.rect(g, x, 16, 1, 3, '#f4c030');           // the fringe
+      Art.rect(g, 5, 2, w - 10, 1, '#ff8aa0');
+    },
+    shelf: (g, w, h) => {
+      Art.rect(g, 0, 0, w, h, '#4a2410'); Art.rect(g, 2, 2, w - 4, h - 4, '#2a1408');
+      const BK = ['#c02a2a', '#1c5aa8', '#e0a020', '#2a8a4a', '#8a3aa8', '#e86a2a', '#f0e0c0'];
+      for (let row = 0; row < 3; row++) {
+        const y = 3 + row * 14;
+        Art.rect(g, 2, y + 11, w - 4, 3, '#7a4420');
+        let x = 3, i = row * 3;
+        while (x < w - 5) { const bw = 2 + (i * 7) % 3, bh = 8 + (i * 5) % 3; Art.rect(g, x, y + 11 - bh, bw, bh, BK[i % BK.length]); Art.rect(g, x, y + 11 - bh, bw, 1, 'rgba(255,255,255,0.35)'); x += bw + 1; i++; }
+      }
+      Art.rect(g, 0, 0, w, 2, '#8a5028');
+    },
+    hammock: (g, w, h) => {
+      for (const x of [2, w - 7]) { Art.rect(g, x, 2, 5, h - 2, '#6a3a18'); Art.rect(g, x, 2, 2, h - 2, '#a86a38'); Art.rect(g, x - 1, 1, 7, 2, '#4a2410'); }
+      // the net: a fat sagging band of striped cloth with a fringe under it
+      for (let i = 0; i <= 26; i++) {
+        const u = i / 26, x = 7 + u * (w - 16), y = 7 + Math.sin(u * Math.PI) * 13;
+        const c = Math.floor(i / 3) % 2 ? '#f4e0a0' : '#e8503a';
+        Art.rect(g, x, y, 2, 7, c); Art.rect(g, x, y, 2, 1, '#fff4d0'); Art.rect(g, x, y + 6, 2, 1, '#8a3a1a');
+        if (i % 2 === 0) Art.rect(g, x, y + 7, 1, 2, '#c8a060');
+      }
+      Art.limb(g, 5, 4, 8, 8, 1, 1, '#c8a060'); Art.limb(g, w - 5, 4, w - 8, 8, 1, 1, '#c8a060');
+    },
+    deck: (g, w, h) => {
+      Art.limb(g, 3, h - 1, 15, 2, 2.6, 2.6, '#8a5a28');              // the back rail
+      Art.limb(g, w - 3, h - 1, 11, h - 11, 2.6, 2.6, '#6a4018');     // the front leg
+      Art.limb(g, 3, h - 10, w - 2, h - 10, 2, 2, '#a86a38');           // the seat rail
+      for (let i = 0; i < 6; i++) {                                     // striped canvas, sagging between them
+        const c = i % 2 ? '#f4f0e0' : '#2a7ae0';
+        Art.limb(g, 11 + i * 1.3, 3 + i * 0.6, w - 7 + i * 0.5, h - 9 + i * 0.4, 1.8, 1.8, c);
+      }
+      Art.rect(g, 2, h - 2, w - 4, 2, '#5a3a18');
+    },
+    helm: (g, w, h) => {
+      const cx = w / 2, cy = 16;
+      Art.rect(g, cx - 3, cy, 6, h - cy, '#5a2a10'); Art.rect(g, cx - 8, h - 4, 16, 4, '#4a2008');
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * TAU; Art.limb(g, cx, cy, cx + Math.cos(a) * 16, cy + Math.sin(a) * 16, 2, 2, '#a86a30'); Art.ell(g, cx + Math.cos(a) * 16, cy + Math.sin(a) * 16, 2, 2, '#c88a40'); }
+      Art.ell(g, cx, cy, 11, 11, '#7a4418'); Art.ell(g, cx, cy, 9, 9, 'rgba(0,0,0,0)');
+      g.save(); g.globalCompositeOperation = 'destination-out'; Art.ell(g, cx, cy, 8.5, 8.5, '#000'); g.restore();
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * TAU; Art.limb(g, cx, cy, cx + Math.cos(a) * 9, cy + Math.sin(a) * 9, 1.6, 1.6, '#a86a30'); }
+      Art.ell(g, cx, cy, 3, 3, '#e8b020'); Art.rect(g, cx - 1, cy - 1, 1, 1, '#fff0a0');
+    },
+    anchor: (g, w, h) => {
+      const cx = w / 2, IR = '#3a3a44', IL = '#8a8a98', RU = '#a8501c';
+      Art.ell(g, cx, 5, 5, 5, IR); g.save(); g.globalCompositeOperation = 'destination-out'; Art.ell(g, cx, 5, 2.5, 2.5, '#000'); g.restore();
+      Art.rect(g, cx - 2, 9, 4, h - 14, IR); Art.rect(g, cx - 2, 9, 1, h - 14, IL);
+      Art.rect(g, cx - 10, 13, 20, 3, IR); Art.rect(g, cx - 10, 13, 20, 1, IL);
+      for (let i = 0; i <= 12; i++) { const u = i / 12, a = Math.PI * (0.05 + u * 0.9); Art.rect(g, cx + Math.cos(a) * 13 - 2, h - 18 + Math.sin(a) * 14 - 2, 4, 4, IR); }
+      Art.poly(g, [[cx - 15, h - 18], [cx - 10, h - 20], [cx - 12, h - 12]], IR); Art.poly(g, [[cx + 15, h - 18], [cx + 10, h - 20], [cx + 12, h - 12]], IR);
+      for (let i = 0; i < 9; i++) Art.rect(g, cx - 12 + (i * 5) % 24, 10 + (i * 7) % (h - 12), 2, 1, RU);   // rust
     },
   };
   // A piece of furniture, drawn at the size the catalogue says it is.

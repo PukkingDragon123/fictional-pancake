@@ -207,6 +207,7 @@ const SITES = [
   { key: 'grove',  name: 'The Grove',    x: 176, y: 236, icon: 'grove',   mode: 'grove',  need: 0 },
   { key: 'mart',   name: 'Wombat Mart',  x: 330, y: 296, icon: 'shop',    mode: 'shop',   need: 0 },
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0 },
+  { key: 'ottoman', name: 'Ottoman Empire',  x: 396, y: 270, icon: 'd_ottoman',  mode: 'ottoman', need: 0 },
 ];
 
 // ---- Things to buy with W$ ------------------------------------------------
@@ -331,7 +332,8 @@ const RESTORE_TARGET = 172000;  // painted grass pixels that count as a whole fo
                                 // (the grove floor is about 238k, so this is most of it)
 
 // ---- Furniture ------------------------------------------------------------
-// Things you buy in town and stand about the grove wherever you like. Unlike
+// Things you buy at Captain Clark's Ottoman Empire and stand about the grove
+// wherever you like. Unlike
 // DECOR, which has one fixed spot each and is really an upgrade wearing a hat,
 // furniture is placed by hand, picked back up, and is worth what you paid for
 // it minus a little. Most of it does something small; some of it is just nice.
@@ -348,6 +350,20 @@ const FURNITURE = [
   { key: 'statue',  name: 'Wombat Statue', cost: 780,  w: 32, h: 44, hap: 0.12, blurb: 'Carved by someone who had only had one described to them.' },
   { key: 'firepit', name: 'Fire Pit',      cost: 350,  w: 40, h: 18, hap: 0.22, light: 1, blurb: 'A ring of stones and a heap of ash. Sit round it.' },
   { key: 'shrine2', name: 'Bird Box',      cost: 900,  w: 28, h: 50, hap: 0.14, blurb: 'A little house on a pole. Somebody always moves in.' },
+  // the Captain's own stock: the good stuff, from the good ships
+  { key: 'ottoman', name: 'Velvet Ottoman',    cost: 150, w: 30, h: 18, hap: 0.14, blurb: 'Red velvet, gold feet, deep buttons. The name of the shop.' },
+  { key: 'pouf',    name: 'Knitted Pouf',      cost: 80,  w: 22, h: 15, hap: 0.08, blurb: 'Hand-knitted by the Captain on the long night watches.' },
+  { key: 'armchair', name: "Captain's Armchair", cost: 380, w: 34, h: 34, hap: 0.18, blurb: 'Green leather wingback. Smells faintly of pipe and sea.' },
+  { key: 'sofa',    name: 'Chesterfield Sofa',  cost: 620, w: 60, h: 30, hap: 0.24, blurb: 'Oxblood leather, a hundred buttons. Three wombats wide.' },
+  { key: 'rug',     name: 'Persian Rug',       cost: 260, w: 62, h: 12, hap: 0.12, flat: 1, blurb: 'Came off a ship from somewhere warm. Lies flat on the grass.' },
+  { key: 'lamp',    name: 'Standard Lamp',     cost: 210, w: 18, h: 52, hap: 0.10, light: 1, blurb: 'Fringed shade, brass pole. Glows at night.' },
+  { key: 'shelf',   name: 'Bookshelf',         cost: 300, w: 34, h: 46, hap: 0.10, blurb: 'Stuffed with sea charts and paperbacks with no ends.' },
+  { key: 'hammock', name: 'Rope Hammock',      cost: 340, w: 62, h: 32, hap: 0.20, blurb: 'Two posts and a net. A wombat will fall asleep in it.' },
+  { key: 'deck',    name: 'Deck Chair',        cost: 120, w: 26, h: 26, hap: 0.10, blurb: 'Striped canvas off the old ferry.' },
+  { key: 'helm',    name: "Ship's Wheel",      cost: 440, w: 36, h: 42, hap: 0.08, blurb: 'Off the Captain\'s last command. Do not ask how it sank.' },
+  { key: 'anchor',  name: 'Old Anchor',        cost: 280, w: 30, h: 36, blurb: 'Rusty, heavy, and absolutely going nowhere.' },
+  // never on sale: it is only ever found, a long way back through the staff door
+  { key: 'lostottoman', name: 'The Lost Ottoman', cost: 0, w: 30, h: 18, hap: 0.3, found: 1, blurb: 'Damp carpet, humming faintly. Nobody remembers making it.' },
 ];
 const FURN_BY_KEY = Object.fromEntries(FURNITURE.map((f) => [f.key, f]));
 

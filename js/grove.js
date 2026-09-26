@@ -817,7 +817,7 @@ const Grove = (() => {
         UI.refreshHUD(); return true;
       }
       const key = buildKey();
-      if (!key) { Audio.play('error'); UI.toast('nothing to put down &mdash; the joiner in town sells it', 'bad'); return true; }
+      if (!key) { Audio.play('error'); UI.toast('nothing to put down &mdash; Captain Clark\'s Ottoman Empire sells furniture', 'bad'); return true; }
       if (y < GROUND + 6 || y > GROUND + 190) { Audio.play('error'); UI.toast('not there', 'bad'); return true; }
       if (!G.furniture) G.furniture = [];
       G.furniture.push({ key, x: Math.round(x), y: Math.round(y) });
@@ -1341,9 +1341,9 @@ const Grove = (() => {
       // a soft card on a little post, so the price reads over any weeds
       const label0 = p.name.toUpperCase();
       const bw = Math.max(Font.width(label0, 2), 108) + 24;
-      Art.rect(g, cx - 3, y + 24, 6, 28, Kit.C.line); Art.rect(g, cx - 1, y + 24, 2, 28, '#9fbdb1');
+      Art.rect(g, cx - 3, y + 24, 6, 28, Kit.C.line); Art.rect(g, cx - 1, y + 24, 2, 28, '#a86a38');
       Kit.card(g, cx - bw / 2, y - 26, bw, 56, { r: 8, ring: hot ? Kit.C.sun : null });
-      Kit.tab(g, cx - bw / 2 + 8, y - 34, bw - 16, 14, 'FOR SALE', { col: hot ? Kit.C.sunD : Kit.C.mintD });
+      Kit.tab(g, cx - bw / 2 + 8, y - 34, bw - 16, 14, 'FOR SALE', { col: hot ? Kit.C.sunD : Kit.C.frameM });
       Font.draw(g, label0, cx, y - 14, { scale: 2, color: Kit.C.ink, align: 'center' });
       const pw = Font.width(`${p.cost} W$`, 1) + 14;
       Kit.pill(g, cx - pw / 2, y + 6, `${p.cost} W$`, { col: can ? Kit.C.sun : '#ffd2c6', ink: can ? '#4a3304' : Kit.C.coralD });

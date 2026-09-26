@@ -277,49 +277,40 @@ const UI = (() => {
       el.onmouseleave = hideTip;
     });
   }
-  // The frame everything wears: a soft rounded card with one slate line round
-  // it, a white lit edge along the top and a little lip underneath, so it sits
-  // on the picture like a paper tag. Painted once into a small canvas and
-  // handed to CSS as a nine-slice border image.
-  //   base    white chips on the HUD        paper  cream cards and panels
-  //   hot     base, with a mint ring        sel    base, with a sunny ring
-  //   slot    a pale mint well on the bar   slotsel the well for the tool in hand
+  // The frame everything wears, cut from whole pixels like a farm game's:
+  // a dark line with its corners knocked off, a bevelled orange frame lit on
+  // the top and left, a brass nub in each corner, an inner line, and warm
+  // parchment inside. Painted once and handed to CSS as a nine-slice image.
+  //   base / paper  the box        hot  its frame catches the light
+  //   sel           a sunny frame  slot / slotsel  the tan wells on the toolbar
   function goldFrameURL(kind) {
-    const P2 = 2, N = 15, R0 = 4;                // 15 art pixels a side, rounded by 4
+    const P2 = 2, N = 15;
     const c = document.createElement('canvas'); c.width = c.height = N * P2;
     const g = c.getContext('2d');
-    const K = {
-      base:    { line: '#2c4048', ring: null, ring2: null, fill: '#ffffff', top: '#ffffff', lip: '#d6e4de', lip2: '#b8ccc4' },
-      paper:   { line: '#2c4048', ring: null, ring2: null, fill: '#fffaf0', top: '#ffffff', lip: '#efe4cc', lip2: '#d9cbae' },
-      hot:     { line: '#2c4048', ring: '#7fd1a8', ring2: '#bff0d8', fill: '#ffffff', top: '#ffffff', lip: '#d6e4de', lip2: '#b8ccc4' },
-      sel:     { line: '#2c4048', ring: '#ffc23a', ring2: '#ffe38a', fill: '#fff9e0', top: '#ffffff', lip: '#f4e2a8', lip2: '#e2c46c' },
-      slot:    { line: '#9fbdb1', ring: null, ring2: null, fill: '#eef8f2', top: '#d4e9dd', lip: '#f8fdfa', lip2: '#f8fdfa', inset: true },
-      slotsel: { line: '#c7861a', ring: '#ffc23a', ring2: '#ffe38a', fill: '#fff4c8', top: '#fff9e0', lip: '#ffe9a0', lip2: '#f5d470' },
-    }[kind] || null;
-    const k = K || { line: '#2c4048', fill: '#fffaf0', top: '#fff', lip: '#efe4cc', lip2: '#d9cbae' };
-    // inside a rounded square of side n starting at o, radius r?
-    const inside = (x, y, o, n, r) => {
-      const x0 = o, y0 = o, x1 = o + n - 1, y1 = o + n - 1;
-      if (x < x0 || y < y0 || x > x1 || y > y1) return false;
-      const cx = x < x0 + r ? x0 + r : x > x1 - r ? x1 - r : x;
-      const cy = y < y0 + r ? y0 + r : y > y1 - r ? y1 - r : y;
-      return (x - cx) * (x - cx) + (y - cy) * (y - cy) <= r * r + r * 0.6;
-    };
-    const px = (x, y, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, P2, P2); };
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      if (!inside(x, y, 0, N, R0)) continue;
-      let col = k.line;
-      if (inside(x, y, 1, N - 2, R0 - 1)) {
-        col = k.fill;
-        if (k.ring && !inside(x, y, 2, N - 4, R0 - 1)) col = y < 4 ? k.ring2 : k.ring;
-        else if (k.inset) { if (y <= 2) col = k.top; }
-        else {
-          if (y === (k.ring ? 2 : 1) || (y === 2 && !k.ring)) col = y === 1 || k.ring ? k.top : col;
-          if (y >= N - 3) col = y === N - 2 ? k.lip2 : k.lip;              // the lip it stands on
-        }
-      }
-      px(x, y, col);
+    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
+    const line = '#4a1e0e', inner = '#7a3414';
+    if (kind === 'slot' || kind === 'slotsel') {
+      const sel = kind === 'slotsel';
+      R(1, 0, N - 2, N, sel ? '#e8301c' : '#8a4a1c'); R(0, 1, N, N - 2, sel ? '#e8301c' : '#8a4a1c');
+      if (sel) { R(1, 1, N - 2, N - 2, '#ff6a3a'); R(2, 1, N - 4, 1, '#ffb08a'); }
+      const o = sel ? 2 : 1;
+      R(o, o, N - o * 2, N - o * 2, '#f6cc84');
+      R(o, o, N - o * 2, 2, '#d49a54'); R(o, o, 2, N - o * 2, '#dca660');              // sunk: dark top and left
+      R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffe4b0'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#ffe0a8');
+      return c.toDataURL();
     }
+    const fr = kind === 'hot' ? ['#ffd070', '#ff9a3a', '#e07a30', '#b0501c']
+      : kind === 'sel' ? ['#fff08a', '#ffc81c', '#f0a010', '#c8840c'] : ['#ffb858', '#e07a30', '#c8622a', '#a0461a'];
+    const paper = ['#fff4cc', '#ffe3a4', '#f2c47a'];
+    R(2, 0, N - 4, N, line); R(0, 2, N, N - 4, line); R(1, 1, N - 2, N - 2, line);   // the line, corners knocked off
+    R(2, 1, N - 4, N - 2, fr[1]); R(1, 2, N - 2, N - 4, fr[1]);
+    R(2, 1, N - 4, 1, fr[0]); R(1, 2, 1, N - 4, fr[0]);                                   // lit top and left
+    R(2, N - 2, N - 4, 1, fr[3]); R(N - 2, 2, 1, N - 4, fr[3]);                           // shaded foot and right
+    R(3, N - 3, N - 6, 1, fr[2]); R(N - 3, 3, 1, N - 6, fr[2]);
+    R(3, 3, N - 6, N - 6, inner);
+    R(4, 4, N - 8, N - 8, paper[1]);
+    R(4, 4, N - 8, 1, paper[0]); R(4, N - 5, N - 8, 1, paper[2]);
+    for (const [x, y] of [[1, 1], [N - 3, 1], [1, N - 3], [N - 3, N - 3]]) { R(x, y, 2, 2, '#ffd070'); R(x + 1, y + 1, 1, 1, fr[3]); }
     return c.toDataURL();
   }
   function pickTool() { }

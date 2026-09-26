@@ -61,7 +61,7 @@ const Menu = (() => {
     Kit.card(g, x, y, w, h, { fill: o.fill && o.fill !== GF.b1 ? o.fill : Kit.C.paper, ring: o.hot ? Kit.C.mint : null, r: o.r });
   }
   function goldButton(g, b, label, sub, kind) {
-    Kit.button(g, b, label, sub, { hot: hover === b.id, kind: kind || (b.id === 'enter' ? 'sun' : 'mint') });
+    Kit.button(g, b, label, sub, { hot: hover === b.id, kind: kind || (b.id === 'enter' ? 'mint' : 'paper') });
   }
 
   // ---- the forest going past -----------------------------------------------
@@ -160,8 +160,8 @@ const Menu = (() => {
     buttons = [];
     const bob = Math.sin(t * 1.2) * 1.5;
     goldFrame(g, VW / 2 - 170, 22 + bob, 340, 70);
-    Font.draw(g, 'WOMBAT FARM', VW / 2, 42 + bob, { scale: 4, color: Kit.C.mintL, align: 'center' });
-    Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: Kit.C.mintDD, align: 'center' });
+    Font.draw(g, 'WOMBAT FARM', VW / 2 + 2, 43 + bob, { scale: 4, color: '#f0a040', align: 'center' });
+    Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: '#5a2610', align: 'center' });
     Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: Kit.C.ink2, align: 'center' });
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
     const bx = 430, bw = 184;
@@ -183,7 +183,7 @@ const Menu = (() => {
 
   // which drops four pixels when the pointer is over it. It is the same button
   // the panels use, drawn with rectangles instead of CSS.
-  function plaque(g, x, y, w, h, hot) { Kit.rr(g, x, y, w, h + 3, 6, Kit.C.line); Kit.rr(g, x + 2, y + 2, w - 4, h - 3, 5, hot ? '#97dcb8' : Kit.C.mint); }
+  function plaque(g, x, y, w, h, hot) { Kit.rr(g, x, y, w, h + 3, 6, Kit.C.line); Kit.rr(g, x + 2, y + 2, w - 4, h - 3, 5, hot ? '#fff4cc' : Kit.C.paper); }
   function bigButton(g, b, label, sub, scale) {
     Kit.button(g, b, label, sub, { hot: hover === b.id, scale: scale || 2 });
   }
@@ -222,10 +222,10 @@ const Menu = (() => {
     const BW = PW - 74;                       // what a line of body has room for
     HELP.forEach(([ico, title, body], i) => {
       const ry = PY + 44 + i * 40;
-      Kit.rr(g, PX + 16, ry - 3, PW - 32, 38, 5, i % 2 ? '#ffffff' : Kit.C.mintW);
+      Kit.rr(g, PX + 16, ry - 3, PW - 32, 38, 5, i % 2 ? '#fff4cc' : '#ffe9b8');
       Art.rect(g, PX + 16, ry - 3, PW - 32, 1, KIT.p4);
       Icons.blit(g, ico, PX + 20, ry + 4, 1.2);
-      Font.draw(g, title, PX + 50, ry, { scale: 1, color: Kit.C.mintDD });
+      Font.draw(g, title, PX + 50, ry, { scale: 1, color: Kit.C.frameD });
       Font.wrap(body, BW, 1).slice(0, 2).forEach((ln, j) => {
         Font.draw(g, ln, PX + 50, ry + 11 + j * 10, { scale: 1, color: Kit.C.ink2 });
       });
@@ -252,12 +252,12 @@ const Menu = (() => {
       const val = s2.inv ? !G[s2.key] : !!G[s2.key];
       const hot = hover === 'set:' + s2.key;
       buttons.push({ id: 'set:' + s2.key, x: PX + 14, y: ry, w: PW - 28, h: 24, kind: 'toggle', k: s2.key });
-      Kit.rr(g, PX + 16, ry, PW - 32, 24, 5, hot ? Kit.C.mintW : '#ffffff');
+      Kit.rr(g, PX + 16, ry, PW - 32, 24, 5, hot ? '#fff4cc' : '#ffe9b8');
       Art.rect(g, PX + 16, ry, PW - 32, 1, KIT.p4);
       Font.draw(g, s2.name, PX + 28, ry + 9, { scale: 1, color: Kit.C.ink });
       const tx = PX + PW - 96, tw = 68;
       Kit.rr(g, tx - 2, ry + 3, tw + 4, 18, 8, Kit.C.line);
-      Kit.rr(g, tx, ry + 5, tw, 14, 7, val ? Kit.C.mintD : '#c8d2d0');
+      Kit.rr(g, tx, ry + 5, tw, 14, 7, val ? Kit.C.mint : '#c8b89a');
       const kx = val ? tx + tw - 20 : tx + 2;
       Kit.rr(g, kx, ry + 6, 18, 12, 6, '#ffffff');
       Font.draw(g, val ? s2.on : s2.off, val ? tx + 22 : tx + tw - 22, ry + 9, {

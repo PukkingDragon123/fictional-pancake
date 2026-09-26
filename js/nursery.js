@@ -73,10 +73,7 @@ const Nursery = (() => {
     }
     // Furniture is yard stock: it stands out the back between the benches and
     // you carry it home in a crate and put it down where you like.
-    for (const f of FURNITURE) {
-      out.push({ id: 'fn:' + f.key, kind: 'fn', key: f.key, name: f.name, icon: 'd_nest',
-        furn: f, price: f.cost, sold: false, blurb: f.blurb });
-    }
+    // (furniture moved to Captain Clark's Ottoman Empire)
     return out;
   }
   const BAY_W = 150;

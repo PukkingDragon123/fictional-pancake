@@ -1748,6 +1748,8 @@ const Sprites = (() => {
       hat: 'cap', prop: 'sack', why: 'behind the pawnshop counter' },
     joiner: { name: 'Odger', skin: '#d8a878', hair: '#8a6a3a', shirt: '#9a6a3a', pants: '#5a3a1c',
       hat: 'none', prop: 'press', why: 'up to the elbows in shavings' },
+    clark: { name: 'Captain Clark', skin: '#f0b890', hair: '#f4f2ea', shirt: '#1c3470', pants: '#20263a',
+      hat: 'captain', prop: 'none', why: 'the Ottoman Empire' },
     warren: { name: 'Mrs Warren', skin: '#e0b088', hair: '#b8b0a0', shirt: '#2f5a44', pants: '#3a4438',
       hat: 'wide', prop: 'hive', why: 'minding the livestock' },
   };
@@ -1839,6 +1841,15 @@ const Sprites = (() => {
         Art.rect(g, cx - 6.4, hy - 3.4, 12.8, 2, '#a83a48');
         for (let i = 0; i < 5; i++) Art.rect(g, cx - 5 + i * 2.4, hy - 5 + (i % 2), 1, 1, '#f0e0c8');
         Art.poly(g, [[cx + 5, hy - 2], [cx + 9, hy + 1], [cx + 5, hy + 2]], '#a83a48');
+        break;
+      case 'captain':
+        // a white-topped peaked cap with a gold anchor on the band, and the beard to go with it
+        Art.ell(g, cx, hy + 3.6, 5.6, 3.4, '#f4f2ea'); Art.ell(g, cx, hy + 3, 4.6, 2.4, '#ffffff');
+        Art.rect(g, cx - 2, hy + 2.2, 4, 1, '#5a2a24');
+        Art.ell(g, cx, hy - 6, 7.4, 2.8, '#ffffff');
+        Art.rect(g, cx - 6, hy - 5.4, 12, 2.6, '#1c2a5a');
+        Art.rect(g, cx - 1, hy - 5.2, 2, 2, '#f0b020');
+        Art.rect(g, cx - 5, hy - 3, 10, 1.6, '#141418');                // the peak
         break;
       case 'wide':
         Art.ell(g, cx, hy - 3.6, 10.4, 3, '#8a6a3a');

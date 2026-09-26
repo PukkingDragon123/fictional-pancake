@@ -86,9 +86,9 @@ const Drive = (() => {
       // a soft card like everything else you read, with the trip filling in
       const bw = 210, bx = VW / 2 - bw / 2, by = 16;
       Kit.card(g, bx - 10, by - 6, bw + 20, 44, { r: 8 });
-      Font.draw(g, 'TO ' + run.to, VW / 2, by + 2, { scale: 1, color: Kit.C.mintDD, align: 'center' });
+      Font.draw(g, 'TO ' + run.to, VW / 2, by + 2, { scale: 1, color: Kit.C.frameD, align: 'center' });
       Kit.rr(g, bx, by + 13, bw, 8, 4, Kit.C.line);
-      Kit.rr(g, bx + 1, by + 14, bw - 2, 6, 3, '#e6efeb');
+      Kit.rr(g, bx + 1, by + 14, bw - 2, 6, 3, '#b07838');
       if (k > 0.02) Kit.rr(g, bx + 1, by + 14, Math.round((bw - 2) * k), 6, 3, Kit.C.mint);
       Font.draw(g, Math.max(0, Math.round(run.km * (1 - k))) + ' km', VW / 2, by + 24, { scale: 1, color: Kit.C.ink2, align: 'center' });
     }

@@ -604,17 +604,12 @@ const Atlas = (() => {
   // starts clear of the head-up now and ends clear of the scale bar.
   const BX0 = 132;
   function banner(g, text, cx, cy) {
+    // the title on a farm-game box across the top of the map
     const bw = VW - BX0 - 22;
-    g.fillStyle = 'rgba(40,40,44,0.16)'; g.fillRect(BX0 + 2, 12, bw, 30);
-    g.fillStyle = '#1c1008'; g.fillRect(BX0, 8, bw + 2, 28);
-    g.fillStyle = '#ffffff'; g.fillRect(BX0 + 2, 10, bw - 2, 24);
-    g.fillStyle = '#e6e3da'; g.fillRect(BX0 + 2, 31, bw - 2, 3);
-    // the little magnifier
-    g.fillStyle = '#5a5750';
-    g.fillRect(BX0 + 14, 16, 8, 2); g.fillRect(BX0 + 14, 24, 8, 2);
-    g.fillRect(BX0 + 12, 18, 2, 6); g.fillRect(BX0 + 22, 18, 2, 6);
-    g.fillRect(BX0 + 24, 26, 2, 2); g.fillRect(BX0 + 26, 28, 2, 2);
-    Font.draw(g, text, BX0 + 36, 16, { scale: 2, color: '#3c3a35', align: 'left' });
+    Kit.card(g, BX0, 6, bw + 2, 32, {});
+    Icons.blit(g, 'map', BX0 + 10, 14, 1);
+    Font.draw(g, text, BX0 + 32, 16, { scale: 2, color: Kit.C.ink, align: 'left' });
+    Font.draw(g, 'click a place to drive there', BX0 + bw - 8, 19, { scale: 1, color: Kit.C.ink2, align: 'right' });
     // compass, top right
     const cy3 = VH - 92;
     g.fillStyle = '#ffffff'; g.fillRect(VW - 44, cy3, 26, 26);
@@ -634,8 +629,8 @@ const Atlas = (() => {
       g.save();
       g.translate(x, s.y + 16); g.scale(1 + sq, 1 - sq); g.translate(-x, -(s.y + 16));
     }
-    const col = open ? (s.mode === 'grove' ? '#3f8f4a' : s.mode === 'shop' ? '#2f7ad0' : '#e04a3c') : '#8b8780';
-    const dark = open ? (s.mode === 'grove' ? '#286633' : s.mode === 'shop' ? '#1c56a0' : '#a52f26') : '#66635d';
+    const col = open ? (s.mode === 'grove' ? '#3f8f4a' : s.mode === 'shop' ? '#2f7ad0' : s.mode === 'ottoman' ? '#9a3ad0' : '#e04a3c') : '#8b8780';
+    const dark = open ? (s.mode === 'grove' ? '#286633' : s.mode === 'shop' ? '#1c56a0' : s.mode === 'ottoman' ? '#62208e' : '#a52f26') : '#66635d';
     g.fillStyle = 'rgba(40,40,44,0.22)';                     // the marker's shadow on the paper
     Art.ell(g, x + 3, y + 15, 9, 3, 'rgba(40,40,44,0.22)');
     if (hot) {
@@ -667,10 +662,7 @@ const Atlas = (() => {
     const ly = Math.round(s.y) + 18;
     const label = s.name.toUpperCase();
     const w = Font.width(label, 1) + 10;
-    Art.rect(g, x - w / 2 - 1, ly - 1, w + 2, 14, 'rgba(24,34,18,0.35)');
-    Art.rect(g, x - w / 2, ly, w, 12, '#ffffff');
-    Art.rect(g, x - w / 2, ly + 10, w, 2, '#d0cabc');
-    Font.draw(g, label, x, ly + 3, { scale: 1, color: open ? '#3c3a35' : '#8b8780', align: 'center' });
+    Kit.tab(g, x - w / 2 - 2, ly, w + 4, 14, label, { col: open ? Kit.C.frameM : '#8b8780' });
   }
 
   return { init, enter, update, render, click, go, whereAmI, kmBetween, siteOpen, hover: hoverAt, get busy() { return !!travel; } };

@@ -32,6 +32,12 @@ Creek, and up to the farm gate where Jim is waiting.
    hills with the right. Water poured into a hole stays and flows along any dug channel,
    so you can make ponds and creeks. Frogs move in.
 
+7. **Furnish it.** Captain Clark's Ottoman Empire, in town, sells every piece of furniture:
+   ottomans, a Chesterfield, a captain's armchair, lamps, rugs, a hammock, a ship's wheel.
+   He'll ask you not to go through the STAFF ONLY door at the back. Behind it is Level 0,
+   yellow rooms that go on forever. Find a green EXIT sign to get out, and look out for
+   something that got lost in there.
+
 Jim tells you what to do next in a speech bubble and chats if you click him. Neighbours
 wander in now and then, the weather changes on its own, and a day is twelve minutes long.
 
@@ -59,11 +65,12 @@ wander in now and then, the weather changes on its own, and a day is twelve minu
 - `js/wild.js` - the shovel's height field and flowing water, critters, visiting neighbours
 - `js/guide.js` - Jim: the jobs, his lessons, the tools each job unlocks, the pointer arrow
 - `js/talk.js`, `js/portraits.js` - the dialogue box and the big 64x64 faces with moods
-- `js/uikit.js`, `css/theme.css` - the soft cream-and-mint interface, on canvas and in HTML
+- `js/uikit.js`, `css/theme.css` - the pixel farm-game interface, on canvas and in HTML
 - `js/iconart.js` - the hand-drawn 16x16 tool and item icons
 - `js/scenery.js` - the painted country: ranges, fields, forest, village, road, the car
 - `js/menu.js` - the title screen, driving through the forest
 - `js/intro.js` - the drive into Wombat Creek and up to the farm gate
+- `js/ottoman.js` - Captain Clark's Ottoman Empire and the back room behind it
 - `js/map.js`, `js/drive.js`, `js/shop.js`, `js/nursery.js` - the other scenes
 - `js/phone.js`, `js/ui.js` - the white phone and its App Store, the HUD and toolbar
 - `js/art.js`, `js/sprites.js`, `js/props.js`, `js/icons.js`, `js/tex.js`, `js/fx.js` - the art

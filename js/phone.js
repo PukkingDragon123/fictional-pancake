@@ -276,8 +276,9 @@ const Phone = (() => {
   // ---- places ---------------------------------------------------------------
   const SITE_BLURB = {
     grove: 'Your land. The wombats, the beds and the truck.',
-    mart: 'Shaz on the till. Hardware, furniture, drinks, a gumball machine and a cage of wombats.',
+    mart: 'Shaz on the till. Hardware, drinks, a gumball machine and a cage of wombats.',
     nursery: 'Groot. Seed, saplings, garden tools, a trough and a nest.',
+    ottoman: "Captain Clark's furniture showroom. Ottomans, sofas, lamps, rugs. Do not go in the back room.",
   };
   function places() {
     const here = Atlas.whereAmI();

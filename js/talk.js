@@ -193,8 +193,9 @@ const Talk = (() => {
     const W = cv.width, H = cv.height;
     g.clearRect(0, 0, W, H);
     // a soft sky behind them, with a band of meadow at the shoulders
-    Art.vband(g, 0, 0, W, H, '#cdebf7', '#eaf6ec', 6);
-    g.fillStyle = 'rgba(127,209,168,0.45)'; g.fillRect(0, H - 14, W, 14);
+    Art.vband(g, 0, 0, W, H, '#5ab4ff', '#b8e4ff', 6);
+    g.fillStyle = '#5cc03c'; g.fillRect(0, H - 14, W, 14);
+    g.fillStyle = '#a8ec6a'; g.fillRect(0, H - 14, W, 2);
     const mood = n.mood || 'talk';
     const talking = typed < full.length;
     const face = sp.face && typeof Portraits !== 'undefined' ? Portraits.get(sp.face, mood, portraitT, talking) : null;
