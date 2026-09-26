@@ -1287,59 +1287,59 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 #money { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
 #checklist { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
 
-/* ---- the build menu: a Dragon City bottom sheet ------------------------------------------------------------
-   A strip along the bottom of the picture: a ribbon with the title and your coins, big icon tabs down
-   the left, and a row of fat cards you scroll sideways. */
-.panel.build.dc { top: auto !important; bottom: 12px; transform: translateX(-50%) !important; width: min(1120px, 97vw); max-height: none; padding: 0 0 10px !important; animation: dcup .22s steps(4, end) !important; }
+/* ---- the build menu: a shop sheet along the bottom ---------------------------------------------------------
+   A berry ribbon with the title and your coins, framed slot tabs down the left, and a strip of sky and
+   grass the cards stand on. The cards, buttons, lawn and track are pixel pieces painted in ui.js. */
+.panel.build.dc { top: auto !important; bottom: 10px; transform: translateX(-50%) !important; width: min(1120px, 97vw); max-height: none; padding: 0 0 10px !important; animation: dcup .22s steps(4, end) !important; }
 @keyframes dcup { from { transform: translate(-50%, 40px); opacity: 0 } to { transform: translate(-50%, 0); opacity: 1 } }
-.dc-top { display: flex; align-items: center; gap: 12px; margin: -26px 18px 6px; position: relative; z-index: 2; }
-.dc-title { display: flex; align-items: center; gap: 8px; padding: 6px 22px 8px 14px; font-size: 22px; letter-spacing: 3px; color: #fffaf0;
-  text-shadow: 2px 2px 0 var(--ol); background: var(--berry); border: 3px solid var(--ol);
-  box-shadow: inset 3px 3px 0 #ffb0bc, inset -3px -3px 0 var(--berry-d), 0 4px 0 rgba(40,20,10,0.35); }
-.dc-title img.ico { width: 26px; height: 26px; }
-.dc-coins { display: flex; align-items: center; gap: 6px; padding: 4px 12px; font-size: 18px; color: var(--ink); background: var(--honey);
-  border: 3px solid var(--ol); box-shadow: inset 2px 2px 0 #fff4c0, inset -2px -2px 0 var(--honey-d); }
-.dc-coins b { font-weight: 400; }
+.dc-top { display: flex; align-items: center; gap: 12px; margin: -28px 18px 8px; position: relative; z-index: 2; }
+.dc-title { position: relative; display: flex; align-items: center; gap: 8px; padding: 4px 26px 6px 16px; font-size: 24px; letter-spacing: 3px; color: #fffaf0;
+  text-shadow: 2px 2px 0 var(--ol); border: 10px solid transparent; border-image: var(--gf-sel) 10 fill / 10px / 0 stretch; image-rendering: pixelated; }
+.dc-title img.ico { width: 28px; height: 28px; }
+.dc-coins { display: flex; align-items: center; gap: 6px; padding: 0 10px; font-size: 20px; color: #5a3a10;
+  border: 10px solid transparent; border-image: var(--gf-hot) 10 fill / 10px / 0 stretch; image-rendering: pixelated; }
+.dc-coins b { font-weight: 400; text-shadow: 1px 1px 0 #fff0b0; }
 .dc-top .x { margin-left: auto; }
-.dc-body { display: flex; gap: 12px; padding: 0 12px; }
-.dc-tabs { display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; }
-.dc-tabs button { width: 74px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 0 4px; cursor: pointer;
-  font-family: var(--f); font-size: 12px; letter-spacing: 1px; color: var(--ink); background: var(--pp1);
-  border: 3px solid var(--ol); box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 var(--pp3), 0 3px 0 var(--ol); }
-.dc-tabs button img.ico { width: 26px; height: 26px; }
-.dc-tabs button:hover { background: #fff4c0; transform: translateY(-1px); }
-.dc-tabs button.on { background: var(--fr1); color: #fffaf0; text-shadow: 1px 1px 0 var(--ol); box-shadow: inset 2px 2px 0 var(--fr0), inset -2px -2px 0 var(--fr3), 0 1px 0 var(--ol); transform: translateY(2px); }
-.dc-tabs #b-pick { background: #ffd8e0; }
-.dc-row { flex: 1; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; padding: 6px 4px 12px; scroll-snap-type: x mandatory; align-items: flex-start; min-height: 200px; }
+.dc-body { display: flex; gap: 10px; padding: 0 12px; }
+.dc-tabs { display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; }
+.panel .dc-tabs button { width: 70px; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0; cursor: pointer;
+  font-family: var(--f); font-size: 11px; letter-spacing: 1px; color: var(--ink); background: none !important; box-shadow: none !important;
+  border: 8px solid transparent !important; border-image: var(--gf-slot) 10 fill / 8px / 0 stretch !important; image-rendering: pixelated; }
+.panel .dc-tabs button img.ico { width: 24px !important; height: 24px !important; }
+.panel .dc-tabs button:hover { transform: translateY(-2px); }
+.panel .dc-tabs button.on { border-image-source: var(--gf-slotsel) !important; color: #fffaf0; text-shadow: 1px 1px 0 var(--ol); }
+.dc-row { flex: 1; display: flex; gap: 14px; overflow-x: auto; overflow-y: hidden; padding: 10px 10px 14px; scroll-snap-type: x mandatory; align-items: flex-start;
+  height: 236px; box-sizing: border-box; background: var(--pc-track) 0 0 / 64px 236px repeat-x; border: 3px solid var(--ol); box-shadow: inset 0 3px 0 rgba(0,0,0,0.12); image-rendering: pixelated; }
 .dc-row::-webkit-scrollbar { height: 12px; }
 .dc-row::-webkit-scrollbar-thumb { background: var(--honey); border: 3px solid var(--ol); }
-.dc-row::-webkit-scrollbar-track { background: var(--pp2); }
-.dcc { position: relative; flex: 0 0 150px; height: auto; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; padding: 0 0 8px;
-  border: 3px solid var(--ol); box-shadow: inset 0 0 0 3px #ffffff80, 0 4px 0 var(--ol); background: #cfeaf8; }
-.dcc.cat-utility { background: #fbe8a8; } .dcc.cat-decor { background: #ffd8e2; }
-.dcc:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 3px #ffffffb0, 0 7px 0 var(--ol); }
-.dcc-name { align-self: stretch; margin: 0 0 4px; padding: 4px 4px 5px; text-align: center; font-size: 14px; line-height: 1.1; color: #fffaf0;
-  text-shadow: 1px 1px 0 var(--ol); background: var(--fr2); border-bottom: 3px solid var(--ol); box-shadow: inset 0 2px 0 var(--fr0); }
-.dcc.cat-utility .dcc-name { background: #d8a030; box-shadow: inset 0 2px 0 #f8d060; }
-.dcc.cat-decor .dcc-name { background: var(--berry); box-shadow: inset 0 2px 0 #ffb0bc; }
-.dcc-art { width: 132px; height: 104px; display: flex; align-items: flex-end; justify-content: center; position: relative;
-  background: radial-gradient(ellipse 50% 18% at 50% 88%, rgba(60,120,40,0.55) 0 98%, transparent 100%); }
-.dcc-art img { width: 96px; height: auto; max-height: 100px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 3px 0 rgba(40,30,10,0.25)); }
-.dcc-have { position: absolute; top: 30px; right: 6px; font-style: normal; font-size: 13px; padding: 1px 6px; color: #fff; background: var(--berry-d); border: 2px solid var(--ol); }
-.dcc-tag { font-size: 12px; color: var(--ink2); margin: 2px 0 6px; min-height: 14px; }
-.panel.build.dc .dc-tabs { justify-content: flex-start; }
-.dc-tabs button { padding: 3px 0 2px; }
-.dc-tabs button img.ico { width: 22px !important; height: 22px !important; }
-.dcc-btn { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 116px; padding: 6px 10px; cursor: pointer;
-  font-family: var(--f); font-size: 18px; color: var(--ink); border: 3px solid var(--ol); }
-.dcc-btn.buy { background: var(--honey); box-shadow: inset 2px 2px 0 #fff4c0, inset -2px -2px 0 var(--honey-d), 0 3px 0 var(--ol); }
-.dcc-btn.place { background: var(--fr1); color: #fffaf0; text-shadow: 1px 1px 0 var(--ol); box-shadow: inset 2px 2px 0 var(--fr0), inset -2px -2px 0 var(--fr3), 0 3px 0 var(--ol); }
-.dcc-btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
-.dcc-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: none; }
-.dcc-btn:disabled { filter: grayscale(0.7); opacity: 0.6; cursor: default; }
-.dcc.locked .dcc-art img { filter: grayscale(1) brightness(0.55); }
-.dcc-lock { display: flex; align-items: center; gap: 4px; padding: 6px 8px; font-size: 12px; color: #fffaf0; background: #6a5a4a; border: 3px solid var(--ol); }
-.dc-empty { align-self: center; margin: auto; font-size: 18px; color: var(--ink2); }
+.dc-row::-webkit-scrollbar-track { background: #4a8a34; }
+.dcc { position: relative; flex: 0 0 148px; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; padding: 0 6px 8px;
+  border: 10px solid transparent; border-image: var(--pc-card) 10 fill / 10px / 0 stretch; image-rendering: pixelated;
+  filter: drop-shadow(0 4px 0 rgba(40,30,10,0.35)); transition: transform .08s steps(2); background: none; box-shadow: none; }
+.dcc:hover { transform: translateY(-4px); border-image-source: var(--pc-cardhot); }
+.dcc-name { position: relative; align-self: stretch; margin: -8px -8px 2px; padding: 4px 4px 5px; text-align: center; font-size: 14px; line-height: 1.1; color: #fffaf0;
+  text-shadow: 1px 1px 0 var(--ol); background: var(--fr2); border: 3px solid var(--ol); box-shadow: inset 0 2px 0 var(--fr0), inset 0 -2px 0 var(--fr3);
+  clip-path: polygon(0 3px, 3px 3px, 3px 0, calc(100% - 3px) 0, calc(100% - 3px) 3px, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 3px calc(100% - 3px), 0 calc(100% - 3px)); }
+.dcc.cat-utility .dcc-name { background: #d8a030; box-shadow: inset 0 2px 0 #f8d060, inset 0 -2px 0 #a87818; }
+.dcc.cat-decor .dcc-name { background: var(--berry); box-shadow: inset 0 2px 0 #ffb0bc, inset 0 -2px 0 var(--berry-d); }
+.dcc-art { width: 124px; height: 100px; display: flex; align-items: flex-end; justify-content: center; position: relative;
+  background: var(--pc-lawn) 50% 100% / 120px 32px no-repeat; image-rendering: pixelated; padding-bottom: 12px; box-sizing: border-box; }
+.dcc-art img { width: 88px; height: auto; max-height: 84px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 0 rgba(40,30,10,0.3)); }
+.dcc:hover .dcc-art img { animation: dccbob .5s steps(2) infinite; }
+@keyframes dccbob { 50% { transform: translateY(-3px); } }
+.dcc-have { position: absolute; top: 20px; right: -4px; font-style: normal; font-size: 12px; padding: 0 5px; color: #fff; background: var(--berry-d); border: 2px solid var(--ol); z-index: 2; }
+.dcc-tag { font-size: 12px; color: var(--ink2); margin: 2px 0 6px; min-height: 14px; text-align: center; }
+.panel .dcc-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 118px; height: 36px; padding: 0 0 3px; cursor: pointer;
+  font-family: var(--f); font-size: 18px; color: #5a3a10; text-shadow: 1px 1px 0 #fff0b0; background: none !important; box-shadow: none !important;
+  border: 10px solid transparent !important; border-image: var(--pc-btn) 10 fill / 10px / 0 stretch !important; image-rendering: pixelated; }
+.panel .dcc-btn:hover:not(:disabled) { border-image-source: var(--pc-btnhot) !important; transform: translateY(-1px); }
+.panel .dcc-btn:active:not(:disabled) { transform: translateY(3px); }
+.panel .dcc-btn.place { color: #fffaf0; text-shadow: 1px 1px 0 var(--ol); border-image-source: var(--pc-btngo) !important; }
+.panel .dcc-btn.place:hover { border-image-source: var(--pc-btngohot) !important; }
+.panel .dcc-btn:disabled { filter: grayscale(0.8) brightness(0.9); opacity: 0.7; cursor: default; }
+.dcc.locked .dcc-art img { filter: grayscale(1) brightness(0.5); }
+.dcc-lock { display: flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 12px; color: #fffaf0; background: #6a5a4a; border: 3px solid var(--ol); }
+.dc-empty { align-self: center; margin: auto; padding: 10px 18px; font-size: 18px; color: var(--ink); border: 10px solid transparent; border-image: var(--pc-card) 10 fill / 10px / 0 stretch; }
 /* the BUILD button next to back, and the bar along the top while placing */
 .mbtn.bbuild { display: flex; align-items: center; gap: 6px; padding: 0 12px 0 8px !important; height: 50px; width: auto !important; }
 .mbtn.bbuild span { font-size: 16px; letter-spacing: 1px; color: var(--ink); }
@@ -1350,9 +1350,6 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 #placebar b { color: var(--fr3); font-weight: 400; }
 #placebar .wbtn { padding: 4px 10px; font-size: 13px; }
 #placebar[hidden] { display: none; }
-.panel .dcc-btn, .panel .dc-tabs button { border-image: none !important; border: 3px solid var(--ol) !important; }
-.panel .dcc-btn.buy { background: var(--honey) !important; }
-.panel .dcc-btn.place { background: var(--fr1) !important; }
 .credit { text-align: center; margin: 10px 0 8px; font-size: 14px; color: var(--ink2); }
 .credit b { color: var(--berry-d); font-weight: 400; }
 
@@ -1368,6 +1365,13 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 #hotbar .hbname { font-size: 16px; }
 #tip { filter: drop-shadow(3px 4px 0 rgba(40,30,10,0.3)); }
 .toast { filter: drop-shadow(3px 4px 0 rgba(40,30,10,0.3)); }
+.dc-title { border: 3px solid var(--ol) !important; border-image: none !important; background: var(--berry);
+  box-shadow: inset 3px 3px 0 #ffb0bc, inset -3px -3px 0 var(--berry-d), 0 4px 0 rgba(40,20,10,0.35);
+  clip-path: polygon(0 3px, 3px 3px, 3px 0, calc(100% - 3px) 0, calc(100% - 3px) 3px, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 3px calc(100% - 3px), 0 calc(100% - 3px)); padding: 6px 22px 8px 14px; }
+.panel .dc-tabs button.on { color: var(--ink); text-shadow: none; }
+.panel .dc-tabs button { height: 44px; width: 66px; }
+.panel .dc-tabs button img.ico { width: 20px !important; height: 20px !important; }
+.panel.build.dc { padding-bottom: 12px !important; }
 </style>
 
 <div id="app">
@@ -19246,6 +19250,57 @@ const UI = (() => {
     g.fillStyle = '#4a8a32'; g.fillRect(0, W2 - 5, W2, 5); g.fillStyle = '#6aa84a'; g.fillRect(0, W2 - 5, W2, 1);
     if (Sky.wet() > 0.1) { g.fillStyle = '#a8dcf8'; for (let i = 0; i < 6; i++) g.fillRect((i * 5 + Math.floor(t * 20)) % W2, (i * 7 + Math.floor(t * 40)) % (W2 - 6), 1, 2); }
   }
+  // ---- pixel pieces for the Build menu ------------------------------------------------------
+  // A shop card, a chunky 3D button in two colours, the grass the cards
+  // stand on, and the little lawn under each building. All nine-slice or
+  // tiling, all in whole pixels at 2x.
+  function pieceURL(kind) {
+    const P2 = 2, c = document.createElement('canvas');
+    const R = (g, x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
+    const OL = '#3b2616';
+    if (kind === 'card' || kind === 'cardhot') {
+      const N = 15; c.width = c.height = N * P2; const g = c.getContext('2d');
+      const hot = kind === 'cardhot';
+      R(g, 2, 0, N - 4, N, OL); R(g, 0, 2, N, N - 4, OL); R(g, 1, 1, N - 2, N - 2, OL);
+      R(g, 2, 1, N - 4, N - 2, hot ? '#fff0b0' : '#fffaf0'); R(g, 1, 2, N - 2, N - 4, hot ? '#fff0b0' : '#fffaf0');
+      R(g, 2, 2, N - 4, N - 4, hot ? '#fff8d8' : '#fdf0d8');
+      R(g, 2, 1, N - 4, 1, '#ffffff'); R(g, 1, 2, 1, N - 4, '#ffffff');
+      R(g, 2, N - 3, N - 4, 1, hot ? '#f8d060' : '#f2dcb4'); R(g, 2, N - 2, N - 4, 1, hot ? '#e8b040' : '#d8b888');
+      R(g, N - 2, 2, 1, N - 4, hot ? '#e8b040' : '#e8cc9c');
+      return c.toDataURL();
+    }
+    if (kind.startsWith('btn')) {
+      const N = 15; c.width = c.height = N * P2; const g = c.getContext('2d');
+      const col = { btn: ['#fff4c0', '#f8d060', '#d8a830', '#a87818'], btnhot: ['#fffae0', '#ffe070', '#e8b840', '#b88420'],
+        btngo: ['#c8f0a0', '#7cc85a', '#5aa044', '#3a7a2e'], btngohot: ['#e0ffc0', '#90dc6a', '#6ab050', '#3f8a34'] }[kind];
+      R(g, 1, 0, N - 2, N, OL); R(g, 0, 1, N, N - 2, OL);
+      R(g, 1, 1, N - 2, N - 2, col[1]);
+      R(g, 1, 1, N - 2, 2, col[0]); R(g, 1, 3, 1, N - 7, col[0]);
+      R(g, 1, N - 5, N - 2, 2, col[2]); R(g, 1, N - 3, N - 2, 2, col[3]);
+      R(g, 3, 2, 3, 1, '#ffffff');
+      return c.toDataURL();
+    }
+    if (kind === 'track') {                                  // sky over grass, tiling sideways
+      const W = 32, H = 118; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
+      const sky = ['#a8d8f0', '#b8e0f2', '#c8e8f2', '#d8f0f0', '#e4f6ec'];
+      for (let i = 0; i < 5; i++) R(g, 0, i * 16, W, 16, sky[i]);
+      R(g, 0, 80, W, H - 80, '#6aac4a'); R(g, 0, 80, W, 2, '#9ad068'); R(g, 0, 96, W, H - 96, '#5a9a3e'); R(g, 0, 108, W, H - 108, '#4a8a34');
+      for (let x = 0; x < W; x += 3) { const h = 2 + ((x * 7) % 4); R(g, x, 80 - h, 1, h, (x % 2) ? '#7cc05a' : '#5a9a3e'); }
+      for (const [x, y] of [[4, 88], [19, 92], [27, 101], [11, 104]]) { R(g, x, y, 1, 1, '#ffffff'); R(g, x + 1, y, 1, 1, '#f8d040'); }
+      R(g, 6, 20, 8, 2, '#ffffff'); R(g, 4, 22, 13, 2, '#ffffff'); R(g, 21, 44, 6, 2, '#ffffff'); R(g, 19, 46, 10, 1, '#ffffff');
+      return c.toDataURL();
+    }
+    if (kind === 'lawn') {                                   // the round of lawn a building stands on
+      const W = 60, H = 16; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
+      for (let y = 0; y < H; y++) {
+        const half = Math.round(Math.sqrt(Math.max(0, 1 - ((y - 7) / 8) ** 2)) * (W / 2 - 1));
+        R(g, W / 2 - half, y, half * 2, 1, y < 2 ? '#9ad068' : y < 9 ? '#6aac4a' : y < 13 ? '#8a5a34' : '#6a4024');
+      }
+      for (let x = 8; x < W - 8; x += 4) R(g, x, 1 + (x % 3), 1, 2, '#4a8a34');
+      return c.toDataURL();
+    }
+    return '';
+  }
   function pickTool() { }
 
   // ---- "you got a new tool" -------------------------------------------------
@@ -19551,6 +19606,7 @@ const UI = (() => {
     G = g;
     Tex.install();                         // wood, paper, metal and gold, painted not faked
     for (const k of ['base', 'hot', 'sel', 'paper', 'slot', 'slotsel']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
+    for (const k of ['card', 'cardhot', 'btn', 'btnhot', 'btngo', 'btngohot', 'track', 'lawn']) document.documentElement.style.setProperty('--pc-' + k, `url(${pieceURL(k)})`);
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };
@@ -19771,25 +19827,70 @@ const Menu = (() => {
 
   // ---- the home page ---------------------------------------------------------
   // The name on a gold-cornered board, and three buttons down the right.
+  // the name, one letter at a time on a wave: a dark outline, a two-tone fill, a glint
+  function logo(g, text, cx, y, sc, top, low, line, ph) {
+    const W = Font.width(text, sc);
+    let x = cx - W / 2;
+    [...text].forEach((ch, i) => {
+      const yy = Math.round(y + Math.sin(t * 2.2 - i * 0.55 + ph) * 2);
+      const cw = Font.width(ch, sc);
+      for (const [ox, oy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1], [-1, 1], [1, 1], [2, 2], [0, 4], [2, 4], [1, 4], [-1, 3], [3, 3]])
+        Font.draw(g, ch, x + ox, yy + oy, { scale: sc, color: line });
+      Font.draw(g, ch, x, yy, { scale: sc, color: top });
+      g.save(); g.beginPath(); g.rect(x - 2, yy + Math.round(sc * 3.6), cw + 4, sc * 5); g.clip();
+      Font.draw(g, ch, x, yy, { scale: sc, color: low }); g.restore();
+      g.fillStyle = 'rgba(255,255,255,0.85)'; g.fillRect(Math.round(x), yy, sc - 1, sc - 1);
+      x += Font.width(text.slice(0, i + 1), sc) - Font.width(text.slice(0, i), sc);
+    });
+  }
+  // a chunky button: a dark line, a coloured face lit on top and shaded underneath,
+  // an icon on its own darker plate, and the words beside it. It lifts under the pointer.
+  function menuButton(g, b, label, sub, icon, kind) {
+    const hot = hover === b.id;
+    const C = kind === 'go' ? ['#a8e080', '#7cc85a', '#4f9a3c', '#2f6a28', '#fffaf0'] : ['#fffaf0', '#fdf0d8', '#e8d0a4', '#c8a878', '#4a3222'];
+    const lift = hot ? -2 : 0, x = b.x, y = b.y + lift, w = b.w, h = b.h;
+    const R = (xx, yy, ww, hh, c) => { g.fillStyle = c; g.fillRect(Math.round(xx), Math.round(yy), Math.round(ww), Math.round(hh)); };
+    R(x + 3, b.y + 5, w, h, 'rgba(40,30,10,0.35)');                       // its shadow
+    R(x + 2, y, w - 4, h, '#3b2616'); R(x, y + 2, w, h - 4, '#3b2616'); R(x + 1, y + 1, w - 2, h - 2, '#3b2616');
+    R(x + 2, y + 2, w - 4, h - 4, hot ? (kind === 'go' ? '#90dc6a' : '#fff4c8') : C[1]);
+    R(x + 2, y + 2, w - 4, 2, C[0]); R(x + 2, y + h - 6, w - 4, 2, C[2]); R(x + 2, y + h - 4, w - 4, 2, C[3]);
+    // the icon plate
+    const ps = h - 10;
+    R(x + 5, y + 4, ps, ps, kind === 'go' ? '#3f7a34' : '#e8d0a4'); R(x + 5, y + 4, ps, 1, kind === 'go' ? '#5a9a44' : '#fffaf0');
+    Icons.blit(g, icon, x + 5 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, y + 4 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, ps > 26 ? 1.5 : 1);
+    const tx = x + 10 + ps + (w - 14 - ps) / 2;
+    const sc = h > 40 ? 2 : 2;
+    const ty = y + (sub ? 7 : Math.round((h - 4 - sc * 7) / 2));
+    if (kind === 'go') Font.draw(g, label, tx + 1, ty + 1, { scale: sc, color: '#2f6a28', align: 'center' });
+    Font.draw(g, label, tx, ty, { scale: sc, color: C[4], align: 'center' });
+    if (sub) Font.draw(g, sub, tx, ty + sc * 7 + 4, { scale: 1, color: kind === 'go' ? '#e8ffd8' : Kit.C.ink2, align: 'center' });
+    if (hot) { R(x + w - 12, y + 4, 2, 2, '#ffffff'); R(x + w - 10, y + 6, 1, 1, '#ffffff'); }
+  }
   function drawHome(g) {
     buttons = [];
-    const bob = Math.sin(t * 1.2) * 1.5;
-    goldFrame(g, VW / 2 - 170, 22 + bob, 340, 70);
-    Font.draw(g, 'WOMBAT FARM', VW / 2 + 2, 43 + bob, { scale: 4, color: '#f0a040', align: 'center' });
-    Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: '#5a2610', align: 'center' });
-    Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: Kit.C.ink2, align: 'center' });
+    // the name, big and bouncy, with a berry ribbon under it
+    logo(g, 'WOMBAT', 214, 20, 5, '#ffe08a', '#f0a040', '#4a1e0e', 0);
+    logo(g, 'FARM', 214, 64, 5, '#c8f08a', '#6aa84a', '#1c3a12', 1.6);
+    const sub = 'a cozy little farm in the bush', sw = Font.width(sub, 1) + 20;
+    Kit.tab(g, 214 - sw / 2, 110, sw, 15, sub, { col: '#f07a8a' });
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
-    const bx = 430, bw = 184;
-    const play = { id: 'enter', x: bx, y: 118, w: bw, h: 44 };
-    buttons.push(play);
-    goldButton(g, play, hasSave ? 'CONTINUE' : 'NEW FARM',
-      hasSave && sl && !sl.empty ? `day ${sl.day || 1}  -  ${sl.wombats} ${sl.wombats === 1 ? 'wombat' : 'wombats'}` : 'a wombat is waiting');
-    const set = { id: 'settings', x: bx, y: 172, w: bw, h: 34 };
-    const help = { id: 'help', x: bx, y: 214, w: bw, h: 34 };
-    buttons.push(set, help);
-    goldButton(g, set, 'SETTINGS');
-    goldButton(g, help, 'HOW TO PLAY');
-    // the tip of the day, on a gold-cornered strip at the bottom
+    const bx = 438, bw = 180;
+    const play = { id: 'enter', x: bx, y: 110, w: bw, h: 50 };
+    const set = { id: 'settings', x: bx, y: 170, w: bw, h: 36 };
+    const help = { id: 'help', x: bx, y: 214, w: bw, h: 36 };
+    buttons.push(play, set, help);
+    menuButton(g, play, hasSave ? 'CONTINUE' : 'NEW FARM',
+      hasSave && sl && !sl.empty ? `day ${sl.day || 1} - ${sl.wombats} ${sl.wombats === 1 ? 'wombat' : 'wombats'}` : 'a wombat is waiting', 'wombat', 'go');
+    menuButton(g, set, 'SETTINGS', null, 'gear');
+    menuButton(g, help, 'HOW TO PLAY', null, 'heart');
+    // Momo, waving you in from beside the buttons
+    if (typeof Sprites !== 'undefined') {
+      Sprites.setFace('happy');
+      const img = Sprites.jim(Math.floor(t * 6), 'wave');
+      g.fillStyle = 'rgba(30,40,20,0.3)'; Art.ell(g, 404, 300, 14, 3);
+      g.drawImage(img, 404 - 26, 300 - 81);
+    }
+    // the tip of the day, on a strip at the bottom
     const line = RUMOURS[rumour % RUMOURS.length];
     const lw = Font.width(line, 1) + 30;
     goldFrame(g, VW / 2 - lw / 2, VH - 28, lw, 22, { r: 8 });

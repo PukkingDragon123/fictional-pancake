@@ -156,25 +156,70 @@ const Menu = (() => {
 
   // ---- the home page ---------------------------------------------------------
   // The name on a gold-cornered board, and three buttons down the right.
+  // the name, one letter at a time on a wave: a dark outline, a two-tone fill, a glint
+  function logo(g, text, cx, y, sc, top, low, line, ph) {
+    const W = Font.width(text, sc);
+    let x = cx - W / 2;
+    [...text].forEach((ch, i) => {
+      const yy = Math.round(y + Math.sin(t * 2.2 - i * 0.55 + ph) * 2);
+      const cw = Font.width(ch, sc);
+      for (const [ox, oy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1], [-1, 1], [1, 1], [2, 2], [0, 4], [2, 4], [1, 4], [-1, 3], [3, 3]])
+        Font.draw(g, ch, x + ox, yy + oy, { scale: sc, color: line });
+      Font.draw(g, ch, x, yy, { scale: sc, color: top });
+      g.save(); g.beginPath(); g.rect(x - 2, yy + Math.round(sc * 3.6), cw + 4, sc * 5); g.clip();
+      Font.draw(g, ch, x, yy, { scale: sc, color: low }); g.restore();
+      g.fillStyle = 'rgba(255,255,255,0.85)'; g.fillRect(Math.round(x), yy, sc - 1, sc - 1);
+      x += Font.width(text.slice(0, i + 1), sc) - Font.width(text.slice(0, i), sc);
+    });
+  }
+  // a chunky button: a dark line, a coloured face lit on top and shaded underneath,
+  // an icon on its own darker plate, and the words beside it. It lifts under the pointer.
+  function menuButton(g, b, label, sub, icon, kind) {
+    const hot = hover === b.id;
+    const C = kind === 'go' ? ['#a8e080', '#7cc85a', '#4f9a3c', '#2f6a28', '#fffaf0'] : ['#fffaf0', '#fdf0d8', '#e8d0a4', '#c8a878', '#4a3222'];
+    const lift = hot ? -2 : 0, x = b.x, y = b.y + lift, w = b.w, h = b.h;
+    const R = (xx, yy, ww, hh, c) => { g.fillStyle = c; g.fillRect(Math.round(xx), Math.round(yy), Math.round(ww), Math.round(hh)); };
+    R(x + 3, b.y + 5, w, h, 'rgba(40,30,10,0.35)');                       // its shadow
+    R(x + 2, y, w - 4, h, '#3b2616'); R(x, y + 2, w, h - 4, '#3b2616'); R(x + 1, y + 1, w - 2, h - 2, '#3b2616');
+    R(x + 2, y + 2, w - 4, h - 4, hot ? (kind === 'go' ? '#90dc6a' : '#fff4c8') : C[1]);
+    R(x + 2, y + 2, w - 4, 2, C[0]); R(x + 2, y + h - 6, w - 4, 2, C[2]); R(x + 2, y + h - 4, w - 4, 2, C[3]);
+    // the icon plate
+    const ps = h - 10;
+    R(x + 5, y + 4, ps, ps, kind === 'go' ? '#3f7a34' : '#e8d0a4'); R(x + 5, y + 4, ps, 1, kind === 'go' ? '#5a9a44' : '#fffaf0');
+    Icons.blit(g, icon, x + 5 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, y + 4 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, ps > 26 ? 1.5 : 1);
+    const tx = x + 10 + ps + (w - 14 - ps) / 2;
+    const sc = h > 40 ? 2 : 2;
+    const ty = y + (sub ? 7 : Math.round((h - 4 - sc * 7) / 2));
+    if (kind === 'go') Font.draw(g, label, tx + 1, ty + 1, { scale: sc, color: '#2f6a28', align: 'center' });
+    Font.draw(g, label, tx, ty, { scale: sc, color: C[4], align: 'center' });
+    if (sub) Font.draw(g, sub, tx, ty + sc * 7 + 4, { scale: 1, color: kind === 'go' ? '#e8ffd8' : Kit.C.ink2, align: 'center' });
+    if (hot) { R(x + w - 12, y + 4, 2, 2, '#ffffff'); R(x + w - 10, y + 6, 1, 1, '#ffffff'); }
+  }
   function drawHome(g) {
     buttons = [];
-    const bob = Math.sin(t * 1.2) * 1.5;
-    goldFrame(g, VW / 2 - 170, 22 + bob, 340, 70);
-    Font.draw(g, 'WOMBAT FARM', VW / 2 + 2, 43 + bob, { scale: 4, color: '#f0a040', align: 'center' });
-    Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: '#5a2610', align: 'center' });
-    Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: Kit.C.ink2, align: 'center' });
+    // the name, big and bouncy, with a berry ribbon under it
+    logo(g, 'WOMBAT', 214, 20, 5, '#ffe08a', '#f0a040', '#4a1e0e', 0);
+    logo(g, 'FARM', 214, 64, 5, '#c8f08a', '#6aa84a', '#1c3a12', 1.6);
+    const sub = 'a cozy little farm in the bush', sw = Font.width(sub, 1) + 20;
+    Kit.tab(g, 214 - sw / 2, 110, sw, 15, sub, { col: '#f07a8a' });
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
-    const bx = 430, bw = 184;
-    const play = { id: 'enter', x: bx, y: 118, w: bw, h: 44 };
-    buttons.push(play);
-    goldButton(g, play, hasSave ? 'CONTINUE' : 'NEW FARM',
-      hasSave && sl && !sl.empty ? `day ${sl.day || 1}  -  ${sl.wombats} ${sl.wombats === 1 ? 'wombat' : 'wombats'}` : 'a wombat is waiting');
-    const set = { id: 'settings', x: bx, y: 172, w: bw, h: 34 };
-    const help = { id: 'help', x: bx, y: 214, w: bw, h: 34 };
-    buttons.push(set, help);
-    goldButton(g, set, 'SETTINGS');
-    goldButton(g, help, 'HOW TO PLAY');
-    // the tip of the day, on a gold-cornered strip at the bottom
+    const bx = 438, bw = 180;
+    const play = { id: 'enter', x: bx, y: 110, w: bw, h: 50 };
+    const set = { id: 'settings', x: bx, y: 170, w: bw, h: 36 };
+    const help = { id: 'help', x: bx, y: 214, w: bw, h: 36 };
+    buttons.push(play, set, help);
+    menuButton(g, play, hasSave ? 'CONTINUE' : 'NEW FARM',
+      hasSave && sl && !sl.empty ? `day ${sl.day || 1} - ${sl.wombats} ${sl.wombats === 1 ? 'wombat' : 'wombats'}` : 'a wombat is waiting', 'wombat', 'go');
+    menuButton(g, set, 'SETTINGS', null, 'gear');
+    menuButton(g, help, 'HOW TO PLAY', null, 'heart');
+    // Momo, waving you in from beside the buttons
+    if (typeof Sprites !== 'undefined') {
+      Sprites.setFace('happy');
+      const img = Sprites.jim(Math.floor(t * 6), 'wave');
+      g.fillStyle = 'rgba(30,40,20,0.3)'; Art.ell(g, 404, 300, 14, 3);
+      g.drawImage(img, 404 - 26, 300 - 81);
+    }
+    // the tip of the day, on a strip at the bottom
     const line = RUMOURS[rumour % RUMOURS.length];
     const lw = Font.width(line, 1) + 30;
     goldFrame(g, VW / 2 - lw / 2, VH - 28, lw, 22, { r: 8 });

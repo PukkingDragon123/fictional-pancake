@@ -334,6 +334,57 @@ const UI = (() => {
     g.fillStyle = '#4a8a32'; g.fillRect(0, W2 - 5, W2, 5); g.fillStyle = '#6aa84a'; g.fillRect(0, W2 - 5, W2, 1);
     if (Sky.wet() > 0.1) { g.fillStyle = '#a8dcf8'; for (let i = 0; i < 6; i++) g.fillRect((i * 5 + Math.floor(t * 20)) % W2, (i * 7 + Math.floor(t * 40)) % (W2 - 6), 1, 2); }
   }
+  // ---- pixel pieces for the Build menu ------------------------------------------------------
+  // A shop card, a chunky 3D button in two colours, the grass the cards
+  // stand on, and the little lawn under each building. All nine-slice or
+  // tiling, all in whole pixels at 2x.
+  function pieceURL(kind) {
+    const P2 = 2, c = document.createElement('canvas');
+    const R = (g, x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
+    const OL = '#3b2616';
+    if (kind === 'card' || kind === 'cardhot') {
+      const N = 15; c.width = c.height = N * P2; const g = c.getContext('2d');
+      const hot = kind === 'cardhot';
+      R(g, 2, 0, N - 4, N, OL); R(g, 0, 2, N, N - 4, OL); R(g, 1, 1, N - 2, N - 2, OL);
+      R(g, 2, 1, N - 4, N - 2, hot ? '#fff0b0' : '#fffaf0'); R(g, 1, 2, N - 2, N - 4, hot ? '#fff0b0' : '#fffaf0');
+      R(g, 2, 2, N - 4, N - 4, hot ? '#fff8d8' : '#fdf0d8');
+      R(g, 2, 1, N - 4, 1, '#ffffff'); R(g, 1, 2, 1, N - 4, '#ffffff');
+      R(g, 2, N - 3, N - 4, 1, hot ? '#f8d060' : '#f2dcb4'); R(g, 2, N - 2, N - 4, 1, hot ? '#e8b040' : '#d8b888');
+      R(g, N - 2, 2, 1, N - 4, hot ? '#e8b040' : '#e8cc9c');
+      return c.toDataURL();
+    }
+    if (kind.startsWith('btn')) {
+      const N = 15; c.width = c.height = N * P2; const g = c.getContext('2d');
+      const col = { btn: ['#fff4c0', '#f8d060', '#d8a830', '#a87818'], btnhot: ['#fffae0', '#ffe070', '#e8b840', '#b88420'],
+        btngo: ['#c8f0a0', '#7cc85a', '#5aa044', '#3a7a2e'], btngohot: ['#e0ffc0', '#90dc6a', '#6ab050', '#3f8a34'] }[kind];
+      R(g, 1, 0, N - 2, N, OL); R(g, 0, 1, N, N - 2, OL);
+      R(g, 1, 1, N - 2, N - 2, col[1]);
+      R(g, 1, 1, N - 2, 2, col[0]); R(g, 1, 3, 1, N - 7, col[0]);
+      R(g, 1, N - 5, N - 2, 2, col[2]); R(g, 1, N - 3, N - 2, 2, col[3]);
+      R(g, 3, 2, 3, 1, '#ffffff');
+      return c.toDataURL();
+    }
+    if (kind === 'track') {                                  // sky over grass, tiling sideways
+      const W = 32, H = 118; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
+      const sky = ['#a8d8f0', '#b8e0f2', '#c8e8f2', '#d8f0f0', '#e4f6ec'];
+      for (let i = 0; i < 5; i++) R(g, 0, i * 16, W, 16, sky[i]);
+      R(g, 0, 80, W, H - 80, '#6aac4a'); R(g, 0, 80, W, 2, '#9ad068'); R(g, 0, 96, W, H - 96, '#5a9a3e'); R(g, 0, 108, W, H - 108, '#4a8a34');
+      for (let x = 0; x < W; x += 3) { const h = 2 + ((x * 7) % 4); R(g, x, 80 - h, 1, h, (x % 2) ? '#7cc05a' : '#5a9a3e'); }
+      for (const [x, y] of [[4, 88], [19, 92], [27, 101], [11, 104]]) { R(g, x, y, 1, 1, '#ffffff'); R(g, x + 1, y, 1, 1, '#f8d040'); }
+      R(g, 6, 20, 8, 2, '#ffffff'); R(g, 4, 22, 13, 2, '#ffffff'); R(g, 21, 44, 6, 2, '#ffffff'); R(g, 19, 46, 10, 1, '#ffffff');
+      return c.toDataURL();
+    }
+    if (kind === 'lawn') {                                   // the round of lawn a building stands on
+      const W = 60, H = 16; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
+      for (let y = 0; y < H; y++) {
+        const half = Math.round(Math.sqrt(Math.max(0, 1 - ((y - 7) / 8) ** 2)) * (W / 2 - 1));
+        R(g, W / 2 - half, y, half * 2, 1, y < 2 ? '#9ad068' : y < 9 ? '#6aac4a' : y < 13 ? '#8a5a34' : '#6a4024');
+      }
+      for (let x = 8; x < W - 8; x += 4) R(g, x, 1 + (x % 3), 1, 2, '#4a8a34');
+      return c.toDataURL();
+    }
+    return '';
+  }
   function pickTool() { }
 
   // ---- "you got a new tool" -------------------------------------------------
@@ -639,6 +690,7 @@ const UI = (() => {
     G = g;
     Tex.install();                         // wood, paper, metal and gold, painted not faked
     for (const k of ['base', 'hot', 'sel', 'paper', 'slot', 'slotsel']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
+    for (const k of ['card', 'cardhot', 'btn', 'btnhot', 'btngo', 'btngohot', 'track', 'lawn']) document.documentElement.style.setProperty('--pc-' + k, `url(${pieceURL(k)})`);
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };
