@@ -69,6 +69,9 @@ const Factory = (() => {
     if (r < 0 || r >= ROWS || c < 0 || c * T >= Grove.W) return 'off the floor';
     const { x, y } = centre(c, r);
     if (!inOwned(G, x)) return 'not your land';
+    if (!G.arrived) return 'clear the plot first';
+    if (World.weeds.some((w) => Math.abs(w.x - x) < 16 && Math.abs(w.y - y) < 16)) return 'cut the weeds here first';
+    if (Grove.objects.some((o) => !o.gone && Math.abs(o.x - x) < 30 && Math.abs(o.y - y) < 20)) return 'clear the logs here first';
     if (at(c, r)) return 'something is there';
     const tr = Grove.truck;
     if (Math.abs(x - tr.x) < 58 && y > tr.y - 44 && y < tr.y + 14) return 'the truck parks there';

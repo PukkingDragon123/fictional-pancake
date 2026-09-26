@@ -211,7 +211,33 @@ const Guide = (() => {
       ] },
   ];
   let chatT = 14 + Math.random() * 10, lastChat = '';
+  // What Momo says to walk you through the job in hand, with how far along you are.
+  // The factory job is broken right down; she will not let it go until it is built.
+  function hint(s) {
+    const t = Grove.tasks(), T = (k) => t.find((q) => q.key === k) || {};
+    const has = (k) => G.factory.b.some((b) => b.k === k) || (G.factory.inv[k] || 0) > 0;
+    switch (s.key) {
+      case 'weeds': { const q = T('weeds'); return `${Math.max(0, q.need - q.at)} weeds left! Keep cutting!`; }
+      case 'junk': { const q = T('junk'); return owns(G, 'destroy') ? `${Math.max(0, q.need - q.at)} logs left. Click them!` : 'Click the truck, go to the mart, get an Ant Card!'; }
+      case 'grass': { const q = T('grass'); return `Grass ${q.at}% of ${q.need}%. Sow and water!`; }
+      case 'factory':
+        if (!Factory.open()) return 'Go to Captain Kirk and buy furniture! Click the truck!';
+        if (!has('hopper')) return 'Press BUILD and get a Poop Hopper!';
+        if (!has('mill')) return 'Now a Fertiliser Mill next to it!';
+        if (!has('depot')) return 'And a Pickup Point to sell!';
+        if (!has('belt')) return 'Connect them with belts! Drag to lay them.';
+        return 'Point the belts hopper to mill to pickup. R turns them!';
+      default: return s.say;
+    }
+  }
+  let hintT = 3;
   function chatter(dt) {
+    const s = step();
+    if (s && G.lessons[s.key]) {                       // a job on: she coaches instead of chatting
+      hintT -= dt;
+      if (hintT <= 0 && bubble.life <= 0 && cult.happyT <= 0) { hintT = s.key === 'factory' ? 6 : 9; say(hint(s), 'order', 'talk'); }
+      return;
+    }
     if (bubble.life > 0 || cult.happyT > 0) { chatT = 12 + Math.random() * 12; return; }
     chatT -= dt;
     if (chatT > 0) return;
@@ -233,7 +259,7 @@ const Guide = (() => {
     Grove.panTo(cult.x);
     cult.pose = 'wave'; cult.castT = 1.2; cult.still = 0;
     bubble.life = 0;
-    Talk.lesson('cultist', s.lesson, () => learnt(s));
+    Talk.lesson('cultist', s.lesson, () => { learnt(s); hintT = 1.5; if (s.key === 'factory' && Factory.open()) setTimeout(() => Factory.openMenu(), 600); });
   }
   // what happens when he has finished explaining: tools in your hand, tools on the shelf
   function learnt(s) {

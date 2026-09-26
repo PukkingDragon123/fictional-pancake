@@ -97,9 +97,14 @@
     // cubes on the grass
     cube(g, 62, GY + 22, 7); cube(g, 72, GY + 25, 5); cube(g, 250, GY + 30, 7); cube(g, 152, GY + 40, 6);
     // Momo, waving at you, belly and all
-    const jf = Math.floor(u * 12) % 6;
-    g.fillStyle = 'rgba(40,60,20,0.3)'; Art.ell(g, 158, GY + 12, 18, 4);
-    blit(g, Sprites.jim(jf, 'wave'), 158, GY + 15, 1);
+    // Momo dancing: a hop on every beat, a new move each beat, turning round
+    const beat = Math.floor(u * 8), bp = (u * 8) % 1, hop = Math.abs(Math.sin(bp * Math.PI)) * 7;
+    const move = ['cheer', 'clap', 'laugh', 'cheer', 'jump', 'clap', 'laugh', 'shrug'][beat];
+    const dsw = Math.sin(u * TAU * 4) * 4;
+    g.fillStyle = 'rgba(40,60,20,0.3)'; Art.ell(g, 158 + dsw, GY + 12, 18 - hop, 4);
+    Sprites.setFace('happy');
+    blit(g, Sprites.jim(Math.floor(u * 24) % 6, move), 158 + dsw, GY + 15 - hop, 1, beat % 2 === 1, bp < 0.1 || bp > 0.9 ? 0.95 : 1);
+    for (let i = 0; i < 3; i++) { const v = (u * 2 + i / 3) % 1; if (v < 0.8) note(g, Math.round(180 + Math.sin(v * TAU + i) * 8), Math.round(GY - 70 - v * 30), ['#ff8aa8', '#ffd84a', '#8ae0ff'][i], i === 0); }
     // wombats hopping round his feet
     const WB = [['brown', 88, 1, 0], ['grey', 230, -1, 0.33], ['sand', 116, 1, 0.66], ['pale', 202, -1, 0.15]];
     for (const [pelt, x, face, off] of WB) {

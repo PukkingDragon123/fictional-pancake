@@ -54,7 +54,7 @@ const UI = (() => {
   // he has shown you round, the daily round itself, ticked off as you go.
   function refreshList() {
     const box = $('checklist');
-    if (G.mode !== 'grove') { box.hidden = true; return; }
+    box.hidden = true; return;                        // no job card: Momo tells you herself
     box.hidden = false;
     const q = Guide.current();
     let html = '';
