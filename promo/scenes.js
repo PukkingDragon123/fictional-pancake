@@ -77,12 +77,22 @@
     cloud(g, 200 + Math.sin(u * TAU + 2) * 6, 92, 0.8);
     hills(g, W, 158, ['#9ccc7c', '#7ab85a'], u, 8);
     trees(g, W, 178, 9, 31, 0.15, 0.52);
-    // the meadow
-    R(g, 0, GY - 8, W, H, '#6aa84a'); R(g, 0, GY - 8, W, 2, '#8ac860');
-    for (let i = 0; i < 90; i++) { const x = (i * 53) % W, y = GY - 4 + ((i * 29) % (H - GY)); R(g, x, y, 1, 2, i % 3 ? '#5a9a3e' : '#8ac860'); }
-    for (let i = 0; i < 18; i++) {
+    // the meadow: bands going lighter toward you, soft patches, and swaying tufts
+    const BAND = ['#5a9a3e', '#62a444', '#6aac4a', '#74b652', '#7cbe58'];
+    for (let i = 0; i < 5; i++) R(g, 0, GY - 8 + i * 12, W, H, BAND[i]);
+    R(g, 0, GY - 8, W, 2, '#9ad068');
+    for (let i = 0; i < 14; i++) { g.globalAlpha = 0.18; Art.ell(g, (i * 67) % W, GY + 6 + (i * 29) % 50, 26 + (i % 3) * 10, 5, i % 2 ? '#a8dc78' : '#3f7a32'); g.globalAlpha = 1; }
+    const sway = Math.sin(u * TAU * 2);
+    for (let i = 0; i < 260; i++) {
+      const x = (i * 37.3) % W, y = GY - 6 + ((i * 53) % (H - GY + 6)), d = 0.6 + (y - GY) / (H - GY) * 0.8;
+      const h = Math.round((2 + (i % 4)) * d), lean = sway * (0.6 + (i % 3) * 0.3) * d;
+      const cols = [['#3f7a32', '#5a9a3e', '#8ac860'], ['#4a8a38', '#6aac4a', '#a8dc78'], ['#346a2a', '#4f8f3a', '#7ab850']][i % 3];
+      for (let k = -1; k <= 1; k++) for (let j = 0; j < h + (k ? 0 : 1); j++) R(g, x + k * 1.5 + lean * j / h * 1.5 + k * j * 0.3, y - j, 1, 1, j === 0 ? cols[0] : j >= h - 1 ? cols[2] : cols[1]);
+    }
+    for (let i = 0; i < 30; i++) { const x = (i * 83 + 7) % W, y = GY + 10 + (i * 41) % (H - GY - 14); for (const [dx, dy] of [[-1.2, 0], [1.2, 0], [0, -1]]) Art.ell(g, x + dx, y + dy, 1.3, 1.1, '#4f8f3a'); }
+    for (let i = 0; i < 26; i++) {
       const x = (i * 71 + 13) % W, y = GY + 4 + ((i * 37) % (H - GY - 10)), c = ['#ffffff', '#f8d040', '#f07aa0', '#b88ae8'][i % 4];
-      R(g, x, y - 2, 1, 2, '#3f7a32'); R(g, x - 1, y - 3, 3, 1, c); R(g, x, y - 4, 1, 3, c); R(g, x, y - 3, 1, 1, '#f8a020');
+      R(g, x, y - 2, 1, 3, '#3f7a32'); R(g, x - 1, y - 3, 3, 1, c); R(g, x, y - 4, 1, 3, c); R(g, x, y - 3, 1, 1, '#f8a020');
     }
     // cubes on the grass
     cube(g, 62, GY + 22, 7); cube(g, 72, GY + 25, 5); cube(g, 250, GY + 30, 7); cube(g, 152, GY + 40, 6);
@@ -110,8 +120,6 @@
     title(g, 'FARM', W / 2, 62, 6, (u + 0.5) % 1, { wave: 2, top: '#c8f08a', low: '#6aa84a', line: '#1c3a12' });
     void tw;
     Kit.tab(g, W / 2 - 62, 112, 124, 16, 'a cozy little grove', { col: Kit.C.coral });
-    const cw = Font.width('made by Pulling Dragon', 1) + 14;
-    Kit.tab(g, W / 2 - cw / 2, H - 20, cw, 15, 'made by Pulling Dragon', { col: '#f07a8a' });
   }
 
   // ---- the banner: 480 x 160, shown at 2x: everybody dancing and singing ------------------------
@@ -175,7 +183,6 @@
     const LY = ['I am Groot!', 'la la la!', 'WOMBAT FARM!', 'beep boop!'];
     const li = Math.floor(u * 4) % 4, m = BAND[li];
     Kit.bubble(g, m.x, GY - m.note - 6, LY[li], { maxW: 120 });
-    Font.draw(g, 'made by Pulling Dragon', W - 6, 4, { scale: 1, color: '#fff4d0', align: 'right', shadow: '#2a1420' });
   }
 
   // render frames of a scene at 2x and hand back RGBA for the encoder

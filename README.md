@@ -102,7 +102,3 @@ if your machine struggles; without WebGL the game simply draws without it.
 with the game's own sprites: the cover is the title with Momo and the wombats, the banner is
 Momo, Groot, Shaz and Captain Kirk dancing and singing together. `promo/*.png` are stills. To redraw them, run
 `node promo/render.js` (it needs Playwright).
-
-## Credits
-
-Wombat Farm is made by **Pulling Dragon**.

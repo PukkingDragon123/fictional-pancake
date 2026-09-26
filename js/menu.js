@@ -163,9 +163,6 @@ const Menu = (() => {
     Font.draw(g, 'WOMBAT FARM', VW / 2 + 2, 43 + bob, { scale: 4, color: '#f0a040', align: 'center' });
     Font.draw(g, 'WOMBAT FARM', VW / 2, 40 + bob, { scale: 4, color: '#5a2610', align: 'center' });
     Font.draw(g, 'a cozy little farm in the bush', VW / 2, 76 + bob, { scale: 1, color: Kit.C.ink2, align: 'center' });
-    // the credit, on a pink ribbon hanging under the board
-    { const cw = Font.width('made by Pulling Dragon', 1) + 16;
-      Kit.tab(g, VW / 2 - cw / 2, 96 + bob, cw, 15, 'made by Pulling Dragon', { col: '#f07a8a' }); }
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
     const bx = 430, bw = 184;
     const play = { id: 'enter', x: bx, y: 118, w: bw, h: 44 };

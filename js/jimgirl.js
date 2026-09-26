@@ -132,10 +132,16 @@ const JimGirl = (() => {
     const shY = 45 + y0;
     const arm = (s2, hand) => {
       const sx = cx + s2 * 9, hx = sx + hand[0], hy = shY + hand[1];
-      Art.limb(g, sx, shY, hx, hy, 3.4, 3, ONE[1]);
-      Art.limb(g, sx, shY, hx, hy, 2.6, 2.2, ONE[2]);
-      E(hx, hy + 1, 3.4, 3.2, ONE[1]); E(hx - 0.5, hy + 0.5, 2.6, 2.4, ONE[3]);   // the paw mitten
-      P(hx, hy + 1, BELLY[1]);
+      // a soft puffy sleeve, fat at the shoulder, with a lit edge and a cream cuff
+      Art.limb(g, sx, shY, hx, hy, 4.2, 3.2, ONE[0]);
+      Art.limb(g, sx, shY, hx, hy, 3.4, 2.5, ONE[2]);
+      Art.limb(g, sx - 0.8, shY - 0.5, hx - 0.6, hy - 0.5, 1.4, 1, ONE[3]);
+      const cx2 = sx + (hx - sx) * 0.82, cy2 = shY + (hy - shY) * 0.82;
+      E(cx2, cy2, 3.2, 2, BELLY[0]); E(cx2, cy2 - 0.4, 2.6, 1.4, BELLY[1]);
+      // the paw: round, with a pink bean and three toe beans
+      E(hx, hy + 1.5, 4, 3.8, ONE[0]); E(hx, hy + 1, 3.4, 3.2, ONE[2]); E(hx - 1, hy, 1.6, 1.4, ONE[3]);
+      E(hx, hy + 2, 1.4, 1.1, '#f4a0b0');
+      for (const d of [-1.6, 0, 1.6]) P(hx + d, hy - 0.4, '#f4a0b0');
     };
 
     // ---- the body: the onesie, round, with a cream tummy and a zip
