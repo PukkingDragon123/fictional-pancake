@@ -1,8 +1,8 @@
-// ---- Captain Clark's Ottoman Empire -----------------------------------------------
+// ---- Captain Kirk's Ottoman Empire -----------------------------------------------
 // A furniture showroom kept like the captain's cabin of an old liner: teal
 // damask walls with gold in them, brass portholes onto a moving sea, a ship's
 // wheel over the counter, and every piece on its own plinth with a tag hung
-// off it. Captain Clark stands behind the counter by the door; click him
+// off it. Captain Kirk stands behind the counter by the door; click him
 // for the catalogue.
 const Ottoman = (() => {
   let G = null;
@@ -70,14 +70,17 @@ const Ottoman = (() => {
   const TREE = {
     start: 'hub',
     nodes: {
-      hub: { mood: 'happy', say: "Ahoy! Captain Clark, Ottoman Empire. Finest furniture this side of the Bass Strait. Have a look round, click anything you fancy.",
+      hub: { mood: 'happy', say: "Ahoy! Captain Kirk, Ottoman Empire. Finest furniture this side of the Bass Strait. Have a look round, click anything you fancy.",
         opts: [
           { q: "Show me the catalogue.", act: () => { Talk.close(); openMenu(); } },
           { q: 'Why "Ottoman Empire"?', to: 'name' },
           { q: 'Were you really a captain?', to: 'captain' },
+          { q: 'Are you... a robot?', to: 'robot' },
           { q: 'Just browsing.', end: true },
         ] },
       name: { mood: 'laugh', say: "Started with ottomans. Then I had a lot of ottomans. Then I had an empire of them. The sofas came later.", opts: [{ q: 'Fair enough.', to: 'hub' }] },
+      robot: { mood: 'laugh', say: "Beep boop! Ha. No, I'm having you on. Yes. Fully robot, head to boots. The hair is real, though. Don't ask whose.", opts: [{ q: 'And the shirt?', to: 'shirt' }, { q: 'Fair enough.', to: 'hub' }] },
+      shirt: { mood: 'proud', say: "I love Kirk. Somebody has to. Self-esteem module, came as standard. Best feature they ever put in me.", opts: [{ q: 'Good for you, Captain.', to: 'hub' }] },
       captain: { mood: 'proud', say: "Thirty years at sea! Well. On the ferry. Well. Mostly the ferry. That wheel over there's off her. Don't ask how she sank.", opts: [{ q: 'She sank?', to: 'sank' }, { q: 'Good wheel.', to: 'hub' }] },
       sank: { mood: 'sly', say: "I said don't ask.", opts: [{ q: 'Sorry, Captain.', to: 'hub' }] },
     },
@@ -131,7 +134,7 @@ const Ottoman = (() => {
     if (menu.open) { menuHover(x, y); return null; }
     const s = slotAt(x, y);
     hover = s;
-    if (overClark(x, y)) return '<b>Captain Clark</b> <span class="dim">the Ottoman Empire</span><br>click to see the catalogue';
+    if (overClark(x, y)) return '<b>Captain Kirk</b> <span class="dim">the Ottoman Empire</span><br>click to see the catalogue';
     if (!s) return null;
     const f = s.f, have = crateCount(f.key) + placed(f.key);
     return `<b>${f.name}</b><br>${Icons.img('wdollar', 'sm')} ${U.fmt(f.cost)}${have ? ` &middot; <span class="dim">you have ${have}</span>` : ''}<br><span class="dim">${f.blurb}</span>`;
@@ -212,7 +215,7 @@ const Ottoman = (() => {
     const talking = menu.t < Math.min(2.4, menu.say.length * 0.03);
     const pc = Portraits.get('villager:clark', mood, menu.t + t, talking) || Portraits.get('clark', mood, menu.t + t, talking);
     if (pc) g.drawImage(pc, px + 2, py + 4, 128, 128);
-    Kit.tab(g, ML.x + 14, py + 138, ML.w - 28, 18, 'Captain Clark');
+    Kit.tab(g, ML.x + 14, py + 138, ML.w - 28, 18, 'Captain Kirk');
     const shown = menu.say.slice(0, Math.floor(menu.t * 45));
     Font.wrap(shown, ML.w - 26, 1).slice(0, 8).forEach((l, i) => Font.draw(g, l, ML.x + 13, py + 164 + i * 10, { scale: 1, color: C.ink }));
     Kit.button(g, BTN.talk, 'TALK', null, { hot: menu.hoverBtn === 'talk', kind: 'paper', scale: 1 });
@@ -444,7 +447,7 @@ const Ottoman = (() => {
     if (sx > -140 && sx < VW + 140) {
       Art.rect(g, sx - 50, 24, 170, 44, '#2a0e04'); Art.rect(g, sx - 48, 26, 166, 40, '#0e2a5a'); Art.rect(g, sx - 46, 28, 162, 36, '#1c4088');
       Art.rect(g, sx - 46, 28, 162, 2, '#4a70c0');
-      Font.draw(g, "CAPTAIN CLARK'S", sx + 35, 32, { scale: 1, color: GOLD[2], align: 'center' });
+      Font.draw(g, "CAPTAIN KIRK'S", sx + 35, 32, { scale: 1, color: GOLD[2], align: 'center' });
       Font.draw(g, 'OTTOMAN EMPIRE', sx + 35, 43, { scale: 1, color: '#ffffff', align: 'center' });
       Font.draw(g, 'fine furniture - est. 1974', sx + 35, 54, { scale: 1, color: '#a8c0f0', align: 'center' });
     }

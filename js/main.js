@@ -414,6 +414,7 @@ const Main = (() => {
     FX.drawCoins(g, false);           // money on its way to the corner
     FX.drawCinema(g, W, H);
     FX.drawTrees(g, W, H);            // the curtain sits above everything
+    Shader.frame();                   // and the shader pass over the finished picture
 
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
@@ -439,7 +440,8 @@ const Main = (() => {
     slot = 1;
     for (const n of SLOTS) slotSaves[n] = await Store.boot(keyOf(n));
     booted = slotSaves[slot];
-    settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false }, Store.settings());
+    settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false, fxOff: false }, Store.settings());
+    Shader.init(canvas, settings.fxOff);
     G = fresh();
     G.mode = 'menu';
     window.G = G;
@@ -457,5 +459,6 @@ const Main = (() => {
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
   return {
-    slotList, pickSlot, wipeSlot, get slot() { return slot; }, save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
+    slotList, pickSlot, wipeSlot, get slot() { return slot; }, save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; },
+    toggleShader() { const on = Shader.toggle(); settings.fxOff = !on; Store.putSettings(settings); return on; } };
 })();

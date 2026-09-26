@@ -21,6 +21,15 @@ const UI = (() => {
     if (lastWd !== null && G.wd !== lastWd) bumpMoney();
     lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
+    if ($('clock')) {
+      const out = G.mode === 'grove' || G.mode === 'map';
+      $('clock').hidden = !(out && G.mode !== 'intro');
+      if (out) {
+        $('c-time').textContent = Sky.clockText();
+        $('c-day').textContent = `Day ${1 + Math.floor((G.time || 0) / Sky.DAY)} \u00b7 ${Sky.def().name}`;
+        drawDial(G.time || 0);
+      }
+    }
     $('b-back').hidden = G.mode === 'grove';
     {
       // The head-up belongs to the game, not the title screen or the intro.
@@ -305,6 +314,37 @@ const UI = (() => {
     R(4, 4, N - 8, 1, paper[0]); R(4, N - 5, N - 8, 1, paper[2]);
     for (const [x, y] of [[1, 1], [N - 3, 1], [1, N - 3], [N - 3, N - 3]]) { R(x, y, 2, 2, '#ffd070'); R(x + 1, y + 1, 1, 1, fr[3]); }
     return c.toDataURL();
+  }
+  // A tile of paper grain for every box on the frame: mostly white, so under a
+  // multiply blend it only darkens where the fibres and flecks are.
+  function grainURL() {
+    const N = 24, P2 = 2, c = document.createElement('canvas'); c.width = c.height = N * P2;
+    const g = c.getContext('2d'), r = Art.rng(77);
+    g.fillStyle = '#ffffff'; g.fillRect(0, 0, N * P2, N * P2);
+    for (let i = 0; i < N * N; i++) {
+      const x = i % N, y = Math.floor(i / N), v = r();
+      if (v < 0.16) { g.fillStyle = '#f4e6cc'; g.fillRect(x * P2, y * P2, P2, P2); }
+      else if (v < 0.21) { g.fillStyle = '#e6cfa6'; g.fillRect(x * P2, y * P2, P2, P2); }
+    }
+    for (let i = 0; i < 9; i++) {                                // a few long fibres
+      const x = Math.floor(r() * N), y = Math.floor(r() * N), len = 2 + Math.floor(r() * 4);
+      g.fillStyle = '#ead6b2'; g.fillRect(x * P2, y * P2, len * P2, P2 / 2 + 1);
+    }
+    return c.toDataURL();
+  }
+  // the little clock under the purse: a sun or a moon, the time, the day and the weather
+  function drawDial(t) {
+    const cv = $('clock-dial'); if (!cv) return;
+    const g = cv.getContext('2d'), W2 = cv.width;
+    g.clearRect(0, 0, W2, W2);
+    const light = Sky.light(), night = Sky.isNight();
+    Art.vramp(g, 0, 0, W2, W2, night ? [[0, '#1a2250'], [1, '#3a3a78']] : [[0, '#5a9ad0'], [1, light > 0.6 ? '#bfe0f0' : '#f8b878']], 4);
+    const h = Sky.hour(), a = Math.PI * (((h - 6) / 12) % 2 + 1);
+    const cx = W2 / 2 + Math.cos(a) * 9, cy = W2 - 6 + Math.sin(a) * 11;
+    if (night) { Art.ell(g, cx, cy, 4, 4, '#fff4d0'); Art.ell(g, cx + 2, cy - 1, 3, 3, '#3a3a78'); }
+    else { Art.ell(g, cx, cy, 5, 5, '#ffe070'); Art.ell(g, cx - 1, cy - 1, 3, 3, '#fff6c0'); }
+    g.fillStyle = '#4a8a32'; g.fillRect(0, W2 - 5, W2, 5); g.fillStyle = '#6aa84a'; g.fillRect(0, W2 - 5, W2, 1);
+    if (Sky.wet() > 0.1) { g.fillStyle = '#a8dcf8'; for (let i = 0; i < 6; i++) g.fillRect((i * 5 + Math.floor(t * 20)) % W2, (i * 7 + Math.floor(t * 40)) % (W2 - 6), 1, 2); }
   }
   function pickTool() { }
 
@@ -611,6 +651,7 @@ const UI = (() => {
     G = g;
     Tex.install();                         // wood, paper, metal and gold, painted not faked
     for (const k of ['base', 'hot', 'sel', 'paper', 'slot', 'slotsel']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
+    document.documentElement.style.setProperty('--grain', `url(${grainURL()})`);
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };
@@ -633,6 +674,9 @@ const UI = (() => {
       if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
     });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
+    $('b-fx').onclick = () => { const on = Main.toggleShader(); $('b-fx').textContent = on ? 'SHADERS ON' : 'SHADERS OFF'; Audio.play('click'); };
+    $('b-fx').textContent = Shader.on ? 'SHADERS ON' : 'SHADERS OFF';
+    if (!Shader.ok) $('b-fx').hidden = true;
   }
   function setMode(mode) {
     const intro = mode === 'intro' || mode === 'menu';

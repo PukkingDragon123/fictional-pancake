@@ -113,12 +113,12 @@
   }
 
   // ---- the banner: 480 x 160, shown at 2x: everybody dancing and singing ------------------------
-  // the whole cast: Groot, Shaz, Jim in the middle, Captain Clark
+  // the whole cast: Groot, Shaz, Jim in the middle, Captain Kirk
   const BAND = [
     { key: 'groot', x: 118, sc: 0.95, poses: ['happy', 'wave'], sprite: (f, p) => Sprites.groot(f, p), note: 72 },
     { key: 'shaz', x: 196, sc: 1.25, poses: ['cheer', 'wave'], sprite: (f, p) => Sprites.cashier(f, p), note: 58 },
-    { key: 'jim', x: 282, sc: 0.95, poses: ['cheer', 'clap'], sprite: (f, p) => Sprites.jim(f, p), note: 86 },
-    { key: 'clark', x: 364, sc: 1.55, poses: ['wave', 'talk'], sprite: (f, p) => Sprites.villager('clark', f, p), note: 72 },
+    { key: 'jim', x: 282, sc: 0.95, poses: ['cheer', 'clap'], sprite: (f, p) => Sprites.jim(f, p), note: 68 },
+    { key: 'clark', x: 364, sc: 1.6, poses: ['wave', 'talk'], sprite: (f, p) => Sprites.villager('clark', f, p), note: 72 },
   ];
   function banner(g, u) {
     const W = 480, H = 160, GY = 140;
@@ -170,7 +170,7 @@
       blit(g, Sprites.wombat('happy', Math.floor(u * 16) % 8, pelt, (Math.floor(u * 4) + i) % 2 ? 1 : -1, 'adult'), x, H + 3 - hop, 0.7);
     });
     // and the words, a line at a time over whoever has them
-    const LY = ['I am Groot!', 'la la la!', 'WOMBAT FARM!', 'yo ho ho!'];
+    const LY = ['I am Groot!', 'la la la!', 'WOMBAT FARM!', 'beep boop!'];
     const li = Math.floor(u * 4) % 4, m = BAND[li];
     Kit.bubble(g, m.x, GY - m.note - 6, LY[li], { maxW: 120 });
   }

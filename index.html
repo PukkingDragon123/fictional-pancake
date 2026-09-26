@@ -18,6 +18,7 @@
     <div id="tip" hidden></div>
 
     <div id="money"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
+    <div id="clock" hidden><canvas id="clock-dial" width="30" height="30"></canvas><div class="ctx"><b id="c-time">9:00am</b><small id="c-day">Day 1</small></div></div>
     <div id="checklist" hidden></div>
 
     <div id="side">
@@ -89,9 +90,9 @@
         <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
         <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
         <li>The <b>shovel</b> paints the ground: hold the left button to dig down, the right button (or Shift) to heap up a hill. Water a hole with the can and it fills into a pond; water a trench and it runs like a creek. <b>[</b> and <b>]</b> change the brush size.</li>
-        <li>Captain Clark's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
+        <li>Captain Kirk's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
       </ol>
-      <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
+      <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-fx">SHADERS ON</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
   </div>
 
@@ -112,6 +113,7 @@
 <script src="js/icons.js"></script>
 <script src="js/uikit.js"></script>
 <script src="js/portraits.js"></script>
+<script src="js/kirk.js"></script>
 <script src="js/data.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/sky.js"></script>
@@ -129,6 +131,7 @@
 <script src="js/talk.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/menu.js"></script>
+<script src="js/shader.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

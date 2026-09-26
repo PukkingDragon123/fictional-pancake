@@ -328,7 +328,7 @@ const RESTORE_TARGET = 172000;  // painted grass pixels that count as a whole fo
                                 // (the grove floor is about 238k, so this is most of it)
 
 // ---- Furniture ------------------------------------------------------------
-// Things you buy at Captain Clark's Ottoman Empire and stand about the grove
+// Things you buy at Captain Kirk's Ottoman Empire and stand about the grove
 // wherever you like. Unlike
 // DECOR, which has one fixed spot each and is really an upgrade wearing a hat,
 // furniture is placed by hand, picked back up, and is worth what you paid for

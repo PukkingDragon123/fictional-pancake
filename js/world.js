@@ -563,11 +563,69 @@ const World = (() => {
     dirt = c;
     return dirt;
   }
+  // ---- the meadow's small print --------------------------------------------
+  // Cached once over the whole floor: soft light and dark patches so it never
+  // reads as one flat colour, then thousands of little things, smaller toward
+  // the back: grass tufts in three greens, clover, daisies and buttercups,
+  // pebbles with a lit top and a shadow, and a few fallen gum leaves.
+  let detail = null;
+  function detailTex() {
+    if (detail) return detail;
+    const DH = H - GROUND + 2, o = Art.cv(W, DH), q = o.g;
+    const r = Art.rng(4242);
+    const px = (x, y, c) => { q.fillStyle = c; q.fillRect(Math.round(x), Math.round(y), 1, 1); };
+    const depth = (y) => 0.55 + 0.45 * (y / DH);            // 0.55 at the back, 1 at the front
+    // mottling: big soft patches of sun and shade
+    for (let i = 0; i < 70; i++) {
+      const x = r() * W, y = r() * DH, s = depth(y), rx = (30 + r() * 70) * s, ry = rx * 0.32;
+      q.globalAlpha = 0.07 + r() * 0.05;
+      Art.ell(q, x, y, rx, ry, r() < 0.5 ? '#8ac860' : '#2e5a22');
+    }
+    q.globalAlpha = 1;
+    // grass tufts: a fan of blades with a dark root
+    const GR = [['#3f7a32', '#5a9a3e', '#7ab850'], ['#4a8a32', '#6aa84a', '#9ad062'], ['#346a2a', '#4f8f3a', '#6aa84a']];
+    for (let i = 0; i < 4600; i++) {
+      const x = r() * W, y = 2 + r() * (DH - 2), s = depth(y), cols = GR[Math.floor(r() * 3)];
+      const n = 2 + Math.floor(r() * 4), h = Math.max(2, Math.round((3 + r() * 4) * s));
+      for (let k = 0; k < n; k++) {
+        const lean = (k - (n - 1) / 2) * 0.6;
+        for (let j = 0; j < h; j++) px(x + k + lean * (j / h) * 2, y - j, j === h - 1 ? cols[2] : j === 0 ? cols[0] : cols[1]);
+      }
+    }
+    // clover: three round leaves and a paler middle
+    for (let i = 0; i < 220; i++) {
+      const x = r() * W, y = r() * DH, s = depth(y);
+      for (const [dx, dy] of [[-1.4, 0], [1.4, 0], [0, -1.2]]) Art.ell(q, x + dx * s, y + dy * s, 1.3 * s, 1.1 * s, '#4f8f3a');
+      px(x, y - 1, '#8ac860');
+    }
+    // flowers: daisies, buttercups, a few pink ones
+    const FL = [['#ffffff', '#f8c040'], ['#f8d040', '#c88a20'], ['#f890b0', '#ffe070'], ['#c8b0f0', '#ffffff']];
+    for (let i = 0; i < 260; i++) {
+      const x = r() * W, y = 3 + r() * (DH - 3), [pet, mid] = FL[Math.floor(r() * (r() < 0.6 ? 2 : 4))];
+      px(x, y + 1, '#3f7a32');
+      px(x - 1, y, pet); px(x + 1, y, pet); px(x, y - 1, pet); px(x, y + 1 - 1 + 0, mid);
+      if (depth(y) > 0.8) { px(x - 1, y - 1, pet); px(x + 1, y - 1, pet); }
+    }
+    // pebbles
+    for (let i = 0; i < 160; i++) {
+      const x = r() * W, y = r() * DH, w2 = r() < 0.3 ? 3 : 2;
+      q.fillStyle = 'rgba(30,40,20,0.35)'; q.fillRect(Math.round(x), Math.round(y) + 1, w2 + 1, 1);
+      q.fillStyle = r() < 0.5 ? '#a8a49a' : '#8c8478'; q.fillRect(Math.round(x), Math.round(y), w2, 1);
+      px(x, y - (w2 > 2 ? 1 : 0), '#d8d4c8');
+    }
+    // fallen leaves off the gums
+    for (let i = 0; i < 90; i++) {
+      const x = r() * W, y = r() * DH * 0.7, c = ['#c8783a', '#a85a2a', '#d8a048', '#8a6a3a'][Math.floor(r() * 4)];
+      px(x, y, c); px(x + 1, y, c); px(x + 2, y + (r() < 0.5 ? 1 : -1), c); px(x + 1, y + 1, 'rgba(30,40,20,0.3)');
+    }
+    detail = o.c;
+    return detail;
+  }
   function drawGround(g) {
     const f = fraction();
     g.drawImage(dirtTex(), 0, GROUND - 2);
     {                                        // the green creeping back over warm earth
-      g.globalAlpha = 0.42 + Math.min(0.4, f * 0.6);
+      g.globalAlpha = 0.64 + Math.min(0.3, f * 0.5);
       g.fillStyle = U.mix('#6aa84a', '#5a9a3e', f);
       g.fillRect(0, GROUND - 2, W, H - GROUND + 2);
       g.globalAlpha = 1;
@@ -576,6 +634,7 @@ const World = (() => {
     // the treeline throws shade forward, but as a long soft run rather than the
     // hard black stripe it used to lay across the top of the plot
     for (let i = 0; i < 6; i++) Art.dither(g, 0, GROUND - 2 + i * 5, W, 5, '#2a4a1e', 0.1 * (1 - i / 6));
+    g.drawImage(detailTex(), 0, GROUND - 2);
     g.drawImage(grass, 0, 0);
     g.drawImage(soil, 0, 0);
   }

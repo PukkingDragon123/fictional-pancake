@@ -33,7 +33,8 @@ button { color: var(--ink); font-family: var(--f); }
 /* the picture sits in a thick pixel frame of its own */
 #frame { box-shadow: 0 0 0 3px var(--ol), 0 0 0 6px var(--fr1), 0 0 0 7px var(--fr0), 0 0 0 10px var(--fr3), 0 0 0 13px var(--ol), 8px 12px 0 13px rgba(40,20,4,0.35) !important; }
 /* and the picture itself, calmed a touch so the farm reads soft and warm */
-#game { filter: saturate(0.94) contrast(1.03); }
+/* the shader pass lies exactly over the game canvas; clicks go through it */
+#fx-gl { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; }
 .dim { color: var(--ink2); } .good { color: var(--grass-d); } .warn { color: #c0301c; }
 
 /* ---- words over the picture --------------------------------------------------------- */
@@ -261,3 +262,29 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 .uhow img.ico { display: inline-block; vertical-align: -4px; }
 .ucard .act { padding: 8px 26px; }
 
+
+/* ---- the clock under the purse ------------------------------------------------------------------------ */
+#clock { position: absolute; left: 16px; top: 66px; z-index: 6; display: flex; align-items: center; gap: 8px; padding: 0 8px 0 2px;
+  pointer-events: none; line-height: 1.05; color: var(--ink);
+  border: 10px solid transparent; border-image: var(--gf-base) 10 fill / 10px / 0 stretch; image-rendering: pixelated;
+  filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
+#clock canvas { width: 36px; height: 36px; image-rendering: pixelated; box-shadow: 0 0 0 2px var(--ol), inset 0 0 0 1px #000; }
+#clock b { display: block; font-size: 20px; font-weight: 400; color: var(--ink); text-shadow: 2px 2px 0 var(--pp2); letter-spacing: 1px; }
+#clock small { display: block; font-size: 12px; color: var(--ink2); margin-top: 2px; }
+#clock[hidden] { display: none; }
+
+/* ---- paper grain on every box on the frame ------------------------------------------------------------- */
+.toast, #hotbar .hbrow, #hotbar .hbname, .dlg-box { position: relative; }
+#money::after, #clock::after, #checklist::after, #tip::after, .toast::after, #hotbar .hbrow::after, #hotbar .hbname::after,
+.dlg-box::after, .ucard::after, .panel::after {
+  content: '' !important; display: block !important; position: absolute; inset: -2px; pointer-events: none; z-index: 0;
+  background: var(--grain) 0 0 / 48px 48px repeat !important; mix-blend-mode: multiply; opacity: 0.5; image-rendering: pixelated;
+}
+#money > *, #clock > *, #checklist > *, .dlg-box > *, .ucard > *, .panel > * { position: relative; z-index: 1; }
+
+/* ---- small life in the toolbar: the tool in hand breathes ---------------------------------------------- */
+#hotbar .hslot.on img.ico { animation: toolbob 1.2s steps(2) infinite; }
+@keyframes toolbob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-2px) } }
+#hotbar .hslot:not(.locked):hover img.ico { transform: scale(1.12) rotate(-6deg); }
+#money { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
+#checklist { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }

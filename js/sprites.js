@@ -1741,11 +1741,12 @@ const Sprites = (() => {
   // they are carrying and what colour they are. They walk, they talk, they wave.
   const VW2 = 30, VH2 = 46, VX = 15, VGY = 45;
   const VILLAGERS = {
-    clark: { name: 'Captain Clark', skin: '#f0b890', hair: '#f4f2ea', shirt: '#1c3470', pants: '#20263a',
+    clark: { name: 'Captain Kirk', skin: '#f0b890', hair: '#f4f2ea', shirt: '#1c3470', pants: '#20263a',
       hat: 'captain', prop: 'none', why: 'the Ottoman Empire' },
   };
   function villager(kind, frame, pose = 'idle') {
-    const K = VILLAGERS[kind] || VILLAGERS.bee;
+    if (kind === 'clark' && typeof Kirk !== 'undefined') return Kirk.sprite(frame, pose);   // the robot
+    const K = VILLAGERS[kind] || VILLAGERS.clark;
     const n = { idle: 6, walk: 8, talk: 6, wave: 6 }[pose] || 6;
     const f = ((frame % n) + n) % n, t = f / n;
     const key = `vil:${kind}:${f}:${pose}`;

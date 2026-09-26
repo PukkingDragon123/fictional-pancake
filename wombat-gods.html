@@ -1015,7 +1015,8 @@ button { color: var(--ink); font-family: var(--f); }
 /* the picture sits in a thick pixel frame of its own */
 #frame { box-shadow: 0 0 0 3px var(--ol), 0 0 0 6px var(--fr1), 0 0 0 7px var(--fr0), 0 0 0 10px var(--fr3), 0 0 0 13px var(--ol), 8px 12px 0 13px rgba(40,20,4,0.35) !important; }
 /* and the picture itself, calmed a touch so the farm reads soft and warm */
-#game { filter: saturate(0.94) contrast(1.03); }
+/* the shader pass lies exactly over the game canvas; clicks go through it */
+#fx-gl { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; }
 .dim { color: var(--ink2); } .good { color: var(--grass-d); } .warn { color: #c0301c; }
 
 /* ---- words over the picture --------------------------------------------------------- */
@@ -1242,6 +1243,33 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 .uhow { margin: 2px 0 6px; font-size: 14px; color: var(--ink); }
 .uhow img.ico { display: inline-block; vertical-align: -4px; }
 .ucard .act { padding: 8px 26px; }
+
+
+/* ---- the clock under the purse ------------------------------------------------------------------------ */
+#clock { position: absolute; left: 16px; top: 66px; z-index: 6; display: flex; align-items: center; gap: 8px; padding: 0 8px 0 2px;
+  pointer-events: none; line-height: 1.05; color: var(--ink);
+  border: 10px solid transparent; border-image: var(--gf-base) 10 fill / 10px / 0 stretch; image-rendering: pixelated;
+  filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
+#clock canvas { width: 36px; height: 36px; image-rendering: pixelated; box-shadow: 0 0 0 2px var(--ol), inset 0 0 0 1px #000; }
+#clock b { display: block; font-size: 20px; font-weight: 400; color: var(--ink); text-shadow: 2px 2px 0 var(--pp2); letter-spacing: 1px; }
+#clock small { display: block; font-size: 12px; color: var(--ink2); margin-top: 2px; }
+#clock[hidden] { display: none; }
+
+/* ---- paper grain on every box on the frame ------------------------------------------------------------- */
+.toast, #hotbar .hbrow, #hotbar .hbname, .dlg-box { position: relative; }
+#money::after, #clock::after, #checklist::after, #tip::after, .toast::after, #hotbar .hbrow::after, #hotbar .hbname::after,
+.dlg-box::after, .ucard::after, .panel::after {
+  content: '' !important; display: block !important; position: absolute; inset: -2px; pointer-events: none; z-index: 0;
+  background: var(--grain) 0 0 / 48px 48px repeat !important; mix-blend-mode: multiply; opacity: 0.5; image-rendering: pixelated;
+}
+#money > *, #clock > *, #checklist > *, .dlg-box > *, .ucard > *, .panel > * { position: relative; z-index: 1; }
+
+/* ---- small life in the toolbar: the tool in hand breathes ---------------------------------------------- */
+#hotbar .hslot.on img.ico { animation: toolbob 1.2s steps(2) infinite; }
+@keyframes toolbob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-2px) } }
+#hotbar .hslot:not(.locked):hover img.ico { transform: scale(1.12) rotate(-6deg); }
+#money { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
+#checklist { filter: drop-shadow(3px 4px 0 rgba(40,16,4,0.35)); }
 </style>
 
 <div id="app">
@@ -1251,6 +1279,7 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
     <div id="tip" hidden></div>
 
     <div id="money"><img class="ico" data-ico="wdollar" alt=""><b id="s-wd">0</b></div>
+    <div id="clock" hidden><canvas id="clock-dial" width="30" height="30"></canvas><div class="ctx"><b id="c-time">9:00am</b><small id="c-day">Day 1</small></div></div>
     <div id="checklist" hidden></div>
 
     <div id="side">
@@ -1322,9 +1351,9 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
         <li>Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.</li>
         <li>Feed a wombat and she leaves a cube. Put cubes in the truck and sell them to Jim, or spread one on a bed with the <b>Poo Scoop</b> and it grows twice as fast.</li>
         <li>The <b>shovel</b> paints the ground: hold the left button to dig down, the right button (or Shift) to heap up a hill. Water a hole with the can and it fills into a pond; water a trench and it runs like a creek. <b>[</b> and <b>]</b> change the brush size.</li>
-        <li>Captain Clark's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
+        <li>Captain Kirk's <b>Ottoman Empire</b> in town sells furniture: click the Captain for his catalogue. Set it out with the hammer.</li>
       </ol>
-      <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-reset">RESET</button></div>
+      <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-fx">SHADERS ON</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
   </div>
 
@@ -4188,11 +4217,12 @@ const Sprites = (() => {
   // they are carrying and what colour they are. They walk, they talk, they wave.
   const VW2 = 30, VH2 = 46, VX = 15, VGY = 45;
   const VILLAGERS = {
-    clark: { name: 'Captain Clark', skin: '#f0b890', hair: '#f4f2ea', shirt: '#1c3470', pants: '#20263a',
+    clark: { name: 'Captain Kirk', skin: '#f0b890', hair: '#f4f2ea', shirt: '#1c3470', pants: '#20263a',
       hat: 'captain', prop: 'none', why: 'the Ottoman Empire' },
   };
   function villager(kind, frame, pose = 'idle') {
-    const K = VILLAGERS[kind] || VILLAGERS.bee;
+    if (kind === 'clark' && typeof Kirk !== 'undefined') return Kirk.sprite(frame, pose);   // the robot
+    const K = VILLAGERS[kind] || VILLAGERS.clark;
     const n = { idle: 6, walk: 8, talk: 6, wave: 6 }[pose] || 6;
     const f = ((frame % n) + n) % n, t = f / n;
     const key = `vil:${kind}:${f}:${pose}`;
@@ -7907,6 +7937,7 @@ const Portraits = (() => {
   // ---- the one call everybody makes -------------------------------------------------------
   // `t` drives the blink; `talking` flaps the mouth.
   function get(key, mood, t = 0, talking = false) {
+    if ((key === 'clark' || key === 'villager:clark') && typeof Kirk !== 'undefined') return Kirk.bust(mood, t, talking);
     const spec = specFor(key);
     if (!spec) return null;
     const blink = (t % 3.6) > 3.45;
@@ -7918,6 +7949,208 @@ const Portraits = (() => {
   }
   const has = (key) => !!specFor(key);
   return { get, has, FACES, SPECS };
+})();
+</script>
+
+<script>
+// ===== js/kirk.js =====
+// ---- Captain Kirk: the robot who runs the Ottoman Empire ------------------------------
+// A tin captain: a riveted steel box of a head with a screen for a face and two
+// cyan eyes on it, a proper peaked cap, and a thick brown quiff and sideburns
+// sticking out from under it that nobody has ever asked about. He wears a
+// T-shirt that says I <3 KIRK, because he does.
+//
+// Kirk.sprite(frame, pose) is the 30x46 figure (same box as the villagers);
+// Kirk.bust(mood, t, talking) is the 64x64 dialogue portrait.
+const Kirk = (() => {
+  const cache = new Map();
+  const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+  const P = (g, x, y, c) => R(g, x, y, 1, 1, c);
+  const INK = '#1a1420';
+  const STEEL = ['#2a3244', '#4a5874', '#7486a8', '#a8b8d4', '#dce6f6'];
+  const HAIR = ['#4a2410', '#7a4018', '#b06428', '#e0983e'];
+  const SHIRT = ['#c8c0b0', '#e8e2d6', '#fbf8f0'];
+  const HEART = ['#9a1a2a', '#e03a4a', '#ff8a94'];
+  const NAVY = ['#0e1634', '#1c2a5a', '#2c4288'];
+  const GOLD = ['#8a5a0e', '#e0a828', '#ffe27a'];
+  const EYE = ['#0a3a4a', '#2ad8f0', '#c8fcff'];
+  // a 3x3 alphabet, only as much of it as the shirt needs
+  const MINI = {
+    K: ['101', '110', '101'], I: ['111', '010', '111'], R: ['110', '111', '101'],
+  };
+  const MINI5 = {                                   // 3x5, for the portrait
+    K: ['101', '101', '110', '101', '101'], I: ['111', '010', '010', '010', '111'], R: ['110', '101', '110', '101', '101'],
+  };
+  function word(g, s, x, y, col, font = MINI) {
+    for (const ch of s) {
+      const rows = font[ch];
+      if (rows) rows.forEach((row, j) => [...row].forEach((b, i) => { if (b === '1') P(g, x + i, y + j, col); }));
+      x += 4;
+    }
+  }
+  function heart(g, x, y, big) {
+    const px = big
+      ? ['01100110', '11111111', '11111111', '01111110', '00111100', '00011000']
+      : ['0101', '1111', '0110'];
+    px.forEach((row, j) => [...row].forEach((b, i) => { if (b === '1') P(g, x + i, y + j, j === 0 && big ? HEART[2] : HEART[1]); }));
+    if (big) { P(g, x + 1, y + 1, HEART[2]); for (let i = 2; i < 6; i++) P(g, x + i, y + 5 - (i > 3 ? 1 : 0), HEART[0]); }
+  }
+
+  // ---- the figure -------------------------------------------------------------------------
+  function sprite(frame, pose = 'idle') {
+    const n = { idle: 6, walk: 8, talk: 6, wave: 6 }[pose] || 6;
+    const f = ((frame % n) + n) % n, t = f / n, S2 = Math.sin(t * Math.PI * 2);
+    const key = `k:${f}:${pose}`;
+    let c = cache.get(key); if (c) return c;
+    const o = Art.cv(30, 46), g = o.g; c = o.c;
+    let bob = 0, step = 0, armL = 0, armR = 0, blink = 0, mouth = 0, blip = f % 3 === 0;
+    switch (pose) {
+      case 'idle': bob = [0, -1, -1, 0, 0, 0][f]; armL = S2 * 1.2; blink = f === 4 ? 1 : 0; break;
+      case 'walk': bob = [-1, -2, -1, 0, -1, -2, -1, 0][f]; step = [2, 1, -1, -2, -2, -1, 1, 2][f]; armL = -step; armR = step; break;
+      case 'talk': bob = Math.round(S2 * 0.6); armR = -2 - S2 * 2; mouth = f % 2 + 1; blink = f === 3 ? 1 : 0; break;
+      case 'wave': bob = -1; armR = -9 - Math.abs(S2) * 3; mouth = 2; break;
+    }
+    const cx = 15, by = 45 + bob;
+    // legs: steel pistons in navy trousers, and big boots
+    for (const d of [-1, 1]) {
+      const lx = cx + d * 3 + (d > 0 ? step : -step) * 0.6;
+      R(g, lx - 2, by - 10, 4, 9, NAVY[1]); R(g, lx - 2, by - 10, 1, 9, NAVY[2]);
+      R(g, lx - 3, by - 2, 6, 2, STEEL[1]); R(g, lx - 3, by - 2, 6, 1, STEEL[3]);
+    }
+    // arms, behind the shirt: steel tubes, a ball joint, a three-finger claw
+    const arm = (d, sw) => {
+      const ax = cx + d * 7, ay = by - 21;
+      const hx = ax + d * 2, hy = ay + 9 + sw;
+      Art.limb(g, ax, ay, hx, hy, 1.8, 1.6, STEEL[1]);
+      Art.limb(g, ax, ay, hx, hy, 1, 0.8, STEEL[3]);
+      Art.ell(g, hx, hy + 1, 1.8, 1.8, STEEL[2]); P(g, hx - 1, hy, STEEL[4]);
+    };
+    arm(-1, armL);
+    if (pose !== 'wave') arm(1, armR);
+    // the T-shirt: I <3 KIRK
+    R(g, cx - 7, by - 23, 14, 13, SHIRT[1]);
+    R(g, cx - 7, by - 23, 14, 1, SHIRT[2]); R(g, cx - 7, by - 12, 14, 2, SHIRT[0]);
+    R(g, cx - 9, by - 23, 3, 4, SHIRT[1]); R(g, cx + 6, by - 23, 3, 4, SHIRT[1]);      // sleeves
+    R(g, cx - 2, by - 23, 4, 1, STEEL[2]);                                               // the neck ring
+    P(g, cx - 5, by - 20, HEART[0]); P(g, cx - 5, by - 19, HEART[0]); P(g, cx - 5, by - 18, HEART[0]);   // I
+    heart(g, cx - 3, by - 20, false);
+    word(g, 'KIRK', cx - 7, by - 16, NAVY[1]);
+    if (pose === 'wave') {                                                                // the waving arm, up past the cap
+      const ax = cx + 7, ay = by - 21;
+      Art.limb(g, ax, ay, ax + 4, ay + armR, 1.8, 1.6, STEEL[1]); Art.limb(g, ax, ay, ax + 4, ay + armR, 1, 0.8, STEEL[3]);
+      Art.ell(g, ax + 4, ay + armR - 1, 2, 2, STEEL[2]); P(g, ax + 3, ay + armR - 2, STEEL[4]);
+    }
+    // the head: a riveted box with a screen for a face
+    const hx0 = cx - 7, hy0 = by - 37;
+    R(g, cx - 2, hy0 + 11, 4, 3, STEEL[1]);                                             // the neck
+    // hair first, so the head sits in front of the sideburns
+    R(g, hx0 - 3, hy0, 4, 10, HAIR[1]); R(g, hx0 + 13, hy0, 4, 10, HAIR[1]);
+    R(g, hx0 - 3, hy0 + 1, 1, 8, HAIR[2]); R(g, hx0 + 16, hy0 + 2, 1, 7, HAIR[0]);
+    for (let y = hy0 + 2; y < hy0 + 10; y += 3) { P(g, hx0 - 2, y, HAIR[3]); P(g, hx0 + 14, y, HAIR[3]); }
+    R(g, hx0, hy0, 14, 12, STEEL[2]);
+    R(g, hx0, hy0, 14, 1, STEEL[4]); R(g, hx0, hy0, 1, 12, STEEL[3]); R(g, hx0 + 13, hy0, 1, 12, STEEL[1]); R(g, hx0, hy0 + 11, 14, 1, STEEL[0]);
+    for (const [rx, ry] of [[1, 1], [12, 1], [1, 10], [12, 10]]) P(g, hx0 + rx, hy0 + ry, STEEL[0]);
+    R(g, hx0 + 2, hy0 + 3, 10, 7, INK);                                                  // the screen
+    R(g, hx0 + 2, hy0 + 3, 10, 1, '#2a2a3a');
+    if (blink) { R(g, hx0 + 3, hy0 + 5, 3, 1, EYE[1]); R(g, hx0 + 8, hy0 + 5, 3, 1, EYE[1]); }
+    else { R(g, hx0 + 4, hy0 + 4, 2, 2, EYE[1]); R(g, hx0 + 8, hy0 + 4, 2, 2, EYE[1]); P(g, hx0 + 4, hy0 + 4, EYE[2]); P(g, hx0 + 8, hy0 + 4, EYE[2]); }
+    if (mouth === 2) { R(g, hx0 + 5, hy0 + 7, 4, 2, EYE[1]); R(g, hx0 + 6, hy0 + 8, 2, 1, EYE[0]); }
+    else if (mouth === 1) R(g, hx0 + 4, hy0 + 8, 6, 1, EYE[1]);
+    else { R(g, hx0 + 4, hy0 + 8, 6, 1, EYE[1]); P(g, hx0 + 4, hy0 + 7, EYE[1]); P(g, hx0 + 9, hy0 + 7, EYE[1]); }
+    // ear bolts, and an aerial with a light on it
+    R(g, hx0 - 1, hy0 + 5, 1, 3, GOLD[1]); R(g, hx0 + 14, hy0 + 5, 1, 3, GOLD[1]);
+    R(g, hx0 + 14, hy0 - 4, 1, 9, STEEL[1]); R(g, hx0 + 13, hy0 - 6, 3, 2, blip ? '#ff4a4a' : '#8a1a1a');
+    // the quiff, bursting out from under the peak
+    R(g, hx0 + 2, hy0 - 1, 6, 2, HAIR[2]); R(g, hx0 + 3, hy0 - 2, 3, 1, HAIR[3]); P(g, hx0 + 7, hy0 + 1, HAIR[1]);
+    // the cap
+    R(g, hx0 - 1, hy0 - 6, 16, 4, SHIRT[2]); R(g, hx0, hy0 - 7, 14, 1, SHIRT[2]); R(g, hx0 - 1, hy0 - 3, 16, 1, SHIRT[0]);
+    R(g, hx0 - 1, hy0 - 2, 16, 2, NAVY[1]);
+    R(g, hx0 + 8, hy0, 8, 1, INK);                                                         // the peak, tipped
+    R(g, hx0 + 6, hy0 - 3, 3, 2, GOLD[1]); P(g, hx0 + 6, hy0 - 3, GOLD[2]);
+    // the fringe, hanging over the top of the screen
+    for (let i = 0; i < 5; i++) { const x = hx0 + i * 3, len = 2 + (i % 2); R(g, x, hy0, 3, len, HAIR[2]); P(g, x + 1, hy0, HAIR[3]); P(g, x + 2, hy0 + len - 1, HAIR[0]); }
+    Art.outline(c, INK, 1);
+    cache.set(key, c);
+    return c;
+  }
+
+  // ---- the portrait -------------------------------------------------------------------------
+  const EYES = {                 // what the screen shows for each mood
+    talk: 'open', idle: 'open', happy: 'arc', laugh: 'arc', proud: 'arc', think: 'up', worry: 'open', sad: 'half',
+    cross: 'half', shock: 'wide', sly: 'half', tired: 'half',
+  };
+  const MOUTH = {
+    talk: 'line', idle: 'smile', happy: 'grin', laugh: 'open', proud: 'grin', think: 'line', worry: 'wave', sad: 'frown',
+    cross: 'frown', shock: 'o', sly: 'smirk', tired: 'line',
+  };
+  function bust(mood = 'talk', t = 0, talking = false) {
+    const blink = (t % 3.6) > 3.45, open = talking && Math.floor(t * 9) % 2 === 0, blip = Math.floor(t * 2) % 2 === 0;
+    const key = `b:${mood}:${blink ? 1 : 0}:${open ? 1 : 0}:${blip ? 1 : 0}`;
+    let c = cache.get(key); if (c) return c;
+    const o = Art.cv(64, 64), g = o.g; c = o.c;
+    // shoulders and the shirt, with the whole slogan on it
+    R(g, 6, 50, 52, 14, SHIRT[1]); R(g, 6, 50, 52, 1, SHIRT[2]); R(g, 6, 50, 3, 14, SHIRT[0]); R(g, 55, 50, 3, 14, SHIRT[0]);
+    R(g, 26, 47, 12, 4, STEEL[1]); R(g, 24, 50, 16, 2, STEEL[2]);                       // neck and its ring
+    P(g, 17, 55, HEART[0]); for (let y = 54; y < 59; y++) P(g, 18, y, HEART[0]); P(g, 19, 55, HEART[0]);
+    for (let x = 17; x <= 19; x++) { P(g, x, 54, HEART[0]); P(g, x, 58, HEART[0]); }
+    heart(g, 22, 54, true);
+    word(g, 'KIRK', 32, 54, NAVY[1], MINI5);
+    // sideburns and a thick brown mop out of both sides
+    for (const [x, d] of [[2, 1], [52, -1]]) {
+      for (let y = 10; y < 44; y += 5) Art.ell(g, x + 5, y + 2, 5, 3.6, HAIR[1]);     // fluffy curls down each side
+      for (let y = 10; y < 44; y += 5) { R(g, x + 3, y, 4, 1, HAIR[3]); R(g, x + 2, y + 4, 6, 1, HAIR[0]); }
+    }
+    // the head
+    R(g, 10, 14, 44, 34, STEEL[2]);
+    R(g, 10, 14, 44, 2, STEEL[4]); R(g, 10, 14, 2, 34, STEEL[3]); R(g, 52, 14, 2, 34, STEEL[1]); R(g, 10, 46, 44, 2, STEEL[0]);
+    for (let x = 12; x < 52; x += 8) P(g, x, 45, STEEL[1]);
+    for (const [rx, ry] of [[13, 17], [50, 17], [13, 43], [50, 43]]) { R(g, rx - 1, ry - 1, 2, 2, STEEL[0]); P(g, rx - 1, ry - 1, STEEL[4]); }
+    // ear bolts
+    R(g, 7, 26, 3, 8, GOLD[1]); R(g, 7, 26, 3, 1, GOLD[2]); R(g, 54, 26, 3, 8, GOLD[0]);
+    // the screen, with a glint across one corner
+    R(g, 15, 20, 34, 22, INK); R(g, 16, 21, 32, 20, '#141424');
+    R(g, 17, 22, 6, 1, '#3a3a52'); P(g, 17, 23, '#3a3a52');
+    const e = blink ? 'shut' : (EYES[mood] || 'open');
+    for (const ex of [23, 37]) {
+      if (e === 'shut') R(g, ex - 1, 29, 6, 2, EYE[1]);
+      else if (e === 'arc') { R(g, ex, 27, 4, 2, EYE[1]); R(g, ex - 1, 29, 2, 2, EYE[1]); R(g, ex + 3, 29, 2, 2, EYE[1]); }
+      else if (e === 'half') { R(g, ex - 1, 29, 6, 3, EYE[1]); R(g, ex - 1, 29, 6, 1, EYE[0]); }
+      else if (e === 'wide') { R(g, ex - 1, 25, 6, 7, EYE[1]); R(g, ex + 1, 27, 2, 3, EYE[2]); }
+      else if (e === 'up') { R(g, ex, 25, 4, 4, EYE[1]); P(g, ex + 1, 25, EYE[2]); }
+      else { R(g, ex, 26, 4, 5, EYE[1]); R(g, ex, 26, 2, 2, EYE[2]); }
+    }
+    if (mood === 'cross') { R(g, 21, 24, 7, 1, EYE[1]); R(g, 36, 24, 7, 1, EYE[1]); }
+    if (mood === 'worry' || mood === 'sad') { R(g, 21, 24, 3, 1, EYE[1]); R(g, 24, 23, 3, 1, EYE[1]); R(g, 37, 23, 3, 1, EYE[1]); R(g, 40, 24, 3, 1, EYE[1]); }
+    const m = open ? 'open' : (MOUTH[mood] || 'line');
+    const M = (x, y, w, h) => R(g, x, y, w, h, EYE[1]);
+    if (m === 'open') { M(27, 34, 10, 5); R(g, 29, 36, 6, 2, EYE[0]); }
+    else if (m === 'o') { M(29, 34, 6, 5); R(g, 31, 35, 2, 3, INK); }
+    else if (m === 'grin') { M(25, 36, 14, 2); M(24, 34, 2, 2); M(38, 34, 2, 2); }
+    else if (m === 'smile') { M(27, 37, 10, 1); P(g, 26, 36, EYE[1]); P(g, 37, 36, EYE[1]); }
+    else if (m === 'frown') { M(27, 36, 10, 1); P(g, 26, 37, EYE[1]); P(g, 37, 37, EYE[1]); }
+    else if (m === 'wave') { for (let x = 25; x < 39; x++) P(g, x, 36 + (Math.floor(x / 2) % 2), EYE[1]); }
+    else if (m === 'smirk') { M(29, 36, 8, 1); P(g, 37, 35, EYE[1]); }
+    else M(26, 36, 12, 1);
+    // blush pixels, because he is a friendly machine
+    if (e === 'arc') { R(g, 17, 33, 3, 1, '#f06a8a'); R(g, 44, 33, 3, 1, '#f06a8a'); }
+    // an aerial, poking up past the cap, with a light on the end
+    R(g, 50, 2, 2, 12, STEEL[1]); R(g, 48, 0, 6, 4, blip ? '#ff4a4a' : '#9a1a1a'); P(g, 49, 0, '#ffc0c0');
+    // the cap: white crown, navy band, gold badge, black peak
+    R(g, 8, 2, 46, 8, SHIRT[2]); R(g, 11, 0, 40, 2, SHIRT[2]); R(g, 8, 8, 46, 2, SHIRT[0]);
+    R(g, 8, 9, 46, 3, NAVY[1]); R(g, 8, 9, 46, 1, NAVY[2]);
+    R(g, 10, 12, 30, 2, INK); R(g, 12, 12, 26, 1, '#3a3a4a');
+    R(g, 27, 4, 8, 6, GOLD[1]); R(g, 28, 5, 6, 4, GOLD[2]); R(g, 30, 6, 2, 2, GOLD[0]);
+    // a big brown fringe spilling out under the peak and over the top of the screen
+    for (let i = 0; i < 9; i++) {
+      const x = 11 + i * 4.6, len = 5 + (i % 3 === 1 ? 3 : i % 2) + (i === 3 ? 2 : 0);
+      R(g, x, 13, 5, len, HAIR[1]); R(g, x + 1, 13, 2, len - 1, HAIR[2]); P(g, x + 1, 14, HAIR[3]);
+      R(g, x + 1, 13 + len, 3, 1, HAIR[1]); P(g, x + 4, 13 + len - 1, HAIR[0]);
+    }
+    Art.outline(c, INK, 1);
+    cache.set(key, c);
+    return c;
+  }
+  return { sprite, bust };
 })();
 </script>
 
@@ -8253,7 +8486,7 @@ const RESTORE_TARGET = 172000;  // painted grass pixels that count as a whole fo
                                 // (the grove floor is about 238k, so this is most of it)
 
 // ---- Furniture ------------------------------------------------------------
-// Things you buy at Captain Clark's Ottoman Empire and stand about the grove
+// Things you buy at Captain Kirk's Ottoman Empire and stand about the grove
 // wherever you like. Unlike
 // DECOR, which has one fixed spot each and is really an upgrade wearing a hat,
 // furniture is placed by hand, picked back up, and is worth what you paid for
@@ -9575,11 +9808,69 @@ const World = (() => {
     dirt = c;
     return dirt;
   }
+  // ---- the meadow's small print --------------------------------------------
+  // Cached once over the whole floor: soft light and dark patches so it never
+  // reads as one flat colour, then thousands of little things, smaller toward
+  // the back: grass tufts in three greens, clover, daisies and buttercups,
+  // pebbles with a lit top and a shadow, and a few fallen gum leaves.
+  let detail = null;
+  function detailTex() {
+    if (detail) return detail;
+    const DH = H - GROUND + 2, o = Art.cv(W, DH), q = o.g;
+    const r = Art.rng(4242);
+    const px = (x, y, c) => { q.fillStyle = c; q.fillRect(Math.round(x), Math.round(y), 1, 1); };
+    const depth = (y) => 0.55 + 0.45 * (y / DH);            // 0.55 at the back, 1 at the front
+    // mottling: big soft patches of sun and shade
+    for (let i = 0; i < 70; i++) {
+      const x = r() * W, y = r() * DH, s = depth(y), rx = (30 + r() * 70) * s, ry = rx * 0.32;
+      q.globalAlpha = 0.07 + r() * 0.05;
+      Art.ell(q, x, y, rx, ry, r() < 0.5 ? '#8ac860' : '#2e5a22');
+    }
+    q.globalAlpha = 1;
+    // grass tufts: a fan of blades with a dark root
+    const GR = [['#3f7a32', '#5a9a3e', '#7ab850'], ['#4a8a32', '#6aa84a', '#9ad062'], ['#346a2a', '#4f8f3a', '#6aa84a']];
+    for (let i = 0; i < 4600; i++) {
+      const x = r() * W, y = 2 + r() * (DH - 2), s = depth(y), cols = GR[Math.floor(r() * 3)];
+      const n = 2 + Math.floor(r() * 4), h = Math.max(2, Math.round((3 + r() * 4) * s));
+      for (let k = 0; k < n; k++) {
+        const lean = (k - (n - 1) / 2) * 0.6;
+        for (let j = 0; j < h; j++) px(x + k + lean * (j / h) * 2, y - j, j === h - 1 ? cols[2] : j === 0 ? cols[0] : cols[1]);
+      }
+    }
+    // clover: three round leaves and a paler middle
+    for (let i = 0; i < 220; i++) {
+      const x = r() * W, y = r() * DH, s = depth(y);
+      for (const [dx, dy] of [[-1.4, 0], [1.4, 0], [0, -1.2]]) Art.ell(q, x + dx * s, y + dy * s, 1.3 * s, 1.1 * s, '#4f8f3a');
+      px(x, y - 1, '#8ac860');
+    }
+    // flowers: daisies, buttercups, a few pink ones
+    const FL = [['#ffffff', '#f8c040'], ['#f8d040', '#c88a20'], ['#f890b0', '#ffe070'], ['#c8b0f0', '#ffffff']];
+    for (let i = 0; i < 260; i++) {
+      const x = r() * W, y = 3 + r() * (DH - 3), [pet, mid] = FL[Math.floor(r() * (r() < 0.6 ? 2 : 4))];
+      px(x, y + 1, '#3f7a32');
+      px(x - 1, y, pet); px(x + 1, y, pet); px(x, y - 1, pet); px(x, y + 1 - 1 + 0, mid);
+      if (depth(y) > 0.8) { px(x - 1, y - 1, pet); px(x + 1, y - 1, pet); }
+    }
+    // pebbles
+    for (let i = 0; i < 160; i++) {
+      const x = r() * W, y = r() * DH, w2 = r() < 0.3 ? 3 : 2;
+      q.fillStyle = 'rgba(30,40,20,0.35)'; q.fillRect(Math.round(x), Math.round(y) + 1, w2 + 1, 1);
+      q.fillStyle = r() < 0.5 ? '#a8a49a' : '#8c8478'; q.fillRect(Math.round(x), Math.round(y), w2, 1);
+      px(x, y - (w2 > 2 ? 1 : 0), '#d8d4c8');
+    }
+    // fallen leaves off the gums
+    for (let i = 0; i < 90; i++) {
+      const x = r() * W, y = r() * DH * 0.7, c = ['#c8783a', '#a85a2a', '#d8a048', '#8a6a3a'][Math.floor(r() * 4)];
+      px(x, y, c); px(x + 1, y, c); px(x + 2, y + (r() < 0.5 ? 1 : -1), c); px(x + 1, y + 1, 'rgba(30,40,20,0.3)');
+    }
+    detail = o.c;
+    return detail;
+  }
   function drawGround(g) {
     const f = fraction();
     g.drawImage(dirtTex(), 0, GROUND - 2);
     {                                        // the green creeping back over warm earth
-      g.globalAlpha = 0.42 + Math.min(0.4, f * 0.6);
+      g.globalAlpha = 0.64 + Math.min(0.3, f * 0.5);
       g.fillStyle = U.mix('#6aa84a', '#5a9a3e', f);
       g.fillRect(0, GROUND - 2, W, H - GROUND + 2);
       g.globalAlpha = 1;
@@ -9588,6 +9879,7 @@ const World = (() => {
     // the treeline throws shade forward, but as a long soft run rather than the
     // hard black stripe it used to lay across the top of the plot
     for (let i = 0; i < 6; i++) Art.dither(g, 0, GROUND - 2 + i * 5, W, 5, '#2a4a1e', 0.1 * (1 - i / 6));
+    g.drawImage(detailTex(), 0, GROUND - 2);
     g.drawImage(grass, 0, 0);
     g.drawImage(soil, 0, 0);
   }
@@ -9766,7 +10058,7 @@ const World = (() => {
 // Three parts, all owned here so grove.js stays about wombats:
 //   TERRAIN   mounds you raise and ponds you dig, saved with the world
 //   CRITTERS  beetles, butterflies, bees, dragonflies, frogs, ants, a lizard
-//   VISITORS  Shaz, Groot and Captain Clark, who turn up, stay a while, talk
+//   VISITORS  Shaz, Groot and Captain Kirk, who turn up, stay a while, talk
 const Wild = (() => {
   let G = null;
   let W = 0, H = 0, GROUND = 0, walk = { y0: 0, y1: 0 };
@@ -10240,7 +10532,7 @@ const Wild = (() => {
       }),
     },
     {
-      key: 'clark', name: 'Captain Clark', why: 'on his constitutional',
+      key: 'clark', name: 'Captain Kirk', why: 'on his constitutional',
       sprite: (f, pose) => Sprites.villager('clark', f, pose === 'walk' ? 'walk' : pose === 'talk' ? 'talk' : 'idle'), sc: 1.5,
       poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
       gift: () => { const n = 30 + Math.floor(Math.random() * 50); G.wd += n; return `the Captain left ${U.fmt(n)} W$ in a sardine tin`; },
@@ -11400,7 +11692,7 @@ const Grove = (() => {
         UI.refreshHUD(); return true;
       }
       const key = buildKey();
-      if (!key) { Audio.play('error'); UI.toast('nothing to put down &mdash; Captain Clark\'s Ottoman Empire sells furniture', 'bad'); return true; }
+      if (!key) { Audio.play('error'); UI.toast('nothing to put down &mdash; Captain Kirk\'s Ottoman Empire sells furniture', 'bad'); return true; }
       if (y < GROUND + 6 || y > GROUND + 190) { Audio.play('error'); UI.toast('not there', 'bad'); return true; }
       if (!G.furniture) G.furniture = [];
       G.furniture.push({ key, x: Math.round(x), y: Math.round(y) });
@@ -11820,6 +12112,28 @@ const Grove = (() => {
     }
     g.restore();
 
+    // pollen and thistledown drifting through the air by day, fireflies by night
+    {
+      const night = 1 - Sky.light(), tt = G.time;
+      for (let i = 0; i < 46; i++) {
+        const sx = (i * 137.5) % VW, sy = 40 + ((i * 71) % 250);
+        const vx = 6 + (i % 5) * 2.5;
+        const x = ((sx + tt * vx + Math.sin(tt * 0.6 + i) * 14) % (VW + 20) + VW + 20) % (VW + 20) - 10;
+        const y = sy + Math.sin(tt * (0.5 + (i % 3) * 0.2) + i * 1.7) * 10;
+        if (night > 0.55) {
+          if (i % 2) continue;
+          const pulse = 0.5 + 0.5 * Math.sin(tt * 2.2 + i * 2.3);
+          if (pulse < 0.25) continue;
+          Art.glow(g, x, y + 60, 6, '#d8ff70', 0.35 * pulse, 3);
+          g.fillStyle = '#f0ffb0'; g.fillRect(Math.round(x), Math.round(y + 60), 1, 1);
+        } else {
+          g.globalAlpha = 0.5 + 0.3 * Math.sin(tt * 1.3 + i);
+          g.fillStyle = i % 4 === 0 ? '#ffffff' : '#fff2b0';
+          g.fillRect(Math.round(x), Math.round(y), i % 6 === 0 ? 2 : 1, 1);
+          g.globalAlpha = 1;
+        }
+      }
+    }
     // No colour grade any more: the gold wash over everything read as a muddy
     // filter. Clean colours, like the cover art, and the barest warm edge.
     Art.vignette(g, VW, VH, '#3a2a14', 0.08, 2.6, 0.6);
@@ -16423,11 +16737,11 @@ const Nursery = (() => {
 
 <script>
 // ===== js/ottoman.js =====
-// ---- Captain Clark's Ottoman Empire -----------------------------------------------
+// ---- Captain Kirk's Ottoman Empire -----------------------------------------------
 // A furniture showroom kept like the captain's cabin of an old liner: teal
 // damask walls with gold in them, brass portholes onto a moving sea, a ship's
 // wheel over the counter, and every piece on its own plinth with a tag hung
-// off it. Captain Clark stands behind the counter by the door; click him
+// off it. Captain Kirk stands behind the counter by the door; click him
 // for the catalogue.
 const Ottoman = (() => {
   let G = null;
@@ -16495,14 +16809,17 @@ const Ottoman = (() => {
   const TREE = {
     start: 'hub',
     nodes: {
-      hub: { mood: 'happy', say: "Ahoy! Captain Clark, Ottoman Empire. Finest furniture this side of the Bass Strait. Have a look round, click anything you fancy.",
+      hub: { mood: 'happy', say: "Ahoy! Captain Kirk, Ottoman Empire. Finest furniture this side of the Bass Strait. Have a look round, click anything you fancy.",
         opts: [
           { q: "Show me the catalogue.", act: () => { Talk.close(); openMenu(); } },
           { q: 'Why "Ottoman Empire"?', to: 'name' },
           { q: 'Were you really a captain?', to: 'captain' },
+          { q: 'Are you... a robot?', to: 'robot' },
           { q: 'Just browsing.', end: true },
         ] },
       name: { mood: 'laugh', say: "Started with ottomans. Then I had a lot of ottomans. Then I had an empire of them. The sofas came later.", opts: [{ q: 'Fair enough.', to: 'hub' }] },
+      robot: { mood: 'laugh', say: "Beep boop! Ha. No, I'm having you on. Yes. Fully robot, head to boots. The hair is real, though. Don't ask whose.", opts: [{ q: 'And the shirt?', to: 'shirt' }, { q: 'Fair enough.', to: 'hub' }] },
+      shirt: { mood: 'proud', say: "I love Kirk. Somebody has to. Self-esteem module, came as standard. Best feature they ever put in me.", opts: [{ q: 'Good for you, Captain.', to: 'hub' }] },
       captain: { mood: 'proud', say: "Thirty years at sea! Well. On the ferry. Well. Mostly the ferry. That wheel over there's off her. Don't ask how she sank.", opts: [{ q: 'She sank?', to: 'sank' }, { q: 'Good wheel.', to: 'hub' }] },
       sank: { mood: 'sly', say: "I said don't ask.", opts: [{ q: 'Sorry, Captain.', to: 'hub' }] },
     },
@@ -16556,7 +16873,7 @@ const Ottoman = (() => {
     if (menu.open) { menuHover(x, y); return null; }
     const s = slotAt(x, y);
     hover = s;
-    if (overClark(x, y)) return '<b>Captain Clark</b> <span class="dim">the Ottoman Empire</span><br>click to see the catalogue';
+    if (overClark(x, y)) return '<b>Captain Kirk</b> <span class="dim">the Ottoman Empire</span><br>click to see the catalogue';
     if (!s) return null;
     const f = s.f, have = crateCount(f.key) + placed(f.key);
     return `<b>${f.name}</b><br>${Icons.img('wdollar', 'sm')} ${U.fmt(f.cost)}${have ? ` &middot; <span class="dim">you have ${have}</span>` : ''}<br><span class="dim">${f.blurb}</span>`;
@@ -16637,7 +16954,7 @@ const Ottoman = (() => {
     const talking = menu.t < Math.min(2.4, menu.say.length * 0.03);
     const pc = Portraits.get('villager:clark', mood, menu.t + t, talking) || Portraits.get('clark', mood, menu.t + t, talking);
     if (pc) g.drawImage(pc, px + 2, py + 4, 128, 128);
-    Kit.tab(g, ML.x + 14, py + 138, ML.w - 28, 18, 'Captain Clark');
+    Kit.tab(g, ML.x + 14, py + 138, ML.w - 28, 18, 'Captain Kirk');
     const shown = menu.say.slice(0, Math.floor(menu.t * 45));
     Font.wrap(shown, ML.w - 26, 1).slice(0, 8).forEach((l, i) => Font.draw(g, l, ML.x + 13, py + 164 + i * 10, { scale: 1, color: C.ink }));
     Kit.button(g, BTN.talk, 'TALK', null, { hot: menu.hoverBtn === 'talk', kind: 'paper', scale: 1 });
@@ -16869,7 +17186,7 @@ const Ottoman = (() => {
     if (sx > -140 && sx < VW + 140) {
       Art.rect(g, sx - 50, 24, 170, 44, '#2a0e04'); Art.rect(g, sx - 48, 26, 166, 40, '#0e2a5a'); Art.rect(g, sx - 46, 28, 162, 36, '#1c4088');
       Art.rect(g, sx - 46, 28, 162, 2, '#4a70c0');
-      Font.draw(g, "CAPTAIN CLARK'S", sx + 35, 32, { scale: 1, color: GOLD[2], align: 'center' });
+      Font.draw(g, "CAPTAIN KIRK'S", sx + 35, 32, { scale: 1, color: GOLD[2], align: 'center' });
       Font.draw(g, 'OTTOMAN EMPIRE', sx + 35, 43, { scale: 1, color: '#ffffff', align: 'center' });
       Font.draw(g, 'fine furniture - est. 1974', sx + 35, 54, { scale: 1, color: '#a8c0f0', align: 'center' });
     }
@@ -17367,7 +17684,7 @@ const Guide = (() => {
         'Lovely day for it.', 'I looked after this place for twenty years.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
-        'Hot one today.', 'The gum trees smell like home.', 'Captain Clark sells furniture. Mind the cat on his counter.', 'Clark reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
+        'Hot one today.', 'The gum trees smell like home.', 'Captain Kirk sells furniture. Mind the cat on his counter.', 'Kirk reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
       ] },
   ];
   let chatT = 14 + Math.random() * 10, lastChat = '';
@@ -17468,7 +17785,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Clark's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
+        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {
@@ -18073,6 +18390,15 @@ const UI = (() => {
     if (lastWd !== null && G.wd !== lastWd) bumpMoney();
     lastWd = G.wd;
     $('s-wd').textContent = U.fmt(G.wd);
+    if ($('clock')) {
+      const out = G.mode === 'grove' || G.mode === 'map';
+      $('clock').hidden = !(out && G.mode !== 'intro');
+      if (out) {
+        $('c-time').textContent = Sky.clockText();
+        $('c-day').textContent = `Day ${1 + Math.floor((G.time || 0) / Sky.DAY)} \u00b7 ${Sky.def().name}`;
+        drawDial(G.time || 0);
+      }
+    }
     $('b-back').hidden = G.mode === 'grove';
     {
       // The head-up belongs to the game, not the title screen or the intro.
@@ -18357,6 +18683,37 @@ const UI = (() => {
     R(4, 4, N - 8, 1, paper[0]); R(4, N - 5, N - 8, 1, paper[2]);
     for (const [x, y] of [[1, 1], [N - 3, 1], [1, N - 3], [N - 3, N - 3]]) { R(x, y, 2, 2, '#ffd070'); R(x + 1, y + 1, 1, 1, fr[3]); }
     return c.toDataURL();
+  }
+  // A tile of paper grain for every box on the frame: mostly white, so under a
+  // multiply blend it only darkens where the fibres and flecks are.
+  function grainURL() {
+    const N = 24, P2 = 2, c = document.createElement('canvas'); c.width = c.height = N * P2;
+    const g = c.getContext('2d'), r = Art.rng(77);
+    g.fillStyle = '#ffffff'; g.fillRect(0, 0, N * P2, N * P2);
+    for (let i = 0; i < N * N; i++) {
+      const x = i % N, y = Math.floor(i / N), v = r();
+      if (v < 0.16) { g.fillStyle = '#f4e6cc'; g.fillRect(x * P2, y * P2, P2, P2); }
+      else if (v < 0.21) { g.fillStyle = '#e6cfa6'; g.fillRect(x * P2, y * P2, P2, P2); }
+    }
+    for (let i = 0; i < 9; i++) {                                // a few long fibres
+      const x = Math.floor(r() * N), y = Math.floor(r() * N), len = 2 + Math.floor(r() * 4);
+      g.fillStyle = '#ead6b2'; g.fillRect(x * P2, y * P2, len * P2, P2 / 2 + 1);
+    }
+    return c.toDataURL();
+  }
+  // the little clock under the purse: a sun or a moon, the time, the day and the weather
+  function drawDial(t) {
+    const cv = $('clock-dial'); if (!cv) return;
+    const g = cv.getContext('2d'), W2 = cv.width;
+    g.clearRect(0, 0, W2, W2);
+    const light = Sky.light(), night = Sky.isNight();
+    Art.vramp(g, 0, 0, W2, W2, night ? [[0, '#1a2250'], [1, '#3a3a78']] : [[0, '#5a9ad0'], [1, light > 0.6 ? '#bfe0f0' : '#f8b878']], 4);
+    const h = Sky.hour(), a = Math.PI * (((h - 6) / 12) % 2 + 1);
+    const cx = W2 / 2 + Math.cos(a) * 9, cy = W2 - 6 + Math.sin(a) * 11;
+    if (night) { Art.ell(g, cx, cy, 4, 4, '#fff4d0'); Art.ell(g, cx + 2, cy - 1, 3, 3, '#3a3a78'); }
+    else { Art.ell(g, cx, cy, 5, 5, '#ffe070'); Art.ell(g, cx - 1, cy - 1, 3, 3, '#fff6c0'); }
+    g.fillStyle = '#4a8a32'; g.fillRect(0, W2 - 5, W2, 5); g.fillStyle = '#6aa84a'; g.fillRect(0, W2 - 5, W2, 1);
+    if (Sky.wet() > 0.1) { g.fillStyle = '#a8dcf8'; for (let i = 0; i < 6; i++) g.fillRect((i * 5 + Math.floor(t * 20)) % W2, (i * 7 + Math.floor(t * 40)) % (W2 - 6), 1, 2); }
   }
   function pickTool() { }
 
@@ -18663,6 +19020,7 @@ const UI = (() => {
     G = g;
     Tex.install();                         // wood, paper, metal and gold, painted not faked
     for (const k of ['base', 'hot', 'sel', 'paper', 'slot', 'slotsel']) document.documentElement.style.setProperty('--gf-' + k, `url(${goldFrameURL(k)})`);
+    document.documentElement.style.setProperty('--grain', `url(${grainURL()})`);
     document.querySelectorAll('img[data-ico]').forEach((el) => { el.src = Icons.url(el.dataset.ico); });
     $('b-back').onclick = () => { Audio.play('click'); Main.back(); };
     $('b-zin').onclick = () => { Audio.play('click'); Grove.zoomBy(1.24); refreshZoom(); };
@@ -18685,6 +19043,9 @@ const UI = (() => {
       if (e.key === 'Escape') { if (G.mode === 'intro') Intro.skip(); else closePanels(); }
     });
     $('b-music').textContent = G.musicOff ? 'MUTED' : 'MUSIC';
+    $('b-fx').onclick = () => { const on = Main.toggleShader(); $('b-fx').textContent = on ? 'SHADERS ON' : 'SHADERS OFF'; Audio.play('click'); };
+    $('b-fx').textContent = Shader.on ? 'SHADERS ON' : 'SHADERS OFF';
+    if (!Shader.ok) $('b-fx').hidden = true;
   }
   function setMode(mode) {
     const intro = mode === 'intro' || mode === 'menu';
@@ -19061,6 +19422,119 @@ const Menu = (() => {
   }
 
   return { init, enter, update, render, press, move, key, setSave, get page() { return page; } };
+})();
+</script>
+
+<script>
+// ===== js/shader.js =====
+// ---- Shader: a WebGL pass over the finished picture -----------------------------------
+// Every frame the 640x360 canvas is uploaded as a texture and drawn again
+// through one fragment shader, onto a second canvas laid exactly over it
+// (clicks go straight through to the game underneath). The shader works in
+// game pixels, so nothing smears:
+//   - bloom: bright things (lamps, fire, sun on water, the coin) glow a little
+//   - a grade: cool violet shadows, warm gold light, a touch more colour
+//   - texture: a fixed canvas-and-paper grain, one value per game pixel
+//   - night: a blue cast after dark, with the glow turned up
+//   - a soft vignette and a faint warm light from the upper left by day
+// No WebGL, or the player turns it off, and the plain canvas shows through.
+const Shader = (() => {
+  let gl = null, cv = null, src = null, prog = null, tex = null, U = {}, on = true, ok = false;
+  const game = () => (typeof window !== 'undefined' && window.G) || null;
+  const VS = `attribute vec2 p; varying vec2 v; void main(){ v = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }`;
+  const FS = `
+precision mediump float;
+uniform sampler2D u_tex; uniform vec2 u_res; uniform float u_night, u_day, u_warm, u_time;
+varying vec2 v;
+float hash(vec2 q){ return fract(sin(dot(q, vec2(127.1, 311.7))) * 43758.5453); }
+vec3 look(vec2 off){ return texture2D(u_tex, (floor(v * u_res) + 0.5 + off) / u_res).rgb; }
+void main(){
+  vec2 px = floor(v * u_res);
+  vec3 c = look(vec2(0.0));
+  // bloom: sixteen taps on two rings, keeping only what is bright
+  vec3 b = vec3(0.0);
+  for (int i = 0; i < 8; i++) {
+    float a = float(i) * 0.785398;
+    vec2 d = vec2(cos(a), sin(a));
+    b += max(look(d * 2.0) - 0.86, 0.0);
+    b += max(look(d * 5.0) - 0.86, 0.0) * 0.6;
+  }
+  // glow spills into what is darker than it; a big bright page stays a page
+  float l0 = dot(c, vec3(0.299, 0.587, 0.114));
+  c += b * (0.3 + u_night * 0.5) * (1.0 - l0);
+  // the grade: shadows toward violet, light toward gold
+  float l = dot(c, vec3(0.299, 0.587, 0.114));
+  vec3 shadow = c * vec3(0.93, 0.94, 1.07) + vec3(0.012, 0.0, 0.03);
+  vec3 lit = c * vec3(1.05, 1.02, 0.95);
+  c = mix(shadow, lit, smoothstep(0.18, 0.78, l));
+  c = mix(vec3(l), c, 1.08);                                    // a touch more colour
+  c = (c - 0.5) * 1.04 + 0.5;
+  // texture: a fine grain on every game pixel and a coarser weave under it
+  float g1 = hash(px) - 0.5, g2 = hash(floor(px / 3.0) + 17.0) - 0.5, g3 = hash(floor(px / 7.0) + 3.0) - 0.5;
+  c *= 1.0 + g1 * 0.045 + g2 * 0.03 + g3 * 0.02;
+  // after dark: a blue cast
+  c = mix(c, c * vec3(0.7, 0.78, 1.08), u_night * 0.45);
+  // by day: a faint warm light falling from the upper left
+  c += vec3(1.0, 0.86, 0.6) * 0.045 * u_day * u_warm * smoothstep(1.0, 0.0, length((v - vec2(0.18, 1.02)) * vec2(1.0, 1.4)));
+  // the vignette, soft and square-ish like a screen
+  vec2 e = abs(v - 0.5) * 2.0;
+  float vig = 1.0 - pow(max(e.x, e.y * 0.9), 6.0) * 0.18 - dot(v - 0.5, v - 0.5) * 0.28;
+  c *= vig;
+  gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);
+}`;
+  function compile(type, text) {
+    const s = gl.createShader(type); gl.shaderSource(s, text); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  // `off` is the saved setting; the pass is on unless the player turned it off
+  function init(canvas, off) {
+    src = canvas;
+    on = !off;
+    try {
+      cv = document.createElement('canvas');
+      cv.id = 'fx-gl';
+      cv.width = src.width; cv.height = src.height;           // one texel per game pixel; CSS does the scaling
+      gl = cv.getContext('webgl', { preserveDrawingBuffer: false, antialias: false, alpha: false });
+      if (!gl) return;
+      prog = gl.createProgram();
+      gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+      gl.useProgram(prog);
+      const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+      for (const [k, val] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, val);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      for (const n of ['u_tex', 'u_res', 'u_night', 'u_day', 'u_warm', 'u_time']) U[n] = gl.getUniformLocation(prog, n);
+      gl.uniform1i(U.u_tex, 0); gl.uniform2f(U.u_res, src.width, src.height);
+      gl.viewport(0, 0, cv.width, cv.height);
+      src.insertAdjacentElement('afterend', cv);
+      ok = true;
+      show();
+    } catch (e) {
+      ok = false; if (cv && cv.parentNode) cv.remove();
+      console.warn('shader pass off:', e.message);
+    }
+  }
+  function show() { if (cv) cv.style.display = ok && on ? 'block' : 'none'; }
+  function frame() {
+    if (!ok || !on) return;
+    const G = game();
+    const outdoors = G && (G.mode === 'grove' || G.mode === 'intro' || G.mode === 'menu' || G.mode === 'map');
+    const day = outdoors && typeof Sky !== 'undefined' && G.mode === 'grove' ? Sky.light() : outdoors ? 1 : 0.4;
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, src);
+    gl.uniform1f(U.u_night, G && G.mode === 'grove' ? Math.max(0, 1 - day * 1.6) : 0);
+    gl.uniform1f(U.u_day, day);
+    gl.uniform1f(U.u_warm, outdoors ? 1 : 0.4);
+    gl.uniform1f(U.u_time, (G && G.time) || 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+  function toggle() { on = !on; show(); return on; }
+  return { init, frame, toggle, get on() { return ok && on; }, get ok() { return ok; } };
 })();
 </script>
 
@@ -19482,6 +19956,7 @@ const Main = (() => {
     FX.drawCoins(g, false);           // money on its way to the corner
     FX.drawCinema(g, W, H);
     FX.drawTrees(g, W, H);            // the curtain sits above everything
+    Shader.frame();                   // and the shader pass over the finished picture
 
     if (Math.floor(G.time * 4) !== Math.floor((G.time - real) * 4)) {
       UI.refreshHUD();
@@ -19507,7 +19982,8 @@ const Main = (() => {
     slot = 1;
     for (const n of SLOTS) slotSaves[n] = await Store.boot(keyOf(n));
     booted = slotSaves[slot];
-    settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false }, Store.settings());
+    settings = Object.assign({ muted: false, musicOff: false, shake: true, bigText: false, fxOff: false }, Store.settings());
+    Shader.init(canvas, settings.fxOff);
     G = fresh();
     G.mode = 'menu';
     window.G = G;
@@ -19525,6 +20001,7 @@ const Main = (() => {
   if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', init);
   else init();
   return {
-    slotList, pickSlot, wipeSlot, get slot() { return slot; }, save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; } };
+    slotList, pickSlot, wipeSlot, get slot() { return slot; }, save, reset, setMode, back, openingBeats, toMenu, startGame, menuAction, get playing() { return playing; }, get settings() { return settings; }, get G() { return G; },
+    toggleShader() { const on = Shader.toggle(); settings.fxOff = !on; Store.putSettings(settings); return on; } };
 })();
 </script>

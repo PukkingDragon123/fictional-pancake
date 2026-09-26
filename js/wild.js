@@ -6,7 +6,7 @@
 // Three parts, all owned here so grove.js stays about wombats:
 //   TERRAIN   mounds you raise and ponds you dig, saved with the world
 //   CRITTERS  beetles, butterflies, bees, dragonflies, frogs, ants, a lizard
-//   VISITORS  Shaz, Groot and Captain Clark, who turn up, stay a while, talk
+//   VISITORS  Shaz, Groot and Captain Kirk, who turn up, stay a while, talk
 const Wild = (() => {
   let G = null;
   let W = 0, H = 0, GROUND = 0, walk = { y0: 0, y1: 0 };
@@ -480,7 +480,7 @@ const Wild = (() => {
       }),
     },
     {
-      key: 'clark', name: 'Captain Clark', why: 'on his constitutional',
+      key: 'clark', name: 'Captain Kirk', why: 'on his constitutional',
       sprite: (f, pose) => Sprites.villager('clark', f, pose === 'walk' ? 'walk' : pose === 'talk' ? 'talk' : 'idle'), sc: 1.5,
       poses: { walk: 'walk', idle: 'idle', talk: 'talk' },
       gift: () => { const n = 30 + Math.floor(Math.random() * 50); G.wd += n; return `the Captain left ${U.fmt(n)} W$ in a sardine tin`; },

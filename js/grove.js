@@ -817,7 +817,7 @@ const Grove = (() => {
         UI.refreshHUD(); return true;
       }
       const key = buildKey();
-      if (!key) { Audio.play('error'); UI.toast('nothing to put down &mdash; Captain Clark\'s Ottoman Empire sells furniture', 'bad'); return true; }
+      if (!key) { Audio.play('error'); UI.toast('nothing to put down &mdash; Captain Kirk\'s Ottoman Empire sells furniture', 'bad'); return true; }
       if (y < GROUND + 6 || y > GROUND + 190) { Audio.play('error'); UI.toast('not there', 'bad'); return true; }
       if (!G.furniture) G.furniture = [];
       G.furniture.push({ key, x: Math.round(x), y: Math.round(y) });
@@ -1237,6 +1237,28 @@ const Grove = (() => {
     }
     g.restore();
 
+    // pollen and thistledown drifting through the air by day, fireflies by night
+    {
+      const night = 1 - Sky.light(), tt = G.time;
+      for (let i = 0; i < 46; i++) {
+        const sx = (i * 137.5) % VW, sy = 40 + ((i * 71) % 250);
+        const vx = 6 + (i % 5) * 2.5;
+        const x = ((sx + tt * vx + Math.sin(tt * 0.6 + i) * 14) % (VW + 20) + VW + 20) % (VW + 20) - 10;
+        const y = sy + Math.sin(tt * (0.5 + (i % 3) * 0.2) + i * 1.7) * 10;
+        if (night > 0.55) {
+          if (i % 2) continue;
+          const pulse = 0.5 + 0.5 * Math.sin(tt * 2.2 + i * 2.3);
+          if (pulse < 0.25) continue;
+          Art.glow(g, x, y + 60, 6, '#d8ff70', 0.35 * pulse, 3);
+          g.fillStyle = '#f0ffb0'; g.fillRect(Math.round(x), Math.round(y + 60), 1, 1);
+        } else {
+          g.globalAlpha = 0.5 + 0.3 * Math.sin(tt * 1.3 + i);
+          g.fillStyle = i % 4 === 0 ? '#ffffff' : '#fff2b0';
+          g.fillRect(Math.round(x), Math.round(y), i % 6 === 0 ? 2 : 1, 1);
+          g.globalAlpha = 1;
+        }
+      }
+    }
     // No colour grade any more: the gold wash over everything read as a muddy
     // filter. Clean colours, like the cover art, and the barest warm edge.
     Art.vignette(g, VW, VH, '#3a2a14', 0.08, 2.6, 0.6);

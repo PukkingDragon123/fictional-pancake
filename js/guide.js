@@ -205,7 +205,7 @@ const Guide = (() => {
         'Lovely day for it.', 'I looked after this place for twenty years.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
-        'Hot one today.', 'The gum trees smell like home.', 'Captain Clark sells furniture. Mind the cat on his counter.', 'Clark reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
+        'Hot one today.', 'The gum trees smell like home.', 'Captain Kirk sells furniture. Mind the cat on his counter.', 'Kirk reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
       ] },
   ];
   let chatT = 14 + Math.random() * 10, lastChat = '';
@@ -306,7 +306,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Clark's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
+        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {

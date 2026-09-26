@@ -31,13 +31,18 @@ Creek, and up to the farm gate where Jim is waiting.
    hills with the right. Water poured into a hole stays and flows along any dug channel,
    so you can make ponds and creeks. Frogs move in.
 
-7. **Furnish it.** Captain Clark's Ottoman Empire, in town, sells every piece of furniture:
+7. **Furnish it.** Captain Kirk's Ottoman Empire, in town (Kirk is a robot in an I ♥ KIRK T-shirt), sells every piece of furniture:
    ottomans, a Chesterfield, a captain's armchair, lamps, rugs, a hammock, a ship's wheel,
    and the garden things too. Click the Captain to open his catalogue: his face on the
    left, the stock on the right in two tabs, and one click buys a piece.
 
 Jim tells you what to do next in a speech bubble and chats if you click him. Shaz from
-the mart, Groot and Captain Clark drop by now and then, the weather changes on its own, and a day is twelve minutes long.
+the mart, Groot and Captain Kirk drop by now and then, the weather changes on its own, and a day is twelve minutes long.
+
+The clock under your purse shows the time, the day and the weather. The picture goes
+through a WebGL shader pass (soft glow on lights, a warm and cool colour grade, a fixed
+paper-and-canvas grain, a blue cast at night). Turn it off with SHADERS in How to Play
+if your machine struggles; without WebGL the game simply draws without it.
 
 ## Controls
 
@@ -59,7 +64,7 @@ the mart, Groot and Captain Clark drop by now and then, the weather changes on i
 - `js/main.js` - state, the save, input and the main loop
 - `js/grove.js` - the garden scene: wombats, tools, the truck, plots
 - `js/world.js` - the painted ground, grass, weeds, crops, trees and fertiliser
-- `js/wild.js` - the shovel's height field and flowing water, critters, and visitors: Shaz, Groot and Captain Clark
+- `js/wild.js` - the shovel's height field and flowing water, critters, and visitors: Shaz, Groot and Captain Kirk
 - `js/guide.js` - Jim: the jobs, his lessons, the tools each job unlocks, the pointer arrow
 - `js/talk.js`, `js/portraits.js` - the dialogue box and the big 64x64 faces with moods
 - `js/uikit.js`, `css/theme.css` - the pixel farm-game interface, on canvas and in HTML
@@ -67,7 +72,9 @@ the mart, Groot and Captain Clark drop by now and then, the weather changes on i
 - `js/scenery.js` - the painted country: ranges, fields, forest, village, road, the car
 - `js/menu.js` - the title screen, driving through the forest
 - `js/intro.js` - the drive into Wombat Creek and up to the farm gate
-- `js/ottoman.js` - Captain Clark's Ottoman Empire and his catalogue
+- `js/ottoman.js` - Captain Kirk's Ottoman Empire and his catalogue
+- `js/kirk.js` - Captain Kirk, the robot: his figure and his portrait
+- `js/shader.js` - the WebGL pass over the finished picture: glow, colour grade, paper grain, night tint, vignette
 - `js/furnart.js` - the furniture, drawn pixel by pixel
 - `js/map.js`, `js/drive.js`, `js/shop.js`, `js/nursery.js` - the other scenes
 - `js/ui.js` - the HUD, the toolbar and the panels
@@ -78,5 +85,5 @@ the mart, Groot and Captain Clark drop by now and then, the weather changes on i
 
 `promo/cover.gif` (630x500) and `promo/banner.gif` (960x320) are looping pixel GIFs painted
 with the game's own sprites: the cover is the title with Jim and the wombats, the banner is
-Jim, Groot, Shaz and Captain Clark dancing and singing together. `promo/*.png` are stills. To redraw them, run
+Jim, Groot, Shaz and Captain Kirk dancing and singing together. `promo/*.png` are stills. To redraw them, run
 `node promo/render.js` (it needs Playwright).
