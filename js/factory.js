@@ -36,14 +36,14 @@ const Factory = (() => {
     feeder:    { name: 'Wombat Feeder', cat: 'utility', cost: 110, blurb: 'Takes carrots off a belt and feeds any hungry wombat nearby.' },
     sprinkler: { name: 'Sprinkler', cat: 'utility', cost: 90,  blurb: 'Waters the beds and grass around it every few seconds.' },
     lamp:      { name: 'Yard Lamp', cat: 'utility', cost: 40,  blurb: 'A lamp on a post. Lights the yard at night; the wombats like it.' },
-    // one for each place you can buy out past the farm
-    fishtrap:  { name: 'Fish Trap', cat: 'factory', cost: 320, need: 'lake', blurb: 'A wire trap off Still Lake. Catches a fish every little while, all on its own.' },
-    shroomlog: { name: 'Mushroom Log', cat: 'factory', cost: 380, need: 'wood', blurb: 'A Blackwood log. Feed it fertiliser and it sprouts mushrooms, two a bag.' },
-    beehive:   { name: 'Beehive', cat: 'factory', cost: 460, need: 'gully', blurb: 'Bees from Fern Gully. They make honey and ask for nothing.' },
+    // one for each plot you expand the farm onto
+    fishtrap:  { name: 'Fish Trap', cat: 'factory', cost: 320, need: 'far_west', blurb: 'A wire trap in the old quarry pond. Catches a fish every little while, all on its own.' },
+    shroomlog: { name: 'Mushroom Log', cat: 'factory', cost: 380, need: 'west', blurb: 'A log from Fern Hollow. Feed it fertiliser and it sprouts mushrooms, two a bag.' },
+    beehive:   { name: 'Beehive', cat: 'factory', cost: 460, need: 'east', blurb: 'Bees off Stone Ridge. They make honey and ask for nothing.' },
   };
   const ORDER = ['belt', 'hopper', 'mill', 'grow', 'depot', 'splitter', 'fishtrap', 'shroomlog', 'beehive', 'chest', 'feeder', 'sprinkler', 'lamp'];
   const PRICE = { cube: 3, rich: 6, fert: 10, veg: 16, fish: 22, shroom: 15, honey: 20 };
-  const unlocked = (k) => !DEFS[k].need || (typeof Explore !== 'undefined' && Explore.owned(DEFS[k].need));
+  const unlocked = (k) => !DEFS[k].need || ownsPlot(G, DEFS[k].need);          // expand the farm onto that plot
   const priceOf = (it) => it.k === 'cube' ? (it.sub === 'rich' ? PRICE.rich : PRICE.cube) : PRICE[it.k] || 1;
   const NAMES = { cube: 'poop cube', fert: 'fertiliser', veg: 'carrot', fish: 'fish', shroom: 'mushroom', honey: 'jar of honey' };
 
@@ -84,7 +84,7 @@ const Factory = (() => {
   const open = () => !!G && (G.boughtFurn || Object.keys(G.crates || {}).length > 0 || (G.furniture || []).length > 0);
   function buy(k, n = 1) {
     const d = DEFS[k]; if (!d) return false;
-    if (!unlocked(k)) { Audio.play('error'); UI.toast('buy the land it comes from first', 'bad'); return false; }
+    if (!unlocked(k)) { Audio.play('error'); UI.toast(`buy <b>${PLOT_BY_KEY[DEFS[k].need].name}</b> first`, 'bad'); return false; }
     const cost = d.cost * n;
     if (G.wd < cost) { Audio.play('error'); UI.toast(`need <b>${cost} W$</b>`, 'bad'); return false; }
     G.wd -= cost;
@@ -661,7 +661,7 @@ const Factory = (() => {
     } else {
       for (const k of ORDER.filter((q) => DEFS[q].cat === tab)) {
         const d = DEFS[k], n = inv(k), five = k === 'belt' ? 5 : 1, cost = d.cost * five;
-        const pl = d.need && typeof Explore !== 'undefined' ? Explore.PLACES[d.need] : null;
+        const pl = d.need ? PLOT_BY_KEY[d.need] : null;
         out.push(card(k, { cat: d.cat, name: d.name, img: iconURL(k), have: n, tag: TAG[k] + (five > 1 ? ' &middot; x5' : ''), title: d.blurb,
           locked: !unlocked(k), lockText: pl ? pl.name : '',
           btn: `<button class="dcc-btn buy" data-bbuy="${k}" ${G.wd >= cost ? '' : 'disabled'}>${coin()} ${U.fmt(cost)}</button>` }));

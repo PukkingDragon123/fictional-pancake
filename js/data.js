@@ -205,9 +205,6 @@ const SITES = [
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0 },
   { key: 'ottoman', name: 'Ottoman Empire',  x: 396, y: 270, icon: 'd_ottoman',  mode: 'ottoman', need: 0 },
   // out past the farm: places to walk, forage and buy
-  { key: 'lake',  name: 'Still Lake', x: 566, y: 74,  icon: 't_water', mode: 'explore', place: 'lake', need: 0 },
-  { key: 'wood',  name: 'Blackwood',  x: 560, y: 262, icon: 'tree', mode: 'explore', place: 'wood', need: 0 },
-  { key: 'gully', name: 'Fern Gully', x: 118, y: 108, icon: 'c_whisperfern', mode: 'explore', place: 'gully', need: 0 },
 ];
 
 // ---- Things to buy with W$ ------------------------------------------------

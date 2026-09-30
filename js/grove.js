@@ -1383,7 +1383,8 @@ const Grove = (() => {
     FX.burst(cx, 300, 30, PAL.gold2);
     FX.comic(cx, 250, 'YOURS!');
     FX.float(cx, 276, `-${p.cost}`, { color: PAL.gold2 });
-    UI.toast(`<b>${p.name}</b> is yours`, 'good');
+    const nb = typeof Factory !== 'undefined' && Object.entries(Factory.DEFS).find(([, d]) => d.need === p.key);
+    UI.toast(`<b>${p.name}</b> is yours${nb ? ` &middot; <b>${nb[1].name}</b> unlocked in Build` : ''}`, 'good');
     panTo(cx);
     clampCam();
     UI.refreshTray();

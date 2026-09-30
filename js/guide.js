@@ -334,7 +334,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. Still Lake, Blackwood and Fern Gully are out past the farm, worth a wander, and for sale. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
+        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. The land either side of the farm is for sale: every plot you buy makes the farm bigger and unlocks something new to build. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {

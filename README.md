@@ -42,10 +42,9 @@ Creek, and up to the farm gate where Mr Biscuit is waiting.
    House (two carrots a bag), then a Pickup Point sells whatever arrives. Splitters, Storage
    Crates, a Wombat Feeder that hands carrots to hungry wombats, Sprinklers and Yard Lamps
    help out.
-9. **Go exploring.** Still Lake, Blackwood and Fern Gully are on the map: long painted places
-   to drag along, with things lying about to pick up for W$ (new ones each day). Each is for
-   sale; buy it and you find twice as much there, and it unlocks a building of its own: a Fish
-   Trap, a Mushroom Log or a Beehive.
+9. **Grow the farm.** The plots either side of home are for sale. Each one widens the land you
+   can work, makes room for more wombats and unlocks a building: the Mushroom Log (Fern Hollow),
+   the Beehive (Stone Ridge) and the Fish Trap (Old Quarry Side).
 
 Mr Biscuit tells you what to do next in a speech bubble and chats if you click him. Mr Biscuit is a very round, very clever pug in a three-piece suit. Shaz from
 the mart, Groot and Captain Kirk drop by now and then, the weather changes on its own, and a day is twelve minutes long.
@@ -88,7 +87,6 @@ if your machine struggles; without WebGL the game simply draws without it.
 - `js/kirk.js` - Captain Kirk, the robot: his figure and his portrait
 - `js/pug.js`, `js/cast.js` - Mr Biscuit the pug, and Shaz, Groot and Captain Kirk, and portraits for Shaz and Groot
 - `js/factory.js` - the machines, belts, the Build menu and the poop economy
-- `js/explore.js` - Still Lake, Blackwood and Fern Gully
 - `js/shader.js` - the WebGL pass over the finished picture: glow, colour grade, paper grain, night tint, vignette
 - `js/furnart.js` - the furniture, drawn pixel by pixel
 - `js/map.js`, `js/drive.js`, `js/shop.js`, `js/nursery.js` - the other scenes

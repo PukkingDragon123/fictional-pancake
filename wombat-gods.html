@@ -1504,7 +1504,7 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
         <li>Cut weeds, clear logs, sow grass. A wombat comes!</li>
         <li>Grow veg, feed wombats, collect their <b>cube poop</b>.</li>
         <li>Buy furniture from <b>Captain Kirk</b>, then <b>BUILD</b> (<b>B</b>) a poop factory. <b>R</b> rotates.</li>
-        <li>Explore <b>Still Lake</b>, <b>Blackwood</b> and <b>Fern Gully</b> on the map (<b>M</b>).</li>
+        <li>Buy the <b>FOR SALE</b> plots either side to grow your farm and unlock new buildings.</li>
       </ol>
       <div class="row"><button class="wbtn" id="b-music">MUSIC</button><button class="wbtn" id="b-fx">SHADERS ON</button><button class="wbtn" id="b-reset">RESET</button></div>
     </div>
@@ -9339,9 +9339,6 @@ const SITES = [
   { key: 'nursery', name: 'Groot\'s Cellar', x: 236, y: 330, icon: 'c_ashgrass', mode: 'nursery', need: 0 },
   { key: 'ottoman', name: 'Ottoman Empire',  x: 396, y: 270, icon: 'd_ottoman',  mode: 'ottoman', need: 0 },
   // out past the farm: places to walk, forage and buy
-  { key: 'lake',  name: 'Still Lake', x: 566, y: 74,  icon: 't_water', mode: 'explore', place: 'lake', need: 0 },
-  { key: 'wood',  name: 'Blackwood',  x: 560, y: 262, icon: 'tree', mode: 'explore', place: 'wood', need: 0 },
-  { key: 'gully', name: 'Fern Gully', x: 118, y: 108, icon: 'c_whisperfern', mode: 'explore', place: 'gully', need: 0 },
 ];
 
 // ---- Things to buy with W$ ------------------------------------------------
@@ -13238,7 +13235,8 @@ const Grove = (() => {
     FX.burst(cx, 300, 30, PAL.gold2);
     FX.comic(cx, 250, 'YOURS!');
     FX.float(cx, 276, `-${p.cost}`, { color: PAL.gold2 });
-    UI.toast(`<b>${p.name}</b> is yours`, 'good');
+    const nb = typeof Factory !== 'undefined' && Object.entries(Factory.DEFS).find(([, d]) => d.need === p.key);
+    UI.toast(`<b>${p.name}</b> is yours${nb ? ` &middot; <b>${nb[1].name}</b> unlocked in Build` : ''}`, 'good');
     panTo(cx);
     clampCam();
     UI.refreshTray();
@@ -18790,7 +18788,7 @@ const Guide = (() => {
       },
       money: {
         mood: 'talk',
-        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. Still Lake, Blackwood and Fern Gully are out past the farm, worth a wander, and for sale. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
+        say: "Wombat Mart for tools and more wombats. Groot for seed and saplings. Captain Kirk's Ottoman Empire for furniture. The land either side of the farm is for sale: every plot you buy makes the farm bigger and unlocks something new to build. I buy cubes. The gumball machine takes one coin and is terribly exciting.",
         opts: [{ q: 'Is the lottery worth it?', to: 'lotto' }, { q: 'Back.', to: 'hub' }],
       },
       lotto: {
@@ -20743,14 +20741,14 @@ const Factory = (() => {
     feeder:    { name: 'Wombat Feeder', cat: 'utility', cost: 110, blurb: 'Takes carrots off a belt and feeds any hungry wombat nearby.' },
     sprinkler: { name: 'Sprinkler', cat: 'utility', cost: 90,  blurb: 'Waters the beds and grass around it every few seconds.' },
     lamp:      { name: 'Yard Lamp', cat: 'utility', cost: 40,  blurb: 'A lamp on a post. Lights the yard at night; the wombats like it.' },
-    // one for each place you can buy out past the farm
-    fishtrap:  { name: 'Fish Trap', cat: 'factory', cost: 320, need: 'lake', blurb: 'A wire trap off Still Lake. Catches a fish every little while, all on its own.' },
-    shroomlog: { name: 'Mushroom Log', cat: 'factory', cost: 380, need: 'wood', blurb: 'A Blackwood log. Feed it fertiliser and it sprouts mushrooms, two a bag.' },
-    beehive:   { name: 'Beehive', cat: 'factory', cost: 460, need: 'gully', blurb: 'Bees from Fern Gully. They make honey and ask for nothing.' },
+    // one for each plot you expand the farm onto
+    fishtrap:  { name: 'Fish Trap', cat: 'factory', cost: 320, need: 'far_west', blurb: 'A wire trap in the old quarry pond. Catches a fish every little while, all on its own.' },
+    shroomlog: { name: 'Mushroom Log', cat: 'factory', cost: 380, need: 'west', blurb: 'A log from Fern Hollow. Feed it fertiliser and it sprouts mushrooms, two a bag.' },
+    beehive:   { name: 'Beehive', cat: 'factory', cost: 460, need: 'east', blurb: 'Bees off Stone Ridge. They make honey and ask for nothing.' },
   };
   const ORDER = ['belt', 'hopper', 'mill', 'grow', 'depot', 'splitter', 'fishtrap', 'shroomlog', 'beehive', 'chest', 'feeder', 'sprinkler', 'lamp'];
   const PRICE = { cube: 3, rich: 6, fert: 10, veg: 16, fish: 22, shroom: 15, honey: 20 };
-  const unlocked = (k) => !DEFS[k].need || (typeof Explore !== 'undefined' && Explore.owned(DEFS[k].need));
+  const unlocked = (k) => !DEFS[k].need || ownsPlot(G, DEFS[k].need);          // expand the farm onto that plot
   const priceOf = (it) => it.k === 'cube' ? (it.sub === 'rich' ? PRICE.rich : PRICE.cube) : PRICE[it.k] || 1;
   const NAMES = { cube: 'poop cube', fert: 'fertiliser', veg: 'carrot', fish: 'fish', shroom: 'mushroom', honey: 'jar of honey' };
 
@@ -20791,7 +20789,7 @@ const Factory = (() => {
   const open = () => !!G && (G.boughtFurn || Object.keys(G.crates || {}).length > 0 || (G.furniture || []).length > 0);
   function buy(k, n = 1) {
     const d = DEFS[k]; if (!d) return false;
-    if (!unlocked(k)) { Audio.play('error'); UI.toast('buy the land it comes from first', 'bad'); return false; }
+    if (!unlocked(k)) { Audio.play('error'); UI.toast(`buy <b>${PLOT_BY_KEY[DEFS[k].need].name}</b> first`, 'bad'); return false; }
     const cost = d.cost * n;
     if (G.wd < cost) { Audio.play('error'); UI.toast(`need <b>${cost} W$</b>`, 'bad'); return false; }
     G.wd -= cost;
@@ -21368,7 +21366,7 @@ const Factory = (() => {
     } else {
       for (const k of ORDER.filter((q) => DEFS[q].cat === tab)) {
         const d = DEFS[k], n = inv(k), five = k === 'belt' ? 5 : 1, cost = d.cost * five;
-        const pl = d.need && typeof Explore !== 'undefined' ? Explore.PLACES[d.need] : null;
+        const pl = d.need ? PLOT_BY_KEY[d.need] : null;
         out.push(card(k, { cat: d.cat, name: d.name, img: iconURL(k), have: n, tag: TAG[k] + (five > 1 ? ' &middot; x5' : ''), title: d.blurb,
           locked: !unlocked(k), lockText: pl ? pl.name : '',
           btn: `<button class="dcc-btn buy" data-bbuy="${k}" ${G.wd >= cost ? '' : 'disabled'}>${coin()} ${U.fmt(cost)}</button>` }));
