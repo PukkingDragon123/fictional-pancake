@@ -299,8 +299,12 @@ const Art = (() => {
       g.fillRect(Math.round(cx + Math.cos(a) * rx * r), Math.round(cy + Math.sin(a) * ry * r), 1, 1);
     }
   }
-  // Add a 1px outline around every opaque pixel (cartoony ink line)
-  function outline(canvas, col = PAL.ink, alpha = 1) {
+  // Add a 1px outline around every opaque pixel. Every drawn thing in the game
+  // wears the same line, one colour, so whatever colour a caller asks for the
+  // line comes out as INK: the pug, the wombats, the trees and the buildings match.
+  const INK = '#0b0806';
+  function outline(canvas, col = INK, alpha = 1) {
+    col = INK;
     const g = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
     const src = g.getImageData(0, 0, w, h);
@@ -413,6 +417,6 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng, silhouette, castShadow,
+  return { INK, cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng, silhouette, castShadow,
     dither, ditherEll, glow, vignette, vramp, sampleStops, vband, hband, stroke, curve, ring };
 })();

@@ -4,7 +4,7 @@
 // Both change face with the mood the dialogue asks for, blink, and talk.
 const Busts = (() => {
   const cache = new Map();
-  const INK = '#1a1420';
+  const INK = '#0b0806';
   const EYES = {
     talk: 'open', idle: 'open', happy: 'happy', laugh: 'happy', proud: 'happy', think: 'side', worry: 'wide', sad: 'sad',
     cross: 'cross', shock: 'wide', sly: 'half', tired: 'shut', curious: 'wide', surprise: 'wide', sleepy: 'shut',

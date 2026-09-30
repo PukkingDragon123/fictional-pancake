@@ -371,6 +371,8 @@ const Scenery = (() => {
       patch: paintPatch(), paddock: paintPaddock(), forest: paintForest(),
       verge: paintVerge(), fence: paintFence(), road: paintRoad(), grass: paintNear(),
     };
+    // the near layers wear the same black line as everything in the game; the far hills stay soft
+    for (const k of ['paddock', 'forest', 'verge', 'fence', 'grass']) Art.outline(built[k]);
     return built;
   }
 
@@ -418,6 +420,7 @@ const Scenery = (() => {
     if (kind === 'house') out = house(r, v);
     else if (kind === 'church') out = church();
     else out = shop(kind, r);
+    if (out && out.img) Art.outline(out.img);
     bcache.set(key, out);
     return out;
   }

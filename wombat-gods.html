@@ -2080,8 +2080,12 @@ const Art = (() => {
       g.fillRect(Math.round(cx + Math.cos(a) * rx * r), Math.round(cy + Math.sin(a) * ry * r), 1, 1);
     }
   }
-  // Add a 1px outline around every opaque pixel (cartoony ink line)
-  function outline(canvas, col = PAL.ink, alpha = 1) {
+  // Add a 1px outline around every opaque pixel. Every drawn thing in the game
+  // wears the same line, one colour, so whatever colour a caller asks for the
+  // line comes out as INK: the pug, the wombats, the trees and the buildings match.
+  const INK = '#0b0806';
+  function outline(canvas, col = INK, alpha = 1) {
+    col = INK;
     const g = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
     const src = g.getImageData(0, 0, w, h);
@@ -2194,7 +2198,7 @@ const Art = (() => {
     let s = (seed | 0) || 1;
     return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   }
-  return { cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng, silhouette, castShadow,
+  return { INK, cv, ell, ellBand, rect, panel, line, poly, limb, speckle, outline, topLight, texture, underShade, flip, tinted, rng, silhouette, castShadow,
     dither, ditherEll, glow, vignette, vramp, sampleStops, vband, hband, stroke, curve, ring };
 })();
 </script>
@@ -8136,7 +8140,7 @@ const Kirk = (() => {
   const cache = new Map();
   const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
   const P = (g, x, y, c) => R(g, x, y, 1, 1, c);
-  const INK = '#1a1420';
+  const INK = '#0b0806';
   const STEEL = ['#2a3244', '#4a5874', '#7486a8', '#a8b8d4', '#dce6f6'];
   const HAIR = ['#4a2410', '#7a4018', '#b06428', '#e0983e'];
   const SHIRT = ['#c8c0b0', '#e8e2d6', '#fbf8f0'];
@@ -8343,7 +8347,7 @@ const Kirk = (() => {
 // the game flips him to walk left.
 const Pug = (() => {
   const cache = new Map();
-  const INK = '#1c130d';
+  const INK = '#0b0806';
   const FUR = ['#7a5634', '#a07a50', '#c29e70', '#dcbd8e', '#ecd6ae'];     // fawn, dark to light
   const MASK = ['#140e0b', '#261b15', '#3a2b22', '#54423a'];               // the black of the face and ears
   const SUIT = ['#1d2027', '#2a2e37', '#393e4a', '#4d5361', '#646b7a'];    // charcoal wool
@@ -8438,12 +8442,12 @@ const Pug = (() => {
     const S2 = Math.sin(t * TAU), A2 = Math.abs(Math.sin(t * TAU * 2));
     // hands are offsets from the shoulder; negative y is up
     let bob = 0, step = 0, sit = 0, sway = 0, tilt = 0, eyes = null, jig = 0;
-    let hl = [-5, 14], hr = [5, 14];                      // at rest the paws hang down by his middle
+    let hl = [-3, 8], hr = [3, 8];                        // at rest the paws hang down by his middle
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-5, 14 + S2 * 0.5]; hr = [5, 14 - S2 * 0.5]; jig = [0, 0, 1, 1, 0, 0][f] || 0; break;
+      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-3, 8 + S2 * 0.5]; hr = [3, 8 - S2 * 0.5]; jig = [0, 0, 1, 1, 0, 0][f] || 0; break;
       case 'walk': case 'run': {
         const q = pose === 'run' ? 1.4 : 1;                 // a waddle: the whole pug rocks side to side
-        bob = -A2 * 1.6 * q; step = S2 * 2 * q; sway = S2 * 1.2 * q; hl = [-5 + S2 * 2 * q, 13 - Math.abs(S2) * q]; hr = [5 - S2 * 2 * q, 13 - Math.abs(S2) * q]; jig = Math.round(A2); break;
+        bob = -A2 * 1.6 * q; step = S2 * 2 * q; sway = S2 * 1.2 * q; hl = [-3 + S2 * 2 * q, 7.5 - Math.abs(S2) * q]; hr = [3 - S2 * 2 * q, 7.5 - Math.abs(S2) * q]; jig = Math.round(A2); break;
       }
       case 'turn': break;
       case 'jump': bob = [1, -7, -11, -7, 1][f] || 0; hl = [-8, -9]; hr = [8, -9]; jig = f === 2 ? -1 : 1; break;
@@ -8456,10 +8460,10 @@ const Pug = (() => {
       case 'shrug': { const q = [0, 4, 5, 2][f] || 0; hl = [-6 - q, 6 - q]; hr = [6 + q, 6 - q]; break; }
       case 'nod': bob = [0, 1, 2, 2, 1, 0][f] || 0; break;
       case 'shake': tilt = Math.sin(t * TAU * 2) * 1.6; break;
-      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-3, 14]; hr = [3, 14]; eyes = 'shut'; break;
+      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-1, 8]; hr = [1, 8]; eyes = 'shut'; break;
       case 'hurt': bob = [2, 1, 0][f] || 0; hl = [-7, 2]; hr = [7, 2]; eyes = 'wide'; break;
-      case 'sulk': bob = 1; hl = [-3, 14]; hr = [3, 14]; break;
-      case 'sit': sit = 1; hl = [-5, 11]; hr = [5, 11]; break;
+      case 'sulk': bob = 1; hl = [-1, 8]; hr = [1, 8]; break;
+      case 'sit': sit = 1; hl = [-3, 6]; hr = [3, 6]; break;
       case 'sleep': sit = 1; hl = [-2, 8]; hr = [2, 8]; eyes = 'shut'; tilt = 1.5; break;
     }
     const [eyeKind, mouthKind] = FACE[mood] || FACE.idle;
@@ -8487,11 +8491,11 @@ const Pug = (() => {
     }
 
     // ---- arms: suit sleeves, a shirt cuff, a fawn paw
-    const shY = 47 + y0;
+    const shY = 53 + y0;                                  // his arms come out of the middle of him, not up under the chin
     const arm = (s2, hand) => {
       // a soft noodle arm: one smooth curve from shoulder to paw, bowed outward,
       // sagging with its own weight and trailing a beat behind the paw (follow-through)
-      const sx = cx + s2 * 9, hx = sx + hand[0] * 0.9, hy = shY + hand[1];
+      const sx = cx + s2 * 8.5, hx = sx + hand[0] * 0.9, hy = shY + hand[1] - (hand[1] < 5 ? 5 : 0);   // raised paws keep their old height
       const lag = Math.sin(t * TAU * 2 - 1.1 + s2 * 0.6) * 1.3;
       const len = Math.hypot(hx - sx, hy - shY) || 1;
       const nx = -(hy - shY) / len * s2, ny = (hx - sx) / len * s2;          // outward normal
@@ -8637,7 +8641,7 @@ const Pug = (() => {
 // Both change face with the mood the dialogue asks for, blink, and talk.
 const Busts = (() => {
   const cache = new Map();
-  const INK = '#1a1420';
+  const INK = '#0b0806';
   const EYES = {
     talk: 'open', idle: 'open', happy: 'happy', laugh: 'happy', proud: 'happy', think: 'side', worry: 'wide', sad: 'sad',
     cross: 'cross', shock: 'wide', sly: 'half', tired: 'shut', curious: 'wide', surprise: 'wide', sleepy: 'shut',
@@ -8778,7 +8782,7 @@ const Busts = (() => {
 const Cast = (() => {
   const cache = new Map();
   const TAU = Math.PI * 2;
-  const INK = '#1c130d';
+  const INK = '#0b0806';
   const kit = (g) => {
     const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
     return { g, R, P: (x, y, col) => R(x, y, 1, 1, col), E: (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col) };
@@ -14021,6 +14025,8 @@ const Scenery = (() => {
       patch: paintPatch(), paddock: paintPaddock(), forest: paintForest(),
       verge: paintVerge(), fence: paintFence(), road: paintRoad(), grass: paintNear(),
     };
+    // the near layers wear the same black line as everything in the game; the far hills stay soft
+    for (const k of ['paddock', 'forest', 'verge', 'fence', 'grass']) Art.outline(built[k]);
     return built;
   }
 
@@ -14068,6 +14074,7 @@ const Scenery = (() => {
     if (kind === 'house') out = house(r, v);
     else if (kind === 'church') out = church();
     else out = shop(kind, r);
+    if (out && out.img) Art.outline(out.img);
     bcache.set(key, out);
     return out;
   }
@@ -20718,7 +20725,7 @@ const Factory = (() => {
   const T = 24, OY = 152, ROWS = 11;                   // tile size, top of the grid, rows down the floor
   const MS = 1.3;                                      // machines are drawn this much bigger than their art
   const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];     // right, down, left, up
-  const INK = '#1a1420';
+  const INK = '#0b0806';
   let G = null;
   let grid = new Map();                                 // "c,r" -> building
   let mode = null;                                      // { key, rot } placing | { pick: true }
@@ -21605,6 +21612,7 @@ const Explore = (() => {
         for (let j = 0; j < 7; j++) { const a = -Math.PI + 0.3 + (j / 6) * (Math.PI - 0.6); frond(near.g, x, y, a, 18 + r() * 10, (a < -Math.PI / 2 ? -1 : 1) * 1.4, '#2e6a2a', j % 2 ? '#4a9a3a' : '#7ac860'); }
       }
     }
+    Art.outline(mid.c); Art.outline(near.c);                 // the same black line as the rest of the game
     layers[k] = { sky: sky.c, far: far.c, mid: mid.c, near: near.c };
     return layers[k];
   }
@@ -21635,21 +21643,21 @@ const Explore = (() => {
     if (Math.floor(tt * 2 + x) % 3 === 0) { R(x + 6, y - 14, 1, 3, '#ffffff'); R(x + 5, y - 13, 3, 1, '#ffffff'); }
     const key = PLACES[k].finds[i][0];
     switch (key) {
-      case 'shell': E(x, y - 3, 5, 3, '#1a1420'); E(x, y - 3, 4, 2.4, '#f0d0c0'); for (let j = -3; j <= 3; j += 2) R(x + j, y - 5, 1, 3, '#c8a098'); break;
-      case 'stone': E(x, y - 3, 5, 3, '#1a1420'); E(x, y - 3, 4.2, 2.4, '#9a9aa8'); R(x - 2, y - 5, 3, 1, '#d8d8e0'); break;
-      case 'feather': for (let j = 0; j < 9; j++) R(x - 4 + j, y - 2 - j * 0.6, 2, 2, j % 2 ? '#f4f0e8' : '#c8c0b0'); R(x - 5, y - 1, 1, 1, '#1a1420'); break;
+      case 'shell': E(x, y - 3, 5, 3, '#0b0806'); E(x, y - 3, 4, 2.4, '#f0d0c0'); for (let j = -3; j <= 3; j += 2) R(x + j, y - 5, 1, 3, '#c8a098'); break;
+      case 'stone': E(x, y - 3, 5, 3, '#0b0806'); E(x, y - 3, 4.2, 2.4, '#9a9aa8'); R(x - 2, y - 5, 3, 1, '#d8d8e0'); break;
+      case 'feather': for (let j = 0; j < 9; j++) R(x - 4 + j, y - 2 - j * 0.6, 2, 2, j % 2 ? '#f4f0e8' : '#c8c0b0'); R(x - 5, y - 1, 1, 1, '#0b0806'); break;
       case 'lily': E(x, y - 2, 6, 2.5, '#2e6a2a'); for (let j = 0; j < 5; j++) E(x + (j - 2) * 2, y - 5 - (j % 2), 1.6, 2.4, '#f8b0c8'); E(x, y - 5, 1.4, 1.4, '#ffe070'); break;
-      case 'bottle': R(x - 5, y - 6, 10, 5, '#1a1420'); R(x - 4, y - 5, 8, 3, '#7ac8a8'); R(x + 4, y - 5, 3, 2, '#c8a060'); R(x - 2, y - 4, 4, 1, '#fff4d0'); break;
-      case 'mushroom': R(x - 1, y - 5, 2, 5, '#f0e8d0'); E(x, y - 6, 5, 3, '#1a1420'); E(x, y - 6, 4, 2.4, '#d8402c'); R(x - 2, y - 7, 1, 1, '#ffffff'); R(x + 1, y - 6, 1, 1, '#ffffff'); break;
-      case 'pinecone': E(x, y - 4, 3, 5, '#1a1420'); E(x, y - 4, 2.4, 4.2, '#8a5a30'); for (let j = 0; j < 3; j++) R(x - 2, y - 7 + j * 3, 4, 1, '#5a3a1e'); break;
-      case 'moss': E(x, y - 2, 6, 3, '#1a1420'); E(x, y - 2, 5, 2.4, '#5aa03e'); R(x - 2, y - 4, 3, 1, '#8ad060'); break;
+      case 'bottle': R(x - 5, y - 6, 10, 5, '#0b0806'); R(x - 4, y - 5, 8, 3, '#7ac8a8'); R(x + 4, y - 5, 3, 2, '#c8a060'); R(x - 2, y - 4, 4, 1, '#fff4d0'); break;
+      case 'mushroom': R(x - 1, y - 5, 2, 5, '#f0e8d0'); E(x, y - 6, 5, 3, '#0b0806'); E(x, y - 6, 4, 2.4, '#d8402c'); R(x - 2, y - 7, 1, 1, '#ffffff'); R(x + 1, y - 6, 1, 1, '#ffffff'); break;
+      case 'pinecone': E(x, y - 4, 3, 5, '#0b0806'); E(x, y - 4, 2.4, 4.2, '#8a5a30'); for (let j = 0; j < 3; j++) R(x - 2, y - 7 + j * 3, 4, 1, '#5a3a1e'); break;
+      case 'moss': E(x, y - 2, 6, 3, '#0b0806'); E(x, y - 2, 5, 2.4, '#5aa03e'); R(x - 2, y - 4, 3, 1, '#8ad060'); break;
       case 'antler': for (let j = 0; j < 10; j++) R(x - 5 + j, y - 2 - Math.abs(j - 5) * 0.8, 2, 2, '#e8dcc0'); R(x - 3, y - 7, 1, 3, '#e8dcc0'); R(x + 3, y - 7, 1, 3, '#e8dcc0'); break;
-      case 'truffle': E(x, y - 3, 5, 4, '#1a1420'); E(x, y - 3, 4, 3.2, '#3a2a20'); R(x - 1, y - 5, 1, 1, '#6a5a4a'); R(x + 2, y - 3, 1, 1, '#6a5a4a'); break;
+      case 'truffle': E(x, y - 3, 5, 4, '#0b0806'); E(x, y - 3, 4, 3.2, '#3a2a20'); R(x - 1, y - 5, 1, 1, '#6a5a4a'); R(x + 2, y - 3, 1, 1, '#6a5a4a'); break;
       case 'frond': for (let j = 0; j < 8; j++) { R(x - 4 + j, y - 1 - j, 1, 1, '#2e6a2a'); R(x - 5 + j, y - 3 - j, 3, 1, '#5ab050'); } break;
-      case 'berry': for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 1]]) { E(x + dx, y - 3 + dy, 2.2, 2.2, '#1a1420'); E(x + dx, y - 3 + dy, 1.6, 1.6, '#8a2a8a'); } R(x - 1, y - 7, 2, 2, '#4a8a32'); break;
+      case 'berry': for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 1]]) { E(x + dx, y - 3 + dy, 2.2, 2.2, '#0b0806'); E(x + dx, y - 3 + dy, 1.6, 1.6, '#8a2a8a'); } R(x - 1, y - 7, 2, 2, '#4a8a32'); break;
       case 'orchid': R(x, y - 8, 1, 8, '#4a8a32'); for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) E(x + dx, y - 9 + dy, 1.8, 1.8, '#e8a8f0'); E(x, y - 9, 1.2, 1.2, '#ffe070'); break;
       case 'lyre': for (let j = 0; j < 12; j++) R(x - 6 + j, y - 2 - Math.sin(j * 0.4) * 6, 2, 2, j % 3 ? '#8a6a4a' : '#e8d8b0'); break;
-      case 'crystal': Art.poly(g, [[x - 4, y], [x - 2, y - 10], [x + 1, y], [x + 2, y - 7], [x + 5, y]], '#1a1420'); Art.poly(g, [[x - 3, y - 1], [x - 2, y - 8], [x, y - 1]], '#8ae0f0'); Art.poly(g, [[x + 1, y - 1], [x + 2, y - 5], [x + 4, y - 1]], '#c0f4ff'); break;
+      case 'crystal': Art.poly(g, [[x - 4, y], [x - 2, y - 10], [x + 1, y], [x + 2, y - 7], [x + 5, y]], '#0b0806'); Art.poly(g, [[x - 3, y - 1], [x - 2, y - 8], [x, y - 1]], '#8ae0f0'); Art.poly(g, [[x + 1, y - 1], [x + 2, y - 5], [x + 4, y - 1]], '#c0f4ff'); break;
     }
   }
   function collect(it) {
@@ -21738,7 +21746,7 @@ const Explore = (() => {
       for (let i = 0; i < 3; i++) {                                           // ducks paddling round
         const u = ((t * 0.02 + i * 0.33) % 1), x = 200 + u * (WW - 400) - S, y = 244 + i * 12 + Math.sin(t * 2 + i) * 1;
         if (x < -20 || x > VW + 20) continue;
-        Art.ell(g, x, y, 6, 3, '#1a1420'); Art.ell(g, x, y, 5, 2.4, '#8a6a4a'); Art.ell(g, x + 4, y - 3, 2.4, 2.4, '#2a7a3a');
+        Art.ell(g, x, y, 6, 3, '#0b0806'); Art.ell(g, x, y, 5, 2.4, '#8a6a4a'); Art.ell(g, x + 4, y - 3, 2.4, 2.4, '#2a7a3a');
         g.fillStyle = '#f0a020'; g.fillRect(Math.round(x + 6), Math.round(y - 3), 2, 1);
         g.fillStyle = 'rgba(255,255,255,0.4)'; g.fillRect(Math.round(x - 8), Math.round(y + 3), 6, 1);
       }
@@ -21796,7 +21804,7 @@ const Explore = (() => {
         const w = Math.floor(t * 12 + i) % 2 ? 3 : 1;
         g.fillStyle = ['#ffd84a', '#ff8ab0', '#8ad0ff'][i % 3];
         g.fillRect(Math.round(x - w), Math.round(y), w, 2); g.fillRect(Math.round(x + 1), Math.round(y), w, 2);
-        g.fillStyle = '#1a1420'; g.fillRect(Math.round(x), Math.round(y), 1, 2);
+        g.fillStyle = '#0b0806'; g.fillRect(Math.round(x), Math.round(y), 1, 2);
       }
     }
     // ---- the finds
@@ -21820,7 +21828,7 @@ const Explore = (() => {
     // ---- the name of the place, and how much of it there is still to find
     const left = finds().filter((it) => !it.taken).length;
     Kit.tab(g, 12, 60, 150, 18, P.name.toUpperCase(), { col: Kit.C.frameM });
-    Font.draw(g, `${left} left`, 16, 82, { scale: 1, color: '#ffffff', shadow: '#1a1420' });
+    Font.draw(g, `${left} left`, 16, 82, { scale: 1, color: '#ffffff', shadow: '#0b0806' });
     if (fade > 0) { g.fillStyle = `rgba(20,10,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
     FX.drawParticles(g, 0); FX.drawConfetti(g); FX.drawFloaters(g, false);
   }

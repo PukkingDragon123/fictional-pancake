@@ -196,6 +196,7 @@ const Explore = (() => {
         for (let j = 0; j < 7; j++) { const a = -Math.PI + 0.3 + (j / 6) * (Math.PI - 0.6); frond(near.g, x, y, a, 18 + r() * 10, (a < -Math.PI / 2 ? -1 : 1) * 1.4, '#2e6a2a', j % 2 ? '#4a9a3a' : '#7ac860'); }
       }
     }
+    Art.outline(mid.c); Art.outline(near.c);                 // the same black line as the rest of the game
     layers[k] = { sky: sky.c, far: far.c, mid: mid.c, near: near.c };
     return layers[k];
   }
@@ -226,21 +227,21 @@ const Explore = (() => {
     if (Math.floor(tt * 2 + x) % 3 === 0) { R(x + 6, y - 14, 1, 3, '#ffffff'); R(x + 5, y - 13, 3, 1, '#ffffff'); }
     const key = PLACES[k].finds[i][0];
     switch (key) {
-      case 'shell': E(x, y - 3, 5, 3, '#1a1420'); E(x, y - 3, 4, 2.4, '#f0d0c0'); for (let j = -3; j <= 3; j += 2) R(x + j, y - 5, 1, 3, '#c8a098'); break;
-      case 'stone': E(x, y - 3, 5, 3, '#1a1420'); E(x, y - 3, 4.2, 2.4, '#9a9aa8'); R(x - 2, y - 5, 3, 1, '#d8d8e0'); break;
-      case 'feather': for (let j = 0; j < 9; j++) R(x - 4 + j, y - 2 - j * 0.6, 2, 2, j % 2 ? '#f4f0e8' : '#c8c0b0'); R(x - 5, y - 1, 1, 1, '#1a1420'); break;
+      case 'shell': E(x, y - 3, 5, 3, '#0b0806'); E(x, y - 3, 4, 2.4, '#f0d0c0'); for (let j = -3; j <= 3; j += 2) R(x + j, y - 5, 1, 3, '#c8a098'); break;
+      case 'stone': E(x, y - 3, 5, 3, '#0b0806'); E(x, y - 3, 4.2, 2.4, '#9a9aa8'); R(x - 2, y - 5, 3, 1, '#d8d8e0'); break;
+      case 'feather': for (let j = 0; j < 9; j++) R(x - 4 + j, y - 2 - j * 0.6, 2, 2, j % 2 ? '#f4f0e8' : '#c8c0b0'); R(x - 5, y - 1, 1, 1, '#0b0806'); break;
       case 'lily': E(x, y - 2, 6, 2.5, '#2e6a2a'); for (let j = 0; j < 5; j++) E(x + (j - 2) * 2, y - 5 - (j % 2), 1.6, 2.4, '#f8b0c8'); E(x, y - 5, 1.4, 1.4, '#ffe070'); break;
-      case 'bottle': R(x - 5, y - 6, 10, 5, '#1a1420'); R(x - 4, y - 5, 8, 3, '#7ac8a8'); R(x + 4, y - 5, 3, 2, '#c8a060'); R(x - 2, y - 4, 4, 1, '#fff4d0'); break;
-      case 'mushroom': R(x - 1, y - 5, 2, 5, '#f0e8d0'); E(x, y - 6, 5, 3, '#1a1420'); E(x, y - 6, 4, 2.4, '#d8402c'); R(x - 2, y - 7, 1, 1, '#ffffff'); R(x + 1, y - 6, 1, 1, '#ffffff'); break;
-      case 'pinecone': E(x, y - 4, 3, 5, '#1a1420'); E(x, y - 4, 2.4, 4.2, '#8a5a30'); for (let j = 0; j < 3; j++) R(x - 2, y - 7 + j * 3, 4, 1, '#5a3a1e'); break;
-      case 'moss': E(x, y - 2, 6, 3, '#1a1420'); E(x, y - 2, 5, 2.4, '#5aa03e'); R(x - 2, y - 4, 3, 1, '#8ad060'); break;
+      case 'bottle': R(x - 5, y - 6, 10, 5, '#0b0806'); R(x - 4, y - 5, 8, 3, '#7ac8a8'); R(x + 4, y - 5, 3, 2, '#c8a060'); R(x - 2, y - 4, 4, 1, '#fff4d0'); break;
+      case 'mushroom': R(x - 1, y - 5, 2, 5, '#f0e8d0'); E(x, y - 6, 5, 3, '#0b0806'); E(x, y - 6, 4, 2.4, '#d8402c'); R(x - 2, y - 7, 1, 1, '#ffffff'); R(x + 1, y - 6, 1, 1, '#ffffff'); break;
+      case 'pinecone': E(x, y - 4, 3, 5, '#0b0806'); E(x, y - 4, 2.4, 4.2, '#8a5a30'); for (let j = 0; j < 3; j++) R(x - 2, y - 7 + j * 3, 4, 1, '#5a3a1e'); break;
+      case 'moss': E(x, y - 2, 6, 3, '#0b0806'); E(x, y - 2, 5, 2.4, '#5aa03e'); R(x - 2, y - 4, 3, 1, '#8ad060'); break;
       case 'antler': for (let j = 0; j < 10; j++) R(x - 5 + j, y - 2 - Math.abs(j - 5) * 0.8, 2, 2, '#e8dcc0'); R(x - 3, y - 7, 1, 3, '#e8dcc0'); R(x + 3, y - 7, 1, 3, '#e8dcc0'); break;
-      case 'truffle': E(x, y - 3, 5, 4, '#1a1420'); E(x, y - 3, 4, 3.2, '#3a2a20'); R(x - 1, y - 5, 1, 1, '#6a5a4a'); R(x + 2, y - 3, 1, 1, '#6a5a4a'); break;
+      case 'truffle': E(x, y - 3, 5, 4, '#0b0806'); E(x, y - 3, 4, 3.2, '#3a2a20'); R(x - 1, y - 5, 1, 1, '#6a5a4a'); R(x + 2, y - 3, 1, 1, '#6a5a4a'); break;
       case 'frond': for (let j = 0; j < 8; j++) { R(x - 4 + j, y - 1 - j, 1, 1, '#2e6a2a'); R(x - 5 + j, y - 3 - j, 3, 1, '#5ab050'); } break;
-      case 'berry': for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 1]]) { E(x + dx, y - 3 + dy, 2.2, 2.2, '#1a1420'); E(x + dx, y - 3 + dy, 1.6, 1.6, '#8a2a8a'); } R(x - 1, y - 7, 2, 2, '#4a8a32'); break;
+      case 'berry': for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 1]]) { E(x + dx, y - 3 + dy, 2.2, 2.2, '#0b0806'); E(x + dx, y - 3 + dy, 1.6, 1.6, '#8a2a8a'); } R(x - 1, y - 7, 2, 2, '#4a8a32'); break;
       case 'orchid': R(x, y - 8, 1, 8, '#4a8a32'); for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) E(x + dx, y - 9 + dy, 1.8, 1.8, '#e8a8f0'); E(x, y - 9, 1.2, 1.2, '#ffe070'); break;
       case 'lyre': for (let j = 0; j < 12; j++) R(x - 6 + j, y - 2 - Math.sin(j * 0.4) * 6, 2, 2, j % 3 ? '#8a6a4a' : '#e8d8b0'); break;
-      case 'crystal': Art.poly(g, [[x - 4, y], [x - 2, y - 10], [x + 1, y], [x + 2, y - 7], [x + 5, y]], '#1a1420'); Art.poly(g, [[x - 3, y - 1], [x - 2, y - 8], [x, y - 1]], '#8ae0f0'); Art.poly(g, [[x + 1, y - 1], [x + 2, y - 5], [x + 4, y - 1]], '#c0f4ff'); break;
+      case 'crystal': Art.poly(g, [[x - 4, y], [x - 2, y - 10], [x + 1, y], [x + 2, y - 7], [x + 5, y]], '#0b0806'); Art.poly(g, [[x - 3, y - 1], [x - 2, y - 8], [x, y - 1]], '#8ae0f0'); Art.poly(g, [[x + 1, y - 1], [x + 2, y - 5], [x + 4, y - 1]], '#c0f4ff'); break;
     }
   }
   function collect(it) {
@@ -329,7 +330,7 @@ const Explore = (() => {
       for (let i = 0; i < 3; i++) {                                           // ducks paddling round
         const u = ((t * 0.02 + i * 0.33) % 1), x = 200 + u * (WW - 400) - S, y = 244 + i * 12 + Math.sin(t * 2 + i) * 1;
         if (x < -20 || x > VW + 20) continue;
-        Art.ell(g, x, y, 6, 3, '#1a1420'); Art.ell(g, x, y, 5, 2.4, '#8a6a4a'); Art.ell(g, x + 4, y - 3, 2.4, 2.4, '#2a7a3a');
+        Art.ell(g, x, y, 6, 3, '#0b0806'); Art.ell(g, x, y, 5, 2.4, '#8a6a4a'); Art.ell(g, x + 4, y - 3, 2.4, 2.4, '#2a7a3a');
         g.fillStyle = '#f0a020'; g.fillRect(Math.round(x + 6), Math.round(y - 3), 2, 1);
         g.fillStyle = 'rgba(255,255,255,0.4)'; g.fillRect(Math.round(x - 8), Math.round(y + 3), 6, 1);
       }
@@ -387,7 +388,7 @@ const Explore = (() => {
         const w = Math.floor(t * 12 + i) % 2 ? 3 : 1;
         g.fillStyle = ['#ffd84a', '#ff8ab0', '#8ad0ff'][i % 3];
         g.fillRect(Math.round(x - w), Math.round(y), w, 2); g.fillRect(Math.round(x + 1), Math.round(y), w, 2);
-        g.fillStyle = '#1a1420'; g.fillRect(Math.round(x), Math.round(y), 1, 2);
+        g.fillStyle = '#0b0806'; g.fillRect(Math.round(x), Math.round(y), 1, 2);
       }
     }
     // ---- the finds
@@ -411,7 +412,7 @@ const Explore = (() => {
     // ---- the name of the place, and how much of it there is still to find
     const left = finds().filter((it) => !it.taken).length;
     Kit.tab(g, 12, 60, 150, 18, P.name.toUpperCase(), { col: Kit.C.frameM });
-    Font.draw(g, `${left} left`, 16, 82, { scale: 1, color: '#ffffff', shadow: '#1a1420' });
+    Font.draw(g, `${left} left`, 16, 82, { scale: 1, color: '#ffffff', shadow: '#0b0806' });
     if (fade > 0) { g.fillStyle = `rgba(20,10,4,${fade.toFixed(2)})`; g.fillRect(0, 0, VW, VH); }
     FX.drawParticles(g, 0); FX.drawConfetti(g); FX.drawFloaters(g, false);
   }

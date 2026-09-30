@@ -12,7 +12,7 @@
 const Cast = (() => {
   const cache = new Map();
   const TAU = Math.PI * 2;
-  const INK = '#1c130d';
+  const INK = '#0b0806';
   const kit = (g) => {
     const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
     return { g, R, P: (x, y, col) => R(x, y, 1, 1, col), E: (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col) };

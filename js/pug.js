@@ -12,7 +12,7 @@
 // the game flips him to walk left.
 const Pug = (() => {
   const cache = new Map();
-  const INK = '#1c130d';
+  const INK = '#0b0806';
   const FUR = ['#7a5634', '#a07a50', '#c29e70', '#dcbd8e', '#ecd6ae'];     // fawn, dark to light
   const MASK = ['#140e0b', '#261b15', '#3a2b22', '#54423a'];               // the black of the face and ears
   const SUIT = ['#1d2027', '#2a2e37', '#393e4a', '#4d5361', '#646b7a'];    // charcoal wool
@@ -107,12 +107,12 @@ const Pug = (() => {
     const S2 = Math.sin(t * TAU), A2 = Math.abs(Math.sin(t * TAU * 2));
     // hands are offsets from the shoulder; negative y is up
     let bob = 0, step = 0, sit = 0, sway = 0, tilt = 0, eyes = null, jig = 0;
-    let hl = [-5, 14], hr = [5, 14];                      // at rest the paws hang down by his middle
+    let hl = [-3, 8], hr = [3, 8];                        // at rest the paws hang down by his middle
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-5, 14 + S2 * 0.5]; hr = [5, 14 - S2 * 0.5]; jig = [0, 0, 1, 1, 0, 0][f] || 0; break;
+      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-3, 8 + S2 * 0.5]; hr = [3, 8 - S2 * 0.5]; jig = [0, 0, 1, 1, 0, 0][f] || 0; break;
       case 'walk': case 'run': {
         const q = pose === 'run' ? 1.4 : 1;                 // a waddle: the whole pug rocks side to side
-        bob = -A2 * 1.6 * q; step = S2 * 2 * q; sway = S2 * 1.2 * q; hl = [-5 + S2 * 2 * q, 13 - Math.abs(S2) * q]; hr = [5 - S2 * 2 * q, 13 - Math.abs(S2) * q]; jig = Math.round(A2); break;
+        bob = -A2 * 1.6 * q; step = S2 * 2 * q; sway = S2 * 1.2 * q; hl = [-3 + S2 * 2 * q, 7.5 - Math.abs(S2) * q]; hr = [3 - S2 * 2 * q, 7.5 - Math.abs(S2) * q]; jig = Math.round(A2); break;
       }
       case 'turn': break;
       case 'jump': bob = [1, -7, -11, -7, 1][f] || 0; hl = [-8, -9]; hr = [8, -9]; jig = f === 2 ? -1 : 1; break;
@@ -125,10 +125,10 @@ const Pug = (() => {
       case 'shrug': { const q = [0, 4, 5, 2][f] || 0; hl = [-6 - q, 6 - q]; hr = [6 + q, 6 - q]; break; }
       case 'nod': bob = [0, 1, 2, 2, 1, 0][f] || 0; break;
       case 'shake': tilt = Math.sin(t * TAU * 2) * 1.6; break;
-      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-3, 14]; hr = [3, 14]; eyes = 'shut'; break;
+      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-1, 8]; hr = [1, 8]; eyes = 'shut'; break;
       case 'hurt': bob = [2, 1, 0][f] || 0; hl = [-7, 2]; hr = [7, 2]; eyes = 'wide'; break;
-      case 'sulk': bob = 1; hl = [-3, 14]; hr = [3, 14]; break;
-      case 'sit': sit = 1; hl = [-5, 11]; hr = [5, 11]; break;
+      case 'sulk': bob = 1; hl = [-1, 8]; hr = [1, 8]; break;
+      case 'sit': sit = 1; hl = [-3, 6]; hr = [3, 6]; break;
       case 'sleep': sit = 1; hl = [-2, 8]; hr = [2, 8]; eyes = 'shut'; tilt = 1.5; break;
     }
     const [eyeKind, mouthKind] = FACE[mood] || FACE.idle;
@@ -156,11 +156,11 @@ const Pug = (() => {
     }
 
     // ---- arms: suit sleeves, a shirt cuff, a fawn paw
-    const shY = 47 + y0;
+    const shY = 53 + y0;                                  // his arms come out of the middle of him, not up under the chin
     const arm = (s2, hand) => {
       // a soft noodle arm: one smooth curve from shoulder to paw, bowed outward,
       // sagging with its own weight and trailing a beat behind the paw (follow-through)
-      const sx = cx + s2 * 9, hx = sx + hand[0] * 0.9, hy = shY + hand[1];
+      const sx = cx + s2 * 8.5, hx = sx + hand[0] * 0.9, hy = shY + hand[1] - (hand[1] < 5 ? 5 : 0);   // raised paws keep their old height
       const lag = Math.sin(t * TAU * 2 - 1.1 + s2 * 0.6) * 1.3;
       const len = Math.hypot(hx - sx, hy - shY) || 1;
       const nx = -(hy - shY) / len * s2, ny = (hx - sx) / len * s2;          // outward normal

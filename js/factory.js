@@ -18,7 +18,7 @@ const Factory = (() => {
   const T = 24, OY = 152, ROWS = 11;                   // tile size, top of the grid, rows down the floor
   const MS = 1.3;                                      // machines are drawn this much bigger than their art
   const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];     // right, down, left, up
-  const INK = '#1a1420';
+  const INK = '#0b0806';
   let G = null;
   let grid = new Map();                                 // "c,r" -> building
   let mode = null;                                      // { key, rot } placing | { pick: true }

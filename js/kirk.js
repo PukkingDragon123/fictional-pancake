@@ -10,7 +10,7 @@ const Kirk = (() => {
   const cache = new Map();
   const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
   const P = (g, x, y, c) => R(g, x, y, 1, 1, c);
-  const INK = '#1a1420';
+  const INK = '#0b0806';
   const STEEL = ['#2a3244', '#4a5874', '#7486a8', '#a8b8d4', '#dce6f6'];
   const HAIR = ['#4a2410', '#7a4018', '#b06428', '#e0983e'];
   const SHIRT = ['#c8c0b0', '#e8e2d6', '#fbf8f0'];
