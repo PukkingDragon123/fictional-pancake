@@ -113,7 +113,7 @@
     }
     // hearts floating up
     for (let i = 0; i < 5; i++) {
-      const v = (u + i / 5) % 1, x = 80 + i * 40 + Math.sin(v * TAU + i) * 5, y = GY - 10 - v * 70;
+      const v = (u + i / 5) % 1, x = [62, 104, 216, 258, 84][i] + Math.sin(v * TAU + i) * 5, y = GY - 10 - v * 70;
       if (v < 0.85) heart(g, Math.round(x), Math.round(y), ['#a84a44', '#c07a64'][i % 2]);
     }
     for (let i = 0; i < 7; i++) { const v = (u * 2 + i / 7) % 1; if (v < 0.5) sparkle(g, (i * 97 + 20) % W, 60 + (i * 41) % 100, v < 0.25 ? 2 : 1, '#fff8c0'); }

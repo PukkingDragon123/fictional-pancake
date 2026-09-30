@@ -627,16 +627,17 @@ const Guide = (() => {
     let line = [], w = 0, wordStart = 0;
     for (const ch of chars) {
       if (ch.c === ' ') wordStart = line.length + 1;
-      line.push(ch); w += adv;
+      line.push(ch); w += Font.adv(ch.c, BS);
       if (w > maxW && wordStart > 0 && line.length > wordStart) {
         const carry = line.splice(wordStart);
         while (line.length && line[line.length - 1].c === ' ') line.pop();
         lines.push(line);
-        line = carry; w = carry.length * adv; wordStart = 0;
+        line = carry; w = carry.reduce((a, q) => a + Font.adv(q.c, BS), 0); wordStart = 0;
       }
     }
     if (line.length) lines.push(line);
-    for (const l of lines) { l.forEach((ch, i) => { ch.x = i * adv; }); l.w = l.length * adv; }
+    for (const l of lines) { let x = 0; l.forEach((ch) => { ch.x = x; x += Font.adv(ch.c, BS); }); l.w = Math.max(0, x - BS); }
+    void adv;
     return lines;
   }
 

@@ -107,12 +107,12 @@ const Pug = (() => {
     const S2 = Math.sin(t * TAU), A2 = Math.abs(Math.sin(t * TAU * 2));
     // hands are offsets from the shoulder; negative y is up
     let bob = 0, step = 0, sit = 0, sway = 0, tilt = 0, eyes = null, jig = 0;
-    let hl = [-3, 10], hr = [3, 10];
+    let hl = [-5, 14], hr = [5, 14];                      // at rest the paws hang down by his middle
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-3, 10 + S2 * 0.5]; hr = [3, 10 - S2 * 0.5]; jig = [0, 0, 1, 1, 0, 0][f] || 0; break;
+      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-5, 14 + S2 * 0.5]; hr = [5, 14 - S2 * 0.5]; jig = [0, 0, 1, 1, 0, 0][f] || 0; break;
       case 'walk': case 'run': {
         const q = pose === 'run' ? 1.4 : 1;                 // a waddle: the whole pug rocks side to side
-        bob = -A2 * 1.6 * q; step = S2 * 2 * q; sway = S2 * 1.2 * q; hl = [-4, 9 - S2 * 3 * q]; hr = [4, 9 + S2 * 3 * q]; jig = Math.round(A2); break;
+        bob = -A2 * 1.6 * q; step = S2 * 2 * q; sway = S2 * 1.2 * q; hl = [-5 + S2 * 2 * q, 13 - Math.abs(S2) * q]; hr = [5 - S2 * 2 * q, 13 - Math.abs(S2) * q]; jig = Math.round(A2); break;
       }
       case 'turn': break;
       case 'jump': bob = [1, -7, -11, -7, 1][f] || 0; hl = [-8, -9]; hr = [8, -9]; jig = f === 2 ? -1 : 1; break;
@@ -125,10 +125,10 @@ const Pug = (() => {
       case 'shrug': { const q = [0, 4, 5, 2][f] || 0; hl = [-6 - q, 6 - q]; hr = [6 + q, 6 - q]; break; }
       case 'nod': bob = [0, 1, 2, 2, 1, 0][f] || 0; break;
       case 'shake': tilt = Math.sin(t * TAU * 2) * 1.6; break;
-      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-1, 10]; hr = [1, 10]; eyes = 'shut'; break;
+      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-3, 14]; hr = [3, 14]; eyes = 'shut'; break;
       case 'hurt': bob = [2, 1, 0][f] || 0; hl = [-7, 2]; hr = [7, 2]; eyes = 'wide'; break;
-      case 'sulk': bob = 1; hl = [-1, 9]; hr = [1, 9]; break;
-      case 'sit': sit = 1; hl = [-4, 8]; hr = [4, 8]; break;
+      case 'sulk': bob = 1; hl = [-3, 14]; hr = [3, 14]; break;
+      case 'sit': sit = 1; hl = [-5, 11]; hr = [5, 11]; break;
       case 'sleep': sit = 1; hl = [-2, 8]; hr = [2, 8]; eyes = 'shut'; tilt = 1.5; break;
     }
     const [eyeKind, mouthKind] = FACE[mood] || FACE.idle;

@@ -86,7 +86,7 @@ if your machine struggles; without WebGL the game simply draws without it.
 - `js/intro.js` - the drive into Wombat Creek and up to the farm gate
 - `js/ottoman.js` - Captain Kirk's Ottoman Empire and his catalogue
 - `js/kirk.js` - Captain Kirk, the robot: his figure and his portrait
-- `js/pug.js`, `js/busts.js` - Mr Biscuit the pug, and portraits for Shaz and Groot
+- `js/pug.js`, `js/cast.js` - Mr Biscuit the pug, and Shaz, Groot and Captain Kirk, and portraits for Shaz and Groot
 - `js/factory.js` - the machines, belts, the Build menu and the poop economy
 - `js/explore.js` - Still Lake, Blackwood and Fern Gully
 - `js/shader.js` - the WebGL pass over the finished picture: glow, colour grade, paper grain, night tint, vignette

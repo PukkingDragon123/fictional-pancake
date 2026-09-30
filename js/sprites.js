@@ -1037,6 +1037,7 @@ const Sprites = (() => {
     const n = { idle: 6, talk: 6, happy: 6, wave: 6, walk: 6, think: 4, cross: 6,
       cheer: 6, surprise: 4, sleepy: 4, sad: 4 }[pose] || 6;
     const f = ((frame % n) + n) % n, t = f / n;
+    if (typeof Cast !== 'undefined') return Cast.shaz(f, t, pose);   // redrawn to match Mr Biscuit
     const key = `shaz:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(KW, KH);
@@ -1243,6 +1244,7 @@ const Sprites = (() => {
     const n = { idle: 6, walk: 6, talk: 6, point: 4, wave: 6, happy: 6, sad: 4, cross: 6,
       curious: 4, proud: 6, worry: 6, laugh: 6, sleepy: 4 }[pose] || 6;
     const f = ((frame % n) + n) % n, t = f / n;
+    if (typeof Cast !== 'undefined') return Cast.groot(f, t, pose);
     const key = `groot:${f}:${pose}`;
     let img = cache.get(key); if (img) return img;
     const { c, g } = Art.cv(GW, GH);
@@ -1752,6 +1754,7 @@ const Sprites = (() => {
       hat: 'captain', prop: 'none', why: 'the Ottoman Empire' },
   };
   function villager(kind, frame, pose = 'idle') {
+    if (kind === 'clark' && typeof Cast !== 'undefined') { const n = pose === 'walk' ? 8 : 6, f = ((frame % n) + n) % n; return Cast.kirk(f, f / n, pose); }
     if (kind === 'clark' && typeof Kirk !== 'undefined') return Kirk.sprite(frame, pose);   // the robot
     const K = VILLAGERS[kind] || VILLAGERS.clark;
     const n = { idle: 6, walk: 8, talk: 6, wave: 6 }[pose] || 6;

@@ -106,6 +106,14 @@ const Menu = (() => {
     } else if (v.kind === 'mart' && typeof Scenery !== 'undefined') {
       const b = Scenery.building('mart');
       g.drawImage(b.img, Math.round(x - b.w / 2), Math.round(ROAD + 2 - b.h));
+      // Mr Biscuit minds the shop: he stands at the mart's door and waves as you go by
+      if (typeof Sprites !== 'undefined') {
+        Sprites.setFace('happy');
+        const px = Math.round(x + b.w / 2 + 14), near = Math.abs(px - VW * 0.42) < 170;
+        const img = Sprites.jim(Math.floor(t * 6), near ? 'wave' : 'idle');
+        g.fillStyle = 'rgba(30,40,20,0.3)'; Art.ell(g, px, ROAD + 1, 14, 3);
+        g.drawImage(img, px - 26, ROAD + 1 - 81);
+      }
     } else if (v.kind === 'mart') {
       // the corner shop, set back from the road: cream walls, a stripy awning
       const w = 150, h = 74, x0 = x - w / 2, y0 = y - h - 6;
@@ -174,56 +182,110 @@ const Menu = (() => {
   }
   // a chunky button: a dark line, a coloured face lit on top and shaded underneath,
   // an icon on its own darker plate, and the words beside it. It lifts under the pointer.
+  // ---- the title screen's own pixel pieces ----------------------------------------------------
+  const RR = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+  const WAL = ['#2a1c12', '#45301d', '#62452b', '#7a5838', '#9a7650'];
+  const LIN = ['#b8a882', '#d8cbae', '#ece3cf', '#f6f0e2'];
+  // a walnut plank: a dark line, grain, a lit top edge and brass nails at the ends
+  function plank(g, x, y, w, h, o = {}) {
+    RR(g, x + 1, y, w - 2, h, WAL[0]); RR(g, x, y + 1, w, h - 2, WAL[0]);
+    RR(g, x + 1, y + 1, w - 2, h - 2, o.col || WAL[2]);
+    RR(g, x + 1, y + 1, w - 2, 1, WAL[4]); RR(g, x + 1, y + h - 3, w - 2, 2, WAL[1]);
+    const r = Art.rng(Math.round(x * 7 + y * 13));
+    for (let i = 0; i < w / 5; i++) RR(g, x + 3 + r() * (w - 10), y + 3 + Math.floor(r() * (h - 7)), 3 + r() * 8, 1, r() < 0.5 ? WAL[1] : WAL[3]);
+    if (!o.noNails) for (const nx of [x + 4, x + w - 6]) for (const ny of h > 30 ? [y + 4, y + h - 7] : [y + (h - 2) / 2 - 1]) { RR(g, nx, ny, 2, 2, '#e6c887'); RR(g, nx + 1, ny + 1, 1, 1, '#8a6a2e'); }
+  }
+  // the three menu icons, drawn by hand at 20 x 20
+  function menuIcon(g, kind, x, y, hot) {
+    const R = (xx, yy, w, h, c) => RR(g, x + xx, y + yy, w, h, c);
+    const E = (xx, yy, rx, ry, c) => Art.ell(g, x + xx, y + yy, rx, ry, c);
+    if (kind === 'wombat') {                       // a wombat face, looking at you
+      E(4, 5, 3.4, 3, '#2a1c12'); E(16, 5, 3.4, 3, '#2a1c12'); E(4, 5, 2.4, 2, '#8a6242'); E(16, 5, 2.4, 2, '#8a6242'); E(4, 5.5, 1.2, 1, '#c89a8a'); E(16, 5.5, 1.2, 1, '#c89a8a');
+      E(10, 11, 9, 8, '#2a1c12'); E(10, 11, 8, 7, '#8a6242'); E(8, 8, 4, 3, '#a47a56');
+      E(10, 14, 4.6, 3.4, '#2a1c12'); E(10, 13.6, 3.8, 2.6, '#3a2a22'); R(8, 12, 2, 1, '#6a5a50');
+      for (const ex of [5, 14]) { R(ex, 9, 2, 2, '#140e0b'); R(ex, 9, 1, 1, '#fffaf0'); }
+      if (hot) { R(3, 13, 2, 1, '#c07a64'); R(15, 13, 2, 1, '#c07a64'); }
+    } else if (kind === 'gear') {                  // a brass cog
+      const a0 = t * (hot ? 2 : 0.4);
+      for (let i = 0; i < 8; i++) { const a = a0 + (i / 8) * TAU; E(10 + Math.cos(a) * 7.5, 10 + Math.sin(a) * 7.5, 2.2, 2.2, '#2a1c12'); }
+      E(10, 10, 7.4, 7.4, '#2a1c12');
+      for (let i = 0; i < 8; i++) { const a = a0 + (i / 8) * TAU; E(10 + Math.cos(a) * 7.5, 10 + Math.sin(a) * 7.5, 1.4, 1.4, '#a88440'); }
+      E(10, 10, 6.4, 6.4, '#a88440'); E(9, 9, 5, 5, '#c9a256'); E(8, 7.5, 2.4, 1.6, '#e6c887');
+      E(10, 10, 2.6, 2.6, '#2a1c12'); E(10, 10, 1.6, 1.6, '#62452b');
+    } else if (kind === 'book') {                  // an open book, the farmer's almanac
+      R(1, 4, 18, 13, '#2a1c12'); R(2, 5, 7, 11, '#ece3cf'); R(11, 5, 7, 11, '#f6f0e2');
+      R(9, 4, 2, 14, '#2a1c12'); R(2, 16, 16, 2, '#8e3a34'); R(1, 17, 18, 1, '#2a1c12');
+      for (let i = 0; i < 4; i++) { R(3, 7 + i * 2, 5, 1, '#b8a882'); R(12, 7 + i * 2, i === 3 ? 3 : 5, 1, '#b8a882'); }
+      R(14, 2, 2, 6, '#8e3a34'); R(14, 8, 1, 1, '#8e3a34'); R(15, 8, 1, 1, '#2a1c12');
+    }
+  }
   function menuButton(g, b, label, sub, icon, kind) {
-    const hot = hover === b.id;
-    const C = kind === 'go' ? ['#9ab878', '#6e8e4a', '#56743a', '#3a5226', '#f6f0e2'] : ['#f6f0e2', '#ece3cf', '#d8cbae', '#b8a882', '#2e241a'];
-    const lift = hot ? -2 : 0, x = b.x, y = b.y + lift, w = b.w, h = b.h;
-    const R = (xx, yy, ww, hh, c) => { g.fillStyle = c; g.fillRect(Math.round(xx), Math.round(yy), Math.round(ww), Math.round(hh)); };
-    R(x + 3, b.y + 5, w, h, 'rgba(40,30,10,0.35)');                       // its shadow
-    R(x + 2, y, w - 4, h, '#1f150e'); R(x, y + 2, w, h - 4, '#1f150e'); R(x + 1, y + 1, w - 2, h - 2, '#1f150e');
-    R(x + 2, y + 2, w - 4, h - 4, hot ? (kind === 'go' ? '#7e9e58' : '#f8f0da') : C[1]);
-    R(x + 2, y + 2, w - 4, 2, C[0]); R(x + 2, y + h - 6, w - 4, 2, C[2]); R(x + 2, y + h - 4, w - 4, 2, C[3]);
-    // the icon plate
-    const ps = h - 10;
-    R(x + 5, y + 4, ps, ps, kind === 'go' ? '#3a5226' : '#d8cbae'); R(x + 5, y + 4, ps, 1, kind === 'go' ? '#56743a' : '#f6f0e2');
-    Icons.blit(g, icon, x + 5 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, y + 4 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, ps > 26 ? 1.5 : 1);
-    const tx = x + 10 + ps + (w - 14 - ps) / 2;
-    const sc = h > 40 ? 2 : 2;
-    const ty = y + (sub ? 7 : Math.round((h - 4 - sc * 7) / 2));
-    if (kind === 'go') Font.draw(g, label, tx + 1, ty + 1, { scale: sc, color: '#1f2a12', align: 'center' });
-    Font.draw(g, label, tx, ty, { scale: sc, color: C[4], align: 'center' });
-    if (sub) Font.draw(g, sub, tx, ty + sc * 7 + 4, { scale: 1, color: kind === 'go' ? '#dfe6cc' : Kit.C.ink2, align: 'center' });
-    if (hot) { R(x + w - 12, y + 4, 2, 2, '#ffffff'); R(x + w - 10, y + 6, 1, 1, '#ffffff'); }
+    const hot = hover === b.id, go = kind === 'go';
+    const lift = hot ? -1 : 0, x = b.x + (hot ? 3 : 0), y = b.y + lift, w = b.w, h = b.h;
+    RR(g, x + 2, b.y + 4, w, h, 'rgba(20,12,6,0.4)');                          // its shadow
+    // a linen card on a walnut edge; the first one is a moss-green board
+    RR(g, x + 1, y, w - 2, h, WAL[0]); RR(g, x, y + 1, w, h - 2, WAL[0]);
+    const face = go ? (hot ? '#6e8e4a' : '#56743a') : hot ? LIN[3] : LIN[2];
+    RR(g, x + 1, y + 1, w - 2, h - 2, go ? '#3a5226' : LIN[0]);
+    RR(g, x + 2, y + 2, w - 4, h - 5, face);
+    RR(g, x + 2, y + 2, w - 4, 1, go ? '#8aa868' : '#fffaf0');
+    // the icon, in a sunk brass-rimmed window
+    const ps = Math.min(h - 8, 30), ix = x + 5, iy = y + (h - 3 - ps) / 2;
+    RR(g, ix, iy, ps, ps, WAL[0]); RR(g, ix + 1, iy + 1, ps - 2, ps - 2, hot ? '#e6c887' : '#c9a256');
+    RR(g, ix + 2, iy + 2, ps - 4, ps - 4, go ? '#dfe6cc' : '#e2d7bf'); RR(g, ix + 2, iy + 2, ps - 4, 1, go ? '#b8c89a' : '#c7b894');
+    menuIcon(g, icon, ix + (ps - 20) / 2, iy + (ps - 20) / 2 + (hot ? Math.round(Math.sin(t * 10)) : 0), hot);
+    // the words
+    const tx = ix + ps + (w - ps - 12) / 2 + 3, sc = 2;
+    const ty = y + (sub ? 6 : Math.round((h - 3 - sc * 6) / 2));
+    const ink = go ? '#f6f0e2' : '#2e241a';
+    if (go) Font.draw(g, label, tx + 1, ty + 1, { scale: sc, color: '#1f2a12', align: 'center' });
+    Font.draw(g, label, tx, ty, { scale: sc, color: ink, align: 'center' });
+    if (sub) Font.draw(g, sub, tx, ty + sc * 6 + 5, { scale: 1, color: go ? '#dfe6cc' : '#6e5e48', align: 'center' });
+    if (hot) {                                                                   // a little arrow nudging in
+      const ax = x - 9 + Math.round(Math.sin(t * 8)), ay = y + h / 2 - 4;
+      for (let i = 0; i < 4; i++) RR(g, ax + i, ay + i, 1, 8 - i * 2, '#2a1c12');
+      for (let i = 0; i < 3; i++) RR(g, ax + i, ay + i + 1, 1, 6 - i * 2, '#e6c887');
+    }
   }
   function drawHome(g) {
     buttons = [];
-    // the name, big and bouncy, with a berry ribbon under it
-    logo(g, 'WOMBAT', 214, 20, 5, '#efe0b8', '#c9a256', '#1f150e', 0);
-    logo(g, 'FARM', 214, 64, 5, '#b8c89a', '#6e8a4e', '#141c0c', 1.6);
-    const sub = 'a cozy little farm in the bush', sw = Font.width(sub, 1) + 20;
-    Kit.tab(g, 214 - sw / 2, 110, sw, 15, sub, { col: '#62452b' });
+    // the name, carved into a walnut sign hung from two ropes
+    const LX = 214, sway = Math.sin(t * 0.9) * 0.6;
+    for (const rx of [LX - 110, LX + 110]) { RR(g, rx, 0, 2, 16, '#c8b48a'); RR(g, rx + 1, 0, 1, 16, '#8a7454'); }
+    plank(g, LX - 132 + sway, 12, 264, 96);
+    RR(g, LX - 126 + sway, 18, 252, 84, WAL[1]); RR(g, LX - 125 + sway, 19, 250, 82, WAL[2]);
+    for (let i = 0; i < 12; i++) RR(g, LX - 120 + sway + ((i * 53) % 240), 24 + ((i * 29) % 72), 6 + (i % 4) * 5, 1, i % 2 ? WAL[1] : WAL[3]);
+    logo(g, 'WOMBAT', LX + sway, 24, 5, '#efe0b8', '#c9a256', '#1f150e', 0);
+    logo(g, 'FARM', LX + sway, 64, 5, '#b8c89a', '#6e8a4e', '#141c0c', 1.6);
+    const sub = 'a cozy little farm in the bush', sw = Font.width(sub, 1) + 22;
+    RR(g, LX - sw / 2 + 12, 104, 1, 8, '#8a7454'); RR(g, LX + sw / 2 - 13, 104, 1, 8, '#8a7454');
+    RR(g, LX - sw / 2, 111, sw, 15, WAL[0]); RR(g, LX - sw / 2 + 1, 112, sw - 2, 13, LIN[2]); RR(g, LX - sw / 2 + 1, 112, sw - 2, 1, LIN[3]); RR(g, LX - sw / 2 + 1, 123, sw - 2, 2, LIN[1]);
+    Font.draw(g, sub, LX, 115, { scale: 1, color: '#2e241a', align: 'center' });
+    // the menu: a walnut board with the three choices on it
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
-    const bx = 438, bw = 180;
-    const play = { id: 'enter', x: bx, y: 110, w: bw, h: 50 };
-    const set = { id: 'settings', x: bx, y: 170, w: bw, h: 36 };
-    const help = { id: 'help', x: bx, y: 214, w: bw, h: 36 };
+    const bx = 444, bw = 176;
+    plank(g, bx - 10, 100, bw + 20, 166, { noNails: false });
+    RR(g, bx - 4, 106, bw + 8, 154, WAL[1]);
+    const play = { id: 'enter', x: bx, y: 110, w: bw, h: 54 };
+    const set = { id: 'settings', x: bx, y: 172, w: bw, h: 38 };
+    const help = { id: 'help', x: bx, y: 216, w: bw, h: 38 };
     buttons.push(play, set, help);
     menuButton(g, play, hasSave ? 'CONTINUE' : 'NEW FARM',
       hasSave && sl && !sl.empty ? `day ${sl.day || 1} - ${sl.wombats} ${sl.wombats === 1 ? 'wombat' : 'wombats'}` : 'a wombat is waiting', 'wombat', 'go');
-    menuButton(g, set, 'SETTINGS', null, 'gear');
-    menuButton(g, help, 'HOW TO PLAY', null, 'heart');
-    // Mr Biscuit, waving you in from beside the buttons
-    if (typeof Sprites !== 'undefined') {
-      Sprites.setFace('happy');
-      const img = Sprites.jim(Math.floor(t * 6), 'wave');
-      g.fillStyle = 'rgba(30,40,20,0.3)'; Art.ell(g, 404, 300, 14, 3);
-      g.drawImage(img, 404 - 26, 300 - 81);
-    }
-    // the tip of the day, on a strip at the bottom
+    menuButton(g, set, 'Settings', null, 'gear');
+    menuButton(g, help, 'How to play', null, 'book');
+    // the tip of the day, on a linen strip at the bottom
     const line = RUMOURS[rumour % RUMOURS.length];
     const lw = Font.width(line, 1) + 30;
-    goldFrame(g, VW / 2 - lw / 2, VH - 28, lw, 22, { r: 8 });
-    Font.draw(g, line, VW / 2, VH - 21, { scale: 1, color: Kit.C.ink, align: 'center' });
+    RR(g, VW / 2 - lw / 2, VH - 27, lw, 20, WAL[0]); RR(g, VW / 2 - lw / 2 + 1, VH - 26, lw - 2, 18, LIN[2]); RR(g, VW / 2 - lw / 2 + 1, VH - 26, lw - 2, 1, LIN[3]);
+    RR(g, VW / 2 - lw / 2 + 1, VH - 10, lw - 2, 2, LIN[1]);
+    Menu_tipIcon(g, VW / 2 - lw / 2 + 6, VH - 22);
+    Font.draw(g, line, VW / 2 + 5, VH - 21, { scale: 1, color: Kit.C.ink, align: 'center' });
+  }
+  // a small lit bulb for "did you know"
+  function Menu_tipIcon(g, x, y) {
+    Art.ell(g, x + 3, y + 3, 3, 3, '#2a1c12'); Art.ell(g, x + 3, y + 3, 2.2, 2.2, '#e6c887'); RR(g, x + 2, y + 2, 1, 1, '#fffaf0');
+    RR(g, x + 2, y + 6, 3, 2, '#62452b');
   }
 
   // which drops four pixels when the pointer is over it. It is the same button

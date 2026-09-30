@@ -1,62 +1,56 @@
 // ---- A bitmap font, drawn a pixel at a time -------------------------------
 // Browser text rasterisers antialias, and antialiased glyphs on a canvas that
-// is then scaled up go soft. So the game does not use them. Every glyph here
-// is five by seven pixels, one hex pair per row, blitted as whole blocks: at
-// any integer scale the letters stay hard-edged.
+// is then scaled up go soft. So the game does not use them. This is "Biscuit",
+// the game's own round little pixel face: capitals six pixels tall, a four
+// pixel x-height, true two-row descenders and proportional widths (an i is
+// one pixel, an m is five), every corner rounded off. Each glyph is [width,
+// eight hex pairs], one per row, bit 4 the leftmost column. At any integer
+// scale the letters stay hard-edged. tools/mkfont.py compiles the same table
+// into the TTF the page's own text uses, so canvas and DOM match.
 const Font = (() => {
-  const CW = 5, CH = 7;
+  const CW = 5, CH = 8;
   const G = {
-    'A': '0E11111F111111', 'B': '1E11111E11111E', 'C': '0E111010101 10E'.replace(' ', ''),
-    'D': '1C121111111 21C'.replace(' ', ''), 'E': '1F10101E10101F', 'F': '1F10101E101010',
-    'G': '0E11101711110F', 'H': '1111111F111111', 'I': '0E040404040 40E'.replace(' ', ''),
-    'J': '0702020202120C', 'K': '1112141814 1211'.replace(' ', ''), 'L': '1010101010101F',
-    'M': '111B1515111111', 'N': '1119151311 1111'.replace(' ', ''), 'O': '0E111111111 10E'.replace(' ', ''),
-    'P': '1E11111E101010', 'Q': '0E111111151 20D'.replace(' ', ''), 'R': '1E11111E141211',
-    'S': '0F10100E01011E', 'T': '1F040404040404', 'U': '1111111111110E',
-    'V': '1111111111 0A04'.replace(' ', ''), 'W': '1111111515 1B11'.replace(' ', ''),
-    'X': '11110A040A1111', 'Y': '11110A04040404', 'Z': '1F010204081 01F'.replace(' ', ''),
-    '0': '0E111315191 10E'.replace(' ', ''), '1': '040C040404040E', '2': '0E110102 04081F'.replace(' ', ''),
-    '3': '1F020402011 10E'.replace(' ', ''), '4': '02060A121F0202', '5': '1F101E0101110E',
-    '6': '060810 1E11110E'.replace(' ', ''), '7': '1F010204080808', '8': '0E11110E11110E',
-    '9': '0E11110F01020C',
-    'a': '00000E010F110F', 'b': '10101E1111111E', 'c': '00000E1010110E',
-    'd': '01010F1111110F', 'e': '00000E111F100E', 'f': '060908 1C080808'.replace(' ', ''),
-    'g': '00000F110F010E', 'h': '10101E11111111', 'i': '04000C040404 0E'.replace(' ', ''),
-    'j': '02000602021 20C'.replace(' ', ''), 'k': '1010121418 1412'.replace(' ', ''), 'l': '0C04040404040E',
-    'm': '00001A1515 1515'.replace(' ', ''), 'n': '00001E11111111', 'o': '00000E1111110E',
-    'p': '00001E111E1010', 'q': '00000F110F0101', 'r': '0000161910 1010'.replace(' ', ''),
-    's': '00000F100E011E', 't': '08081C0808 0906'.replace(' ', ''), 'u': '000011111113 0D'.replace(' ', ''),
-    'v': '00001111110A04', 'w': '000011151515 0A'.replace(' ', ''), 'x': '0000110A040A11',
-    'y': '00001111 0F010E'.replace(' ', ''), 'z': '00001F0204081F',
-    ' ': '00000000000000', '.': '0000000000 0C0C'.replace(' ', ''), ',': '000000000C0408',
-    '!': '04040404040004', '?': '0E1101020400 04'.replace(' ', ''), ':': '000C0C000C0C00',
-    '-': '0000001F000000', '/': '01020204080810', '+': '000404 1F040400'.replace(' ', ''),
-    '%': '111202040809 11'.replace(' ', ''), '$': '040F140E051E04', '(': '02040808080402',
-    ')': '08040202020408', '*': '000A041F040A00', "'": '04040800000000',
-    '"': '0A0A0000000000', '<': '02040810080402', '>': '08040201020408',
-    '=': '00001F001F0000', '#': '0A1F0A0A1F0A00', '&': '0C121408151 20D'.replace(' ', ''),
-    ';': '000C0C000C0408', '_': '0000000000001F', '|': '04040404040404',
-    '@': '0E11171517100E', "'": '04040000000000',
-    '[': '0E08080808080E', ']': '0E02020202020E',
+    " ": [3, "0000000000000000"], "!": [1, "1010101000100000"], "\"": [3, "1414000000000000"], "#": [5, "0A1F0A1F0A000000"],
+    "$": [5, "0F140E051E040000"], "%": [5, "191A040816060000"], "&": [5, "0C120C15120D0000"], "'": [1, "1010000000000000"],
+    "(": [2, "0810101010080000"], ")": [2, "1008080808100000"], "*": [3, "0014081400000000"], "+": [3, "00081C0800000000"],
+    ",": [2, "0000000000081000"], "-": [3, "0000001C00000000"], ".": [1, "0000000000100000"], "/": [3, "0404080810100000"],
+    "0": [4, "0C12161A120C0000"], "1": [3, "08180808081C0000"], "2": [4, "0C120408101E0000"], "3": [4, "1C020C02021C0000"],
+    "4": [4, "12121E0202020000"], "5": [4, "1E101C02021C0000"], "6": [4, "0C101C12120C0000"], "7": [4, "1E02040808080000"],
+    "8": [4, "0C120C12120C0000"], "9": [4, "0C12120E020C0000"], ":": [1, "0000100000100000"], ";": [2, "0000080000081000"],
+    "<": [3, "0004081008040000"], "=": [3, "00001C001C000000"], ">": [3, "0010080408100000"], "?": [4, "0C12040800080000"],
+    "@": [5, "0E111717100E0000"], "A": [4, "0C12121E12120000"], "B": [4, "1C121C12121C0000"], "C": [4, "0C121010120C0000"],
+    "D": [4, "1C121212121C0000"], "E": [4, "1E101C10101E0000"], "F": [4, "1E101C1010100000"], "G": [4, "0C121016120E0000"],
+    "H": [4, "12121E1212120000"], "I": [3, "1C080808081C0000"], "J": [4, "06020202120C0000"], "K": [4, "1214181412120000"],
+    "L": [4, "10101010101E0000"], "M": [5, "111B151111110000"], "N": [4, "121A161212120000"], "O": [4, "0C121212120C0000"],
+    "P": [4, "1C12121C10100000"], "Q": [4, "0C121212140A0000"], "R": [4, "1C12121C14120000"], "S": [4, "0E100C02021C0000"],
+    "T": [5, "1F04040404040000"], "U": [4, "12121212120C0000"], "V": [5, "1111110A0A040000"], "W": [5, "111115151B110000"],
+    "X": [5, "11110A040A110000"], "Y": [5, "11110A0404040000"], "Z": [4, "1E020408101E0000"], "[": [2, "1810101010180000"],
+    "]": [2, "1808080808180000"], "_": [4, "0000000000001E00"], "a": [4, "00000E12120E0000"], "b": [4, "10101C12121C0000"],
+    "c": [3, "00000C10100C0000"], "d": [4, "02020E12120E0000"], "e": [4, "00000C1E100E0000"], "f": [3, "0C101C1010100000"],
+    "g": [4, "00000E12120E020C"], "h": [4, "10101C1212120000"], "i": [1, "1000101010100000"], "j": [3, "04000C0404040418"],
+    "k": [4, "101012141C120000"], "l": [2, "1010101010080000"], "m": [5, "00001A1515150000"], "n": [4, "00001C1212120000"],
+    "o": [4, "00000C12120C0000"], "p": [4, "00001C12121C1010"], "q": [4, "00000E12120E0202"], "r": [3, "0000141810100000"],
+    "s": [4, "00000E18061C0000"], "t": [3, "08081C0808040000"], "u": [4, "00001212120E0000"], "v": [5, "000011110A040000"],
+    "w": [5, "00001115150A0000"], "x": [4, "0000120C0C120000"], "y": [4, "00001212120E020C"], "z": [4, "00001E04081E0000"],
+    "|": [1, "0010101010101010"],
   };
-  const MISS = '1F111111 11111F'.replace(' ', '');
+  const MISS = [4, 'F09090909090F000'];
+  const get = (ch) => G[ch] || G[ch.toUpperCase()] || MISS;
   const rows = (ch) => {
-    const h = G[ch] || G[ch.toUpperCase()] || MISS;
+    const h = get(ch)[1];
     const out = [];
-    for (let i = 0; i < 7; i++) out.push(parseInt(h.substr(i * 2, 2), 16));
+    for (let i = 0; i < CH; i++) out.push(parseInt(h.substr(i * 2, 2), 16));
     return out;
   };
-
-  // one small canvas per glyph, per scale, per colour: a string is then just
-  // a handful of blits instead of a few hundred rectangles
+  // one small canvas per glyph, per scale, per colour
   const cache = new Map();
   function glyph(ch, s, col) {
     const key = ch + '|' + s + '|' + col;
     let c = cache.get(key);
     if (c) return c;
-    const r = rows(ch);
+    const r = rows(ch), w = get(ch)[0];
     const o = document.createElement('canvas');
-    o.width = CW * s; o.height = CH * s;
+    o.width = Math.max(1, w * s); o.height = CH * s;
     const g = o.getContext('2d');
     g.fillStyle = col;
     for (let y = 0; y < CH; y++) for (let x = 0; x < CW; x++) if (r[y] & (1 << (CW - 1 - x))) g.fillRect(x * s, y * s, s, s);
@@ -64,8 +58,16 @@ const Font = (() => {
     return o;
   }
   const scaleFor = (size) => Math.max(1, Math.round((size || 7) / 7));
-  const advance = (s, track) => (CW + (track == null ? 1 : track)) * s;
-  function width(text, s, track) { return text.length ? text.length * advance(s, track) - (track == null ? 1 : track) * s : 0; }
+  // the advance of one character; advance(s) alone is a typical letter, for rough sums
+  const adv = (ch, s, track) => (get(ch)[0] + (track == null ? 1 : track)) * s;
+  const advance = (s, track) => (4 + (track == null ? 1 : track)) * s;
+  function width(text, s, track) {
+    const str = String(text);
+    if (!str.length) return 0;
+    let w = 0;
+    for (const ch of str) w += adv(ch, s, track);
+    return w - (track == null ? 1 : track) * s;
+  }
   const height = (s) => CH * s;
 
   // x, y is the top left of the first glyph unless `align` moves it
@@ -73,17 +75,17 @@ const Font = (() => {
     o = o || {};
     const s = o.scale || scaleFor(o.size);
     const track = o.track == null ? 1 : o.track;
-    const w = width(String(text), s, track);
+    const str = String(text);
+    const w = width(str, s, track);
     let px = Math.round(o.align === 'center' ? x - w / 2 : o.align === 'right' ? x - w : x);
     const py = Math.round(y);
-    const str = String(text);
     if (o.shadow) {
       const d = o.shadowDist || s;
       let sx = px;
-      for (const ch of str) { g.drawImage(glyph(ch, s, o.shadow), sx + d, py + d); sx += advance(s, track); }
+      for (const ch of str) { g.drawImage(glyph(ch, s, o.shadow), sx + d, py + d); sx += adv(ch, s, track); }
     }
     const col = o.color || '#fdf6e0';
-    for (const ch of str) { g.drawImage(glyph(ch, s, col), px, py); px += advance(s, track); }
+    for (const ch of str) { g.drawImage(glyph(ch, s, col), px, py); px += adv(ch, s, track); }
     return w;
   }
   // wrap to a pixel width, not a guess at character counts
@@ -97,5 +99,5 @@ const Font = (() => {
     if (line) lines.push(line);
     return lines;
   }
-  return { draw, width, height, wrap, scaleFor, advance, CW, CH };
+  return { draw, width, height, wrap, scaleFor, advance, adv, CW, CH, G };
 })();

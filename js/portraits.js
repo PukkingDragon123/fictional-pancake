@@ -307,6 +307,7 @@ const Portraits = (() => {
   // ---- the one call everybody makes -------------------------------------------------------
   // `t` drives the blink; `talking` flaps the mouth.
   function get(key, mood, t = 0, talking = false) {
+    if (typeof Cast !== 'undefined' && Cast.has(key)) return Cast.bust(key, mood, t, talking);
     if ((key === 'clark' || key === 'villager:clark') && typeof Kirk !== 'undefined') return Kirk.bust(mood, t, talking);
     if (key === 'jim' && typeof Pug !== 'undefined') return Pug.bust(mood, t, talking);
     if (typeof Busts !== 'undefined' && Busts.has(key)) return Busts.get(key, mood, t, talking);

@@ -15,7 +15,7 @@ import sys
 
 UPM = 1000
 PX = 100                      # one bitmap pixel, in font units
-ROWS, COLS = 7, 5
+ROWS, COLS = 8, 5            # six-pixel capitals, a baseline under row 5, two rows of descender
 ADV = (COLS + 1) * PX         # the advance the canvas uses: five wide plus a gap
 ASC, DESC = 800, -200
 
@@ -49,7 +49,7 @@ def glyf_for(hexstr):
     xs, ys, flags, ends = [], [], [], []
     for (c0, c1, r) in rs:
         x0, x1 = c0 * PX, c1 * PX
-        y1 = (ROWS - r) * PX
+        y1 = (ROWS - 2 - r) * PX                 # row 5 sits on the baseline
         y0 = y1 - PX
         for (px, py) in ((x0, y0), (x0, y1), (x1, y1), (x1, y0)):
             xs.append(px)
@@ -80,7 +80,9 @@ def checksum(data):
     return sum(struct.unpack('>%dI' % (len(data) // 4), data)) & 0xFFFFFFFF
 
 
-def build(glyphs, miss):
+def build(glyphs, miss, widths=None):
+    widths = widths or {}
+    advs = [ADV]
     codes = sorted(set(ord(k) for k in glyphs if len(k) == 1))
     order = [chr(c) for c in codes]
     every = [None] + order
@@ -94,6 +96,8 @@ def build(glyphs, miss):
         glyf += d
         loca.append(len(glyf))
         boxes.append((x0, y0, x1, y1))
+        if ch is not None:
+            advs.append((widths.get(ch, COLS) + 1) * PX)
     n = len(every)
 
     xmin = min(b[0] for b in boxes)
@@ -113,9 +117,9 @@ def build(glyphs, miss):
                        xmin, ymin, xmax, ymax, 0, 8, 2,
                        1 if long_loca else 0, 0)
     hhea = struct.pack('>IhhhHhhhhhhhhhhhH',
-                       0x00010000, ASC, DESC, 0, ADV, xmin, ymin, xmax,
+                       0x00010000, ASC, DESC, 0, max(advs), xmin, ymin, xmax,
                        1, 0, 0, 0, 0, 0, 0, 0, n)
-    hmtx = b''.join(struct.pack('>Hh', ADV, 0) for _ in range(n))
+    hmtx = b''.join(struct.pack('>Hh', a, 0) for a in advs)
     max_pts = max(len(rects(miss if c is None else glyphs[c])) * 4 for c in every)
     max_ctr = max(len(rects(miss if c is None else glyphs[c])) for c in every)
     maxp = struct.pack('>IHHHHHHHHHHHHHH', 0x00010000, n, max_pts, max_ctr,
@@ -194,6 +198,6 @@ def build(glyphs, miss):
 
 if __name__ == '__main__':
     data = json.load(open(sys.argv[1]))
-    ttf = build(data['G'], data['MISS'])
+    ttf = build(data['G'], data['MISS'], data.get('W'))
     open(sys.argv[2], 'wb').write(ttf)
     print('wrote', sys.argv[2], len(ttf), 'bytes')
