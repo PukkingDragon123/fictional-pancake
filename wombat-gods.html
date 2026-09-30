@@ -8462,18 +8462,18 @@ const Pug = (() => {
     const cx = 26 + Math.round(sway), y0 = Math.round(bob) + (sit ? 8 : 0);
 
     // ---- the curly tail, peeking out behind the left hip
-    E(cx - 13, 58 + y0, 3.4, 3.4, FUR[1]); E(cx - 13, 58 + y0, 2.2, 2.2, FUR[3]); E(cx - 13, 58 + y0, 1, 1, FUR[1]);
+    E(cx - 11, 58 + y0, 3.4, 3.4, FUR[1]); E(cx - 11, 58 + y0, 2.2, 2.2, FUR[3]); E(cx - 11, 58 + y0, 1, 1, FUR[1]);
 
     // ---- legs: short trousers over fat little legs, and polished shoes
     const hipY = 68 + y0;
     for (const s2 of [-1, 1]) {
       if (sit) {
-        const fx = cx + s2 * 7;
+        const fx = cx + s2 * 6;
         E(fx, hipY + 1, 6, 4, SUIT[1]); E(fx, hipY, 5, 3, SUIT[2]);
         E(fx + s2, hipY + 4, 4, 2.4, SHOE[1]); R(fx + s2 - 2, hipY + 3, 3, 1, SHOE[2]);
         continue;
       }
-      const fx = cx + s2 * 5 + step * s2, lift = step * s2 > 1 ? 2 : 0;
+      const fx = cx + s2 * 4 + step * s2, lift = step * s2 > 1 ? 2 : 0;
       R(fx - 3.5, hipY, 7, 8 - lift, SUIT[1]); R(fx - 3.5, hipY, 1, 8 - lift, SUIT[2]); R(fx + 2.5, hipY, 1, 8 - lift, SUIT[0]);
       R(fx - 0.5, hipY + 1, 1, 6 - lift, SUIT[0]);                                        // the crease
       E(fx + 1, hipY + 10 - lift, 4.6, 2.4, SHOE[1]); R(fx - 3, hipY + 11 - lift, 9, 2, SHOE[0]);
@@ -8483,23 +8483,32 @@ const Pug = (() => {
     // ---- arms: suit sleeves, a shirt cuff, a fawn paw
     const shY = 47 + y0;
     const arm = (s2, hand) => {
-      const sx = cx + s2 * 11, hx = sx + hand[0] * 0.9, hy = shY + hand[1];
-      Art.limb(g, sx, shY, hx, hy, 4, 3.2, SUIT[1]);
-      Art.limb(g, sx - 0.5, shY - 0.5, hx - 0.5, hy - 0.5, 2.6, 2, SUIT[2]);
-      Art.limb(g, sx - 1, shY - 1, hx - 1, hy - 1, 1, 0.8, SUIT[3]);
-      const cx2 = sx + (hx - sx) * 0.86, cy2 = shY + (hy - shY) * 0.86;
-      E(cx2, cy2, 2.6, 1.8, SHIRT[1]); E(cx2, cy2 - 0.4, 2, 1.2, SHIRT[2]);
-      E(hx, hy + 1.2, 3, 2.8, FUR[1]); E(hx - 0.3, hy + 0.8, 2.4, 2.2, FUR[3]); E(hx - 1, hy, 1, 0.9, FUR[4]);
-      for (const d of [-1.2, 0.2, 1.4]) P(hx + d, hy + 3, FUR[0]);                        // the toes
+      // a soft noodle arm: one smooth curve from shoulder to paw, bowed outward,
+      // sagging with its own weight and trailing a beat behind the paw (follow-through)
+      const sx = cx + s2 * 9, hx = sx + hand[0] * 0.9, hy = shY + hand[1];
+      const lag = Math.sin(t * TAU * 2 - 1.1 + s2 * 0.6) * 1.3;
+      const len = Math.hypot(hx - sx, hy - shY) || 1;
+      const nx = -(hy - shY) / len * s2, ny = (hx - sx) / len * s2;          // outward normal
+      const bow = 2.2 + Math.max(0, 9 - len) * 0.25;
+      const kx = (sx + hx) / 2 + nx * -bow * s2 * s2 + s2 * bow * 0.6 + lag * 0.6, ky = (shY + hy) / 2 + 1.6 + Math.abs(lag) * 0.5;
+      const at = (u) => [(1 - u) * (1 - u) * sx + 2 * (1 - u) * u * kx + u * u * hx, (1 - u) * (1 - u) * shY + 2 * (1 - u) * u * ky + u * u * hy];
+      const N = 14;
+      for (const [col, w0, off] of [[SUIT[1], 3.2, 0], [SUIT[2], 2.2, -0.5], [SUIT[3], 0.9, -1.1]])
+        for (let i = 0; i <= N; i++) { const u = i / N, [x, y] = at(u); if (u > 0.86) break; E(x + off * 0.6, y + off, w0 - u * 0.7, w0 - u * 0.7, col); }
+      const [ux, uy] = at(0.84);
+      E(ux, uy, 2.3, 2, SHIRT[1]); E(ux - 0.3, uy - 0.4, 1.6, 1.2, SHIRT[2]);        // the cuff
+      // a round mitten paw with a pink bean
+      E(hx, hy + 0.8, 3.3, 3.1, FUR[1]); E(hx - 0.3, hy + 0.4, 2.7, 2.5, FUR[3]); E(hx - 1.1, hy - 0.5, 1.1, 1, FUR[4]);
+      E(hx + 0.4, hy + 1.6, 1.1, 0.8, '#c8868a');
     };
 
     // ---- the body: a very round suit
     const by = 58 + y0 + jig * 0.5;
-    E(cx, by, 16, 12.5, SUIT[0]);
-    E(cx, by - 0.5, 15.2, 11.8, SUIT[1]);
-    E(cx - 3, by - 3, 10, 7.5, SUIT[2]);
+    E(cx, by, 12.5, 12, SUIT[0]);
+    E(cx, by - 0.5, 11.8, 11.3, SUIT[1]);
+    E(cx - 3, by - 3, 7.5, 7, SUIT[2]);
     E(cx - 6, by - 6, 5, 3, SUIT[3]);
-    R(cx - 13, by + 8, 26, 1, SUIT[0]);                                                 // where it sits on the waist
+    R(cx - 10, by + 8, 20, 1, SUIT[0]);                                                 // where it sits on the waist
     // the shirt front in a V, pushed out by the belly
     Art.poly(g, [[cx - 5, 46 + y0], [cx + 5, 46 + y0], [cx + 6, by + 2], [cx + 3, by + 9], [cx - 3, by + 9], [cx - 6, by + 2]], SHIRT[1]);
     E(cx - 0.5, by + 1, 5.2, 7, SHIRT[1]); E(cx - 1.5, by - 1, 3, 4.5, SHIRT[2]);
@@ -8517,7 +8526,7 @@ const Pug = (() => {
     R(cx - 5, by + 2, 10, 1, SUIT[3]);
     for (const dx of [-3, -1, 1, 3]) P(cx + dx, by + 1, SHIRT[0]);                    // the pull lines
     E(cx, by + 4, 1.2, 1.2, '#1a1410'); P(cx - 0.5, by + 3.5, '#6a6258');              // the button
-    R(cx + 7, 50 + y0, 4, 1, SUIT[0]); R(cx + 7, 49 + y0, 3, 1, SHIRT[2]); P(cx + 10, 48 + y0, SHIRT[2]);
+    R(cx + 6, 50 + y0, 3, 1, SUIT[0]); R(cx + 6, 49 + y0, 2, 1, SHIRT[2]); P(cx + 8, 48 + y0, SHIRT[2]);
     arm(-1, hl); if (pose !== 'clap') arm(1, hr);
 
     // ---- the head: wide, flat-faced, turned a touch to the right
