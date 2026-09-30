@@ -1012,30 +1012,31 @@ html.bigtext #hud, html.bigtext .panel, html.bigtext .tray { zoom: 1.12; }
    Nothing on this page is round. Loaded after style.css and louder than it.
    ========================================================================== */
 :root {
-  --ol: #3b2616; --inner: #2f5a2a;
-  --fr0: #b8e08a; --fr1: #7cb85a; --fr2: #5a9a44; --fr3: #3f7a34;
-  --pp0: #fffaf0; --pp1: #fdf0d8; --pp2: #f2dcb4; --pp3: #d8b888;
-  --ink: #4a3222; --ink2: #8a6a4c;
-  --cream: #fffaf0; --parch: #fdf0d8;
-  --berry: #f07a8a; --berry-d: #c83a4c; --honey: #f8d060; --honey-d: #b88420;
+  /* walnut, brass, linen and moss: a farmhouse palette, muted like real materials */
+  --ol: #1f150e; --inner: #8a6a36;
+  --fr0: #9a7650; --fr1: #7a5838; --fr2: #62452b; --fr3: #45301d;
+  --pp0: #f6f0e2; --pp1: #ece3cf; --pp2: #dcd0b4; --pp3: #b8a882;
+  --ink: #2e241a; --ink2: #6e5e48;
+  --cream: #f6f0e2; --parch: #ece3cf;
+  --berry: #8e3a34; --berry-d: #5e221e; --honey: #c9a256; --honey-d: #8a6a2e;
   /* the old palette names, pointed at the new colours so older rules follow */
-  --wd0: #1e3a1a; --wd1: #2f5a2a; --wd2: #3f7a34; --wd3: #5a9a44; --wd4: #7cb85a; --wd5: #b8e08a;
-  --pg0: #d8b888; --pg1: #f2dcb4; --pg2: #fdf0d8; --pg3: #fff4e0; --pg4: #fffaf0; --pg5: #8a6a4c;
-  --gd0: #264e20; --gd1: #3f7a32; --gd2: #6aa84a; --gd3: #a8d880; --gd4: #d8ffa8;
-  --tl0: #0a3a6a; --tl1: #1a5aa0; --tl2: #5a9ad0; --tl3: #7ac8ff; --tl4: #c0e8ff;
-  --am0: #6a0e06; --am1: #983224; --am2: #d45a40; --am3: #ff8a70;
-  --grass: #6aa84a; --grass-d: #3f7a32; --grass-dd: #264e20; --grass-l: #a8d880;
-  --sun: #f0c048; --sun-l: #fbe8a0; --sun-d: #b8842a; --tomato: #d45a40; --sky: #5a9ad0;
-  --bev: inset 2px 2px 0 rgba(255,255,255,0.45), inset -2px -2px 0 rgba(0,0,0,0.22);
+  --wd0: #2a1c12; --wd1: #45301d; --wd2: #62452b; --wd3: #7a5838; --wd4: #9a7650; --wd5: #c0a07a;
+  --pg0: #b8a882; --pg1: #dcd0b4; --pg2: #ece3cf; --pg3: #f2ead8; --pg4: #f6f0e2; --pg5: #6e5e48;
+  --gd0: #2a3a1c; --gd1: #3e5228; --gd2: #5a7040; --gd3: #8a9e6a; --gd4: #b8c89a;
+  --tl0: #1a2e40; --tl1: #2e4a62; --tl2: #4e6e88; --tl3: #7896ae; --tl4: #b0c4d4;
+  --am0: #4a1410; --am1: #6e2a22; --am2: #9a4a3a; --am3: #c07a64;
+  --grass: #5a7040; --grass-d: #3e5228; --grass-dd: #2a3a1c; --grass-l: #8a9e6a;
+  --sun: #c9a256; --sun-l: #e6d4a0; --sun-d: #8a6a2e; --tomato: #9a4a3a; --sky: #4e6e88;
+  --bev: inset 2px 2px 0 rgba(255,255,255,0.3), inset -2px -2px 0 rgba(0,0,0,0.25);
 }
 * { border-radius: 0 !important; }
-html, body { color: var(--ink); background: #5a8a3a; }
+html, body { color: var(--ink); background: #2a2419; }
 button { color: var(--ink); font-family: var(--f); }
 #stage {
   background:
     linear-gradient(90deg, rgba(0,0,0,0.06) 50%, transparent 50%) 0 0 / 16px 16px,
     linear-gradient(rgba(0,0,0,0.06) 50%, transparent 50%) 0 0 / 16px 16px,
-    #6aa040;
+    #2e271c;
 }
 /* the picture sits in a thick pixel frame of its own */
 #frame { box-shadow: 0 0 0 3px var(--ol), 0 0 0 6px var(--fr1), 0 0 0 7px var(--fr0), 0 0 0 10px var(--fr3), 0 0 0 13px var(--ol), 8px 12px 0 13px rgba(40,20,4,0.35) !important; }
@@ -1074,9 +1075,9 @@ button { color: var(--ink); font-family: var(--f); }
 .x, .bx {
   width: 32px; height: 32px; padding: 0 !important;
   background: var(--tomato) !important; border: 3px solid var(--ol) !important;
-  box-shadow: inset 2px 2px 0 #ff8a70, inset -2px -2px 0 var(--am1), 0 3px 0 0 var(--ol) !important;
+  box-shadow: inset 2px 2px 0 #c07a64, inset -2px -2px 0 var(--am1), 0 3px 0 0 var(--ol) !important;
 }
-.x:hover, .bx:hover { background: #ff5a40 !important; }
+.x:hover, .bx:hover { background: #a84a38 !important; }
 .x img.ico, .bx img.ico { width: 14px; height: 14px; filter: brightness(10); }
 
 /* ---- panels: a box with a plaque across the top ------------------------------------------------ */
@@ -1189,7 +1190,7 @@ button { color: var(--ink); font-family: var(--f); }
 #hotbar .hslot.want { animation: wantpulse 0.9s steps(2) infinite; }
 #hotbar .hslot.sealed .lk img.ico { opacity: 0.55; }
 @keyframes newbob { 0%, 100% { transform: translate(-50%, 0) } 50% { transform: translate(-50%, -3px) } }
-@keyframes wantpulse { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 0 #f0c048) drop-shadow(3px 0 0 #f0c048) drop-shadow(-3px 0 0 #f0c048) drop-shadow(0 3px 0 #f0c048) drop-shadow(0 -3px 0 #f0c048); } }
+@keyframes wantpulse { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 0 #c9a256) drop-shadow(3px 0 0 #c9a256) drop-shadow(-3px 0 0 #c9a256) drop-shadow(0 3px 0 #c9a256) drop-shadow(0 -3px 0 #c9a256); } }
 #toasts { bottom: 122px !important; }
 
 .help ol { color: var(--ink) !important; }
@@ -1257,9 +1258,9 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
   background: var(--fr2); border: 3px solid var(--ol); box-shadow: inset 3px 3px 0 var(--fr0), inset -3px -3px 0 var(--fr3); text-shadow: 2px 2px 0 var(--ol); }
 .ucard.gift .uhead { background: var(--grass); box-shadow: inset 3px 3px 0 var(--grass-l), inset -3px -3px 0 var(--grass-dd); }
 .upic { position: relative; width: 100px; height: 100px; margin: 8px 0 2px; display: flex; align-items: center; justify-content: center;
-  background: #f6cc84; border: 3px solid #8a4a1c; box-shadow: inset 4px 4px 0 #d49a54, inset -3px -3px 0 #ffe4b0, 0 0 0 3px var(--sun); }
+  background: #e2d7bf; border: 3px solid #45301d; box-shadow: inset 4px 4px 0 #c7b894, inset -3px -3px 0 #f6f0e2, 0 0 0 3px var(--honey); }
 .upic::before { content: ''; position: absolute; inset: -16px; z-index: -1;
-  background: repeating-conic-gradient(rgba(255,200,28,0.7) 0 10deg, rgba(255,200,28,0) 10deg 30deg); animation: spin 6s steps(24) infinite; }
+  background: repeating-conic-gradient(rgba(201,162,86,0.35) 0 10deg, rgba(201,162,86,0) 10deg 30deg); animation: spin 6s steps(24) infinite; }
 @keyframes spin { to { transform: rotate(360deg) } }
 .upic img.ico { width: 64px; height: 64px; animation: ufloat 1s steps(2) infinite; }
 @keyframes ufloat { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
@@ -1293,12 +1294,12 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 .panel.build.dc { top: auto !important; bottom: 10px; transform: translateX(-50%) !important; width: min(1120px, 97vw); max-height: none; padding: 0 0 10px !important; animation: dcup .22s steps(4, end) !important; }
 @keyframes dcup { from { transform: translate(-50%, 40px); opacity: 0 } to { transform: translate(-50%, 0); opacity: 1 } }
 .dc-top { display: flex; align-items: center; gap: 12px; margin: -28px 18px 8px; position: relative; z-index: 2; }
-.dc-title { position: relative; display: flex; align-items: center; gap: 8px; padding: 4px 26px 6px 16px; font-size: 24px; letter-spacing: 3px; color: #fffaf0;
+.dc-title { position: relative; display: flex; align-items: center; gap: 8px; padding: 4px 26px 6px 16px; font-size: 24px; letter-spacing: 3px; color: #f6f0e2;
   text-shadow: 2px 2px 0 var(--ol); border: 10px solid transparent; border-image: var(--gf-sel) 10 fill / 10px / 0 stretch; image-rendering: pixelated; }
 .dc-title img.ico { width: 28px; height: 28px; }
-.dc-coins { display: flex; align-items: center; gap: 6px; padding: 0 10px; font-size: 20px; color: #5a3a10;
+.dc-coins { display: flex; align-items: center; gap: 6px; padding: 0 10px; font-size: 20px; color: #3a2a12;
   border: 10px solid transparent; border-image: var(--gf-hot) 10 fill / 10px / 0 stretch; image-rendering: pixelated; }
-.dc-coins b { font-weight: 400; text-shadow: 1px 1px 0 #fff0b0; }
+.dc-coins b { font-weight: 400; text-shadow: 1px 1px 0 #e6d4a0; }
 .dc-top .x { margin-left: auto; }
 .dc-body { display: flex; gap: 10px; padding: 0 12px; }
 .dc-tabs { display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; }
@@ -1307,7 +1308,7 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
   border: 8px solid transparent !important; border-image: var(--gf-slot) 10 fill / 8px / 0 stretch !important; image-rendering: pixelated; }
 .panel .dc-tabs button img.ico { width: 24px !important; height: 24px !important; }
 .panel .dc-tabs button:hover { transform: translateY(-2px); }
-.panel .dc-tabs button.on { border-image-source: var(--gf-slotsel) !important; color: #fffaf0; text-shadow: 1px 1px 0 var(--ol); }
+.panel .dc-tabs button.on { border-image-source: var(--gf-slotsel) !important; color: #f6f0e2; text-shadow: 1px 1px 0 var(--ol); }
 .dc-row { flex: 1; display: flex; gap: 14px; overflow-x: auto; overflow-y: hidden; padding: 10px 10px 14px; scroll-snap-type: x mandatory; align-items: flex-start;
   height: 236px; box-sizing: border-box; background: var(--pc-track) 0 0 / 64px 236px repeat-x; border: 3px solid var(--ol); box-shadow: inset 0 3px 0 rgba(0,0,0,0.12); image-rendering: pixelated; }
 .dc-row::-webkit-scrollbar { height: 12px; }
@@ -1317,11 +1318,11 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
   border: 10px solid transparent; border-image: var(--pc-card) 10 fill / 10px / 0 stretch; image-rendering: pixelated;
   filter: drop-shadow(0 4px 0 rgba(40,30,10,0.35)); transition: transform .08s steps(2); background: none; box-shadow: none; }
 .dcc:hover { transform: translateY(-4px); border-image-source: var(--pc-cardhot); }
-.dcc-name { position: relative; align-self: stretch; margin: -8px -8px 2px; padding: 4px 4px 5px; text-align: center; font-size: 14px; line-height: 1.1; color: #fffaf0;
+.dcc-name { position: relative; align-self: stretch; margin: -8px -8px 2px; padding: 4px 4px 5px; text-align: center; font-size: 14px; line-height: 1.1; color: #f6f0e2;
   text-shadow: 1px 1px 0 var(--ol); background: var(--fr2); border: 3px solid var(--ol); box-shadow: inset 0 2px 0 var(--fr0), inset 0 -2px 0 var(--fr3);
   clip-path: polygon(0 3px, 3px 3px, 3px 0, calc(100% - 3px) 0, calc(100% - 3px) 3px, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 3px calc(100% - 3px), 0 calc(100% - 3px)); }
-.dcc.cat-utility .dcc-name { background: #d8a030; box-shadow: inset 0 2px 0 #f8d060, inset 0 -2px 0 #a87818; }
-.dcc.cat-decor .dcc-name { background: var(--berry); box-shadow: inset 0 2px 0 #ffb0bc, inset 0 -2px 0 var(--berry-d); }
+.dcc.cat-utility .dcc-name { background: #a88440; box-shadow: inset 0 2px 0 #d0ac62, inset 0 -2px 0 #a87818; }
+.dcc.cat-decor .dcc-name { background: var(--berry); box-shadow: inset 0 2px 0 #b86a60, inset 0 -2px 0 var(--berry-d); }
 .dcc-art { width: 124px; height: 100px; display: flex; align-items: flex-end; justify-content: center; position: relative;
   background: var(--pc-lawn) 50% 100% / 120px 32px no-repeat; image-rendering: pixelated; padding-bottom: 12px; box-sizing: border-box; }
 .dcc-art img { width: 88px; height: auto; max-height: 84px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 0 rgba(40,30,10,0.3)); }
@@ -1330,15 +1331,15 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 .dcc-have { position: absolute; top: 20px; right: -4px; font-style: normal; font-size: 12px; padding: 0 5px; color: #fff; background: var(--berry-d); border: 2px solid var(--ol); z-index: 2; }
 .dcc-tag { font-size: 12px; color: var(--ink2); margin: 2px 0 6px; min-height: 14px; text-align: center; }
 .panel .dcc-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 118px; height: 36px; padding: 0 0 3px; cursor: pointer;
-  font-family: var(--f); font-size: 18px; color: #5a3a10; text-shadow: 1px 1px 0 #fff0b0; background: none !important; box-shadow: none !important;
+  font-family: var(--f); font-size: 18px; color: #3a2a12; text-shadow: 1px 1px 0 #e6d4a0; background: none !important; box-shadow: none !important;
   border: 10px solid transparent !important; border-image: var(--pc-btn) 10 fill / 10px / 0 stretch !important; image-rendering: pixelated; }
 .panel .dcc-btn:hover:not(:disabled) { border-image-source: var(--pc-btnhot) !important; transform: translateY(-1px); }
 .panel .dcc-btn:active:not(:disabled) { transform: translateY(3px); }
-.panel .dcc-btn.place { color: #fffaf0; text-shadow: 1px 1px 0 var(--ol); border-image-source: var(--pc-btngo) !important; }
+.panel .dcc-btn.place { color: #f6f0e2; text-shadow: 1px 1px 0 var(--ol); border-image-source: var(--pc-btngo) !important; }
 .panel .dcc-btn.place:hover { border-image-source: var(--pc-btngohot) !important; }
 .panel .dcc-btn:disabled { filter: grayscale(0.8) brightness(0.9); opacity: 0.7; cursor: default; }
 .dcc.locked .dcc-art img { filter: grayscale(1) brightness(0.5); }
-.dcc-lock { display: flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 12px; color: #fffaf0; background: #6a5a4a; border: 3px solid var(--ol); }
+.dcc-lock { display: flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 12px; color: #f6f0e2; background: #6a5a4a; border: 3px solid var(--ol); }
 .dc-empty { align-self: center; margin: auto; padding: 10px 18px; font-size: 18px; color: var(--ink); border: 10px solid transparent; border-image: var(--pc-card) 10 fill / 10px / 0 stretch; }
 /* the BUILD button next to back, and the bar along the top while placing */
 .mbtn.bbuild { display: flex; align-items: center; gap: 6px; padding: 0 12px 0 8px !important; height: 50px; width: auto !important; }
@@ -1355,7 +1356,7 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 
 /* ---- polish: the purse is a honey plaque, the clock sits under it, the toolbar is chunkier ---- */
 #money { border-image-source: var(--gf-hot) !important; }
-#money b { color: #5a3a10 !important; text-shadow: 2px 2px 0 #fff0b0 !important; font-size: 24px !important; }
+#money b { color: #3a2a12 !important; text-shadow: 2px 2px 0 #e6d4a0 !important; font-size: 24px !important; }
 #money img.ico { width: 30px !important; height: 30px !important; animation: coinspin 2.4s steps(2) infinite; }
 @keyframes coinspin { 0%, 90%, 100% { transform: none } 95% { transform: scaleX(0.6) } }
 #clock b { font-size: 22px; }
@@ -1366,12 +1367,48 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
 #tip { filter: drop-shadow(3px 4px 0 rgba(40,30,10,0.3)); }
 .toast { filter: drop-shadow(3px 4px 0 rgba(40,30,10,0.3)); }
 .dc-title { border: 3px solid var(--ol) !important; border-image: none !important; background: var(--berry);
-  box-shadow: inset 3px 3px 0 #ffb0bc, inset -3px -3px 0 var(--berry-d), 0 4px 0 rgba(40,20,10,0.35);
+  box-shadow: inset 3px 3px 0 #b86a60, inset -3px -3px 0 var(--berry-d), 0 4px 0 rgba(40,20,10,0.35);
   clip-path: polygon(0 3px, 3px 3px, 3px 0, calc(100% - 3px) 0, calc(100% - 3px) 3px, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 3px calc(100% - 3px), 0 calc(100% - 3px)); padding: 6px 22px 8px 14px; }
 .panel .dc-tabs button.on { color: var(--ink); text-shadow: none; }
 .panel .dc-tabs button { height: 44px; width: 66px; }
 .panel .dc-tabs button img.ico { width: 20px !important; height: 20px !important; }
 .panel.build.dc { padding-bottom: 12px !important; }
+
+/* ---- the build menu, v3: a carpenter's catalogue -----------------------------------------------------------
+   A walnut cabinet with brass pins; a dark shelf of planks; linen cards with each building standing on a stone
+   plinth; brass price buttons and moss-green PLACE. The tabs are brass-edged drawer fronts down the side. */
+.panel.build.dc { border-image-source: var(--gf-base) !important; }
+.dc-top { margin: -30px 18px 8px; }
+.dc-title { background: #3a2819 !important; color: #efe0b8; letter-spacing: 4px; font-size: 22px;
+  box-shadow: inset 0 0 0 2px #c9a256, inset 0 3px 0 2px #6a4c32, 0 4px 0 rgba(20,12,6,0.45) !important; text-shadow: 2px 2px 0 #140d08; }
+.dc-title img.ico { filter: sepia(0.35) saturate(0.8); }
+.dc-coins { color: #3a2a12; }
+.dc-coins b { text-shadow: 1px 1px 0 #f3e6c2; }
+.panel .dc-tabs button { color: #4a3a26; }
+.panel .dc-tabs button.on { color: #2e241a; }
+.panel .dc-tabs button img.ico { filter: saturate(0.75); }
+.dc-row { background: var(--pc-track) 0 0 / 96px 236px repeat-x; border: 3px solid var(--ol); box-shadow: inset 0 6px 8px rgba(0,0,0,0.45), inset 0 -2px 0 rgba(0,0,0,0.3); gap: 12px; }
+.dc-row::-webkit-scrollbar-thumb { background: #c9a256; border: 3px solid var(--ol); }
+.dc-row::-webkit-scrollbar-track { background: #2a1c12; }
+.dcc { filter: drop-shadow(0 5px 0 rgba(10,6,2,0.55)); flex-basis: 146px; }
+.dcc-name { background: #45301d !important; color: #efe0b8; box-shadow: inset 0 2px 0 #6a4c32, inset 0 -2px 0 #2a1c12 !important; font-size: 13px; letter-spacing: 1px;
+  border-bottom: 3px solid #c9a256; }
+.dcc-name::before { content: ''; position: absolute; left: 4px; top: 50%; width: 6px; height: 6px; margin-top: -3px; background: #6e8a4e; box-shadow: 0 0 0 1px #1f150e; }
+.dcc.cat-utility .dcc-name::before { background: #4e6e88; }
+.dcc.cat-decor .dcc-name::before { background: #8e3a34; }
+.dcc-art { background: var(--pc-lawn) 50% 100% / 112px 30px no-repeat, radial-gradient(ellipse 60% 55% at 50% 58%, rgba(255,250,235,0.9), rgba(255,250,235,0) 70%); }
+.dcc-art img { filter: drop-shadow(2px 3px 0 rgba(30,20,10,0.35)) saturate(0.85); }
+.dcc-tag { color: #6e5e48; font-size: 11px; letter-spacing: 0.5px; }
+.dcc-have { background: #c9a256; color: #2e241a; border: 2px solid var(--ol); top: 24px; right: 2px; }
+.panel .dcc-btn { color: #2e2210; text-shadow: 1px 1px 0 #ecd49a; font-size: 17px; }
+.panel .dcc-btn.place { color: #f6f0e2; text-shadow: 1px 1px 0 #1f150e; }
+.panel .dcc-btn:disabled { filter: grayscale(1) brightness(0.85); opacity: 0.75; }
+.dcc-lock { background: #3a2819; color: #efe0b8; border: 2px solid #c9a256; }
+.dc-empty { color: #efe0b8; border: 0; background: none; font-size: 18px; text-shadow: 2px 2px 0 #140d08; }
+#placebar b { color: #62452b; }
+.credit b { color: var(--berry); }
+.dcc-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 14px !important; }
+.dcc-tag { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 128px; }
 </style>
 
 <div id="app">
@@ -1462,7 +1499,7 @@ body.talking #hotbar { opacity: 0; pointer-events: none; }
     <div class="phead"><img class="ico" data-ico="eye" alt=""><span class="ptitle">HOW TO PLAY</span><button class="x" data-close="panel-help"><img class="ico sm" data-ico="close" alt=""></button></div>
     <div class="pbody help">
       <ol>
-        <li><b>Momo</b> gives you jobs. Click her to chat or sell cubes.</li>
+        <li><b>Mr Biscuit</b> the pug gives you jobs. Click him to chat or sell cubes.</li>
         <li>Tools: <b>1</b>&ndash;<b>0</b>. Buy them at <b>Wombat Mart</b> (click the truck).</li>
         <li>Cut weeds, clear logs, sow grass. A wombat comes!</li>
         <li>Grow veg, feed wombats, collect their <b>cube poop</b>.</li>
@@ -3363,12 +3400,12 @@ const Sprites = (() => {
     return c;
   }
 
-  // ---- Momo ------------------------------------------------------------------
+  // ---- the old guide (unused) ------------------------------------------------------------------
   // The caretaker who shows you the job. A big friendly bloke: swept ginger
   // hair under a red sweatband, black-rimmed glasses, ginger stubble, a grey
   // check fleece with a thick cream collar, a pink shirt over a good belly,
   // brown shorts, and freckled, hairy legs.
-  // Momo from the side, walking: the belly leads, the arms swing, the mop of
+  // The old guide from the side, walking: the belly leads, the arms swing, the mop of
   // hair bounces on every step. Drawn facing right; the grove flips him.
   function jimSide(f, t, run) {
     const { c, g } = Art.cv(CW, CH);
@@ -3445,7 +3482,7 @@ const Sprites = (() => {
   }
   function jim(frame, pose = 'idle') {
     const n = CULT_POSES[pose] || 1, f = ((frame % n) + n) % n, t = f / n;
-    if (typeof JimGirl !== 'undefined') return JimGirl.sprite(f, t, pose, faceMood);   // Momo, in her wombat onesie
+    if (typeof Pug !== 'undefined') return Pug.sprite(f, t, pose, faceMood);   // Mr Biscuit, the pug in the suit
     const key = `jim:${f}:${pose}:${faceMood}`;
     let img = cache.get(key); if (img) return img;
     if (pose === 'walk' || pose === 'run') { img = jimSide(f, t, pose === 'run'); cache.set(key, img); return img; }
@@ -7648,15 +7685,15 @@ const Icons = (() => {
 // Nothing is round.
 const Kit = (() => {
   const C = {
-    line: '#3b2616', inner: '#2f5a2a',
-    frameL: '#b8e08a', frame: '#7cb85a', frameM: '#5a9a44', frameD: '#3f7a34',
-    paper: '#fdf0d8', paperL: '#fffaf0', paperD: '#f2dcb4',
-    ink: '#4a3222', ink2: '#8a6a4c',
-    // the accents: grass green, sunflower, tomato, sky
-    mint: '#6aa84a', mintL: '#a8d880', mintD: '#3f7a32', mintDD: '#264e20', mintW: '#fff3d4',
-    sun: '#f0c048', sunL: '#fbe8a0', sunD: '#b8842a',
-    coral: '#d45a40', coralD: '#983224', sky: '#5a9ad0',
-    shadow: 'rgba(40,30,10,0.3)',
+    line: '#1f150e', inner: '#8a6a36',
+    frameL: '#9a7650', frame: '#7a5838', frameM: '#62452b', frameD: '#45301d',
+    paper: '#ece3cf', paperL: '#f6f0e2', paperD: '#dcd0b4',
+    ink: '#2e241a', ink2: '#6e5e48',
+    // the accents: moss, brass, brick, slate
+    mint: '#5a7040', mintL: '#8a9e6a', mintD: '#3e5228', mintDD: '#2a3a1c', mintW: '#f3ead2',
+    sun: '#c9a256', sunL: '#e6d4a0', sunD: '#8a6a2e',
+    coral: '#9a4a3a', coralD: '#6e2a22', sky: '#4e6e88',
+    shadow: 'rgba(20,12,6,0.35)',
   };
   const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
   // a rectangle with a single pixel knocked off each corner: the only
@@ -7767,7 +7804,7 @@ const Portraits = (() => {
 
   // ---- who looks like what --------------------------------------------------
   const SPECS = {
-    // Momo: heavyset, messy ginger-blond hair sticking up over a red headband,
+    // Mr Biscuit: heavyset, messy ginger-blond hair sticking up over a red headband,
     // thick black glasses, ginger stubble, a grey check fleece with a big
     // cream sherpa collar over a pink shirt.
     jim: {
@@ -8063,7 +8100,7 @@ const Portraits = (() => {
   // `t` drives the blink; `talking` flaps the mouth.
   function get(key, mood, t = 0, talking = false) {
     if ((key === 'clark' || key === 'villager:clark') && typeof Kirk !== 'undefined') return Kirk.bust(mood, t, talking);
-    if (key === 'jim' && typeof JimGirl !== 'undefined') return JimGirl.bust(mood, t, talking);
+    if (key === 'jim' && typeof Pug !== 'undefined') return Pug.bust(mood, t, talking);
     if (typeof Busts !== 'undefined' && Busts.has(key)) return Busts.get(key, mood, t, talking);
     const spec = specFor(key);
     if (!spec) return null;
@@ -8285,199 +8322,236 @@ const Kirk = (() => {
 </script>
 
 <script>
-// ===== js/jimgirl.js =====
-// ---- Momo: the caretaker, in her wombat onesie ------------------------------------------
-// A chibi anime girl: big head, huge sparkly teal eyes, soft pink hair with a
-// fringe and long locks, and brown wombat pyjamas with the hood up. The hood
-// has round ears and a little wombat face of its own (two button eyes and a
-// big soft nose) sitting over her fringe; the onesie has a cream tummy, paw
-// mittens and paw feet with toe beans, and a stubby tail.
+// ===== js/pug.js =====
+// ---- Mr Biscuit: the caretaker, a pug in a suit ----------------------------------------------
+// A very round fawn pug who walks on his back legs and dresses for work: a
+// charcoal three-button suit (straining at the middle button), a white shirt,
+// a burgundy tie and a folded pocket square. Round tortoiseshell glasses sit
+// on the black mask of his face, over big wet eyes with a pale rim; his ears
+// fold forward, his brow wrinkles, his tongue pokes out when he is pleased,
+// and his tail curls up behind him. He knows everything about wombats.
 //
-// JimGirl.sprite(f, t, pose, mood) draws the 52x84 figure (feet at y 81, the
-// same box the old Momo used, so everything that draws him still lines up).
-// JimGirl.bust(mood, t, talking) is her 64x64 dialogue portrait.
-const JimGirl = (() => {
+// Pug.sprite(f, t, pose, mood) draws the 52x84 figure (feet at y 81, centre x
+// 26, the box every guide sprite has used). Pug.bust(mood, t, talking) is his
+// 64x64 dialogue portrait. The view is three-quarters, turned to the right;
+// the game flips him to walk left.
+const Pug = (() => {
   const cache = new Map();
-  const INK = '#2a1420';
-  const SKIN = ['#e8a88a', '#ffd6c0', '#fff0e4'];
-  const HAIR = ['#a8466a', '#d8688e', '#f494b4', '#ffc8da'];
-  const ONE = ['#4e2e1c', '#6e4428', '#8e5c38', '#b07a4e', '#cc9a6a'];      // the onesie, dark to light
-  const BELLY = ['#d8b88c', '#f0d8b0', '#fff0d4'];
-  const LINE = '#f4b4bc';                                                     // the hood's pink lining
-  const IRIS = ['#0e3a4a', '#1a6a78', '#2aa8a8', '#7ae8d8'];
-  const BLUSH = '#ff8aa0';
+  const INK = '#1c130d';
+  const FUR = ['#7a5634', '#a07a50', '#c29e70', '#dcbd8e', '#ecd6ae'];     // fawn, dark to light
+  const MASK = ['#140e0b', '#261b15', '#3a2b22', '#54423a'];               // the black of the face and ears
+  const SUIT = ['#1d2027', '#2a2e37', '#393e4a', '#4d5361', '#646b7a'];    // charcoal wool
+  const SHIRT = ['#a9a69f', '#cfccc4', '#ebe8e1'];
+  const TIE = ['#4a1418', '#6e2226', '#8f3533', '#a84a44'];
+  const GLASS = ['#3a2414', '#6a4222', '#9a6634'];                          // tortoiseshell
+  const SHOE = ['#140d09', '#2e1f16', '#4a3526'];
+  const TONGUE = ['#9a4a52', '#c86a70', '#e0949a'];
   const TAU = Math.PI * 2;
+  const kit = (g) => {
+    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    return { R, P: (x, y, col) => R(x, y, 1, 1, col), E: (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col) };
+  };
 
-  // ---- eyes ---------------------------------------------------------------------------------
-  // (x, y) is the top-left of the eye box; s is 1 for the figure and 1.6 for the portrait
-  function eye(g, x, y, s, kind, look, R, P) {
-    const w = Math.round(5 * s), h = Math.round(7 * s);
-    if (kind === 'happy') {                                  // ^ ^
-      for (let i = 0; i < w; i++) { const d = Math.abs(i - (w - 1) / 2); R(x + i, y + Math.round(h * 0.35 + d * 0.9 * s) - Math.round(s), 1, Math.max(1, Math.round(s)), INK); }
+  // ---- the face -------------------------------------------------------------------------------
+  // eye kinds: open, wide, happy (a squeezed arc), shut, narrow (a heavy lid)
+  const FACE = {
+    idle: ['open', 'tongue'], talk: ['open', 'open'], happy: ['happy', 'tongue'], proud: ['narrow', 'smirk'], laugh: ['happy', 'grin'],
+    cross: ['narrow', 'frown'], worry: ['wide', 'wobble'], shock: ['wide', 'o'], think: ['open', 'flat'],
+    tired: ['shut', 'flat'], sly: ['narrow', 'smirk'], sad: ['open', 'frown'], curious: ['wide', 'flat'], surprise: ['wide', 'o'],
+  };
+  // (cx, cy) is the eye's centre; s is the scale (1 on the figure, about 2 on the portrait)
+  function eye(k, cx, cy, s, kind, look) {
+    const { R, P, E } = k;
+    const r = 2.6 * s;
+    if (kind === 'happy') {
+      for (let i = -Math.round(r); i <= Math.round(r); i++) R(cx + i, cy - Math.round(Math.cos(i / r * 1.3) * s * 1.4) + Math.round(s * 0.4), 1, Math.max(1, Math.round(s * 0.8)), MASK[0]);
       return;
     }
-    if (kind === 'shut') { R(x, y + Math.round(h * 0.6), w, Math.max(1, Math.round(s)), INK); R(x - 1, y + Math.round(h * 0.6) - 1, 1, 1, INK); return; }
-    const top = kind === 'narrow' ? Math.round(h * 0.35) : kind === 'squint' ? Math.round(h * 0.25) : 0;
-    const ew = kind === 'wide' ? w : w, eh = h - top;
-    R(x, y + top, ew, eh, '#ffffff');                        // the white
-    const ix = x + (look === 'side' ? Math.round(s) : 0), iy = y + top;
-    const iw = kind === 'wide' ? Math.max(3, Math.round(3.4 * s)) : w - Math.max(1, Math.round(s * 0.6));
-    const ixx = kind === 'wide' ? x + Math.round((w - iw) / 2) : ix;
-    R(ixx, iy, iw, eh, IRIS[2]);                             // the iris, dark at the top, light at the foot
-    R(ixx, iy, iw, Math.max(1, Math.round(eh * 0.35)), IRIS[1]);
-    R(ixx, iy + eh - Math.max(1, Math.round(eh * 0.25)), iw, Math.max(1, Math.round(eh * 0.25)), IRIS[3]);
-    R(ixx + Math.round(iw / 2 - s * 0.8), iy + Math.round(eh * 0.3), Math.max(1, Math.round(s * 1.6)), Math.max(1, Math.round(eh * 0.45)), IRIS[0]);   // the pupil
-    R(ixx, iy, Math.max(2, Math.round(s * 2)), Math.max(2, Math.round(s * 2)), '#ffffff');                    // the big glint
-    P(ixx + iw - Math.max(1, Math.round(s)), iy + eh - Math.max(2, Math.round(s * 2)), '#ffffff');                // the small one
-    R(x - Math.round(s * 0.6), y + top - 1, w + Math.round(s), Math.max(1, Math.round(s)), INK);                  // the lash line
-    R(x + w - 1, y + top - 1 - Math.round(s * 0.6), Math.max(1, Math.round(s * 0.8)), 1, INK);                  // a flick at the corner
+    if (kind === 'shut') { R(cx - r, cy, r * 2 + 1, Math.max(1, Math.round(s * 0.8)), MASK[0]); return; }
+    // a pale rim, the dark wet eye, a glint and a smaller one below
+    E(cx, cy, r + s * 0.9, r + s * 0.8, '#e8e0d0');
+    E(cx, cy, r + s * 0.3, r + s * 0.2, '#b8ab98');
+    const lx = look === 'side' ? s : kind === 'wide' ? 0 : s * 0.4;
+    E(cx + lx, cy + s * 0.2, r * (kind === 'wide' ? 0.8 : 0.95), r * (kind === 'wide' ? 0.8 : 0.95), '#2a1a10');
+    E(cx + lx, cy + s * 0.3, r * 0.55, r * 0.55, '#0c0806');
+    R(cx + lx - r * 0.55, cy - r * 0.55, Math.max(1, Math.round(s * 1.2)), Math.max(1, Math.round(s * 1.2)), '#fffaf0');
+    P(cx + lx + r * 0.4, cy + r * 0.35, '#8a7a6a');
+    if (kind === 'narrow') R(cx - r - s, cy - r - s, r * 2 + s * 2 + 1, r * 0.9 + s, FUR[1]);     // the heavy lid
   }
-  function mouth(g, cx, y, kind, s, R, P) {
+  function mouth(k, cx, y, kind, s) {
+    const { R, P } = k;
     const u = Math.max(1, Math.round(s));
     switch (kind) {
-      case 'open': R(cx - u, y, u * 3, u * 2, '#8a2a3a'); R(cx - u, y + u, u * 3, u, '#ff8a9a'); break;
-      case 'grin': R(cx - u * 2, y, u * 5, u * 2, '#8a2a3a'); R(cx - u * 2, y, u * 5, u, '#ffffff'); R(cx - u, y + u, u * 3, u, '#ff8a9a'); break;
-      case 'o': R(cx - u, y - u + 1, u * 2 + 1, u * 2 + 1, '#8a2a3a'); break;
-      case 'frown': R(cx - u, y + u, u * 3, u, INK); P(cx - u - 1, y + u + 1, INK); P(cx + u * 2, y + u + 1, INK); break;
-      case 'wobble': for (let i = -u * 2; i <= u * 2; i++) P(cx + i, y + ((i + 10) % 2), INK); break;
-      case 'flat': R(cx - u, y + u, u * 3, 1, INK); break;
-      case 'smirk': R(cx - u, y + u, u * 3, 1, INK); P(cx + u * 2, y, INK); break;
-      default:                                                    // the cat mouth: w
-        P(cx - u * 2, y, INK); P(cx - u, y + u, INK); P(cx, y, INK); P(cx + u, y + u, INK); P(cx + u * 2, y, INK);
+      case 'tongue':                                                  // the classic pug: a bit of tongue out
+        R(cx - u * 3, y, u * 6, u, MASK[0]);
+        R(cx - u, y + u, u * 3, u * 2, TONGUE[1]); R(cx, y + u, u, u * 2, TONGUE[0]); R(cx - u, y + u * 3, u * 3, u, TONGUE[0]);
+        P(cx - u + 1, y + u, TONGUE[2]);
+        break;
+      case 'open':
+        R(cx - u * 2, y, u * 4, u * 2 + 1, MASK[0]); R(cx - u, y + u, u * 2, u + 1, TONGUE[1]);
+        break;
+      case 'grin':
+        R(cx - u * 4, y, u * 8, u * 2 + 1, MASK[0]); R(cx - u * 2, y + u, u * 4, u + 1, TONGUE[1]);
+        R(cx - u * 3, y, u, u, '#e8e0d0'); R(cx + u * 2, y, u, u, '#e8e0d0');       // two little bottom teeth
+        break;
+      case 'o': R(cx - u, y - 1, u * 2 + 1, u * 2 + 1, MASK[0]); break;
+      case 'frown': R(cx - u * 3, y + u, u * 6, u, MASK[0]); R(cx - u * 4, y + u * 2, u, u, MASK[0]); R(cx + u * 3, y + u * 2, u, u, MASK[0]); break;
+      case 'wobble': for (let i = -u * 3; i <= u * 3; i++) P(cx + i, y + (((i % 2) + 2) % 2), MASK[0]); break;
+      case 'smirk': R(cx - u * 3, y + u, u * 5, u, MASK[0]); R(cx + u * 2, y, u * 2, u, MASK[0]); break;
+      default: R(cx - u * 3, y + u, u * 6, u, MASK[0]);
     }
   }
-  const FACE = {
-    idle: ['open', 'cat'], talk: ['open', 'open'], happy: ['happy', 'grin'], proud: ['squint', 'grin'], laugh: ['happy', 'open'],
-    cross: ['narrow', 'frown'], worry: ['wide', 'wobble'], shock: ['wide', 'o'], think: ['open', 'flat'],
-    tired: ['shut', 'wobble'], sly: ['narrow', 'smirk'], sad: ['narrow', 'frown'],
-  };
+  // the brow: pugs think with their foreheads
+  function brow(k, cx, y, s, mood) {
+    const { R } = k;
+    const w = Math.round(9 * s);
+    const rows = mood === 'cross' ? [[-1, 0.6], [1, 0.4]] : mood === 'worry' || mood === 'sad' ? [[0, 0.5], [2, 0.7]] : [[0, 0.5], [2, 0.35]];
+    for (const [dy, len] of rows) {
+      const ww = Math.round(w * len);
+      R(cx - ww / 2, y + dy * s, ww, Math.max(1, Math.round(s * 0.7)), FUR[0]);
+    }
+    if (mood === 'cross') { R(cx - w * 0.9, y + s * 2, w * 0.7, Math.max(1, s * 0.8), FUR[0]); R(cx + w * 0.2, y + s * 2, w * 0.7, Math.max(1, s * 0.8), FUR[0]); }
+    if (mood === 'worry' || mood === 'sad') { R(cx - w * 0.9, y + s * 3, w * 0.5, Math.max(1, s * 0.8), FUR[0]); R(cx + w * 0.4, y + s * 3, w * 0.5, Math.max(1, s * 0.8), FUR[0]); }
+  }
+  function glasses(k, lx, rx, y, r, s) {
+    const { R } = k;
+    for (const x of [lx, rx]) {
+      for (let d = 0; d < Math.max(1, Math.round(s * 0.8)); d += 0.5) Art.ring(k.g, x, y, r - d, r - d, GLASS[d ? 0 : 1], 1);
+      R(x - r * 0.6, y - r + s * 0.4, Math.max(1, Math.round(s)), Math.max(1, Math.round(s)), GLASS[2]);
+    }
+    R(lx + r, y - s * 0.6, rx - lx - r * 2, Math.max(1, Math.round(s * 0.8)), GLASS[0]);     // the bridge
+  }
 
   // ---- the figure -------------------------------------------------------------------------------
   function sprite(f, t, pose, mood) {
     const key = `${f}:${pose}:${mood}`;
     let c = cache.get(key); if (c) return c;
     const o = Art.cv(52, 84), g = o.g; c = o.c;
-    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
-    const P = (x, y, col) => R(x, y, 1, 1, col);
-    const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
+    const k = kit(g); k.g = g;
+    const { R, P, E } = k;
     const S2 = Math.sin(t * TAU), A2 = Math.abs(Math.sin(t * TAU * 2));
     // hands are offsets from the shoulder; negative y is up
-    let bob = 0, step = 0, sit = 0, lean = 0, tilt = 0, eyes = null;
-    let hl = [-4, 13], hr = [4, 13];
+    let bob = 0, step = 0, sit = 0, sway = 0, tilt = 0, eyes = null, jig = 0;
+    let hl = [-3, 10], hr = [3, 10];
     switch (pose) {
-      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-4, 13 + S2 * 0.6]; hr = [4, 13 - S2 * 0.6]; break;
+      case 'idle': bob = [0, 0, 1, 1, 0, 0][f] || 0; hl = [-3, 10 + S2 * 0.5]; hr = [3, 10 - S2 * 0.5]; jig = [0, 0, 1, 1, 0, 0][f] || 0; break;
       case 'walk': case 'run': {
-        const k = pose === 'run' ? 1.4 : 1;
-        bob = -A2 * 2 * k; step = S2 * 2.2 * k; hl = [-5, 11 - S2 * 3 * k]; hr = [5, 11 + S2 * 3 * k]; lean = pose === 'run' ? 1 : 0; break;
+        const q = pose === 'run' ? 1.4 : 1;                 // a waddle: the whole pug rocks side to side
+        bob = -A2 * 1.6 * q; step = S2 * 2 * q; sway = S2 * 1.2 * q; hl = [-4, 9 - S2 * 3 * q]; hr = [4, 9 + S2 * 3 * q]; jig = Math.round(A2); break;
       }
-      case 'turn': bob = 0; break;
-      case 'jump': bob = [1, -8, -13, -8, 1][f] || 0; hl = [-8, -12]; hr = [8, -12]; break;
-      case 'cheer': bob = [0, -3, -6, -6, -3, 0][f] || 0; hl = [-7, -15]; hr = [7, -15]; eyes = 'happy'; break;
-      case 'laugh': bob = [0, -1, -2, -2, -1, 0][f] || 0; hl = [-3, 8]; hr = [3, 8]; tilt = S2 * 1.2; eyes = 'happy'; break;
-      case 'clap': { const k = f % 2 ? 1 : 3; hl = [7 - k, 5]; hr = [-7 + k, 5]; eyes = 'happy'; break; }
-      case 'wave': hr = [9, -13 + Math.round(Math.sin(t * TAU * 2) * 3)]; break;
-      case 'point': hr = [14, -2]; break;
-      case 'cast': hr = [8, -15]; hl = [-6, 6]; bob = f >= 3 ? -1 : 0; break;
-      case 'shrug': { const k = [0, 4, 5, 2][f] || 0; hl = [-6 - k, 8 - k]; hr = [6 + k, 8 - k]; break; }
+      case 'turn': break;
+      case 'jump': bob = [1, -7, -11, -7, 1][f] || 0; hl = [-8, -9]; hr = [8, -9]; jig = f === 2 ? -1 : 1; break;
+      case 'cheer': bob = [0, -3, -5, -5, -3, 0][f] || 0; hl = [-7, -12]; hr = [7, -12]; eyes = 'happy'; jig = bob < -3 ? -1 : 1; break;
+      case 'laugh': bob = [0, -1, -2, -2, -1, 0][f] || 0; hl = [-2, 6]; hr = [2, 6]; tilt = S2 * 1.2; eyes = 'happy'; jig = f % 2; break;
+      case 'clap': { const q = f % 2 ? 1 : 3; hl = [7 - q, 3]; hr = [-7 + q, 3]; eyes = 'happy'; break; }
+      case 'wave': hr = [9, -11 + Math.round(Math.sin(t * TAU * 2) * 3)]; break;
+      case 'point': hr = [13, -1]; break;
+      case 'cast': hr = [8, -12]; hl = [-5, 5]; bob = f >= 3 ? -1 : 0; break;
+      case 'shrug': { const q = [0, 4, 5, 2][f] || 0; hl = [-6 - q, 6 - q]; hr = [6 + q, 6 - q]; break; }
       case 'nod': bob = [0, 1, 2, 2, 1, 0][f] || 0; break;
       case 'shake': tilt = Math.sin(t * TAU * 2) * 1.6; break;
-      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-2, 12]; hr = [2, 12]; eyes = 'shut'; break;
-      case 'hurt': bob = [2, 1, 0][f] || 0; hl = [-7, 4]; hr = [7, 4]; eyes = 'wide'; break;
-      case 'sulk': bob = 1; hl = [-2, 11]; hr = [2, 11]; break;
-      case 'sit': sit = 1; hl = [-5, 12]; hr = [5, 12]; break;
-      case 'sleep': sit = 1; hl = [-3, 11]; hr = [3, 11]; eyes = 'shut'; tilt = 1.5; break;
+      case 'bow': bob = [0, 2, 4, 2, 0][f] || 0; hl = [-1, 10]; hr = [1, 10]; eyes = 'shut'; break;
+      case 'hurt': bob = [2, 1, 0][f] || 0; hl = [-7, 2]; hr = [7, 2]; eyes = 'wide'; break;
+      case 'sulk': bob = 1; hl = [-1, 9]; hr = [1, 9]; break;
+      case 'sit': sit = 1; hl = [-4, 8]; hr = [4, 8]; break;
+      case 'sleep': sit = 1; hl = [-2, 8]; hr = [2, 8]; eyes = 'shut'; tilt = 1.5; break;
     }
     const [eyeKind, mouthKind] = FACE[mood] || FACE.idle;
-    const ek = eyes || (pose === 'hurt' ? 'wide' : eyeKind), mk = pose === 'hurt' ? 'o' : pose === 'laugh' || pose === 'cheer' ? 'open' : pose === 'sleep' ? 'flat' : mouthKind;
-    const cx = 26, y0 = Math.round(bob) + (sit ? 9 : 0);
-    g.save();
-    if (lean) { g.translate(cx, 81); g.transform(1, 0, 0.06, 1, 0, 0); g.translate(-cx, -81); }
+    const ek = eyes || eyeKind;
+    const mk = pose === 'hurt' ? 'o' : pose === 'laugh' || pose === 'cheer' ? 'grin' : pose === 'sleep' ? 'flat' : mouthKind;
+    const cx = 26 + Math.round(sway), y0 = Math.round(bob) + (sit ? 8 : 0);
 
-    // ---- long hair behind everything, and the tail
-    R(cx - 15, 30 + y0, 6, 22, HAIR[1]); R(cx + 9, 30 + y0, 6, 22, HAIR[1]);
-    R(cx - 15, 30 + y0, 2, 21, HAIR[2]); R(cx + 13, 31 + y0, 2, 20, HAIR[0]);
-    for (const x of [cx - 15, cx - 12, cx + 9, cx + 12]) R(x, 51 + y0, 3, 2, HAIR[1]);
-    E(cx + 9, 62 + y0, 2.6, 2.6, ONE[1]); E(cx + 9, 61 + y0, 1.6, 1.6, ONE[3]);
+    // ---- the curly tail, peeking out behind the left hip
+    E(cx - 13, 58 + y0, 3.4, 3.4, FUR[1]); E(cx - 13, 58 + y0, 2.2, 2.2, FUR[3]); E(cx - 13, 58 + y0, 1, 1, FUR[1]);
 
-    // ---- legs and paw feet
-    const hipY = 66 + y0;
+    // ---- legs: short trousers over fat little legs, and polished shoes
+    const hipY = 68 + y0;
     for (const s2 of [-1, 1]) {
       if (sit) {
-        const fx = cx + s2 * 6;
-        E(fx, hipY + 2, 5, 4, ONE[2]); E(fx, hipY + 1, 4, 3, ONE[3]);
-        E(fx + s2 * 2, hipY + 5, 4, 3, ONE[1]);                      // the paw, toes at you
-        for (let k = -1; k <= 1; k++) P(fx + s2 * 2 + k * 2, hipY + 5, BELLY[1]);
+        const fx = cx + s2 * 7;
+        E(fx, hipY + 1, 6, 4, SUIT[1]); E(fx, hipY, 5, 3, SUIT[2]);
+        E(fx + s2, hipY + 4, 4, 2.4, SHOE[1]); R(fx + s2 - 2, hipY + 3, 3, 1, SHOE[2]);
         continue;
       }
-      const fx = cx + s2 * 3.5 + step * s2, lift = step * s2 > 1 ? 2 : 0;
-      R(fx - 2.5, hipY, 5, 11 - lift, ONE[2]); R(fx - 2.5, hipY, 1, 10 - lift, ONE[3]); R(fx + 1.5, hipY, 1, 10 - lift, ONE[1]);
-      E(fx + s2 * 0.5, hipY + 12 - lift, 3.8, 2.4, ONE[1]); E(fx + s2 * 0.5, hipY + 11 - lift, 3.2, 1.8, ONE[2]);   // the paw foot
-      R(fx - 2.5 + s2 * 0.5, hipY + 13 - lift, 5, 1, ONE[0]);
-      for (let k = -1; k <= 1; k++) P(fx + s2 * 0.5 + k * 1.5, hipY + 10 - lift, BELLY[1]);           // toe beans
+      const fx = cx + s2 * 5 + step * s2, lift = step * s2 > 1 ? 2 : 0;
+      R(fx - 3.5, hipY, 7, 8 - lift, SUIT[1]); R(fx - 3.5, hipY, 1, 8 - lift, SUIT[2]); R(fx + 2.5, hipY, 1, 8 - lift, SUIT[0]);
+      R(fx - 0.5, hipY + 1, 1, 6 - lift, SUIT[0]);                                        // the crease
+      E(fx + 1, hipY + 10 - lift, 4.6, 2.4, SHOE[1]); R(fx - 3, hipY + 11 - lift, 9, 2, SHOE[0]);
+      R(fx - 1, hipY + 9 - lift, 3, 1, SHOE[2]); P(fx + 3, hipY + 9 - lift, '#6a5242');     // the shine
     }
 
-    // ---- the far arm (only when it crosses in front does the order matter)
-    const shY = 45 + y0;
+    // ---- arms: suit sleeves, a shirt cuff, a fawn paw
+    const shY = 47 + y0;
     const arm = (s2, hand) => {
-      const sx = cx + s2 * 6.5, hx = sx + hand[0] * 0.9, hy = shY + hand[1];
-      // a slim sleeve, a touch fuller at the shoulder, with a lit edge and a cream cuff
-      Art.limb(g, sx, shY, hx, hy, 3.2, 2.4, ONE[0]);
-      Art.limb(g, sx, shY, hx, hy, 2.4, 1.7, ONE[2]);
-      Art.limb(g, sx - 0.6, shY - 0.5, hx - 0.5, hy - 0.5, 1, 0.7, ONE[3]);
-      const cx2 = sx + (hx - sx) * 0.84, cy2 = shY + (hy - shY) * 0.84;
-      E(cx2, cy2, 2.4, 1.6, BELLY[0]); E(cx2, cy2 - 0.3, 1.9, 1.1, BELLY[1]);
-      // the paw: round, with a pink bean and three toe beans
-      E(hx, hy + 1.2, 3, 2.9, ONE[0]); E(hx, hy + 0.8, 2.5, 2.4, ONE[2]); E(hx - 0.8, hy, 1.2, 1, ONE[3]);
-      E(hx, hy + 1.6, 1.1, 0.9, '#f4a0b0');
-      for (const d of [-1.2, 0, 1.2]) P(hx + d, hy - 0.4, '#f4a0b0');
+      const sx = cx + s2 * 11, hx = sx + hand[0] * 0.9, hy = shY + hand[1];
+      Art.limb(g, sx, shY, hx, hy, 4, 3.2, SUIT[1]);
+      Art.limb(g, sx - 0.5, shY - 0.5, hx - 0.5, hy - 0.5, 2.6, 2, SUIT[2]);
+      Art.limb(g, sx - 1, shY - 1, hx - 1, hy - 1, 1, 0.8, SUIT[3]);
+      const cx2 = sx + (hx - sx) * 0.86, cy2 = shY + (hy - shY) * 0.86;
+      E(cx2, cy2, 2.6, 1.8, SHIRT[1]); E(cx2, cy2 - 0.4, 2, 1.2, SHIRT[2]);
+      E(hx, hy + 1.2, 3, 2.8, FUR[1]); E(hx - 0.3, hy + 0.8, 2.4, 2.2, FUR[3]); E(hx - 1, hy, 1, 0.9, FUR[4]);
+      for (const d of [-1.2, 0.2, 1.4]) P(hx + d, hy + 3, FUR[0]);                        // the toes
     };
 
-    // ---- the body: the onesie, round, with a cream tummy and a zip
-    // slim: narrow shoulders, a waist, a little flare at the hip
-    E(cx, 50 + y0, 7.5, 7, ONE[1]); E(cx, 60 + y0, 8, 7, ONE[1]); R(cx - 6, 50 + y0, 12, 10, ONE[1]);
-    E(cx, 50 + y0, 6.8, 6.2, ONE[2]); E(cx, 60 + y0, 7.2, 6.2, ONE[2]); R(cx - 5.4, 50 + y0, 10.8, 10, ONE[2]);
-    E(cx - 3, 48 + y0, 3, 4, ONE[3]);
-    E(cx, 57 + y0, 4, 6, BELLY[0]); E(cx, 56.5 + y0, 3.4, 5.4, BELLY[1]); E(cx - 1, 54 + y0, 1.6, 2, BELLY[2]);
-    R(cx, 44 + y0, 1, 20, ONE[0]); R(cx - 1, 46 + y0, 3, 2, '#e8c050');           // the zip and its pull
-    if (!(pose === 'clap')) { arm(-1, hl); arm(1, hr); }
+    // ---- the body: a very round suit
+    const by = 58 + y0 + jig * 0.5;
+    E(cx, by, 16, 12.5, SUIT[0]);
+    E(cx, by - 0.5, 15.2, 11.8, SUIT[1]);
+    E(cx - 3, by - 3, 10, 7.5, SUIT[2]);
+    E(cx - 6, by - 6, 5, 3, SUIT[3]);
+    R(cx - 13, by + 8, 26, 1, SUIT[0]);                                                 // where it sits on the waist
+    // the shirt front in a V, pushed out by the belly
+    Art.poly(g, [[cx - 5, 46 + y0], [cx + 5, 46 + y0], [cx + 6, by + 2], [cx + 3, by + 9], [cx - 3, by + 9], [cx - 6, by + 2]], SHIRT[1]);
+    E(cx - 0.5, by + 1, 5.2, 7, SHIRT[1]); E(cx - 1.5, by - 1, 3, 4.5, SHIRT[2]);
+    R(cx + 3, by - 2, 1, 9, SHIRT[0]);                                                  // the shadow on the round of it
+    // the lapels
+    Art.poly(g, [[cx - 6, 46 + y0], [cx - 3, 46 + y0], [cx - 1, by - 4], [cx - 5, by + 1]], SUIT[3]);
+    Art.poly(g, [[cx + 3, 46 + y0], [cx + 6, 46 + y0], [cx + 5, by + 1], [cx + 1, by - 4]], SUIT[2]);
+    // the tie, short and wide, riding up on the belly
+    R(cx - 1.5, 46 + y0, 3, 3, TIE[2]); R(cx - 1, 46 + y0, 1, 2, TIE[3]);
+    Art.poly(g, [[cx - 2, 49 + y0], [cx + 2, 49 + y0], [cx + 3, by + 3], [cx, by + 6], [cx - 3, by + 3]], TIE[1]);
+    R(cx - 1, 50 + y0, 1, by - 47 - y0, TIE[2]);
+    for (let i = 0; i < 3; i++) P(cx + 1, 52 + y0 + i * 3, TIE[0]);                   // a small pattern
+    // the jacket closing below the tie, the straining button, the pocket square
+    Art.poly(g, [[cx - 6, by + 2], [cx + 6, by + 2], [cx + 5, by + 9], [cx - 5, by + 9]], SUIT[1]);
+    R(cx - 5, by + 2, 10, 1, SUIT[3]);
+    for (const dx of [-3, -1, 1, 3]) P(cx + dx, by + 1, SHIRT[0]);                    // the pull lines
+    E(cx, by + 4, 1.2, 1.2, '#1a1410'); P(cx - 0.5, by + 3.5, '#6a6258');              // the button
+    R(cx + 7, 50 + y0, 4, 1, SUIT[0]); R(cx + 7, 49 + y0, 3, 1, SHIRT[2]); P(cx + 10, 48 + y0, SHIRT[2]);
+    arm(-1, hl); if (pose !== 'clap') arm(1, hr);
 
-    // ---- the head: the hood first, then the face inside it
-    const hy = 24 + y0, tl = tilt;
-    // hood ears, round, with pink insides
-    for (const s2 of [-1, 1]) { E(cx + s2 * 13 + tl, hy - 13, 5, 5, ONE[1]); E(cx + s2 * 13 + tl, hy - 13, 3, 3, LINE); }
-    E(cx + tl, hy, 19, 18, ONE[1]);
-    E(cx + tl, hy - 1, 18, 17, ONE[2]);
-    E(cx - 6 + tl, hy - 9, 8, 5, ONE[3]);                                          // light on the crown of it
-    // the hood's own little wombat face, over her fringe
-    E(cx + tl, hy - 12, 5, 3, ONE[0]); E(cx - 1 + tl, hy - 13, 2, 1, ONE[1]);    // its nose
-    for (const s2 of [-1, 1]) { R(cx + s2 * 8 - 1 + tl, hy - 14, 2, 2, INK); P(cx + s2 * 8 - 1 + tl, hy - 14, '#ffffff'); }
-    // the lining round the opening, then the face
-    E(cx + tl, hy + 4, 14, 13, LINE);
-    E(cx + tl, hy + 4, 12.5, 12, SKIN[1]);
-    E(cx - 4 + tl, hy + 1, 5, 4, SKIN[2]);
-    // the fringe: long points coming down over the brow, and side locks
-    const fr = [[-12, 5], [-9, 8], [-5, 6], [-2, 9], [1, 7], [4, 9], [7, 6], [10, 8]];
-    R(cx - 12 + tl, hy - 8, 24, 5, HAIR[1]);
-    for (const [dx, len] of fr) {
-      R(cx + dx + tl, hy - 4, 3, len - 2, HAIR[1]); R(cx + dx + 1 + tl, hy - 4, 1, len - 1, HAIR[2]);
-      P(cx + dx + 1 + tl, hy - 4 + len - 1, HAIR[1]);
-    }
-    R(cx - 11 + tl, hy - 7, 20, 1, HAIR[3]);                                        // the shine band
-    for (const s2 of [-1, 1]) {
-      const lx = s2 < 0 ? cx - 13 + tl : cx + 10 + tl;
-      R(lx, hy - 2, 3, 16, HAIR[1]); R(lx + (s2 < 0 ? 0 : 2), hy - 2, 1, 15, s2 < 0 ? HAIR[2] : HAIR[0]);
-      R(lx, hy + 14, 3, 2, HAIR[0]);
-    }
-    // eyes, blush, mouth
-    const ey = hy + 3;
-    eye(g, cx - 9 + tl, ey, 1, ek, mood === 'think' ? 'side' : null, R, P);
-    eye(g, cx + 4 + tl, ey, 1, ek, mood === 'think' ? 'side' : null, R, P);
-    R(cx - 11 + tl, ey + 8, 4, 2, BLUSH); R(cx + 7 + tl, ey + 8, 4, 2, BLUSH);
-    P(cx - 10 + tl, ey + 8, '#ffc0cc'); P(cx + 8 + tl, ey + 8, '#ffc0cc');
-    mouth(g, cx + tl, ey + 10, mk, 1, R, P);
-    if (pose === 'clap') { arm(-1, hl); arm(1, hr); }                             // the hands meet in front
-    if (pose === 'sleep') { Font.draw(g, 'z', cx + 14, hy - 20, { scale: 1, color: '#8a8ad8' }); }
-    g.restore();
+    // ---- the head: wide, flat-faced, turned a touch to the right
+    const hx = cx + 1 + tilt, hy = 30 + y0 + jig * 0.5;
+    // the rolls of the neck, where the collar holds them in
+    E(hx, hy + 13, 11, 4, FUR[1]); E(hx, hy + 12, 10, 3.2, FUR[2]);
+    R(hx - 7, hy + 14, 14, 2, SHIRT[2]); R(hx - 1, hy + 14, 2, 1, TIE[2]);            // the collar
+    E(hx, hy, 15, 12.5, FUR[1]);
+    E(hx - 0.5, hy - 0.8, 14, 11.6, FUR[2]);
+    E(hx - 3, hy - 4, 9, 6, FUR[3]);
+    E(hx - 5, hy - 7, 4, 2.2, FUR[4]);
+    // the ears' folds, drawn over the head
+    // the ears: soft black flaps, folded forward and hanging at the sides
+    Art.poly(g, [[hx - 13, hy - 11], [hx - 8, hy - 11], [hx - 10, hy - 6], [hx - 15, hy - 2], [hx - 17, hy - 7]], MASK[1]);
+    Art.poly(g, [[hx + 8, hy - 11], [hx + 13, hy - 11], [hx + 17, hy - 7], [hx + 15, hy - 2], [hx + 10, hy - 6]], MASK[1]);
+    R(hx - 13, hy - 10, 4, 1, MASK[3]); R(hx + 9, hy - 10, 4, 1, MASK[3]);
+    // the mask: the black face that pugs are born with, darkest at the muzzle
+    E(hx + 1, hy + 4, 9, 7, MASK[2]); E(hx + 1, hy + 5, 7.5, 5.5, MASK[1]);
+    E(hx - 6, hy - 1, 4.4, 4, MASK[2]); E(hx + 7, hy - 1, 4.4, 4, MASK[2]);
+    brow(k, hx + 1, hy - 8, 1, mood);
+    // the eyes, set wide, and the glasses over them
+    const look = mood === 'think' ? 'side' : null;
+    eye(k, hx - 5.5, hy - 1, 1, ek, look);
+    eye(k, hx + 7, hy - 1, 1, ek, look);
+    glasses(k, hx - 5.5, hx + 7, hy - 1, 4.4, 1);
+    // the nose: a flat black button with a wrinkle over it, then the mouth
+    R(hx - 1, hy + 2, 5, 3, MASK[0]); P(hx, hy + 2, MASK[3]); P(hx + 2, hy + 3, MASK[3]);
+    R(hx - 2, hy + 1, 7, 1, FUR[0]);
+    R(hx + 1, hy + 5, 1, 2, MASK[0]);                                                   // the line down the lip
+    mouth(k, hx + 1.5, hy + 7, mk, 1);
+    // a few whisker dots on the muzzle
+    for (const [dx, dy] of [[-4, 5], [-5, 6], [6, 5], [7, 6]]) P(hx + dx, hy + dy, MASK[3]);
+    if (pose === 'clap') arm(1, hr);                                                    // the hands meet in front
+    if (pose === 'sleep') Font.draw(g, 'z', cx + 15, hy - 20, { scale: 1, color: '#9aa2c8' });
     Art.outline(c, INK, 1);
     cache.set(key, c);
     return c;
@@ -8489,51 +8563,49 @@ const JimGirl = (() => {
     const key = `b:${mood}:${blink ? 1 : 0}:${open ? 1 : 0}`;
     let c = cache.get(key); if (c) return c;
     const o = Art.cv(64, 64), g = o.g; c = o.c;
-    const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
-    const P = (x, y, col) => R(x, y, 1, 1, col);
-    const E = (x, y, rx, ry, col) => Art.ell(g, x, y, rx, ry, col);
+    const k = kit(g); k.g = g;
+    const { R, P, E } = k;
     const cx = 32;
-    // long hair behind
-    R(8, 30, 9, 30, HAIR[1]); R(47, 30, 9, 30, HAIR[1]); R(8, 30, 3, 30, HAIR[2]); R(53, 30, 3, 30, HAIR[0]);
-    // shoulders: the onesie, a cream collar of tummy and the zip
-    E(cx, 64, 28, 12, ONE[1]); E(cx, 64, 27, 11, ONE[2]); E(cx - 10, 58, 8, 4, ONE[3]);
-    E(cx, 66, 12, 8, BELLY[1]); R(cx, 54, 1, 10, ONE[0]); R(cx - 1, 56, 3, 3, '#e8c050'); P(cx, 57, '#fff0a0');
-    // the hood: ears, the round of it, the wombat face on the front
-    for (const s2 of [-1, 1]) { E(cx + s2 * 19, 9, 7, 7, ONE[1]); E(cx + s2 * 19, 9, 4, 4, LINE); }
-    E(cx, 30, 27, 26, ONE[1]);
-    E(cx, 29, 26, 25, ONE[2]);
-    E(cx - 9, 16, 11, 6, ONE[3]);
-    E(cx, 12, 7, 4, ONE[0]); E(cx - 2, 11, 3, 1.4, ONE[1]);                        // its nose
-    for (const s2 of [-1, 1]) { R(cx + s2 * 12 - 2, 9, 3, 3, INK); P(cx + s2 * 12 - 2, 9, '#ffffff'); }
-    // the lining and the face
-    E(cx, 37, 21, 20, LINE);
-    E(cx, 37, 19, 19, SKIN[1]);
-    E(cx - 6, 32, 8, 6, SKIN[2]);
-    R(cx - 3, 45, 6, 1, SKIN[0]);                                                  // the soft line of the chin
-    // the fringe
-    R(cx - 18, 19, 36, 5, HAIR[1]);
-    const fr = [[-18, 9], [-14, 13], [-9, 10], [-5, 14], [-1, 11], [3, 14], [8, 10], [12, 13], [16, 9]];
-    for (const [dx, len] of fr) {
-      R(cx + dx, 24, 4, len - 3, HAIR[1]); R(cx + dx + 1, 24, 2, len - 2, HAIR[2]);
-      R(cx + dx + 1, 24 + len - 3, 2, 1, HAIR[1]);
-    }
-    R(cx - 16, 20, 30, 1, HAIR[3]); R(cx - 12, 21, 8, 1, HAIR[3]);                 // the shine band
-    for (const s2 of [-1, 1]) {                                                    // side locks
-      const lx = s2 < 0 ? cx - 20 : cx + 15;
-      R(lx, 26, 5, 26, HAIR[1]); R(lx + (s2 < 0 ? 1 : 3), 26, 1, 25, s2 < 0 ? HAIR[2] : HAIR[0]);
-      R(lx + 1, 51, 3, 3, HAIR[1]);
-    }
+    // shoulders: the jacket, the lapels, the shirt, the tie, the pocket square
+    E(cx, 66, 30, 13, SUIT[1]); E(cx - 8, 60, 14, 6, SUIT[2]); E(cx - 14, 58, 6, 3, SUIT[3]);
+    Art.poly(g, [[cx - 9, 52], [cx + 9, 52], [cx + 5, 64], [cx - 5, 64]], SHIRT[1]);
+    Art.poly(g, [[cx - 12, 52], [cx - 7, 52], [cx - 3, 64], [cx - 9, 64]], SUIT[3]);
+    Art.poly(g, [[cx + 7, 52], [cx + 12, 52], [cx + 9, 64], [cx + 3, 64]], SUIT[2]);
+    R(cx - 3, 52, 6, 4, TIE[2]); R(cx - 2, 52, 2, 3, TIE[3]);
+    Art.poly(g, [[cx - 3, 56], [cx + 3, 56], [cx + 4, 64], [cx - 4, 64]], TIE[1]);
+    R(cx - 1, 57, 1, 7, TIE[2]);
+    R(cx + 15, 58, 7, 2, SUIT[0]); Art.poly(g, [[cx + 15, 58], [cx + 18, 54], [cx + 20, 58]], SHIRT[2]);
+    // neck rolls over the collar
+    E(cx, 50, 18, 5, FUR[1]); E(cx, 49, 17, 4, FUR[2]);
+    R(cx - 12, 51, 24, 2, SHIRT[2]); R(cx - 12, 53, 24, 1, SHIRT[0]);
+    // the head
+    E(cx, 30, 26, 21, FUR[1]);
+    E(cx - 1, 29, 25, 20, FUR[2]);
+    E(cx - 5, 23, 15, 10, FUR[3]);
+    E(cx - 9, 17, 7, 3.5, FUR[4]);
+    Art.poly(g, [[cx - 22, 10], [cx - 12, 10], [cx - 15, 19], [cx - 25, 28], [cx - 29, 18]], MASK[1]);
+    Art.poly(g, [[cx + 12, 10], [cx + 22, 10], [cx + 29, 18], [cx + 25, 28], [cx + 15, 19]], MASK[1]);
+    R(cx - 22, 11, 8, 1, MASK[3]); R(cx + 14, 11, 8, 1, MASK[3]); R(cx - 25, 16, 2, 6, MASK[2]); R(cx + 23, 16, 2, 6, MASK[2]);
+    // the mask
+    E(cx, 39, 14, 10, MASK[3]); E(cx, 40, 12, 8, MASK[2]); E(cx, 41, 9, 6, MASK[1]);
+    E(cx - 11, 30, 8, 7.5, MASK[3]); E(cx + 11, 30, 8, 7.5, MASK[3]);
+    // the brow wrinkles
+    brow(k, cx, 14, 2, mood);
+    R(cx - 6, 20, 12, 1, FUR[0]); R(cx - 4, 21, 8, 1, FUR[1]);
+    // eyes and glasses
     const [ek0, mk0] = FACE[mood] || FACE.talk;
     const ek = blink ? 'shut' : ek0, mk = open ? 'open' : mk0;
-    eye(g, cx - 15, 29, 1.95, ek, mood === 'think' ? 'side' : null, R, P);
-    eye(g, cx + 5, 29, 1.95, ek, mood === 'think' ? 'side' : null, R, P);
-    if (mood === 'cross') { R(cx - 15, 28, 9, 1, INK); R(cx + 6, 28, 9, 1, INK); }
-    if (mood === 'worry' || mood === 'sad') { R(cx - 14, 27, 4, 1, INK); R(cx - 10, 26, 3, 1, INK); R(cx + 7, 26, 3, 1, INK); R(cx + 10, 27, 4, 1, INK); }
-    // blush, with the anime hatching
-    R(cx - 18, 44, 7, 3, BLUSH); R(cx + 11, 44, 7, 3, BLUSH);
-    for (let i = 0; i < 3; i++) { P(cx - 17 + i * 2, 44, '#ffc0cc'); P(cx + 12 + i * 2, 44, '#ffc0cc'); }
-    mouth(g, cx, 48, mk, 1.6, R, P);
-    if (mood === 'happy' || mood === 'proud') { P(cx + 22, 18, '#ffffff'); R(cx + 21, 19, 3, 1, '#ffffff'); P(cx + 22, 20, '#ffffff'); }   // a sparkle
+    const look = mood === 'think' ? 'side' : null;
+    eye(k, cx - 11, 30, 2, ek, look);
+    eye(k, cx + 11, 30, 2, ek, look);
+    glasses(k, cx - 11, cx + 11, 30, 8.5, 2);
+    // the nose, the wrinkle over it, the lip line and mouth
+    R(cx - 5, 34, 10, 5, MASK[0]); R(cx - 4, 34, 3, 1, MASK[3]); R(cx - 3, 36, 2, 2, '#050302'); R(cx + 2, 36, 2, 2, '#050302');
+    R(cx - 7, 32, 14, 1, FUR[0]);
+    R(cx, 39, 1, 3, MASK[0]);
+    mouth(k, cx, 42, mk, 2);
+    for (const [dx, dy] of [[-8, 40], [-10, 42], [-7, 43], [8, 40], [10, 42], [7, 43]]) R(cx + dx, dy, 1, 1, MASK[3]);
+    if (mood === 'proud' || mood === 'happy') { R(cx + 24, 18, 1, 3, '#fff4d0'); R(cx + 23, 19, 3, 1, '#fff4d0'); }   // a glint of pride
     Art.outline(c, INK, 1);
     cache.set(key, c);
     return c;
@@ -8680,7 +8752,7 @@ const Busts = (() => {
 // ---- Balance data. Icon keys everywhere, almost no prose. -----------------
 const CUBE_SIZE = 30;          // one poop cube, and the game's unit of height
 
-// Cubes: what a wombat leaves behind. Momo buys them for compost, or you spread them as fertiliser.
+// Cubes: what a wombat leaves behind. Mr Biscuit buys them for compost, or you spread them as fertiliser.
 const OFFERINGS = {
   plain: { key: 'plain', name: 'Plain', icon: 'o_plain', mark: '', w: 1, h: 1, density: 1, friction: 0.62, restitution: 0.02, adhesion: 0, value: 6, color: '#553d27' },
   rich:  { key: 'rich', name: 'Rich', icon: 'o_rich', mark: '', w: 1.45, h: 1.45, density: 1, friction: 0.66, restitution: 0.02, adhesion: 0, value: 13, color: '#3b2a1b' },
@@ -8774,7 +8846,7 @@ const SUBTOOLS = [
   { key: 'fert',  name: 'Poo Scoop', icon: 't_scoop', radius: 16, desc: 'Spread a cube from the truck on a bed. It grows twice as fast.' },
 ];
 // ---- what you own -------------------------------------------------------------
-// You arrive with your two hands and W$300. Momo hands you her old sickle; every
+// You arrive with your two hands and W$300. Mr Biscuit hands you his old sickle; every
 // other tool is *unlocked* when he teaches you the job it is for, and then
 // bought at Wombat Mart.
 const TOOL_SHOP = [
@@ -8791,7 +8863,7 @@ const TOOL_SHOP = [
 ];
 const TOOL_SHOP_BY_KEY = Object.fromEntries(TOOL_SHOP.map((t) => [t.key, t]));
 const owns = (g, key) => !!(g && g.owned && g.owned[key]);
-// taught: Momo has shown you it, so the mart will sell it to you
+// taught: Mr Biscuit has shown you it, so the mart will sell it to you
 const taught = (g, key) => owns(g, key) || !!(g && g.unlocked && g.unlocked[key]);
 const GATES = {
   drag: () => true,
@@ -8802,7 +8874,7 @@ const GATE_WHY = {
   pair: 'needs a nest from Groot\'s cellar',
 };
 const whyLocked = (key, g) => GATE_WHY[key] || (TOOL_SHOP_BY_KEY[key]
-  ? (g && !taught(g, key) ? 'locked &middot; Momo will show you this one soon' : `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}`)
+  ? (g && !taught(g, key) ? 'locked &middot; Mr Biscuit will show you this one soon' : `buy it at Wombat Mart &middot; W$${TOOL_SHOP_BY_KEY[key].price}`)
   : 'not yet');
 // number keys 1-9, in the order you are likely to want them
 const HOTKEYS = ['drag', 'sickle', 'destroy', 'moss', 'water', 'hoe', 'seed', 'food', 'fert', 'shovel', 'build'];
@@ -8984,7 +9056,7 @@ function rollLotto() {
 }
 
 // Every Golden Wombat on the shelf pays a little more at the stack, for good.
-// ---- What Momo pays for a cube ----------------------------------
+// ---- What Mr Biscuit pays for a cube ----------------------------------
 // He buys the lot. The price is the offering's own worth plus a little for
 // bulk: one cube is a curiosity, a truckload is a supply.
 const trophyBonus = (g) => (g.trophies || 0) * 0.08;
@@ -12115,7 +12187,7 @@ const Grove = (() => {
     FX.comic(TRUCK.x, TRUCK.y - 58, U.pick(['LOADED!', 'CLUNK!', 'IN!']), { ink: '#a8d0e0', edge: '#33495c', life: 0.6 });
     UI.refreshHUD();
   }
-  // A handful of coins tossed from wherever Momo is standing.
+  // A handful of coins tossed from wherever Mr Biscuit is standing.
   function reward(x, y, n) {
     for (let i = 0; i < n; i++) coins.push({ x: x + U.rand(-6, 6), y, vx: U.rand(-60, 60), vy: U.rand(-190, -110), z: 0, t: -i * 0.04, n: 1 });
     Audio.play('cash');
@@ -12405,7 +12477,7 @@ const Grove = (() => {
       return `<b>${w.name}</b> <span class="dim">${fur.name}${fur.rare ? ' &#9670;' : ''}</span><br>${st}<br>${Math.round(w.hap)}/${hapCap()}`;
     }
     if (hoverSpot === 'truck') return '<b>Your truck</b><br>open the map';
-    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>Momo buys every cube you have';
+    if (Guide.hutHit(x, y)) return '<b>The hut</b><br>Mr Biscuit buys every cube you have';
     const pl2 = World.plantAt(x, y);
     if (pl2) return World.plantTip(pl2);
     if (G.tool === 'drag' && dropAt(x, y)) return '<b>Poop</b><br>drag it to the truck';
@@ -14700,7 +14772,7 @@ const Shop = (() => {
     const out = [];
     for (const t of TOOL_SHOP) {
       const def = TOOL_BY_KEY[t.key];
-      if (!taught(G, t.key)) continue;                // Momo has not shown you this one yet
+      if (!taught(G, t.key)) continue;                // Mr Biscuit has not shown you this one yet
       out.push({ id: 'tool:' + t.key, kind: 'tool', key: t.key, name: t.name || def.name, price: t.price, sprite: 'tool', icon: def.icon, note: t.blurb, sold: owns(G, t.key) });
     }
     for (const u of UPGRADES) {
@@ -17756,7 +17828,7 @@ const Ottoman = (() => {
 // No phone this time. You have taken the job, the car is packed, and the
 // opening is the drive itself: out of the forest, down the one street of
 // Wombat Creek past the bakery and the mart and the pub, and up to the farm
-// gate, where Momo is waiting to show you round.
+// gate, where Mr Biscuit is waiting to show you round.
 //
 // Hold the mouse to put your foot down; Esc skips the lot.
 const Intro = (() => {
@@ -17793,7 +17865,7 @@ const Intro = (() => {
   const LOCALS = [{ at: 1560, sp: -8 }, { at: 1905, sp: 6 }, { at: 2230, sp: -5 }];
   // what gets said on the way, as a card in the corner
   const CAPTIONS = [
-    { from: 0, to: 640, head: 'THE NEW JOB', lines: ['Caretaker wanted. Wombat farm, a bit run down.', 'Board, lodging, and wombats. Apply to Momo.'] },
+    { from: 0, to: 640, head: 'THE NEW JOB', lines: ['Caretaker wanted. Wombat farm, a bit run down.', 'Board, lodging, and wombats. Apply to Mr Biscuit.'] },
     { from: 700, to: 1200, head: 'JIM, ON THE PHONE', lines: ['"Past the gum trees, through the village,', 'first gate on the left. Can\'t miss it."'] },
     { from: 1250, to: 2300, head: 'WOMBAT CREEK', lines: ['One street: a bakery, the post, the mart, the pub.', 'Everybody waves.'] },
   ];
@@ -17904,7 +17976,7 @@ const Intro = (() => {
     c.lines.forEach((l, i) => Font.draw(g, l, x + 14, y + 13 + i * 12, { scale: 1, color: Kit.C.ink }));
     g.globalAlpha = 1;
   }
-  // Momo at the gate talks in the same box as the rest of the game: the words
+  // Mr Biscuit at the gate talks in the same box as the rest of the game: the words
   // on the left, his face in a frame on the right, his name on a plate.
   function dialogue(g, text, mood, typedN) {
     const W = 560, H = 96, X = (VW - W) / 2, Y = VH - H - 10;
@@ -17952,7 +18024,7 @@ const Intro = (() => {
           Sprites.shadow(g2, wx, R - 6, 'walk', Math.floor(t * 9), 'brown', dir, 'adult', 0.8);
           Sprites.blit(g2, wx, R - 6, 'walk', Math.floor(t * 9), 'brown', dir, 'adult', 0.8);
         }
-        // Momo at the gate, waving you in
+        // Mr Biscuit at the gate, waving you in
         const jx = GATE_AT - d - 90;
         if (jx > -60 && jx < VW + 60) {
           Sprites.setFace('happy');
@@ -17968,7 +18040,7 @@ const Intro = (() => {
     if (stopped() && stopT > 0.5) {
       const jx = GATE_AT - d - 90;
       const first = stopT < 4.2;
-      const line = first ? "Hi hi! You're the new farmer? I'm Momo! Welcome~" : "It's a bit messy. Come in!";
+      const line = first ? "Ah. The new farmer. Mr Biscuit, wombat expert. Welcome." : "It's a bit messy. Come in!";
       const since = first ? stopT - 0.5 : stopT - 4.2;
       dialogue(g, line, first ? 'happy' : 'laugh', Math.floor(since * 38));
       if (stopT > 1.6) {
@@ -17996,7 +18068,7 @@ const Intro = (() => {
 
 <script>
 // ===== js/guide.js =====
-// ---- Momo: the caretaker in the wombat onesie, who teaches the job and buys the cubes -----
+// ---- Mr Biscuit: the caretaker, a pug in a suit, who teaches the job and buys the cubes -----
 const Guide = (() => {
   let G = null;
   const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0, happyT: 0 };
@@ -18011,7 +18083,7 @@ const Guide = (() => {
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
-  // Each step is a job Momo gives you, and a place for her to stand.
+  // Each step is a job Mr Biscuit gives you, and a place for him to stand.
   //   lesson   what he tells you in the dialogue box when the job comes up
   //   give     tools he hands over when he has finished explaining
   //   unlock   tools the mart will now sell you
@@ -18020,13 +18092,13 @@ const Guide = (() => {
   const MART = () => Grove.TRUCK.x - 10, MARTY = () => Grove.TRUCK.y - 60;
   const STEPS = [
     {
-      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Momo', praise: 'Go on, give it a swing.',
-      say: "Hi hi! I'm Momo. Take my sickle!",
+      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Mr Biscuit', praise: 'Go on, give it a swing.',
+      say: "Mr Biscuit. Take my sickle.",
       lesson: [
-        { say: "Hi hi! I'm Momo! This farm is yours now~", mood: 'happy' },
+        { say: "Biscuit. MISTER Biscuit. Wombat expert. The farm is yours now.", mood: 'proud' },
         { say: "Take my sickle and cut the weeds. Press 2!", mood: 'proud' },
       ],
-      give: ['sickle'], tool: 'sickle', note: 'Talk to Momo.',
+      give: ['sickle'], tool: 'sickle', note: 'Talk to Mr Biscuit.',
       at: () => cult.x - 40, done: (g) => has(g, 'sickle'),
     },
     {
@@ -18071,7 +18143,7 @@ const Guide = (() => {
       key: 'sow', mood: 'talk', icon: 't_hoe', title: 'Dig a bed and sow it', praise: 'Sown. Good hands.',
       say: 'Hoe a bed, sow carrots!',
       lesson: [
-        { say: "She picked you! Kyaa~ so cute!", mood: 'laugh' },
+        { say: "She picked you! I may cry. Professionally.", mood: 'laugh' },
         { say: "Hoe and seed pouch at the mart, carrot seed from Groot.", mood: 'talk' },
       ],
       unlock: ['hoe', 'seed'], tool: 'hoe', label: 'DIG A BED HERE',
@@ -18124,11 +18196,11 @@ const Guide = (() => {
       done: (g) => (g.stats.fertilised || 0) > 0,
     },
     {
-      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Momo your spare cubes', praise: 'Pleasure doing business!',
+      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Mr Biscuit your spare cubes', praise: 'Pleasure doing business!',
       say: 'Sell me your cubes!',
       lesson: [{ say: "Click me and I'll buy your cubes!", mood: 'happy' }],
       label: 'CLICK JIM',
-      note: 'Click Momo to sell.',
+      note: 'Click Mr Biscuit to sell.',
       at: () => cult.x, aty: () => cult.y - 80, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
@@ -18202,14 +18274,14 @@ const Guide = (() => {
       lines: ['Nearly bedtime.', 'Listen to the frogs.', 'Fireflies are out. Best bit of the day.'] },
     { when: () => true, mood: 'idle',
       lines: [
-        'Lovely day for it.', 'This onesie is the comfiest thing ever.', 'A wombat can outrun you. I have tested this.',
+        'Lovely day for it.', 'This suit is Italian. I am not.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
-        'Hot one today.', 'The gum trees smell like home.', 'Captain Kirk sells furniture. Mind the cat on his counter.', 'Kirk reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
+        'Hot one today.', 'The gum trees smell like home.', 'Captain Kirk sells furniture. Mind the cat on his counter.', 'Kirk reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I have read every book on wombats. Twice. One was a colouring book.', 'Nobody warned me about the snoring. It is me. I snore.', 'I skipped lunch. Second lunch, I mean.',
       ] },
   ];
   let chatT = 14 + Math.random() * 10, lastChat = '';
-  // What Momo says to walk you through the job in hand, with how far along you are.
+  // What Mr Biscuit says to walk you through the job in hand, with how far along you are.
   // The factory job is broken right down; she will not let it go until it is built.
   function hint(s) {
     const t = Grove.tasks(), T = (k) => t.find((q) => q.key === k) || {};
@@ -18299,7 +18371,7 @@ const Guide = (() => {
           if (!s && G.cultAway === 2) return 'Come in, mind the step. Cubes round the back, money in your hand.';
           return s ? s.say : 'Look at all these wombats! You did that!';
         },
-        sub: () => (G.cultAway === 2 ? 'at her shed door' : 'the caretaker'),
+        sub: () => (G.cultAway === 2 ? 'at his shed door' : 'the caretaker'),
         opts: [
           { q: () => `Sell you the cubes. I have ${cubesHere()}.`, if: () => cubesHere() > 0,
             act: () => { Talk.close(); UI.openPawn('cult'); } },
@@ -18322,12 +18394,12 @@ const Guide = (() => {
       },
       who: {
         mood: 'happy',
-        say: "Momo! I look after the wombats. I live in the shed and play a LOT of video games.",
-        opts: [{ q: 'Cute onesie.', to: 'band' }, { q: 'Something else.', to: 'hub' }],
+        say: "Mr Biscuit, wombat scientist. I have a degree. I ate the certificate, but I have it.",
+        opts: [{ q: 'Nice suit.', to: 'band' }, { q: 'Something else.', to: 'hub' }],
       },
       band: {
         mood: 'proud',
-        say: 'Thank you! It has ears! And a tail!',
+        say: 'It is a three-button. I can do up two of them.',
         opts: [{ q: 'Fair enough.', to: 'hub' }],
       },
       money: {
@@ -18511,7 +18583,7 @@ const Guide = (() => {
         FX.hearts(cult.x, cult.y - 50, 6);
         FX.comic(cult.x, cult.y - 60, 'BYE!', { ink: '#ffe6a0', edge: '#8a5a20', life: 0.8 });
         Audio.play('whoosh'); Audio.play('chime'); FX.shake(1.2);
-        UI.toast('Momo has gone to build himself a shed', '');
+        UI.toast('Mr Biscuit has gone to build himself a shed', '');
       }
       return;
     }
@@ -18522,7 +18594,7 @@ const Guide = (() => {
         Audio.play('thud', 1.4); FX.shake(1.6);
         FX.burst(HUT.x, hutY(), 22, { color: [PAL.bark3, PAL.bark2, PAL.moss3], speed: 110, gravity: 260, life: 0.7, size: 3 });
         FX.comic(HUT.x, hutY() - 90, 'THUNK!', { ink: '#f5cd5c', edge: '#7a5210', life: 1 });
-        UI.toast('<b>Momo built a shed</b> at the west end &mdash; she buys cubes there', 'good');
+        UI.toast('<b>Mr Biscuit built a shed</b> at the west end &mdash; he buys cubes there', 'good');
         Main.save();
       }
       return;
@@ -18672,7 +18744,7 @@ const Guide = (() => {
   const WHERE = {
     meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
     arrive: 'in the grove', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
-    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Momo is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
+    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Mr Biscuit is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
   };
   function current() {
     const st = step();
@@ -18713,7 +18785,7 @@ const Talk = (() => {
   // modules already, so this is cheap to call every frame.
   const SPEAKERS = {
     cultist: {
-      name: 'Momo', sub: 'the caretaker, in her onesie', face: 'jim',
+      name: 'Mr Biscuit', sub: 'the caretaker, a pug in a suit', face: 'jim',
       bg: ['#c9763c', '#7c4630'],
       draw(mood, t) {
         Sprites.setFace(mood || 'happy');
@@ -18877,9 +18949,10 @@ const Talk = (() => {
     const W = cv.width, H = cv.height;
     g.clearRect(0, 0, W, H);
     // a soft sky behind them, with a band of meadow at the shoulders
-    Art.vband(g, 0, 0, W, H, '#5ab4ff', '#b8e4ff', 6);
-    g.fillStyle = '#5cc03c'; g.fillRect(0, H - 14, W, 14);
-    g.fillStyle = '#a8ec6a'; g.fillRect(0, H - 14, W, 2);
+    Art.vband(g, 0, 0, W, H, '#6e8aa0', '#c4ccc4', 6);                 // an overcast farm sky
+    g.fillStyle = '#56683e'; g.fillRect(0, H - 14, W, 14);
+    g.fillStyle = '#7a8a5a'; g.fillRect(0, H - 14, W, 2);
+    for (let x = 1; x < W; x += 3) { g.fillStyle = x % 2 ? '#46582e' : '#6a7a4a'; g.fillRect(x, H - 16 - (x * 7) % 3, 1, 3); }
     const mood = n.mood || 'talk';
     const talking = typed < full.length;
     const face = sp.face && typeof Portraits !== 'undefined' ? Portraits.get(sp.face, mood, portraitT, talking) : null;
@@ -18966,11 +19039,11 @@ const UI = (() => {
   }
 
   // ---- the job card -------------------------------------------------------
-  // Always in the corner of the grove: whatever Momo wants next, and once
+  // Always in the corner of the grove: whatever Mr Biscuit wants next, and once
   // he has shown you round, the daily round itself, ticked off as you go.
   function refreshList() {
     const box = $('checklist');
-    box.hidden = true; return;                        // no job card: Momo tells you herself
+    box.hidden = true; return;                        // no job card: Mr Biscuit tells you herself
     box.hidden = false;
     const q = Guide.current();
     let html = '';
@@ -18997,12 +19070,12 @@ const UI = (() => {
       html += row('t_seed', 'Grow veg', growing ? `${growing} growing, ${food} picked` : 'hoe a bed and sow it', food > 0);
       html += row('t_food', 'Feed the wombats', hungry ? `${hungry} hungry` : 'everyone is full', hungry === 0);
       html += row('truck', 'Load the truck', loose ? `${loose} cubes on the ground` : 'nothing lying about', loose === 0);
-      html += row('wdollar', 'Sell to Momo', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
+      html += row('wdollar', 'Sell to Mr Biscuit', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
     }
     box.innerHTML = html;
   }
 
-  function refreshNotebook() { }           // Momo speaks for himself now
+  function refreshNotebook() { }           // Mr Biscuit speaks for himself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
   // Twenty of them is too many for one grid. They come in four bands, each
@@ -19203,37 +19276,37 @@ const UI = (() => {
   //   base / paper  the box        hot  its frame catches the light
   //   sel           a sunny frame  slot / slotsel  the tan wells on the toolbar
   function goldFrameURL(kind) {
+    // walnut, a thin brass inlay, and linen: a cabinet-maker's frame
     const P2 = 2, N = 15;
     const c = document.createElement('canvas'); c.width = c.height = N * P2;
     const g = c.getContext('2d');
     const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const line = '#3b2616', inner = '#2f5a2a';
+    const line = '#1f150e', inner = '#8a6a36';
     if (kind === 'slot' || kind === 'slotsel') {
       const sel = kind === 'slotsel';
-      R(1, 0, N - 2, N, sel ? '#c83a4c' : '#6a4a30'); R(0, 1, N, N - 2, sel ? '#c83a4c' : '#6a4a30');
-      if (sel) { R(1, 1, N - 2, N - 2, '#f07a8a'); R(2, 1, N - 4, 1, '#ffc0c8'); }
-      const o = sel ? 2 : 1;
-      R(o, o, N - o * 2, N - o * 2, '#fdf0d8');
-      R(o, o, N - o * 2, 2, '#e8d0a4'); R(o, o, 2, N - o * 2, '#ecd8b0');              // sunk: dark top and left
-      R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffffff'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#fffaf0');
+      R(1, 0, N - 2, N, line); R(0, 1, N, N - 2, line);
+      R(1, 1, N - 2, N - 2, sel ? '#c9a256' : '#4a3422');
+      if (sel) { R(1, 1, N - 2, 1, '#e6c887'); R(1, N - 2, N - 2, 1, '#8a6a2e'); }
+      const o = 2;
+      R(o, o, N - o * 2, N - o * 2, sel ? '#f3ecdc' : '#e2d7bf');
+      R(o, o, N - o * 2, 1, sel ? '#d9cba9' : '#c7b894'); R(o, o, 1, N - o * 2, sel ? '#e2d7bf' : '#d0c29f');   // sunk: dark top and left
+      R(o + 1, N - o - 1, N - o * 2 - 1, 1, sel ? '#fffaf0' : '#efe6d2');
       return c.toDataURL();
     }
-    const fr = kind === 'hot' ? ['#fff0b0', '#f8d060', '#e8b040', '#b88420']
-      : kind === 'sel' ? ['#ffc0c8', '#f07a8a', '#d85a6a', '#a83848'] : ['#b8e08a', '#7cb85a', '#5a9a44', '#3f7a34'];
-    const paper = ['#fffaf0', '#fdf0d8', '#f2dcb4'];
-    R(2, 0, N - 4, N, line); R(0, 2, N, N - 4, line); R(1, 1, N - 2, N - 2, line);   // the line, corners knocked off
-    R(2, 1, N - 4, N - 2, fr[1]); R(1, 2, N - 2, N - 4, fr[1]);
-    R(2, 1, N - 4, 1, fr[0]); R(1, 2, 1, N - 4, fr[0]);                                   // lit top and left
-    R(2, N - 2, N - 4, 1, fr[3]); R(N - 2, 2, 1, N - 4, fr[3]);                           // shaded foot and right
-    R(3, N - 3, N - 6, 1, fr[2]); R(N - 3, 3, 1, N - 6, fr[2]);
-    R(3, 3, N - 6, N - 6, inner);
+    const fr = kind === 'hot' ? ['#e6c887', '#c9a256', '#a88440', '#6e5424']
+      : kind === 'sel' ? ['#b85a50', '#8e3a34', '#722a26', '#4e1a18'] : ['#9a7650', '#7a5838', '#62452b', '#45301d'];
+    const paper = kind === 'hot' ? ['#fbf3dc', '#f3e6c2', '#e2d0a2'] : ['#f6f0e2', '#ece3cf', '#dcd0b4'];
+    R(1, 0, N - 2, N, line); R(0, 1, N, N - 2, line);                                     // the line, corners knocked off
+    R(1, 1, N - 2, N - 2, fr[1]);
+    R(1, 1, N - 2, 1, fr[0]); R(1, 2, 1, N - 3, fr[0]);                                   // lit top and left
+    R(1, N - 2, N - 2, 1, fr[3]); R(N - 2, 2, 1, N - 4, fr[3]);                           // shaded foot and right
+    R(3, 2, 4, 1, fr[2]); R(9, 1, 3, 1, fr[2]); R(2, 8, 1, 3, fr[2]); R(N - 3, 5, 1, 3, fr[2]);   // grain
+    R(3, 3, N - 6, N - 6, inner);                                                          // the brass inlay
+    R(3, 3, N - 6, 1, '#c9a256');
     R(4, 4, N - 8, N - 8, paper[1]);
-    R(4, 4, N - 8, 1, paper[0]); R(4, N - 5, N - 8, 1, paper[2]);
-    // a little pink flower in each corner of the frame
-    for (const [x, y] of [[1, 1], [N - 4, 1], [1, N - 4], [N - 4, N - 4]]) {
-      R(x + 1, y, 1, 1, '#ffb0c0'); R(x, y + 1, 1, 1, '#ffb0c0'); R(x + 2, y + 1, 1, 1, '#ffb0c0'); R(x + 1, y + 2, 1, 1, '#ffb0c0');
-      R(x + 1, y + 1, 1, 1, '#ffe070');
-    }
+    R(4, 4, N - 8, 1, paper[2]); R(4, 5, 1, N - 9, paper[2]); R(5, N - 5, N - 9, 1, paper[0]);
+    // a brass pin in each corner
+    for (const [x, y] of [[1, 1], [N - 2, 1], [1, N - 2], [N - 2, N - 2]]) R(x, y, 1, 1, '#d8b870');
     return c.toDataURL();
   }
   // the little clock under the purse: a sun or a moon, the time, the day and the weather
@@ -19257,46 +19330,51 @@ const UI = (() => {
   function pieceURL(kind) {
     const P2 = 2, c = document.createElement('canvas');
     const R = (g, x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const OL = '#3b2616';
-    if (kind === 'card' || kind === 'cardhot') {
+    const OL = '#1f150e';
+    if (kind === 'card' || kind === 'cardhot') {                // a linen card on a walnut edge
       const N = 15; c.width = c.height = N * P2; const g = c.getContext('2d');
       const hot = kind === 'cardhot';
-      R(g, 2, 0, N - 4, N, OL); R(g, 0, 2, N, N - 4, OL); R(g, 1, 1, N - 2, N - 2, OL);
-      R(g, 2, 1, N - 4, N - 2, hot ? '#fff0b0' : '#fffaf0'); R(g, 1, 2, N - 2, N - 4, hot ? '#fff0b0' : '#fffaf0');
-      R(g, 2, 2, N - 4, N - 4, hot ? '#fff8d8' : '#fdf0d8');
-      R(g, 2, 1, N - 4, 1, '#ffffff'); R(g, 1, 2, 1, N - 4, '#ffffff');
-      R(g, 2, N - 3, N - 4, 1, hot ? '#f8d060' : '#f2dcb4'); R(g, 2, N - 2, N - 4, 1, hot ? '#e8b040' : '#d8b888');
-      R(g, N - 2, 2, 1, N - 4, hot ? '#e8b040' : '#e8cc9c');
+      R(g, 1, 0, N - 2, N, OL); R(g, 0, 1, N, N - 2, OL);
+      R(g, 1, 1, N - 2, N - 2, hot ? '#c9a256' : '#6a4c32');
+      R(g, 1, 1, N - 2, 1, hot ? '#e6c887' : '#8a6848'); R(g, 1, N - 2, N - 2, 1, hot ? '#8a6a2e' : '#45301d');
+      R(g, 2, 2, N - 4, N - 4, hot ? '#f8f0da' : '#efe7d4');
+      R(g, 2, 2, N - 4, 1, hot ? '#fffaf0' : '#f8f2e4'); R(g, 2, N - 3, N - 4, 1, hot ? '#e2d0a2' : '#d8cbae');
+      R(g, N - 3, 3, 1, N - 6, hot ? '#e8dcbc' : '#e0d5bb');
       return c.toDataURL();
     }
-    if (kind.startsWith('btn')) {
+    if (kind.startsWith('btn')) {                                // brass to buy, moss green to place
       const N = 15; c.width = c.height = N * P2; const g = c.getContext('2d');
-      const col = { btn: ['#fff4c0', '#f8d060', '#d8a830', '#a87818'], btnhot: ['#fffae0', '#ffe070', '#e8b840', '#b88420'],
-        btngo: ['#c8f0a0', '#7cc85a', '#5aa044', '#3a7a2e'], btngohot: ['#e0ffc0', '#90dc6a', '#6ab050', '#3f8a34'] }[kind];
+      const col = { btn: ['#ecd49a', '#c9a256', '#a88440', '#6e5424'], btnhot: ['#f6e2b0', '#d8b468', '#b8924a', '#7a5e2a'],
+        btngo: ['#9ab878', '#6e8e4a', '#56743a', '#3a5226'], btngohot: ['#aac888', '#7e9e58', '#628244', '#40582a'] }[kind];
       R(g, 1, 0, N - 2, N, OL); R(g, 0, 1, N, N - 2, OL);
       R(g, 1, 1, N - 2, N - 2, col[1]);
-      R(g, 1, 1, N - 2, 2, col[0]); R(g, 1, 3, 1, N - 7, col[0]);
-      R(g, 1, N - 5, N - 2, 2, col[2]); R(g, 1, N - 3, N - 2, 2, col[3]);
-      R(g, 3, 2, 3, 1, '#ffffff');
+      R(g, 1, 1, N - 2, 1, col[0]); R(g, 1, 2, 1, N - 6, col[0]);
+      R(g, 1, N - 4, N - 2, 1, col[2]); R(g, 1, N - 3, N - 2, 2, col[3]);
+      R(g, 2, 2, 2, 1, 'rgba(255,255,255,0.55)');
       return c.toDataURL();
     }
-    if (kind === 'track') {                                  // sky over grass, tiling sideways
-      const W = 32, H = 118; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
-      const sky = ['#a8d8f0', '#b8e0f2', '#c8e8f2', '#d8f0f0', '#e4f6ec'];
-      for (let i = 0; i < 5; i++) R(g, 0, i * 16, W, 16, sky[i]);
-      R(g, 0, 80, W, H - 80, '#6aac4a'); R(g, 0, 80, W, 2, '#9ad068'); R(g, 0, 96, W, H - 96, '#5a9a3e'); R(g, 0, 108, W, H - 108, '#4a8a34');
-      for (let x = 0; x < W; x += 3) { const h = 2 + ((x * 7) % 4); R(g, x, 80 - h, 1, h, (x % 2) ? '#7cc05a' : '#5a9a3e'); }
-      for (const [x, y] of [[4, 88], [19, 92], [27, 101], [11, 104]]) { R(g, x, y, 1, 1, '#ffffff'); R(g, x + 1, y, 1, 1, '#f8d040'); }
-      R(g, 6, 20, 8, 2, '#ffffff'); R(g, 4, 22, 13, 2, '#ffffff'); R(g, 21, 44, 6, 2, '#ffffff'); R(g, 19, 46, 10, 1, '#ffffff');
+    if (kind === 'track') {                                  // a dark walnut shelf: planks, grain, a lip at the foot
+      const W = 48, H = 118; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
+      const rnd = Art.rng(7);
+      const pl = ['#3a2819', '#34241a', '#3e2c1c'];
+      for (let x = 0; x < W; x += 16) {
+        R(g, x, 0, 16, H, pl[(x / 16) % 3]);
+        R(g, x, 0, 1, H, '#24180f'); R(g, x + 1, 0, 1, H, '#4a3524');
+        for (let i = 0; i < 9; i++) { const gx = x + 3 + Math.floor(rnd() * 11), gy = Math.floor(rnd() * H), gl = 6 + Math.floor(rnd() * 20); R(g, gx, gy, 1, gl, rnd() < 0.5 ? '#2c1e13' : '#46321f'); }
+        const ky = 20 + Math.floor(rnd() * 70); R(g, x + 6, ky, 3, 2, '#271a10'); R(g, x + 7, ky, 1, 1, '#1a110a');
+      }
+      R(g, 0, 0, W, 3, '#1a110a'); R(g, 0, 3, W, 1, '#2a1c12');                                    // the shadow of the top rail
+      R(g, 0, H - 12, W, 2, '#6a4c32'); R(g, 0, H - 10, W, 1, '#8a6848'); R(g, 0, H - 9, W, 9, '#4e3824'); R(g, 0, H - 2, W, 2, '#2a1c12');   // the shelf lip
       return c.toDataURL();
     }
-    if (kind === 'lawn') {                                   // the round of lawn a building stands on
+    if (kind === 'lawn') {                                   // a stone plinth each building stands on
       const W = 60, H = 16; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
       for (let y = 0; y < H; y++) {
-        const half = Math.round(Math.sqrt(Math.max(0, 1 - ((y - 7) / 8) ** 2)) * (W / 2 - 1));
-        R(g, W / 2 - half, y, half * 2, 1, y < 2 ? '#9ad068' : y < 9 ? '#6aac4a' : y < 13 ? '#8a5a34' : '#6a4024');
+        const half = Math.round(Math.sqrt(Math.max(0, 1 - ((y - 6) / 7.5) ** 2)) * (W / 2 - 1));
+        R(g, W / 2 - half, y, half * 2, 1, y < 1 ? '#c8c2b4' : y < 7 ? '#a8a296' : y < 11 ? '#8a8478' : '#6a655b');
       }
-      for (let x = 8; x < W - 8; x += 4) R(g, x, 1 + (x % 3), 1, 2, '#4a8a34');
+      for (const [x, y, w] of [[14, 3, 6], [30, 5, 5], [42, 2, 4], [22, 8, 7], [38, 9, 5]]) R(g, x, y, w, 1, '#948e82');
+      for (const x of [20, 30, 40]) R(g, x, 7, 1, 5, '#77716a');
       return c.toDataURL();
     }
     return '';
@@ -19304,7 +19382,7 @@ const UI = (() => {
   function pickTool() { }
 
   // ---- "you got a new tool" -------------------------------------------------
-  // A card that drops into the middle of the picture when Momo hands you
+  // A card that drops into the middle of the picture when Mr Biscuit hands you
   // something or the mart starts stocking it. They queue, one at a time.
   const unlockQ = [];
   function unlockCard(key, gift) { unlockQ.push({ key, gift }); if (unlockQ.length === 1) showUnlock(); }
@@ -19349,7 +19427,7 @@ const UI = (() => {
       el.className = 'chip' + (keys && G.selOffer === k ? ' on' : '');
       el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
       el.onclick = (e) => onClick(k, e);
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Momo${bl ? '<br><b>blessed</b>' : ''}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Mr Biscuit${bl ? '<br><b>blessed</b>' : ''}`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
@@ -19368,7 +19446,7 @@ const UI = (() => {
     purseT = setTimeout(() => el.classList.remove('ping'), 320);
   }
 
-  // Momo buys the cubes off you at his shed.
+  // Mr Biscuit buys the cubes off you at his shed.
   function refreshRunHUD() { }
   function onRunStart() { }
   function onRunPlay() { }
@@ -19547,7 +19625,7 @@ const UI = (() => {
     paintPup();
   }
 
-  // Momo buys every cube they leave for his compost heap, and pays more
+  // Mr Biscuit buys every cube they leave for his compost heap, and pays more
   // for a load than for one. The mart counter buys them at the same rate.
   let pawnMode = 'shop';
   function openPawn(mode) { pawnMode = mode || 'shop'; openPanel('panel-pawn'); }
@@ -19847,32 +19925,32 @@ const Menu = (() => {
   // an icon on its own darker plate, and the words beside it. It lifts under the pointer.
   function menuButton(g, b, label, sub, icon, kind) {
     const hot = hover === b.id;
-    const C = kind === 'go' ? ['#a8e080', '#7cc85a', '#4f9a3c', '#2f6a28', '#fffaf0'] : ['#fffaf0', '#fdf0d8', '#e8d0a4', '#c8a878', '#4a3222'];
+    const C = kind === 'go' ? ['#9ab878', '#6e8e4a', '#56743a', '#3a5226', '#f6f0e2'] : ['#f6f0e2', '#ece3cf', '#d8cbae', '#b8a882', '#2e241a'];
     const lift = hot ? -2 : 0, x = b.x, y = b.y + lift, w = b.w, h = b.h;
     const R = (xx, yy, ww, hh, c) => { g.fillStyle = c; g.fillRect(Math.round(xx), Math.round(yy), Math.round(ww), Math.round(hh)); };
     R(x + 3, b.y + 5, w, h, 'rgba(40,30,10,0.35)');                       // its shadow
-    R(x + 2, y, w - 4, h, '#3b2616'); R(x, y + 2, w, h - 4, '#3b2616'); R(x + 1, y + 1, w - 2, h - 2, '#3b2616');
-    R(x + 2, y + 2, w - 4, h - 4, hot ? (kind === 'go' ? '#90dc6a' : '#fff4c8') : C[1]);
+    R(x + 2, y, w - 4, h, '#1f150e'); R(x, y + 2, w, h - 4, '#1f150e'); R(x + 1, y + 1, w - 2, h - 2, '#1f150e');
+    R(x + 2, y + 2, w - 4, h - 4, hot ? (kind === 'go' ? '#7e9e58' : '#f8f0da') : C[1]);
     R(x + 2, y + 2, w - 4, 2, C[0]); R(x + 2, y + h - 6, w - 4, 2, C[2]); R(x + 2, y + h - 4, w - 4, 2, C[3]);
     // the icon plate
     const ps = h - 10;
-    R(x + 5, y + 4, ps, ps, kind === 'go' ? '#3f7a34' : '#e8d0a4'); R(x + 5, y + 4, ps, 1, kind === 'go' ? '#5a9a44' : '#fffaf0');
+    R(x + 5, y + 4, ps, ps, kind === 'go' ? '#3a5226' : '#d8cbae'); R(x + 5, y + 4, ps, 1, kind === 'go' ? '#56743a' : '#f6f0e2');
     Icons.blit(g, icon, x + 5 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, y + 4 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, ps > 26 ? 1.5 : 1);
     const tx = x + 10 + ps + (w - 14 - ps) / 2;
     const sc = h > 40 ? 2 : 2;
     const ty = y + (sub ? 7 : Math.round((h - 4 - sc * 7) / 2));
-    if (kind === 'go') Font.draw(g, label, tx + 1, ty + 1, { scale: sc, color: '#2f6a28', align: 'center' });
+    if (kind === 'go') Font.draw(g, label, tx + 1, ty + 1, { scale: sc, color: '#1f2a12', align: 'center' });
     Font.draw(g, label, tx, ty, { scale: sc, color: C[4], align: 'center' });
-    if (sub) Font.draw(g, sub, tx, ty + sc * 7 + 4, { scale: 1, color: kind === 'go' ? '#e8ffd8' : Kit.C.ink2, align: 'center' });
+    if (sub) Font.draw(g, sub, tx, ty + sc * 7 + 4, { scale: 1, color: kind === 'go' ? '#dfe6cc' : Kit.C.ink2, align: 'center' });
     if (hot) { R(x + w - 12, y + 4, 2, 2, '#ffffff'); R(x + w - 10, y + 6, 1, 1, '#ffffff'); }
   }
   function drawHome(g) {
     buttons = [];
     // the name, big and bouncy, with a berry ribbon under it
-    logo(g, 'WOMBAT', 214, 20, 5, '#ffe08a', '#f0a040', '#4a1e0e', 0);
-    logo(g, 'FARM', 214, 64, 5, '#c8f08a', '#6aa84a', '#1c3a12', 1.6);
+    logo(g, 'WOMBAT', 214, 20, 5, '#efe0b8', '#c9a256', '#1f150e', 0);
+    logo(g, 'FARM', 214, 64, 5, '#b8c89a', '#6e8a4e', '#141c0c', 1.6);
     const sub = 'a cozy little farm in the bush', sw = Font.width(sub, 1) + 20;
-    Kit.tab(g, 214 - sw / 2, 110, sw, 15, sub, { col: '#f07a8a' });
+    Kit.tab(g, 214 - sw / 2, 110, sw, 15, sub, { col: '#62452b' });
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
     const bx = 438, bw = 180;
     const play = { id: 'enter', x: bx, y: 110, w: bw, h: 50 };
@@ -19883,7 +19961,7 @@ const Menu = (() => {
       hasSave && sl && !sl.empty ? `day ${sl.day || 1} - ${sl.wombats} ${sl.wombats === 1 ? 'wombat' : 'wombats'}` : 'a wombat is waiting', 'wombat', 'go');
     menuButton(g, set, 'SETTINGS', null, 'gear');
     menuButton(g, help, 'HOW TO PLAY', null, 'heart');
-    // Momo, waving you in from beside the buttons
+    // Mr Biscuit, waving you in from beside the buttons
     if (typeof Sprites !== 'undefined') {
       Sprites.setFace('happy');
       const img = Sprites.jim(Math.floor(t * 6), 'wave');
@@ -19910,7 +19988,7 @@ const Menu = (() => {
   // under the buttons that changes every time you come back.
   const RUMOURS = [
     'wombats sleep sixteen hours a day. goals.',
-    'Momo says the pumpkins have never been bigger',
+    'Mr Biscuit says the pumpkins have never been bigger',
     'the mart shuts at six but Shaz never leaves',
     'a wombat can dig a whole burrow in one night',
     'Groot grows the best carrots in the district',
@@ -19922,11 +20000,11 @@ const Menu = (() => {
   ];
   let rumour = 0;
   const HELP = [
-    ['t_drag', 'Start with your hands', 'Momo gives you her old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
+    ['t_drag', 'Start with your hands', 'Mr Biscuit gives you his old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
     ['t_sickle', 'Tidy the garden', 'Cut the weeds, have the ants take the old logs, and sow grass. A tidy patch brings a wombat.'],
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],
-    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Momo.'],
+    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Mr Biscuit.'],
     ['t_shovel', 'Shape the land', 'Hold to dig down, right-click to heap up. Water a hole and it fills into a pond or a creek.'],
   ];
 
@@ -20101,11 +20179,12 @@ void main(){
   c += b * (0.3 + u_night * 0.5) * (1.0 - l0);
   // the grade: shadows toward violet, light toward gold
   float l = dot(c, vec3(0.299, 0.587, 0.114));
-  vec3 shadow = c * vec3(0.93, 0.94, 1.07) + vec3(0.012, 0.0, 0.03);
+  vec3 shadow = c * vec3(0.9, 0.95, 1.02) + vec3(0.0, 0.006, 0.014);
   vec3 lit = c * vec3(1.05, 1.02, 0.95);
   c = mix(shadow, lit, smoothstep(0.18, 0.78, l));
-  c = mix(vec3(l), c, 1.08);                                    // a touch more colour
-  c = (c - 0.5) * 1.04 + 0.5;
+  c = mix(vec3(l), c, 0.82);                                    // real-world colour: pulled back from cartoon
+  c = mix(c, c * vec3(1.03, 0.99, 0.9), 0.5);                  // a sun-dried, earthy warmth
+  c = (c - 0.5) * 1.07 + 0.5;                                   // and a little more depth
   // texture: a fine grain on every game pixel and a coarser weave under it
   float g1 = hash(px) - 0.5, g2 = hash(floor(px / 3.0) + 17.0) - 0.5, g3 = hash(floor(px / 7.0) + 3.0) - 0.5;
   c *= 1.0 + g1 * 0.018 + g2 * 0.012 + g3 * 0.008;
@@ -21382,7 +21461,7 @@ const Main = (() => {
         s.owned = { drag: true };
         for (const t of TOOL_SHOP) s.owned[t.key] = true;
       }
-      // the tutorial grew a first step (meeting Momo) and tools that unlock as you go
+      // the tutorial grew a first step (meeting Mr Biscuit) and tools that unlock as you go
       if (s.tutorialV !== 2) {
         s.tutorialV = 2;
         s.unlocked = s.unlocked || {};
@@ -21400,7 +21479,7 @@ const Main = (() => {
   function openingBeats() {
     if (!G || G.seen) return;
     G.seen = true;
-    FX.title('WOMBAT FARM', { size: 20, color: PAL.gold3, dur: 2.6, style: 'slam', sub: 'a cozy little grove' });
+    FX.title('WOMBAT FARM', { size: 20, color: '#efe0b8', dur: 2.6, style: 'fade', sub: 'a little grove in the bush' });
   }
   function reset() { Store.clear(KEY()).then(() => location.reload(), () => location.reload()); }
   // ---- the three groves ---------------------------------------------------

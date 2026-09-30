@@ -25,7 +25,7 @@ const Talk = (() => {
   // modules already, so this is cheap to call every frame.
   const SPEAKERS = {
     cultist: {
-      name: 'Momo', sub: 'the caretaker, in her onesie', face: 'jim',
+      name: 'Mr Biscuit', sub: 'the caretaker, a pug in a suit', face: 'jim',
       bg: ['#c9763c', '#7c4630'],
       draw(mood, t) {
         Sprites.setFace(mood || 'happy');
@@ -189,9 +189,10 @@ const Talk = (() => {
     const W = cv.width, H = cv.height;
     g.clearRect(0, 0, W, H);
     // a soft sky behind them, with a band of meadow at the shoulders
-    Art.vband(g, 0, 0, W, H, '#5ab4ff', '#b8e4ff', 6);
-    g.fillStyle = '#5cc03c'; g.fillRect(0, H - 14, W, 14);
-    g.fillStyle = '#a8ec6a'; g.fillRect(0, H - 14, W, 2);
+    Art.vband(g, 0, 0, W, H, '#6e8aa0', '#c4ccc4', 6);                 // an overcast farm sky
+    g.fillStyle = '#56683e'; g.fillRect(0, H - 14, W, 14);
+    g.fillStyle = '#7a8a5a'; g.fillRect(0, H - 14, W, 2);
+    for (let x = 1; x < W; x += 3) { g.fillStyle = x % 2 ? '#46582e' : '#6a7a4a'; g.fillRect(x, H - 16 - (x * 7) % 3, 1, 3); }
     const mood = n.mood || 'talk';
     const talking = typed < full.length;
     const face = sp.face && typeof Portraits !== 'undefined' ? Portraits.get(sp.face, mood, portraitT, talking) : null;

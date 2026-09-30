@@ -1,4 +1,4 @@
-// ---- Momo: the caretaker in the wombat onesie, who teaches the job and buys the cubes -----
+// ---- Mr Biscuit: the caretaker, a pug in a suit, who teaches the job and buys the cubes -----
 const Guide = (() => {
   let G = null;
   const cult = { x: 220, y: 250, tx: 220, dir: 1, pose: 'idle', t: 0, hop: 0, still: 0, castT: 0, happyT: 0 };
@@ -13,7 +13,7 @@ const Guide = (() => {
   const has = (g, k) => owns(g, k);
   const cubes = (g) => OFFER_ORDER.reduce((n, k) => n + (g.offerings[k] || 0) + (g.blessed[k] || 0), 0);
 
-  // Each step is a job Momo gives you, and a place for her to stand.
+  // Each step is a job Mr Biscuit gives you, and a place for him to stand.
   //   lesson   what he tells you in the dialogue box when the job comes up
   //   give     tools he hands over when he has finished explaining
   //   unlock   tools the mart will now sell you
@@ -22,13 +22,13 @@ const Guide = (() => {
   const MART = () => Grove.TRUCK.x - 10, MARTY = () => Grove.TRUCK.y - 60;
   const STEPS = [
     {
-      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Momo', praise: 'Go on, give it a swing.',
-      say: "Hi hi! I'm Momo. Take my sickle!",
+      key: 'meet', mood: 'happy', icon: 't_sickle', title: 'Meet Mr Biscuit', praise: 'Go on, give it a swing.',
+      say: "Mr Biscuit. Take my sickle.",
       lesson: [
-        { say: "Hi hi! I'm Momo! This farm is yours now~", mood: 'happy' },
+        { say: "Biscuit. MISTER Biscuit. Wombat expert. The farm is yours now.", mood: 'proud' },
         { say: "Take my sickle and cut the weeds. Press 2!", mood: 'proud' },
       ],
-      give: ['sickle'], tool: 'sickle', note: 'Talk to Momo.',
+      give: ['sickle'], tool: 'sickle', note: 'Talk to Mr Biscuit.',
       at: () => cult.x - 40, done: (g) => has(g, 'sickle'),
     },
     {
@@ -73,7 +73,7 @@ const Guide = (() => {
       key: 'sow', mood: 'talk', icon: 't_hoe', title: 'Dig a bed and sow it', praise: 'Sown. Good hands.',
       say: 'Hoe a bed, sow carrots!',
       lesson: [
-        { say: "She picked you! Kyaa~ so cute!", mood: 'laugh' },
+        { say: "She picked you! I may cry. Professionally.", mood: 'laugh' },
         { say: "Hoe and seed pouch at the mart, carrot seed from Groot.", mood: 'talk' },
       ],
       unlock: ['hoe', 'seed'], tool: 'hoe', label: 'DIG A BED HERE',
@@ -126,11 +126,11 @@ const Guide = (() => {
       done: (g) => (g.stats.fertilised || 0) > 0,
     },
     {
-      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Momo your spare cubes', praise: 'Pleasure doing business!',
+      key: 'sell', mood: 'happy', icon: 'wdollar', title: 'Sell Mr Biscuit your spare cubes', praise: 'Pleasure doing business!',
       say: 'Sell me your cubes!',
       lesson: [{ say: "Click me and I'll buy your cubes!", mood: 'happy' }],
       label: 'CLICK JIM',
-      note: 'Click Momo to sell.',
+      note: 'Click Mr Biscuit to sell.',
       at: () => cult.x, aty: () => cult.y - 80, done: (g) => (g.stats.sold || 0) > 0,
     },
     {
@@ -204,14 +204,14 @@ const Guide = (() => {
       lines: ['Nearly bedtime.', 'Listen to the frogs.', 'Fireflies are out. Best bit of the day.'] },
     { when: () => true, mood: 'idle',
       lines: [
-        'Lovely day for it.', 'This onesie is the comfiest thing ever.', 'A wombat can outrun you. I have tested this.',
+        'Lovely day for it.', 'This suit is Italian. I am not.', 'A wombat can outrun you. I have tested this.',
         'They make the cubes on purpose. I am sure of it.', 'Shaz at the mart does a great sausage roll.',
         'Groot grows the best carrots around. Do not tell him I said so.', 'I built that fence. Mostly.',
-        'Hot one today.', 'The gum trees smell like home.', 'Captain Kirk sells furniture. Mind the cat on his counter.', 'Kirk reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I am on level 40 of my game. Do not ask.',
+        'Hot one today.', 'The gum trees smell like home.', 'Captain Kirk sells furniture. Mind the cat on his counter.', 'Kirk reckons he was a sea captain. It was the ferry.', 'Mind the frogs if you dig a pond.', 'I have read every book on wombats. Twice. One was a colouring book.', 'Nobody warned me about the snoring. It is me. I snore.', 'I skipped lunch. Second lunch, I mean.',
       ] },
   ];
   let chatT = 14 + Math.random() * 10, lastChat = '';
-  // What Momo says to walk you through the job in hand, with how far along you are.
+  // What Mr Biscuit says to walk you through the job in hand, with how far along you are.
   // The factory job is broken right down; she will not let it go until it is built.
   function hint(s) {
     const t = Grove.tasks(), T = (k) => t.find((q) => q.key === k) || {};
@@ -301,7 +301,7 @@ const Guide = (() => {
           if (!s && G.cultAway === 2) return 'Come in, mind the step. Cubes round the back, money in your hand.';
           return s ? s.say : 'Look at all these wombats! You did that!';
         },
-        sub: () => (G.cultAway === 2 ? 'at her shed door' : 'the caretaker'),
+        sub: () => (G.cultAway === 2 ? 'at his shed door' : 'the caretaker'),
         opts: [
           { q: () => `Sell you the cubes. I have ${cubesHere()}.`, if: () => cubesHere() > 0,
             act: () => { Talk.close(); UI.openPawn('cult'); } },
@@ -324,12 +324,12 @@ const Guide = (() => {
       },
       who: {
         mood: 'happy',
-        say: "Momo! I look after the wombats. I live in the shed and play a LOT of video games.",
-        opts: [{ q: 'Cute onesie.', to: 'band' }, { q: 'Something else.', to: 'hub' }],
+        say: "Mr Biscuit, wombat scientist. I have a degree. I ate the certificate, but I have it.",
+        opts: [{ q: 'Nice suit.', to: 'band' }, { q: 'Something else.', to: 'hub' }],
       },
       band: {
         mood: 'proud',
-        say: 'Thank you! It has ears! And a tail!',
+        say: 'It is a three-button. I can do up two of them.',
         opts: [{ q: 'Fair enough.', to: 'hub' }],
       },
       money: {
@@ -513,7 +513,7 @@ const Guide = (() => {
         FX.hearts(cult.x, cult.y - 50, 6);
         FX.comic(cult.x, cult.y - 60, 'BYE!', { ink: '#ffe6a0', edge: '#8a5a20', life: 0.8 });
         Audio.play('whoosh'); Audio.play('chime'); FX.shake(1.2);
-        UI.toast('Momo has gone to build himself a shed', '');
+        UI.toast('Mr Biscuit has gone to build himself a shed', '');
       }
       return;
     }
@@ -524,7 +524,7 @@ const Guide = (() => {
         Audio.play('thud', 1.4); FX.shake(1.6);
         FX.burst(HUT.x, hutY(), 22, { color: [PAL.bark3, PAL.bark2, PAL.moss3], speed: 110, gravity: 260, life: 0.7, size: 3 });
         FX.comic(HUT.x, hutY() - 90, 'THUNK!', { ink: '#f5cd5c', edge: '#7a5210', life: 1 });
-        UI.toast('<b>Momo built a shed</b> at the west end &mdash; she buys cubes there', 'good');
+        UI.toast('<b>Mr Biscuit built a shed</b> at the west end &mdash; he buys cubes there', 'good');
         Main.save();
       }
       return;
@@ -674,7 +674,7 @@ const Guide = (() => {
   const WHERE = {
     meet: 'in the grove', sickle: 'Wombat Mart', weeds: 'in the grove', junk: 'Wombat Mart, then the grove', grass: 'Wombat Mart, then the grove',
     arrive: 'in the grove', sow: 'the mart, Groot, then the grove', pick: 'in the grove',
-    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Momo is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
+    feed: 'the mart, then the grove', load: 'in the grove', fert: 'the mart, then a bed', sell: 'wherever Mr Biscuit is', shovel: 'the mart, then anywhere', factory: 'the Build menu (B), then the grove',
   };
   function current() {
     const st = step();

@@ -50,11 +50,11 @@ const UI = (() => {
   }
 
   // ---- the job card -------------------------------------------------------
-  // Always in the corner of the grove: whatever Momo wants next, and once
+  // Always in the corner of the grove: whatever Mr Biscuit wants next, and once
   // he has shown you round, the daily round itself, ticked off as you go.
   function refreshList() {
     const box = $('checklist');
-    box.hidden = true; return;                        // no job card: Momo tells you herself
+    box.hidden = true; return;                        // no job card: Mr Biscuit tells you herself
     box.hidden = false;
     const q = Guide.current();
     let html = '';
@@ -81,12 +81,12 @@ const UI = (() => {
       html += row('t_seed', 'Grow veg', growing ? `${growing} growing, ${food} picked` : 'hoe a bed and sow it', food > 0);
       html += row('t_food', 'Feed the wombats', hungry ? `${hungry} hungry` : 'everyone is full', hungry === 0);
       html += row('truck', 'Load the truck', loose ? `${loose} cubes on the ground` : 'nothing lying about', loose === 0);
-      html += row('wdollar', 'Sell to Momo', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
+      html += row('wdollar', 'Sell to Mr Biscuit', cubes ? `${cubes} cubes in the truck` : 'truck is empty', cubes === 0);
     }
     box.innerHTML = html;
   }
 
-  function refreshNotebook() { }           // Momo speaks for himself now
+  function refreshNotebook() { }           // Mr Biscuit speaks for himself now
 
   // ---- the tool wheel: right-click (or Tab) and the tools ring the cursor --
   // Twenty of them is too many for one grid. They come in four bands, each
@@ -287,37 +287,37 @@ const UI = (() => {
   //   base / paper  the box        hot  its frame catches the light
   //   sel           a sunny frame  slot / slotsel  the tan wells on the toolbar
   function goldFrameURL(kind) {
+    // walnut, a thin brass inlay, and linen: a cabinet-maker's frame
     const P2 = 2, N = 15;
     const c = document.createElement('canvas'); c.width = c.height = N * P2;
     const g = c.getContext('2d');
     const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const line = '#3b2616', inner = '#2f5a2a';
+    const line = '#1f150e', inner = '#8a6a36';
     if (kind === 'slot' || kind === 'slotsel') {
       const sel = kind === 'slotsel';
-      R(1, 0, N - 2, N, sel ? '#c83a4c' : '#6a4a30'); R(0, 1, N, N - 2, sel ? '#c83a4c' : '#6a4a30');
-      if (sel) { R(1, 1, N - 2, N - 2, '#f07a8a'); R(2, 1, N - 4, 1, '#ffc0c8'); }
-      const o = sel ? 2 : 1;
-      R(o, o, N - o * 2, N - o * 2, '#fdf0d8');
-      R(o, o, N - o * 2, 2, '#e8d0a4'); R(o, o, 2, N - o * 2, '#ecd8b0');              // sunk: dark top and left
-      R(o + 2, N - o - 1, N - o * 2 - 2, 1, '#ffffff'); R(N - o - 1, o + 2, 1, N - o * 2 - 2, '#fffaf0');
+      R(1, 0, N - 2, N, line); R(0, 1, N, N - 2, line);
+      R(1, 1, N - 2, N - 2, sel ? '#c9a256' : '#4a3422');
+      if (sel) { R(1, 1, N - 2, 1, '#e6c887'); R(1, N - 2, N - 2, 1, '#8a6a2e'); }
+      const o = 2;
+      R(o, o, N - o * 2, N - o * 2, sel ? '#f3ecdc' : '#e2d7bf');
+      R(o, o, N - o * 2, 1, sel ? '#d9cba9' : '#c7b894'); R(o, o, 1, N - o * 2, sel ? '#e2d7bf' : '#d0c29f');   // sunk: dark top and left
+      R(o + 1, N - o - 1, N - o * 2 - 1, 1, sel ? '#fffaf0' : '#efe6d2');
       return c.toDataURL();
     }
-    const fr = kind === 'hot' ? ['#fff0b0', '#f8d060', '#e8b040', '#b88420']
-      : kind === 'sel' ? ['#ffc0c8', '#f07a8a', '#d85a6a', '#a83848'] : ['#b8e08a', '#7cb85a', '#5a9a44', '#3f7a34'];
-    const paper = ['#fffaf0', '#fdf0d8', '#f2dcb4'];
-    R(2, 0, N - 4, N, line); R(0, 2, N, N - 4, line); R(1, 1, N - 2, N - 2, line);   // the line, corners knocked off
-    R(2, 1, N - 4, N - 2, fr[1]); R(1, 2, N - 2, N - 4, fr[1]);
-    R(2, 1, N - 4, 1, fr[0]); R(1, 2, 1, N - 4, fr[0]);                                   // lit top and left
-    R(2, N - 2, N - 4, 1, fr[3]); R(N - 2, 2, 1, N - 4, fr[3]);                           // shaded foot and right
-    R(3, N - 3, N - 6, 1, fr[2]); R(N - 3, 3, 1, N - 6, fr[2]);
-    R(3, 3, N - 6, N - 6, inner);
+    const fr = kind === 'hot' ? ['#e6c887', '#c9a256', '#a88440', '#6e5424']
+      : kind === 'sel' ? ['#b85a50', '#8e3a34', '#722a26', '#4e1a18'] : ['#9a7650', '#7a5838', '#62452b', '#45301d'];
+    const paper = kind === 'hot' ? ['#fbf3dc', '#f3e6c2', '#e2d0a2'] : ['#f6f0e2', '#ece3cf', '#dcd0b4'];
+    R(1, 0, N - 2, N, line); R(0, 1, N, N - 2, line);                                     // the line, corners knocked off
+    R(1, 1, N - 2, N - 2, fr[1]);
+    R(1, 1, N - 2, 1, fr[0]); R(1, 2, 1, N - 3, fr[0]);                                   // lit top and left
+    R(1, N - 2, N - 2, 1, fr[3]); R(N - 2, 2, 1, N - 4, fr[3]);                           // shaded foot and right
+    R(3, 2, 4, 1, fr[2]); R(9, 1, 3, 1, fr[2]); R(2, 8, 1, 3, fr[2]); R(N - 3, 5, 1, 3, fr[2]);   // grain
+    R(3, 3, N - 6, N - 6, inner);                                                          // the brass inlay
+    R(3, 3, N - 6, 1, '#c9a256');
     R(4, 4, N - 8, N - 8, paper[1]);
-    R(4, 4, N - 8, 1, paper[0]); R(4, N - 5, N - 8, 1, paper[2]);
-    // a little pink flower in each corner of the frame
-    for (const [x, y] of [[1, 1], [N - 4, 1], [1, N - 4], [N - 4, N - 4]]) {
-      R(x + 1, y, 1, 1, '#ffb0c0'); R(x, y + 1, 1, 1, '#ffb0c0'); R(x + 2, y + 1, 1, 1, '#ffb0c0'); R(x + 1, y + 2, 1, 1, '#ffb0c0');
-      R(x + 1, y + 1, 1, 1, '#ffe070');
-    }
+    R(4, 4, N - 8, 1, paper[2]); R(4, 5, 1, N - 9, paper[2]); R(5, N - 5, N - 9, 1, paper[0]);
+    // a brass pin in each corner
+    for (const [x, y] of [[1, 1], [N - 2, 1], [1, N - 2], [N - 2, N - 2]]) R(x, y, 1, 1, '#d8b870');
     return c.toDataURL();
   }
   // the little clock under the purse: a sun or a moon, the time, the day and the weather
@@ -341,46 +341,51 @@ const UI = (() => {
   function pieceURL(kind) {
     const P2 = 2, c = document.createElement('canvas');
     const R = (g, x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x * P2, y * P2, w * P2, h * P2); };
-    const OL = '#3b2616';
-    if (kind === 'card' || kind === 'cardhot') {
+    const OL = '#1f150e';
+    if (kind === 'card' || kind === 'cardhot') {                // a linen card on a walnut edge
       const N = 15; c.width = c.height = N * P2; const g = c.getContext('2d');
       const hot = kind === 'cardhot';
-      R(g, 2, 0, N - 4, N, OL); R(g, 0, 2, N, N - 4, OL); R(g, 1, 1, N - 2, N - 2, OL);
-      R(g, 2, 1, N - 4, N - 2, hot ? '#fff0b0' : '#fffaf0'); R(g, 1, 2, N - 2, N - 4, hot ? '#fff0b0' : '#fffaf0');
-      R(g, 2, 2, N - 4, N - 4, hot ? '#fff8d8' : '#fdf0d8');
-      R(g, 2, 1, N - 4, 1, '#ffffff'); R(g, 1, 2, 1, N - 4, '#ffffff');
-      R(g, 2, N - 3, N - 4, 1, hot ? '#f8d060' : '#f2dcb4'); R(g, 2, N - 2, N - 4, 1, hot ? '#e8b040' : '#d8b888');
-      R(g, N - 2, 2, 1, N - 4, hot ? '#e8b040' : '#e8cc9c');
+      R(g, 1, 0, N - 2, N, OL); R(g, 0, 1, N, N - 2, OL);
+      R(g, 1, 1, N - 2, N - 2, hot ? '#c9a256' : '#6a4c32');
+      R(g, 1, 1, N - 2, 1, hot ? '#e6c887' : '#8a6848'); R(g, 1, N - 2, N - 2, 1, hot ? '#8a6a2e' : '#45301d');
+      R(g, 2, 2, N - 4, N - 4, hot ? '#f8f0da' : '#efe7d4');
+      R(g, 2, 2, N - 4, 1, hot ? '#fffaf0' : '#f8f2e4'); R(g, 2, N - 3, N - 4, 1, hot ? '#e2d0a2' : '#d8cbae');
+      R(g, N - 3, 3, 1, N - 6, hot ? '#e8dcbc' : '#e0d5bb');
       return c.toDataURL();
     }
-    if (kind.startsWith('btn')) {
+    if (kind.startsWith('btn')) {                                // brass to buy, moss green to place
       const N = 15; c.width = c.height = N * P2; const g = c.getContext('2d');
-      const col = { btn: ['#fff4c0', '#f8d060', '#d8a830', '#a87818'], btnhot: ['#fffae0', '#ffe070', '#e8b840', '#b88420'],
-        btngo: ['#c8f0a0', '#7cc85a', '#5aa044', '#3a7a2e'], btngohot: ['#e0ffc0', '#90dc6a', '#6ab050', '#3f8a34'] }[kind];
+      const col = { btn: ['#ecd49a', '#c9a256', '#a88440', '#6e5424'], btnhot: ['#f6e2b0', '#d8b468', '#b8924a', '#7a5e2a'],
+        btngo: ['#9ab878', '#6e8e4a', '#56743a', '#3a5226'], btngohot: ['#aac888', '#7e9e58', '#628244', '#40582a'] }[kind];
       R(g, 1, 0, N - 2, N, OL); R(g, 0, 1, N, N - 2, OL);
       R(g, 1, 1, N - 2, N - 2, col[1]);
-      R(g, 1, 1, N - 2, 2, col[0]); R(g, 1, 3, 1, N - 7, col[0]);
-      R(g, 1, N - 5, N - 2, 2, col[2]); R(g, 1, N - 3, N - 2, 2, col[3]);
-      R(g, 3, 2, 3, 1, '#ffffff');
+      R(g, 1, 1, N - 2, 1, col[0]); R(g, 1, 2, 1, N - 6, col[0]);
+      R(g, 1, N - 4, N - 2, 1, col[2]); R(g, 1, N - 3, N - 2, 2, col[3]);
+      R(g, 2, 2, 2, 1, 'rgba(255,255,255,0.55)');
       return c.toDataURL();
     }
-    if (kind === 'track') {                                  // sky over grass, tiling sideways
-      const W = 32, H = 118; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
-      const sky = ['#a8d8f0', '#b8e0f2', '#c8e8f2', '#d8f0f0', '#e4f6ec'];
-      for (let i = 0; i < 5; i++) R(g, 0, i * 16, W, 16, sky[i]);
-      R(g, 0, 80, W, H - 80, '#6aac4a'); R(g, 0, 80, W, 2, '#9ad068'); R(g, 0, 96, W, H - 96, '#5a9a3e'); R(g, 0, 108, W, H - 108, '#4a8a34');
-      for (let x = 0; x < W; x += 3) { const h = 2 + ((x * 7) % 4); R(g, x, 80 - h, 1, h, (x % 2) ? '#7cc05a' : '#5a9a3e'); }
-      for (const [x, y] of [[4, 88], [19, 92], [27, 101], [11, 104]]) { R(g, x, y, 1, 1, '#ffffff'); R(g, x + 1, y, 1, 1, '#f8d040'); }
-      R(g, 6, 20, 8, 2, '#ffffff'); R(g, 4, 22, 13, 2, '#ffffff'); R(g, 21, 44, 6, 2, '#ffffff'); R(g, 19, 46, 10, 1, '#ffffff');
+    if (kind === 'track') {                                  // a dark walnut shelf: planks, grain, a lip at the foot
+      const W = 48, H = 118; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
+      const rnd = Art.rng(7);
+      const pl = ['#3a2819', '#34241a', '#3e2c1c'];
+      for (let x = 0; x < W; x += 16) {
+        R(g, x, 0, 16, H, pl[(x / 16) % 3]);
+        R(g, x, 0, 1, H, '#24180f'); R(g, x + 1, 0, 1, H, '#4a3524');
+        for (let i = 0; i < 9; i++) { const gx = x + 3 + Math.floor(rnd() * 11), gy = Math.floor(rnd() * H), gl = 6 + Math.floor(rnd() * 20); R(g, gx, gy, 1, gl, rnd() < 0.5 ? '#2c1e13' : '#46321f'); }
+        const ky = 20 + Math.floor(rnd() * 70); R(g, x + 6, ky, 3, 2, '#271a10'); R(g, x + 7, ky, 1, 1, '#1a110a');
+      }
+      R(g, 0, 0, W, 3, '#1a110a'); R(g, 0, 3, W, 1, '#2a1c12');                                    // the shadow of the top rail
+      R(g, 0, H - 12, W, 2, '#6a4c32'); R(g, 0, H - 10, W, 1, '#8a6848'); R(g, 0, H - 9, W, 9, '#4e3824'); R(g, 0, H - 2, W, 2, '#2a1c12');   // the shelf lip
       return c.toDataURL();
     }
-    if (kind === 'lawn') {                                   // the round of lawn a building stands on
+    if (kind === 'lawn') {                                   // a stone plinth each building stands on
       const W = 60, H = 16; c.width = W * P2; c.height = H * P2; const g = c.getContext('2d');
       for (let y = 0; y < H; y++) {
-        const half = Math.round(Math.sqrt(Math.max(0, 1 - ((y - 7) / 8) ** 2)) * (W / 2 - 1));
-        R(g, W / 2 - half, y, half * 2, 1, y < 2 ? '#9ad068' : y < 9 ? '#6aac4a' : y < 13 ? '#8a5a34' : '#6a4024');
+        const half = Math.round(Math.sqrt(Math.max(0, 1 - ((y - 6) / 7.5) ** 2)) * (W / 2 - 1));
+        R(g, W / 2 - half, y, half * 2, 1, y < 1 ? '#c8c2b4' : y < 7 ? '#a8a296' : y < 11 ? '#8a8478' : '#6a655b');
       }
-      for (let x = 8; x < W - 8; x += 4) R(g, x, 1 + (x % 3), 1, 2, '#4a8a34');
+      for (const [x, y, w] of [[14, 3, 6], [30, 5, 5], [42, 2, 4], [22, 8, 7], [38, 9, 5]]) R(g, x, y, w, 1, '#948e82');
+      for (const x of [20, 30, 40]) R(g, x, 7, 1, 5, '#77716a');
       return c.toDataURL();
     }
     return '';
@@ -388,7 +393,7 @@ const UI = (() => {
   function pickTool() { }
 
   // ---- "you got a new tool" -------------------------------------------------
-  // A card that drops into the middle of the picture when Momo hands you
+  // A card that drops into the middle of the picture when Mr Biscuit hands you
   // something or the mart starts stocking it. They queue, one at a time.
   const unlockQ = [];
   function unlockCard(key, gift) { unlockQ.push({ key, gift }); if (unlockQ.length === 1) showUnlock(); }
@@ -433,7 +438,7 @@ const UI = (() => {
       el.className = 'chip' + (keys && G.selOffer === k ? ' on' : '');
       el.innerHTML = `${ic(def.icon)}${keys ? `<span class="k">${i}</span>` : ''}<span class="n">${plain + bl}${bl ? `<em>+${bl}</em>` : ''}</span>`;
       el.onclick = (e) => onClick(k, e);
-      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Momo${bl ? '<br><b>blessed</b>' : ''}`);
+      el.onmouseenter = (e) => showTip(e, `<b>${def.name}</b><br>${poopPrice(def.key, 1)} W$ from Mr Biscuit${bl ? '<br><b>blessed</b>' : ''}`);
       el.onmouseleave = hideTip;
       box.appendChild(el);
     }
@@ -452,7 +457,7 @@ const UI = (() => {
     purseT = setTimeout(() => el.classList.remove('ping'), 320);
   }
 
-  // Momo buys the cubes off you at his shed.
+  // Mr Biscuit buys the cubes off you at his shed.
   function refreshRunHUD() { }
   function onRunStart() { }
   function onRunPlay() { }
@@ -631,7 +636,7 @@ const UI = (() => {
     paintPup();
   }
 
-  // Momo buys every cube they leave for his compost heap, and pays more
+  // Mr Biscuit buys every cube they leave for his compost heap, and pays more
   // for a load than for one. The mart counter buys them at the same rate.
   let pawnMode = 'shop';
   function openPawn(mode) { pawnMode = mode || 'shop'; openPanel('panel-pawn'); }

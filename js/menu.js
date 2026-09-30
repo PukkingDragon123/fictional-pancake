@@ -176,32 +176,32 @@ const Menu = (() => {
   // an icon on its own darker plate, and the words beside it. It lifts under the pointer.
   function menuButton(g, b, label, sub, icon, kind) {
     const hot = hover === b.id;
-    const C = kind === 'go' ? ['#a8e080', '#7cc85a', '#4f9a3c', '#2f6a28', '#fffaf0'] : ['#fffaf0', '#fdf0d8', '#e8d0a4', '#c8a878', '#4a3222'];
+    const C = kind === 'go' ? ['#9ab878', '#6e8e4a', '#56743a', '#3a5226', '#f6f0e2'] : ['#f6f0e2', '#ece3cf', '#d8cbae', '#b8a882', '#2e241a'];
     const lift = hot ? -2 : 0, x = b.x, y = b.y + lift, w = b.w, h = b.h;
     const R = (xx, yy, ww, hh, c) => { g.fillStyle = c; g.fillRect(Math.round(xx), Math.round(yy), Math.round(ww), Math.round(hh)); };
     R(x + 3, b.y + 5, w, h, 'rgba(40,30,10,0.35)');                       // its shadow
-    R(x + 2, y, w - 4, h, '#3b2616'); R(x, y + 2, w, h - 4, '#3b2616'); R(x + 1, y + 1, w - 2, h - 2, '#3b2616');
-    R(x + 2, y + 2, w - 4, h - 4, hot ? (kind === 'go' ? '#90dc6a' : '#fff4c8') : C[1]);
+    R(x + 2, y, w - 4, h, '#1f150e'); R(x, y + 2, w, h - 4, '#1f150e'); R(x + 1, y + 1, w - 2, h - 2, '#1f150e');
+    R(x + 2, y + 2, w - 4, h - 4, hot ? (kind === 'go' ? '#7e9e58' : '#f8f0da') : C[1]);
     R(x + 2, y + 2, w - 4, 2, C[0]); R(x + 2, y + h - 6, w - 4, 2, C[2]); R(x + 2, y + h - 4, w - 4, 2, C[3]);
     // the icon plate
     const ps = h - 10;
-    R(x + 5, y + 4, ps, ps, kind === 'go' ? '#3f7a34' : '#e8d0a4'); R(x + 5, y + 4, ps, 1, kind === 'go' ? '#5a9a44' : '#fffaf0');
+    R(x + 5, y + 4, ps, ps, kind === 'go' ? '#3a5226' : '#d8cbae'); R(x + 5, y + 4, ps, 1, kind === 'go' ? '#56743a' : '#f6f0e2');
     Icons.blit(g, icon, x + 5 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, y + 4 + (ps - 16 * (ps > 26 ? 1.5 : 1)) / 2, ps > 26 ? 1.5 : 1);
     const tx = x + 10 + ps + (w - 14 - ps) / 2;
     const sc = h > 40 ? 2 : 2;
     const ty = y + (sub ? 7 : Math.round((h - 4 - sc * 7) / 2));
-    if (kind === 'go') Font.draw(g, label, tx + 1, ty + 1, { scale: sc, color: '#2f6a28', align: 'center' });
+    if (kind === 'go') Font.draw(g, label, tx + 1, ty + 1, { scale: sc, color: '#1f2a12', align: 'center' });
     Font.draw(g, label, tx, ty, { scale: sc, color: C[4], align: 'center' });
-    if (sub) Font.draw(g, sub, tx, ty + sc * 7 + 4, { scale: 1, color: kind === 'go' ? '#e8ffd8' : Kit.C.ink2, align: 'center' });
+    if (sub) Font.draw(g, sub, tx, ty + sc * 7 + 4, { scale: 1, color: kind === 'go' ? '#dfe6cc' : Kit.C.ink2, align: 'center' });
     if (hot) { R(x + w - 12, y + 4, 2, 2, '#ffffff'); R(x + w - 10, y + 6, 1, 1, '#ffffff'); }
   }
   function drawHome(g) {
     buttons = [];
     // the name, big and bouncy, with a berry ribbon under it
-    logo(g, 'WOMBAT', 214, 20, 5, '#ffe08a', '#f0a040', '#4a1e0e', 0);
-    logo(g, 'FARM', 214, 64, 5, '#c8f08a', '#6aa84a', '#1c3a12', 1.6);
+    logo(g, 'WOMBAT', 214, 20, 5, '#efe0b8', '#c9a256', '#1f150e', 0);
+    logo(g, 'FARM', 214, 64, 5, '#b8c89a', '#6e8a4e', '#141c0c', 1.6);
     const sub = 'a cozy little farm in the bush', sw = Font.width(sub, 1) + 20;
-    Kit.tab(g, 214 - sw / 2, 110, sw, 15, sub, { col: '#f07a8a' });
+    Kit.tab(g, 214 - sw / 2, 110, sw, 15, sub, { col: '#62452b' });
     const sl = (typeof Main !== 'undefined' && Main.slotList) ? Main.slotList()[0] : null;
     const bx = 438, bw = 180;
     const play = { id: 'enter', x: bx, y: 110, w: bw, h: 50 };
@@ -212,7 +212,7 @@ const Menu = (() => {
       hasSave && sl && !sl.empty ? `day ${sl.day || 1} - ${sl.wombats} ${sl.wombats === 1 ? 'wombat' : 'wombats'}` : 'a wombat is waiting', 'wombat', 'go');
     menuButton(g, set, 'SETTINGS', null, 'gear');
     menuButton(g, help, 'HOW TO PLAY', null, 'heart');
-    // Momo, waving you in from beside the buttons
+    // Mr Biscuit, waving you in from beside the buttons
     if (typeof Sprites !== 'undefined') {
       Sprites.setFace('happy');
       const img = Sprites.jim(Math.floor(t * 6), 'wave');
@@ -239,7 +239,7 @@ const Menu = (() => {
   // under the buttons that changes every time you come back.
   const RUMOURS = [
     'wombats sleep sixteen hours a day. goals.',
-    'Momo says the pumpkins have never been bigger',
+    'Mr Biscuit says the pumpkins have never been bigger',
     'the mart shuts at six but Shaz never leaves',
     'a wombat can dig a whole burrow in one night',
     'Groot grows the best carrots in the district',
@@ -251,11 +251,11 @@ const Menu = (() => {
   ];
   let rumour = 0;
   const HELP = [
-    ['t_drag', 'Start with your hands', 'Momo gives you her old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
+    ['t_drag', 'Start with your hands', 'Mr Biscuit gives you his old sickle. Everything else you unlock by doing jobs, then buy at Wombat Mart.'],
     ['t_sickle', 'Tidy the garden', 'Cut the weeds, have the ants take the old logs, and sow grass. A tidy patch brings a wombat.'],
     ['t_hoe', 'Grow something', 'Hoe a bed, sow seed on it, water it, and pick it with the hand when it glows.'],
     ['t_food', 'Feed a wombat', 'Put a bowl down. She eats, has a wander, and leaves a little cube behind.'],
-    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Momo.'],
+    ['t_scoop', 'Cubes are fertiliser', 'Spread one on a bed with the poo scoop and it grows twice as fast. Or sell them to Mr Biscuit.'],
     ['t_shovel', 'Shape the land', 'Hold to dig down, right-click to heap up. Water a hole and it fills into a pond or a creek.'],
   ];
 

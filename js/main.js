@@ -71,7 +71,7 @@ const Main = (() => {
         s.owned = { drag: true };
         for (const t of TOOL_SHOP) s.owned[t.key] = true;
       }
-      // the tutorial grew a first step (meeting Momo) and tools that unlock as you go
+      // the tutorial grew a first step (meeting Mr Biscuit) and tools that unlock as you go
       if (s.tutorialV !== 2) {
         s.tutorialV = 2;
         s.unlocked = s.unlocked || {};
@@ -89,7 +89,7 @@ const Main = (() => {
   function openingBeats() {
     if (!G || G.seen) return;
     G.seen = true;
-    FX.title('WOMBAT FARM', { size: 20, color: PAL.gold3, dur: 2.6, style: 'slam', sub: 'a cozy little grove' });
+    FX.title('WOMBAT FARM', { size: 20, color: '#efe0b8', dur: 2.6, style: 'fade', sub: 'a little grove in the bush' });
   }
   function reset() { Store.clear(KEY()).then(() => location.reload(), () => location.reload()); }
   // ---- the three groves ---------------------------------------------------

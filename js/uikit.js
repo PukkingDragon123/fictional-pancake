@@ -7,15 +7,15 @@
 // Nothing is round.
 const Kit = (() => {
   const C = {
-    line: '#3b2616', inner: '#2f5a2a',
-    frameL: '#b8e08a', frame: '#7cb85a', frameM: '#5a9a44', frameD: '#3f7a34',
-    paper: '#fdf0d8', paperL: '#fffaf0', paperD: '#f2dcb4',
-    ink: '#4a3222', ink2: '#8a6a4c',
-    // the accents: grass green, sunflower, tomato, sky
-    mint: '#6aa84a', mintL: '#a8d880', mintD: '#3f7a32', mintDD: '#264e20', mintW: '#fff3d4',
-    sun: '#f0c048', sunL: '#fbe8a0', sunD: '#b8842a',
-    coral: '#d45a40', coralD: '#983224', sky: '#5a9ad0',
-    shadow: 'rgba(40,30,10,0.3)',
+    line: '#1f150e', inner: '#8a6a36',
+    frameL: '#9a7650', frame: '#7a5838', frameM: '#62452b', frameD: '#45301d',
+    paper: '#ece3cf', paperL: '#f6f0e2', paperD: '#dcd0b4',
+    ink: '#2e241a', ink2: '#6e5e48',
+    // the accents: moss, brass, brick, slate
+    mint: '#5a7040', mintL: '#8a9e6a', mintD: '#3e5228', mintDD: '#2a3a1c', mintW: '#f3ead2',
+    sun: '#c9a256', sunL: '#e6d4a0', sunD: '#8a6a2e',
+    coral: '#9a4a3a', coralD: '#6e2a22', sky: '#4e6e88',
+    shadow: 'rgba(20,12,6,0.35)',
   };
   const R = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
   // a rectangle with a single pixel knocked off each corner: the only

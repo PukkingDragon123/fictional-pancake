@@ -35,11 +35,12 @@ void main(){
   c += b * (0.3 + u_night * 0.5) * (1.0 - l0);
   // the grade: shadows toward violet, light toward gold
   float l = dot(c, vec3(0.299, 0.587, 0.114));
-  vec3 shadow = c * vec3(0.93, 0.94, 1.07) + vec3(0.012, 0.0, 0.03);
+  vec3 shadow = c * vec3(0.9, 0.95, 1.02) + vec3(0.0, 0.006, 0.014);
   vec3 lit = c * vec3(1.05, 1.02, 0.95);
   c = mix(shadow, lit, smoothstep(0.18, 0.78, l));
-  c = mix(vec3(l), c, 1.08);                                    // a touch more colour
-  c = (c - 0.5) * 1.04 + 0.5;
+  c = mix(vec3(l), c, 0.82);                                    // real-world colour: pulled back from cartoon
+  c = mix(c, c * vec3(1.03, 0.99, 0.9), 0.5);                  // a sun-dried, earthy warmth
+  c = (c - 0.5) * 1.07 + 0.5;                                   // and a little more depth
   // texture: a fine grain on every game pixel and a coarser weave under it
   float g1 = hash(px) - 0.5, g2 = hash(floor(px / 3.0) + 17.0) - 0.5, g3 = hash(floor(px / 7.0) + 3.0) - 0.5;
   c *= 1.0 + g1 * 0.018 + g2 * 0.012 + g3 * 0.008;
